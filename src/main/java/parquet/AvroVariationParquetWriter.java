@@ -1,0 +1,87 @@
+package parquet;
+
+import avro.PosRecord;
+import avro.SampleRecord;
+import org.apache.avro.Schema;
+import org.apache.hadoop.fs.Path;
+import org.apache.parquet.avro.AvroParquetWriter;
+import org.apache.parquet.avro.AvroSchemaConverter;
+import org.apache.parquet.avro.AvroWriteSupport;
+import org.apache.parquet.hadoop.ParquetWriter;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
+import org.apache.parquet.schema.MessageType;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by rct66 on 5/17/16.
+ */
+public class AvroVariationParquetWriter {
+    ParquetWriter parquetWriter;
+
+    public AvroVariationParquetWriter(String path, int blockSize, int pageSize){
+        // load your Avro schema
+
+        Schema avroSchema = null;
+        try {
+            avroSchema = new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream("record.avsc"));
+
+            // generate the corresponding Parquet schema
+            MessageType parquetSchema = new AvroSchemaConverter().convert(avroSchema);
+
+            // create a WriteSupport object to serialize your Avro objects
+            AvroWriteSupport writeSupport = new AvroWriteSupport(parquetSchema, avroSchema);
+
+            // choose compression scheme
+            //compressionCodecName = CompressionCodecName.SNAPPY;
+
+
+            Path outputPath = new Path(path);
+
+            // the ParquetWriter object that will consume Avro GenericRecords
+            //ParquetWriter parquetWriter = new ParquetWriter(outputPath,
+            //       writeSupport, compressionCodecName, blockSize, pageSize);
+            parquetWriter = new AvroParquetWriter(outputPath,
+                    avroSchema, CompressionCodecName.UNCOMPRESSED, blockSize, pageSize);
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void writeRecord(List<int[][]> samplesCounts, int referenceIndex, int position) {
+
+        PosRecord pos = new PosRecord();
+        pos.setPosition(position);
+        pos.setRefIdx(referenceIndex);
+        List<SampleRecord> samples = new ArrayList<SampleRecord>();
+        for (int[][] countsArr : samplesCounts){
+            SampleRecord rec = new SampleRecord();
+            List<Integer> countsList = new ArrayList<Integer>();
+            for(int j=0;j<2;j++)
+                for(int k=0;k<5;k++)
+                    countsList.add(countsArr[j][k]);
+            rec.setCounts(countsList);
+            samples.add(rec);
+        }
+        pos.setSamples(samples);
+        try {
+            parquetWriter.write(pos);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public void close() {
+        try {
+            parquetWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+}
