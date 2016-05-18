@@ -2,14 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="855aaa9c-c92d-493b-ab30-e7e0f3acf679" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_parquet_parquet_tools_1_8_2_SNAPSHOT.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/avro/PosRecord.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/avro/SampleRecord.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/parquet/AvroVariationParquetWriter.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/parquet/ParquetPrinter.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/VariationAnalysis.iml" afterPath="$PROJECT_DIR$/VariationAnalysis.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
     </list>
     <ignored path="Variation.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -658,7 +651,14 @@
       <option name="project" value="LOCAL" />
       <updated>1463522429477</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="adjusted package organization + naming according to manuelle's suggestion. Parquet printer is implemented, now to test it.">
+      <created>1463584344700</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1463584344700</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TodoView">
@@ -712,7 +712,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="maven build setup, writer transferred/implemented. printer in the works." />
-    <option name="LAST_COMMIT_MESSAGE" value="maven build setup, writer transferred/implemented. printer in the works." />
+    <MESSAGE value="adjusted package organization + naming according to manuelle's suggestion. Parquet printer is implemented, now to test it." />
+    <option name="LAST_COMMIT_MESSAGE" value="adjusted package organization + naming according to manuelle's suggestion. Parquet printer is implemented, now to test it." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
