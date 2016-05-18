@@ -48,7 +48,7 @@
     <orderEntry type="library" name="Maven: hsqldb:hsqldb:1.8.0.10" level="project" />
     <orderEntry type="library" name="Maven: oro:oro:2.0.8" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.jdt:core:3.1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.parquet:parquet-tools:1.8.2-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.parquet:parquet-tools:1.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.parquet:parquet-hadoop:1.7.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.parquet:parquet-column:1.7.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.parquet:parquet-common:1.7.0" level="project" />
