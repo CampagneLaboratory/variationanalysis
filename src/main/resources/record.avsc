@@ -11,6 +11,10 @@
       "type": "int"
     },
     {
+      "name": "mutated",
+      "type": "boolean"
+    },
+    {
       "name": "samples",
       "type": {
         "type": "array",
