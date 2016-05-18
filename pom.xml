@@ -62,7 +62,7 @@
                         </goals>
                         <configuration>
                             <sourceDirectory>${project.basedir}/src/main/resources/</sourceDirectory>
-                            <outputDirectory>${project.basedir}/src/main/java/edu/cornell/med/icb/varanalysis/format</outputDirectory>
+                            <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

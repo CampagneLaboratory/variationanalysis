@@ -1,5 +1,6 @@
 {
   "name": "PosRecord",
+  "namespace": "edu.cornell.med.icb.varanalysis.format",
   "type": "record",
   "fields": [
     {
@@ -21,6 +22,7 @@
         "items": {
           "type": "record",
           "name": "SampleRecord",
+          "namespace": "edu.cornell.med.icb.varanalysis.format",
           "fields": [
             {
               "name": "counts",
