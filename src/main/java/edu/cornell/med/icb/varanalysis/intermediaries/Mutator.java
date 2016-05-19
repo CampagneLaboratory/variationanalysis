@@ -8,7 +8,7 @@ import edu.cornell.med.icb.varanalysis.storage.AvroVariationParquetWriter;
  *
  * the mutator object iterates over a parquet file and creates an additional mutated copy of every record.
  */
-public class Mutator extends Intermediary{
+public class Mutator{
 
     //min fraction of bases mutated at a record
     double deltaSmall = 0.05;
@@ -18,9 +18,10 @@ public class Mutator extends Intermediary{
     double zygHeuristic = 0.1;
 
 
-    @Override
-    void Process(AvroVariationParquetReader reader, AvroVariationParquetWriter writer) {
 
+    void Process(String in, String out, int blockSize, int pageSize) {
+        AvroVariationParquetReader reader = new AvroVariationParquetReader(in);
+        AvroVariationParquetWriter writer = new AvroVariationParquetWriter(out,blockSize,pageSize);
     }
 
     int[] Mutate(int[] forward, int[] backward)
