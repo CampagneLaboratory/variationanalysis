@@ -49,8 +49,6 @@ public class AvroVariationParquetWriter {
             Path outputPath = new Path(path);
 
             // the ParquetWriter object that will consume Avro GenericRecords
-            //ParquetWriter parquetWriter = new ParquetWriter(outputPath,
-            //       writeSupport, compressionCodecName, blockSize, pageSize);
             parquetWriter = new AvroParquetWriter(outputPath,
                     avroSchema, CompressionCodecName.UNCOMPRESSED, blockSize, pageSize);
 

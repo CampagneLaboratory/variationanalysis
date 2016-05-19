@@ -11,7 +11,6 @@ import edu.cornell.med.icb.varanalysis.storage.AvroVariationParquetWriter;
 public class Randomizer extends Intermediary{
 
 
-    @Override
     void execute(String inPath, String outPath, int blockSize, int pageSize) {
         //TODO
     }
