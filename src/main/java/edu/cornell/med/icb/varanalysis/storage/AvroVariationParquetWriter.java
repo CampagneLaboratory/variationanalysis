@@ -60,6 +60,15 @@ public class AvroVariationParquetWriter {
         }
     }
 
+
+    public void writeRecord(PosRecord pos){
+        try {
+            parquetWriter.write(pos);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void writeRecord(List<int[][]> samplesCounts, int referenceIndex, int position, boolean mutated) {
 
         PosRecord pos = new PosRecord();
@@ -77,11 +86,7 @@ public class AvroVariationParquetWriter {
             samples.add(rec);
         }
         pos.setSamples(samples);
-        try {
-            parquetWriter.write(pos);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        writeRecord(pos);
 
     }
 

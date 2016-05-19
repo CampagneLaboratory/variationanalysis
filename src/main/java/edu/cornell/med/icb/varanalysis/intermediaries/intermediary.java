@@ -20,11 +20,11 @@ public abstract class Intermediary {
     int blockSize = 256 * 1024 * 1024;
     int pageSize = 64 * 1024;
 
-    public void execute(String in, String out){
-        execute(in,out,blockSize,pageSize);
+    void execute(String inPath, String outPath){
+        execute(inPath,outPath,blockSize,pageSize);
     }
 
-    public abstract void execute(String in, String out, int blockSize, int pageSize);
+    abstract void execute(String inPath, String outPath, int blockSize, int pageSize);
 
 
 }

@@ -12,7 +12,7 @@ public class Randomizer extends Intermediary{
 
 
     @Override
-    void Process(AvroVariationParquetReader reader, AvroVariationParquetWriter writer) {
-
+    void execute(String inPath, String outPath, int blockSize, int pageSize) {
+        //TODO
     }
 }
