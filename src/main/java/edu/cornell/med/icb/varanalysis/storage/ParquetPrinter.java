@@ -25,7 +25,7 @@ public class ParquetPrinter {
     }
 
     private void recordPrinter(PosRecord prec){
-        System.out.println("\n" + prec.getPosition() + "\t" + prec.getRefIdx() + prec.getMutated());
+        System.out.println("\n" + prec.getPosition() + "\t" + prec.getRefIdx() + "\t" + prec.getMutated());
         List<SampleRecord> srecs = prec.getSamples();
         for (SampleRecord srec : srecs) {
             System.out.println(srec.getCounts().toString());
