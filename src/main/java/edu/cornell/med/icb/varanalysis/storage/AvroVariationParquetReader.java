@@ -63,6 +63,7 @@ public class AvroVariationParquetReader {
             PosRecord specPos = new PosRecord();
             specPos.setPosition((Integer)pos.get("position"));
             specPos.setRefIdx((Integer)pos.get("refIdx"));
+            specPos.setMutated((Boolean)pos.get("mutated"));
             GenericData.Array<GenericRecord> samples = (GenericData.Array<GenericRecord>)pos.get("samples");
             List<SampleRecord> sampleList= new ArrayList<SampleRecord>();
             for (GenericRecord sampleG : samples){

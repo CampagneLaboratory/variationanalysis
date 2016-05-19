@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="855aaa9c-c92d-493b-ab30-e7e0f3acf679" name="Default" comment="included files missing from last commit">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/format/PosRecord.class" afterPath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/format/PosRecord.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/format/SampleRecord.class" afterPath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/format/SampleRecord.class" />
+    <list default="true" id="855aaa9c-c92d-493b-ab30-e7e0f3acf679" name="Default" comment="">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/PosRecord$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/PosRecord$Builder.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/PosRecord.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/SampleRecord$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/SampleRecord$Builder.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/SampleRecord.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/avro/PosRecord$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/avro/PosRecord$Builder.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/avro/PosRecord.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/avro/SampleRecord$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/avro/SampleRecord$Builder.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/avro/SampleRecord.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/parquet/AvroVariationParquetReader.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/parquet/AvroVariationParquetWriter.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/parquet/ParquetPrinter.class" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetReader.class" afterPath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetReader.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetWriter.class" afterPath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetWriter.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/storage/ParquetPrinter.class" afterPath="$PROJECT_DIR$/target/classes/edu/cornell/med/icb/varanalysis/storage/ParquetPrinter.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/var-analysis-1.0-SNAPSHOT-jar-with-dependencies.jar" afterPath="$PROJECT_DIR$/target/var-analysis-1.0-SNAPSHOT-jar-with-dependencies.jar" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/var-analysis-1.0-SNAPSHOT.jar" afterPath="$PROJECT_DIR$/target/var-analysis-1.0-SNAPSHOT.jar" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/format/PosRecord.java" afterPath="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/format/PosRecord.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/format/SampleRecord.java" afterPath="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/format/SampleRecord.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/record.avsc" afterPath="$PROJECT_DIR$/src/main/resources/record.avsc" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetReader.java" afterPath="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetReader.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetWriter.java" afterPath="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetWriter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/ParquetPrinter.java" afterPath="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/ParquetPrinter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/maven-archiver/pom.properties" afterPath="$PROJECT_DIR$/target/maven-archiver/pom.properties" />
     </list>
     <ignored path="Variation.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -32,12 +49,12 @@
     <favorites_list name="Variation" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="46" column="40" selection-start-line="46" selection-start-column="40" selection-end-line="46" selection-end-column="40" />
+            <state relative-caret-position="285">
+              <caret line="19" column="17" selection-start-line="19" selection-start-column="17" selection-end-line="19" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -53,14 +70,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AvroVariationParquetWriter.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="AvroVariationParquetWriter.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetWriter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="16" column="3" selection-start-line="16" selection-start-column="3" selection-end-line="16" selection-end-column="3" />
+            <state relative-caret-position="480">
+              <caret line="43" column="0" selection-start-line="43" selection-start-column="0" selection-end-line="43" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#2633#2642#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -69,12 +85,10 @@
       <file leaf-file-name="ParquetPrinter.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/ParquetPrinter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="584">
-              <caret line="39" column="16" selection-start-line="39" selection-start-column="16" selection-end-line="39" selection-end-column="16" />
+            <state relative-caret-position="480">
+              <caret line="34" column="25" selection-start-line="34" selection-start-column="25" selection-end-line="34" selection-end-column="25" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#460#461#0" expanded="true" />
-                <element signature="e#492#493#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -93,11 +107,12 @@
       <file leaf-file-name="AvroVariationParquetReader.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetReader.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="20" column="90" selection-start-line="20" selection-start-column="90" selection-end-line="20" selection-end-column="90" />
+            <state relative-caret-position="539">
+              <caret line="63" column="13" selection-start-line="63" selection-start-column="13" selection-end-line="63" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#2206#2215#0" expanded="true" />
+                <element signature="e#2084#2098#0" expanded="true" />
+                <element signature="e#2267#2276#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -106,9 +121,83 @@
       <file leaf-file-name="GenericData.java" pinned="false" current-in-tab="false">
         <entry file="jar://$MAVEN_REPOSITORY$/org/apache/avro/avro/1.8.0/avro-1.8.0-sources.jar!/org/apache/avro/generic/GenericData.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3736">
+            <state relative-caret-position="2610">
               <caret line="232" column="22" selection-start-line="232" selection-start-column="22" selection-end-line="232" selection-end-column="22" />
-              <folding />
+              <folding>
+                <element signature="n#!!doc" expanded="false" />
+                <element signature="imports" expanded="false" />
+                <element signature="e#3198#3199#0" expanded="false" />
+                <element signature="e#3218#3219#0" expanded="false" />
+                <element signature="e#3635#3658#0" expanded="false" />
+                <element signature="e#3761#3799#0" expanded="false" />
+                <element signature="e#4375#4398#0" expanded="false" />
+                <element signature="e#8181#8182#0" expanded="false" />
+                <element signature="e#8242#8243#0" expanded="false" />
+                <element signature="e#8292#8293#0" expanded="false" />
+                <element signature="e#8358#8359#0" expanded="false" />
+                <element signature="e#8399#8400#0" expanded="false" />
+                <element signature="e#8452#8453#0" expanded="false" />
+                <element signature="e#11503#11504#0" expanded="false" />
+                <element signature="e#11575#11576#0" expanded="false" />
+                <element signature="e#11638#11639#0" expanded="false" />
+                <element signature="e#11714#11715#0" expanded="false" />
+                <element signature="e#14121#14122#0" expanded="false" />
+                <element signature="e#14166#14167#0" expanded="false" />
+                <element signature="e#14603#14604#0" expanded="false" />
+                <element signature="e#14669#14670#0" expanded="false" />
+                <element signature="e#14792#14793#0" expanded="false" />
+                <element signature="e#14853#14854#0" expanded="false" />
+                <element signature="e#15167#15168#0" expanded="false" />
+                <element signature="e#15220#15221#0" expanded="false" />
+                <element signature="e#22794#22795#0" expanded="false" />
+                <element signature="e#22844#22845#0" expanded="false" />
+                <element signature="e#23097#23098#0" expanded="false" />
+                <element signature="e#23151#23152#0" expanded="false" />
+                <element signature="e#23540#23541#0" expanded="false" />
+                <element signature="e#23570#23571#0" expanded="false" />
+                <element signature="e#23708#23709#0" expanded="false" />
+                <element signature="e#23752#23753#0" expanded="false" />
+                <element signature="e#27302#27303#0" expanded="false" />
+                <element signature="e#27346#27347#0" expanded="false" />
+                <element signature="e#27459#27460#0" expanded="false" />
+                <element signature="e#27493#27494#0" expanded="false" />
+                <element signature="e#27608#27609#0" expanded="false" />
+                <element signature="e#27655#27656#0" expanded="false" />
+                <element signature="e#27874#27875#0" expanded="false" />
+                <element signature="e#27929#27930#0" expanded="false" />
+                <element signature="e#28042#28043#0" expanded="false" />
+                <element signature="e#28093#28094#0" expanded="false" />
+                <element signature="e#28305#28306#0" expanded="false" />
+                <element signature="e#28357#28358#0" expanded="false" />
+                <element signature="e#28469#28470#0" expanded="false" />
+                <element signature="e#28506#28507#0" expanded="false" />
+                <element signature="e#28622#28623#0" expanded="false" />
+                <element signature="e#28668#28669#0" expanded="false" />
+                <element signature="e#28883#28884#0" expanded="false" />
+                <element signature="e#28937#28938#0" expanded="false" />
+                <element signature="e#29052#29053#0" expanded="false" />
+                <element signature="e#29098#29099#0" expanded="false" />
+                <element signature="e#29212#29213#0" expanded="false" />
+                <element signature="e#29256#29257#0" expanded="false" />
+                <element signature="e#29382#29383#0" expanded="false" />
+                <element signature="e#29423#29424#0" expanded="false" />
+                <element signature="e#29545#29546#0" expanded="false" />
+                <element signature="e#29583#29584#0" expanded="false" />
+                <element signature="e#29706#29707#0" expanded="false" />
+                <element signature="e#29745#29746#0" expanded="false" />
+                <element signature="e#29869#29870#0" expanded="false" />
+                <element signature="e#29909#29910#0" expanded="false" />
+                <element signature="e#30034#30035#0" expanded="false" />
+                <element signature="e#30075#30076#0" expanded="false" />
+                <element signature="e#31284#31285#0" expanded="false" />
+                <element signature="e#31329#31330#0" expanded="false" />
+                <element signature="e#31622#31623#0" expanded="false" />
+                <element signature="e#31664#31665#0" expanded="false" />
+                <element signature="e#35908#35916#0" expanded="false" />
+                <element signature="e#37046#37068#0" expanded="false" />
+                <element signature="e#39633#39634#0" expanded="false" />
+                <element signature="e#39680#39681#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -116,19 +205,53 @@
       <file leaf-file-name="ParquetReader.class" pinned="false" current-in-tab="false">
         <entry file="jar://$MAVEN_REPOSITORY$/org/apache/parquet/parquet-tools/1.8.2-SNAPSHOT/parquet-tools-1.8.2-SNAPSHOT.jar!/org/apache/parquet/hadoop/ParquetReader.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="335">
+            <state relative-caret-position="1140">
               <caret line="95" column="42" selection-start-line="95" selection-start-column="41" selection-end-line="95" selection-end-column="42" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PosRecord.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="PosRecord.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/format/PosRecord.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="13" column="21" selection-start-line="13" selection-start-column="21" selection-end-line="13" selection-end-column="21" />
-              <folding />
+            <state relative-caret-position="510">
+              <caret line="38" column="13" selection-start-line="38" selection-start-column="13" selection-end-line="38" selection-end-column="13" />
+              <folding>
+                <element signature="n#!!doc" expanded="false" />
+                <element signature="e#2761#2762#0" expanded="false" />
+                <element signature="e#2784#2785#0" expanded="false" />
+                <element signature="e#2927#2928#0" expanded="false" />
+                <element signature="e#2956#2957#0" expanded="false" />
+                <element signature="e#3057#3058#0" expanded="false" />
+                <element signature="e#3082#3083#0" expanded="false" />
+                <element signature="e#3229#3230#0" expanded="false" />
+                <element signature="e#3260#3261#0" expanded="false" />
+                <element signature="e#3359#3360#0" expanded="false" />
+                <element signature="e#3383#3384#0" expanded="false" />
+                <element signature="e#3528#3529#0" expanded="false" />
+                <element signature="e#3558#3559#0" expanded="false" />
+                <element signature="e#3707#3708#0" expanded="false" />
+                <element signature="e#3731#3732#0" expanded="false" />
+                <element signature="e#5506#5507#0" expanded="false" />
+                <element signature="e#5583#5584#0" expanded="false" />
+                <element signature="e#7649#7650#0" expanded="false" />
+                <element signature="e#7676#7677#0" expanded="false" />
+                <element signature="e#8208#8209#0" expanded="false" />
+                <element signature="e#8247#8248#0" expanded="false" />
+                <element signature="e#8625#8626#0" expanded="false" />
+                <element signature="e#8654#8655#0" expanded="false" />
+                <element signature="e#9200#9201#0" expanded="false" />
+                <element signature="e#9239#9240#0" expanded="false" />
+                <element signature="e#9619#9620#0" expanded="false" />
+                <element signature="e#9647#9648#0" expanded="false" />
+                <element signature="e#10190#10191#0" expanded="false" />
+                <element signature="e#10229#10230#0" expanded="false" />
+                <element signature="e#10657#10658#0" expanded="false" />
+                <element signature="e#10685#10686#0" expanded="false" />
+                <element signature="e#11288#11289#0" expanded="false" />
+                <element signature="e#11327#11328#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -161,12 +284,14 @@
         <option value="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/parquet/AvroVariationParquetReader.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/parquet/AvroVariationParquetWriter.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/parquet/ParquetPrinter.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/ParquetPrinter.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/mutation/Mutator.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/format/PosRecord.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/format/SampleRecord.java" />
-        <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/src/main/resources/record.avsc" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetReader.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/ParquetPrinter.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetWriter.java" />
       </list>
     </option>
   </component>
@@ -239,9 +364,9 @@
     </treeState>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="12" />
+    <option name="x" value="9" />
     <option name="y" value="23" />
-    <option name="width" value="2580" />
+    <option name="width" value="1966" />
     <option name="height" value="1337" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
@@ -269,19 +394,15 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="Scope" />
       <pane id="PackagesPane" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
             <PATH_ELEMENT>
               <option name="myItemId" value="Variation" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="External Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -319,10 +440,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="test" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -451,14 +568,15 @@
     <property name="project.structure.side.proportion" value="0.2" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/main/resources" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/main/resources" />
+      <recent name="$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/format" />
       <recent name="$PROJECT_DIR$/src/avro" />
       <recent name="$PROJECT_DIR$/src/main/java" />
       <recent name="$PROJECT_DIR$/src" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/resources" />
     </key>
   </component>
   <component name="RunManager" selected="JAR Application.var-analysis-1.0-SNAPSHOT-jar-with-dependencies.jar">
@@ -814,7 +932,14 @@
       <option name="project" value="LOCAL" />
       <updated>1463592279061</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="package/namespace generated code working">
+      <created>1463606001678</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1463606001678</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TodoView">
@@ -827,32 +952,32 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="12" y="23" width="2580" height="1337" extended-state="0" />
-    <editor active="false" />
+    <frame x="9" y="23" width="1966" height="1337" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32931727" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32931727" sideWeight="0.5114263" order="0" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14578408" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32931727" sideWeight="0.48857367" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3759036" sideWeight="0.6481481" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37530074" sideWeight="0.3601871" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.07952183" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32931727" sideWeight="0.48857367" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37530074" sideWeight="0.6398129" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32931727" sideWeight="0.4921198" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21631205" sideWeight="0.5" order="4" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28534302" sideWeight="0.5" order="4" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24977252" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.4964539" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="combo" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -871,7 +996,8 @@
     <MESSAGE value="adjusted package organization + naming according to manuelle's suggestion. Parquet printer is implemented, now to test it." />
     <MESSAGE value="adding missing unrevisioned files from last commit" />
     <MESSAGE value="parquet printer generic deepcopy attempted. committing for historical reference, as alternative classcastexception workaround will be attempted" />
-    <option name="LAST_COMMIT_MESSAGE" value="parquet printer generic deepcopy attempted. committing for historical reference, as alternative classcastexception workaround will be attempted" />
+    <MESSAGE value="package/namespace generated code working" />
+    <option name="LAST_COMMIT_MESSAGE" value="package/namespace generated code working" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -882,6 +1008,194 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="690">
+          <caret line="46" column="40" selection-start-line="46" selection-start-column="40" selection-end-line="46" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/record.avsc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="19" selection-start-line="11" selection-start-column="19" selection-end-line="11" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/ParquetPrinter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="34" column="25" selection-start-line="34" selection-start-column="25" selection-end-line="34" selection-end-column="25" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/mutation/Mutator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="94" selection-start-line="5" selection-start-column="94" selection-end-line="5" selection-end-column="94" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="795">
+          <caret line="63" column="13" selection-start-line="63" selection-start-column="13" selection-end-line="63" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2084#2098#0" expanded="true" />
+            <element signature="e#2267#2276#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/avro/avro/1.8.0/avro-1.8.0-sources.jar!/org/apache/avro/generic/GenericData.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2610">
+          <caret line="232" column="22" selection-start-line="232" selection-start-column="22" selection-end-line="232" selection-end-column="22" />
+          <folding>
+            <element signature="n#!!doc" expanded="false" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#3198#3199#0" expanded="false" />
+            <element signature="e#3218#3219#0" expanded="false" />
+            <element signature="e#3635#3658#0" expanded="false" />
+            <element signature="e#3761#3799#0" expanded="false" />
+            <element signature="e#4375#4398#0" expanded="false" />
+            <element signature="e#8181#8182#0" expanded="false" />
+            <element signature="e#8242#8243#0" expanded="false" />
+            <element signature="e#8292#8293#0" expanded="false" />
+            <element signature="e#8358#8359#0" expanded="false" />
+            <element signature="e#8399#8400#0" expanded="false" />
+            <element signature="e#8452#8453#0" expanded="false" />
+            <element signature="e#11503#11504#0" expanded="false" />
+            <element signature="e#11575#11576#0" expanded="false" />
+            <element signature="e#11638#11639#0" expanded="false" />
+            <element signature="e#11714#11715#0" expanded="false" />
+            <element signature="e#14121#14122#0" expanded="false" />
+            <element signature="e#14166#14167#0" expanded="false" />
+            <element signature="e#14603#14604#0" expanded="false" />
+            <element signature="e#14669#14670#0" expanded="false" />
+            <element signature="e#14792#14793#0" expanded="false" />
+            <element signature="e#14853#14854#0" expanded="false" />
+            <element signature="e#15167#15168#0" expanded="false" />
+            <element signature="e#15220#15221#0" expanded="false" />
+            <element signature="e#22794#22795#0" expanded="false" />
+            <element signature="e#22844#22845#0" expanded="false" />
+            <element signature="e#23097#23098#0" expanded="false" />
+            <element signature="e#23151#23152#0" expanded="false" />
+            <element signature="e#23540#23541#0" expanded="false" />
+            <element signature="e#23570#23571#0" expanded="false" />
+            <element signature="e#23708#23709#0" expanded="false" />
+            <element signature="e#23752#23753#0" expanded="false" />
+            <element signature="e#27302#27303#0" expanded="false" />
+            <element signature="e#27346#27347#0" expanded="false" />
+            <element signature="e#27459#27460#0" expanded="false" />
+            <element signature="e#27493#27494#0" expanded="false" />
+            <element signature="e#27608#27609#0" expanded="false" />
+            <element signature="e#27655#27656#0" expanded="false" />
+            <element signature="e#27874#27875#0" expanded="false" />
+            <element signature="e#27929#27930#0" expanded="false" />
+            <element signature="e#28042#28043#0" expanded="false" />
+            <element signature="e#28093#28094#0" expanded="false" />
+            <element signature="e#28305#28306#0" expanded="false" />
+            <element signature="e#28357#28358#0" expanded="false" />
+            <element signature="e#28469#28470#0" expanded="false" />
+            <element signature="e#28506#28507#0" expanded="false" />
+            <element signature="e#28622#28623#0" expanded="false" />
+            <element signature="e#28668#28669#0" expanded="false" />
+            <element signature="e#28883#28884#0" expanded="false" />
+            <element signature="e#28937#28938#0" expanded="false" />
+            <element signature="e#29052#29053#0" expanded="false" />
+            <element signature="e#29098#29099#0" expanded="false" />
+            <element signature="e#29212#29213#0" expanded="false" />
+            <element signature="e#29256#29257#0" expanded="false" />
+            <element signature="e#29382#29383#0" expanded="false" />
+            <element signature="e#29423#29424#0" expanded="false" />
+            <element signature="e#29545#29546#0" expanded="false" />
+            <element signature="e#29583#29584#0" expanded="false" />
+            <element signature="e#29706#29707#0" expanded="false" />
+            <element signature="e#29745#29746#0" expanded="false" />
+            <element signature="e#29869#29870#0" expanded="false" />
+            <element signature="e#29909#29910#0" expanded="false" />
+            <element signature="e#30034#30035#0" expanded="false" />
+            <element signature="e#30075#30076#0" expanded="false" />
+            <element signature="e#31284#31285#0" expanded="false" />
+            <element signature="e#31329#31330#0" expanded="false" />
+            <element signature="e#31622#31623#0" expanded="false" />
+            <element signature="e#31664#31665#0" expanded="false" />
+            <element signature="e#35908#35916#0" expanded="false" />
+            <element signature="e#37046#37068#0" expanded="false" />
+            <element signature="e#39633#39634#0" expanded="false" />
+            <element signature="e#39680#39681#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/parquet/parquet-tools/1.8.2-SNAPSHOT/parquet-tools-1.8.2-SNAPSHOT.jar!/org/apache/parquet/hadoop/ParquetReader.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1140">
+          <caret line="95" column="42" selection-start-line="95" selection-start-column="41" selection-end-line="95" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/format/PosRecord.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="38" column="13" selection-start-line="38" selection-start-column="13" selection-end-line="38" selection-end-column="13" />
+          <folding>
+            <element signature="n#!!doc" expanded="false" />
+            <element signature="e#2761#2762#0" expanded="false" />
+            <element signature="e#2784#2785#0" expanded="false" />
+            <element signature="e#2927#2928#0" expanded="false" />
+            <element signature="e#2956#2957#0" expanded="false" />
+            <element signature="e#3057#3058#0" expanded="false" />
+            <element signature="e#3082#3083#0" expanded="false" />
+            <element signature="e#3229#3230#0" expanded="false" />
+            <element signature="e#3260#3261#0" expanded="false" />
+            <element signature="e#3359#3360#0" expanded="false" />
+            <element signature="e#3383#3384#0" expanded="false" />
+            <element signature="e#3528#3529#0" expanded="false" />
+            <element signature="e#3558#3559#0" expanded="false" />
+            <element signature="e#3707#3708#0" expanded="false" />
+            <element signature="e#3731#3732#0" expanded="false" />
+            <element signature="e#5506#5507#0" expanded="false" />
+            <element signature="e#5583#5584#0" expanded="false" />
+            <element signature="e#7649#7650#0" expanded="false" />
+            <element signature="e#7676#7677#0" expanded="false" />
+            <element signature="e#8208#8209#0" expanded="false" />
+            <element signature="e#8247#8248#0" expanded="false" />
+            <element signature="e#8625#8626#0" expanded="false" />
+            <element signature="e#8654#8655#0" expanded="false" />
+            <element signature="e#9200#9201#0" expanded="false" />
+            <element signature="e#9239#9240#0" expanded="false" />
+            <element signature="e#9619#9620#0" expanded="false" />
+            <element signature="e#9647#9648#0" expanded="false" />
+            <element signature="e#10190#10191#0" expanded="false" />
+            <element signature="e#10229#10230#0" expanded="false" />
+            <element signature="e#10657#10658#0" expanded="false" />
+            <element signature="e#10685#10686#0" expanded="false" />
+            <element signature="e#11288#11289#0" expanded="false" />
+            <element signature="e#11327#11328#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/apache/parquet/parquet-avro/1.7.0/parquet-avro-1.7.0-sources.jar!/org/apache/parquet/avro/AvroParquetReader.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -898,61 +1212,135 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/mutation/Mutator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="94" selection-start-line="5" selection-start-column="94" selection-end-line="5" selection-end-column="94" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/ParquetPrinter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="584">
-          <caret line="39" column="16" selection-start-line="39" selection-start-column="16" selection-end-line="39" selection-end-column="16" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#460#461#0" expanded="true" />
-            <element signature="e#492#493#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetWriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="16" column="3" selection-start-line="16" selection-start-column="3" selection-end-line="16" selection-end-column="3" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#2633#2642#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/apache/avro/avro/1.8.0/avro-1.8.0-sources.jar!/org/apache/avro/generic/GenericData.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3736">
+        <state relative-caret-position="2610">
           <caret line="232" column="22" selection-start-line="232" selection-start-column="22" selection-end-line="232" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetReader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="20" column="90" selection-start-line="20" selection-start-column="90" selection-end-line="20" selection-end-column="90" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#2206#2215#0" expanded="true" />
+            <element signature="n#!!doc" expanded="false" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#3198#3199#0" expanded="false" />
+            <element signature="e#3218#3219#0" expanded="false" />
+            <element signature="e#3635#3658#0" expanded="false" />
+            <element signature="e#3761#3799#0" expanded="false" />
+            <element signature="e#4375#4398#0" expanded="false" />
+            <element signature="e#8181#8182#0" expanded="false" />
+            <element signature="e#8242#8243#0" expanded="false" />
+            <element signature="e#8292#8293#0" expanded="false" />
+            <element signature="e#8358#8359#0" expanded="false" />
+            <element signature="e#8399#8400#0" expanded="false" />
+            <element signature="e#8452#8453#0" expanded="false" />
+            <element signature="e#11503#11504#0" expanded="false" />
+            <element signature="e#11575#11576#0" expanded="false" />
+            <element signature="e#11638#11639#0" expanded="false" />
+            <element signature="e#11714#11715#0" expanded="false" />
+            <element signature="e#14121#14122#0" expanded="false" />
+            <element signature="e#14166#14167#0" expanded="false" />
+            <element signature="e#14603#14604#0" expanded="false" />
+            <element signature="e#14669#14670#0" expanded="false" />
+            <element signature="e#14792#14793#0" expanded="false" />
+            <element signature="e#14853#14854#0" expanded="false" />
+            <element signature="e#15167#15168#0" expanded="false" />
+            <element signature="e#15220#15221#0" expanded="false" />
+            <element signature="e#22794#22795#0" expanded="false" />
+            <element signature="e#22844#22845#0" expanded="false" />
+            <element signature="e#23097#23098#0" expanded="false" />
+            <element signature="e#23151#23152#0" expanded="false" />
+            <element signature="e#23540#23541#0" expanded="false" />
+            <element signature="e#23570#23571#0" expanded="false" />
+            <element signature="e#23708#23709#0" expanded="false" />
+            <element signature="e#23752#23753#0" expanded="false" />
+            <element signature="e#27302#27303#0" expanded="false" />
+            <element signature="e#27346#27347#0" expanded="false" />
+            <element signature="e#27459#27460#0" expanded="false" />
+            <element signature="e#27493#27494#0" expanded="false" />
+            <element signature="e#27608#27609#0" expanded="false" />
+            <element signature="e#27655#27656#0" expanded="false" />
+            <element signature="e#27874#27875#0" expanded="false" />
+            <element signature="e#27929#27930#0" expanded="false" />
+            <element signature="e#28042#28043#0" expanded="false" />
+            <element signature="e#28093#28094#0" expanded="false" />
+            <element signature="e#28305#28306#0" expanded="false" />
+            <element signature="e#28357#28358#0" expanded="false" />
+            <element signature="e#28469#28470#0" expanded="false" />
+            <element signature="e#28506#28507#0" expanded="false" />
+            <element signature="e#28622#28623#0" expanded="false" />
+            <element signature="e#28668#28669#0" expanded="false" />
+            <element signature="e#28883#28884#0" expanded="false" />
+            <element signature="e#28937#28938#0" expanded="false" />
+            <element signature="e#29052#29053#0" expanded="false" />
+            <element signature="e#29098#29099#0" expanded="false" />
+            <element signature="e#29212#29213#0" expanded="false" />
+            <element signature="e#29256#29257#0" expanded="false" />
+            <element signature="e#29382#29383#0" expanded="false" />
+            <element signature="e#29423#29424#0" expanded="false" />
+            <element signature="e#29545#29546#0" expanded="false" />
+            <element signature="e#29583#29584#0" expanded="false" />
+            <element signature="e#29706#29707#0" expanded="false" />
+            <element signature="e#29745#29746#0" expanded="false" />
+            <element signature="e#29869#29870#0" expanded="false" />
+            <element signature="e#29909#29910#0" expanded="false" />
+            <element signature="e#30034#30035#0" expanded="false" />
+            <element signature="e#30075#30076#0" expanded="false" />
+            <element signature="e#31284#31285#0" expanded="false" />
+            <element signature="e#31329#31330#0" expanded="false" />
+            <element signature="e#31622#31623#0" expanded="false" />
+            <element signature="e#31664#31665#0" expanded="false" />
+            <element signature="e#35908#35916#0" expanded="false" />
+            <element signature="e#37046#37068#0" expanded="false" />
+            <element signature="e#39633#39634#0" expanded="false" />
+            <element signature="e#39680#39681#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/parquet/parquet-tools/1.8.2-SNAPSHOT/parquet-tools-1.8.2-SNAPSHOT.jar!/org/apache/parquet/hadoop/ParquetReader.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="46" column="40" selection-start-line="46" selection-start-column="40" selection-end-line="46" selection-end-column="40" />
+        <state relative-caret-position="1140">
+          <caret line="95" column="42" selection-start-line="95" selection-start-column="41" selection-end-line="95" selection-end-column="42" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/format/PosRecord.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="38" column="13" selection-start-line="38" selection-start-column="13" selection-end-line="38" selection-end-column="13" />
+          <folding>
+            <element signature="n#!!doc" expanded="false" />
+            <element signature="e#2761#2762#0" expanded="false" />
+            <element signature="e#2784#2785#0" expanded="false" />
+            <element signature="e#2927#2928#0" expanded="false" />
+            <element signature="e#2956#2957#0" expanded="false" />
+            <element signature="e#3057#3058#0" expanded="false" />
+            <element signature="e#3082#3083#0" expanded="false" />
+            <element signature="e#3229#3230#0" expanded="false" />
+            <element signature="e#3260#3261#0" expanded="false" />
+            <element signature="e#3359#3360#0" expanded="false" />
+            <element signature="e#3383#3384#0" expanded="false" />
+            <element signature="e#3528#3529#0" expanded="false" />
+            <element signature="e#3558#3559#0" expanded="false" />
+            <element signature="e#3707#3708#0" expanded="false" />
+            <element signature="e#3731#3732#0" expanded="false" />
+            <element signature="e#5506#5507#0" expanded="false" />
+            <element signature="e#5583#5584#0" expanded="false" />
+            <element signature="e#7649#7650#0" expanded="false" />
+            <element signature="e#7676#7677#0" expanded="false" />
+            <element signature="e#8208#8209#0" expanded="false" />
+            <element signature="e#8247#8248#0" expanded="false" />
+            <element signature="e#8625#8626#0" expanded="false" />
+            <element signature="e#8654#8655#0" expanded="false" />
+            <element signature="e#9200#9201#0" expanded="false" />
+            <element signature="e#9239#9240#0" expanded="false" />
+            <element signature="e#9619#9620#0" expanded="false" />
+            <element signature="e#9647#9648#0" expanded="false" />
+            <element signature="e#10190#10191#0" expanded="false" />
+            <element signature="e#10229#10230#0" expanded="false" />
+            <element signature="e#10657#10658#0" expanded="false" />
+            <element signature="e#10685#10686#0" expanded="false" />
+            <element signature="e#11288#11289#0" expanded="false" />
+            <element signature="e#11327#11328#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -964,19 +1352,51 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/parquet/parquet-tools/1.8.2-SNAPSHOT/parquet-tools-1.8.2-SNAPSHOT.jar!/org/apache/parquet/hadoop/ParquetReader.class">
+    <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="335">
-          <caret line="95" column="42" selection-start-line="95" selection-start-column="41" selection-end-line="95" selection-end-column="42" />
+        <state relative-caret-position="285">
+          <caret line="19" column="17" selection-start-line="19" selection-start-column="17" selection-end-line="19" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/format/PosRecord.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/ParquetPrinter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="13" column="21" selection-start-line="13" selection-start-column="21" selection-end-line="13" selection-end-column="21" />
+        <state relative-caret-position="480">
+          <caret line="34" column="25" selection-start-line="34" selection-start-column="25" selection-end-line="34" selection-end-column="25" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/mutation/Mutator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="94" selection-start-line="5" selection-start-column="94" selection-end-line="5" selection-end-column="94" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="539">
+          <caret line="63" column="13" selection-start-line="63" selection-start-column="13" selection-end-line="63" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2084#2098#0" expanded="true" />
+            <element signature="e#2267#2276#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/cornell/med/icb/varanalysis/storage/AvroVariationParquetWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="43" column="0" selection-start-line="43" selection-start-column="0" selection-end-line="43" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

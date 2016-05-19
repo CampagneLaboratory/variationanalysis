@@ -34,7 +34,7 @@ public class AvroVariationParquetWriter {
 
         Schema avroSchema = null;
         try {
-            avroSchema = new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream("record.avsc"));
+            avroSchema = new Schema.Parser().parse(this.getClass().getClassLoader().getResourceAsStream("record.avsc"));
 
             // generate the corresponding Parquet schema
             MessageType parquetSchema = new AvroSchemaConverter().convert(avroSchema);
@@ -60,11 +60,12 @@ public class AvroVariationParquetWriter {
         }
     }
 
-    public void writeRecord(List<int[][]> samplesCounts, int referenceIndex, int position) {
+    public void writeRecord(List<int[][]> samplesCounts, int referenceIndex, int position, boolean mutated) {
 
         PosRecord pos = new PosRecord();
         pos.setPosition(position);
         pos.setRefIdx(referenceIndex);
+        pos.setMutated(mutated);
         List<SampleRecord> samples = new ArrayList<SampleRecord>();
         for (int[][] countsArr : samplesCounts){
             SampleRecord rec = new SampleRecord();

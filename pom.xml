@@ -11,9 +11,9 @@
 
         <resources>
             <resource>
-                <directory>[resources]</directory>
+                <directory>src/main/resources</directory>
                 <includes>
-                    <include>[src/main/java/resources.avsc]</include>
+                    <include>record.avsc</include>
                 </includes>
             </resource>
         </resources>
