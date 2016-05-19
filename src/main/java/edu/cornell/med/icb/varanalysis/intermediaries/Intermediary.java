@@ -20,7 +20,7 @@ public abstract class Intermediary {
     int blockSize = 256 * 1024 * 1024;
     int pageSize = 64 * 1024;
 
-    void execute(String in, String out){
+    public void execute(String in, String out){
         AvroVariationParquetReader reader = new AvroVariationParquetReader(in);
         AvroVariationParquetWriter writer = new AvroVariationParquetWriter(out,blockSize,pageSize);
         Process(reader,writer);
