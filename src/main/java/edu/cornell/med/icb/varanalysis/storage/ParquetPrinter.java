@@ -14,8 +14,13 @@ import java.util.List;
 /**
  * Created by rct66 on 5/17/16.
  *
- * Currently holds the main method. When the jar is run with a path to a variations file
- * , it will create a mutated copy, and then a randomized copy, and then print the randomized copy.
+ * Currently holds the main method. Jar takes two arguments
+ *
+ *  java -jar var-analysis.jar process /path/to/genotypes.parquet
+ *  creates mutated and randomized parquet file, then prints the latter
+ *
+ *  java -jar var-analysis.jar print /path/to/genotypes.parquet
+ *  prints the parquet file as is
  *
  * Also, this jar should be a resource for Goby to output variations as a parquet file using its AvroVariationOutputFormat
  * class.
@@ -25,15 +30,21 @@ public class ParquetPrinter {
 
     String path;
 
-    public static void main(String args[]){
+    public static void main(String[] args){
+        if (args[0].equals("process")){
+            main2(args[1]);
+        } else {
+            ParquetPrinter printer = new ParquetPrinter(args[1]);
+            printer.print();
+        }
+    }
 
-
-        String startPath = args[0];
+    public static void main2(String startPath){
 
         //mutate
         Mutator mut = new Mutator();
         String mutPath = startPath.substring(0, startPath.length() - 8) + "_mutated.parquet";
-        mut.execute(args[0],mutPath);
+        mut.execute(startPath,mutPath);
         System.out.println("mutated");
         //randomize
         Randomizer rndz = new Randomizer();
