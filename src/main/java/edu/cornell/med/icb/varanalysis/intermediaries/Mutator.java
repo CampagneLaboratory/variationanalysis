@@ -18,7 +18,7 @@ import java.util.Random;
  *
  *
  */
-public class Mutator{
+public class Mutator extends Intermediary{
     //delta will be halved in homozygous cases (to account for twice the reads at a base)
     //min fraction of bases mutated at a record (ceilinged fraction)
     double deltaSmall = 0.1;
@@ -36,7 +36,7 @@ public class Mutator{
         this.zygHeuristic = zygHeuristic;
     }
 
-    public void process(String in, String out, int blockSize, int pageSize) {
+    public void execute(String in, String out, int blockSize, int pageSize) {
         AvroVariationParquetReader reader = new AvroVariationParquetReader(in);
         AvroVariationParquetWriter writer = new AvroVariationParquetWriter(out,blockSize,pageSize);
         PosRecord pos;
@@ -55,6 +55,7 @@ public class Mutator{
             //record classes do not deep copy
             writer.writeRecord(pos);
         }
+        reader.close();
         writer.close();
 
     }

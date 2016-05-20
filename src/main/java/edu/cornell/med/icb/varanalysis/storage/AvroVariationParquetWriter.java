@@ -3,6 +3,7 @@ package edu.cornell.med.icb.varanalysis.storage;
 import edu.cornell.med.icb.varanalysis.format.PosRecord;
 import edu.cornell.med.icb.varanalysis.format.SampleRecord;
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.avro.AvroParquetWriter;
 import org.apache.parquet.avro.AvroSchemaConverter;
@@ -60,6 +61,14 @@ public class AvroVariationParquetWriter {
 
 
     public void writeRecord(PosRecord pos){
+        try {
+            parquetWriter.write(pos);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void writeRecord(GenericRecord pos){
         try {
             parquetWriter.write(pos);
         } catch (IOException e) {

@@ -6,6 +6,7 @@ import edu.cornell.med.icb.varanalysis.format.PosRecord;
 import edu.cornell.med.icb.varanalysis.format.SampleRecord;
 import edu.cornell.med.icb.varanalysis.intermediaries.Intermediary;
 import edu.cornell.med.icb.varanalysis.intermediaries.Mutator;
+import edu.cornell.med.icb.varanalysis.intermediaries.Randomizer;
 
 import java.util.List;
 
@@ -18,11 +19,22 @@ public class ParquetPrinter {
     String path;
 
     public static void main(String args[]){
-        Mutator mut = new Mutator();
+
+
         String startPath = args[0];
+
+        //mutate
+        Mutator mut = new Mutator();
         String mutPath = startPath.substring(0, startPath.length() - 8) + "_mutated.parquet";
-        mut.process(args[0],mutPath, Intermediary.blockSize, Intermediary.pageSize);
-        ParquetPrinter printer = new ParquetPrinter(mutPath);
+        mut.execute(args[0],mutPath);
+        System.out.println("mutated");
+        //randomize
+        Randomizer rndz = new Randomizer();
+        String rndPath = mutPath.substring(0, startPath.length() - 8) + "_randomized.parquet";
+        rndz.execute(mutPath,rndPath);
+        System.out.println("randomized");
+
+        ParquetPrinter printer = new ParquetPrinter(rndPath);
         printer.print();
     }
 

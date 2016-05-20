@@ -1,7 +1,14 @@
 package edu.cornell.med.icb.varanalysis.intermediaries;
 
+
 import edu.cornell.med.icb.varanalysis.storage.AvroVariationParquetReader;
 import edu.cornell.med.icb.varanalysis.storage.AvroVariationParquetWriter;
+import it.unimi.dsi.util.XorShift128PlusRandom;
+import org.apache.avro.generic.GenericRecord;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Created by rct66 on 5/18/16.
@@ -10,8 +17,25 @@ import edu.cornell.med.icb.varanalysis.storage.AvroVariationParquetWriter;
  */
 public class Randomizer extends Intermediary{
 
+    public void execute(String inPath, String outPath, int blockSize, int pageSize) {
+        AvroVariationParquetReader reader = new AvroVariationParquetReader(inPath);
+        AvroVariationParquetWriter writer = new AvroVariationParquetWriter(outPath, blockSize, pageSize);
+        GenericRecord gen;
+        List<GenericRecord> genList = new ArrayList<GenericRecord>();
+        while (true){
+            gen = reader.read();
+            if (gen == null)
+                break;
+            genList.add(gen);
+        }
+        reader.close();
 
-    void execute(String inPath, String outPath, int blockSize, int pageSize) {
+        Random rand = new XorShift128PlusRandom();
+        Collections.shuffle(genList,rand);
 
+        for (GenericRecord outgen : genList){
+            writer.writeRecord(outgen);
+        }
+        writer.close();
     }
 }

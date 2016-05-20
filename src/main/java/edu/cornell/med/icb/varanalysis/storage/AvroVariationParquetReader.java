@@ -51,6 +51,7 @@ public class AvroVariationParquetReader {
         }
     }
 
+    //can return null
     public PosRecord read(){
         try {
             //hacky workaround to classcastexception raised when casting GenericRecords as PosRecords
@@ -78,6 +79,16 @@ public class AvroVariationParquetReader {
             }
             specPos.setSamples(sampleList);
             return specPos;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //can return null. produces generic record
+    public GenericRecord readGeneric() {
+        try {
+            GenericRecord pos = pqReader.read();
+            return pos;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
