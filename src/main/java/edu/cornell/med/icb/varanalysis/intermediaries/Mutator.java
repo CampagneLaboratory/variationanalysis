@@ -5,7 +5,9 @@ import edu.cornell.med.icb.varanalysis.format.SampleRecord;
 import edu.cornell.med.icb.varanalysis.storage.AvroVariationParquetReader;
 import edu.cornell.med.icb.varanalysis.storage.AvroVariationParquetWriter;
 import it.unimi.dsi.util.XorShift128PlusRandom;
+import org.apache.avro.generic.GenericData;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -13,7 +15,7 @@ import java.util.Random;
  * Created by rct66 on 5/18/16.
  *
  * the mutator object iterates over a parquet file and creates an additional mutated copy of every record.
- * Mutations
+ *
  *
  */
 public class Mutator{
@@ -25,9 +27,16 @@ public class Mutator{
     //minimum proportion of counts to presume allele
     double zygHeuristic = 0.1;
 
+    public Mutator(){
+    }
 
+    public Mutator(int deltaSmall, int deltaBig, int zygHeuristic){
+        this.deltaSmall = deltaSmall;
+        this.deltaBig = deltaBig;
+        this.zygHeuristic = zygHeuristic;
+    }
 
-    void process(String in, String out, int blockSize, int pageSize) {
+    public void process(String in, String out, int blockSize, int pageSize) {
         AvroVariationParquetReader reader = new AvroVariationParquetReader(in);
         AvroVariationParquetWriter writer = new AvroVariationParquetWriter(out,blockSize,pageSize);
         PosRecord pos;
@@ -65,7 +74,7 @@ public class Mutator{
                 sums[i] = count;
             } else {
                 backward[i-5] = count;
-                sums[i] += count;
+                sums[i-5] += count;
             }
             i++;
         }
@@ -96,23 +105,55 @@ public class Mutator{
         //make rand generator and generate proportion mutating bases
         Random rand = new XorShift128PlusRandom();
 
+        //generate mutation rate
+        double delta = deltaSmall + ((deltaBig - deltaSmall) * rand.nextDouble());
 
+        int newBase;
+        int oldBase;
 
-        //monozygotic case first:
         if (monozygotic){
+            oldBase = maxCountIdx;
             //generate from non-max bases uniformly
-            int newBase = rand.nextInt(3);
-            if (newBase == maxCountIdx){
+            newBase = rand.nextInt(3);
+            if (newBase == oldBase){
                 newBase = 3;
             }
-            int add = 0;
-            int sub = 0;
-            for (i = 0; i < forward[newBase]; i++){
-                //if rand.next
+            //only one allele mutates, so halve delta when monozygotic
+            delta = delta/2;
+        } else {
+            boolean mutatingAllele = rand.nextBoolean();
+            oldBase = mutatingAllele ? maxCountIdx : scndCountIdx;
+            newBase = rand.nextInt(3);
+            if (newBase == oldBase){
+                newBase = 3;
+            }
+        }
+        int oldCount = forward[oldBase];
+        for (i = 0; i < oldCount; i++){
+            if (rand.nextDouble() < delta) {
+                forward[oldBase]--;
+                forward[newBase]++;
+            }
+        }
+        oldCount = backward[oldBase];
+        for (i = 0; i < oldCount; i++){
+            if (rand.nextDouble() < delta) {
+                forward[oldBase]--;
+                forward[newBase]++;
             }
         }
 
-        return null;
+        //convert two consecutive arrays to a List<Integer>
+        List<Integer> newCounts = new ArrayList<Integer>(10);
+        for (i = 0; i < 10; i++){
+            if (i < 5){
+                newCounts.add(forward[i]);
+            } else {
+                newCounts.add(backward[i-5]);
+            }
+            i++;
+        }
+        return newCounts;
     }
 
 }

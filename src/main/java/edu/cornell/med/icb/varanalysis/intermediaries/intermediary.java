@@ -17,8 +17,8 @@ import java.io.File;
 public abstract class Intermediary {
 
     //pagesize may need to be bigger, but performance has been decent.
-    int blockSize = 256 * 1024 * 1024;
-    int pageSize = 64 * 1024;
+    static public int blockSize = 256 * 1024 * 1024;
+    static public int pageSize = 64 * 1024;
 
     void execute(String inPath, String outPath){
         execute(inPath,outPath,blockSize,pageSize);
