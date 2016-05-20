@@ -12,6 +12,6 @@ public class Randomizer extends Intermediary{
 
 
     void execute(String inPath, String outPath, int blockSize, int pageSize) {
-        //TODO
+
     }
 }

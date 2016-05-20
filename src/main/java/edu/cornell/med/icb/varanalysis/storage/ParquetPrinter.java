@@ -19,8 +19,9 @@ public class ParquetPrinter {
 
     public static void main(String args[]){
         Mutator mut = new Mutator();
-        String mutPath = args[0]+"_mutated";
-        mut.process(args[0],args[0]+"_mutated", Intermediary.blockSize, Intermediary.pageSize);
+        String startPath = args[0];
+        String mutPath = startPath.substring(0, startPath.length() - 8) + "_mutated.parquet";
+        mut.process(args[0],mutPath, Intermediary.blockSize, Intermediary.pageSize);
         ParquetPrinter printer = new ParquetPrinter(mutPath);
         printer.print();
     }

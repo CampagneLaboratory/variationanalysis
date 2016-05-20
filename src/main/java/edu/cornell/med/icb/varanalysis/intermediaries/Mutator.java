@@ -55,6 +55,7 @@ public class Mutator{
             //record classes do not deep copy
             writer.writeRecord(pos);
         }
+        writer.close();
 
     }
 
@@ -138,8 +139,8 @@ public class Mutator{
         oldCount = backward[oldBase];
         for (i = 0; i < oldCount; i++){
             if (rand.nextDouble() < delta) {
-                forward[oldBase]--;
-                forward[newBase]++;
+                backward[oldBase]--;
+                backward[newBase]++;
             }
         }
 
@@ -151,7 +152,6 @@ public class Mutator{
             } else {
                 newCounts.add(backward[i-5]);
             }
-            i++;
         }
         return newCounts;
     }
