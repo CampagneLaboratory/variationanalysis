@@ -13,6 +13,13 @@ import java.util.List;
 
 /**
  * Created by rct66 on 5/17/16.
+ *
+ * Currently holds the main method. When the jar is run with a path to a variations file
+ * , it will create a mutated copy, and then a randomized copy, and then print the randomized copy.
+ *
+ * Also, this jar should be a resource for Goby to output variations as a parquet file using its AvroVariationOutputFormat
+ * class.
+ *
  */
 public class ParquetPrinter {
 
