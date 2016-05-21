@@ -44,18 +44,37 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
         return 1;
     }
 
+    int[] indices = new int[]{0, 0};
+
     @Override
     public void map(PosRecord record, INDArray inputs, INDArray labels, int indexOfRecord) {
+        indices[0] = indexOfRecord;
+        int sumCounts = 0;
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
-            inputs.putScalar(new int[]{indexOfRecord, featureIndex}, produceFeature(record, featureIndex));
+            sumCounts += produceFeature(record, featureIndex);
+        }
+        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
+            indices[1] = featureIndex;
+            inputs.putScalar(indices, normalize(produceFeature(record, featureIndex), sumCounts));
         }
         for (int labelIndex = 0; labelIndex < numberOfLabels(); labelIndex++) {
-            labels.putScalar(new int[]{indexOfRecord, labelIndex}, produceLabel(record, labelIndex));
+            indices[1] = labelIndex;
+            labels.putScalar(indices, produceLabel(record, labelIndex));
         }
     }
 
+    private float normalize(float value, int normalizationFactor) {
+        if (normalizationFactor == 0) {
+            return 0;
+        }
+        float normalized = value / normalizationFactor;
+        assert normalized >= 0 && normalized <= 1 : "value must be normalized: " + normalized;
+        return normalized;
+    }
+
+
     public float produceFeature(PosRecord record, int featureIndex) {
-      assert featureIndex>=0 && featureIndex<20:"Only 20 features";
+        assert featureIndex >= 0 && featureIndex < 20 : "Only 20 features";
         if (featureIndex < 10) {
             return record.getSamples().get(0).getCounts().get(featureIndex);
         } else {
@@ -66,7 +85,7 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
 
     @Override
     public float produceLabel(PosRecord record, int labelIndex) {
-       assert labelIndex==0: "only one label.";
+        assert labelIndex == 0 : "only one label.";
         return record.getMutated() ? 1.0f : 0.0f;
 
     }

@@ -22,6 +22,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.weights.HistogramIterationListener;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -33,21 +34,24 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Train a neural network to predict mutations.
- *
+ * <p>
  * Created by fac2003 on 5/21/16.
+ *
  * @author Fabien Campagne
  */
 public class DetectMutations {
-    static private Logger LOG= LoggerFactory.getLogger(DetectMutations.class);
+    static private Logger LOG = LoggerFactory.getLogger(DetectMutations.class);
 
 
     public static void main(String[] args) throws IOException {
         int seed = 123;
         double learningRate = 0.01;
-        int miniBatchSize = 50;
+        int miniBatchSize = 500;
         int numEpochs = 30;
         String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate;
         int generateSamplesEveryNMinibatches = 10;
@@ -58,20 +62,20 @@ public class DetectMutations {
 
         int numInputs = trainIter.inputColumns();
         int numOutputs = trainIter.totalOutcomes();
-        int numHiddenNodes = 20;
+        int numHiddenNodes = 200;
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(1)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(learningRate)
-                .updater(Updater.NESTEROVS).momentum(0.9)
+                .learningRate(learningRate).regularization(true).l2(0.02)
+                .updater(Updater.ADAGRAD).momentum(0.9)
                 .list(2)
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                         .weightInit(WeightInit.XAVIER)
                         .activation("relu")
                         .build())
-                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.XENT)
                         .weightInit(WeightInit.XAVIER)
                         .activation("softmax").weightInit(WeightInit.XAVIER)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
@@ -85,7 +89,7 @@ public class DetectMutations {
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
 
-        net.setListeners(/*new HistogramIterationListener(1)/*,*/ new ScoreIterationListener(1));
+        net.setListeners(/*new HistogramIterationListener(1), */new ScoreIterationListener(1));
         //Print the  number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
         int totalNumParams = 0;
@@ -100,41 +104,50 @@ public class DetectMutations {
         int miniBatchNumber = 0;
         boolean init = true;
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
-        pgEpoch.itemsName="epoch";
-        pgEpoch.expectedUpdates=numEpochs;
+        pgEpoch.itemsName = "epoch";
+        pgEpoch.expectedUpdates = numEpochs;
         pgEpoch.start();
-        double bestScore=Double.MAX_VALUE;
+        double bestScore = Double.MAX_VALUE;
         LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
 
         for (int i = 0; i < numEpochs; i++) {
             ProgressLogger pg = new ProgressLogger(LOG);
-            pg.itemsName="mini-batch";
+            pg.itemsName = "mini-batch";
 
-            pg.expectedUpdates=trainIter.totalExamples()/miniBatchSize; // one iteration processes miniBatchIterator elements.
+            pg.expectedUpdates = trainIter.totalExamples() / miniBatchSize; // one iteration processes miniBatchIterator elements.
             pg.start();
             while (trainIter.hasNext()) {
                 // trigger bugs early:
 //                printSample(miniBatchSize, exampleLength, nSamplesToGenerate, nCharactersToSample, generationInitialization, rng, attempt, iter, net, miniBatchNumber);
 
                 DataSet ds = trainIter.next(miniBatchSize);
-
+                if (numLabels(ds.getLabels()) != 2) {
+                    System.out.println("There should be two labels in the miniBatch");
+                }
+                ;
                 net.fit(ds);
                 pg.update();
-
+                if (net.score() == -41.65181065600332) {
+                    System.out.println("STOP");
+                }
                 if (net.score() < bestScore) {
                     bestScore = net.score();
                     saver.saveBestModel(net, net.score());
                     System.out.println("Saving best score model.. score=" + bestScore);
-
                 }
-
             }
             pg.stop();
             pgEpoch.update();
             trainIter.reset();    //Reset iterator for another epoch
         }
         pgEpoch.stop();
-;
+
+    }
+
+    private static int numLabels(INDArray labels) {
+        Set<Float> set = new HashSet<>();
+        //for (labels.size(1));
+        return 2;
     }
 
 }

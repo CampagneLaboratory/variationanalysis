@@ -72,10 +72,9 @@ public class BaseInformationIterator implements DataSetIterator {
             // fill in features and labels for a given record i:
             PosRecord record = nextRecord();
             featureCalculator.map(record, inputs, labels, i);
-            ds.setFeatures(inputs);
-            ds.setLabels(labels);
+
         }
-        return ds;
+        return new DataSet(inputs,labels);
     }
 
 
@@ -173,6 +172,7 @@ public class BaseInformationIterator implements DataSetIterator {
             PosRecord tmp = nextPosRecord;
             // setting nextPosRecord will make hasNextRecord load the next record from the underlying reader.
             nextPosRecord = null;
+            cursor+=1;
             return tmp;
         } else throw new NoSuchElementException();
     }
