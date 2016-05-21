@@ -1,6 +1,6 @@
 {
   "name": "PosRecord",
-  "namespace": "edu.cornell.med.icb.varanalysis.format",
+  "namespace": "org.campagnelab.dl.varanalysis.format",
   "type": "record",
   "fields": [
     {
@@ -22,7 +22,7 @@
         "items": {
           "type": "record",
           "name": "SampleRecord",
-          "namespace": "edu.cornell.med.icb.varanalysis.format",
+          "namespace": "org.campagnelab.dl.varanalysis.format",
           "fields": [
             {
               "name": "counts",

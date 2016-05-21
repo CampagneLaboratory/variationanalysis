@@ -1,9 +1,4 @@
-package edu.cornell.med.icb.varanalysis.intermediaries;
-
-import edu.cornell.med.icb.varanalysis.storage.AvroVariationParquetReader;
-import edu.cornell.med.icb.varanalysis.storage.AvroVariationParquetWriter;
-
-import java.io.File;
+package org.campagnelab.dl.varanalysis.intermediaries;
 
 /**
  * Created by rct66 on 5/19/16.

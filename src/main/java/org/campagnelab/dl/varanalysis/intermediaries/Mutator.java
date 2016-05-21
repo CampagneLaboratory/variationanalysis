@@ -1,9 +1,9 @@
-package edu.cornell.med.icb.varanalysis.intermediaries;
+package org.campagnelab.dl.varanalysis.intermediaries;
 
-import edu.cornell.med.icb.varanalysis.format.PosRecord;
-import edu.cornell.med.icb.varanalysis.format.SampleRecord;
-import edu.cornell.med.icb.varanalysis.storage.AvroVariationParquetReader;
-import edu.cornell.med.icb.varanalysis.storage.AvroVariationParquetWriter;
+import org.campagnelab.dl.varanalysis.format.PosRecord;
+import org.campagnelab.dl.varanalysis.format.SampleRecord;
+import org.campagnelab.dl.varanalysis.storage.AvroVariationParquetReader;
+import org.campagnelab.dl.varanalysis.storage.AvroVariationParquetWriter;
 import it.unimi.dsi.util.XorShift128PlusRandom;
 import org.apache.avro.generic.GenericData;
 

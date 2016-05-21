@@ -1,12 +1,11 @@
-package edu.cornell.med.icb.varanalysis.storage;
+package org.campagnelab.dl.varanalysis.storage;
 
 
 
-import edu.cornell.med.icb.varanalysis.format.PosRecord;
-import edu.cornell.med.icb.varanalysis.format.SampleRecord;
-import edu.cornell.med.icb.varanalysis.intermediaries.Intermediary;
-import edu.cornell.med.icb.varanalysis.intermediaries.Mutator;
-import edu.cornell.med.icb.varanalysis.intermediaries.Randomizer;
+import org.campagnelab.dl.varanalysis.format.PosRecord;
+import org.campagnelab.dl.varanalysis.format.SampleRecord;
+import org.campagnelab.dl.varanalysis.intermediaries.Mutator;
+import org.campagnelab.dl.varanalysis.intermediaries.Randomizer;
 
 import java.util.List;
 

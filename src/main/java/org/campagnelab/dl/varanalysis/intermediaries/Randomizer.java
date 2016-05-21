@@ -1,10 +1,11 @@
-package edu.cornell.med.icb.varanalysis.intermediaries;
+package org.campagnelab.dl.varanalysis.intermediaries;
 
 
-import edu.cornell.med.icb.varanalysis.storage.AvroVariationParquetReader;
-import edu.cornell.med.icb.varanalysis.storage.AvroVariationParquetWriter;
+import org.campagnelab.dl.varanalysis.storage.AvroVariationParquetReader;
+import org.campagnelab.dl.varanalysis.storage.AvroVariationParquetWriter;
 import it.unimi.dsi.util.XorShift128PlusRandom;
 import org.apache.avro.generic.GenericRecord;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

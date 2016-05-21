@@ -3,12 +3,12 @@
  * 
  * DO NOT EDIT DIRECTLY
  */
-package edu.cornell.med.icb.varanalysis.format;  
+package org.campagnelab.dl.varanalysis.format;  
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class SampleRecord extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 4862567218518721966L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"SampleRecord\",\"namespace\":\"edu.cornell.med.icb.varanalysis.format\",\"fields\":[{\"name\":\"counts\",\"type\":{\"type\":\"array\",\"items\":\"int\"}}]}");
+  private static final long serialVersionUID = 5964738563995660164L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"SampleRecord\",\"namespace\":\"org.campagnelab.dl.varanalysis.format\",\"fields\":[{\"name\":\"counts\",\"type\":{\"type\":\"array\",\"items\":\"int\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.util.List<java.lang.Integer> counts;
 
@@ -62,8 +62,8 @@ public class SampleRecord extends org.apache.avro.specific.SpecificRecordBase im
    * Creates a new SampleRecord RecordBuilder.
    * @return A new SampleRecord RecordBuilder
    */
-  public static edu.cornell.med.icb.varanalysis.format.SampleRecord.Builder newBuilder() {
-    return new edu.cornell.med.icb.varanalysis.format.SampleRecord.Builder();
+  public static org.campagnelab.dl.varanalysis.format.SampleRecord.Builder newBuilder() {
+    return new org.campagnelab.dl.varanalysis.format.SampleRecord.Builder();
   }
   
   /**
@@ -71,8 +71,8 @@ public class SampleRecord extends org.apache.avro.specific.SpecificRecordBase im
    * @param other The existing builder to copy.
    * @return A new SampleRecord RecordBuilder
    */
-  public static edu.cornell.med.icb.varanalysis.format.SampleRecord.Builder newBuilder(edu.cornell.med.icb.varanalysis.format.SampleRecord.Builder other) {
-    return new edu.cornell.med.icb.varanalysis.format.SampleRecord.Builder(other);
+  public static org.campagnelab.dl.varanalysis.format.SampleRecord.Builder newBuilder(org.campagnelab.dl.varanalysis.format.SampleRecord.Builder other) {
+    return new org.campagnelab.dl.varanalysis.format.SampleRecord.Builder(other);
   }
   
   /**
@@ -80,8 +80,8 @@ public class SampleRecord extends org.apache.avro.specific.SpecificRecordBase im
    * @param other The existing instance to copy.
    * @return A new SampleRecord RecordBuilder
    */
-  public static edu.cornell.med.icb.varanalysis.format.SampleRecord.Builder newBuilder(edu.cornell.med.icb.varanalysis.format.SampleRecord other) {
-    return new edu.cornell.med.icb.varanalysis.format.SampleRecord.Builder(other);
+  public static org.campagnelab.dl.varanalysis.format.SampleRecord.Builder newBuilder(org.campagnelab.dl.varanalysis.format.SampleRecord other) {
+    return new org.campagnelab.dl.varanalysis.format.SampleRecord.Builder(other);
   }
   
   /**
@@ -94,14 +94,14 @@ public class SampleRecord extends org.apache.avro.specific.SpecificRecordBase im
 
     /** Creates a new Builder */
     private Builder() {
-      super(edu.cornell.med.icb.varanalysis.format.SampleRecord.SCHEMA$);
+      super(org.campagnelab.dl.varanalysis.format.SampleRecord.SCHEMA$);
     }
     
     /**
      * Creates a Builder by copying an existing Builder.
      * @param other The existing Builder to copy.
      */
-    private Builder(edu.cornell.med.icb.varanalysis.format.SampleRecord.Builder other) {
+    private Builder(org.campagnelab.dl.varanalysis.format.SampleRecord.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.counts)) {
         this.counts = data().deepCopy(fields()[0].schema(), other.counts);
@@ -113,8 +113,8 @@ public class SampleRecord extends org.apache.avro.specific.SpecificRecordBase im
      * Creates a Builder by copying an existing SampleRecord instance
      * @param other The existing instance to copy.
      */
-    private Builder(edu.cornell.med.icb.varanalysis.format.SampleRecord other) {
-            super(edu.cornell.med.icb.varanalysis.format.SampleRecord.SCHEMA$);
+    private Builder(org.campagnelab.dl.varanalysis.format.SampleRecord other) {
+            super(org.campagnelab.dl.varanalysis.format.SampleRecord.SCHEMA$);
       if (isValidValue(fields()[0], other.counts)) {
         this.counts = data().deepCopy(fields()[0].schema(), other.counts);
         fieldSetFlags()[0] = true;
@@ -134,7 +134,7 @@ public class SampleRecord extends org.apache.avro.specific.SpecificRecordBase im
       * @param value The value of 'counts'.
       * @return This builder.
       */
-    public edu.cornell.med.icb.varanalysis.format.SampleRecord.Builder setCounts(java.util.List<java.lang.Integer> value) {
+    public org.campagnelab.dl.varanalysis.format.SampleRecord.Builder setCounts(java.util.List<java.lang.Integer> value) {
       validate(fields()[0], value);
       this.counts = value;
       fieldSetFlags()[0] = true;
@@ -154,7 +154,7 @@ public class SampleRecord extends org.apache.avro.specific.SpecificRecordBase im
       * Clears the value of the 'counts' field.
       * @return This builder.
       */
-    public edu.cornell.med.icb.varanalysis.format.SampleRecord.Builder clearCounts() {
+    public org.campagnelab.dl.varanalysis.format.SampleRecord.Builder clearCounts() {
       counts = null;
       fieldSetFlags()[0] = false;
       return this;

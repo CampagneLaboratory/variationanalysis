@@ -3,17 +3,17 @@
  * 
  * DO NOT EDIT DIRECTLY
  */
-package edu.cornell.med.icb.varanalysis.format;  
+package org.campagnelab.dl.varanalysis.format;  
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class PosRecord extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 1941882884381515807L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PosRecord\",\"namespace\":\"edu.cornell.med.icb.varanalysis.format\",\"fields\":[{\"name\":\"refIdx\",\"type\":\"int\"},{\"name\":\"position\",\"type\":\"int\"},{\"name\":\"mutated\",\"type\":\"boolean\"},{\"name\":\"samples\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"SampleRecord\",\"fields\":[{\"name\":\"counts\",\"type\":{\"type\":\"array\",\"items\":\"int\"}}]}}}]}");
+  private static final long serialVersionUID = -9148486037783377038L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PosRecord\",\"namespace\":\"org.campagnelab.dl.varanalysis.format\",\"fields\":[{\"name\":\"refIdx\",\"type\":\"int\"},{\"name\":\"position\",\"type\":\"int\"},{\"name\":\"mutated\",\"type\":\"boolean\"},{\"name\":\"samples\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"SampleRecord\",\"fields\":[{\"name\":\"counts\",\"type\":{\"type\":\"array\",\"items\":\"int\"}}]}}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public int refIdx;
   @Deprecated public int position;
   @Deprecated public boolean mutated;
-  @Deprecated public java.util.List<edu.cornell.med.icb.varanalysis.format.SampleRecord> samples;
+  @Deprecated public java.util.List<org.campagnelab.dl.varanalysis.format.SampleRecord> samples;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -25,7 +25,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
   /**
    * All-args constructor.
    */
-  public PosRecord(java.lang.Integer refIdx, java.lang.Integer position, java.lang.Boolean mutated, java.util.List<edu.cornell.med.icb.varanalysis.format.SampleRecord> samples) {
+  public PosRecord(java.lang.Integer refIdx, java.lang.Integer position, java.lang.Boolean mutated, java.util.List<org.campagnelab.dl.varanalysis.format.SampleRecord> samples) {
     this.refIdx = refIdx;
     this.position = position;
     this.mutated = mutated;
@@ -50,7 +50,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
     case 0: refIdx = (java.lang.Integer)value$; break;
     case 1: position = (java.lang.Integer)value$; break;
     case 2: mutated = (java.lang.Boolean)value$; break;
-    case 3: samples = (java.util.List<edu.cornell.med.icb.varanalysis.format.SampleRecord>)value$; break;
+    case 3: samples = (java.util.List<org.campagnelab.dl.varanalysis.format.SampleRecord>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -103,7 +103,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
   /**
    * Gets the value of the 'samples' field.
    */
-  public java.util.List<edu.cornell.med.icb.varanalysis.format.SampleRecord> getSamples() {
+  public java.util.List<org.campagnelab.dl.varanalysis.format.SampleRecord> getSamples() {
     return samples;
   }
 
@@ -111,7 +111,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
    * Sets the value of the 'samples' field.
    * @param value the value to set.
    */
-  public void setSamples(java.util.List<edu.cornell.med.icb.varanalysis.format.SampleRecord> value) {
+  public void setSamples(java.util.List<org.campagnelab.dl.varanalysis.format.SampleRecord> value) {
     this.samples = value;
   }
 
@@ -119,8 +119,8 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
    * Creates a new PosRecord RecordBuilder.
    * @return A new PosRecord RecordBuilder
    */
-  public static edu.cornell.med.icb.varanalysis.format.PosRecord.Builder newBuilder() {
-    return new edu.cornell.med.icb.varanalysis.format.PosRecord.Builder();
+  public static org.campagnelab.dl.varanalysis.format.PosRecord.Builder newBuilder() {
+    return new org.campagnelab.dl.varanalysis.format.PosRecord.Builder();
   }
   
   /**
@@ -128,8 +128,8 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
    * @param other The existing builder to copy.
    * @return A new PosRecord RecordBuilder
    */
-  public static edu.cornell.med.icb.varanalysis.format.PosRecord.Builder newBuilder(edu.cornell.med.icb.varanalysis.format.PosRecord.Builder other) {
-    return new edu.cornell.med.icb.varanalysis.format.PosRecord.Builder(other);
+  public static org.campagnelab.dl.varanalysis.format.PosRecord.Builder newBuilder(org.campagnelab.dl.varanalysis.format.PosRecord.Builder other) {
+    return new org.campagnelab.dl.varanalysis.format.PosRecord.Builder(other);
   }
   
   /**
@@ -137,8 +137,8 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
    * @param other The existing instance to copy.
    * @return A new PosRecord RecordBuilder
    */
-  public static edu.cornell.med.icb.varanalysis.format.PosRecord.Builder newBuilder(edu.cornell.med.icb.varanalysis.format.PosRecord other) {
-    return new edu.cornell.med.icb.varanalysis.format.PosRecord.Builder(other);
+  public static org.campagnelab.dl.varanalysis.format.PosRecord.Builder newBuilder(org.campagnelab.dl.varanalysis.format.PosRecord other) {
+    return new org.campagnelab.dl.varanalysis.format.PosRecord.Builder(other);
   }
   
   /**
@@ -150,18 +150,18 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
     private int refIdx;
     private int position;
     private boolean mutated;
-    private java.util.List<edu.cornell.med.icb.varanalysis.format.SampleRecord> samples;
+    private java.util.List<org.campagnelab.dl.varanalysis.format.SampleRecord> samples;
 
     /** Creates a new Builder */
     private Builder() {
-      super(edu.cornell.med.icb.varanalysis.format.PosRecord.SCHEMA$);
+      super(org.campagnelab.dl.varanalysis.format.PosRecord.SCHEMA$);
     }
     
     /**
      * Creates a Builder by copying an existing Builder.
      * @param other The existing Builder to copy.
      */
-    private Builder(edu.cornell.med.icb.varanalysis.format.PosRecord.Builder other) {
+    private Builder(org.campagnelab.dl.varanalysis.format.PosRecord.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.refIdx)) {
         this.refIdx = data().deepCopy(fields()[0].schema(), other.refIdx);
@@ -185,8 +185,8 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
      * Creates a Builder by copying an existing PosRecord instance
      * @param other The existing instance to copy.
      */
-    private Builder(edu.cornell.med.icb.varanalysis.format.PosRecord other) {
-            super(edu.cornell.med.icb.varanalysis.format.PosRecord.SCHEMA$);
+    private Builder(org.campagnelab.dl.varanalysis.format.PosRecord other) {
+            super(org.campagnelab.dl.varanalysis.format.PosRecord.SCHEMA$);
       if (isValidValue(fields()[0], other.refIdx)) {
         this.refIdx = data().deepCopy(fields()[0].schema(), other.refIdx);
         fieldSetFlags()[0] = true;
@@ -218,7 +218,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
       * @param value The value of 'refIdx'.
       * @return This builder.
       */
-    public edu.cornell.med.icb.varanalysis.format.PosRecord.Builder setRefIdx(int value) {
+    public org.campagnelab.dl.varanalysis.format.PosRecord.Builder setRefIdx(int value) {
       validate(fields()[0], value);
       this.refIdx = value;
       fieldSetFlags()[0] = true;
@@ -238,7 +238,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
       * Clears the value of the 'refIdx' field.
       * @return This builder.
       */
-    public edu.cornell.med.icb.varanalysis.format.PosRecord.Builder clearRefIdx() {
+    public org.campagnelab.dl.varanalysis.format.PosRecord.Builder clearRefIdx() {
       fieldSetFlags()[0] = false;
       return this;
     }
@@ -256,7 +256,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
       * @param value The value of 'position'.
       * @return This builder.
       */
-    public edu.cornell.med.icb.varanalysis.format.PosRecord.Builder setPosition(int value) {
+    public org.campagnelab.dl.varanalysis.format.PosRecord.Builder setPosition(int value) {
       validate(fields()[1], value);
       this.position = value;
       fieldSetFlags()[1] = true;
@@ -276,7 +276,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
       * Clears the value of the 'position' field.
       * @return This builder.
       */
-    public edu.cornell.med.icb.varanalysis.format.PosRecord.Builder clearPosition() {
+    public org.campagnelab.dl.varanalysis.format.PosRecord.Builder clearPosition() {
       fieldSetFlags()[1] = false;
       return this;
     }
@@ -294,7 +294,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
       * @param value The value of 'mutated'.
       * @return This builder.
       */
-    public edu.cornell.med.icb.varanalysis.format.PosRecord.Builder setMutated(boolean value) {
+    public org.campagnelab.dl.varanalysis.format.PosRecord.Builder setMutated(boolean value) {
       validate(fields()[2], value);
       this.mutated = value;
       fieldSetFlags()[2] = true;
@@ -314,7 +314,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
       * Clears the value of the 'mutated' field.
       * @return This builder.
       */
-    public edu.cornell.med.icb.varanalysis.format.PosRecord.Builder clearMutated() {
+    public org.campagnelab.dl.varanalysis.format.PosRecord.Builder clearMutated() {
       fieldSetFlags()[2] = false;
       return this;
     }
@@ -323,7 +323,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
       * Gets the value of the 'samples' field.
       * @return The value.
       */
-    public java.util.List<edu.cornell.med.icb.varanalysis.format.SampleRecord> getSamples() {
+    public java.util.List<org.campagnelab.dl.varanalysis.format.SampleRecord> getSamples() {
       return samples;
     }
 
@@ -332,7 +332,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
       * @param value The value of 'samples'.
       * @return This builder.
       */
-    public edu.cornell.med.icb.varanalysis.format.PosRecord.Builder setSamples(java.util.List<edu.cornell.med.icb.varanalysis.format.SampleRecord> value) {
+    public org.campagnelab.dl.varanalysis.format.PosRecord.Builder setSamples(java.util.List<org.campagnelab.dl.varanalysis.format.SampleRecord> value) {
       validate(fields()[3], value);
       this.samples = value;
       fieldSetFlags()[3] = true;
@@ -352,7 +352,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
       * Clears the value of the 'samples' field.
       * @return This builder.
       */
-    public edu.cornell.med.icb.varanalysis.format.PosRecord.Builder clearSamples() {
+    public org.campagnelab.dl.varanalysis.format.PosRecord.Builder clearSamples() {
       samples = null;
       fieldSetFlags()[3] = false;
       return this;
@@ -365,7 +365,7 @@ public class PosRecord extends org.apache.avro.specific.SpecificRecordBase imple
         record.refIdx = fieldSetFlags()[0] ? this.refIdx : (java.lang.Integer) defaultValue(fields()[0]);
         record.position = fieldSetFlags()[1] ? this.position : (java.lang.Integer) defaultValue(fields()[1]);
         record.mutated = fieldSetFlags()[2] ? this.mutated : (java.lang.Boolean) defaultValue(fields()[2]);
-        record.samples = fieldSetFlags()[3] ? this.samples : (java.util.List<edu.cornell.med.icb.varanalysis.format.SampleRecord>) defaultValue(fields()[3]);
+        record.samples = fieldSetFlags()[3] ? this.samples : (java.util.List<org.campagnelab.dl.varanalysis.format.SampleRecord>) defaultValue(fields()[3]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);
