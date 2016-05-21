@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Random;
 
 /**
+ *
+ * The mutator object iterates over a parquet file and creates an additional mutated copy of every record.
+ *
  * Created by rct66 on 5/18/16.
- *
- * the mutator object iterates over a parquet file and creates an additional mutated copy of every record.
- *
- *
+ * @author rct66
  */
 public class Mutator extends Intermediary{
     //delta will be halved in homozygous cases (to account for twice the reads at a base)

@@ -11,7 +11,7 @@ import java.util.List;
 
 
 /**
- * Created by rct66 on 5/17/16.
+ *
  *
  * Currently holds the main method. Jar takes two arguments
  *
@@ -23,7 +23,8 @@ import java.util.List;
  *
  * Also, this jar should be a resource for Goby to output variations as a parquet file using its AvroVariationOutputFormat
  * class.
- *
+ * Created by rct66 on 5/17/16.
+ * @author rct66
  */
 public class ParquetPrinter {
 

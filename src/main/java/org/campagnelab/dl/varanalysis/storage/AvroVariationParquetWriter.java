@@ -11,26 +11,24 @@ import org.apache.parquet.avro.AvroWriteSupport;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.parquet.schema.MessageType;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by rct66 on 5/17/16.
- *
- *
- *
  * This is the avp writer class. All changes to the posrecord or samplerecord classes (or record.avsc schema)
  * must be reflected in this writer.
  * This reader serves as a consistent interface with those changing storage models.
+ * <p>
+ * Created by rct66 on 5/17/16.
  *
- *
- *
+ * @author rct66
  */
 public class AvroVariationParquetWriter {
     ParquetWriter parquetWriter;
 
-    public AvroVariationParquetWriter(String path, int blockSize, int pageSize){
+    public AvroVariationParquetWriter(String path, int blockSize, int pageSize) {
         // load your Avro schema
 
         Schema avroSchema = null;
@@ -60,7 +58,7 @@ public class AvroVariationParquetWriter {
     }
 
 
-    public void writeRecord(PosRecord pos){
+    public void writeRecord(PosRecord pos) {
         try {
             parquetWriter.write(pos);
         } catch (IOException e) {
@@ -68,7 +66,7 @@ public class AvroVariationParquetWriter {
         }
     }
 
-    public void writeRecord(GenericRecord pos){
+    public void writeRecord(GenericRecord pos) {
         try {
             parquetWriter.write(pos);
         } catch (IOException e) {
@@ -83,11 +81,11 @@ public class AvroVariationParquetWriter {
         pos.setRefIdx(referenceIndex);
         pos.setMutated(mutated);
         List<SampleRecord> samples = new ArrayList<SampleRecord>();
-        for (int[][] countsArr : samplesCounts){
+        for (int[][] countsArr : samplesCounts) {
             SampleRecord rec = new SampleRecord();
             List<Integer> countsList = new ArrayList<Integer>();
-            for(int j=0;j<2;j++)
-                for(int k=0;k<5;k++)
+            for (int j = 0; j < 2; j++)
+                for (int k = 0; k < 5; k++)
                     countsList.add(countsArr[j][k]);
             rec.setCounts(countsList);
             samples.add(rec);

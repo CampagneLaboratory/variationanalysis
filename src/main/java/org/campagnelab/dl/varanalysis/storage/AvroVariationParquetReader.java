@@ -16,13 +16,13 @@ import java.util.List;
 
 
 /**
- * Created by rct66 on 5/17/16.
  *
  * This is the avp reader class. All changes to the posrecord or samplerecord classes (or record.avsc schema)
  * must be reflected in this reader.
  * This reader serves as a consistent interface with those changing storage models.
  *
- *
+ * Created by rct66 on 5/17/16.
+ * @author rct66
  */
 
 

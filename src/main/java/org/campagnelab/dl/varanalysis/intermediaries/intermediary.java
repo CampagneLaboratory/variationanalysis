@@ -1,13 +1,14 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
 /**
- * Created by rct66 on 5/19/16.
+ *
  *
  * Describes an intermediary step in the sequence to prepare a parquet file for
  * deeplearning training
  *
  * All parquet files should uphold the same schema
- *
+ * Created by rct66 on 5/19/16.
+ * @author rct66
  */
 public abstract class Intermediary {
 
