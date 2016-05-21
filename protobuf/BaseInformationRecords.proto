@@ -1,0 +1,54 @@
+package org.campagnelab.dl.varanalysis.protobuf;
+
+option java_package = "org.campagnelab.dl.varanalysis.protobuf";
+
+option optimize_for = SPEED;
+
+
+// TODO: Manuele, see http://vlkan.com/blog/post/2015/11/27/maven-protobuf/ for recent description of integration of
+// protobuf and maven
+
+/**
+One such message per position in the genome that we observe.
+*/
+
+message BaseInformation {
+    /** Index of the reference sequence where this base is observed in the genome. */
+    required uint32 reference_index = 1;
+    /**  The position in the reference sequence of the genome. */
+    required uint32 position = 2;
+
+    /** Whether this base was mutated in simulation. */
+    optional bool mutated = 3;
+
+    /**
+    The base we have introduced in the simulation.
+    */
+    optional string mutatedBase = 4;
+
+    /**
+    The base present at the position in the genome/reference sequence.
+    */
+    optional string referenceBase = 5;
+    /**
+    A number of bases were observed at this position.
+    */
+    repeated SampleCountInfo counts = 10;
+
+}
+
+message SampleCountInfo {
+    /**
+      True iff genotype sequence observed in the sample matches the reference sequence. */
+    required bool matchesReference = 1;
+    /**
+      Sequence of the genotype observed in the reference genome. Typically a single base, or an indel sequence. */
+    required string fromSequence = 2;
+
+    /**
+      Sequence of the genotype observed in the sample. Typically a single base, or an indel sequence. */
+    required string toSequence = 3;
+
+    /** The number of times the genotype is observed in the sample. */
+    required uint32 genotypeCount = 4;
+}
