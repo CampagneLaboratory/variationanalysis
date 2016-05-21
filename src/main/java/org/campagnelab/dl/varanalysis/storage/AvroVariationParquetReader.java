@@ -10,6 +10,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.parquet.avro.AvroParquetReader;
 import org.apache.parquet.hadoop.ParquetReader;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.List;
 
 
 
-public class AvroVariationParquetReader {
+public class AvroVariationParquetReader implements Closeable{
 
     String path;
     ParquetReader<GenericRecord> pqReader;

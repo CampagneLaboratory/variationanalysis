@@ -9,7 +9,8 @@ option optimize_for = SPEED;
 // protobuf and maven
 
 /**
-One such message per position in the genome that we observe.
+One such message per position in the genome that we observe. These records will be written to collections and
+packed in a binary file.
 */
 
 message BaseInformation {
@@ -34,7 +35,6 @@ message BaseInformation {
     A number of bases were observed at this position.
     */
     repeated SampleCountInfo counts = 10;
-
 }
 
 message SampleCountInfo {
@@ -49,6 +49,9 @@ message SampleCountInfo {
       Sequence of the genotype observed in the sample. Typically a single base, or an indel sequence. */
     required string toSequence = 3;
 
-    /** The number of times the genotype is observed in the sample. */
-    required uint32 genotypeCount = 4;
+    /** The number of times the genotype is observed in the sample in a read matching the forward strand. */
+    required uint32 genotypeCountForwardStrand = 4;
+    /** The number of times the genotype is observed in the sample in a read matching the reverse strand. */
+
+    required uint32 genotypeCountReverseStrand = 5;
 }
