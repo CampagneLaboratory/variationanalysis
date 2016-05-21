@@ -26,7 +26,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="VariationAnalysis" target="1.6" />
+      <module name="VariationAnalysis" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>

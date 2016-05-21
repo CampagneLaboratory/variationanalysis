@@ -27,7 +27,8 @@ import org.nd4j.linalg.dataset.DataSet;
  * the site is likely mutated, because most sites will be heterozygous at most. With these features, I expect the
  * net to have more trouble predicting mutations at homozygous sites, than at heterozygous sites. We'll see. </ul>
  * Created by fac2003 on 5/21/16.
-@author Fabien Campagne
+ *
+ * @author Fabien Campagne
  */
 
 public class SimpleFeatureCalculator implements FeatureCalculator {
@@ -35,12 +36,12 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
 
     @Override
     public int numberOfFeatures() {
-        return 10*2;
+        return 10 * 2;
     }
 
     @Override
     public int numberOfLabels() {
-      return 1;
+        return 1;
     }
 
     @Override
@@ -49,22 +50,24 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
             inputs.putScalar(new int[]{indexOfRecord, featureIndex}, produceFeature(record, featureIndex));
         }
         for (int labelIndex = 0; labelIndex < numberOfLabels(); labelIndex++) {
-            inputs.putScalar(new int[]{indexOfRecord, labelIndex}, produceLabel(record, labelIndex));
+            labels.putScalar(new int[]{indexOfRecord, labelIndex}, produceLabel(record, labelIndex));
         }
     }
 
     public float produceFeature(PosRecord record, int featureIndex) {
-       if (featureIndex<10) {
-        return   record.getSamples().get(0).getCounts().get(featureIndex);
-       }else {
-           featureIndex-=10;
-           return    record.getSamples().get(1).getCounts().get(featureIndex);
-       }
+      assert featureIndex>=0 && featureIndex<20:"Only 20 features";
+        if (featureIndex < 10) {
+            return record.getSamples().get(0).getCounts().get(featureIndex);
+        } else {
+            featureIndex -= 10;
+            return record.getSamples().get(1).getCounts().get(featureIndex);
+        }
     }
 
     @Override
     public float produceLabel(PosRecord record, int labelIndex) {
-     return record.getMutated()?1:0;
+       assert labelIndex==0: "only one label.";
+        return record.getMutated() ? 1.0f : 0.0f;
 
     }
 }

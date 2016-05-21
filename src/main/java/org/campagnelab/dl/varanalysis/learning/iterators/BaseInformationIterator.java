@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
  * An iterator compatible with the DeepLearning4J framework that can iterate a BaseInformation file
  * and generate features suitable to train the neural net. The iterator can be constructed with a
  * dataset filename and an instance of FeatureCalculator.
- *
+ * <p>
  * Created by fac2003 on 5/21/16.
  *
  * @author Fabien Campagne
@@ -30,9 +30,10 @@ public class BaseInformationIterator implements DataSetIterator {
     private int cursor = 0;
     private int batchSize = 32;
 
-    public BaseInformationIterator(String inputFilename, FeatureCalculator featureCalculator) {
+    public BaseInformationIterator(String inputFilename, int batchSize, FeatureCalculator featureCalculator) {
         this.inputFilename = inputFilename;
         this.featureCalculator = featureCalculator;
+        this.batchSize = batchSize;
         AvroVariationParquetReader reader = new AvroVariationParquetReader(inputFilename);
         // traverse the data once to find the total number of records:
         int count = 0;
@@ -62,7 +63,7 @@ public class BaseInformationIterator implements DataSetIterator {
         // dimension 1 = number of features per record.
 
         INDArray inputs = Nd4j.zeros(batchSize, featureCalculator.numberOfFeatures());
-        INDArray labels = Nd4j.zeros(batchSize, featureCalculator.numberOfFeatures());
+        INDArray labels = Nd4j.zeros(batchSize, featureCalculator.numberOfLabels());
         for (int i = 0; i < size; i++) {
             // we are going to call nextRecord directly, without checking hasNextRecord, because we have
             // determined how many times we can call (in size). We should get the exception if we were
@@ -71,6 +72,8 @@ public class BaseInformationIterator implements DataSetIterator {
             // fill in features and labels for a given record i:
             PosRecord record = nextRecord();
             featureCalculator.map(record, inputs, labels, i);
+            ds.setFeatures(inputs);
+            ds.setLabels(labels);
         }
         return ds;
     }
@@ -92,7 +95,7 @@ public class BaseInformationIterator implements DataSetIterator {
 
     @Override
     public int totalOutcomes() {
-        return 0;
+        return featureCalculator.numberOfLabels();
     }
 
     @Override
@@ -140,8 +143,6 @@ public class BaseInformationIterator implements DataSetIterator {
     }
 
 
-
-
     @Override
     public DataSet next() {
         if (hasNext()) {
@@ -151,6 +152,7 @@ public class BaseInformationIterator implements DataSetIterator {
 
     /**
      * Check if there is a next single PosRecord.
+     *
      * @return
      */
     public boolean hasNextRecord() {
@@ -163,6 +165,7 @@ public class BaseInformationIterator implements DataSetIterator {
 
     /**
      * Return the next single PosRecord.
+     *
      * @return the next available record, or throws NoSuchElementException if there are no more records.
      */
     private PosRecord nextRecord() {
