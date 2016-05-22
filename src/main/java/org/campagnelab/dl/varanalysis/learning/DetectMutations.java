@@ -50,8 +50,8 @@ public class DetectMutations {
 
     public static void main(String[] args) throws IOException {
         int seed = 123;
-        double learningRate = 0.01;
-        int miniBatchSize = 500;
+        double learningRate = 0.001;
+        int miniBatchSize = 1000;
         int numEpochs = 30;
         String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate;
         int generateSamplesEveryNMinibatches = 10;
@@ -62,7 +62,7 @@ public class DetectMutations {
 
         int numInputs = trainIter.inputColumns();
         int numOutputs = trainIter.totalOutcomes();
-        int numHiddenNodes = 200;
+        int numHiddenNodes = 20;
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
@@ -70,7 +70,7 @@ public class DetectMutations {
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(learningRate).regularization(true).l2(0.02)
                 .updater(Updater.ADAGRAD).momentum(0.9)
-                .list(2)
+                .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                         .weightInit(WeightInit.XAVIER)
                         .activation("relu")
@@ -89,7 +89,7 @@ public class DetectMutations {
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
 
-        net.setListeners(/*new HistogramIterationListener(1), */new ScoreIterationListener(1));
+    //    net.setListeners(/*new HistogramIterationListener(1), */new ScoreIterationListener(1));
         //Print the  number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
         int totalNumParams = 0;
@@ -126,16 +126,16 @@ public class DetectMutations {
                 }
                 ;
                 net.fit(ds);
+
                 pg.update();
-                if (net.score() == -41.65181065600332) {
-                    System.out.println("STOP");
-                }
+
                 if (net.score() < bestScore) {
                     bestScore = net.score();
                     saver.saveBestModel(net, net.score());
                     System.out.println("Saving best score model.. score=" + bestScore);
                 }
-            }
+
+      }
             pg.stop();
             pgEpoch.update();
             trainIter.reset();    //Reset iterator for another epoch

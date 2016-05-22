@@ -4,6 +4,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.campagnelab.dl.varanalysis.format.PosRecord;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.util.FeatureUtil;
 
 /**
  * This is a simple feature mapper. It is designed using information currently available in the Parquet file.
@@ -41,7 +42,7 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
 
     @Override
     public int numberOfLabels() {
-        return 1;
+        return 2;
     }
 
     int[] indices = new int[]{0, 0};
@@ -85,8 +86,11 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
 
     @Override
     public float produceLabel(PosRecord record, int labelIndex) {
-        assert labelIndex == 0 : "only one label.";
-        return record.getMutated() ? 1.0f : 0.0f;
+        assert labelIndex == 0 || labelIndex == 1 : "only one label.";
 
+        //return record.getMutated() ? 1.0f : 0.0f;
+        if (labelIndex == 0) return record.getMutated() ? 1 : 0;
+        if (labelIndex == 1) return record.getMutated() ? 0 : 1;
+        return -1;
     }
 }
