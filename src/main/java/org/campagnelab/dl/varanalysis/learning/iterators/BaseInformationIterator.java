@@ -104,6 +104,8 @@ public class BaseInformationIterator implements DataSetIterator {
         }
         this.reader = new AvroVariationParquetReader(inputFilename);
         cursor = 0;
+        nextPosRecord=null;
+    //    System.out.println("reset called");
     }
 
     @Override
@@ -168,7 +170,7 @@ public class BaseInformationIterator implements DataSetIterator {
      * @return the next available record, or throws NoSuchElementException if there are no more records.
      */
     private PosRecord nextRecord() {
-        if (hasNext()) {
+        if (hasNextRecord()) {
             PosRecord tmp = nextPosRecord;
             // setting nextPosRecord will make hasNextRecord load the next record from the underlying reader.
             nextPosRecord = null;

@@ -75,7 +75,7 @@ public class DetectMutations {
                         .weightInit(WeightInit.XAVIER)
                         .activation("relu")
                         .build())
-                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.XENT)
+                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .weightInit(WeightInit.XAVIER)
                         .activation("softmax").weightInit(WeightInit.XAVIER)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
