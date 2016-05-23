@@ -22,10 +22,10 @@ message BaseInformation {
     /** Whether this base was mutated in simulation. */
     optional bool mutated = 3;
 
-    /**
-    The base we have introduced in the simulation.
-    */
+    /** The base we have introduced in the simulation. */
     optional string mutatedBase = 4;
+    /** The index of the counts array where the mutated element was introducd. */
+    optional uint32 indexOfMutatedBase = 11;
 
     /**
     The base present at the position in the genome/reference sequence.
