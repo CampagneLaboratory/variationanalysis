@@ -54,6 +54,24 @@ public class DetectMutations {
         int miniBatchSize = 1000;
         int numEpochs = 30;
         String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate;
+
+
+
+        if (args.length >= 1 && args[0].equals("predict")){
+            PredictMutations predictor = new PredictMutations(attempt,"sample_data/genotypes_testset_randomized.parquet","tests/results");
+            predictor.PrintPredictions();
+            return;
+        }
+
+
+
+
+
+
+
+
+
+
         int generateSamplesEveryNMinibatches = 10;
 
         //Load the training data:

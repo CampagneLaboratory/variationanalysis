@@ -54,7 +54,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>org.campagnelab.dl.varanalysis.storage.ParquetPrinter</mainClass>
+                            <mainClass>org.campagnelab.dl.varanalysis.learning.DetectMutations</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

@@ -62,8 +62,9 @@ public class BaseInformationIterator implements DataSetIterator {
         // dimension 0 = number of examples in minibatch
         // dimension 1 = number of features per record.
 
-        INDArray inputs = Nd4j.zeros(batchSize, featureCalculator.numberOfFeatures());
-        INDArray labels = Nd4j.zeros(batchSize, featureCalculator.numberOfLabels());
+        //size changed from batchSize. huge batchSize values useful for tests
+        INDArray inputs = Nd4j.zeros(size, featureCalculator.numberOfFeatures());
+        INDArray labels = Nd4j.zeros(size, featureCalculator.numberOfLabels());
         for (int i = 0; i < size; i++) {
             // we are going to call nextRecord directly, without checking hasNextRecord, because we have
             // determined how many times we can call (in size). We should get the exception if we were
