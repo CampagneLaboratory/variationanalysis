@@ -2,6 +2,8 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
+import org.campagnelab.dl.varanalysis.format.PosRecord;
+import org.campagnelab.dl.varanalysis.format.SampleRecord;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.SimpleFeatureCalculator;
 import org.campagnelab.dl.varanalysis.storage.AvroVariationParquetReader;
@@ -29,15 +31,13 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Arrays;
+
+import java.util.*;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Train a neural network to predict mutations.
@@ -57,14 +57,52 @@ public class PredictMutations {
 
     }
 
+
+    public static void main(String[] args) throws IOException {
+        double learningRate = 0.001;
+        int miniBatchSize = 1000;
+        String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate;
+
+        PredictMutations predictor = new PredictMutations(attempt, "sample_data/genotypes_testset_randomized.parquet", "tests/results");
+        predictor.PrintPredictions();
+    }
+
+
+    String featuresToString(PosRecord pos){
+        StringBuilder sb = new StringBuilder();
+
+        List<SampleRecord> srecs = pos.getSamples();
+        for (SampleRecord srec : srecs) {
+            sb.append(srec.getCounts().toString());
+        }
+
+        return sb.toString();
+    }
+
     public void PrintPredictions(){
         try {
-            PrintWriter results = new PrintWriter(resultsPath, "UTF-8");
-            LocalFileModelSaver saver = new LocalFileModelSaver(modelPath);
-            MultiLayerNetwork model = saver.getBestModel();
+            //Load parameters from disk:
+            INDArray newParams;
+            DataInputStream dis = new DataInputStream(new FileInputStream(modelPath + "/bestModelParams.bin"));
+            newParams = Nd4j.read(dis);
+
+            //Load network configuration from disk:
+            MultiLayerConfiguration confFromJson =
+                    MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File(modelPath + "/bestModelConf.json")));
+
+            //Create a MultiLayerNetwork from the saved configuration and parameters
+            MultiLayerNetwork model = new MultiLayerNetwork(confFromJson);
             model.init();
+            model.setParameters(newParams);
+
+
+
+            //initialize results printer
+            PrintWriter results = new PrintWriter(resultsPath, "UTF-8");
+
             //may need to adjust batch size and write outputs piecewise if test sets are very large
             BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new SimpleFeatureCalculator());
+            AvroVariationParquetReader avroReader = new AvroVariationParquetReader(testsetPath);
             DataSet ds = baseIter.next();
             INDArray testFeatures = ds.getFeatures();
             INDArray testPredicted = model.output(testFeatures);
@@ -72,10 +110,14 @@ public class PredictMutations {
 
             //iterate over features + labels and print to tab delimited file
             for (int i = 0; i < testPredicted.rows(); i++){
-                float[] features = testFeatures.getRow(i).data().asFloat();
-                float[] labels = testActual.getRow(i).data().asFloat();
-                float[] predictions = testActual.getRow(i).data().asFloat();
-                results.append(Arrays.toString(labels) + "\t" + Arrays.toString(predictions) + "\t" + Arrays.toString(features) + "\n");
+                PosRecord pos = avroReader.read();
+                String features = featuresToString(pos);
+                //boolean
+                boolean mutated = pos.getMutated();
+                float[] probabilities = testPredicted.getRow(i).data().asFloat();
+                boolean prediction = probabilities[0] > probabilities[1];
+                String correctness = (prediction == mutated) ? "right" : "wrong";
+                results.append(mutated + "\t" + prediction + "\t" + Arrays.toString(probabilities) + "\t" + correctness + "\t" + features + "\n");
             }
             results.close();
         } catch (Exception e) {
