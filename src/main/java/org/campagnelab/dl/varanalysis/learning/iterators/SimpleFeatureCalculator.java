@@ -48,7 +48,7 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
     int[] indices = new int[]{0, 0};
 
     @Override
-    public void map(PosRecord record, INDArray inputs, INDArray labels, int indexOfRecord) {
+    public void mapFeatures(PosRecord record, INDArray inputs, int indexOfRecord) {
         indices[0] = indexOfRecord;
         int sumCounts = 0;
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
@@ -58,6 +58,12 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
             indices[1] = featureIndex;
             inputs.putScalar(indices, normalize(produceFeature(record, featureIndex), sumCounts));
         }
+    }
+
+    @Override
+    public void mapLabels(PosRecord record, INDArray labels, int indexOfRecord) {
+        indices[0] = indexOfRecord;
+
         for (int labelIndex = 0; labelIndex < numberOfLabels(); labelIndex++) {
             indices[1] = labelIndex;
             labels.putScalar(indices, produceLabel(record, labelIndex));

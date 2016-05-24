@@ -72,7 +72,8 @@ public class BaseInformationIterator implements DataSetIterator {
 
             // fill in features and labels for a given record i:
             PosRecord record = nextRecord();
-            featureCalculator.map(record, inputs, labels, i);
+            featureCalculator.mapFeatures(record, inputs, i);
+            featureCalculator.mapLabels(record,  labels, i);
 
         }
         return new DataSet(inputs,labels);
