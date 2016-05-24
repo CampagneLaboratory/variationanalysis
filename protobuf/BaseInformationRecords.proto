@@ -4,10 +4,6 @@ option java_package = "org.campagnelab.dl.varanalysis.protobuf";
 
 option optimize_for = SPEED;
 
-
-// TODO: Manuele, see http://vlkan.com/blog/post/2015/11/27/maven-protobuf/ for recent description of integration of
-// protobuf and maven
-
 /**
 One such message per position in the genome that we observe. These records will be written to collections and
 packed in a binary file.
