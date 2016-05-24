@@ -115,9 +115,10 @@ public class PredictMutations {
                 //boolean
                 boolean mutated = pos.getMutated();
                 float[] probabilities = testPredicted.getRow(i).data().asFloat();
-                boolean prediction = probabilities[0] > probabilities[1];
+                //float[] labels = testActual.getRow(i).data().asFloat();
+                boolean prediction = probabilities[0] > 0.5;
                 String correctness = (prediction == mutated) ? "right" : "wrong";
-                results.append(mutated + "\t" + prediction + "\t" + Arrays.toString(probabilities) + "\t" + correctness + "\t" + features + "\n");
+                results.append((mutated?"1":"0") + "\t" + Float.toString(probabilities[0]) + "\t" + correctness + "\t" + features + "\n");
             }
             results.close();
         } catch (Exception e) {
