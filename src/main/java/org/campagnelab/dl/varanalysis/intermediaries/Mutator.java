@@ -39,12 +39,7 @@ public class Mutator extends Intermediary{
     public void execute(String in, String out, int blockSize, int pageSize) {
         AvroVariationParquetReader reader = new AvroVariationParquetReader(in);
         AvroVariationParquetWriter writer = new AvroVariationParquetWriter(out,blockSize,pageSize);
-        PosRecord pos;
-        while(true) {
-            //read and write unmutated record
-            pos = reader.read();
-            if (pos == null)
-                break;
+        for (PosRecord pos = reader.read(); pos != null; pos = reader.read()) {
             writer.writeRecord(pos);
             //mutate record and write it again
             pos.setMutated(true);
