@@ -59,10 +59,25 @@ public class PredictMutations {
 
     public void PrintPredictions(){
         try {
-            PrintWriter results = new PrintWriter(resultsPath, "UTF-8");
-            LocalFileModelSaver saver = new LocalFileModelSaver(modelPath);
-            MultiLayerNetwork model = saver.getBestModel();
+            //Load parameters from disk:
+            INDArray newParams;
+            DataInputStream dis = new DataInputStream(new FileInputStream(modelPath + "/bestModelParams.bin"));
+            newParams = Nd4j.read(dis);
+
+            //Load network configuration from disk:
+            MultiLayerConfiguration confFromJson =
+                    MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File(modelPath + "/bestModelConf.json")));
+
+            //Create a MultiLayerNetwork from the saved configuration and parameters
+            MultiLayerNetwork model = new MultiLayerNetwork(confFromJson);
             model.init();
+            model.setParameters(newParams);
+
+
+
+            //initialize results printer
+            PrintWriter results = new PrintWriter(resultsPath, "UTF-8");
+
             //may need to adjust batch size and write outputs piecewise if test sets are very large
             BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new SimpleFeatureCalculator());
             DataSet ds = baseIter.next();
