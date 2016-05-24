@@ -263,11 +263,11 @@
             <artifactId>parquet-tools</artifactId>
             <version>${parquet.project.version}</version>
         </dependency>
-        <!--dependency>
+        <dependency>
             <groupId>org.apache.parquet</groupId>
             <artifactId>parquet-hadoop</artifactId>
             <version>${parquet.project.version}</version>
-        </dependency-->
+        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
