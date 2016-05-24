@@ -10,7 +10,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import java.io.*;
 
 /**
- * Reader for records stored in protobuf format.
+ * A reader for base information records stored in protobuf format.
  *
  * @author manuele simi
  */
@@ -47,7 +47,7 @@ public class RecordReader implements Closeable {
      * @return the record
      * @throws IOException
      */
-    public BaseInformationRecords.BaseInformationOrBuilder readNext() throws IOException {
+    public BaseInformationRecords.BaseInformationOrBuilder nextRecord() throws IOException {
         BaseInformationRecords.BaseInformationOrBuilder record = pqReader.read();
         if (record == null)
             return null;
