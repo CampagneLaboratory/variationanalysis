@@ -1,14 +1,19 @@
 package org.campagnelab.dl.varanalysis.storage;
 
+import com.google.protobuf.CodedInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.ParquetReader;
+import org.apache.parquet.hadoop.api.ReadSupport;
+import org.apache.parquet.io.api.RecordMaterializer;
 import org.apache.parquet.proto.ProtoParquetReader;
+import org.apache.parquet.schema.MessageType;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.*;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
@@ -27,7 +32,8 @@ public class RecordReader implements Closeable, RecordIterable {
     public RecordReader(String filepath) throws IOException {
         this.filepath = filepath;
         this.countRecords();
-        ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder(new Path(filepath));
+
+        ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder( new Path(filepath));
         Configuration conf = new Configuration();
         conf.set("parquet.proto.class", BaseInformationRecords.BaseInformation.class.getCanonicalName());
         pqBuilder.withConf(conf);
@@ -37,7 +43,7 @@ public class RecordReader implements Closeable, RecordIterable {
     private void countRecords() throws IOException {
         ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder(new Path(this.filepath));
         Configuration conf = new Configuration();
-                conf.set("parquet.proto.class", BaseInformationRecords.BaseInformation.class.getCanonicalName());
+        conf.set("parquet.proto.class", BaseInformationRecords.BaseInformation.class.getCanonicalName());
         pqBuilder.withConf(conf);
         ParquetReader<BaseInformationRecords.BaseInformation> localReader = pqBuilder.build();
         while (localReader.read() != null) this.totalRecords++;
@@ -50,12 +56,20 @@ public class RecordReader implements Closeable, RecordIterable {
      * @return the record
      * @throws IOException
      */
-    public BaseInformationRecords.BaseInformationOrBuilder nextRecord() throws IOException {
+    public BaseInformationRecords.BaseInformation nextRecord() throws IOException {
         BaseInformationRecords.BaseInformationOrBuilder record = pqReader.read();
-        if (record == null)
+
+        if (record == null) {
             return null;
+        }
         recordLoadedSoFar++;
-        return record;
+
+        if (record instanceof BaseInformationRecords.BaseInformation.Builder) {
+            return  ((BaseInformationRecords.BaseInformation.Builder) record).build();
+        }else {
+           assert false:"Cannot build record.";
+            return null;
+        }
     }
 
     /**
