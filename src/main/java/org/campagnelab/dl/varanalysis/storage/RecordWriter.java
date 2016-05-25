@@ -1,18 +1,14 @@
 package org.campagnelab.dl.varanalysis.storage;
 
 
-import com.google.protobuf.Message;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.Path;
-import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-import org.apache.parquet.proto.ProtoParquetReader;
 import org.apache.parquet.proto.ProtoParquetWriter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * A writer for base information records in protobuf format.
@@ -34,21 +30,6 @@ public class RecordWriter implements Closeable {
         this.parquetWriter.write(record);
     }
 
-    public void writeRecord(List<SampleCountInfo> allCounts, String mutatedBase,
-                            String refBase, int refIndex, int position, int index, boolean mutated) throws IOException {
-        BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
-        builder.setMutated(mutated);
-        builder.setIndexOfMutatedBase(index);
-        builder.setPosition(position);
-        builder.setReferenceBase(refBase);
-        builder.setReferenceIndex(refIndex);
-        builder.setMutatedBase(mutatedBase);
-        for (SampleCountInfo counts: allCounts) {
-            builder.addCounts(counts.toProtobuf());
-        }
-        this.parquetWriter.write(builder.build());
-    }
-
     /**
      * Closes this stream and releases any system resources associated
      * with it. If the stream is already closed then invoking this
@@ -67,24 +48,4 @@ public class RecordWriter implements Closeable {
         IOUtils.closeQuietly(parquetWriter);
     }
 
-    public static class SampleCountInfo {
-
-        public boolean matchesReference;
-
-        public String fromSequence, toSequence;
-
-        public int genotypeCountForwardStrand, genotypeCountReverseStrand;
-
-
-        protected BaseInformationRecords.SampleCountInfo toProtobuf() {
-            BaseInformationRecords.SampleCountInfo.Builder builder = BaseInformationRecords.SampleCountInfo.newBuilder();
-            builder.setFromSequence(fromSequence);
-            builder.setToSequence(toSequence);
-            builder.setMatchesReference(matchesReference);
-            builder.setGenotypeCountForwardStrand(genotypeCountForwardStrand);
-            builder.setGenotypeCountReverseStrand(genotypeCountReverseStrand);
-            return builder.build();
-        }
-
-    }
 }

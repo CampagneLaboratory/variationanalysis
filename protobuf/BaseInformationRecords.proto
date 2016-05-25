@@ -18,22 +18,36 @@ message BaseInformation {
     /** Whether this base was mutated in simulation. */
     optional bool mutated = 3;
 
-    /** The base we have introduced in the simulation. */
+    /** The base we have introduced in the simulation. Always length 1. */
     optional string mutatedBase = 4;
-    /** The index of the counts array where the mutated element was introducd. */
-    optional uint32 indexOfMutatedBase = 11;
+    /** The index of the counts array where the mutated element was introduced. */
+    optional uint32 indexOfMutatedBase = 7;
 
+    /** The frequency with which this base was mutated by the mutator. */
+    optional float frequencyOfMutation =  6;
     /**
     The base present at the position in the genome/reference sequence.
     */
     optional string referenceBase = 5;
-    /**
-    A number of bases were observed at this position.
-    */
-    repeated SampleCountInfo counts = 10;
+
+    /** A set of samples (ie germline,somatic). */
+    repeated SampleInfo samples = 8;
+
 }
 
-message SampleCountInfo {
+/**
+Usually two SampleInfo messages, one germline and one somatic. Contain data about the samples the count info for each genotype.
+*/
+message SampleInfo {
+    /** A number of bases were observed at the position. */
+    repeated CountInfo counts = 1;
+
+    /** flag to specify whether the relevant sample is from a tumor (ie somatic sample) */
+    optional bool isTumor = 2;
+
+}
+
+message CountInfo {
     /**
       True iff genotype sequence observed in the sample matches the reference sequence. */
     required bool matchesReference = 1;
@@ -47,7 +61,7 @@ message SampleCountInfo {
 
     /** The number of times the genotype is observed in the sample in a read matching the forward strand. */
     required uint32 genotypeCountForwardStrand = 4;
-    /** The number of times the genotype is observed in the sample in a read matching the reverse strand. */
 
+    /** The number of times the genotype is observed in the sample in a read matching the reverse strand. */
     required uint32 genotypeCountReverseStrand = 5;
 }
