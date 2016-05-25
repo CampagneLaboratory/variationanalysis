@@ -9,5 +9,5 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
  *
  * @author Manuele Simi
  */
-public interface RecordIterable extends Iterable<BaseInformationRecords.BaseInformationOrBuilder> {
+public interface RecordIterable extends Iterable<BaseInformationRecords.BaseInformation> {
 }

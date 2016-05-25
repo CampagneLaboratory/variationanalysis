@@ -1,11 +1,12 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
 
-import org.campagnelab.dl.varanalysis.storage.AvroVariationParquetReader;
-import org.campagnelab.dl.varanalysis.storage.AvroVariationParquetWriter;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.varanalysis.storage.RecordReader;
+import org.campagnelab.dl.varanalysis.storage.RecordWriter;
 import it.unimi.dsi.util.XorShift128PlusRandom;
-import org.apache.avro.generic.GenericRecord;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,25 +22,36 @@ import java.util.Random;
  */
 public class Randomizer extends Intermediary{
 
+    public static void main (String[] args){
+
+        //randomize
+        Randomizer rndz = new Randomizer();
+        String startPath = args[0];
+        String rndPath = args[0].substring(0, startPath.length() - 8) + "_randomized.parquet";
+        rndz.execute(startPath,rndPath);
+        System.out.println("randomized");
+    }
+
     public void execute(String inPath, String outPath, int blockSize, int pageSize) {
-        AvroVariationParquetReader reader = new AvroVariationParquetReader(inPath);
-        AvroVariationParquetWriter writer = new AvroVariationParquetWriter(outPath, blockSize, pageSize);
-        GenericRecord gen;
-        List<GenericRecord> genList = new ArrayList<GenericRecord>();
-        while (true){
-            gen = reader.read();
-            if (gen == null)
-                break;
-            genList.add(gen);
-        }
-        reader.close();
+        try {
+            RecordReader reader = new RecordReader(inPath);
+            RecordWriter writer = new RecordWriter(outPath,blockSize,pageSize);
 
-        Random rand = new XorShift128PlusRandom();
-        Collections.shuffle(genList,rand);
+            List<BaseInformationRecords.BaseInformation> recList = new ArrayList<BaseInformationRecords.BaseInformation>();
+            for (BaseInformationRecords.BaseInformation rec : reader) {
+                recList.add(rec);
+            }
+            reader.close();
 
-        for (GenericRecord outgen : genList){
-            writer.writeRecord(outgen);
+            Random rand = new XorShift128PlusRandom();
+            Collections.shuffle(recList,rand);
+
+            for ( BaseInformationRecords.BaseInformation rec : recList){
+                writer.writeRecord(rec);
+            }
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        writer.close();
     }
 }

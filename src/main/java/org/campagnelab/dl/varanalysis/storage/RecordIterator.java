@@ -12,7 +12,7 @@ import java.util.Iterator;
  *
  * @author Manuele Simi
  */
-public class RecordIterator implements Iterator<BaseInformationRecords.BaseInformationOrBuilder> {
+public class RecordIterator implements Iterator<BaseInformationRecords.BaseInformation> {
 
     private long totalRecords = 0;
     private long recordLoadedSoFar = 0;
@@ -36,14 +36,19 @@ public class RecordIterator implements Iterator<BaseInformationRecords.BaseInfor
     }
 
     @Override
-    public BaseInformationRecords.BaseInformationOrBuilder next() {
+    public BaseInformationRecords.BaseInformation next() {
         BaseInformationRecords.BaseInformationOrBuilder record = null;
         try {
             record = reader.read();
             recordLoadedSoFar++;
         } catch (IOException e) {
         } finally {
-            return record;
+            if (record instanceof BaseInformationRecords.BaseInformation.Builder) {
+                return  ((BaseInformationRecords.BaseInformation.Builder) record).build();
+            }else {
+                assert false:"Cannot build record.";
+                return null;
+            }
         }
     }
 

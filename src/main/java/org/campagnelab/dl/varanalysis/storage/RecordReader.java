@@ -146,7 +146,7 @@ public class RecordReader implements Closeable, RecordIterable {
      * @since 1.8
      */
     @Override
-    public void forEach(Consumer<? super BaseInformationRecords.BaseInformationOrBuilder> action) {
+    public void forEach(Consumer<? super BaseInformationRecords.BaseInformation> action) {
 
     }
 
@@ -168,7 +168,7 @@ public class RecordReader implements Closeable, RecordIterable {
      * @since 1.8
      */
     @Override
-    public Spliterator<BaseInformationRecords.BaseInformationOrBuilder> spliterator() {
+    public Spliterator<BaseInformationRecords.BaseInformation> spliterator() {
         return null;
     }
 }
