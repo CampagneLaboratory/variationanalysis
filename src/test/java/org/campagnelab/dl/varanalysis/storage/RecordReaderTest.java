@@ -26,7 +26,7 @@ public class RecordReaderTest {
     }
 
     @Test
-    public void readrecords() throws Exception {
+    public void readRecords() throws Exception {
         BaseInformationRecords.BaseInformationOrBuilder record = this.reader.nextRecord();
         while (record != null) {
             record = this.reader.nextRecord();
@@ -35,7 +35,7 @@ public class RecordReaderTest {
     }
 
     @Test
-    public void readrecordsWithIterator() throws Exception {
+    public void readRecordsWithIterator() throws Exception {
         int numRecordsRead = 0;
         for (BaseInformationRecords.BaseInformationOrBuilder record: this.reader) {
             assertNotNull(record);

@@ -46,13 +46,23 @@ public class RecordWriterTest {
             builder.setReferenceBase("refbase");
             builder.setReferenceIndex( i + 50);
             builder.setMutatedBase("mutatedBase");
-            BaseInformationRecords.SampleCountInfo.Builder builderInfo = BaseInformationRecords.SampleCountInfo.newBuilder();
+
+            BaseInformationRecords.CountInfo.Builder builderInfo = BaseInformationRecords.CountInfo.newBuilder();
             builderInfo.setFromSequence("from");
             builderInfo.setToSequence("to");
             builderInfo.setMatchesReference(true);
             builderInfo.setGenotypeCountForwardStrand(1);
             builderInfo.setGenotypeCountReverseStrand(2);
-            builder.addCounts(builderInfo.build());
+            builder.addGermlineCounts(builderInfo.build());
+
+            BaseInformationRecords.CountInfo.Builder builderInfoS = BaseInformationRecords.CountInfo.newBuilder();
+            builderInfoS.setFromSequence("from");
+            builderInfoS.setToSequence("to");
+            builderInfoS.setMatchesReference(true);
+            builderInfoS.setGenotypeCountForwardStrand(1);
+            builderInfoS.setGenotypeCountReverseStrand(2);
+            builder.addSomaticCounts(builderInfoS.build());
+
             writer.writeRecord(builder.build());
         }
 

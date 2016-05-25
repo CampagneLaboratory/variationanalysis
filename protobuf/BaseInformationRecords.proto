@@ -30,10 +30,13 @@ message BaseInformation {
     /**
     A number of bases were observed at this position.
     */
-    repeated SampleCountInfo counts = 10;
+    repeated CountInfo germlineCounts = 10;
+
+    repeated CountInfo somaticCounts = 12;
+
 }
 
-message SampleCountInfo {
+message CountInfo {
     /**
       True iff genotype sequence observed in the sample matches the reference sequence. */
     required bool matchesReference = 1;
