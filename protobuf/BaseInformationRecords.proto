@@ -20,36 +20,31 @@ message BaseInformation {
 
     /** The base we have introduced in the simulation. Always length 1. */
     optional string mutatedBase = 4;
-    /** The index of the counts array where the mutated element was introducd. */
-    optional uint32 indexOfMutatedBase = 11;
+    /** The index of the counts array where the mutated element was introduced. */
+    optional uint32 indexOfMutatedBase = 7;
 
-
-    //TODO: frequency of mutation
-
+    /** The frequency with which this base was mutated by the mutator. */
+    optional float frequencyOfMutation =  6;
     /**
     The base present at the position in the genome/reference sequence.
     */
     optional string referenceBase = 5;
 
-    repeated SampleInfo germline = 10;
-
-    repeated SampleInfo somatic= 12;
-
-
-    repeated SampleInfo samples=12;
+    /** A set of samples (ie germline,somatic). */
+    repeated SampleInfo samples = 8;
 
 }
 
+/**
+Usually two SampleInfo messages, one germline and one somatic. Contain data about the samples the count info for each genotype.
+*/
 message SampleInfo {
-
-   //TODO: add istumor
-
-
-
-   //optional uint32 sampleIndex = 3;
-
     /** A number of bases were observed at the position. */
-   repeated CountInfo counts = 2;
+    repeated CountInfo counts = 1;
+
+    /** flag to specify whether the relevant sample is from a tumor (ie somatic sample) */
+    optional bool isTumor = 2;
+
 }
 
 message CountInfo {

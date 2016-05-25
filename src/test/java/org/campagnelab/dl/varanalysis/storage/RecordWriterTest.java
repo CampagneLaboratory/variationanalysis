@@ -45,7 +45,6 @@ public class RecordWriterTest {
 
             //germline counts
             BaseInformationRecords.SampleInfo.Builder sampleBuilder = BaseInformationRecords.SampleInfo.newBuilder();
-            sampleBuilder.setFailed(10);
             BaseInformationRecords.CountInfo.Builder builderInfo = BaseInformationRecords.CountInfo.newBuilder();
             builderInfo.setFromSequence("from");
             builderInfo.setToSequence("to");
@@ -53,11 +52,10 @@ public class RecordWriterTest {
             builderInfo.setGenotypeCountForwardStrand(1);
             builderInfo.setGenotypeCountReverseStrand(2);
             sampleBuilder.addCounts(builderInfo.build());
-            builder.addGermline(sampleBuilder.build());
+            builder.addSamples(sampleBuilder.build());
 
             //somatic counts
             BaseInformationRecords.SampleInfo.Builder sampleBuilderS = BaseInformationRecords.SampleInfo.newBuilder();
-            sampleBuilderS.setFailed(20);
             BaseInformationRecords.CountInfo.Builder builderInfoS = BaseInformationRecords.CountInfo.newBuilder();
             builderInfoS.setFromSequence("from");
             builderInfoS.setToSequence("to");
@@ -65,7 +63,7 @@ public class RecordWriterTest {
             builderInfoS.setGenotypeCountForwardStrand(1);
             builderInfoS.setGenotypeCountReverseStrand(2);
             sampleBuilderS.addCounts(builderInfoS.build());
-            builder.addSomatic(sampleBuilderS.build());
+            builder.addSamples(sampleBuilderS.build());
 
             writer.writeRecord(builder.build());
         }
