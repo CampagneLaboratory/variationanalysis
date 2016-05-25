@@ -2,13 +2,15 @@ package org.campagnelab.dl.varanalysis.learning.iterators;
 
 import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.varanalysis.format.PosRecord;
-import org.campagnelab.dl.varanalysis.storage.AvroVariationParquetReader;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.factory.Nd4j;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -22,34 +24,23 @@ import java.util.NoSuchElementException;
  * @author Fabien Campagne
  */
 public class BaseInformationIterator implements DataSetIterator {
-    private final int totalExamples;
-    private AvroVariationParquetReader reader;
+    private final long totalExamples;
+    private RecordReader reader;
     private final FeatureMapper featureMapper;
     private final LabelMapper labelMapper;
     private final String inputFilename;
-    private PosRecord nextPosRecord;
-    private int cursor = 0;
+    private BaseInformationRecords.BaseInformationOrBuilder nextPosRecord;
+    private long cursor = 0;
     private int batchSize = 32;
 
-    public BaseInformationIterator(String inputFilename, int batchSize, FeatureMapper featureMapper, LabelMapper labelMapper) {
+    public BaseInformationIterator(String inputFilename, int batchSize, FeatureMapper featureMapper, LabelMapper labelMapper) throws IOException {
         this.inputFilename = inputFilename;
         this.featureMapper = featureMapper;
         this.labelMapper = labelMapper;
         this.batchSize = batchSize;
-        AvroVariationParquetReader reader = new AvroVariationParquetReader(inputFilename);
-        // traverse the data once to find the total number of records:
-        int count = 0;
-        try {
+        this.reader = new RecordReader(inputFilename);
+        this.totalExamples = reader.getTotalRecords();
 
-            while (reader.read() != null) {
-                count++;
-            }
-
-        } finally {
-            reader.close();
-        }
-        this.totalExamples = count;
-        this.reader = new AvroVariationParquetReader(inputFilename);
     }
 
     @Override
@@ -57,7 +48,7 @@ public class BaseInformationIterator implements DataSetIterator {
 
         // allocate a new dataset with batchSize records and fill it with features and labels.
         DataSet ds = new DataSet();
-        int size = Math.min(batchSize, remainingExamples());
+        int size = Math.min(batchSize, (int) remainingExamples());
 
         // allocate features and labels for the entire dataset:
         // dimension 0 = number of examples in minibatch
@@ -72,7 +63,7 @@ public class BaseInformationIterator implements DataSetIterator {
             // wrong in our estimate of size.
 
             // fill in features and labels for a given record i:
-            PosRecord record = nextRecord();
+            BaseInformationRecords.BaseInformationOrBuilder record = nextRecord();
             featureMapper.mapFeatures(record, inputs, i);
             labelMapper.mapLabels(record, labels, i);
 
@@ -81,13 +72,13 @@ public class BaseInformationIterator implements DataSetIterator {
     }
 
 
-    private int remainingExamples() {
+    private long remainingExamples() {
         return totalExamples - cursor;
     }
 
     @Override
     public int totalExamples() {
-        return totalExamples;
+        return (int) totalExamples;
     }
 
     @Override
@@ -105,7 +96,12 @@ public class BaseInformationIterator implements DataSetIterator {
         if (this.reader != null) {
             IOUtils.closeQuietly(reader);
         }
-        this.reader = new AvroVariationParquetReader(inputFilename);
+        try {
+            this.reader = new RecordReader(inputFilename);
+        }catch (IOException e) {
+
+            throw new RuntimeException(e);
+        }
         cursor = 0;
         nextPosRecord = null;
         //    System.out.println("reset called");
@@ -119,12 +115,12 @@ public class BaseInformationIterator implements DataSetIterator {
     @Override
     public int cursor() {
 
-        return cursor;
+        return (int) cursor;
     }
 
     @Override
     public int numExamples() {
-        return totalExamples;
+        return (int) totalExamples;
     }
 
     @Override
@@ -142,7 +138,11 @@ public class BaseInformationIterator implements DataSetIterator {
         if (nextPosRecord != null) {
             return true;
         }
-        this.nextPosRecord = reader.read();
+        try {
+            this.nextPosRecord = reader.nextRecord();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return nextPosRecord != null;
     }
 
@@ -163,7 +163,11 @@ public class BaseInformationIterator implements DataSetIterator {
         if (nextPosRecord != null) {
             return true;
         }
-        this.nextPosRecord = reader.read();
+        try {
+            this.nextPosRecord = reader.nextRecord();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return nextPosRecord != null;
     }
 
@@ -172,9 +176,9 @@ public class BaseInformationIterator implements DataSetIterator {
      *
      * @return the next available record, or throws NoSuchElementException if there are no more records.
      */
-    private PosRecord nextRecord() {
+    private BaseInformationRecords.BaseInformationOrBuilder nextRecord() {
         if (hasNextRecord()) {
-            PosRecord tmp = nextPosRecord;
+            BaseInformationRecords.BaseInformationOrBuilder tmp = nextPosRecord;
             // setting nextPosRecord will make hasNextRecord load the next record from the underlying reader.
             nextPosRecord = null;
             cursor += 1;

@@ -1,6 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
-import org.campagnelab.dl.varanalysis.format.PosRecord;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
@@ -16,13 +16,12 @@ public interface LabelMapper {
     int numberOfLabels();
     /**
      * Fill in features into the dataset, as index
-     *
-     * @param record        The record to convert to features & labels.
+     *  @param record        The record to convert to features & labels.
 
      * @param labels        The labels
      * @param indexOfRecord Index of the record in the destination dataset.
      */
-    void mapLabels(PosRecord record, INDArray labels, int indexOfRecord);
+    void mapLabels(BaseInformationRecords.BaseInformationOrBuilder record, INDArray labels, int indexOfRecord);
     /**
      * Produce the value of a given label for the specified record.
      *
@@ -30,5 +29,5 @@ public interface LabelMapper {
      * @param labelIndex The index of the label to produce/calculate
      * @return The value of the label.
      */
-    float produceLabel(PosRecord record, int labelIndex);
+    float produceLabel(BaseInformationRecords.BaseInformationOrBuilder record, int labelIndex);
 }

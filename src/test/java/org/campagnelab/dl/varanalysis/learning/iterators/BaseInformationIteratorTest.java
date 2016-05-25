@@ -3,6 +3,8 @@ package org.campagnelab.dl.varanalysis.learning.iterators;
 import org.junit.Test;
 import org.nd4j.linalg.dataset.DataSet;
 
+import java.io.IOException;
+
 import static org.junit.Assert.*;
 
 /**
@@ -11,9 +13,9 @@ import static org.junit.Assert.*;
  */
 public class BaseInformationIteratorTest {
     @Test
-    public void testIterator() {
+    public void testIterator() throws IOException{
 
-        BaseInformationIterator trainIter = new BaseInformationIterator("sample_data/genotypes_mutated.parquet",
+        BaseInformationIterator trainIter = new BaseInformationIterator("test-results/genotypes_mutated_protofbuf.parquet",
                 2, new SimpleFeatureCalculator(),new SimpleFeatureCalculator());
         assertTrue(trainIter.hasNext());
         DataSet dataset = trainIter.next();

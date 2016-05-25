@@ -23,7 +23,7 @@ public class RecordWriter implements Closeable {
 
     public RecordWriter(String file, int blockSize, int pageSize) throws IOException {
        this.parquetWriter =
-                new ProtoParquetWriter(new Path(file), BaseInformationRecords.BaseInformation.class, compressionCodecName, blockSize, pageSize);
+                new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(file), BaseInformationRecords.BaseInformation.class, compressionCodecName, blockSize, pageSize);
     }
 
     public void writeRecord(BaseInformationRecords.BaseInformation record) throws IOException {

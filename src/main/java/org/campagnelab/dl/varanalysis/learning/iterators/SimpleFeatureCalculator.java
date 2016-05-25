@@ -1,10 +1,11 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.campagnelab.dl.varanalysis.format.PosRecord;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntComparator;
+import it.unimi.dsi.fastutil.ints.IntComparators;
+import it.unimi.dsi.fastutil.ints.IntList;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.util.FeatureUtil;
 
 /**
  * This is a simple feature mapper. It is designed using information currently available in the Parquet file.
@@ -48,7 +49,7 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
     int[] indices = new int[]{0, 0};
 
     @Override
-    public void mapFeatures(PosRecord record, INDArray inputs, int indexOfRecord) {
+    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
         indices[0] = indexOfRecord;
         int sumCounts = 0;
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
@@ -61,7 +62,7 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
     }
 
     @Override
-    public void mapLabels(PosRecord record, INDArray labels, int indexOfRecord) {
+    public void mapLabels(BaseInformationRecords.BaseInformationOrBuilder record, INDArray labels, int indexOfRecord) {
         indices[0] = indexOfRecord;
 
         for (int labelIndex = 0; labelIndex < numberOfLabels(); labelIndex++) {
@@ -80,18 +81,48 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
     }
 
 
-    public float produceFeature(PosRecord record, int featureIndex) {
+    public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         assert featureIndex >= 0 && featureIndex < 20 : "Only 20 features";
         if (featureIndex < 10) {
-            return record.getSamples().get(0).getCounts().get(featureIndex);
+            // germline counts written first:
+            return getAllCounts(record, false).getInt(featureIndex);
         } else {
+            // tumor counts written next:
             featureIndex -= 10;
-            return record.getSamples().get(1).getCounts().get(featureIndex);
+            return getAllCounts(record, true).getInt(featureIndex);
         }
     }
 
+    private IntList getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor) {
+        IntList list = new IntArrayList();
+        for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
+            if (isTumor != sampleInfo.getIsTumor()) continue;
+            for (BaseInformationRecords.CountInfo sampleCounts : sampleInfo.getCountsList()) {
+                list.add(sampleCounts.getGenotypeCountForwardStrand());
+                list.add(sampleCounts.getGenotypeCountReverseStrand());
+            }
+        }
+        // pad with zero until we have 10 elements:
+        while (list.size()<10) {
+            list.add(0);
+        }
+        //sort in decreasing order of counts:
+        list.sort(new IntComparator() {
+            @Override
+            public int compare(int a, int b) {
+                return Integer.compare(b, a);
+            }
+
+            @Override
+            public int compare(Integer a, Integer b) {
+                return Integer.compare(b, a);
+            }
+        });
+        return list;
+    }
+
     @Override
-    public float produceLabel(PosRecord record, int labelIndex) {
+    public float produceLabel(BaseInformationRecords.BaseInformationOrBuilder record, int labelIndex) {
         assert labelIndex == 0 || labelIndex == 1 : "only one label.";
 
         //return record.getMutated() ? 1.0f : 0.0f;

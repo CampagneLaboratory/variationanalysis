@@ -1,9 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
-import org.campagnelab.dl.varanalysis.format.PosRecord;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.cpu.nativecpu.NDArray;
-import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.Arrays;
 
@@ -39,7 +37,7 @@ public class ConcatFeatureMapper implements FeatureMapper {
 
 
     @Override
-    public void mapFeatures(PosRecord record, INDArray inputs, int indexOfRecord) {
+    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
         int offset = 0;
         int[] indicesOuter = {0};
         for (FeatureMapper delegate : mappers) {
@@ -55,7 +53,7 @@ public class ConcatFeatureMapper implements FeatureMapper {
     }
 
     @Override
-    public float produceFeature(PosRecord record, int featureIndex) {
+    public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         int indexOfDelegate = Arrays.binarySearch(offsets, featureIndex);
         if (indexOfDelegate<0) {
             indexOfDelegate=-(indexOfDelegate+1)-1;

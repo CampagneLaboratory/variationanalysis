@@ -1,6 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
-import org.campagnelab.dl.varanalysis.format.PosRecord;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -20,12 +20,12 @@ public class ConcatFeatureMapperTest {
             }
 
             @Override
-            public void mapFeatures(PosRecord record, INDArray inputs, int indexOfRecord) {
+            public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
 
             }
 
             @Override
-            public float produceFeature(PosRecord record, int featureIndex) {
+            public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
                 return featureIndex;
             }
         };
@@ -36,12 +36,12 @@ public class ConcatFeatureMapperTest {
             }
 
             @Override
-            public void mapFeatures(PosRecord record, INDArray inputs, int indexOfRecord) {
+            public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
 
             }
 
             @Override
-            public float produceFeature(PosRecord record, int featureIndex) {
+            public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
                 return 10 - featureIndex;
             }
         };
@@ -71,14 +71,14 @@ public class ConcatFeatureMapperTest {
             }
 
             @Override
-            public void mapFeatures(PosRecord record, INDArray inputs, int indexOfRecord) {
+            public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
                 for (int i = 0; i < numberOfFeatures(); i++) {
-                    inputs.putScalar(new int[]{i}, produceFeature(null, indexOfRecord));
+                    inputs.putScalar(new int[]{i}, produceFeature(record, indexOfRecord));
                 }
             }
 
             @Override
-            public float produceFeature(PosRecord record, int featureIndex) {
+            public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
                 return featureIndex;
             }
         };
@@ -89,14 +89,14 @@ public class ConcatFeatureMapperTest {
             }
 
             @Override
-            public void mapFeatures(PosRecord record, INDArray inputs, int indexOfRecord) {
+            public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
                 for (int i = 0; i < numberOfFeatures(); i++) {
                     inputs.putScalar(new int[]{i}, produceFeature(null, indexOfRecord));
                 }
             }
 
             @Override
-            public float produceFeature(PosRecord record, int featureIndex) {
+            public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
                 return 10 - featureIndex;
             }
         };
