@@ -61,8 +61,8 @@ public class RecordWriterTest {
             builderInfoS.setFromSequence("from");
             builderInfoS.setToSequence("to");
             builderInfoS.setMatchesReference(true);
-            builderInfoS.setGenotypeCountForwardStrand(1);
-            builderInfoS.setGenotypeCountReverseStrand(2);
+            builderInfoS.setGenotypeCountForwardStrand(5);
+            builderInfoS.setGenotypeCountReverseStrand(7);
             sampleBuilderS.addCounts(builderInfoS.build());
             builder.addSamples(sampleBuilderS.build());
 

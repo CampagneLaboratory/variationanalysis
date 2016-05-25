@@ -35,9 +35,11 @@ import java.util.Collections;
 public class SimpleFeatureCalculator implements FeatureCalculator {
 
 
+    public static final int MAX_GENOTYPES = 5;
+
     @Override
     public int numberOfFeatures() {
-        return 10 * 2;
+        return MAX_GENOTYPES * 2;
     }
 
     int sumCounts;
@@ -93,22 +95,22 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         assert featureIndex >= 0 && featureIndex < 20 : "Only 20 features";
-        if (featureIndex < 10) {
+        if (featureIndex < MAX_GENOTYPES*2) {
             // germline counts written first:
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
-                return getAllCounts(record, false).get(featureIndex).forwardCount;
+                return getAllCounts(record, false).get(featureIndex/2).forwardCount;
             } else {
-                return getAllCounts(record, false).get(featureIndex).reverseCount;
+                return getAllCounts(record, false).get(featureIndex/2).reverseCount;
             }
         } else {
             // tumor counts written next:
-            featureIndex -= 10;
+            featureIndex -= MAX_GENOTYPES*2;
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
-                return getAllCounts(record, true).get(featureIndex).forwardCount;
+                return getAllCounts(record, true).get(featureIndex/2).forwardCount;
             } else {
-                return getAllCounts(record, true).get(featureIndex).reverseCount;
+                return getAllCounts(record, true).get(featureIndex/2).reverseCount;
             }
         }
     }
@@ -123,9 +125,11 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
             }
         }
         // pad with zero until we have 10 elements:
-        while (list.size() < 10) {
+        while (list.size() < MAX_GENOTYPES) {
             list.add(new GenotypeCount(0, 0, "N"));
         }
+        // trim the list at 5 elements because we will consider only the 5 genotypes with largest total counts:
+        list.trim(MAX_GENOTYPES);
         //sort in decreasing order of counts:
         Collections.sort(list);
         return list;
