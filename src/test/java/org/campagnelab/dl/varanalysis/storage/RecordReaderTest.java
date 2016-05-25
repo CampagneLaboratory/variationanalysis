@@ -35,6 +35,16 @@ public class RecordReaderTest {
     }
 
     @Test
+    public void readrecordsWithIterator() throws Exception {
+        int numRecordsRead = 0;
+        for (BaseInformationRecords.BaseInformationOrBuilder record: this.reader) {
+            assertNotNull(record);
+            numRecordsRead++;
+        }
+        assertEquals("Records read", 100, numRecordsRead);
+    }
+
+    @Test
     public void close() throws Exception {
 
     }
@@ -47,7 +57,6 @@ public class RecordReaderTest {
     @Test
     public void getTotalRecords() throws Exception {
         assertEquals("Expected records", 100, reader.getTotalRecords() );
-        //assertTrue("No records found", reader.getTotalRecords() == 100);
     }
 
 }

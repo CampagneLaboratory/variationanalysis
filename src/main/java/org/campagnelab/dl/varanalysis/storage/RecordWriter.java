@@ -1,18 +1,14 @@
 package org.campagnelab.dl.varanalysis.storage;
 
 
-import com.google.protobuf.Message;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.Path;
-import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-import org.apache.parquet.proto.ProtoParquetReader;
 import org.apache.parquet.proto.ProtoParquetWriter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * A writer for base information records in protobuf format.
