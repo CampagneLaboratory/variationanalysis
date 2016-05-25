@@ -16,7 +16,7 @@ public class BaseInformationIteratorTest {
     @Test
     public void testIterator() throws IOException{
 
-        BaseInformationIterator trainIter = new BaseInformationIterator("test-results/genotypes_mutated_protofbuf.parquet",
+        BaseInformationIterator trainIter = new BaseInformationIterator("test-data/genotypes_mutated_protofbuf.parquet",
                 2, new SimpleFeatureCalculator(),new SimpleFeatureCalculator());
         assertTrue(trainIter.hasNext());
         DataSet dataset = trainIter.next();
