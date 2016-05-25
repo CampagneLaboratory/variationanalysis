@@ -1,11 +1,10 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntComparator;
-import it.unimi.dsi.fastutil.ints.IntComparators;
-import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
+
+import java.util.Collections;
 
 /**
  * This is a simple feature mapper. It is designed using information currently available in the Parquet file.
@@ -41,6 +40,16 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
         return 10 * 2;
     }
 
+    int sumCounts;
+
+    public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
+        indices[0] = indexOfRecord;
+        sumCounts = 0;
+        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
+            sumCounts += produceFeatureInternal(record, featureIndex);
+        }
+    }
+
     @Override
     public int numberOfLabels() {
         return 2;
@@ -51,14 +60,15 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
         indices[0] = indexOfRecord;
-        int sumCounts = 0;
-        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
-            sumCounts += produceFeature(record, featureIndex);
-        }
+        prepareToNormalize(record, indexOfRecord);
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
             indices[1] = featureIndex;
-            inputs.putScalar(indices, normalize(produceFeature(record, featureIndex), sumCounts));
+            inputs.putScalar(indices, produceFeature(record, featureIndex));
         }
+    }
+
+    public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
+        return normalize(produceFeatureInternal(record, featureIndex), sumCounts);
     }
 
     @Override
@@ -81,43 +91,43 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
     }
 
 
-    public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
+    public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         assert featureIndex >= 0 && featureIndex < 20 : "Only 20 features";
         if (featureIndex < 10) {
             // germline counts written first:
-            return getAllCounts(record, false).getInt(featureIndex);
+            if ((featureIndex % 2) == 1) {
+                // odd featureIndices are forward strand:
+                return getAllCounts(record, false).get(featureIndex).forwardCount;
+            } else {
+                return getAllCounts(record, false).get(featureIndex).reverseCount;
+            }
         } else {
             // tumor counts written next:
             featureIndex -= 10;
-            return getAllCounts(record, true).getInt(featureIndex);
+            if ((featureIndex % 2) == 1) {
+                // odd featureIndices are forward strand:
+                return getAllCounts(record, true).get(featureIndex).forwardCount;
+            } else {
+                return getAllCounts(record, true).get(featureIndex).reverseCount;
+            }
         }
     }
 
-    private IntList getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor) {
-        IntList list = new IntArrayList();
+    private ObjectArrayList<GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor) {
+        ObjectArrayList<GenotypeCount> list = new ObjectArrayList();
         for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
             if (isTumor != sampleInfo.getIsTumor()) continue;
             for (BaseInformationRecords.CountInfo sampleCounts : sampleInfo.getCountsList()) {
-                list.add(sampleCounts.getGenotypeCountForwardStrand());
-                list.add(sampleCounts.getGenotypeCountReverseStrand());
+                GenotypeCount count = new GenotypeCount(sampleCounts.getGenotypeCountForwardStrand(), sampleCounts.getGenotypeCountReverseStrand(), sampleCounts.getToSequence());
+                list.add(count);
             }
         }
         // pad with zero until we have 10 elements:
-        while (list.size()<10) {
-            list.add(0);
+        while (list.size() < 10) {
+            list.add(new GenotypeCount(0, 0, "N"));
         }
         //sort in decreasing order of counts:
-        list.sort(new IntComparator() {
-            @Override
-            public int compare(int a, int b) {
-                return Integer.compare(b, a);
-            }
-
-            @Override
-            public int compare(Integer a, Integer b) {
-                return Integer.compare(b, a);
-            }
-        });
+        Collections.sort(list);
         return list;
     }
 

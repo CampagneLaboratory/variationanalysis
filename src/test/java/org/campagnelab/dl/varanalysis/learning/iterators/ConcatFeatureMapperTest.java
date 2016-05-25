@@ -1,5 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
+import org.campagnelab.dl.varanalysis.learning.mappers.ConcatFeatureMapper;
+import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -20,6 +22,11 @@ public class ConcatFeatureMapperTest {
             }
 
             @Override
+            public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
+
+            }
+
+            @Override
             public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
 
             }
@@ -33,6 +40,11 @@ public class ConcatFeatureMapperTest {
             @Override
             public int numberOfFeatures() {
                 return 5;
+            }
+
+            @Override
+            public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
+
             }
 
             @Override
@@ -53,11 +65,11 @@ public class ConcatFeatureMapperTest {
         assertEquals(2f, concat.produceFeature(null, 2), epsilon);
         assertEquals(3f, concat.produceFeature(null, 3), epsilon);
 
-        assertEquals(6f, concat.produceFeature(null, 4), epsilon);
-        assertEquals(5f, concat.produceFeature(null, 5), epsilon);
-        assertEquals(4f, concat.produceFeature(null, 6), epsilon);
-        assertEquals(3f, concat.produceFeature(null, 7), epsilon);
-        assertEquals(2f, concat.produceFeature(null, 8), epsilon);
+        assertEquals(10f, concat.produceFeature(null, 4), epsilon);
+        assertEquals(9f, concat.produceFeature(null, 5), epsilon);
+        assertEquals(8f, concat.produceFeature(null, 6), epsilon);
+        assertEquals(7f, concat.produceFeature(null, 7), epsilon);
+        assertEquals(6f, concat.produceFeature(null, 8), epsilon);
 
 
     }
@@ -68,6 +80,11 @@ public class ConcatFeatureMapperTest {
             @Override
             public int numberOfFeatures() {
                 return 4;
+            }
+
+            @Override
+            public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
+
             }
 
             @Override
@@ -86,6 +103,11 @@ public class ConcatFeatureMapperTest {
             @Override
             public int numberOfFeatures() {
                 return 5;
+            }
+
+            @Override
+            public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
+
             }
 
             @Override
@@ -111,11 +133,11 @@ public class ConcatFeatureMapperTest {
         assertEquals(2f, concat.produceFeature(null, 2), epsilon);
         assertEquals(3f, concat.produceFeature(null, 3), epsilon);
 
-        assertEquals(6f, concat.produceFeature(null, 4), epsilon);
-        assertEquals(5f, concat.produceFeature(null, 5), epsilon);
-        assertEquals(4f, concat.produceFeature(null, 6), epsilon);
-        assertEquals(3f, concat.produceFeature(null, 7), epsilon);
-        assertEquals(2f, concat.produceFeature(null, 8), epsilon);
+        assertEquals(10f, concat.produceFeature(null, 4), epsilon);
+        assertEquals(9f, concat.produceFeature(null, 5), epsilon);
+        assertEquals(8f, concat.produceFeature(null, 6), epsilon);
+        assertEquals(7f, concat.produceFeature(null, 7), epsilon);
+        assertEquals(6f, concat.produceFeature(null, 8), epsilon);
 
 
     }

@@ -1,4 +1,4 @@
-package org.campagnelab.dl.varanalysis.learning.iterators;
+package org.campagnelab.dl.varanalysis.learning.mappers;
 
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -16,17 +16,26 @@ public interface FeatureMapper {
      */
     int numberOfFeatures();
 
+    /**
+     * This method must be called before produceFeature, so that the mapper has a chance to estimate the normalization factor.
+     *
+     * @param record        The record to convert to features & labels.
+     * @param indexOfRecord Index of the record in the destination dataset.
+     */
+    public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord);
 
     /**
      * Fill in features into the dataset, as index
-     *  @param record        The record to convert to features & labels.
+     *
+     * @param record        The record to convert to features & labels.
      * @param inputs        The features
      * @param indexOfRecord Index of the record in the destination dataset.
      */
     void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord);
 
     /**
-     * Produce the value of a given feature for the specified record.
+     * Produce the value of a given feature for the specified record. Will return a normalized feature
+     * if the mapper implements normalization.
      *
      * @param record       The record of interest.
      * @param featureIndex The index of the feature to produce/calculate

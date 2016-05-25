@@ -1,6 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
-import org.campagnelab.dl.varanalysis.format.SampleRecord;
+import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -14,6 +14,11 @@ public class MagnitudeFeatures implements FeatureMapper {
     @Override
     public int numberOfFeatures() {
         return 31;
+    }
+
+    @Override
+    public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
+        // do nothing. No normalization here.
     }
 
     int indices[] = {0, 0};
@@ -37,6 +42,7 @@ public class MagnitudeFeatures implements FeatureMapper {
                 sumCounts += sampleCounts.getGenotypeCountReverseStrand();
             }
         }
-        return(Math.log10(sumCounts)>featureIndex)?1:0;
+        final int featureValue = (Math.log10(sumCounts) > featureIndex) ? 1 : 0;
+        return featureValue;
     }
 }
