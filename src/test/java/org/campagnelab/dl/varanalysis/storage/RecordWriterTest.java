@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.storage;
 
 import org.apache.commons.io.FileUtils;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,25 +36,24 @@ public class RecordWriterTest {
         writer.close();
     }
     @Test
-    public void writeRecord() throws Exception {
-        List<RecordWriter.SampleCountInfo> info = new ArrayList<RecordWriter.SampleCountInfo>();
-        RecordWriter.SampleCountInfo info1 = new RecordWriter.SampleCountInfo();
-        info1.fromSequence = "from";
-        info1.toSequence = "to";
-        info1.genotypeCountForwardStrand = 100;
-        info1.genotypeCountReverseStrand = 200;
-        info1.matchesReference = true;
-        info.add(info1);
-        RecordWriter.SampleCountInfo info2 = new RecordWriter.SampleCountInfo();
-        info2.fromSequence = "from2";
-        info2.toSequence = "to2";
-        info2.genotypeCountForwardStrand = 300;
-        info2.genotypeCountReverseStrand = 400;
-        info2.matchesReference = false;
-        info.add(info2);
+    public void writeRecords() throws Exception {
+
         for (int i = 1; i <= 100; i++) {
-            writer.writeRecord(info, "mutatedBase",
-                    "refbase",  i + 50, i + 100, i, (i % 2 == 0));
+            BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
+            builder.setMutated((i % 2 == 0));
+            builder.setIndexOfMutatedBase(i + 100);
+            builder.setPosition(i);
+            builder.setReferenceBase("refbase");
+            builder.setReferenceIndex( i + 50);
+            builder.setMutatedBase("mutatedBase");
+            BaseInformationRecords.SampleCountInfo.Builder builderInfo = BaseInformationRecords.SampleCountInfo.newBuilder();
+            builderInfo.setFromSequence("from");
+            builderInfo.setToSequence("to");
+            builderInfo.setMatchesReference(true);
+            builderInfo.setGenotypeCountForwardStrand(1);
+            builderInfo.setGenotypeCountReverseStrand(2);
+            builder.addCounts(builderInfo.build());
+            writer.writeRecord(builder.build());
         }
 
     }
