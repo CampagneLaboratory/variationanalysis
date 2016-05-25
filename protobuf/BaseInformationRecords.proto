@@ -27,13 +27,22 @@ message BaseInformation {
     The base present at the position in the genome/reference sequence.
     */
     optional string referenceBase = 5;
-    /**
-    A number of bases were observed at this position.
-    */
-    repeated CountInfo germlineCounts = 10;
 
-    repeated CountInfo somaticCounts = 12;
+    repeated SampleInfo germline = 10;
 
+    repeated SampleInfo somatic= 12;
+
+}
+
+message SampleInfo {
+
+    /** Failed counts */
+   optional uint32 failed = 1 [default = 0];
+
+   //optional uint32 sampleIndex = 3;
+
+    /** A number of bases were observed at the position. */
+   repeated CountInfo counts = 2;
 }
 
 message CountInfo {
@@ -50,7 +59,7 @@ message CountInfo {
 
     /** The number of times the genotype is observed in the sample in a read matching the forward strand. */
     required uint32 genotypeCountForwardStrand = 4;
-    /** The number of times the genotype is observed in the sample in a read matching the reverse strand. */
 
+    /** The number of times the genotype is observed in the sample in a read matching the reverse strand. */
     required uint32 genotypeCountReverseStrand = 5;
 }

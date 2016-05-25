@@ -7,11 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.List;
 
-import static org.junit.Assert.*;
 
 /**
  * Created by mas2182 on 5/24/16.
@@ -47,21 +43,29 @@ public class RecordWriterTest {
             builder.setReferenceIndex( i + 50);
             builder.setMutatedBase("mutatedBase");
 
+            //germline counts
+            BaseInformationRecords.SampleInfo.Builder sampleBuilder = BaseInformationRecords.SampleInfo.newBuilder();
+            sampleBuilder.setFailed(10);
             BaseInformationRecords.CountInfo.Builder builderInfo = BaseInformationRecords.CountInfo.newBuilder();
             builderInfo.setFromSequence("from");
             builderInfo.setToSequence("to");
             builderInfo.setMatchesReference(true);
             builderInfo.setGenotypeCountForwardStrand(1);
             builderInfo.setGenotypeCountReverseStrand(2);
-            builder.addGermlineCounts(builderInfo.build());
+            sampleBuilder.addCounts(builderInfo.build());
+            builder.addGermline(sampleBuilder.build());
 
+            //somatic counts
+            BaseInformationRecords.SampleInfo.Builder sampleBuilderS = BaseInformationRecords.SampleInfo.newBuilder();
+            sampleBuilderS.setFailed(20);
             BaseInformationRecords.CountInfo.Builder builderInfoS = BaseInformationRecords.CountInfo.newBuilder();
             builderInfoS.setFromSequence("from");
             builderInfoS.setToSequence("to");
             builderInfoS.setMatchesReference(true);
             builderInfoS.setGenotypeCountForwardStrand(1);
             builderInfoS.setGenotypeCountReverseStrand(2);
-            builder.addSomaticCounts(builderInfoS.build());
+            sampleBuilderS.addCounts(builderInfoS.build());
+            builder.addSomatic(sampleBuilderS.build());
 
             writer.writeRecord(builder.build());
         }
