@@ -5,6 +5,8 @@ import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.varanalysis.format.PosRecord;
 import org.campagnelab.dl.varanalysis.format.SampleRecord;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.FeatureMapper;
+import org.campagnelab.dl.varanalysis.learning.iterators.FeatureMapperV2;
 import org.campagnelab.dl.varanalysis.learning.iterators.SimpleFeatureCalculator;
 import org.campagnelab.dl.varanalysis.storage.AvroVariationParquetReader;
 import org.canova.api.records.reader.RecordReader;
@@ -101,7 +103,7 @@ public class PredictMutations {
             PrintWriter results = new PrintWriter(resultsPath, "UTF-8");
 
             //may need to adjust batch size and write outputs piecewise if test sets are very large
-            BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new SimpleFeatureCalculator());
+            BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
             AvroVariationParquetReader avroReader = new AvroVariationParquetReader(testsetPath);
             DataSet ds = baseIter.next();
             INDArray testFeatures = ds.getFeatures();

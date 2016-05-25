@@ -24,7 +24,7 @@ import org.nd4j.linalg.util.FeatureUtil;
  * <li>Make the isMutated boolean the only label. This is not ideal: the net may tell us if the base is mutated,
  * but we will not know what the mutation is..</li>
  * <li>Concatenate the count integers and use these as features. The only way for the net to learn from these data is to count
- * the number of counts elements that has "enough" reads to call a genotype. If the genotype calls are more than two, hen
+ * the number of counts elements that has "enough" reads to call a genotype. If the genotype calls are more than two, then
  * the site is likely mutated, because most sites will be heterozygous at most. With these features, I expect the
  * net to have more trouble predicting mutations at homozygous sites, than at heterozygous sites. We'll see. </ul>
  * Created by fac2003 on 5/21/16.

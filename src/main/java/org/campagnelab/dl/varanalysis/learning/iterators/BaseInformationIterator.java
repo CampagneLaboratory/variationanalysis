@@ -24,23 +24,24 @@ import java.util.NoSuchElementException;
 public class BaseInformationIterator implements DataSetIterator {
     private final int totalExamples;
     private AvroVariationParquetReader reader;
-    private final FeatureCalculator featureCalculator;
+    private final FeatureMapper featureMapper;
+    private final LabelMapper labelMapper;
     private final String inputFilename;
     private PosRecord nextPosRecord;
     private int cursor = 0;
     private int batchSize = 32;
 
-    public BaseInformationIterator(String inputFilename, int batchSize, FeatureCalculator featureCalculator) {
+    public BaseInformationIterator(String inputFilename, int batchSize, FeatureMapper featureMapper, LabelMapper labelMapper) {
         this.inputFilename = inputFilename;
-        this.featureCalculator = featureCalculator;
+        this.featureMapper = featureMapper;
+        this.labelMapper = labelMapper;
         this.batchSize = batchSize;
         AvroVariationParquetReader reader = new AvroVariationParquetReader(inputFilename);
         // traverse the data once to find the total number of records:
         int count = 0;
         try {
 
-            while
-                    (reader.read() != null) {
+            while (reader.read() != null) {
                 count++;
             }
 
@@ -63,8 +64,8 @@ public class BaseInformationIterator implements DataSetIterator {
         // dimension 1 = number of features per record.
 
         //size changed from batchSize. huge batchSize values useful for tests
-        INDArray inputs = Nd4j.zeros(size, featureCalculator.numberOfFeatures());
-        INDArray labels = Nd4j.zeros(size, featureCalculator.numberOfLabels());
+        INDArray inputs = Nd4j.zeros(size, featureMapper.numberOfFeatures());
+        INDArray labels = Nd4j.zeros(size, labelMapper.numberOfLabels());
         for (int i = 0; i < size; i++) {
             // we are going to call nextRecord directly, without checking hasNextRecord, because we have
             // determined how many times we can call (in size). We should get the exception if we were
@@ -72,11 +73,11 @@ public class BaseInformationIterator implements DataSetIterator {
 
             // fill in features and labels for a given record i:
             PosRecord record = nextRecord();
-            featureCalculator.mapFeatures(record, inputs, i);
-            featureCalculator.mapLabels(record,  labels, i);
+            featureMapper.mapFeatures(record, inputs, i);
+            labelMapper.mapLabels(record, labels, i);
 
         }
-        return new DataSet(inputs,labels);
+        return new DataSet(inputs, labels);
     }
 
 
@@ -91,12 +92,12 @@ public class BaseInformationIterator implements DataSetIterator {
 
     @Override
     public int inputColumns() {
-        return featureCalculator.numberOfFeatures();
+        return featureMapper.numberOfFeatures();
     }
 
     @Override
     public int totalOutcomes() {
-        return featureCalculator.numberOfLabels();
+        return labelMapper.numberOfLabels();
     }
 
     @Override
@@ -106,8 +107,8 @@ public class BaseInformationIterator implements DataSetIterator {
         }
         this.reader = new AvroVariationParquetReader(inputFilename);
         cursor = 0;
-        nextPosRecord=null;
-    //    System.out.println("reset called");
+        nextPosRecord = null;
+        //    System.out.println("reset called");
     }
 
     @Override
@@ -176,7 +177,7 @@ public class BaseInformationIterator implements DataSetIterator {
             PosRecord tmp = nextPosRecord;
             // setting nextPosRecord will make hasNextRecord load the next record from the underlying reader.
             nextPosRecord = null;
-            cursor+=1;
+            cursor += 1;
             return tmp;
         } else throw new NoSuchElementException();
     }

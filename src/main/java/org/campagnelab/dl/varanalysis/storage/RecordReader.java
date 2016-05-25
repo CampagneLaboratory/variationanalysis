@@ -8,6 +8,7 @@ import org.apache.parquet.proto.ProtoParquetReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.*;
+import java.util.Iterator;
 
 /**
  * A reader for base information records stored in protobuf format.
@@ -40,6 +41,8 @@ public class RecordReader implements Closeable {
         while (localReader.read() != null) this.totalRecords++;
         IOUtils.closeQuietly(localReader);
     }
+
+
 
     /**
      * Reads the next record, if available.

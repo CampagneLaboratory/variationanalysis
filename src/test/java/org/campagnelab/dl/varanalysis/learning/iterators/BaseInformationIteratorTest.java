@@ -14,7 +14,7 @@ public class BaseInformationIteratorTest {
     public void testIterator() {
 
         BaseInformationIterator trainIter = new BaseInformationIterator("sample_data/genotypes_mutated.parquet",
-                2, new SimpleFeatureCalculator());
+                2, new SimpleFeatureCalculator(),new SimpleFeatureCalculator());
         assertTrue(trainIter.hasNext());
         DataSet dataset = trainIter.next();
         assertNotNull(dataset);

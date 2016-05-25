@@ -2,8 +2,7 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
-import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
-import org.campagnelab.dl.varanalysis.learning.iterators.SimpleFeatureCalculator;
+import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.canova.api.records.reader.RecordReader;
 import org.canova.api.records.reader.impl.CSVRecordReader;
 import org.canova.api.split.FileSplit;
@@ -58,8 +57,10 @@ public class DetectMutations {
         int generateSamplesEveryNMinibatches = 10;
 
         //Load the training data:
+        final FeatureMapper featureCalculator =new FeatureMapperV2();
+        final LabelMapper labelMapper=new SimpleFeatureCalculator();
         BaseInformationIterator trainIter = new BaseInformationIterator("sample_data/genotypes_randomized.parquet",
-                miniBatchSize, new SimpleFeatureCalculator());
+                miniBatchSize, featureCalculator, labelMapper);
 
         int numInputs = trainIter.inputColumns();
         int numOutputs = trainIter.totalOutcomes();

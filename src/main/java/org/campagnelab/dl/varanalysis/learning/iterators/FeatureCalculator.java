@@ -10,7 +10,7 @@ import org.nd4j.linalg.dataset.DataSet;
  *
  * @author Fabien Campagne
  */
-interface FeatureCalculator extends FeatureMapper, LabelMapper {
+public interface FeatureCalculator extends FeatureMapper, LabelMapper {
 
 
 }
