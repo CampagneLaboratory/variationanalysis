@@ -18,12 +18,16 @@ import java.io.IOException;
 public class RecordWriter implements Closeable {
 
     private final ProtoParquetWriter<BaseInformationRecords.BaseInformation> parquetWriter;
-    private static CompressionCodecName compressionCodecName = CompressionCodecName.UNCOMPRESSED;
-
 
     public RecordWriter(String file, int blockSize, int pageSize) throws IOException {
-       this.parquetWriter =
-                new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(file), BaseInformationRecords.BaseInformation.class, compressionCodecName, blockSize, pageSize);
+        this.parquetWriter =
+                new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(file), BaseInformationRecords.BaseInformation.class, CompressionCodecName.UNCOMPRESSED, blockSize, pageSize);
+    }
+
+    public RecordWriter(String file, int blockSize, int pageSize, boolean compress) throws IOException {
+        this.parquetWriter =
+                new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(file), BaseInformationRecords.BaseInformation.class,
+                        compress ? CompressionCodecName.SNAPPY : CompressionCodecName.UNCOMPRESSED, blockSize, pageSize);
     }
 
     public void writeRecord(BaseInformationRecords.BaseInformation record) throws IOException {

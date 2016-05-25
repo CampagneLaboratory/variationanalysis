@@ -15,7 +15,7 @@ import java.io.File;
 public class RecordWriterTest {
 
     private RecordWriter writer;
-    private static String  filename = "test-results/genotypes_mutated_protofbuf.parquet";
+    private static String filename = "test-results/genotypes_mutated_protofbuf.parquet";
     private static int blockSize = 256 * 1024 * 1024;
     private static int pageSize = 64 * 1024;
 
@@ -24,13 +24,14 @@ public class RecordWriterTest {
     public void setUp() throws Exception {
         FileUtils.deleteQuietly(new File("test-results"));
         FileUtils.forceMkdir(new File("test-results"));
-        writer = new RecordWriter(filename, blockSize, pageSize);
+        writer = new RecordWriter(filename, blockSize, pageSize, true);
     }
 
     @After
     public void tearDown() throws Exception {
         writer.close();
     }
+
     @Test
     public void writeRecords() throws Exception {
 
@@ -40,7 +41,7 @@ public class RecordWriterTest {
             builder.setIndexOfMutatedBase(i + 100);
             builder.setPosition(i);
             builder.setReferenceBase("refbase");
-            builder.setReferenceIndex( i + 50);
+            builder.setReferenceIndex(i + 50);
             builder.setMutatedBase("mutatedBase");
 
             //germline counts
@@ -69,7 +70,6 @@ public class RecordWriterTest {
         }
 
     }
-
 
 
 }
