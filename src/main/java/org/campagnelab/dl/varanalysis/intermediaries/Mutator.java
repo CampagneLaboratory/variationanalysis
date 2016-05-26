@@ -95,6 +95,7 @@ public class Mutator extends Intermediary{
 
         //generate mutation rate
         double delta = deltaSmall + ((deltaBig - deltaSmall) * rand.nextDouble());
+        double deltaOrig = delta;
 
         int newBase;
         int oldBase;
@@ -137,10 +138,11 @@ public class Mutator extends Intermediary{
             BaseInformationRecords.CountInfo.Builder countBuild = count.toBuilder();
             countBuild.setGenotypeCountForwardStrand(forward[i]);
             countBuild.setGenotypeCountReverseStrand(backward[i]);
-            i++;
             somaticBuild.setCounts(i, countBuild);
+            i++;
         }
         baseBuild.setSamples(1, somaticBuild);
+        baseBuild.setFrequencyOfMutation((float)deltaOrig);
         return baseBuild.build();
     }
 

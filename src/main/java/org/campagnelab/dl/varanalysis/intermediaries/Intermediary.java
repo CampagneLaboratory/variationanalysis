@@ -2,6 +2,7 @@ package org.campagnelab.dl.varanalysis.intermediaries;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -21,13 +22,13 @@ public abstract class Intermediary {
     static int pageSize = 64 * 1024;
 
     public void executeOver(String inPath, String outPath) throws IOException {
-        java.nio.file.Path toDelete = Paths.get(inPath);
+        java.nio.file.Path toDelete = Paths.get(outPath);
         Files.deleteIfExists(toDelete);
         execute(inPath,outPath,blockSize,pageSize);
     }
 
     public void executeOver(String inPath, String outPath, int blockSize, int pageSize) throws IOException {
-        java.nio.file.Path toDelete = Paths.get(inPath);
+        java.nio.file.Path toDelete = Paths.get(outPath);
         Files.deleteIfExists(toDelete);
         execute(inPath,outPath,blockSize,pageSize);
     }
