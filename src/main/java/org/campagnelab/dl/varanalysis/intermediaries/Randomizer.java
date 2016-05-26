@@ -37,7 +37,7 @@ public class Randomizer extends Intermediary{
         try {
             RecordReader reader = new RecordReader(inPath);
 
-            RecordWriter writer = new RecordWriter(outPath,blockSize,pageSize);
+            RecordWriter writer = new RecordWriter(outPath,blockSize,pageSize,true);
 
             List<BaseInformationRecords.BaseInformation> recList = new ArrayList<BaseInformationRecords.BaseInformation>();
             for (BaseInformationRecords.BaseInformation rec : reader) {

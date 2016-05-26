@@ -51,7 +51,7 @@ public class FilteredNonFiltered {
             RecordWriter writer = new RecordWriter(outputFilename, blockSize, pageSize, true);
             ProgressLogger pg = new ProgressLogger(LOG);
 
-            pg.expectedUpdates=reader.getTotalRecords();
+            pg.expectedUpdates = reader.getTotalRecords();
             pg.start();
             while (reader.hasNext()) {
                 BaseInformationRecords.BaseInformation nonFiltered = reader.first();
@@ -71,8 +71,10 @@ public class FilteredNonFiltered {
                     countInfo.setGenotypeCountReverseStrand(reverseFilteredCount);
 
                     genotypeIndex++;
-                   // TextFormat.print(result, System.out);
+
                 }
+                result.addSamples(sampleCopy.build());
+                // TextFormat.print(result, System.out);
                 writer.writeRecord(result.build());
                 pg.update();
             }
