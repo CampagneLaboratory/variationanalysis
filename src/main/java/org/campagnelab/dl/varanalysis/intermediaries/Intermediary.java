@@ -16,7 +16,7 @@ public abstract class Intermediary {
     static int blockSize = 256 * 1024 * 1024;
     static int pageSize = 64 * 1024;
 
-    public void execute(String inPath, String outPath){
+    public void execute(String inputFilenameA, String inPath, String outPath){
         execute(inPath,outPath,blockSize,pageSize);
     }
 
