@@ -1,5 +1,7 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
+import java.io.IOException;
+
 /**
  *
  *
@@ -16,11 +18,11 @@ public abstract class Intermediary {
     static int blockSize = 256 * 1024 * 1024;
     static int pageSize = 64 * 1024;
 
-    public void execute(String inPath, String outPath){
+    public void execute(String inPath, String outPath) throws IOException {
         execute(inPath,outPath,blockSize,pageSize);
     }
 
-    public abstract void execute(String inPath, String outPath, int blockSize, int pageSize);
+    public abstract void execute (String inPath, String outPath, int blockSize, int pageSize) throws IOException ;
 
 
 }
