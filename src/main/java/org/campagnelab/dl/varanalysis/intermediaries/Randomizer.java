@@ -5,6 +5,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
 import it.unimi.dsi.util.XorShift128PlusRandom;
+import org.eclipse.jetty.util.IO;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import java.util.Random;
  */
 public class Randomizer extends Intermediary{
 
-    public static void main (String[] args){
+    public static void main (String[] args) throws IOException{
 
         //randomize
         Randomizer rndz = new Randomizer();
@@ -32,7 +33,7 @@ public class Randomizer extends Intermediary{
         System.out.println("randomized");
     }
 
-    public void execute(String inPath, String outPath, int blockSize, int pageSize) {
+    public void execute(String inPath, String outPath, int blockSize, int pageSize) throws IOException {
         try {
             RecordReader reader = new RecordReader(inPath);
             RecordWriter writer = new RecordWriter(outPath,blockSize,pageSize);

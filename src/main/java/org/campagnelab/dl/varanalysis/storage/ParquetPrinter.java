@@ -6,8 +6,10 @@ package org.campagnelab.dl.varanalysis.storage;
 import com.codahale.metrics.MetricRegistryListener;
 import com.google.protobuf.TextFormat;
 import org.apache.parquet.hadoop.ParquetReader;
+import org.campagnelab.dl.varanalysis.intermediaries.Mutator;
 import org.campagnelab.dl.varanalysis.intermediaries.Randomizer;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.eclipse.jetty.util.IO;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,9 +35,10 @@ public class ParquetPrinter {
 
     String path;
 
-    public static void main(String[] args){
-        ParquetPrinter printer = new ParquetPrinter(args[0]);
-        printer.print();
+    public static void main(String[] args) throws IOException{
+        new ParquetPrinter(args[0]).print();
+        new Mutator().executeOver(args[0],args[1]);
+        new ParquetPrinter(args[1]).print();
     }
 
 
