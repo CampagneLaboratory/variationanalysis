@@ -32,7 +32,7 @@ public abstract class Intermediary {
         execute(inPath,outPath,blockSize,pageSize);
     }
 
-    public void execute(String inPath, String outPath) throws IOException {
+    public void execute(String inputFilenameA, String inPath, String outPath) throws IOException {
         execute(inPath,outPath,blockSize,pageSize);
     }
 

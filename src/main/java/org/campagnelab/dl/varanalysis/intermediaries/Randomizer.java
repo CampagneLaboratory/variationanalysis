@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
 
+import org.apache.hadoop.fs.FileUtil;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
@@ -29,14 +30,15 @@ public class Randomizer extends Intermediary{
         Randomizer rndz = new Randomizer();
         String startPath = args[0];
         String rndPath = args[0].substring(0, startPath.length() - 8) + "_randomized.parquet";
-        rndz.execute(startPath,rndPath);
+        rndz.execute(startPath,rndPath, blockSize, pageSize);
         System.out.println("randomized");
     }
 
     public void execute(String inPath, String outPath, int blockSize, int pageSize) throws IOException {
         try {
             RecordReader reader = new RecordReader(inPath);
-            RecordWriter writer = new RecordWriter(outPath,blockSize,pageSize);
+
+            RecordWriter writer = new RecordWriter(outPath,blockSize,pageSize,true);
 
             List<BaseInformationRecords.BaseInformation> recList = new ArrayList<BaseInformationRecords.BaseInformation>();
             for (BaseInformationRecords.BaseInformation rec : reader) {
