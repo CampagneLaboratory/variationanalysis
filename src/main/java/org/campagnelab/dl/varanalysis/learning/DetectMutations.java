@@ -51,7 +51,7 @@ public class DetectMutations {
         //Load the training data:
         final FeatureMapper featureCalculator =new FeatureMapperV2();
         final LabelMapper labelMapper=new SimpleFeatureCalculator();
-        BaseInformationIterator trainIter = new BaseInformationIterator("sample_data/genotypes_randomized.parquet",
+        BaseInformationIterator trainIter = new BaseInformationIterator("sample_data/protobuf/genotypes_proto_mutated_randomized.parquet",
                 miniBatchSize, featureCalculator, labelMapper);
 
         int numInputs = trainIter.inputColumns();
@@ -63,7 +63,7 @@ public class DetectMutations {
                 .iterations(1)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(learningRate).regularization(true).l2(0.02)
-                .updater(Updater.ADAGRAD).momentum(0.9)
+                .updater(Updater.NESTEROVS).momentum(0.9)
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                         .weightInit(WeightInit.XAVIER)

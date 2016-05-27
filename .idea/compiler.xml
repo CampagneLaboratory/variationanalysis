@@ -22,10 +22,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
+        <module name="variation-analysis" />
         <module name="VariationAnalysis" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="variation-analysis" target="1.7" />
       <module name="VariationAnalysis" target="1.7" />
     </bytecodeTargetLevel>
   </component>
