@@ -39,7 +39,9 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
 
     @Override
     public int numberOfFeatures() {
-        return MAX_GENOTYPES * 2;
+        // we need features for the normal sample and for the tumor sample:
+
+        return MAX_GENOTYPES * 2*2;
     }
 
     int sumCounts;
@@ -94,7 +96,7 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < 20 : "Only 20 features";
+        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2*2 : "Only MAX_GENOTYPES*2*2 features";
         if (featureIndex < MAX_GENOTYPES * 2) {
             // germline counts written first:
             if ((featureIndex % 2) == 1) {
