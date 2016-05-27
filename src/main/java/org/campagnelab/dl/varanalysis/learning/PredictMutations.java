@@ -28,6 +28,11 @@ public class PredictMutations {
     String modelPath;
     String testsetPath;
     String resultsPath;
+    final String header = "mutatedLabel\tpredictedLabel\tProbability\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts";
+
+
+
+
     public PredictMutations(String modelPath, String testsetPath, String resultsPath){
         this.modelPath = modelPath;
         this.testsetPath = testsetPath;
@@ -47,9 +52,23 @@ public class PredictMutations {
 
 
     String featuresToString(BaseInformationRecords.BaseInformation pos){
-        //TODO: add features to prediction output, for reference use
-        return "";
-        //TextFormat.printToString(pos); ?
+        //indels not handled
+        int[] s1Counts = new int[10];
+        int[] s2Counts = new int[10];
+        for (int i = 0; i < 5; i++){
+            s1Counts[i] = pos.getSamples(0).getCounts(i).getGenotypeCountForwardStrand();
+            s1Counts[i+5] = pos.getSamples(0).getCounts(i).getGenotypeCountReverseStrand();
+            s2Counts[i] = pos.getSamples(1).getCounts(i).getGenotypeCountForwardStrand();
+            s2Counts[i+5] = pos.getSamples(1).getCounts(i).getGenotypeCountReverseStrand();
+        }
+
+        String features = (pos.hasFrequencyOfMutation()?pos.getFrequencyOfMutation():"") + "\t"
+                        + (pos.hasMutatedBase()?pos.getMutatedBase():"") + "\t"
+                        + pos.getReferenceIndex() + "\t"
+                        + pos.getReferenceBase() + "\t"
+                        + Arrays.toString(s1Counts) + "\t"
+                        + Arrays.toString(s2Counts);
+        return features;
     }
 
     public void PrintPredictions(){
