@@ -47,13 +47,14 @@ public class ConcatFeatureMapper implements FeatureMapper {
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
         int offset = 0;
-        int[] indicesOuter = {0};
+        int[] indicesOuter = {0,0};
         for (FeatureMapper delegate : mappers) {
 
             final int delNumFeatures = delegate.numberOfFeatures();
             delegate.prepareToNormalize(record, indexOfRecord);
             for (int j = 0; j < delNumFeatures; j++) {
-                indicesOuter[0] = j + offset;
+                indicesOuter[0]=indexOfRecord;
+                indicesOuter[1] = j + offset;
                 inputs.putScalar(indicesOuter, delegate.produceFeature(record, j));
             }
             offset += delNumFeatures;
