@@ -43,7 +43,7 @@ public class DetectMutations {
     public static void main(String[] args) throws IOException {
         int seed = 123;
         double learningRate = 0.001;
-        int miniBatchSize = 100;
+        int miniBatchSize = 4;
         int numEpochs = 2;
         String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate + "-time:" + new Date().getTime();
         int generateSamplesEveryNMinibatches = 10;
@@ -60,7 +60,7 @@ public class DetectMutations {
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .iterations(10)
+                .iterations(1)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(learningRate).regularization(true).l2(0.002)
                 .updater(Updater.ADAGRAD)

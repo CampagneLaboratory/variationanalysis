@@ -46,7 +46,7 @@ public class PredictMutations {
         int miniBatchSize = 1000;
         String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate;
 
-        PredictMutations predictor = new PredictMutations(attempt, "sample_data/genotypes_testset_randomized.parquet", "tests/results");
+        PredictMutations predictor = new PredictMutations(attempt, "sample_data/protobuf/genotypes_proto_test_mutated_randomized.parquet", "tests/results");
         predictor.PrintPredictions();
     }
 
@@ -93,21 +93,20 @@ public class PredictMutations {
             PrintWriter results = new PrintWriter(resultsPath, "UTF-8");
 
             //may need to adjust batch size and write outputs piecewise if test sets are very large
-            BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
+            //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
+            FeatureMapperV2 featureMapper = new FeatureMapperV2();
             RecordReader reader = new RecordReader(testsetPath);
-            DataSet ds = baseIter.next();
-            INDArray testFeatures = ds.getFeatures();
-            INDArray testPredicted = model.output(testFeatures);
-            INDArray testActual = ds.getLabels();
+            //DataSet ds = baseIter.next();
 
-            //iterate over features + labels and print to tab delimited file
-            for (int i = 0; i < testPredicted.rows(); i++){
-                BaseInformationRecords.BaseInformation pos = reader.nextRecord();
-                String features = featuresToString(pos);
+
+            for (BaseInformationRecords.BaseInformation record : reader){
+                INDArray testFeatures = Nd4j.zeros(1, featureMapper.numberOfFeatures());
+                featureMapper.mapFeatures(record,testFeatures,0);
+                INDArray testPredicted = model.output(testFeatures,false);
+                String features = featuresToString(record);
                 //boolean
-                boolean mutated = pos.getMutated();
-                float[] probabilities = testPredicted.getRow(i).data().asFloat();
-                //float[] labels = testActual.getRow(i).data().asFloat();
+                boolean mutated = record.getMutated();
+                float[] probabilities = testPredicted.getRow(0).data().asFloat();
                 boolean prediction = probabilities[0] > 0.5;
                 String correctness = (prediction == mutated) ? "right" : "wrong";
                 results.append((mutated?"1":"0") + "\t" + Float.toString(probabilities[0]) + "\t" + correctness + "\t" + features + "\n");
