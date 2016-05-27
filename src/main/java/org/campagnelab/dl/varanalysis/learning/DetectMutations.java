@@ -5,6 +5,7 @@ import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV2;
 import org.campagnelab.dl.varanalysis.learning.mappers.LabelMapper;
+import org.campagnelab.dl.varanalysis.learning.mappers.PositiveControlFeatureMapper;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -42,27 +43,27 @@ public class DetectMutations {
 
     public static void main(String[] args) throws IOException {
         int seed = 123;
-        double learningRate = 0.001;
-        int miniBatchSize = 4;
-        int numEpochs = 2;
+        double learningRate = 0.05;
+        int miniBatchSize = 100;
+        int numEpochs = 3;
         String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate + "-time:" + new Date().getTime();
         int generateSamplesEveryNMinibatches = 10;
 
         //Load the training data:
-        final FeatureMapper featureCalculator = new FeatureMapperV2();
+        final FeatureMapper featureCalculator = new FeatureMapperV2();//new PositiveControlFeatureMapper();//
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
         BaseInformationIterator trainIter = new BaseInformationIterator("sample_data/protobuf/genotypes_proto_mutated_randomized.parquet",
                 miniBatchSize, featureCalculator, labelMapper);
 
         int numInputs = trainIter.inputColumns();
         int numOutputs = trainIter.totalOutcomes();
-        int numHiddenNodes = 20;
+        int numHiddenNodes = 500;
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .iterations(1)
+                .iterations(10)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(learningRate).regularization(true).l2(0.002)
+                .learningRate(learningRate).regularization(true).l2(0.00002)
                 .updater(Updater.ADAGRAD)
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
@@ -73,21 +74,16 @@ public class DetectMutations {
                         .weightInit(WeightInit.XAVIER)
                         .activation("relu")
                         .build())
-                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.XENT)
+                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .weightInit(WeightInit.XAVIER)
                         .activation("softmax").weightInit(WeightInit.XAVIER)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
                 .pretrain(false).backprop(true).build();
 
 
-        MultiLayerNetwork model = new MultiLayerNetwork(conf);
-        model.init();
-        model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(1)));
-
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-
-        //    net.setListeners(/*new HistogramIterationListener(1), */new ScoreIterationListener(1));
+    //    net.setListeners(/*new HistogramIterationListener(1), */new ScoreIterationListener(1));
         //Print the  number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
         int totalNumParams = 0;
@@ -122,7 +118,7 @@ public class DetectMutations {
                 if (numLabels(ds.getLabels()) != 2) {
                     System.out.println("There should be two labels in the miniBatch");
                 }
-                ;
+
                 net.fit(ds);
 
                 INDArray predictedLabels = net.output(ds.getFeatures(), false);

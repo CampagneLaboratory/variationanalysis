@@ -153,7 +153,7 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
         //return record.getMutated() ? 1.0f : 0.0f;
         if (labelIndex == 0) return record.getMutated() ? 1 : 0;
         else {
-            return !record.getMutated() ? 1 : 0;
+          return !record.getMutated() ? 1 : 0;
         }
 
     }
