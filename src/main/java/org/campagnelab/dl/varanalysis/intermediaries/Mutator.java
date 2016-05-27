@@ -25,6 +25,7 @@ public class Mutator extends Intermediary{
     double deltaBig = 1;
     //minimum proportion of counts to presume allele
     double zygHeuristic = 0.1;
+    final String[] STRING = new String[]{"A","T","C","G"};
 
     public Mutator(){
     }
@@ -76,6 +77,7 @@ public class Mutator extends Intermediary{
             if (sums[i] > maxCount) {
                 scndCountIdx = maxCountIdx;
                 maxCountIdx = i;
+                maxCount = sums[i];
             }
         }
         //no reads whatsoever
@@ -143,6 +145,9 @@ public class Mutator extends Intermediary{
         }
         baseBuild.setSamples(1, somaticBuild);
         baseBuild.setFrequencyOfMutation((float)deltaOrig);
+        String newBaseString = STRING[newBase];
+        baseBuild.setMutatedBase(newBaseString);
+        baseBuild.setIndexOfMutatedBase(newBase);
         return baseBuild.build();
     }
 

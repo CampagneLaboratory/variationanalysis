@@ -38,7 +38,8 @@ public class ParquetPrinter {
     public static void main(String[] args) throws IOException{
         //new ParquetPrinter(args[0]).print();
         new Mutator().executeOver(args[0],args[1]);
-        new ParquetPrinter(args[1]).print();
+        new Randomizer().executeOver(args[1],args[2]);
+        new ParquetPrinter(args[2]).print();
     }
 
 
