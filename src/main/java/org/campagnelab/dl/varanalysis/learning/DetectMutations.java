@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,15 +43,14 @@ public class DetectMutations {
     public static void main(String[] args) throws IOException {
         int seed = 123;
         double learningRate = 0.001;
-        int miniBatchSize = 1000;
-        int numEpochs = 30;
-        String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate;
-
+        int miniBatchSize = 100;
+        int numEpochs = 2;
+        String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate + "-time:" + new Date().getTime();
         int generateSamplesEveryNMinibatches = 10;
 
         //Load the training data:
-        final FeatureMapper featureCalculator =new FeatureMapperV2();
-        final LabelMapper labelMapper=new SimpleFeatureCalculator();
+        final FeatureMapper featureCalculator = new FeatureMapperV2();
+        final LabelMapper labelMapper = new SimpleFeatureCalculator();
         BaseInformationIterator trainIter = new BaseInformationIterator("sample_data/protobuf/genotypes_proto_mutated_randomized.parquet",
                 miniBatchSize, featureCalculator, labelMapper);
 
@@ -60,16 +60,20 @@ public class DetectMutations {
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .iterations(100)
+                .iterations(10)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(learningRate).regularization(true).l2(0.02)
-                .updater(Updater.NESTEROVS).momentum(0.9)
+                .learningRate(learningRate).regularization(true).l2(0.002)
+                .updater(Updater.ADAGRAD)
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                         .weightInit(WeightInit.XAVIER)
                         .activation("relu")
                         .build())
-                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .layer(1, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
+                        .weightInit(WeightInit.XAVIER)
+                        .activation("relu")
+                        .build())
+                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.XENT)
                         .weightInit(WeightInit.XAVIER)
                         .activation("softmax").weightInit(WeightInit.XAVIER)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
@@ -83,7 +87,7 @@ public class DetectMutations {
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
 
-    //    net.setListeners(/*new HistogramIterationListener(1), */new ScoreIterationListener(1));
+        //    net.setListeners(/*new HistogramIterationListener(1), */new ScoreIterationListener(1));
         //Print the  number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
         int totalNumParams = 0;
@@ -121,6 +125,9 @@ public class DetectMutations {
                 ;
                 net.fit(ds);
 
+                INDArray predictedLabels = net.output(ds.getFeatures(), false);
+
+
                 pg.update();
 
                 if (net.score() < bestScore) {
@@ -129,12 +136,14 @@ public class DetectMutations {
                     System.out.println("Saving best score model.. score=" + bestScore);
                 }
 
-      }
+            }
             pg.stop();
             pgEpoch.update();
             trainIter.reset();    //Reset iterator for another epoch
         }
         pgEpoch.stop();
+        System.out.println("Saving last model with score=" + net.score());
+        saver.saveLatestModel(net, net.score());
 
     }
 

@@ -95,27 +95,36 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         assert featureIndex >= 0 && featureIndex < 20 : "Only 20 features";
-        if (featureIndex < MAX_GENOTYPES*2) {
+        if (featureIndex < MAX_GENOTYPES * 2) {
             // germline counts written first:
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
-                return getAllCounts(record, false).get(featureIndex/2).forwardCount;
+                return getAllCounts(record, false).get(featureIndex / 2).forwardCount;
             } else {
-                return getAllCounts(record, false).get(featureIndex/2).reverseCount;
+                return getAllCounts(record, false).get(featureIndex / 2).reverseCount;
             }
         } else {
             // tumor counts written next:
-            featureIndex -= MAX_GENOTYPES*2;
+            featureIndex -= MAX_GENOTYPES * 2;
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
-                return getAllCounts(record, true).get(featureIndex/2).forwardCount;
+                return getAllCounts(record, true).get(featureIndex / 2).forwardCount;
             } else {
-                return getAllCounts(record, true).get(featureIndex/2).reverseCount;
+                return getAllCounts(record, true).get(featureIndex / 2).reverseCount;
             }
         }
     }
 
+    private boolean oneSampleHasTumor(java.util.List<org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.SampleInfo> samples) {
+        for (BaseInformationRecords.SampleInfo sample : samples) {
+            if (sample.getIsTumor()) return true;
+        }
+        return false;
+
+    }
+
     private ObjectArrayList<GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor) {
+        assert oneSampleHasTumor(record.getSamplesList()) : "at least one sample must have hasTumor=true.";
         ObjectArrayList<GenotypeCount> list = new ObjectArrayList();
         for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
             if (isTumor != sampleInfo.getIsTumor()) continue;
@@ -141,7 +150,9 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
 
         //return record.getMutated() ? 1.0f : 0.0f;
         if (labelIndex == 0) return record.getMutated() ? 1 : 0;
-        if (labelIndex == 1) return record.getMutated() ? 0 : 1;
-        return -1;
+        else {
+            return !record.getMutated() ? 1 : 0;
+        }
+
     }
 }

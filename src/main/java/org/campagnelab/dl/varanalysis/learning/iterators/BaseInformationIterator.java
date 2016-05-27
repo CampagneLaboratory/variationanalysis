@@ -48,7 +48,7 @@ public class BaseInformationIterator implements DataSetIterator {
     public DataSet next(int batchSize) {
 
         // allocate a new dataset with batchSize records and fill it with features and labels.
-        DataSet ds = new DataSet();
+
         int size = Math.min(batchSize, (int) remainingExamples());
 
         // allocate features and labels for the entire dataset:
