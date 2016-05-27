@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Random;
 
 /**
- *
  * The mutator object iterates over a parquet file and creates an additional mutated copy of every record.
- *
+ * <p>
  * Created by rct66 on 5/18/16.
+ *
  * @author rct66
  */
-public class Mutator extends Intermediary{
+public class Mutator extends Intermediary {
     //delta will be halved in homozygous cases (to account for twice the reads at a base)
     //min fraction of bases mutated at a record (ceilinged fraction)
     double deltaSmall = 0.1;
@@ -25,20 +25,27 @@ public class Mutator extends Intermediary{
     double deltaBig = 1;
     //minimum proportion of counts to presume allele
     double zygHeuristic = 0.1;
-    final String[] STRING = new String[]{"A","T","C","G"};
+    final String[] STRING = new String[]{"A", "T", "C", "G"};
 
-    public Mutator(){
+    public Mutator() {
+        setSeed(2323);
     }
 
-    public Mutator(int deltaSmall, int deltaBig, int zygHeuristic){
+    public void setSeed(int seed) {
+
+       rand= new XorShift128PlusRandom(seed);
+    }
+
+    public Mutator(int deltaSmall, int deltaBig, int zygHeuristic) {
         this.deltaSmall = deltaSmall;
         this.deltaBig = deltaBig;
         this.zygHeuristic = zygHeuristic;
+        setSeed(2323);
     }
 
     public void execute(String in, String out, int blockSize, int pageSize) throws IOException {
         RecordReader reader = new RecordReader(in);
-        RecordWriter writer = new RecordWriter(out,blockSize,pageSize);
+        RecordWriter writer = new RecordWriter(out, blockSize, pageSize);
         for (BaseInformationRecords.BaseInformation base : reader) {
             writer.writeRecord(base);
             //mutate record and write it again
@@ -50,10 +57,13 @@ public class Mutator extends Intermediary{
 
     }
 
+    Random rand;
+
+
     //backward strand appended to forward strand in input and output
     //10 fields: ATCGOATCGO
     //List instead of array because of avro code generation...
-    private BaseInformationRecords.BaseInformation mutate(BaseInformationRecords.BaseInformation.Builder baseBuild) {
+    protected BaseInformationRecords.BaseInformation mutate(BaseInformationRecords.BaseInformation.Builder baseBuild) {
         baseBuild.setMutated(true);
         int[] forward = new int[5];
         int[] backward = new int[5];
@@ -93,8 +103,6 @@ public class Mutator extends Intermediary{
             monozygotic = (zygHeuristic * numCounts > sums[scndCountIdx]);
         }
         //make rand generator and generate proportion mutating bases
-        Random rand = new XorShift128PlusRandom();
-
         //generate mutation rate
         double delta = deltaSmall + ((deltaBig - deltaSmall) * rand.nextDouble());
         double deltaOrig = delta;
@@ -144,7 +152,7 @@ public class Mutator extends Intermediary{
             i++;
         }
         baseBuild.setSamples(1, somaticBuild);
-        baseBuild.setFrequencyOfMutation((float)deltaOrig);
+        baseBuild.setFrequencyOfMutation((float) deltaOrig);
         String newBaseString = STRING[newBase];
         baseBuild.setMutatedBase(newBaseString);
         baseBuild.setIndexOfMutatedBase(newBase);

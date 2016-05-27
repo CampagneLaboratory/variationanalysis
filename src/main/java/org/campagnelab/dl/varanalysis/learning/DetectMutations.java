@@ -60,7 +60,7 @@ public class DetectMutations {
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .iterations(1)
+                .iterations(100)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(learningRate).regularization(true).l2(0.02)
                 .updater(Updater.NESTEROVS).momentum(0.9)

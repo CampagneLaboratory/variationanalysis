@@ -24,20 +24,19 @@ public abstract class Intermediary {
     public void executeOver(String inPath, String outPath) throws IOException {
         java.nio.file.Path toDelete = Paths.get(outPath);
         Files.deleteIfExists(toDelete);
-        execute(inPath,outPath,blockSize,pageSize);
+        execute(inPath, outPath, blockSize, pageSize);
     }
 
     public void executeOver(String inPath, String outPath, int blockSize, int pageSize) throws IOException {
         java.nio.file.Path toDelete = Paths.get(outPath);
         Files.deleteIfExists(toDelete);
-        execute(inPath,outPath,blockSize,pageSize);
+        execute(inPath, outPath, blockSize, pageSize);
     }
 
     public void execute(String inputFilenameA, String inPath, String outPath) throws IOException {
-        execute(inPath,outPath,blockSize,pageSize);
+        execute(inPath, outPath, blockSize, pageSize);
     }
 
-    public abstract void execute (String inPath, String outPath, int blockSize, int pageSize) throws IOException ;
-
+    public abstract void execute(String inPath, String outPath, int blockSize, int pageSize) throws IOException;
 
 }
