@@ -47,6 +47,7 @@ public class PredictMutations {
 
 
     String featuresToString(BaseInformationRecords.BaseInformation pos){
+        //TODO: add features to prediction output, for reference use
         return "";
         //TextFormat.printToString(pos); ?
     }
