@@ -1,22 +1,41 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapper;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import java.util.Collections;
+
 /**
- * Created by rct66 on 5/31/16.
+ * This is the quality score feature mapper. maps phred averages from parquet
+ *
+ * @author Remi Torracinta, rct66
  */
-public class QualityFeatures implements FeatureMapper {
-    @Override
-    public int numberOfFeatures() { return 20; }
+
+public class QualityFeatures implements FeatureCalculator {
+
+
+    public static final int MAX_GENOTYPES = 5;
 
     @Override
-    public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
-        // do nothing. No normalization here.
+    public int numberOfFeatures() {
+        // we need features for the normal sample and for the tumor sample:
+
+        return MAX_GENOTYPES * 2*2;
     }
 
-    int indices[] = {0, 0};
+    int sumCounts;
+
+    public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
+        //shouldn't need to do anything
+    }
+
+    @Override
+    public int numberOfLabels() {
+        return 20;
+    }
+
+    int[] indices = new int[]{0, 0};
 
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
@@ -27,17 +46,40 @@ public class QualityFeatures implements FeatureMapper {
         }
     }
 
-    @Override
-    public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        int sumCounts = 0;
-        for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
-            for (BaseInformationRecords.CountInfo sampleCounts : sampleInfo.getCountsList()) {
 
-                sumCounts += sampleCounts.getGenotypeCountForwardStrand();
-                sumCounts += sampleCounts.getGenotypeCountReverseStrand();
+    @Override
+    public void mapLabels(BaseInformationRecords.BaseInformationOrBuilder record, INDArray labels, int indexOfRecord) {
+        indices[0] = indexOfRecord;
+
+        for (int labelIndex = 0; labelIndex < numberOfLabels(); labelIndex++) {
+            indices[1] = labelIndex;
+            labels.putScalar(indices, produceLabel(record, labelIndex));
+        }
+    }
+
+
+    public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
+        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2*2 : "Only MAX_GENOTYPES*2*2 features";
+        if (featureIndex < MAX_GENOTYPES * 2) {
+            // germline counts written first:
+            if ((featureIndex % 2) == 1) {
+                // odd featureIndices are forward strand:
+                return record.getSamples(0).getCounts(featureIndex/2).getQualityScoreForwardStrand();
+            } else {
+                return record.getSamples(0).getCounts(featureIndex/2).getQualityScoreReverseStrand();
+            }
+        } else {
+            // tumor counts written next:
+            featureIndex -= MAX_GENOTYPES * 2;
+            if ((featureIndex % 2) == 1) {
+                // odd featureIndices are forward strand:
+                return record.getSamples(1).getCounts(featureIndex/2).getQualityScoreForwardStrand();
+            } else {
+                return record.getSamples(1).getCounts(featureIndex/2).getQualityScoreReverseStrand();
             }
         }
-        final int featureValue = (Math.log10(sumCounts) > featureIndex) ? 1 : 0;
-        return featureValue;
+    }
+
+
     }
 }
