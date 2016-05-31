@@ -49,7 +49,7 @@ public class PredictMutations {
         String time = "1464389535072";
         String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate + "-time:" + time;
 
-        PredictMutations predictor = new PredictMutations(attempt, "sample_data/protobuf/", "tests/" + time);
+        PredictMutations predictor = new PredictMutations(attempt, "sample_data/protobuf/", "tests/" + time + "/");
         predictor.PrintPredictions();
     }
 
