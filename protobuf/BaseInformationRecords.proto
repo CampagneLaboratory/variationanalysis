@@ -65,11 +65,11 @@ message CountInfo {
     /** The number of times the genotype is observed in the sample in a read matching the reverse strand. */
     required uint32 genotypeCountReverseStrand = 5;
 
-    /** The aggregate phred score of all reads matching this genotype on the forward strand
+    /** The aggregate score (error probability) of all reads matching this genotype on the forward strand
     (averaging the corresponding probabilities and converting back to phred) */
     required float qualityScoreForwardStrand =  6;
 
-    /** The aggregate phred score of all reads matching this genotype on the Reverse strand
+    /** The aggregate score (error probability) of all reads matching this genotype on the Reverse strand
     (averaging the corresponding probabilities and converting back to phred) */
     required float qualityScoreReverseStrand =  7;
 
