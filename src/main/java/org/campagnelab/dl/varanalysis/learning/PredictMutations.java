@@ -26,27 +26,30 @@ import java.io.*;
  */
 public class PredictMutations {
     String modelPath;
-    String testsetPath;
+    String dataDirPath;
     String resultsPath;
-    final String header = "mutatedLabel\tpredictedLabel\tProbability\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts";
+    String[] dataFilenames = new String[]{"genotypes_proto_mutated_randomized.parquet","genotypes_proto_test_mutated_randomized.parquet"};
+    String[] resultsFileNames = new String[]{"training","test"};
+    final String header = "mutatedLabel\tProbability\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts";
 
 
 
 
-    public PredictMutations(String modelPath, String testsetPath, String resultsPath){
+    public PredictMutations(String modelPath, String dataDirPath, String resultsPath){
         this.modelPath = modelPath;
-        this.testsetPath = testsetPath;
+        this.dataDirPath = dataDirPath;
         this.resultsPath = resultsPath;
 
     }
 
 
     public static void main(String[] args) throws IOException {
-        double learningRate = 0.001;
-        int miniBatchSize = 1000;
-        String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate;
+        double learningRate = 0.05;
+        int miniBatchSize = 100;
+        String time = "1464389535072";
+        String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate + "-time:" + time;
 
-        PredictMutations predictor = new PredictMutations(attempt, "sample_data/protobuf/genotypes_proto_test_mutated_randomized.parquet", "tests/results");
+        PredictMutations predictor = new PredictMutations(attempt, "sample_data/protobuf/", "tests/" + time + "/");
         predictor.PrintPredictions();
     }
 
@@ -87,31 +90,38 @@ public class PredictMutations {
             model.init();
             model.setParameters(newParams);
 
+            File dir = new File(resultsPath);
+            // attempt to create the directory here
+            dir.mkdir();
 
 
-            //initialize results printer
-            PrintWriter results = new PrintWriter(resultsPath, "UTF-8");
+            for (int i = 0; i < 2; i++){
+                //initialize results printer
+                PrintWriter results = new PrintWriter(resultsPath+resultsFileNames[i], "UTF-8");
 
-            //may need to adjust batch size and write outputs piecewise if test sets are very large
-            //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
-            FeatureMapperV2 featureMapper = new FeatureMapperV2();
-            RecordReader reader = new RecordReader(testsetPath);
-            //DataSet ds = baseIter.next();
+                //may need to adjust batch size and write outputs piecewise if test sets are very large
+                //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
+                FeatureMapperV2 featureMapper = new FeatureMapperV2();
+                RecordReader reader = new RecordReader(dataDirPath+dataFilenames[i]);
+                //DataSet ds = baseIter.next();
 
 
-            for (BaseInformationRecords.BaseInformation record : reader){
-                INDArray testFeatures = Nd4j.zeros(1, featureMapper.numberOfFeatures());
-                featureMapper.mapFeatures(record,testFeatures,0);
-                INDArray testPredicted = model.output(testFeatures,false);
-                String features = featuresToString(record);
-                //boolean
-                boolean mutated = record.getMutated();
-                float[] probabilities = testPredicted.getRow(0).data().asFloat();
-                boolean prediction = probabilities[0] > 0.5;
-                String correctness = (prediction == mutated) ? "right" : "wrong";
-                results.append((mutated?"1":"0") + "\t" + Float.toString(probabilities[0]) + "\t" + correctness + "\t" + features + "\n");
+                for (BaseInformationRecords.BaseInformation record : reader){
+                    INDArray testFeatures = Nd4j.zeros(1, featureMapper.numberOfFeatures());
+                    featureMapper.mapFeatures(record,testFeatures,0);
+                    INDArray testPredicted = model.output(testFeatures,false);
+                    String features = featuresToString(record);
+                    //boolean
+                    boolean mutated = record.getMutated();
+                    float[] probabilities = testPredicted.getRow(0).data().asFloat();
+                    boolean prediction = probabilities[0] > 0.5;
+                    String correctness = (prediction == mutated) ? "right" : "wrong";
+                    results.append((mutated?"1":"0") + "\t" + Float.toString(probabilities[0]) + "\t" + correctness + "\t" + features + "\n");
+                }
+                results.close();
             }
-            results.close();
+
+
         } catch (Exception e) {
             throw new RuntimeException((e));
         }
