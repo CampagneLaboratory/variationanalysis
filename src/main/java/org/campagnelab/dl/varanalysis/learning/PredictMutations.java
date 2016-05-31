@@ -28,9 +28,9 @@ public class PredictMutations {
     String modelPath;
     String dataDirPath;
     String resultsPath;
-    String[] dataFilenames = new String[]{"genotypes_proto_mutated_randomized.parquet","genotypes_proto_test_mutated_randomized.parquet"};
+    String[] dataFilenames = new String[]{"genotypes_proto.parquet","genotypes_proto_test.parquet"};
     String[] resultsFileNames = new String[]{"training","test"};
-    final String header = "mutatedLabel\tProbability\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts";
+    final String header = "mutatedLabel\tProbability\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts\n";
 
 
 
@@ -46,7 +46,7 @@ public class PredictMutations {
     public static void main(String[] args) throws IOException {
         double learningRate = 0.05;
         int miniBatchSize = 100;
-        String time = "1464389535072";
+        String time = "1464722138875";
         String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate + "-time:" + time;
 
         PredictMutations predictor = new PredictMutations(attempt, "sample_data/protobuf/", "tests/" + time + "/");
@@ -68,6 +68,7 @@ public class PredictMutations {
         String features = (pos.hasFrequencyOfMutation()?pos.getFrequencyOfMutation():"") + "\t"
                         + (pos.hasMutatedBase()?pos.getMutatedBase():"") + "\t"
                         + pos.getReferenceIndex() + "\t"
+                        + pos.getPosition() + "\t"
                         + pos.getReferenceBase() + "\t"
                         + Arrays.toString(s1Counts) + "\t"
                         + Arrays.toString(s2Counts);
@@ -98,6 +99,7 @@ public class PredictMutations {
             for (int i = 0; i < 2; i++){
                 //initialize results printer
                 PrintWriter results = new PrintWriter(resultsPath+resultsFileNames[i], "UTF-8");
+                results.append(header);
 
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
                 //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
