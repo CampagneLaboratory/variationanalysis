@@ -30,7 +30,7 @@ public class PredictMutations {
     String resultsPath;
     String[] dataFilenames = new String[]{"genotypes_proto.parquet","genotypes_proto_test.parquet"};
     String[] resultsFileNames = new String[]{"training","test"};
-    final String header = "mutatedLabel\tProbability\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts\n";
+    final String header = "mutatedLabel\tProbability\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts\tsample1Scores\tsample2Scores\n";
 
 
 
@@ -64,6 +64,14 @@ public class PredictMutations {
             s2Counts[i] = pos.getSamples(1).getCounts(i).getGenotypeCountForwardStrand();
             s2Counts[i+5] = pos.getSamples(1).getCounts(i).getGenotypeCountReverseStrand();
         }
+        float[] s1Scores = new float[10];
+        float[] s2Scores = new float[10];
+        for (int i = 0; i < 5; i++){
+            s1Scores[i] = pos.getSamples(0).getCounts(i).getQualityScoreForwardStrand();
+            s1Scores[i+5] = pos.getSamples(0).getCounts(i).getQualityScoreReverseStrand();
+            s2Scores[i] = pos.getSamples(1).getCounts(i).getQualityScoreForwardStrand();
+            s2Scores[i+5] = pos.getSamples(1).getCounts(i).getQualityScoreReverseStrand();
+        }
 
         String features = (pos.hasFrequencyOfMutation()?pos.getFrequencyOfMutation():"") + "\t"
                         + (pos.hasMutatedBase()?pos.getMutatedBase():"") + "\t"
@@ -71,7 +79,9 @@ public class PredictMutations {
                         + pos.getPosition() + "\t"
                         + pos.getReferenceBase() + "\t"
                         + Arrays.toString(s1Counts) + "\t"
-                        + Arrays.toString(s2Counts);
+                        + Arrays.toString(s2Counts) + "\t"
+                        + Arrays.toString(s1Scores) + "\t"
+                        + Arrays.toString(s2Scores);
         return features;
     }
 
