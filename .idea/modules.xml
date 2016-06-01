@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/VariationAnalysis.iml" filepath="$PROJECT_DIR$/VariationAnalysis.iml" />
-      <module fileurl="file://$PROJECT_DIR$/variation-analysis.iml" filepath="$PROJECT_DIR$/variation-analysis.iml" />
     </modules>
   </component>
 </project>

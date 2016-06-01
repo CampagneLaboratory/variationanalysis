@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
  * Created by mas2182 on 5/24/16.
  */
 public class RecordReaderTest {
-    private String  filename = "test-results/genotypes_mutated_protofbuf.parquet";
+    private String  filename = "test-data/reader/genotypes_mutated_protobuf.parquet";
 
     private RecordReader reader;
 
