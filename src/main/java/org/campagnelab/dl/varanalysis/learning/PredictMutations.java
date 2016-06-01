@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV2;
 import org.campagnelab.dl.varanalysis.learning.iterators.SimpleFeatureCalculator;
+import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -46,7 +47,7 @@ public class PredictMutations {
     public static void main(String[] args) throws IOException {
         double learningRate = 0.05;
         int miniBatchSize = 100;
-        String time = "1464722138875";
+        String time = "1464808555932";
         String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate + "-time:" + time;
 
         PredictMutations predictor = new PredictMutations(attempt, "sample_data/protobuf/", "tests/" + time + "/");
@@ -113,7 +114,7 @@ public class PredictMutations {
 
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
                 //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
-                FeatureMapperV2 featureMapper = new FeatureMapperV2();
+                FeatureMapperV3 featureMapper = new FeatureMapperV3();
                 RecordReader reader = new RecordReader(dataDirPath+dataFilenames[i]);
                 //DataSet ds = baseIter.next();
 
