@@ -17,15 +17,14 @@ public class QualityFeatures implements FeatureMapper {
 
 
     public static final int MAX_GENOTYPES = 5;
+    public static final int QUALITY_NORM = 1;
 
-    @Override
+
     public int numberOfFeatures() {
         // we need features for the normal sample and for the tumor sample:
 
         return MAX_GENOTYPES * 2*2;
     }
-
-    int sumCounts;
 
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
         //shouldn't need to do anything
@@ -34,7 +33,6 @@ public class QualityFeatures implements FeatureMapper {
 
     int[] indices = new int[]{0, 0};
 
-    @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
         indices[0] = indexOfRecord;
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
@@ -44,7 +42,7 @@ public class QualityFeatures implements FeatureMapper {
     }
 
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        return normalize(produceFeatureInternal(record, featureIndex), sumCounts);
+        return normalize(produceFeatureInternal(record, featureIndex), QUALITY_NORM);
     }
 
 
@@ -86,6 +84,8 @@ public class QualityFeatures implements FeatureMapper {
         for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
             if (isTumor != sampleInfo.getIsTumor()) continue;
             for (BaseInformationRecords.CountInfo sampleCounts : sampleInfo.getCountsList()) {
+                assert sampleCounts.hasQualityScoreForwardStrand() : "record is missing a forward quality score.";
+                assert sampleCounts.hasQualityScoreReverseStrand(): "record is missing a reverse quality score.";
                 QualityGenotypeCount count = new QualityGenotypeCount(
                         sampleCounts.getGenotypeCountForwardStrand(),
                         sampleCounts.getGenotypeCountReverseStrand(),
