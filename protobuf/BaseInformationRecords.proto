@@ -67,11 +67,11 @@ message CountInfo {
 
     /** The aggregate score (error probability) of all reads matching this genotype on the forward strand
     (averaging the corresponding probabilities and converting back to phred) */
-    required float qualityScoreForwardStrand =  6;
+    optional float qualityScoreForwardStrand =  6;
 
     /** The aggregate score (error probability) of all reads matching this genotype on the Reverse strand
     (averaging the corresponding probabilities and converting back to phred) */
-    required float qualityScoreReverseStrand =  7;
+    optional float qualityScoreReverseStrand =  7;
 
 
 }
