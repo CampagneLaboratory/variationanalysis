@@ -57,6 +57,19 @@ public class QualityFeatures implements FeatureCalculator {
         }
     }
 
+    /**
+     * Produce the value of a given label for the specified record.
+     *
+     * @param record     The record of interest.
+     * @param labelIndex The index of the label to produce/calculate
+     * @return The value of the label.
+     */
+    @Override
+    public float produceLabel(BaseInformationRecords.BaseInformationOrBuilder record, int labelIndex) {
+        //TODO : implements the method
+        return 0;
+    }
+
 
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2*2 : "Only MAX_GENOTYPES*2*2 features";
@@ -81,5 +94,5 @@ public class QualityFeatures implements FeatureCalculator {
     }
 
 
-    }
-}
+ }
+
