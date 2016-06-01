@@ -62,6 +62,7 @@ cd libnd4j
 ./buildnativeoperations.sh blas cpu
 cd ~/libnd4j
 export LIBND4J_HOME=`pwd`
+echo "export LIBND4J_HOME=$LIBND4J_HOME" >> $HOME/.bashrc
 
 # nd4j
 cd ~
