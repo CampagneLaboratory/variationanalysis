@@ -2,10 +2,7 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapper;
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV2;
-import org.campagnelab.dl.varanalysis.learning.mappers.LabelMapper;
-import org.campagnelab.dl.varanalysis.learning.mappers.PositiveControlFeatureMapper;
+import org.campagnelab.dl.varanalysis.learning.mappers.*;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -50,7 +47,7 @@ public class DetectMutations {
         int generateSamplesEveryNMinibatches = 10;
 
         //Load the training data:
-        final FeatureMapper featureCalculator = new FeatureMapperV2();//new PositiveControlFeatureMapper();//
+        final FeatureMapper featureCalculator = new FeatureMapperV3();//new PositiveControlFeatureMapper();//
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
         BaseInformationIterator trainIter = new BaseInformationIterator("sample_data/protobuf/genotypes_proto_mutated_randomized.parquet",
                 miniBatchSize, featureCalculator, labelMapper);
