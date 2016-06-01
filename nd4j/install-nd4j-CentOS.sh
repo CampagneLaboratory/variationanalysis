@@ -12,6 +12,7 @@ gpgcheck=0
 EOF
 sudo cp Fedora-Core23.repo /etc/yum.repos.d/
 sudo yum install -y gcc --enablerepo=warning:fedora
+sudo yum install -y gcc-c++ --enablerepo=warning:fedora
 
 # git client
 sudo yum install -y git
