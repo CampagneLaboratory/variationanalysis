@@ -15,7 +15,7 @@ import java.io.File;
 public class RecordWriterTest {
 
     private RecordWriter writer;
-    private static String filename = "test-results/genotypes_mutated_protofbuf.parquet";
+    private static String filename = "test-results/genotypes_mutated_protobuf.parquet";
     private static int blockSize = 256 * 1024 * 1024;
     private static int pageSize = 64 * 1024;
 

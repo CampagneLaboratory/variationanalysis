@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV2;
 import org.campagnelab.dl.varanalysis.learning.iterators.SimpleFeatureCalculator;
+import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -30,7 +31,7 @@ public class PredictMutations {
     String resultsPath;
     String[] dataFilenames = new String[]{"genotypes_proto.parquet","genotypes_proto_test.parquet"};
     String[] resultsFileNames = new String[]{"training","test"};
-    final String header = "mutatedLabel\tProbability\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts\n";
+    final String header = "mutatedLabel\tProbability\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts\tsample1Scores\tsample2Scores\n";
 
 
 
@@ -46,7 +47,7 @@ public class PredictMutations {
     public static void main(String[] args) throws IOException {
         double learningRate = 0.05;
         int miniBatchSize = 100;
-        String time = "1464722138875";
+        String time = "1464808555932";
         String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate + "-time:" + time;
 
         PredictMutations predictor = new PredictMutations(attempt, "sample_data/protobuf/", "tests/" + time + "/");
@@ -64,6 +65,14 @@ public class PredictMutations {
             s2Counts[i] = pos.getSamples(1).getCounts(i).getGenotypeCountForwardStrand();
             s2Counts[i+5] = pos.getSamples(1).getCounts(i).getGenotypeCountReverseStrand();
         }
+        float[] s1Scores = new float[10];
+        float[] s2Scores = new float[10];
+        for (int i = 0; i < 5; i++){
+            s1Scores[i] = pos.getSamples(0).getCounts(i).getQualityScoreForwardStrand();
+            s1Scores[i+5] = pos.getSamples(0).getCounts(i).getQualityScoreReverseStrand();
+            s2Scores[i] = pos.getSamples(1).getCounts(i).getQualityScoreForwardStrand();
+            s2Scores[i+5] = pos.getSamples(1).getCounts(i).getQualityScoreReverseStrand();
+        }
 
         String features = (pos.hasFrequencyOfMutation()?pos.getFrequencyOfMutation():"") + "\t"
                         + (pos.hasMutatedBase()?pos.getMutatedBase():"") + "\t"
@@ -71,7 +80,9 @@ public class PredictMutations {
                         + pos.getPosition() + "\t"
                         + pos.getReferenceBase() + "\t"
                         + Arrays.toString(s1Counts) + "\t"
-                        + Arrays.toString(s2Counts);
+                        + Arrays.toString(s2Counts) + "\t"
+                        + Arrays.toString(s1Scores) + "\t"
+                        + Arrays.toString(s2Scores);
         return features;
     }
 
@@ -103,7 +114,7 @@ public class PredictMutations {
 
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
                 //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
-                FeatureMapperV2 featureMapper = new FeatureMapperV2();
+                FeatureMapperV3 featureMapper = new FeatureMapperV3();
                 RecordReader reader = new RecordReader(dataDirPath+dataFilenames[i]);
                 //DataSet ds = baseIter.next();
 

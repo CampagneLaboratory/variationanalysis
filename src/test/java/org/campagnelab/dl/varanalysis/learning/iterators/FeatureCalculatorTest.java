@@ -54,6 +54,7 @@ public class FeatureCalculatorTest {
 
         //somatic counts
         BaseInformationRecords.SampleInfo.Builder sampleBuilderS = BaseInformationRecords.SampleInfo.newBuilder();
+        sampleBuilderS.setIsTumor(true);
         BaseInformationRecords.CountInfo.Builder builderInfoS = BaseInformationRecords.CountInfo.newBuilder();
         builderInfoS.setFromSequence("A");
         builderInfoS.setToSequence("T");
