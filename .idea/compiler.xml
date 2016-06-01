@@ -28,7 +28,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="variation-analysis" target="1.7" />
-      <module name="VariationAnalysis" target="1.7" />
+      <module name="VariationAnalysis" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
