@@ -8,11 +8,13 @@ public class QualityGenotypeCount extends GenotypeCount {
     int forwardCount;
     int reverseCount;
     String toSequence;
-    float qualityScore;
+    float qualityScoreForward;
+    float qualityScoreReverse;
 
-    public QualityGenotypeCount(int forwardCount, int reverseCount, String toSequence, float qualityScore) {
+    public QualityGenotypeCount(int forwardCount, int reverseCount, String toSequence, float qualityScoreForward, float qualityScoreReverse) {
         super(forwardCount, reverseCount, toSequence);
-        this.qualityScore = qualityScore;
+        this.qualityScoreForward = qualityScoreForward;
+        this.qualityScoreReverse = qualityScoreReverse;
     }
 
 
@@ -20,8 +22,12 @@ public class QualityGenotypeCount extends GenotypeCount {
         return forwardCount + reverseCount;
     }
 
-    public float getQualityScore(){
-        return qualityScore;
+    public float getQualityScoreForward(){
+        return qualityScoreForward;
+    }
+
+    public float getQualityScoreReverse(){
+        return qualityScoreReverse;
     }
 
     @Override
@@ -31,7 +37,7 @@ public class QualityGenotypeCount extends GenotypeCount {
 
     @Override
     public String toString() {
-        return String.format("totalCount=%d %d on + / %d on - %s, quality=%e",totalCount(), forwardCount,reverseCount,toSequence,qualityScore);
+        return String.format("totalCount=%d %d on + / %d on - %s, quality on + / %e on - %e",totalCount(), forwardCount,reverseCount,toSequence,qualityScoreForward,qualityScoreReverse);
     }
 
 }
