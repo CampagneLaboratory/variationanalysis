@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -157,27 +158,58 @@ public class Mutator extends Intermediary {
                 newBase = 3;
             }
         }
+        int fMutCount = 0;
         int oldCount = forward[oldBase];
         for (i = 0; i < oldCount; i++) {
             if (rand.nextDouble() < delta) {
                 forward[oldBase]--;
                 forward[newBase]++;
+                fMutCount++;
+
             }
         }
+        int bMutCount = 0;
         oldCount = backward[oldBase];
         for (i = 0; i < oldCount; i++) {
             if (rand.nextDouble() < delta) {
                 backward[oldBase]--;
                 backward[newBase]++;
+                bMutCount++;
             }
         }
         //write to respective builders and return rebuild
         BaseInformationRecords.SampleInfo.Builder somaticBuild = somatic.toBuilder();
+
+
+        //get old list of from scores
+        List<Integer> FromForward = new ArrayList<Integer>(somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList());
+        List<Integer> FromBackward = new ArrayList<Integer>(somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList());
+        List<Integer> ToForward = new ArrayList<Integer>(somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList());
+        List<Integer> ToBackward = new ArrayList<Integer>(somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList());
+        Collections.shuffle(FromForward,rand);
+        Collections.shuffle(FromBackward,rand);
+        ToForward.addAll(FromForward.subList(0,fMutCount));
+        ToBackward.addAll(FromBackward.subList(0,bMutCount));
+        FromForward = FromForward.subList(fMutCount,FromForward.size());
+        FromBackward = FromBackward.subList(bMutCount,FromBackward.size());
+
+
         i = 0;
         for (BaseInformationRecords.CountInfo count : somaticBuild.getCountsList()) {
             BaseInformationRecords.CountInfo.Builder countBuild = count.toBuilder();
             countBuild.setGenotypeCountForwardStrand(forward[i]);
             countBuild.setGenotypeCountReverseStrand(backward[i]);
+            if (i == oldBase) {
+                countBuild.clearQualityScoreForwardStrand();
+                countBuild.clearQualityScoreReverseStrand();
+                countBuild.addAllQualityScoresForwardStrand(FromForward);
+                countBuild.addAllQualityScoresReverseStrand(FromBackward);
+            } else if (i == newBase) {
+                countBuild.clearQualityScoreForwardStrand();
+                countBuild.clearQualityScoreReverseStrand();
+                countBuild.addAllQualityScoresForwardStrand(ToForward);
+                countBuild.addAllQualityScoresReverseStrand(ToBackward);
+            }
             somaticBuild.setCounts(i, countBuild);
             i++;
         }

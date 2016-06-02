@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * This is the quality score feature mapper. maps phred averages from parquet
+ * This is the quality score feature mapper. maps phred scores from parquet
  *
  * @author Remi Torracinta, rct66
  */
