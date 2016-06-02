@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import org.apache.commons.io.FileUtils;
+import org.campagnelab.dl.varanalysis.learning.iterators.QualityFeatures;
 import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
@@ -62,10 +63,10 @@ public class PredictMutationsV3 {
         float[] s1Scores = new float[10];
         float[] s2Scores = new float[10];
         for (int i = 0; i < 5; i++){
-            s1Scores[i] = pos.getSamples(0).getCounts(i).getQualityScoreForwardStrand();
-            s1Scores[i+5] = pos.getSamples(0).getCounts(i).getQualityScoreReverseStrand();
-            s2Scores[i] = pos.getSamples(1).getCounts(i).getQualityScoreForwardStrand();
-            s2Scores[i+5] = pos.getSamples(1).getCounts(i).getQualityScoreReverseStrand();
+            s1Scores[i] = QualityFeatures.avgQuality(pos.getSamples(0).getCounts(i).getQualityScoresForwardStrandList());
+            s1Scores[i+5] = QualityFeatures.avgQuality(pos.getSamples(0).getCounts(i).getQualityScoresReverseStrandList());
+            s2Scores[i] = QualityFeatures.avgQuality(pos.getSamples(1).getCounts(i).getQualityScoresForwardStrandList());
+            s2Scores[i+5] = QualityFeatures.avgQuality(pos.getSamples(1).getCounts(i).getQualityScoresReverseStrandList());
         }
 
         String features = (pos.hasFrequencyOfMutation()?pos.getFrequencyOfMutation():"") + "\t"

@@ -108,7 +108,7 @@ public class QualityFeatures implements FeatureMapper {
     }
 
 
-    private float avgQuality(List<Integer> list){
+    public static float avgQuality(List<Integer> list){
         double sum = 0;
         for (Integer i : list)
             sum += i;
