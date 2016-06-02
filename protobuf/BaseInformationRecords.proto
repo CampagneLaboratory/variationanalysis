@@ -45,6 +45,9 @@ message SampleInfo {
     /** flag to specify whether the relevant sample is from a tumor (ie somatic sample) */
     optional bool isTumor = 2;
 
+    /** string encoding nicely formatted version of counts */
+    optional string formattedCounts = 3;
+
 }
 
 message CountInfo {
