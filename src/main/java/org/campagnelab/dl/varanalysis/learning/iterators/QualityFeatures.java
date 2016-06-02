@@ -6,6 +6,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Collections;
+import java.util.List;
 
 /**
  * This is the quality score feature mapper. maps phred averages from parquet
@@ -84,14 +85,14 @@ public class QualityFeatures implements FeatureMapper {
         for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
             if (isTumor != sampleInfo.getIsTumor()) continue;
             for (BaseInformationRecords.CountInfo sampleCounts : sampleInfo.getCountsList()) {
-                assert sampleCounts.hasQualityScoreForwardStrand() : "record is missing a forward quality score.";
-                assert sampleCounts.hasQualityScoreReverseStrand(): "record is missing a reverse quality score.";
+                assert ((sampleCounts.getQualityScoresForwardStrandCount() > 0 ) || (sampleCounts.getQualityScoresReverseStrandCount() > 0))
+                        : "record has no quality scores.";
                 QualityGenotypeCount count = new QualityGenotypeCount(
                         sampleCounts.getGenotypeCountForwardStrand(),
                         sampleCounts.getGenotypeCountReverseStrand(),
                         sampleCounts.getToSequence(),
-                        sampleCounts.getQualityScoreForwardStrand(),
-                        sampleCounts.getQualityScoreReverseStrand());
+                        avgQuality(sampleCounts.getQualityScoresForwardStrandList()),
+                        avgQuality(sampleCounts.getQualityScoresReverseStrandList()));
                 list.add(count);
             }
         }
@@ -104,6 +105,14 @@ public class QualityFeatures implements FeatureMapper {
         //sort in decreasing order of counts:
         Collections.sort(list);
         return list;
+    }
+
+
+    private float avgQuality(List<Integer> list){
+        double sum = 0;
+        for (Integer i : list)
+            sum += i;
+        return (float) sum/list.size();
     }
 
 

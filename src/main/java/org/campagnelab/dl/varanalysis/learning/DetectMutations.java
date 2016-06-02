@@ -49,7 +49,7 @@ public class DetectMutations {
         //Load the training data:
         final FeatureMapper featureCalculator = new FeatureMapperV3();//new PositiveControlFeatureMapper();//
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
-        BaseInformationIterator trainIter = new BaseInformationIterator("sample_data/protobuf/genotypes_proto_mutated_randomized.parquet",
+        BaseInformationIterator trainIter = new BaseInformationIterator("sample_data/protobuf/genotypes_proto_V4_mutated_randomized.parquet",
                 miniBatchSize, featureCalculator, labelMapper);
 
         int numInputs = trainIter.inputColumns();
