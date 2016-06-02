@@ -111,8 +111,8 @@ public class QualityFeatures implements FeatureMapper {
     public static float avgQuality(List<Integer> list){
         double sum = 0;
         for (Integer i : list)
-            sum += Math.pow(10, -(i / 10));
-        return (float) sum/list.size();
+            sum += Math.pow((double)10, -((double)i/(double)10));
+        return (float) (sum/(double)list.size());
     }
 
 
