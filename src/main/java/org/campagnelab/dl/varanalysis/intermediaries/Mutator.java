@@ -39,7 +39,7 @@ public class Mutator extends Intermediary {
         //new ParquetPrinter(args[0]).print();
         new Mutator().executeOver(args[0],args[1]);
         new Randomizer().executeOver(args[1],args[2]);
-        new ParquetPrinter(args[2]).print();
+        //new ParquetPrinter(args[2]).print();
     }
 
     public Mutator() {
