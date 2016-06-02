@@ -1,10 +1,14 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
+import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift128PlusRandom;
+import org.campagnelab.dl.varanalysis.learning.DetectMutations;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.ParquetPrinter;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +23,8 @@ import java.util.Random;
  * @author rct66
  */
 public class Mutator extends Intermediary {
+    static private Logger LOG = LoggerFactory.getLogger(Mutator.class);
+
     //delta will be halved in homozygous cases (to account for twice the reads at a base)
     //min fraction of bases mutated at a record (ceilinged fraction)
     double deltaSmall = 0.1;
@@ -54,7 +60,15 @@ public class Mutator extends Intermediary {
 
     public void execute(String in, String out, int blockSize, int pageSize) throws IOException {
         RecordReader reader = new RecordReader(in);
-        RecordWriter writer = new RecordWriter(out, blockSize, pageSize);
+        RecordWriter writer = new RecordWriter(out, blockSize, pageSize,true);
+
+        //set up logger
+        ProgressLogger pgReadWrite = new ProgressLogger(LOG);
+        pgReadWrite.itemsName = "mutation";
+        pgReadWrite.expectedUpdates = reader.getTotalRecords();
+        pgReadWrite.displayFreeMemory = true;
+        pgReadWrite.start();
+
         for (BaseInformationRecords.BaseInformation base : reader) {
             BaseInformationRecords.BaseInformation.Builder baseBuilder = base.toBuilder();
 
@@ -65,7 +79,9 @@ public class Mutator extends Intermediary {
 
             //mutate record and write it again
             writer.writeRecord(mutate(baseBuilder));
+            pgReadWrite.update();
         }
+        pgReadWrite.stop();
         reader.close();
         writer.close();
 

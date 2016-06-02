@@ -1,12 +1,15 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
 
+import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.hadoop.fs.FileUtil;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
 import it.unimi.dsi.util.XorShift128PlusRandom;
 import org.eclipse.jetty.util.IO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +26,8 @@ import java.util.Random;
  * @author rct66
  */
 public class Randomizer extends Intermediary{
+    static private Logger LOG = LoggerFactory.getLogger(Randomizer.class);
+
 
     public static void main (String[] args) throws IOException{
 
@@ -40,18 +45,36 @@ public class Randomizer extends Intermediary{
 
             RecordWriter writer = new RecordWriter(outPath,blockSize,pageSize,true);
 
+            //set up logger
+            ProgressLogger pgRead = new ProgressLogger(LOG);
+            pgRead.itemsName = "read";
+            pgRead.expectedUpdates = reader.getTotalRecords();
+            pgRead.displayFreeMemory = true;
+            pgRead.start();
+
             List<BaseInformationRecords.BaseInformation> recList = new ArrayList<BaseInformationRecords.BaseInformation>();
             for (BaseInformationRecords.BaseInformation rec : reader) {
                 recList.add(rec);
+                pgRead.update();
             }
+            pgRead.stop();
             reader.close();
 
             Random rand = new XorShift128PlusRandom();
             Collections.shuffle(recList,rand);
 
+            //set up logger2
+            ProgressLogger pgWrite = new ProgressLogger(LOG);
+            pgWrite.itemsName = "write";
+            pgWrite.expectedUpdates = recList.size();
+            pgWrite.displayFreeMemory = true;
+            pgWrite.start();
+
             for ( BaseInformationRecords.BaseInformation rec : recList){
                 writer.writeRecord(rec);
+                pgWrite.update();
             }
+            pgWrite.stop();
             writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
