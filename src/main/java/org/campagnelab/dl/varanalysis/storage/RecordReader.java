@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.storage;
 
 import com.google.protobuf.CodedInputStream;
+import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
