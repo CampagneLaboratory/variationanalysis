@@ -8,7 +8,14 @@ public class GenotypeCount implements Comparable<GenotypeCount> {
     int reverseCount;
     String toSequence;
 
+    public GenotypeCount() {
+    }
+
     public GenotypeCount(int forwardCount, int reverseCount, String toSequence) {
+        set(forwardCount, reverseCount, toSequence);
+    }
+
+    public void set(int forwardCount, int reverseCount, String toSequence) {
         this.forwardCount = forwardCount;
         this.reverseCount = reverseCount;
         this.toSequence = toSequence;
@@ -25,6 +32,6 @@ public class GenotypeCount implements Comparable<GenotypeCount> {
 
     @Override
     public String toString() {
-        return String.format("totalCount=%d %d on + / %d on - %s",totalCount(), forwardCount,reverseCount,toSequence);
+        return String.format("totalCount=%d %d on + / %d on - %s", totalCount(), forwardCount, reverseCount, toSequence);
     }
 }
