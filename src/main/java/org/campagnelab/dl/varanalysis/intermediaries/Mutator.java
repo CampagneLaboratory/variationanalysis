@@ -200,7 +200,7 @@ public class Mutator extends Intermediary {
         List<Integer> FromForwardR = new ArrayList<Integer>(somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList());
         List<Integer> FromBackwardR = new ArrayList<Integer>(somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList());
         List<Integer> ToForwardR = new ArrayList<Integer>(somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList());
-        List<Integer> ToBackwardR = new ArrayList<Integer>(somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList());
+        List<Integer> ToBackwardR = new ArrayList<Integer>(somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList());
         Collections.shuffle(FromForwardR,rand);
         Collections.shuffle(FromBackwardR,rand);
         ToForwardR.addAll(FromForwardR.subList(0,fMutCount));
