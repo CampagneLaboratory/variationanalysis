@@ -1,11 +1,8 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
-import org.campagnelab.dl.varanalysis.learning.features.Features;
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV2;
+import org.campagnelab.dl.varanalysis.learning.mappers.MagnitudeFeatures;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 
 import static org.junit.Assert.*;
 

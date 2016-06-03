@@ -1,9 +1,5 @@
 package org.campagnelab.dl.varanalysis.learning.mappers;
 
-import org.campagnelab.dl.varanalysis.learning.iterators.MagnitudeFeatures;
-import org.campagnelab.dl.varanalysis.learning.iterators.QualityFeatures;
-import org.campagnelab.dl.varanalysis.learning.iterators.SimpleFeatureCalculator;
-
 /**
  * The FeatureMapper to test for the second iteration.
  * Created by rct66 on 5/31/16.

@@ -1,13 +1,11 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
 import com.google.protobuf.TextFormat;
-import org.campagnelab.dl.varanalysis.intermediaries.Mutator;
+import org.campagnelab.dl.varanalysis.learning.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-
-import java.io.StringWriter;
 
 import static org.junit.Assert.*;
 

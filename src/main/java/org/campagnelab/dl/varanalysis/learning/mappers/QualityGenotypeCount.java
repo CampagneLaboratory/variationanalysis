@@ -1,4 +1,4 @@
-package org.campagnelab.dl.varanalysis.learning.iterators;
+package org.campagnelab.dl.varanalysis.learning.mappers;
 
 /**
  * Created by rct66 on 6/1/16.

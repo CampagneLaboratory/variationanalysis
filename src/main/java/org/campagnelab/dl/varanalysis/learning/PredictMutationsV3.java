@@ -1,7 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import org.apache.commons.io.FileUtils;
-import org.campagnelab.dl.varanalysis.learning.iterators.QualityFeatures;
+import org.campagnelab.dl.varanalysis.learning.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
