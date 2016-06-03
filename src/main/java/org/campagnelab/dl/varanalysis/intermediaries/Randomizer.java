@@ -45,6 +45,8 @@ public class Randomizer extends Intermediary{
 
             RecordWriter writer = new RecordWriter(outPath,blockSize,pageSize,true);
 
+            Random rand = new XorShift128PlusRandom();
+
             //set up logger
             ProgressLogger pgRead = new ProgressLogger(LOG);
             pgRead.itemsName = "read";
@@ -53,29 +55,37 @@ public class Randomizer extends Intermediary{
             pgRead.start();
 
             List<BaseInformationRecords.BaseInformation> recList = new ArrayList<BaseInformationRecords.BaseInformation>();
+            int i = 0;
             for (BaseInformationRecords.BaseInformation rec : reader) {
                 recList.add(rec);
                 pgRead.update();
+                i++;
+                if (i >= 50000){
+                    Collections.shuffle(recList,rand);
+
+                    //set up logger2
+                    ProgressLogger pgWrite = new ProgressLogger(LOG);
+                    pgWrite.itemsName = "write";
+                    pgWrite.expectedUpdates = recList.size();
+                    pgWrite.displayFreeMemory = true;
+                    pgWrite.start();
+                    for ( BaseInformationRecords.BaseInformation recWrite : recList){
+                        writer.writeRecord(recWrite);
+                        pgWrite.update();
+                    }
+                    pgWrite.stop();
+                    writer.close();
+
+                    recList.clear();
+                    i = 0;
+                }
+
             }
             pgRead.stop();
             reader.close();
 
-            Random rand = new XorShift128PlusRandom();
-            Collections.shuffle(recList,rand);
 
-            //set up logger2
-            ProgressLogger pgWrite = new ProgressLogger(LOG);
-            pgWrite.itemsName = "write";
-            pgWrite.expectedUpdates = recList.size();
-            pgWrite.displayFreeMemory = true;
-            pgWrite.start();
 
-            for ( BaseInformationRecords.BaseInformation rec : recList){
-                writer.writeRecord(rec);
-                pgWrite.update();
-            }
-            pgWrite.stop();
-            writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
