@@ -181,6 +181,8 @@ public class Mutator extends Intermediary {
         BaseInformationRecords.SampleInfo.Builder somaticBuild = somatic.toBuilder();
 
 
+
+        //generate mutated quality score lists (some boilerplate here...)
         //get old list of from scores
         List<Integer> FromForward = new ArrayList<Integer>(somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList());
         List<Integer> FromBackward = new ArrayList<Integer>(somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList());
@@ -194,21 +196,49 @@ public class Mutator extends Intermediary {
         FromBackward = FromBackward.subList(bMutCount,FromBackward.size());
 
 
+        //generate mutated readIndex lists
+        List<Integer> FromForwardR = new ArrayList<Integer>(somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList());
+        List<Integer> FromBackwardR = new ArrayList<Integer>(somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList());
+        List<Integer> ToForwardR = new ArrayList<Integer>(somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList());
+        List<Integer> ToBackwardR = new ArrayList<Integer>(somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList());
+        Collections.shuffle(FromForwardR,rand);
+        Collections.shuffle(FromBackwardR,rand);
+        ToForwardR.addAll(FromForwardR.subList(0,fMutCount));
+        ToBackwardR.addAll(FromBackwardR.subList(0,bMutCount));
+        FromForwardR = FromForwardR.subList(fMutCount,FromForwardR.size());
+        FromBackwardR = FromBackwardR.subList(bMutCount,FromBackwardR.size());
+
+
         i = 0;
         for (BaseInformationRecords.CountInfo count : somaticBuild.getCountsList()) {
             BaseInformationRecords.CountInfo.Builder countBuild = count.toBuilder();
             countBuild.setGenotypeCountForwardStrand(forward[i]);
             countBuild.setGenotypeCountReverseStrand(backward[i]);
             if (i == oldBase) {
+                //replace quality scores
                 countBuild.clearQualityScoreForwardStrand();
                 countBuild.clearQualityScoreReverseStrand();
                 countBuild.addAllQualityScoresForwardStrand(FromForward);
                 countBuild.addAllQualityScoresReverseStrand(FromBackward);
+
+                //replace readIndices
+                countBuild.clearReadIndicesForwardStrand();
+                countBuild.clearReadIndicesReverseStrand();
+                countBuild.addAllReadIndicesForwardStrand(FromForwardR);
+                countBuild.addAllReadIndicesReverseStrand(FromBackwardR);
+
             } else if (i == newBase) {
+                //replace quality scores
                 countBuild.clearQualityScoreForwardStrand();
                 countBuild.clearQualityScoreReverseStrand();
                 countBuild.addAllQualityScoresForwardStrand(ToForward);
                 countBuild.addAllQualityScoresReverseStrand(ToBackward);
+
+                //replace readIndices
+                countBuild.clearReadIndicesForwardStrand();
+                countBuild.clearReadIndicesReverseStrand();
+                countBuild.addAllReadIndicesForwardStrand(ToForwardR);
+                countBuild.addAllReadIndicesReverseStrand(ToBackwardR);
             }
             somaticBuild.setCounts(i, countBuild);
             i++;

@@ -66,7 +66,7 @@ public class Randomizer extends Intermediary{
                     //set up logger2
                     ProgressLogger pgWrite = new ProgressLogger(LOG);
                     pgWrite.itemsName = "write";
-                    pgWrite.expectedUpdates = recList.size();
+                    pgWrite.expectedUpdates = 50000;
                     pgWrite.displayFreeMemory = true;
                     pgWrite.start();
                     for ( BaseInformationRecords.BaseInformation recWrite : recList){
