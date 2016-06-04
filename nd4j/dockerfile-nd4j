@@ -48,7 +48,7 @@ RUN cd $HOME && export GIT_SSL_NO_VERIFY=true \
 #libnd4j
 RUN cd /usr/share && export GIT_SSL_NO_VERIFY=true \
 && git clone https://github.com/deeplearning4j/libnd4j.git \
-&& cd libnd4j && alias cmake=cmake3 && source ./buildnativeoperations.sh blas cpu \
+&& cd libnd4j && alias cmake=cmake3 && source ./buildnativeoperations.sh \
 && export LIBND4J_HOME=/usr/share/libnd4j \
 && echo "export LIBND4J_HOME=/usr/share/libnd4j" >> $HOME/.bashrc
 

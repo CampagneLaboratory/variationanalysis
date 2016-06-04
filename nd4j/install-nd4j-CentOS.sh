@@ -61,7 +61,7 @@ cd ~
 export GIT_SSL_NO_VERIFY=true
 git clone https://github.com/deeplearning4j/libnd4j.git
 cd libnd4j
-./buildnativeoperations.sh blas cpu
+./buildnativeoperations.sh
 cd ~/libnd4j
 export LIBND4J_HOME=`pwd`
 echo "export LIBND4J_HOME=$LIBND4J_HOME" >> $HOME/.bashrc
