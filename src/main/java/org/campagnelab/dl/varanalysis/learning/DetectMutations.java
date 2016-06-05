@@ -120,9 +120,10 @@ public class DetectMutations {
 
                 pg.update();
 
-                if (net.score() < bestScore) {
-                    bestScore = net.score();
-                    saver.saveBestModel(net, net.score());
+                double score = net.score();
+                if (score < bestScore) {
+                    bestScore = score;
+                    saver.saveBestModel(net, score);
                     System.out.println("Saving best score model.. score=" + bestScore);
                 }
 
