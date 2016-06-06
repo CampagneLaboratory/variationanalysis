@@ -40,21 +40,24 @@ RUN cd $HOME \
 #OpenBlas (http://www.openblas.net/)
 RUN cd $HOME && export GIT_SSL_NO_VERIFY=true \
 && git clone https://github.com/xianyi/OpenBLAS.git \
-&& cd OpenBLAS && make \
-&& make PREFIX=/usr/local/ install \
+&& cd OpenBLAS && git log -1 > build_commit.txt \
+&& make && make PREFIX=/usr/local/ install \
 && cd /usr/lib \
-&& ln -s /usr/local/lib/libopenblas.so
+&& ln -s /usr/local/lib/libopenblas.so \
+&& echo 1
 
-#libnd4j
+# libnd4j
 RUN cd /usr/share && export GIT_SSL_NO_VERIFY=true \
 && git clone https://github.com/deeplearning4j/libnd4j.git \
-&& cd libnd4j && alias cmake=cmake3 && source ./buildnativeoperations.sh \
+&& cd libnd4j && git log -1 > build_commit.txt \
+&& alias cmake=cmake3 && source ./buildnativeoperations.sh \
 && export LIBND4J_HOME=/usr/share/libnd4j \
-&& echo "export LIBND4J_HOME=/usr/share/libnd4j" >> $HOME/.bashrc
-
-#nd4j
+&& echo "export LIBND4J_HOME=/usr/share/libnd4j" >> $HOME/.bashrc \
+&& echo 1
+# nd4j
 RUN cd /usr/share && export GIT_SSL_NO_VERIFY=true \
 && git clone https://github.com/deeplearning4j/nd4j.git \
-&& cd nd4j && source $HOME/.bashrc \
-&& mvn clean install -DskipTests -Dmaven.javadoc.skip=true -pl '!:nd4j-cuda-7.5,!org.nd4j:nd4j-tests'
+&& cd nd4j && git log -1 > build_commit.txt && source $HOME/.bashrc \
+&& mvn clean install -DskipTests -Dmaven.javadoc.skip=true -pl '!:nd4j-cuda-7.5,!org.nd4j:nd4j-tests' \
+&& echo 1
 LABEL org.campagnelab.docker.createdWith="org.campagnelab.docker"
