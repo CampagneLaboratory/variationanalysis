@@ -1,27 +1,8 @@
 #!/usr/bin/env bash
 #REQUIRED SOFTWARE
 
-# GCC 4.9+
-sudo rm /etc/yum.repos.d/Fedora-Core23.repo
-cat << 'EOF' > Fedora-Core23.repo
-[warning:fedora]
-name=fedora
-mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-23&arch=$basearch
-enabled=1
-gpgcheck=0
-EOF
-sudo cp Fedora-Core23.repo /etc/yum.repos.d/
-sudo yum install -y gcc --enablerepo=warning:fedora
-sudo yum install -y gcc-c++ --enablerepo=warning:fedora
-
 # git client
 sudo yum install -y git
-
-# cmake 3.2+
-sudo yum install -y epel-release
-sudo yum install -y cmake3
-alias cmake=cmake3
-echo "alias cmake=cmake3" >> $HOME/.bashrc
 
 # wget
 sudo yum -y install wget
@@ -44,6 +25,26 @@ sudo tar -zxvf apache-maven-3.2.5-bin.tar.gz -C /usr/share
 export MAVEN_HOME=/usr/share/apache-maven-3.2.5/
 export PATH=/usr/share/apache-maven-3.2.5/bin/:$PATH
 
+# GCC 4.9+
+sudo rm /etc/yum.repos.d/Fedora-Core23.repo
+cat << 'EOF' > Fedora-Core23.repo
+[warning:fedora]
+name=fedora
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-23&arch=$basearch
+enabled=1
+gpgcheck=0
+EOF
+sudo cp Fedora-Core23.repo /etc/yum.repos.d/
+sudo yum install -y gcc --enablerepo=warning:fedora
+sudo yum install -y gcc-c++ --enablerepo=warning:fedora
+sudo rm -f /etc/yum.repos.d/Fedora-Core23.repo
+
+# cmake 3.2+
+sudo yum install -y epel-release
+sudo yum install -y cmake3
+alias cmake=cmake3
+echo "alias cmake=cmake3" >> $HOME/.bashrc
+
 #INSTALLATION
 
 # OpenBLAS (http://www.openblas.net/)
@@ -60,7 +61,7 @@ cd ~
 export GIT_SSL_NO_VERIFY=true
 git clone https://github.com/deeplearning4j/libnd4j.git
 cd libnd4j
-./buildnativeoperations.sh blas cpu
+./buildnativeoperations.sh
 cd ~/libnd4j
 export LIBND4J_HOME=`pwd`
 echo "export LIBND4J_HOME=$LIBND4J_HOME" >> $HOME/.bashrc

@@ -8,7 +8,13 @@ import org.apache.parquet.proto.ProtoParquetWriter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.file.FileStore;
+import java.nio.file.Files;
+//import java.nio.file.Path;
+import java.nio.file.attribute.UserDefinedFileAttributeView;
 
 /**
  * A writer for base information records in protobuf format.
@@ -18,20 +24,42 @@ import java.io.IOException;
 public class RecordWriter implements Closeable {
 
     private final ProtoParquetWriter<BaseInformationRecords.BaseInformation> parquetWriter;
+    private long numRecordsWritten = 0;
+    private FileStore store;
+    private UserDefinedFileAttributeView view;
+
+    public RecordWriter(java.nio.file.Path path, ProtoParquetWriter<BaseInformationRecords.BaseInformation> parquetWriter) throws IOException {
+        this.parquetWriter = parquetWriter;
+        // check that user defined attributes are supported by the file store
+        store = Files.getFileStore(path);
+        if (store.supportsFileAttributeView(UserDefinedFileAttributeView.class)) {
+            view = Files.
+                    getFileAttributeView(path, UserDefinedFileAttributeView.class);
+            System.err.println("File system supports attributes: YES");
+        }else {
+            System.err.println("File system supports attributes: NO");
+        }
+
+
+    }
 
     public RecordWriter(String file, int blockSize, int pageSize) throws IOException {
-        this.parquetWriter =
-                new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(file), BaseInformationRecords.BaseInformation.class, CompressionCodecName.UNCOMPRESSED, blockSize, pageSize);
+
+        this(new File(file).toPath(), new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(file), BaseInformationRecords.BaseInformation.class, CompressionCodecName.UNCOMPRESSED, blockSize, pageSize));
+
     }
 
     public RecordWriter(String file, int blockSize, int pageSize, boolean compress) throws IOException {
-        this.parquetWriter =
+        this(new File(file).toPath(),
+
                 new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(file), BaseInformationRecords.BaseInformation.class,
-                        compress ? CompressionCodecName.SNAPPY : CompressionCodecName.UNCOMPRESSED, blockSize, pageSize);
+                        compress ? CompressionCodecName.SNAPPY : CompressionCodecName.UNCOMPRESSED, blockSize, pageSize));
+
     }
 
     public void writeRecord(BaseInformationRecords.BaseInformation record) throws IOException {
         this.parquetWriter.write(record);
+        numRecordsWritten += 1;
     }
 
     /**
@@ -49,6 +77,15 @@ public class RecordWriter implements Closeable {
      */
     @Override
     public void close() throws IOException {
+        if (view!=null) {
+            //file system supports user defined file attributes.
+            // we store the total number of records written to the file, so that we avoid scanning this file just to
+            // determine this number upon read:
+            ByteBuffer b=ByteBuffer.allocate(8);
+            b.asLongBuffer().put(numRecordsWritten);
+
+            view.write("numRecordsWritten", b);
+        }
         IOUtils.closeQuietly(parquetWriter);
     }
 

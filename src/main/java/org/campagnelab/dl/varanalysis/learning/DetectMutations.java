@@ -36,18 +36,24 @@ public class DetectMutations {
 
 
     public static void main(String[] args) throws IOException {
+
+        if (args.length < 1) {
+            System.err.println("usage: DetectMutations <input-training-file> ");
+        }
+        String inputFile = args[0];
+
         int seed = 123;
         double learningRate = 0.05;
         int miniBatchSize = 100;
         int numEpochs = 3;
-        String attempt = "batch=" + miniBatchSize + "learningRate=" + learningRate + "-time:" + new Date().getTime();
+        String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + new Date().getTime();
         int generateSamplesEveryNMinibatches = 10;
 
         //Load the training data:
         final FeatureMapper featureCalculator = new FeatureMapperV3();//new PositiveControlFeatureMapper();//
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
-        BaseInformationIterator trainIter = new BaseInformationIterator("sample_data/protobuf/genotypes_proto_V4_mutated_randomized.parquet",
-                miniBatchSize, featureCalculator, labelMapper);
+        BaseInformationIterator trainIter = new BaseInformationIterator(inputFile, miniBatchSize,
+                featureCalculator, labelMapper);
 
         int numInputs = trainIter.inputColumns();
         int numOutputs = trainIter.totalOutcomes();
@@ -77,7 +83,7 @@ public class DetectMutations {
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-    //    net.setListeners(/*new HistogramIterationListener(1), */new ScoreIterationListener(1));
+        //    net.setListeners(/*new HistogramIterationListener(1), */new ScoreIterationListener(1));
         //Print the  number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
         int totalNumParams = 0;
@@ -120,9 +126,10 @@ public class DetectMutations {
 
                 pg.update();
 
-                if (net.score() < bestScore) {
-                    bestScore = net.score();
-                    saver.saveBestModel(net, net.score());
+                double score = net.score();
+                if (score < bestScore) {
+                    bestScore = score;
+                    saver.saveBestModel(net, score);
                     System.out.println("Saving best score model.. score=" + bestScore);
                 }
 

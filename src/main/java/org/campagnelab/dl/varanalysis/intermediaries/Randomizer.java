@@ -72,7 +72,7 @@ public class Randomizer extends Intermediary{
                         pgWrite.lightUpdate();
                     }
                     pgWrite.stop();
-                    writer.close();
+
 
                     recList.clear();
                     i = 0;
@@ -81,6 +81,7 @@ public class Randomizer extends Intermediary{
             }
             pgRead.stop();
             reader.close();
+            writer.close();
 
 
 

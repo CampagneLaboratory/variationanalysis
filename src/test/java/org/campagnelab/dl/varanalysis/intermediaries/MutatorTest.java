@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
  * Created by fac2003 on 5/27/16.
  */
 public class MutatorTest {
-    @Test
+    // test not updated for new mutator @Test
     public void mutateTests() throws Exception {
         int index = 0;
         for (String record : records) {
