@@ -1,6 +1,9 @@
 package org.campagnelab.dl.varanalysis.learning.mappers;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.campagnelab.dl.varanalysis.learning.genotypes.BaseGenotypeCountFactory;
+import org.campagnelab.dl.varanalysis.learning.genotypes.GenotypeCountFactory;
+import org.campagnelab.dl.varanalysis.learning.iterators.AbstractFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -12,7 +15,7 @@ import java.util.Collections;
  *
  * @author Fabien Campagne
  */
-public class ReadIndexFeatures implements FeatureMapper {
+public class ReadIndexFeatures extends AbstractFeatureMapper implements FeatureMapper {
 
     public static final int NUM_GENOTYPES = 5;
     public static final int NUM_SAMPLES = 2;
@@ -63,14 +66,16 @@ public class ReadIndexFeatures implements FeatureMapper {
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2*2 : "Only MAX_GENOTYPES*2*2 features";
+        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2 * 2 : "Only MAX_GENOTYPES*2*2 features";
         if (featureIndex < MAX_GENOTYPES * 2) {
             // germline counts written first:
-            return getAllCounts(record, false).get(featureIndex / 2).getDistinctReadIndices();
+            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, false).get(featureIndex / 2);
+            return genotypeCount.getDistinctReadIndices();
         } else {
             // tumor counts written next:
             featureIndex -= MAX_GENOTYPES * 2;
-            return getAllCounts(record, true).get(featureIndex / 2).getDistinctReadIndices();
+            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, true).get(featureIndex / 2);
+            return genotypeCount.getDistinctReadIndices();
         }
     }
 
@@ -82,29 +87,22 @@ public class ReadIndexFeatures implements FeatureMapper {
 
     }
 
-    private ObjectArrayList<ReadIndexWithCounts> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor) {
-        assert oneSampleHasTumor(record.getSamplesList()) : "at least one sample must have hasTumor=true.";
-        ObjectArrayList<ReadIndexWithCounts> list = new ObjectArrayList();
-        for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
-            if (isTumor != sampleInfo.getIsTumor()) continue;
-            for (BaseInformationRecords.CountInfo sampleCounts : sampleInfo.getCountsList()) {
-                ReadIndexWithCounts count = new ReadIndexWithCounts(sampleCounts.getGenotypeCountForwardStrand(),
-                        sampleCounts.getGenotypeCountReverseStrand(),
-                        sampleCounts.getToSequence(),
-                        sampleCounts.getReadIndicesForwardStrandList(),
-                        sampleCounts.getReadIndicesReverseStrandList());
-                list.add(count);
+    @Override
+    protected void initializeCount(BaseInformationRecords.CountInfo sampleCounts, GenotypeCount count) {
+        ReadIndexWithCounts myCounts = (ReadIndexWithCounts) count;
+        myCounts.set(sampleCounts.getReadIndicesForwardStrandList(),
+                sampleCounts.getReadIndicesReverseStrandList());
+    }
+
+    @Override
+    protected GenotypeCountFactory getGenotypeCountFactory() {
+
+        return new BaseGenotypeCountFactory() {
+            @Override
+            public GenotypeCount create() {
+                return new ReadIndexWithCounts();
             }
-        }
-        // pad with zero until we have 10 elements:
-        while (list.size() < MAX_GENOTYPES) {
-            list.add(new ReadIndexWithCounts(0, 0, "N", Collections.EMPTY_LIST,Collections.EMPTY_LIST));
-        }
-        // trim the list at 5 elements because we will consider only the 5 genotypes with largest total counts:
-        list.trim(MAX_GENOTYPES);
-        //sort in decreasing order of counts:
-        Collections.sort(list);
-        return list;
+        };
     }
 
 }
