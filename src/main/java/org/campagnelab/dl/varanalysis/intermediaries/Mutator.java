@@ -192,12 +192,13 @@ public class Mutator extends Intermediary {
         List<Integer> toBackward = new ObjectArrayList<Integer>();
         if (somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandCount()>0 && somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandCount()>0) {
 
+            //forward strand
             fromForward.addAll(somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList());
             toForward.addAll(somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList());
             Pair<List<Integer>,List<Integer>> sourceDest = mutateIntegerLists(fMutCount, fromForward, toForward);
             fromForward = sourceDest.getFirst();
             toForward = sourceDest.getSecond();
-
+            //reverse strand
             fromBackward.addAll(somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList());
             toBackward.addAll(somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList());
             sourceDest = mutateIntegerLists(bMutCount, fromBackward, toBackward);
@@ -212,12 +213,13 @@ public class Mutator extends Intermediary {
         List<Integer> toBackwardR = new ObjectArrayList<Integer>();
         if (somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandCount()>0 && somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandCount()>0) {
 
+            //forward strand
             fromForwardR.addAll(somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList());
             toForwardR.addAll(somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList());
             Pair<List<Integer>,List<Integer>> sourceDest = mutateIntegerLists(fMutCount, fromForwardR, toForwardR);
             fromForwardR = sourceDest.getFirst();
             toForwardR = sourceDest.getSecond();
-
+            //reverse strand
             fromBackwardR.addAll(somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList());
             toBackwardR.addAll(somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList());
             sourceDest = mutateIntegerLists(bMutCount, fromBackwardR, toBackwardR);
