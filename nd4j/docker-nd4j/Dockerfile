@@ -1,7 +1,9 @@
 FROM artifacts/centos-systemd:7
 MAINTAINER Manuele Simi "manuele.simi@campagnelab.org"
 
-RUN yum install -y git
+RUN yum clean all
+
+RUN yum install -y git && yum install -y curl && yum install -y which && yum -y install wget
 
 #gcc 4.9+
 RUN echo "[warning:fedora]" > /etc/yum.repos.d/Fedora-Core23.repo \
@@ -21,8 +23,7 @@ RUN yum install -y epel-release \
 RUN yum -y install blas
 
 #java 8
-RUN yum -y install wget \
-&& cd $HOME \
+RUN cd $HOME \
 && wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jdk-8u45-linux-x64.tar.gz" \
 && tar -zxvf jdk-8u45-linux-x64.tar.gz -C /usr/share \
 && rm jdk-8u45-linux-x64.tar.gz
@@ -42,7 +43,7 @@ RUN cd $HOME && export GIT_SSL_NO_VERIFY=true \
 && ln -s /usr/local/lib/libopenblas.so \
 && echo 2
 
-# build & install libnd4j
+# libnd4j
 RUN cd /usr/share && export GIT_SSL_NO_VERIFY=true \
 && git clone https://github.com/deeplearning4j/libnd4j.git \
 && cd libnd4j && git log -1 > build_commit.txt \
@@ -57,10 +58,16 @@ RUN echo "export LIBND4J_HOME=/usr/share/libnd4j" > $HOME/.bashrc \
 && echo "export MAVEN_HOME=/usr/share/apache-maven-3.2.5/" >> $HOME/.bashrc \
 && echo "export LD_LIBRARY_PATH=/usr/lib:/usr/local/lib/" >> $HOME/.bashrc
 
-# build & install nd4j
+# nd4j
 RUN cd /usr/share && export GIT_SSL_NO_VERIFY=true \
 && git clone https://github.com/deeplearning4j/nd4j.git \
 && cd nd4j && git log -1 > build_commit.txt && source $HOME/.bashrc \
 && mvn clean install -DskipTests -Dmaven.javadoc.skip=true -pl '!:nd4j-cuda-7.5,!org.nd4j:nd4j-tests' \
 && echo 2
+
+#gcloud
+RUN bash -c "cd /usr/share && curl https://sdk.cloud.google.com | bash"
+
+RUN yum clean all
+
 LABEL org.campagnelab.docker.createdWith="org.campagnelab.docker"
