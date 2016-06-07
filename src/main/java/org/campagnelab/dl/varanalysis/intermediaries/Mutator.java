@@ -1,7 +1,9 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift128PlusRandom;
+import org.apache.commons.math3.util.Pair;
 import org.campagnelab.dl.varanalysis.learning.DetectMutations;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.ParquetPrinter;
@@ -34,6 +36,7 @@ public class Mutator extends Intermediary {
     //minimum proportion of counts to presume allele
     double zygHeuristic = 0.1;
     final String[] STRING = new String[]{"A", "T", "C", "G"};
+    Random rand;
 
 
     public static void main(String[] args) throws IOException {
@@ -88,7 +91,7 @@ public class Mutator extends Intermediary {
 
     }
 
-    Random rand;
+
 
 
     //backward strand appended to forward strand in input and output
@@ -179,39 +182,48 @@ public class Mutator extends Intermediary {
         }
         //write to respective builders and return rebuild
         BaseInformationRecords.SampleInfo.Builder somaticBuild = somatic.toBuilder();
-        List<Integer> FromForward = Collections.EMPTY_LIST;
-        List<Integer> FromBackward = Collections.EMPTY_LIST;
-        List<Integer> ToForward = Collections.EMPTY_LIST;
-        List<Integer> ToBackward = Collections.EMPTY_LIST;
-        if (somaticBuild.getCounts(oldBase).hasQualityScoreForwardStrand() && somaticBuild.getCounts(oldBase).hasQualityScoreReverseStrand()) {
-            //generate mutated quality score lists (some boilerplate here...)
-            //get old list of from scores
-            FromForward = somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList();
-            FromBackward = somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList();
-            ToForward = somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList();
-            ToBackward = somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList();
-            Collections.shuffle(FromForward, rand);
-            Collections.shuffle(FromBackward, rand);
-            ToForward.addAll(FromForward.subList(0, fMutCount));
-            ToBackward.addAll(FromBackward.subList(0, bMutCount));
-            FromForward = FromForward.subList(fMutCount, FromForward.size());
-            FromBackward = FromBackward.subList(bMutCount, FromBackward.size());
 
+
+        //generate mutated quality score lists (some boilerplate here...)
+        //get old list of from scores
+        List<Integer> fromForward = new ObjectArrayList<Integer>();
+        List<Integer> fromBackward = new ObjectArrayList<Integer>();
+        List<Integer> toForward = new ObjectArrayList<Integer>();
+        List<Integer> toBackward = new ObjectArrayList<Integer>();
+        if (somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandCount()>0 && somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandCount()>0) {
+
+            fromForward.addAll(somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList());
+            toForward.addAll(somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList());
+            Pair<List<Integer>,List<Integer>> sourceDest = mutateIntegerLists(fMutCount, fromForward, toForward);
+            fromForward = sourceDest.getFirst();
+            toForward = sourceDest.getSecond();
+
+            fromBackward.addAll(somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList());
+            toBackward.addAll(somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList());
+            sourceDest = mutateIntegerLists(bMutCount, fromBackward, toBackward);
+            fromBackward = sourceDest.getFirst();
+            toBackward = sourceDest.getSecond();
         }
-        List<Integer> fromForwardR = somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList();
-        List<Integer> fromBackwardR = somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList();
-        List<Integer> toForwardR = somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList();
-        List<Integer> toBackwardR = somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList();
 
         //generate mutated readIndex lists
+        List<Integer> fromForwardR = new ObjectArrayList<Integer>();
+        List<Integer> fromBackwardR = new ObjectArrayList<Integer>();
+        List<Integer> toForwardR = new ObjectArrayList<Integer>();
+        List<Integer> toBackwardR = new ObjectArrayList<Integer>();
+        if (somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandCount()>0 && somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandCount()>0) {
 
-        Collections.shuffle(fromForwardR, rand);
-        Collections.shuffle(fromBackwardR, rand);
-        if (fMutCount < fromBackwardR.size() && fMutCount < fromForwardR.size()) {
-            toForwardR.addAll(fromForwardR.subList(0, fMutCount));
-            toBackwardR.addAll(fromBackwardR.subList(0, bMutCount));
-            fromForwardR = fromForwardR.subList(fMutCount, fromForwardR.size());
-            fromBackwardR = fromBackwardR.subList(bMutCount, fromBackwardR.size());
+            fromForwardR.addAll(somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList());
+            toForwardR.addAll(somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList());
+            Pair<List<Integer>,List<Integer>> sourceDest = mutateIntegerLists(fMutCount, fromForwardR, toForwardR);
+            fromForwardR = sourceDest.getFirst();
+            toForwardR = sourceDest.getSecond();
+
+            fromBackwardR.addAll(somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList());
+            toBackwardR.addAll(somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList());
+            sourceDest = mutateIntegerLists(bMutCount, fromBackwardR, toBackwardR);
+            fromBackwardR = sourceDest.getFirst();
+            toBackwardR = sourceDest.getSecond();
+
         }
 
 
@@ -224,8 +236,8 @@ public class Mutator extends Intermediary {
                 //replace quality scores
                 countBuild.clearQualityScoresForwardStrand();
                 countBuild.clearQualityScoresReverseStrand();
-                countBuild.addAllQualityScoresForwardStrand(FromForward);
-                countBuild.addAllQualityScoresReverseStrand(FromBackward);
+                countBuild.addAllQualityScoresForwardStrand(fromForward);
+                countBuild.addAllQualityScoresReverseStrand(fromBackward);
 
                 //replace readIndices
                 countBuild.clearReadIndicesForwardStrand();
@@ -237,8 +249,8 @@ public class Mutator extends Intermediary {
                 //replace quality scores
                 countBuild.clearQualityScoresForwardStrand();
                 countBuild.clearQualityScoresReverseStrand();
-                countBuild.addAllQualityScoresForwardStrand(ToForward);
-                countBuild.addAllQualityScoresReverseStrand(ToBackward);
+                countBuild.addAllQualityScoresForwardStrand(toForward);
+                countBuild.addAllQualityScoresReverseStrand(toBackward);
 
                 //replace readIndices
                 countBuild.clearReadIndicesForwardStrand();
@@ -256,5 +268,13 @@ public class Mutator extends Intermediary {
         baseBuild.setIndexOfMutatedBase(newBase);
         return baseBuild.build();
     }
+
+    private Pair<List<Integer>,List<Integer>> mutateIntegerLists(int fMutCount, List<Integer> source, List<Integer> dest) {
+        Collections.shuffle(source, rand);
+        dest.addAll(source.subList(0, fMutCount));
+        source = source.subList(fMutCount, source.size());
+        return new Pair(source,dest);
+    }
+
 
 }
