@@ -68,34 +68,30 @@ message CountInfo {
     /** The number of times the genotype is observed in the sample in a read matching the reverse strand. */
     required uint32 genotypeCountReverseStrand = 5;
 
-    /** The aggregate score (error probability) of all reads matching this genotype on the forward strand
-    (averaging the corresponding probabilities and converting back to phred)
-    @deprecated. Use qualityScoresForwardStrand instead.
-    */
-    optional float qualityScoreForwardStrand = 6;
 
-    /** The aggregate score (error probability) of all reads matching this genotype on the Reverse strand
-    (averaging the corresponding probabilities and converting back to phred)
-        @deprecated. Use qualityScoresReverseStrand instead.
-    */
-    optional float qualityScoreReverseStrand = 7;
 
-    /** The quality scores of all bases matching this genotype on the forward strand. Phred scale. */
-    repeated uint32 qualityScoresForwardStrand = 8;
 
-    /** The quality scores of all bases matching this genotype on the reverse strand. Phred scale.  */
-    repeated uint32 qualityScoresReverseStrand = 9;
-
-    /** The index in the read of  all bases matching this genotype on the forward strand */
-    repeated uint32 readIndicesForwardStrand = 10;
-
-    /** The index in the read of  all bases matching this genotype on the reverse strand */
-    repeated uint32 readIndicesReverseStrand = 11;
 
     /**
     Indicates whether this genotype is an indel. */
     optional bool isIndel = 15;
 
+    /** The quality scores of all bases matching this genotype on the forward strand. Phred scale. */
+    repeated NumberWithFrequency qualityScoresForwardStrand = 16;
 
+    /** The quality scores of all bases matching this genotype on the reverse strand. Phred scale.  */
+    repeated NumberWithFrequency qualityScoresReverseStrand = 17;
+
+    /** The index in the read of  all bases matching this genotype on the forward strand */
+    repeated NumberWithFrequency readIndicesForwardStrand = 18;
+
+    /** The index in the read of  all bases matching this genotype on the reverse strand */
+    repeated NumberWithFrequency readIndicesReverseStrand = 19;
+
+}
+
+message NumberWithFrequency {
+    required uint32 number = 1;
+    required uint32 frequency = 2;
 
 }

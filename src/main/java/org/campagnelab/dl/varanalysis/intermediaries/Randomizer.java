@@ -27,6 +27,7 @@ import java.util.Random;
  * @author rct66
  */
 public class Randomizer extends Intermediary{
+    public static final int MAX_ELEMENTS = 20000;
     static private Logger LOG = LoggerFactory.getLogger(Randomizer.class);
 
 
@@ -49,20 +50,20 @@ public class Randomizer extends Intermediary{
             pgRead.displayFreeMemory = true;
             pgRead.start();
 
-            List<BaseInformationRecords.BaseInformation> recList = new ObjectArrayList<BaseInformationRecords.BaseInformation>();
+            List<BaseInformationRecords.BaseInformation> recList = new ObjectArrayList<BaseInformationRecords.BaseInformation>(MAX_ELEMENTS+1);
             int i = 0;
             for (BaseInformationRecords.BaseInformation rec : reader) {
                 recList.add(rec);
                 pgRead.lightUpdate();
                 i++;
-                if (i >= 20000){
+                if (i >= MAX_ELEMENTS){
                     System.out.println(rec.getSamples(0).getFormattedCounts());
                     Collections.shuffle(recList,rand);
 
                     //set up logger2
                     ProgressLogger pgWrite = new ProgressLogger(LOG);
                     pgWrite.itemsName = "write";
-                    pgWrite.expectedUpdates = 20000;
+                    pgWrite.expectedUpdates = MAX_ELEMENTS;
                     pgWrite.displayFreeMemory = true;
                     pgWrite.start();
                     for ( BaseInformationRecords.BaseInformation recWrite : recList){

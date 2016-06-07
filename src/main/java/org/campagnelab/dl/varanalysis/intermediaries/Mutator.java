@@ -41,7 +41,7 @@ public class Mutator extends Intermediary {
 
     public static void main(String[] args) throws IOException {
         //new ParquetPrinter(args[0]).print();
-        new Mutator().executeOver(args[0],args[1]);
+        new Mutator().executeOver(args[0], args[1]);
         //new Randomizer().executeOver(args[1],args[2]);
         //new ParquetPrinter(args[2]).print();
     }
@@ -90,8 +90,6 @@ public class Mutator extends Intermediary {
         writer.close();
 
     }
-
-
 
 
     //backward strand appended to forward strand in input and output
@@ -190,20 +188,18 @@ public class Mutator extends Intermediary {
         List<Integer> fromBackward = new ObjectArrayList<Integer>();
         List<Integer> toForward = new ObjectArrayList<Integer>();
         List<Integer> toBackward = new ObjectArrayList<Integer>();
-        if (somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandCount()>0 && somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandCount()>0) {
+        if (somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandCount() > 0 && somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandCount() > 0) {
 
             //forward strand
             fromForward.addAll(somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList());
             toForward.addAll(somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList());
-            Pair<List<Integer>,List<Integer>> sourceDest = mutateIntegerLists(fMutCount, fromForward, toForward);
-            fromForward = sourceDest.getFirst();
-            toForward = sourceDest.getSecond();
+            mutateIntegerLists(fMutCount, fromForward, toForward);
+
             //reverse strand
             fromBackward.addAll(somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList());
             toBackward.addAll(somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList());
-            sourceDest = mutateIntegerLists(bMutCount, fromBackward, toBackward);
-            fromBackward = sourceDest.getFirst();
-            toBackward = sourceDest.getSecond();
+            mutateIntegerLists(bMutCount, fromBackward, toBackward);
+
         }
 
         //generate mutated readIndex lists
@@ -211,20 +207,18 @@ public class Mutator extends Intermediary {
         List<Integer> fromBackwardR = new ObjectArrayList<Integer>();
         List<Integer> toForwardR = new ObjectArrayList<Integer>();
         List<Integer> toBackwardR = new ObjectArrayList<Integer>();
-        if (somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandCount()>0 && somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandCount()>0) {
+        if (somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandCount() > 0 && somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandCount() > 0) {
 
             //forward strand
             fromForwardR.addAll(somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList());
             toForwardR.addAll(somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList());
-            Pair<List<Integer>,List<Integer>> sourceDest = mutateIntegerLists(fMutCount, fromForwardR, toForwardR);
-            fromForwardR = sourceDest.getFirst();
-            toForwardR = sourceDest.getSecond();
+            mutateIntegerLists(fMutCount, fromForwardR, toForwardR);
+
             //reverse strand
             fromBackwardR.addAll(somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList());
             toBackwardR.addAll(somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList());
-            sourceDest = mutateIntegerLists(bMutCount, fromBackwardR, toBackwardR);
-            fromBackwardR = sourceDest.getFirst();
-            toBackwardR = sourceDest.getSecond();
+            mutateIntegerLists(bMutCount, fromBackwardR, toBackwardR);
+
 
         }
 
@@ -271,11 +265,13 @@ public class Mutator extends Intermediary {
         return baseBuild.build();
     }
 
-    private Pair<List<Integer>,List<Integer>> mutateIntegerLists(int fMutCount, List<Integer> source, List<Integer> dest) {
+    private void mutateIntegerLists(int fMutCount, List<Integer> source, List<Integer> dest) {
         Collections.shuffle(source, rand);
         dest.addAll(source.subList(0, fMutCount));
-        source = source.subList(fMutCount, source.size());
-        return new Pair(source,dest);
+        List<Integer> tmp = source.subList(fMutCount, source.size());
+        source.clear();
+        source.addAll(tmp);
+
     }
 
 
