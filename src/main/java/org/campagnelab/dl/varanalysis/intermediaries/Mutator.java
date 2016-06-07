@@ -36,7 +36,7 @@ public class Mutator extends Intermediary {
     final String[] STRING = new String[]{"A", "T", "C", "G"};
 
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
         //new ParquetPrinter(args[0]).print();
         new Mutator().executeOver(args[0],args[1]);
         //new Randomizer().executeOver(args[1],args[2]);
@@ -45,11 +45,11 @@ public class Mutator extends Intermediary {
 
     public Mutator() {
         setSeed(2323);
-}
+    }
 
     public void setSeed(int seed) {
 
-       rand= new XorShift128PlusRandom(seed);
+        rand = new XorShift128PlusRandom(seed);
     }
 
     public Mutator(int deltaSmall, int deltaBig, int zygHeuristic) {
@@ -61,7 +61,7 @@ public class Mutator extends Intermediary {
 
     public void execute(String in, String out, int blockSize, int pageSize) throws IOException {
         RecordReader reader = new RecordReader(in);
-        RecordWriter writer = new RecordWriter(out, blockSize, pageSize,true);
+        RecordWriter writer = new RecordWriter(out, blockSize, pageSize, true);
 
         //set up logger
         ProgressLogger pgReadWrite = new ProgressLogger(LOG);
@@ -74,8 +74,8 @@ public class Mutator extends Intermediary {
             BaseInformationRecords.BaseInformation.Builder baseBuilder = base.toBuilder();
 
             //set is tumor flags (false sample 0 (germline), true sample 1 (somatic)
-            baseBuilder.setSamples(0,baseBuilder.getSamples(0).toBuilder().setIsTumor(false));
-            baseBuilder.setSamples(1,baseBuilder.getSamples(1).toBuilder().setIsTumor(true));
+            baseBuilder.setSamples(0, baseBuilder.getSamples(0).toBuilder().setIsTumor(false));
+            baseBuilder.setSamples(1, baseBuilder.getSamples(1).toBuilder().setIsTumor(true));
             writer.writeRecord(baseBuilder.build());
 
             //mutate record and write it again
@@ -179,34 +179,40 @@ public class Mutator extends Intermediary {
         }
         //write to respective builders and return rebuild
         BaseInformationRecords.SampleInfo.Builder somaticBuild = somatic.toBuilder();
+        List<Integer> FromForward = Collections.EMPTY_LIST;
+        List<Integer> FromBackward = Collections.EMPTY_LIST;
+        List<Integer> ToForward = Collections.EMPTY_LIST;
+        List<Integer> ToBackward = Collections.EMPTY_LIST;
+        if (somaticBuild.getCounts(oldBase).hasQualityScoreForwardStrand() && somaticBuild.getCounts(oldBase).hasQualityScoreReverseStrand()) {
+            //generate mutated quality score lists (some boilerplate here...)
+            //get old list of from scores
+            FromForward = somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList();
+            FromBackward = somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList();
+            ToForward = somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList();
+            ToBackward = somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList();
+            Collections.shuffle(FromForward, rand);
+            Collections.shuffle(FromBackward, rand);
+            ToForward.addAll(FromForward.subList(0, fMutCount));
+            ToBackward.addAll(FromBackward.subList(0, bMutCount));
+            FromForward = FromForward.subList(fMutCount, FromForward.size());
+            FromBackward = FromBackward.subList(bMutCount, FromBackward.size());
 
-
-
-        //generate mutated quality score lists (some boilerplate here...)
-        //get old list of from scores
-        List<Integer> FromForward = new ArrayList<Integer>(somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList());
-        List<Integer> FromBackward = new ArrayList<Integer>(somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList());
-        List<Integer> ToForward = new ArrayList<Integer>(somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList());
-        List<Integer> ToBackward = new ArrayList<Integer>(somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList());
-        Collections.shuffle(FromForward,rand);
-        Collections.shuffle(FromBackward,rand);
-        ToForward.addAll(FromForward.subList(0,fMutCount));
-        ToBackward.addAll(FromBackward.subList(0,bMutCount));
-        FromForward = FromForward.subList(fMutCount,FromForward.size());
-        FromBackward = FromBackward.subList(bMutCount,FromBackward.size());
-
+        }
+        List<Integer> fromForwardR = somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList();
+        List<Integer> fromBackwardR = somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList();
+        List<Integer> toForwardR = somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList();
+        List<Integer> toBackwardR = somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList();
 
         //generate mutated readIndex lists
-        List<Integer> FromForwardR = new ArrayList<Integer>(somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList());
-        List<Integer> FromBackwardR = new ArrayList<Integer>(somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList());
-        List<Integer> ToForwardR = new ArrayList<Integer>(somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList());
-        List<Integer> ToBackwardR = new ArrayList<Integer>(somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList());
-        Collections.shuffle(FromForwardR,rand);
-        Collections.shuffle(FromBackwardR,rand);
-        ToForwardR.addAll(FromForwardR.subList(0,fMutCount));
-        ToBackwardR.addAll(FromBackwardR.subList(0,bMutCount));
-        FromForwardR = FromForwardR.subList(fMutCount,FromForwardR.size());
-        FromBackwardR = FromBackwardR.subList(bMutCount,FromBackwardR.size());
+
+        Collections.shuffle(fromForwardR, rand);
+        Collections.shuffle(fromBackwardR, rand);
+        if (fMutCount < fromBackwardR.size() && fMutCount < fromForwardR.size()) {
+            toForwardR.addAll(fromForwardR.subList(0, fMutCount));
+            toBackwardR.addAll(fromBackwardR.subList(0, bMutCount));
+            fromForwardR = fromForwardR.subList(fMutCount, fromForwardR.size());
+            fromBackwardR = fromBackwardR.subList(bMutCount, fromBackwardR.size());
+        }
 
 
         i = 0;
@@ -216,29 +222,29 @@ public class Mutator extends Intermediary {
             countBuild.setGenotypeCountReverseStrand(backward[i]);
             if (i == oldBase) {
                 //replace quality scores
-                countBuild.clearQualityScoreForwardStrand();
-                countBuild.clearQualityScoreReverseStrand();
+                countBuild.clearQualityScoresForwardStrand();
+                countBuild.clearQualityScoresReverseStrand();
                 countBuild.addAllQualityScoresForwardStrand(FromForward);
                 countBuild.addAllQualityScoresReverseStrand(FromBackward);
 
                 //replace readIndices
                 countBuild.clearReadIndicesForwardStrand();
                 countBuild.clearReadIndicesReverseStrand();
-                countBuild.addAllReadIndicesForwardStrand(FromForwardR);
-                countBuild.addAllReadIndicesReverseStrand(FromBackwardR);
+                countBuild.addAllReadIndicesForwardStrand(fromForwardR);
+                countBuild.addAllReadIndicesReverseStrand(fromBackwardR);
 
             } else if (i == newBase) {
                 //replace quality scores
-                countBuild.clearQualityScoreForwardStrand();
-                countBuild.clearQualityScoreReverseStrand();
+                countBuild.clearQualityScoresForwardStrand();
+                countBuild.clearQualityScoresReverseStrand();
                 countBuild.addAllQualityScoresForwardStrand(ToForward);
                 countBuild.addAllQualityScoresReverseStrand(ToBackward);
 
                 //replace readIndices
                 countBuild.clearReadIndicesForwardStrand();
                 countBuild.clearReadIndicesReverseStrand();
-                countBuild.addAllReadIndicesForwardStrand(ToForwardR);
-                countBuild.addAllReadIndicesReverseStrand(ToBackwardR);
+                countBuild.addAllReadIndicesForwardStrand(toForwardR);
+                countBuild.addAllReadIndicesReverseStrand(toBackwardR);
             }
             somaticBuild.setCounts(i, countBuild);
             i++;

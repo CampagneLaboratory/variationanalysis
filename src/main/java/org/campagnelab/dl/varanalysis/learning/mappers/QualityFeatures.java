@@ -1,10 +1,11 @@
 package org.campagnelab.dl.varanalysis.learning.mappers;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.campagnelab.dl.varanalysis.learning.genotypes.BaseGenotypeCountFactory;
+import org.campagnelab.dl.varanalysis.learning.genotypes.GenotypeCountFactory;
+import org.campagnelab.dl.varanalysis.learning.iterators.AbstractFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -13,17 +14,16 @@ import java.util.List;
  * @author Remi Torracinta, rct66
  */
 
-public class QualityFeatures implements FeatureMapper {
+public class QualityFeatures extends AbstractFeatureMapper implements FeatureMapper {
 
 
-    public static final int MAX_GENOTYPES = 5;
     public static final int QUALITY_NORM = 1;
 
 
     public int numberOfFeatures() {
         // we need features for the normal sample and for the tumor sample:
 
-        return MAX_GENOTYPES * 2*2;
+        return MAX_GENOTYPES * 2 * 2;
     }
 
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
@@ -57,70 +57,53 @@ public class QualityFeatures implements FeatureMapper {
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2*2 : "Only MAX_GENOTYPES*2*2 features";
+        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2 * 2 : "Only MAX_GENOTYPES*2*2 features";
         if (featureIndex < MAX_GENOTYPES * 2) {
             // germline counts written first:
+            final QualityGenotypeCount genotypeCount = (QualityGenotypeCount) getAllCounts(record, false).get(featureIndex / 2);
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
-                return getAllCounts(record, false).get(featureIndex / 2).getQualityScoreForward();
+                return genotypeCount.getQualityScoreForward();
             } else {
-                return getAllCounts(record, false).get(featureIndex / 2).getQualityScoreReverse();
+                return genotypeCount.getQualityScoreReverse();
             }
         } else {
             // tumor counts written next:
             featureIndex -= MAX_GENOTYPES * 2;
+            final QualityGenotypeCount genotypeCount = (QualityGenotypeCount) getAllCounts(record, true).get(featureIndex / 2);
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
-                return getAllCounts(record, true).get(featureIndex / 2).getQualityScoreForward();
+                return genotypeCount.getQualityScoreForward();
             } else {
-                return getAllCounts(record, true).get(featureIndex / 2).getQualityScoreReverse();
+                return genotypeCount.getQualityScoreReverse();
             }
         }
     }
 
-    private ObjectArrayList<QualityGenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor) {
-        assert oneSampleHasTumor(record.getSamplesList()) : "at least one sample must have hasTumor=true.";
-        ObjectArrayList<QualityGenotypeCount> list = new ObjectArrayList();
-        for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
-            if (isTumor != sampleInfo.getIsTumor()) continue;
-            for (BaseInformationRecords.CountInfo sampleCounts : sampleInfo.getCountsList()) {
-                assert ((sampleCounts.getQualityScoresForwardStrandCount() > 0 ) || (sampleCounts.getQualityScoresReverseStrandCount() > 0))
-                        : "record has no quality scores.";
-                QualityGenotypeCount count = new QualityGenotypeCount(
-                        sampleCounts.getGenotypeCountForwardStrand(),
-                        sampleCounts.getGenotypeCountReverseStrand(),
-                        sampleCounts.getToSequence(),
-                        avgQuality(sampleCounts.getQualityScoresForwardStrandList()),
-                        avgQuality(sampleCounts.getQualityScoresReverseStrandList()));
-                list.add(count);
+    @Override
+    protected GenotypeCountFactory getGenotypeCountFactory() {
+        return new BaseGenotypeCountFactory() {
+
+            @Override
+            public GenotypeCount create() {
+                return new QualityGenotypeCount();
             }
-        }
-        // pad with zero until we have 10 elements:
-        while (list.size() < MAX_GENOTYPES) {
-            list.add(new QualityGenotypeCount(0, 0, "N", 0, 0));
-        }
-        // trim the list at 5 elements because we will consider only the 5 genotypes with largest total counts:
-        list.trim(MAX_GENOTYPES);
-        //sort in decreasing order of counts:
-        Collections.sort(list);
-        return list;
+        };
     }
 
 
-    public static float avgQuality(List<Integer> list){
+    public static float avgQuality(List<Integer> list) {
         double sum = 0;
         for (Integer i : list)
-            sum += Math.pow((double)10, -((double)i/(double)10));
-        return (float) (sum/(double)list.size());
+            sum += Math.pow((double) 10, -((double) i / (double) 10));
+        return (float) (sum / (double) list.size());
     }
 
-
-    private boolean oneSampleHasTumor(java.util.List<org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.SampleInfo> samples) {
-        for (BaseInformationRecords.SampleInfo sample : samples) {
-            if (sample.getIsTumor()) return true;
-        }
-        return false;
-
+    @Override
+    protected void initializeCount(BaseInformationRecords.CountInfo sampleCounts, GenotypeCount count) {
+        QualityGenotypeCount myCount = (QualityGenotypeCount) count;
+        myCount.set(avgQuality(sampleCounts.getQualityScoresForwardStrandList()),
+                avgQuality(sampleCounts.getQualityScoresReverseStrandList()));
     }
- }
+}
 

@@ -25,16 +25,12 @@ RUN yum -y install wget \
 && cd $HOME \
 && wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jdk-8u45-linux-x64.tar.gz" \
 && tar -zxvf jdk-8u45-linux-x64.tar.gz -C /usr/share \
-&& echo "export JAVA_HOME=/usr/share/jdk1.8.0_45" >> $HOME/.bashrc \
-&& echo "export PATH=/usr/share/jdk1.8.0_45/bin:/usr/share/jdk1.8.0_45/jre/bin:$PATH" >> $HOME/.bashrc \
 && rm jdk-8u45-linux-x64.tar.gz
 
 #mvn 3.2.5
 RUN cd $HOME \
 && wget http://mirrors.gigenet.com/apache/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.tar.gz \
 && tar -zxvf apache-maven-3.2.5-bin.tar.gz -C /usr/share \
-&& echo "export MAVEN_HOME=/usr/share/apache-maven-3.2.5/" >> $HOME/.bashrc \
-&& echo "export PATH=/usr/share/apache-maven-3.2.5/bin/:$PATH" >> $HOME/.bashrc \
 && rm $HOME/apache-maven-3.2.5-bin.tar.gz
 
 #OpenBlas (http://www.openblas.net/)
@@ -44,20 +40,27 @@ RUN cd $HOME && export GIT_SSL_NO_VERIFY=true \
 && make && make PREFIX=/usr/local/ install \
 && cd /usr/lib \
 && ln -s /usr/local/lib/libopenblas.so \
-&& echo 1
+&& echo 2
 
-# libnd4j
+# build & install libnd4j
 RUN cd /usr/share && export GIT_SSL_NO_VERIFY=true \
 && git clone https://github.com/deeplearning4j/libnd4j.git \
 && cd libnd4j && git log -1 > build_commit.txt \
 && alias cmake=cmake3 && source ./buildnativeoperations.sh \
 && export LIBND4J_HOME=/usr/share/libnd4j \
-&& echo "export LIBND4J_HOME=/usr/share/libnd4j" >> $HOME/.bashrc \
-&& echo 1
-# nd4j
+&& echo 2
+
+#update the environment
+RUN echo "export LIBND4J_HOME=/usr/share/libnd4j" > $HOME/.bashrc \
+&& echo "export JAVA_HOME=/usr/share/jdk1.8.0_45" >> $HOME/.bashrc \
+&& echo "export PATH=/usr/share/jdk1.8.0_45/bin:/usr/share/jdk1.8.0_45/jre/bin:/usr/share/apache-maven-3.2.5/bin/:$PATH" >> $HOME/.bashrc \
+&& echo "export MAVEN_HOME=/usr/share/apache-maven-3.2.5/" >> $HOME/.bashrc \
+&& echo "export LD_LIBRARY_PATH=/usr/lib:/usr/local/lib/" >> $HOME/.bashrc
+
+# build & install nd4j
 RUN cd /usr/share && export GIT_SSL_NO_VERIFY=true \
 && git clone https://github.com/deeplearning4j/nd4j.git \
 && cd nd4j && git log -1 > build_commit.txt && source $HOME/.bashrc \
 && mvn clean install -DskipTests -Dmaven.javadoc.skip=true -pl '!:nd4j-cuda-7.5,!org.nd4j:nd4j-tests' \
-&& echo 1
+&& echo 2
 LABEL org.campagnelab.docker.createdWith="org.campagnelab.docker"

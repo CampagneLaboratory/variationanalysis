@@ -5,16 +5,11 @@ package org.campagnelab.dl.varanalysis.learning.mappers;
  */
 public class QualityGenotypeCount extends GenotypeCount {
 
-    int forwardCount;
-    int reverseCount;
-    String toSequence;
-    float qualityScoreForward;
-    float qualityScoreReverse;
 
-    public QualityGenotypeCount(int forwardCount, int reverseCount, String toSequence, float qualityScoreForward, float qualityScoreReverse) {
-        super(forwardCount, reverseCount, toSequence);
-        this.qualityScoreForward = qualityScoreForward;
-        this.qualityScoreReverse = qualityScoreReverse;
+    private float qualityScoreForward;
+    private float qualityScoreReverse;
+
+    public QualityGenotypeCount() {
     }
 
 
@@ -22,11 +17,11 @@ public class QualityGenotypeCount extends GenotypeCount {
         return forwardCount + reverseCount;
     }
 
-    public float getQualityScoreForward(){
+    public float getQualityScoreForward() {
         return qualityScoreForward;
     }
 
-    public float getQualityScoreReverse(){
+    public float getQualityScoreReverse() {
         return qualityScoreReverse;
     }
 
@@ -37,7 +32,11 @@ public class QualityGenotypeCount extends GenotypeCount {
 
     @Override
     public String toString() {
-        return String.format("totalCount=%d %d on + / %d on - %s, quality on + / %e on - %e",totalCount(), forwardCount,reverseCount,toSequence,qualityScoreForward,qualityScoreReverse);
+        return String.format("totalCount=%d %d on + / %d on - %s, quality on + / %e on - %e", totalCount(), forwardCount, reverseCount, toSequence, qualityScoreForward, qualityScoreReverse);
     }
 
+    public void set(float averageQualityForward, float averageQualityReverse) {
+        this.qualityScoreForward = averageQualityForward;
+        this.qualityScoreReverse = averageQualityReverse;
+    }
 }

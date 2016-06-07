@@ -92,4 +92,10 @@ message CountInfo {
     /** The index in the read of  all bases matching this genotype on the reverse strand */
     repeated uint32 readIndicesReverseStrand = 11;
 
+    /**
+    Indicates whether this genotype is an indel. */
+    optional bool isIndel = 15;
+
+
+
 }

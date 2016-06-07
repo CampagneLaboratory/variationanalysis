@@ -39,9 +39,7 @@ public class Randomizer extends Intermediary{
     public void execute(String inPath, String outPath, int blockSize, int pageSize) throws IOException {
         try {
             RecordReader reader = new RecordReader(inPath);
-
-            RecordWriter writer = new RecordWriter(outPath,blockSize,pageSize,false);
-
+            RecordWriter writer = new RecordWriter(outPath,blockSize,pageSize,true);
             Random rand = new XorShift128PlusRandom();
 
             //set up logger
@@ -54,10 +52,8 @@ public class Randomizer extends Intermediary{
             List<BaseInformationRecords.BaseInformation> recList = new ObjectArrayList<BaseInformationRecords.BaseInformation>();
             int i = 0;
             for (BaseInformationRecords.BaseInformation rec : reader) {
-            //BaseInformationRecords.BaseInformation rec = reader.nextRecord();
-            //while (rec != null) {
                 recList.add(rec);
-                pgRead.update();
+                pgRead.lightUpdate();
                 i++;
                 if (i >= 20000){
                     System.out.println(rec.getSamples(0).getFormattedCounts());
@@ -71,16 +67,15 @@ public class Randomizer extends Intermediary{
                     pgWrite.start();
                     for ( BaseInformationRecords.BaseInformation recWrite : recList){
                         writer.writeRecord(recWrite);
-                        pgWrite.update();
+                        pgWrite.lightUpdate();
                     }
                     pgWrite.stop();
 
 
                     recList.clear();
-                    System.gc();
                     i = 0;
                 }
-                //rec = reader.nextRecord();
+
             }
             pgRead.stop();
             reader.close();

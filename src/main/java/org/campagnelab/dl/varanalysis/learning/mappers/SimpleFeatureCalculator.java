@@ -1,6 +1,9 @@
 package org.campagnelab.dl.varanalysis.learning.mappers;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.campagnelab.dl.varanalysis.learning.genotypes.BaseGenotypeCountFactory;
+import org.campagnelab.dl.varanalysis.learning.genotypes.GenotypeCountFactory;
+import org.campagnelab.dl.varanalysis.learning.iterators.AbstractFeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.iterators.FeatureCalculator;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -33,16 +36,14 @@ import java.util.Collections;
  * @author Fabien Campagne
  */
 
-public class SimpleFeatureCalculator implements FeatureCalculator {
+public class SimpleFeatureCalculator extends AbstractFeatureMapper implements FeatureCalculator {
 
-
-    public static final int MAX_GENOTYPES = 5;
 
     @Override
     public int numberOfFeatures() {
         // we need features for the normal sample and for the tumor sample:
 
-        return MAX_GENOTYPES * 2*2;
+        return MAX_GENOTYPES * 2 * 2;
     }
 
     int sumCounts;
@@ -97,7 +98,7 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2*2 : "Only MAX_GENOTYPES*2*2 features";
+        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2 * 2 : "Only MAX_GENOTYPES*2*2 features";
         if (featureIndex < MAX_GENOTYPES * 2) {
             // germline counts written first:
             if ((featureIndex % 2) == 1) {
@@ -118,34 +119,6 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
         }
     }
 
-    private boolean oneSampleHasTumor(java.util.List<org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.SampleInfo> samples) {
-        for (BaseInformationRecords.SampleInfo sample : samples) {
-            if (sample.getIsTumor()) return true;
-        }
-        return false;
-
-    }
-
-    private ObjectArrayList<GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor) {
-        assert oneSampleHasTumor(record.getSamplesList()) : "at least one sample must have hasTumor=true.";
-        ObjectArrayList<GenotypeCount> list = new ObjectArrayList();
-        for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
-            if (isTumor != sampleInfo.getIsTumor()) continue;
-            for (BaseInformationRecords.CountInfo sampleCounts : sampleInfo.getCountsList()) {
-                GenotypeCount count = new GenotypeCount(sampleCounts.getGenotypeCountForwardStrand(), sampleCounts.getGenotypeCountReverseStrand(), sampleCounts.getToSequence());
-                list.add(count);
-            }
-        }
-        // pad with zero until we have 10 elements:
-        while (list.size() < MAX_GENOTYPES) {
-            list.add(new GenotypeCount(0, 0, "N"));
-        }
-        // trim the list at 5 elements because we will consider only the 5 genotypes with largest total counts:
-        list.trim(MAX_GENOTYPES);
-        //sort in decreasing order of counts:
-        Collections.sort(list);
-        return list;
-    }
 
     @Override
     public float produceLabel(BaseInformationRecords.BaseInformationOrBuilder record, int labelIndex) {
@@ -154,8 +127,20 @@ public class SimpleFeatureCalculator implements FeatureCalculator {
         //return record.getMutated() ? 1.0f : 0.0f;
         if (labelIndex == 0) return record.getMutated() ? 1 : 0;
         else {
-          return !record.getMutated() ? 1 : 0;
+            return !record.getMutated() ? 1 : 0;
         }
+
+    }
+
+    @Override
+    protected void initializeCount(BaseInformationRecords.CountInfo sampleCounts, GenotypeCount count) {
+        // nothing to do, already done in the base class.
+    }
+
+    @Override
+    protected GenotypeCountFactory getGenotypeCountFactory() {
+
+        return new BaseGenotypeCountFactory();
 
     }
 }
