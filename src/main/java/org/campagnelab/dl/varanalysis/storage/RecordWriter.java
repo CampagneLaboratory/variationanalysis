@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.storage;
 
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
@@ -68,7 +69,8 @@ public class RecordWriter implements Closeable {
      */
     @Override
     public void close() throws IOException {
-        String infoOut = path.substring(0,path.length()-8) + ".info";
+
+        String infoOut = FilenameUtils.removeExtension(path) + ".info";
         new File(infoOut).delete();
         FileWriter infoWriter = new FileWriter(infoOut);
         infoWriter.write(Integer.toString((int)numRecordsWritten));
