@@ -55,7 +55,7 @@ public class RecordReader implements Closeable, RecordIterable {
             BufferedReader countReader = new BufferedReader(new FileReader(countFile));
             totalRecords = Integer.valueOf(countReader.readLine());
         } else {
-            System.out.println("count file found: " + filepath.substring(0,filepath.length()-8)+".info");
+            System.out.println("count file not found: " + filepath.substring(0,filepath.length()-8)+".info");
             totalRecords=0;
             ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder(new Path(this.filepath));
             Configuration conf = new Configuration();
