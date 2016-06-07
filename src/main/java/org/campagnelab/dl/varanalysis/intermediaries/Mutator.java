@@ -191,13 +191,13 @@ public class Mutator extends Intermediary {
         if (somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandCount() > 0 && somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandCount() > 0) {
 
             //forward strand
-            fromForward.addAll(somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList());
-            toForward.addAll(somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList());
+            fromForward.addAll(RecordReader.expandFreq(somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList()));
+            toForward.addAll(RecordReader.expandFreq(somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList()));
             mutateIntegerLists(fMutCount, fromForward, toForward);
 
             //reverse strand
-            fromBackward.addAll(somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList());
-            toBackward.addAll(somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList());
+            fromBackward.addAll(RecordReader.expandFreq(somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList()));
+            toBackward.addAll(RecordReader.expandFreq(somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList()));
             mutateIntegerLists(bMutCount, fromBackward, toBackward);
 
         }
@@ -210,13 +210,13 @@ public class Mutator extends Intermediary {
         if (somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandCount() > 0 && somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandCount() > 0) {
 
             //forward strand
-            fromForwardR.addAll(somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList());
-            toForwardR.addAll(somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList());
+            fromForwardR.addAll(RecordReader.expandFreq(somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList()));
+            toForwardR.addAll(RecordReader.expandFreq(somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList()));
             mutateIntegerLists(fMutCount, fromForwardR, toForwardR);
 
             //reverse strand
-            fromBackwardR.addAll(somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList());
-            toBackwardR.addAll(somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList());
+            fromBackwardR.addAll(RecordReader.expandFreq(somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList()));
+            toBackwardR.addAll(RecordReader.expandFreq(somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList()));
             mutateIntegerLists(bMutCount, fromBackwardR, toBackwardR);
 
 
@@ -232,27 +232,27 @@ public class Mutator extends Intermediary {
                 //replace quality scores
                 countBuild.clearQualityScoresForwardStrand();
                 countBuild.clearQualityScoresReverseStrand();
-                countBuild.addAllQualityScoresForwardStrand(fromForward);
-                countBuild.addAllQualityScoresReverseStrand(fromBackward);
+                countBuild.addAllQualityScoresForwardStrand(RecordReader.compressFreq(fromForward));
+                countBuild.addAllQualityScoresReverseStrand(RecordReader.compressFreq(fromBackward));
 
                 //replace readIndices
                 countBuild.clearReadIndicesForwardStrand();
                 countBuild.clearReadIndicesReverseStrand();
-                countBuild.addAllReadIndicesForwardStrand(fromForwardR);
-                countBuild.addAllReadIndicesReverseStrand(fromBackwardR);
+                countBuild.addAllReadIndicesForwardStrand(RecordReader.compressFreq(fromForwardR));
+                countBuild.addAllReadIndicesReverseStrand(RecordReader.compressFreq(fromBackwardR));
 
             } else if (i == newBase) {
                 //replace quality scores
                 countBuild.clearQualityScoresForwardStrand();
                 countBuild.clearQualityScoresReverseStrand();
-                countBuild.addAllQualityScoresForwardStrand(toForward);
-                countBuild.addAllQualityScoresReverseStrand(toBackward);
+                countBuild.addAllQualityScoresForwardStrand(RecordReader.compressFreq(toForward));
+                countBuild.addAllQualityScoresReverseStrand(RecordReader.compressFreq(toBackward));
 
                 //replace readIndices
                 countBuild.clearReadIndicesForwardStrand();
                 countBuild.clearReadIndicesReverseStrand();
-                countBuild.addAllReadIndicesForwardStrand(toForwardR);
-                countBuild.addAllReadIndicesReverseStrand(toBackwardR);
+                countBuild.addAllReadIndicesForwardStrand(RecordReader.compressFreq(toForwardR));
+                countBuild.addAllReadIndicesReverseStrand(RecordReader.compressFreq(toBackwardR));
             }
             somaticBuild.setCounts(i, countBuild);
             i++;

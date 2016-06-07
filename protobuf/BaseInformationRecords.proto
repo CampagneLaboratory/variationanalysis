@@ -68,10 +68,6 @@ message CountInfo {
     /** The number of times the genotype is observed in the sample in a read matching the reverse strand. */
     required uint32 genotypeCountReverseStrand = 5;
 
-
-
-
-
     /**
     Indicates whether this genotype is an indel. */
     optional bool isIndel = 15;

@@ -5,6 +5,7 @@ import org.campagnelab.dl.varanalysis.learning.genotypes.BaseGenotypeCountFactor
 import org.campagnelab.dl.varanalysis.learning.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.learning.iterators.AbstractFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Collections;
@@ -90,8 +91,8 @@ public class ReadIndexFeatures extends AbstractFeatureMapper implements FeatureM
     @Override
     protected void initializeCount(BaseInformationRecords.CountInfo sampleCounts, GenotypeCount count) {
         ReadIndexWithCounts myCounts = (ReadIndexWithCounts) count;
-        myCounts.set(sampleCounts.getReadIndicesForwardStrandList(),
-                sampleCounts.getReadIndicesReverseStrandList());
+        myCounts.set(RecordReader.expandFreq(sampleCounts.getReadIndicesForwardStrandList()),
+                RecordReader.expandFreq(sampleCounts.getReadIndicesReverseStrandList()));
     }
 
     @Override

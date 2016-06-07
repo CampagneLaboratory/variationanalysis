@@ -1,11 +1,15 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.campagnelab.dl.varanalysis.learning.features.Features;
 import org.campagnelab.dl.varanalysis.learning.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -60,10 +64,14 @@ public class QualityFeatureCalculatorTest {
         builderInfo.setMatchesReference(true);
         builderInfo.setGenotypeCountForwardStrand(100);
         builderInfo.setGenotypeCountReverseStrand(100);
-        builderInfo.addQualityScoresForwardStrand(5);
-        builderInfo.addQualityScoresForwardStrand(15);
-        builderInfo.addQualityScoresReverseStrand(10);
-        builderInfo.addQualityScoresReverseStrand(60);
+        List<Integer> fList = new IntArrayList();
+        List<Integer> rList = new IntArrayList();
+        fList.add(5);
+        fList.add(15);
+        rList.add(10);
+        rList.add(60);
+        builderInfo.addAllQualityScoresForwardStrand(RecordReader.compressFreq(fList));
+        builderInfo.addAllQualityScoresReverseStrand(RecordReader.compressFreq(rList));
         sampleBuilder.addCounts(builderInfo.build());
         builder.addSamples(sampleBuilder.build());
 
@@ -79,12 +87,16 @@ public class QualityFeatureCalculatorTest {
         builderInfoS.setMatchesReference(true);
         builderInfoS.setGenotypeCountForwardStrand(5);
         builderInfoS.setGenotypeCountReverseStrand(5);
-        builderInfoS.addQualityScoresForwardStrand(20);
-        builderInfoS.addQualityScoresForwardStrand(1);
-        builderInfoS.addQualityScoresForwardStrand(25);
-        builderInfoS.addQualityScoresReverseStrand(27);
-        builderInfoS.addQualityScoresReverseStrand(0);
-        builderInfoS.addQualityScoresReverseStrand(60);
+        fList.clear();
+        rList.clear();
+        fList.add(20);
+        fList.add(1);
+        fList.add(25);
+        rList.add(27);
+        rList.add(0);
+        rList.add(60);
+        builderInfoS.addAllQualityScoresForwardStrand(RecordReader.compressFreq(fList));
+        builderInfoS.addAllQualityScoresReverseStrand(RecordReader.compressFreq(rList));
         sampleBuilderS.addCounts(builderInfoS.build());
         builder.addSamples(sampleBuilderS.build());
 

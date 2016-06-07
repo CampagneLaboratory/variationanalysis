@@ -1,6 +1,10 @@
 package org.campagnelab.dl.varanalysis.storage;
 
+import com.codahale.metrics.MetricRegistryListener;
 import com.google.protobuf.CodedInputStream;
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -17,9 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Spliterator;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -189,4 +191,36 @@ public class RecordReader implements Closeable, RecordIterable {
     public Spliterator<BaseInformationRecords.BaseInformation> spliterator() {
         return null;
     }
+
+    public static List<Integer> expandFreq(List<BaseInformationRecords.NumberWithFrequency> freqList){
+        List<Integer> expanded = new IntArrayList();
+        for (BaseInformationRecords.NumberWithFrequency freq : freqList){
+            for (int i = 0; i < freq.getFrequency(); i++){
+                expanded.add(freq.getNumber());
+            }
+        }
+        return expanded;
+    }
+
+    public static List<BaseInformationRecords.NumberWithFrequency> compressFreq(List<Integer> numList){
+
+        //compress into map
+        Map<Integer,Integer> freqMap = new Int2IntArrayMap(100);
+        for (int num : numList){
+            Integer freq = freqMap.putIfAbsent(num, 1);
+            if (freq != null) {
+                freqMap.put(num,freq+1);
+            }
+        }
+        //iterate map into freqlist
+        List<BaseInformationRecords.NumberWithFrequency> freqList = new ObjectArrayList<>(freqMap.size());
+        for (Map.Entry<Integer,Integer> entry : freqMap.entrySet()){
+            BaseInformationRecords.NumberWithFrequency.Builder freqBuilder = BaseInformationRecords.NumberWithFrequency.newBuilder();
+            freqBuilder.setFrequency(entry.getValue());
+            freqBuilder.setNumber(entry.getKey());
+            freqList.add(freqBuilder.build());
+        }
+        return freqList;
+    }
+
 }

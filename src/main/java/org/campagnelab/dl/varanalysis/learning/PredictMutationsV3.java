@@ -64,10 +64,10 @@ public class PredictMutationsV3 {
         float[] s1Scores = new float[10];
         float[] s2Scores = new float[10];
         for (int i = 0; i < 5; i++){
-            s1Scores[i] = QualityFeatures.avgQuality(pos.getSamples(0).getCounts(i).getQualityScoresForwardStrandList());
-            s1Scores[i+5] = QualityFeatures.avgQuality(pos.getSamples(0).getCounts(i).getQualityScoresReverseStrandList());
-            s2Scores[i] = QualityFeatures.avgQuality(pos.getSamples(1).getCounts(i).getQualityScoresForwardStrandList());
-            s2Scores[i+5] = QualityFeatures.avgQuality(pos.getSamples(1).getCounts(i).getQualityScoresReverseStrandList());
+            s1Scores[i] = QualityFeatures.avgQuality(RecordReader.expandFreq(pos.getSamples(0).getCounts(i).getQualityScoresForwardStrandList()));
+            s1Scores[i+5] = QualityFeatures.avgQuality(RecordReader.expandFreq(pos.getSamples(0).getCounts(i).getQualityScoresReverseStrandList()));
+            s2Scores[i] = QualityFeatures.avgQuality(RecordReader.expandFreq(pos.getSamples(1).getCounts(i).getQualityScoresForwardStrandList()));
+            s2Scores[i+5] = QualityFeatures.avgQuality(RecordReader.expandFreq(pos.getSamples(1).getCounts(i).getQualityScoresReverseStrandList()));
         }
 
         String features = (pos.hasFrequencyOfMutation()?pos.getFrequencyOfMutation():"") + "\t"

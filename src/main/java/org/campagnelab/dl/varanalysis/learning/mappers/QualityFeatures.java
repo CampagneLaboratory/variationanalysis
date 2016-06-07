@@ -4,6 +4,7 @@ import org.campagnelab.dl.varanalysis.learning.genotypes.BaseGenotypeCountFactor
 import org.campagnelab.dl.varanalysis.learning.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.learning.iterators.AbstractFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.List;
@@ -102,8 +103,8 @@ public class QualityFeatures extends AbstractFeatureMapper implements FeatureMap
     @Override
     protected void initializeCount(BaseInformationRecords.CountInfo sampleCounts, GenotypeCount count) {
         QualityGenotypeCount myCount = (QualityGenotypeCount) count;
-        myCount.set(avgQuality(sampleCounts.getQualityScoresForwardStrandList()),
-                avgQuality(sampleCounts.getQualityScoresReverseStrandList()));
+        myCount.set(avgQuality(RecordReader.expandFreq(sampleCounts.getQualityScoresForwardStrandList())),
+                avgQuality(RecordReader.expandFreq(sampleCounts.getQualityScoresReverseStrandList())));
     }
 }
 
