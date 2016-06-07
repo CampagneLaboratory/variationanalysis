@@ -24,7 +24,8 @@ public class PredictMutationsV3 {
     String modelPath;
     String dataDirPath;
     String resultsPath;
-    String[] dataFilenames = new String[]{"genotypes_proto.parquet","genotypes_proto_test.parquet"};
+    String version = "VN";
+    String[] dataFilenames = new String[]{"genotypes_proto_"+version+"_mutated_randomized","genotypes_test_proto_"+version+"_mutated_randomized"};
     String[] resultsFileNames = new String[]{"training","test"};
     final String header = "mutatedLabel\tProbability\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts\tsample1Scores\tsample2Scores\n";
 

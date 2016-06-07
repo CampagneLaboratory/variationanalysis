@@ -9,12 +9,12 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 //import java.nio.file.Path;
-import java.nio.file.attribute.UserDefinedFileAttributeView;
 
 /**
  * A writer for base information records in protobuf format.
@@ -25,27 +25,17 @@ public class RecordWriter implements Closeable {
 
     private final ProtoParquetWriter<BaseInformationRecords.BaseInformation> parquetWriter;
     private long numRecordsWritten = 0;
-    private FileStore store;
-    private UserDefinedFileAttributeView view;
+    private String path;
 
     public RecordWriter(java.nio.file.Path path, ProtoParquetWriter<BaseInformationRecords.BaseInformation> parquetWriter) throws IOException {
+        this.path = path.toString();
         this.parquetWriter = parquetWriter;
-        // check that user defined attributes are supported by the file store
-        store = Files.getFileStore(path);
-        if (store.supportsFileAttributeView(UserDefinedFileAttributeView.class)) {
-            view = Files.
-                    getFileAttributeView(path, UserDefinedFileAttributeView.class);
-            System.err.println("File system supports attributes: YES");
-        }else {
-            System.err.println("File system supports attributes: NO");
-        }
-
-
     }
 
     public RecordWriter(String file, int blockSize, int pageSize) throws IOException {
 
         this(new File(file).toPath(), new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(file), BaseInformationRecords.BaseInformation.class, CompressionCodecName.UNCOMPRESSED, blockSize, pageSize));
+        this.path = file;
 
     }
 
@@ -54,6 +44,7 @@ public class RecordWriter implements Closeable {
 
                 new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(file), BaseInformationRecords.BaseInformation.class,
                         compress ? CompressionCodecName.SNAPPY : CompressionCodecName.UNCOMPRESSED, blockSize, pageSize));
+        this.path = file;
 
     }
 
@@ -77,15 +68,11 @@ public class RecordWriter implements Closeable {
      */
     @Override
     public void close() throws IOException {
-        if (view!=null) {
-            //file system supports user defined file attributes.
-            // we store the total number of records written to the file, so that we avoid scanning this file just to
-            // determine this number upon read:
-            ByteBuffer b=ByteBuffer.allocate(8);
-            b.asLongBuffer().put(numRecordsWritten);
-
-            view.write("numRecordsWritten", b);
-        }
+        String infoOut = path.substring(0,path.length()-8) + ".info";
+        new File(infoOut).delete();
+        FileWriter infoWriter = new FileWriter(infoOut);
+        infoWriter.write(Integer.toString((int)numRecordsWritten));
+        infoWriter.close();
         IOUtils.closeQuietly(parquetWriter);
     }
 

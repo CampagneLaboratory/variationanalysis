@@ -37,15 +37,6 @@ public class RecordReader implements Closeable, RecordIterable {
 
     public RecordReader(String filepath) throws IOException {
         this.filepath = filepath;
-        // check that user defined attributes are supported by the file store
-        // this needs to be done before countRecords to enable optimization of counting.
-        java.nio.file.Path path = new File(filepath).toPath();
-        FileStore store = Files.getFileStore(path);
-        if (store.supportsFileAttributeView(UserDefinedFileAttributeView.class)) {
-            view = Files.
-                    getFileAttributeView(path, UserDefinedFileAttributeView.class);
-        }
-
         this.countRecords();
 
         ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder( new Path(filepath));
@@ -58,23 +49,23 @@ public class RecordReader implements Closeable, RecordIterable {
     }
 
     private void countRecords() throws IOException {
-        if (view!=null) {
-            ByteBuffer b=ByteBuffer.allocate(4);
-           if (view.read("numRecordsWritten",b)==4) {
-               totalRecords =b.asLongBuffer().get();
-           }
-          if (totalRecords!=-1) {
-              return;
-          }
+        String countPath = filepath.substring(0,filepath.length()-8)+".info";
+        File countFile = new File(countPath);
+        if (countFile.exists()){
+            BufferedReader countReader = new BufferedReader(new FileReader(countFile));
+            totalRecords = Integer.valueOf(countReader.readLine());
+        } else {
+            System.out.println("count file found: " + filepath.substring(0,filepath.length()-8)+".info");
+            totalRecords=0;
+            ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder(new Path(this.filepath));
+            Configuration conf = new Configuration();
+            conf.set("parquet.proto.class", BaseInformationRecords.BaseInformation.class.getCanonicalName());
+            pqBuilder.withConf(conf);
+            ParquetReader<BaseInformationRecords.BaseInformation> localReader = pqBuilder.build();
+            while (localReader.read() != null) this.totalRecords++;
+            IOUtils.closeQuietly(localReader);
         }
-        totalRecords=0;
-        ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder(new Path(this.filepath));
-        Configuration conf = new Configuration();
-        conf.set("parquet.proto.class", BaseInformationRecords.BaseInformation.class.getCanonicalName());
-        pqBuilder.withConf(conf);
-        ParquetReader<BaseInformationRecords.BaseInformation> localReader = pqBuilder.build();
-        while (localReader.read() != null) this.totalRecords++;
-        IOUtils.closeQuietly(localReader);
+
     }
 
     /**
