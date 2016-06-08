@@ -1,8 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning;
 
-import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
-import org.campagnelab.dl.varanalysis.intermediaries.Mutator;
 import org.campagnelab.dl.varanalysis.learning.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -11,8 +9,6 @@ import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Arrays;
@@ -20,25 +16,23 @@ import java.util.Arrays;
 /**
  * Train a neural network to predict mutations.
  * <p>
- * Created by rct2002 on 5/23/16.
+ * Created by rct2002 on 6/8/16.
  *
  * @author Remi Torracinta
  */
-public class PredictMutationsV3 {
-    static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV3.class);
-
+public class PredictMutationsV4 {
     String modelPath;
     String dataDirPath;
     String resultsPath;
     String version = "VN";
     String[] dataFilenames = new String[]{"genotypes_proto_"+version+"_mutated_randomized.parquet","genotypes_test_proto_"+version+"_mutated_randomized.parquet"};
     String[] resultsFileNames = new String[]{"training","test"};
-    final String header = "mutatedLabel\tProbabilityMut\tProbabilityUnmut\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts\tsample1Scores\tsample2Scores\tformatted1\tformatted2\n";
+    final String header = "mutatedLabel\tProbability\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts\tsample1Scores\tsample2Scores\n";
 
 
 
 
-    public PredictMutationsV3(String modelPath, String dataDirPath, String resultsPath){
+    public PredictMutationsV4(String modelPath, String dataDirPath, String resultsPath){
         this.modelPath = modelPath;
         this.dataDirPath = dataDirPath;
         this.resultsPath = resultsPath;
@@ -77,14 +71,14 @@ public class PredictMutationsV3 {
         }
 
         String features = (pos.hasFrequencyOfMutation()?pos.getFrequencyOfMutation():"") + "\t"
-                        + (pos.hasMutatedBase()?pos.getMutatedBase():"") + "\t"
-                        + pos.getReferenceIndex() + "\t"
-                        + pos.getPosition() + "\t"
-                        + pos.getReferenceBase() + "\t"
-                        + Arrays.toString(s1Counts) + "\t"
-                        + Arrays.toString(s2Counts) + "\t"
-                        + Arrays.toString(s1Scores) + "\t"
-                        + Arrays.toString(s2Scores);
+                + (pos.hasMutatedBase()?pos.getMutatedBase():"") + "\t"
+                + pos.getReferenceIndex() + "\t"
+                + pos.getPosition() + "\t"
+                + pos.getReferenceBase() + "\t"
+                + Arrays.toString(s1Counts) + "\t"
+                + Arrays.toString(s2Counts) + "\t"
+                + Arrays.toString(s1Scores) + "\t"
+                + Arrays.toString(s2Scores);
         return features;
     }
 
@@ -104,8 +98,6 @@ public class PredictMutationsV3 {
             model.init();
             model.setParameters(newParams);
 
-            System.out.println("model loaded");
-
             File dir = new File(resultsPath);
             // attempt to create the directory here
             dir.mkdir();
@@ -124,13 +116,6 @@ public class PredictMutationsV3 {
 
 
 
-                //set up logger
-                ProgressLogger pgReadWrite = new ProgressLogger(LOG);
-                pgReadWrite.itemsName = "predict";
-                pgReadWrite.expectedUpdates = reader.getTotalRecords();
-                pgReadWrite.displayFreeMemory = true;
-                pgReadWrite.start();
-
                 for (BaseInformationRecords.BaseInformation record : reader){
                     INDArray testFeatures = Nd4j.zeros(1, featureMapper.numberOfFeatures());
                     featureMapper.mapFeatures(record,testFeatures,0);
@@ -139,15 +124,10 @@ public class PredictMutationsV3 {
                     //boolean
                     boolean mutated = record.getMutated();
                     float[] probabilities = testPredicted.getRow(0).data().asFloat();
-                    boolean predictedMutated = probabilities[0] > probabilities[1];
-                    String formatted0 = record.getSamples(0).getFormattedCounts().replaceAll("\n","");
-                    String formatted1 = record.getSamples(1).getFormattedCounts().replaceAll("\n","");
-
-                    String correctness = (predictedMutated == mutated) ? "right" : "wrong";
-                    results.append((mutated?"1":"0") + "\t" + Float.toString(probabilities[0]) + "\t" + Float.toString(probabilities[1]) +  "\t" + correctness + "\t" + features + "\t" + formatted0 + "\t" + formatted1 + "\n");
-                    pgReadWrite.update();
+                    boolean prediction = probabilities[0] > 0.5;
+                    String correctness = (prediction == mutated) ? "right" : "wrong";
+                    results.append((mutated?"1":"0") + "\t" + Float.toString(probabilities[0]) + "\t" + correctness + "\t" + features + "\n");
                 }
-                pgReadWrite.stop();
                 results.close();
             }
 

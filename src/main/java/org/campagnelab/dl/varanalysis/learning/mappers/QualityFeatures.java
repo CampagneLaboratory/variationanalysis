@@ -97,6 +97,7 @@ public class QualityFeatures extends AbstractFeatureMapper implements FeatureMap
         double sum = 0;
         for (Integer i : list)
             sum += Math.pow((double) 10, -((double) i / (double) 10));
+        if (list.size() == 0) return 1;
         return (float) (sum / (double) list.size());
     }
 

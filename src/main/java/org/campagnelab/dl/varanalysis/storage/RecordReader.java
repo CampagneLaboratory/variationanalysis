@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -46,12 +47,10 @@ public class RecordReader implements Closeable, RecordIterable {
         conf.set("parquet.proto.class", BaseInformationRecords.BaseInformation.class.getCanonicalName());
         pqBuilder.withConf(conf);
         pqReader = pqBuilder.build();
-
-
     }
 
     private void countRecords() throws IOException {
-        String countPath = filepath.substring(0,filepath.length()-8)+".info";
+        String countPath = FilenameUtils.removeExtension(filepath) + ".info";
         File countFile = new File(countPath);
         if (countFile.exists()){
             BufferedReader countReader = new BufferedReader(new FileReader(countFile));
