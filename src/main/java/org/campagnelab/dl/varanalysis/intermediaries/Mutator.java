@@ -1,5 +1,6 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift128PlusRandom;
@@ -268,7 +269,7 @@ public class Mutator extends Intermediary {
     private void mutateIntegerLists(int fMutCount, List<Integer> source, List<Integer> dest) {
         Collections.shuffle(source, rand);
         dest.addAll(source.subList(0, fMutCount));
-        List<Integer> tmp = source.subList(fMutCount, source.size());
+        List<Integer> tmp = new IntArrayList(source.subList(fMutCount, source.size()));
         source.clear();
         source.addAll(tmp);
 

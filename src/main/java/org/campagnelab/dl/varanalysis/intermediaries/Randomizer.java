@@ -57,7 +57,7 @@ public class Randomizer extends Intermediary{
                 pgRead.lightUpdate();
                 i++;
                 if (i >= MAX_ELEMENTS){
-                    System.out.println(rec.getSamples(0).getFormattedCounts());
+                    //System.out.println(rec.getSamples(0).getFormattedCounts());
                     Collections.shuffle(recList,rand);
 
                     //set up logger2
