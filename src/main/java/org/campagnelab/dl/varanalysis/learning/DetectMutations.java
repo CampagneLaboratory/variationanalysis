@@ -142,6 +142,10 @@ public class DetectMutations {
         System.out.println("Saving last model with score=" + net.score());
         saver.saveLatestModel(net, net.score());
 
+        FileWriter scoreWriter = new FileWriter(attempt + "/bestScore");
+        scoreWriter.append(Double.toString(bestScore));
+        scoreWriter.close();
+
     }
 
     private static int numLabels(INDArray labels) {
