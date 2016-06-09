@@ -18,16 +18,13 @@ import java.util.Collections;
  */
 public class ReadIndexFeatures extends AbstractFeatureMapper implements FeatureMapper {
 
-    public static final int NUM_GENOTYPES = 5;
-    public static final int NUM_SAMPLES = 2;
 
     @Override
     public int numberOfFeatures() {
         // only one feature per genotype: the number of distinct read indices in each sample. 5 genotypes max.
-        return NUM_SAMPLES * NUM_GENOTYPES;
+        // sorted and unsorted
+        return MAX_GENOTYPES * 2 * 2 * 2;
     }
-
-    public static final int MAX_GENOTYPES = 5;
 
     int sumCounts;
 
@@ -67,15 +64,17 @@ public class ReadIndexFeatures extends AbstractFeatureMapper implements FeatureM
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2 * 2 : "Only MAX_GENOTYPES*2*2 features";
+        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2 * 2 * 2 : "Only MAX_GENOTYPES*2*2 features";
+        boolean sort = (featureIndex >= (MAX_GENOTYPES * 2 * 2));
+        if (sort) featureIndex = featureIndex - (MAX_GENOTYPES * 2 * 2);
         if (featureIndex < MAX_GENOTYPES * 2) {
             // germline counts written first:
-            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, false).get(featureIndex / 2);
+            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, false,sort).get(featureIndex / 2);
             return genotypeCount.getDistinctReadIndices();
         } else {
             // tumor counts written next:
             featureIndex -= MAX_GENOTYPES * 2;
-            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, true).get(featureIndex / 2);
+            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, true,sort).get(featureIndex / 2);
             return genotypeCount.getDistinctReadIndices();
         }
     }

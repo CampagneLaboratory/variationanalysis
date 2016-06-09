@@ -49,7 +49,7 @@ public class PredictMutationsV3 {
     public static void main(String[] args) throws IOException {
         double learningRate = 0.05;
         int miniBatchSize = 100;
-        String time = "1465407490858";
+        String time = "1465429904060";
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
 
         PredictMutationsV3 predictor = new PredictMutationsV3(attempt, "sample_data/protobuf/", "tests/" + time + "/");

@@ -42,8 +42,8 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
     @Override
     public int numberOfFeatures() {
         // we need features for the normal sample and for the tumor sample:
-
-        return MAX_GENOTYPES * 2 * 2;
+        //multiply by additional 2 for sorted and unsorted features
+        return MAX_GENOTYPES * 2 * 2 * 2;
     }
 
     int sumCounts;
@@ -98,23 +98,26 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2 * 2 : "Only MAX_GENOTYPES*2*2 features";
+        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2 * 2 * 2 : "Only MAX_GENOTYPES*2*2 features";
+        boolean sort = (featureIndex >= (MAX_GENOTYPES * 2 * 2));
+        if (sort) featureIndex = featureIndex - (MAX_GENOTYPES * 2 * 2);
+
         if (featureIndex < MAX_GENOTYPES * 2) {
             // germline counts written first:
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
-                return getAllCounts(record, false).get(featureIndex / 2).forwardCount;
+                return getAllCounts(record, false, sort).get(featureIndex / 2).forwardCount;
             } else {
-                return getAllCounts(record, false).get(featureIndex / 2).reverseCount;
+                return getAllCounts(record, false, sort).get(featureIndex / 2).reverseCount;
             }
         } else {
             // tumor counts written next:
             featureIndex -= MAX_GENOTYPES * 2;
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
-                return getAllCounts(record, true).get(featureIndex / 2).forwardCount;
+                return getAllCounts(record, true, sort).get(featureIndex / 2).forwardCount;
             } else {
-                return getAllCounts(record, true).get(featureIndex / 2).reverseCount;
+                return getAllCounts(record, true, sort).get(featureIndex / 2).reverseCount;
             }
         }
     }
