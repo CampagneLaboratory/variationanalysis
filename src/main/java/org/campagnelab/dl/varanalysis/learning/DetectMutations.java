@@ -43,7 +43,7 @@ public class DetectMutations {
         String inputFile = args[0];
 
         int seed = 123;
-        double learningRate = 0.05;
+        double learningRate = 0.01;
         int miniBatchSize = 100;
         int numEpochs = 3;
         long time = new Date().getTime();
@@ -51,7 +51,7 @@ public class DetectMutations {
         int generateSamplesEveryNMinibatches = 10;
 
         //Load the training data:
-        final FeatureMapper featureCalculator = new FeatureMapperV3();//new PositiveControlFeatureMapper();//
+        final FeatureMapper featureCalculator = new FeatureMapperV3S();//new PositiveControlFeatureMapper();//
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
         BaseInformationIterator trainIter = new BaseInformationIterator(inputFile, miniBatchSize,
                 featureCalculator, labelMapper);
@@ -64,7 +64,7 @@ public class DetectMutations {
                 .seed(seed)
                 .iterations(10)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(learningRate).regularization(true).l2(0.00002)
+                .learningRate(learningRate).regularization(true).l2(0.0000002)
                 .updater(Updater.ADAGRAD)
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
@@ -104,7 +104,7 @@ public class DetectMutations {
         pgEpoch.start();
         double bestScore = Double.MAX_VALUE;
         LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
-
+int iter=0;
         for (int i = 0; i < numEpochs; i++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -128,6 +128,11 @@ public class DetectMutations {
                 pg.update();
 
                 double score = net.score();
+                if (iter==0 || Double.isNaN(score)){
+                 //   System.out.println(net.params());
+                    System.out.println("nan at "+iter);
+                }
+                iter++;
                 if (score < bestScore) {
                     bestScore = score;
                     saver.saveBestModel(net, score);

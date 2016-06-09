@@ -6,6 +6,6 @@ package org.campagnelab.dl.varanalysis.learning.mappers;
  */
 public class FeatureMapperV3S extends ConcatFeatureMapper {
     public FeatureMapperV3S() {
-        super(new SimpleFeatureCalculator(true), new SimpleFeatureCalculator(false), new MagnitudeFeatures(), new QualityFeatures());
+        super( new MagnitudeFeatures(), new SimpleFeatureCalculator(false),new MagnitudeFeatures(), new SimpleFeatureCalculator(true),new QualityFeatures() );
     }
 }
