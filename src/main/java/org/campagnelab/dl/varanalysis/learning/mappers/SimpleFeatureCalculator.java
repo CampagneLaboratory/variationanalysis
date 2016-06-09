@@ -51,7 +51,7 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
         indices[0] = indexOfRecord;
         sumCounts = 0;
-        for (int featureIndex = 0; featureIndex < numberOfFeatures()/2; featureIndex++) {
+        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
             sumCounts += produceFeatureInternal(record, featureIndex);
         }
     }
