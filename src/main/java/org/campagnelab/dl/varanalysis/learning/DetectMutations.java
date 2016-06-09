@@ -46,11 +46,12 @@ public class DetectMutations {
         double learningRate = 0.05;
         int miniBatchSize = 100;
         int numEpochs = 3;
-        String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + new Date().getTime();
+        long time = new Date().getTime();
+        String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
         int generateSamplesEveryNMinibatches = 10;
 
         //Load the training data:
-        final FeatureMapper featureCalculator = new FeatureMapperV3S();//new PositiveControlFeatureMapper();//
+        final FeatureMapper featureCalculator = new FeatureMapperV3();//new PositiveControlFeatureMapper();//
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
         BaseInformationIterator trainIter = new BaseInformationIterator(inputFile, miniBatchSize,
                 featureCalculator, labelMapper);
@@ -145,6 +146,7 @@ public class DetectMutations {
         FileWriter scoreWriter = new FileWriter(attempt + "/bestScore");
         scoreWriter.append(Double.toString(bestScore));
         scoreWriter.close();
+        System.out.println("Model completed, saved at time: " + time);
 
     }
 
@@ -153,5 +155,7 @@ public class DetectMutations {
         //for (labels.size(1));
         return 2;
     }
+
+
 
 }

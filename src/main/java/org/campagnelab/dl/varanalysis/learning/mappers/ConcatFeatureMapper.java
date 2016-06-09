@@ -22,9 +22,8 @@ public class ConcatFeatureMapper implements FeatureMapper {
         offsets = new int[featureMappers.length + 1];
         offsets[0] = 0;
         for (FeatureMapper calculator : mappers) {
-            numFeatures += calculator.numberOfFeatures();
-            offset += numFeatures;
-            offsets[i] = offset;
+            numFeatures += calculator.numberOfFeatures();;
+            offsets[i] = numFeatures;
 
             i++;
         }
