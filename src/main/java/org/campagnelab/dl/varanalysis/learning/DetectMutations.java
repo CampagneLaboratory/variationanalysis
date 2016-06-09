@@ -141,6 +141,9 @@ public class DetectMutations {
         pgEpoch.stop();
         System.out.println("Saving last model with score=" + net.score());
         saver.saveLatestModel(net, net.score());
+        FileWriter scoreWriter = new FileWriter(attempt + "/bestScore");
+        scoreWriter.append(Double.toString(bestScore));
+        scoreWriter.close();
 
     }
 
