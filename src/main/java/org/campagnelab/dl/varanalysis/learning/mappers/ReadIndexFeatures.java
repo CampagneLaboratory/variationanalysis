@@ -31,7 +31,7 @@ public class ReadIndexFeatures extends AbstractFeatureMapper implements FeatureM
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
         indices[0] = indexOfRecord;
         sumCounts = 0;
-        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
+        for (int featureIndex = 0; featureIndex < numberOfFeatures()/2; featureIndex++) {
             sumCounts += produceFeatureInternal(record, featureIndex);
         }
     }
