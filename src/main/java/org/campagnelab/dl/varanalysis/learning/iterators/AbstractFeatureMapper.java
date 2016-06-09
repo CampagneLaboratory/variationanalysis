@@ -55,14 +55,18 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
 
     protected abstract void initializeCount(BaseInformationRecords.CountInfo sampleCounts, GenotypeCount count);
 
-    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor) {
+    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor, boolean sort) {
         assert oneSampleHasTumor(record.getSamplesList()) : "at least one sample must have hasTumor=true.";
         for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
             if (isTumor != sampleInfo.getIsTumor()) continue;
             // a subclass is expected to override getGenotypeCountFactory to provide its own type for Genotype counts:
-            return getAllCounts(sampleInfo, getGenotypeCountFactory());
+            return getAllCounts(sampleInfo, getGenotypeCountFactory(), sort);
         }
         throw new InternalError("At least one sample matching isTumor, and one matching not isTumor must be found.");
+    }
+
+    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor) {
+        return getAllCounts(record,isTumor,true);
     }
 
     protected abstract GenotypeCountFactory getGenotypeCountFactory();
