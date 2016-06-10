@@ -36,7 +36,7 @@ public class DetectMutations {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV3S();//new PositiveControlFeatureMapper();//
+        final FeatureMapper featureCalculator = new FeatureMapperV4();//new PositiveControlFeatureMapper();//
 
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file> ");
@@ -129,7 +129,7 @@ int iter=0;
                 pg.update();
 
                 double score = net.score();
-                if (iter==0 || Double.isNaN(score)){
+                if (Double.isNaN(score)){
                  //   System.out.println(net.params());
                     System.out.println("nan at "+iter);
                 }
