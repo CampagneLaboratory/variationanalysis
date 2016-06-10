@@ -43,7 +43,7 @@ public class DetectMutations {
         String inputFile = args[0];
 
         int seed = 123;
-        double learningRate = 0.01;
+        double learningRate = 0.05;
         int miniBatchSize = 100;
         int numEpochs = 3;
         long time = new Date().getTime();
@@ -64,7 +64,7 @@ public class DetectMutations {
                 .seed(seed)
                 .iterations(10)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(learningRate).regularization(true).l2(0.0000002)
+                .learningRate(learningRate).regularization(true).l2(0.00002)
                 .updater(Updater.ADAGRAD)
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
