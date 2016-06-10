@@ -26,6 +26,10 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
     }
 
     protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.SampleInfo sample, GenotypeCountFactory factory) {
+        return getAllCounts(sample,factory,true);
+    }
+
+    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.SampleInfo sample, GenotypeCountFactory factory, boolean sort) {
         ObjectArrayList<GenotypeCount> list = new ObjectArrayList<>();
         int genotypeIndex = 0;
         for (BaseInformationRecords.CountInfo sampleCounts : sample.getCountsList()) {
@@ -47,20 +51,25 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
         // trim the list at 5 elements because we will consider only the 5 genotypes with largest total counts:
         list.trim(MAX_GENOTYPES);
         //sort in decreasing order of counts:
-        Collections.sort(list);
+        if (sort) Collections.sort(list);
         return list;
     }
 
+
     protected abstract void initializeCount(BaseInformationRecords.CountInfo sampleCounts, GenotypeCount count);
 
-    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor) {
+    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor, boolean sort) {
         assert oneSampleHasTumor(record.getSamplesList()) : "at least one sample must have hasTumor=true.";
         for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
             if (isTumor != sampleInfo.getIsTumor()) continue;
             // a subclass is expected to override getGenotypeCountFactory to provide its own type for Genotype counts:
-            return getAllCounts(sampleInfo, getGenotypeCountFactory());
+            return getAllCounts(sampleInfo, getGenotypeCountFactory(), sort);
         }
         throw new InternalError("At least one sample matching isTumor, and one matching not isTumor must be found.");
+    }
+
+    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor) {
+        return getAllCounts(record,isTumor,true);
     }
 
     protected abstract GenotypeCountFactory getGenotypeCountFactory();
