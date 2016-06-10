@@ -151,10 +151,6 @@ int iter=0;
         FileWriter scoreWriter = new FileWriter(attempt + "/bestScore");
         scoreWriter.append(Double.toString(bestScore));
         scoreWriter.close();
-
-        FileWriter scoreWriter = new FileWriter(attempt + "/bestScore");
-        scoreWriter.append(Double.toString(bestScore));
-        scoreWriter.close();
         System.out.println("Model completed, saved at time: " + time);
 
     }
