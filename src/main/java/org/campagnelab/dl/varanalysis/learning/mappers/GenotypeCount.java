@@ -7,18 +7,20 @@ public class GenotypeCount implements Comparable<GenotypeCount> {
     int forwardCount;
     int reverseCount;
     String toSequence;
+    int genotypeIndex;
 
     public GenotypeCount() {
     }
 
-    public GenotypeCount(int forwardCount, int reverseCount, String toSequence) {
-        set(forwardCount, reverseCount, toSequence);
+    public GenotypeCount(int forwardCount, int reverseCount, String toSequence, int genotypeIndex) {
+        set(forwardCount, reverseCount, toSequence,genotypeIndex);
     }
 
-    public void set(int forwardCount, int reverseCount, String toSequence) {
+    public void set(int forwardCount, int reverseCount, String toSequence,int genotypeIndex) {
         this.forwardCount = forwardCount;
         this.reverseCount = reverseCount;
         this.toSequence = toSequence;
+        this.genotypeIndex=genotypeIndex;
     }
 
     public int totalCount() {

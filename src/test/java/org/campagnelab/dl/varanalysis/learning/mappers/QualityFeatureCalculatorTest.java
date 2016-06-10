@@ -1,4 +1,4 @@
-package org.campagnelab.dl.varanalysis.learning.iterators;
+package org.campagnelab.dl.varanalysis.learning.mappers;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.campagnelab.dl.varanalysis.learning.features.Features;

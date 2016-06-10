@@ -1,4 +1,4 @@
-package org.campagnelab.dl.varanalysis.learning.iterators;
+package org.campagnelab.dl.varanalysis.learning.mappers;
 
 import com.google.protobuf.TextFormat;
 import org.campagnelab.dl.varanalysis.learning.mappers.SimpleFeatureCalculator;

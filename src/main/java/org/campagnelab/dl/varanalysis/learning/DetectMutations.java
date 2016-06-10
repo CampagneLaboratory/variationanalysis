@@ -46,11 +46,12 @@ public class DetectMutations {
         double learningRate = 0.05;
         int miniBatchSize = 100;
         int numEpochs = 3;
-        String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + new Date().getTime();
+        long time = new Date().getTime();
+        String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
         int generateSamplesEveryNMinibatches = 10;
 
         //Load the training data:
-        final FeatureMapper featureCalculator = new FeatureMapperV3();//new PositiveControlFeatureMapper();//
+        final FeatureMapper featureCalculator = new FeatureMapperV3S();//new PositiveControlFeatureMapper();//
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
         BaseInformationIterator trainIter = new BaseInformationIterator(inputFile, miniBatchSize,
                 featureCalculator, labelMapper);
@@ -103,7 +104,7 @@ public class DetectMutations {
         pgEpoch.start();
         double bestScore = Double.MAX_VALUE;
         LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
-
+int iter=0;
         for (int i = 0; i < numEpochs; i++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -127,6 +128,11 @@ public class DetectMutations {
                 pg.update();
 
                 double score = net.score();
+                if (iter==0 || Double.isNaN(score)){
+                 //   System.out.println(net.params());
+                    System.out.println("nan at "+iter);
+                }
+                iter++;
                 if (score < bestScore) {
                     bestScore = score;
                     saver.saveBestModel(net, score);
@@ -145,6 +151,11 @@ public class DetectMutations {
         scoreWriter.append(Double.toString(bestScore));
         scoreWriter.close();
 
+        FileWriter scoreWriter = new FileWriter(attempt + "/bestScore");
+        scoreWriter.append(Double.toString(bestScore));
+        scoreWriter.close();
+        System.out.println("Model completed, saved at time: " + time);
+
     }
 
     private static int numLabels(INDArray labels) {
@@ -152,5 +163,7 @@ public class DetectMutations {
         //for (labels.size(1));
         return 2;
     }
+
+
 
 }

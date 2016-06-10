@@ -84,6 +84,9 @@ message CountInfo {
     /** The index in the read of  all bases matching this genotype on the reverse strand */
     repeated NumberWithFrequency readIndicesReverseStrand = 19;
 
+    /** True iff the genotype is called in this sample. In other words, this field is true when the genotype caller believes
+     that this genotype is present in the sample. */
+    optional bool isCalled = 20;
 }
 
 message NumberWithFrequency {

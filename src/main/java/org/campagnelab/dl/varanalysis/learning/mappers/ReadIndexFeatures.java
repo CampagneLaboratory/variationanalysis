@@ -1,14 +1,11 @@
 package org.campagnelab.dl.varanalysis.learning.mappers;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.varanalysis.learning.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.learning.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.learning.iterators.AbstractFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
-
-import java.util.Collections;
 
 /**
  * Estimates the number of distinct read indices per base position.
@@ -18,22 +15,31 @@ import java.util.Collections;
  */
 public class ReadIndexFeatures extends AbstractFeatureMapper implements FeatureMapper {
 
+    public static final int NUM_GENOTYPES = 5;
+    public static final int NUM_SAMPLES = 2;
 
     @Override
     public int numberOfFeatures() {
         // only one feature per genotype: the number of distinct read indices in each sample. 5 genotypes max.
-        // sorted and unsorted
-        return MAX_GENOTYPES * 2 * 2 * 2;
+        return NUM_SAMPLES * NUM_GENOTYPES;
     }
 
-    int sumCounts;
+    public static final int MAX_GENOTYPES = 5;
 
+    int sumReadIndex;
+
+    /**
+     *  normalization is ndone by taking the inverse of the number of distinct read indices.
+     * @param record        The record to convert to features & labels.
+     * @param indexOfRecord Index of the record in the destination dataset.
+     */
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
-        indices[0] = indexOfRecord;
-        sumCounts = 0;
-        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
-            sumCounts += produceFeatureInternal(record, featureIndex);
-        }
+
+//        indices[0] = indexOfRecord;
+//        sumReadIndex = 0;
+//        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
+//            sumReadIndex += produceFeatureInternal(record, featureIndex);
+//        }
     }
 
     int[] indices = new int[]{0, 0};
@@ -49,32 +55,33 @@ public class ReadIndexFeatures extends AbstractFeatureMapper implements FeatureM
     }
 
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        return normalize(produceFeatureInternal(record, featureIndex), sumCounts);
+        return normalize(produceFeatureInternal(record, featureIndex), sumReadIndex);
     }
 
 
     private float normalize(float value, int normalizationFactor) {
-        if (normalizationFactor == 0) {
+        // produce a value between zero and 1, increasingly smaller as the number of distinct read indices increases.
+        // plus one is to prevent division by zero for genotypes without any read.
+        return 1f / (value+1);
+        /*if (normalizationFactor == 0) {
             return 0;
         }
         float normalized = value / normalizationFactor;
         assert normalized >= 0 && normalized <= 1 : "value must be normalized: " + normalized;
-        return normalized;
+        return normalized;*/
     }
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2 * 2 * 2 : "Only MAX_GENOTYPES*2*2 features";
-        boolean sort = (featureIndex >= (MAX_GENOTYPES * 2 * 2));
-        if (sort) featureIndex = featureIndex - (MAX_GENOTYPES * 2 * 2);
+        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2 * 2 : "Only MAX_GENOTYPES*2*2 features";
         if (featureIndex < MAX_GENOTYPES * 2) {
             // germline counts written first:
-            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, false,sort).get(featureIndex / 2);
+            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, false).get(featureIndex / 2);
             return genotypeCount.getDistinctReadIndices();
         } else {
             // tumor counts written next:
             featureIndex -= MAX_GENOTYPES * 2;
-            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, true,sort).get(featureIndex / 2);
+            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, true).get(featureIndex / 2);
             return genotypeCount.getDistinctReadIndices();
         }
     }

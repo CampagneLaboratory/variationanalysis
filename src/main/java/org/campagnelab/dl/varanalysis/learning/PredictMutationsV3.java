@@ -3,6 +3,8 @@ package org.campagnelab.dl.varanalysis.learning;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.varanalysis.intermediaries.Mutator;
+import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3S;
+import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3SOld;
 import org.campagnelab.dl.varanalysis.learning.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -49,7 +51,7 @@ public class PredictMutationsV3 {
     public static void main(String[] args) throws IOException {
         double learningRate = 0.05;
         int miniBatchSize = 100;
-        String time = "1465429904060";
+        String time = "1465407490858";
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
 
         PredictMutationsV3 predictor = new PredictMutationsV3(attempt, "sample_data/protobuf/", "tests/" + time + "/");
@@ -118,7 +120,7 @@ public class PredictMutationsV3 {
 
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
                 //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
-                FeatureMapperV3 featureMapper = new FeatureMapperV3();
+                FeatureMapperV3SOld featureMapper = new FeatureMapperV3SOld();
                 RecordReader reader = new RecordReader(dataDirPath+dataFilenames[i]);
                 //DataSet ds = baseIter.next();
 

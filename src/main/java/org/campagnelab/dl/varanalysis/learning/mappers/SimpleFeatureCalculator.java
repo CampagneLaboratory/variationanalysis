@@ -39,13 +39,21 @@ import java.util.Collections;
 public class SimpleFeatureCalculator extends AbstractFeatureMapper implements FeatureCalculator {
 
 
+    public SimpleFeatureCalculator(boolean sort){
+        this.sort = sort;
+    }
+
+    public SimpleFeatureCalculator(){
+        this.sort = true;
+    }
+
     @Override
     public int numberOfFeatures() {
         // we need features for the normal sample and for the tumor sample:
-        //multiply by additional 2 for sorted and unsorted features
-        return MAX_GENOTYPES * 2 * 2 * 2;
-    }
 
+        return MAX_GENOTYPES * 2 * 2;
+    }
+    boolean sort; //by default we sort
     int sumCounts;
 
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
@@ -98,10 +106,7 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2 * 2 * 2 : "Only MAX_GENOTYPES*2*2 features";
-        boolean sort = (featureIndex >= (MAX_GENOTYPES * 2 * 2));
-        if (sort) featureIndex = featureIndex - (MAX_GENOTYPES * 2 * 2);
-
+        assert (featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2 * 2) : "Only MAX_GENOTYPES*2*2 features";
         if (featureIndex < MAX_GENOTYPES * 2) {
             // germline counts written first:
             if ((featureIndex % 2) == 1) {
