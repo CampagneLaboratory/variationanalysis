@@ -27,19 +27,22 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
 
     protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.SampleInfo sample, GenotypeCountFactory factory) {
         ObjectArrayList<GenotypeCount> list = new ObjectArrayList<>();
-
+        int genotypeIndex = 0;
         for (BaseInformationRecords.CountInfo sampleCounts : sample.getCountsList()) {
             GenotypeCount count = factory.create();
-            count.set(sampleCounts.getGenotypeCountForwardStrand(), sampleCounts.getGenotypeCountReverseStrand(), sampleCounts.getToSequence());
+            count.set(sampleCounts.getGenotypeCountForwardStrand(), sampleCounts.getGenotypeCountReverseStrand(),
+                    sampleCounts.getToSequence(), genotypeIndex);
             initializeCount(sampleCounts, count);
             list.add(count);
+            genotypeIndex++;
         }
 
         // pad with zero until we have 10 elements:
         while (list.size() < MAX_GENOTYPES) {
             final GenotypeCount genotypeCount = getGenotypeCountFactory().create();
-            genotypeCount.set(0, 0, "N");
+            genotypeCount.set(0, 0, "N",genotypeIndex);
             list.add(genotypeCount);
+            genotypeIndex++;
         }
         // trim the list at 5 elements because we will consider only the 5 genotypes with largest total counts:
         list.trim(MAX_GENOTYPES);
