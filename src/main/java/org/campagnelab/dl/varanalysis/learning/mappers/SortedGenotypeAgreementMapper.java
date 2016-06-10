@@ -1,10 +1,12 @@
 package org.campagnelab.dl.varanalysis.learning.mappers;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.varanalysis.learning.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.learning.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.learning.iterators.AbstractFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
+
 /**
  * Feaature mapper for option 2:
  * Option 2.  Add boolean to indicate when the bases match: 1 or don’t (0).
@@ -16,10 +18,10 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * <p>
  * Created by fac2003 on 6/10/16.
  */
-public class ToBaseMapper extends AbstractFeatureMapper implements FeatureMapper {
+public class SortedGenotypeAgreementMapper extends AbstractFeatureMapper implements FeatureMapper {
 
     private static final int MAX_GENOTYPES = 5;
-    private int[] indices = new int[1];
+    private int[] indices = {0, 0};
 
 
     @Override
@@ -48,8 +50,10 @@ public class ToBaseMapper extends AbstractFeatureMapper implements FeatureMapper
     @Override
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
 // compare genotype indices after sorting:
-        int genotypeIndexSample0 = getAllCounts(record.getSamples(0), getGenotypeCountFactory(), true).get(featureIndex).genotypeIndex;
-        int genotypeIndexSample1 = getAllCounts(record.getSamples(0), getGenotypeCountFactory(), true).get(featureIndex).genotypeIndex;
+        final ObjectArrayList<? extends GenotypeCount> sortedCountsSample0 = getAllCounts(record.getSamples(0), getGenotypeCountFactory(), true);
+        final ObjectArrayList<? extends GenotypeCount> sortedCountsSample1 = getAllCounts(record.getSamples(1), getGenotypeCountFactory(), true);
+        int genotypeIndexSample0 = sortedCountsSample0.get(featureIndex).genotypeIndex;
+        int genotypeIndexSample1 = sortedCountsSample1.get(featureIndex).genotypeIndex;
         return genotypeIndexSample0 == genotypeIndexSample1 ? 1f : .0f;
     }
 

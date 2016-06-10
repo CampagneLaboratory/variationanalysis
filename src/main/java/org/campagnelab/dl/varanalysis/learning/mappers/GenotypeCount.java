@@ -20,6 +20,7 @@ public class GenotypeCount implements Comparable<GenotypeCount> {
         this.forwardCount = forwardCount;
         this.reverseCount = reverseCount;
         this.toSequence = toSequence;
+        this.genotypeIndex=genotypeIndex;
     }
 
     public int totalCount() {

@@ -1,4 +1,4 @@
-package org.campagnelab.dl.varanalysis.learning.iterators;
+package org.campagnelab.dl.varanalysis.learning.mappers;
 
 import org.campagnelab.dl.varanalysis.learning.mappers.ConcatFeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapper;

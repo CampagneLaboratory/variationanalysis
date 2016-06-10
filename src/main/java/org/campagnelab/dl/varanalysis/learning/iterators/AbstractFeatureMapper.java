@@ -16,6 +16,7 @@ import java.util.Collections;
  */
 public abstract class AbstractFeatureMapper implements FeatureMapper {
     public static final int MAX_GENOTYPES = 5;
+    private static final int N_GENOTYPE_INDEX = 6;
 
     private boolean oneSampleHasTumor(java.util.List<org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.SampleInfo> samples) {
         for (BaseInformationRecords.SampleInfo sample : samples) {
@@ -26,7 +27,7 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
     }
 
     protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.SampleInfo sample, GenotypeCountFactory factory) {
-        return getAllCounts(sample,factory,true);
+        return getAllCounts(sample, factory, true);
     }
 
     protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.SampleInfo sample, GenotypeCountFactory factory, boolean sort) {
@@ -40,13 +41,14 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
             list.add(count);
             genotypeIndex++;
         }
-
+        // DO not increment genotypeIndex. It must remain constant for all N bases
+        int genotypeIndexFor_Ns = N_GENOTYPE_INDEX;
         // pad with zero until we have 10 elements:
         while (list.size() < MAX_GENOTYPES) {
             final GenotypeCount genotypeCount = getGenotypeCountFactory().create();
-            genotypeCount.set(0, 0, "N",genotypeIndex);
+            genotypeCount.set(0, 0, "N", genotypeIndexFor_Ns);
             list.add(genotypeCount);
-            genotypeIndex++;
+
         }
         // trim the list at 5 elements because we will consider only the 5 genotypes with largest total counts:
         list.trim(MAX_GENOTYPES);
@@ -69,7 +71,7 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
     }
 
     protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor) {
-        return getAllCounts(record,isTumor,true);
+        return getAllCounts(record, isTumor, true);
     }
 
     protected abstract GenotypeCountFactory getGenotypeCountFactory();
