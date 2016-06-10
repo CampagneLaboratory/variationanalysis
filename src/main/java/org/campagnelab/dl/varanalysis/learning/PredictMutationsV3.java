@@ -54,7 +54,7 @@ public class PredictMutationsV3 {
         String time = "1465507382463";
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
 
-        PredictMutationsV3 predictor = new PredictMutationsV3(attempt, "sample_data/protobuf/", "tests/" + time + "/");
+        PredictMutationsV3 predictor = new PredictMutationsV3(attempt, "sample_data/profiling_data/", "tests/" + time + "/");
         predictor.PrintPredictions();
     }
 

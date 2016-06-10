@@ -1,5 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.mappers;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.varanalysis.learning.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.learning.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.learning.iterators.AbstractFeatureMapper;
@@ -69,10 +70,10 @@ public class FractionDifferences extends AbstractFeatureMapper implements Featur
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES: "Only MAX_GENOTYPES features";
-        BaseInformationRecords.CountInfo somatic = record.getSamples(0).getCounts(featureIndex);
-        BaseInformationRecords.CountInfo germline = record.getSamples(1).getCounts(featureIndex);
-        int germCounts = (somatic.getGenotypeCountForwardStrand() + somatic.getGenotypeCountReverseStrand());
-        int somCounts = (germline.getGenotypeCountForwardStrand() + germline.getGenotypeCountReverseStrand());
+        int germCounts = getAllCounts(record, false, false).get(featureIndex).forwardCount
+                + getAllCounts(record, false, false).get(featureIndex).reverseCount;
+        int somCounts = getAllCounts(record, true, false).get(featureIndex).forwardCount
+                + getAllCounts(record, true, false).get(featureIndex).reverseCount;
         return normalize(germCounts,totalCountsGerm) - normalize(somCounts,totalCountsSom);
     }
 
@@ -82,7 +83,7 @@ public class FractionDifferences extends AbstractFeatureMapper implements Featur
 
             @Override
             public GenotypeCount create() {
-                return new FractionGenotypeCount();
+                return new GenotypeCount();
             }
         };
     }
@@ -90,9 +91,6 @@ public class FractionDifferences extends AbstractFeatureMapper implements Featur
 
     @Override
     protected void initializeCount(BaseInformationRecords.CountInfo sampleCounts, GenotypeCount count) {
-//        int bothCounts = (sampleCounts.getGenotypeCountForwardStrand() + sampleCounts.getGenotypeCountReverseStrand());
-//        FractionGenotypeCount myCount = (FractionGenotypeCount) count;
-//        myCount.set(avgQuality(RecordReader.expandFreq(sampleCounts.getQualityScoresForwardStrandList())));
     }
 }
 
