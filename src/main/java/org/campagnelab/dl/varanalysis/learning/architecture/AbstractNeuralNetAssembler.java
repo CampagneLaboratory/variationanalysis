@@ -3,7 +3,7 @@ package org.campagnelab.dl.varanalysis.learning.architecture;
 /**
  * Created by fac2003 on 6/10/16.
  */
-public abstract class AbstractNeuralNetAssembler {
+public abstract class AbstractNeuralNetAssembler implements NeuralNetAssembler {
     protected double learningRate;
     protected int seed;
     protected int numInputs;

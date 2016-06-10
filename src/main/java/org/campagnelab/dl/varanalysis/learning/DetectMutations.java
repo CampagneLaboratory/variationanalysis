@@ -1,6 +1,8 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
+import org.campagnelab.dl.varanalysis.learning.architecture.NeuralNetAssembler;
+import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayers;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.learning.mappers.*;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
@@ -63,39 +65,16 @@ public class DetectMutations {
         int numInputs = trainIter.inputColumns();
         int numOutputs = trainIter.totalOutcomes();
         int numHiddenNodes = 500;
+        NeuralNetAssembler assembler= new SixDenseLayers();
+        assembler.setSeed(seed);
+        assembler.setLearningRate(learningRate);
+        assembler.setNumHiddenNodes(numHiddenNodes);
+        assembler.setNumInputs(numInputs);
+        assembler.setNumHiddenNodes(numHiddenNodes);
+        assembler.setNumOutputs(numOutputs);
+        assembler.setRegularization(false);
 
-        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(seed)
-                .iterations(10)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(learningRate).regularization(false).l2(0.00002)
-                .updater(Updater.ADAGRAD)
-                .list()
-                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
-                        .weightInit(WeightInit.XAVIER)
-                        .activation("relu")
-                        .build())
-                .layer(1, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                        .weightInit(WeightInit.XAVIER)
-                        .activation("relu")
-                        .build())
-                .layer(2, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                        .weightInit(WeightInit.XAVIER)
-                        .activation("relu")
-                        .build())
-                .layer(3, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                        .weightInit(WeightInit.XAVIER)
-                        .activation("relu")
-                        .build())
-                .layer(4, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                        .weightInit(WeightInit.XAVIER)
-                        .activation("relu")
-                        .build())
-                .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                        .weightInit(WeightInit.XAVIER)
-                        .activation("softmax").weightInit(WeightInit.XAVIER)
-                        .nIn(numHiddenNodes).nOut(numOutputs).build())
-                .pretrain(false).backprop(true).build();
+        MultiLayerConfiguration conf = assembler.createNetwork();
 
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
