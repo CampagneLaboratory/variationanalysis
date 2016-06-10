@@ -36,7 +36,7 @@ public class DetectMutations {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperFT();//new PositiveControlFeatureMapper();//
+        final FeatureMapper featureCalculator = new FeatureMapperV6();//new PositiveControlFeatureMapper();//
 
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file> ");
@@ -48,7 +48,8 @@ public class DetectMutations {
         int miniBatchSize = 100;
         int numEpochs = 3;
         long time = new Date().getTime();
-        System.out.println("time: "+time);
+        System.out.println("time: " +time);
+        System.out.println("epochs: " +numEpochs);
         System.out.println(featureCalculator.getClass().getTypeName());
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
         int generateSamplesEveryNMinibatches = 10;
@@ -151,7 +152,7 @@ int iter=0;
         FileWriter scoreWriter = new FileWriter(attempt + "/bestScore");
         scoreWriter.append(Double.toString(bestScore));
         scoreWriter.close();
-        System.out.println("Model completed, saved at time: " + time);
+        System.out.println("Model completed, saved at time: " + attempt);
 
     }
 

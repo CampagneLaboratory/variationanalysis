@@ -3,10 +3,7 @@ package org.campagnelab.dl.varanalysis.learning;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.varanalysis.intermediaries.Mutator;
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3S;
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3SOld;
-import org.campagnelab.dl.varanalysis.learning.mappers.QualityFeatures;
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3;
+import org.campagnelab.dl.varanalysis.learning.mappers.*;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -51,10 +48,12 @@ public class PredictMutationsV3 {
     public static void main(String[] args) throws IOException {
         double learningRate = 0.05;
         int miniBatchSize = 100;
-        String time = "1465507382463";
+        String time = "1465585807140";
+        System.out.println("time: " + time);
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
 
         PredictMutationsV3 predictor = new PredictMutationsV3(attempt, "sample_data/profiling_data/", "tests/" + time + "/");
+        predictor.PrintPredictions();
         predictor.PrintPredictions();
     }
 
@@ -121,6 +120,7 @@ public class PredictMutationsV3 {
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
                 //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
                 FeatureMapperV3S featureMapper = new FeatureMapperV3S();
+                System.out.println("mapper: " + featureMapper.getClass().getTypeName());
                 RecordReader reader = new RecordReader(dataDirPath+dataFilenames[i]);
                 //DataSet ds = baseIter.next();
 
