@@ -41,7 +41,7 @@ RUN cd $HOME && export GIT_SSL_NO_VERIFY=true \
 && make && make PREFIX=/usr/local/ install \
 && cd /usr/lib \
 && ln -s /usr/local/lib/libopenblas.so \
-&& echo 2
+&& echo 3
 
 # libnd4j
 RUN cd /usr/share && export GIT_SSL_NO_VERIFY=true \
@@ -49,7 +49,7 @@ RUN cd /usr/share && export GIT_SSL_NO_VERIFY=true \
 && cd libnd4j && git log -1 > build_commit.txt \
 && alias cmake=cmake3 && source ./buildnativeoperations.sh \
 && export LIBND4J_HOME=/usr/share/libnd4j \
-&& echo 2
+&& echo 3
 
 #update the environment
 RUN echo "export LIBND4J_HOME=/usr/share/libnd4j" > $HOME/.bashrc \
@@ -63,11 +63,8 @@ RUN cd /usr/share && export GIT_SSL_NO_VERIFY=true \
 && git clone https://github.com/deeplearning4j/nd4j.git \
 && cd nd4j && git log -1 > build_commit.txt && source $HOME/.bashrc \
 && mvn clean install -DskipTests -Dmaven.javadoc.skip=true -pl '!:nd4j-cuda-7.5,!org.nd4j:nd4j-tests' \
-&& echo 2
-
+&& echo 3
 #gcloud
 RUN bash -c "cd /usr/share && curl https://sdk.cloud.google.com | bash"
-
 RUN yum clean all
-
 LABEL org.campagnelab.docker.createdWith="org.campagnelab.docker"
