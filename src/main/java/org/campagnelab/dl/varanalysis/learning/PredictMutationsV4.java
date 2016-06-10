@@ -1,6 +1,8 @@
 package org.campagnelab.dl.varanalysis.learning;
 
+import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
+import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV4;
 import org.campagnelab.dl.varanalysis.learning.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -9,6 +11,8 @@ import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Arrays;
@@ -21,6 +25,8 @@ import java.util.Arrays;
  * @author Remi Torracinta
  */
 public class PredictMutationsV4 {
+    static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV4.class);
+
     String modelPath;
     String dataDirPath;
     String resultsPath;
@@ -41,12 +47,18 @@ public class PredictMutationsV4 {
 
 
     public static void main(String[] args) throws IOException {
+        String datasetPath;
+        if (args.length==0) {
+            datasetPath="sample_data/protobuf/";
+        }else {
+            datasetPath = args[0];
+        }
         double learningRate = 0.05;
         int miniBatchSize = 100;
-        String time = "1465407490858";
+        String time = "1465588623667";
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
 
-        PredictMutationsV3 predictor = new PredictMutationsV3(attempt, "sample_data/protobuf/", "tests/" + time + "/");
+        PredictMutationsV4 predictor = new PredictMutationsV4(attempt, datasetPath, "tests/" + time + "/");
         predictor.PrintPredictions();
     }
 
@@ -110,10 +122,15 @@ public class PredictMutationsV4 {
 
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
                 //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
-                FeatureMapperV3 featureMapper = new FeatureMapperV3();
+                FeatureMapperV4 featureMapper = new FeatureMapperV4();
                 RecordReader reader = new RecordReader(dataDirPath+dataFilenames[i]);
                 //DataSet ds = baseIter.next();
-
+//set up logger
+                ProgressLogger pgReadWrite = new ProgressLogger(LOG);
+                pgReadWrite.itemsName = "predict";
+                pgReadWrite.expectedUpdates = reader.getTotalRecords();
+                pgReadWrite.displayFreeMemory = true;
+                pgReadWrite.start();
 
 
                 for (BaseInformationRecords.BaseInformation record : reader){
@@ -127,8 +144,10 @@ public class PredictMutationsV4 {
                     boolean prediction = probabilities[0] > 0.5;
                     String correctness = (prediction == mutated) ? "right" : "wrong";
                     results.append((mutated?"1":"0") + "\t" + Float.toString(probabilities[0]) + "\t" + correctness + "\t" + features + "\n");
+                    pgReadWrite.update();
                 }
                 results.close();
+                pgReadWrite.stop();
             }
 
 
