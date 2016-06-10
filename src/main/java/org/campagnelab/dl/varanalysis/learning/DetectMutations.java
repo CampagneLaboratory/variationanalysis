@@ -13,6 +13,7 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.ui.weights.HistogramIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -36,7 +37,7 @@ public class DetectMutations {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV6();//new PositiveControlFeatureMapper();//
+        final FeatureMapper featureCalculator = new FeatureMapperV4();//new PositiveControlFeatureMapper();//
 
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file> ");
@@ -67,7 +68,7 @@ public class DetectMutations {
                 .seed(seed)
                 .iterations(10)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(learningRate).regularization(true).l2(0.00002)
+                .learningRate(learningRate).regularization(false).l2(0.00002)
                 .updater(Updater.ADAGRAD)
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
@@ -78,7 +79,19 @@ public class DetectMutations {
                         .weightInit(WeightInit.XAVIER)
                         .activation("relu")
                         .build())
-                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .layer(2, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
+                        .weightInit(WeightInit.XAVIER)
+                        .activation("relu")
+                        .build())
+                .layer(3, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
+                        .weightInit(WeightInit.XAVIER)
+                        .activation("relu")
+                        .build())
+                .layer(4, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
+                        .weightInit(WeightInit.XAVIER)
+                        .activation("relu")
+                        .build())
+                .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .weightInit(WeightInit.XAVIER)
                         .activation("softmax").weightInit(WeightInit.XAVIER)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
@@ -87,7 +100,7 @@ public class DetectMutations {
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-        //    net.setListeners(/*new HistogramIterationListener(1), */new ScoreIterationListener(1));
+      //      net.setListeners(new HistogramIterationListener(10) /*, new ScoreIterationListener(1) */);
         //Print the  number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
         int totalNumParams = 0;
@@ -130,7 +143,7 @@ int iter=0;
                 pg.update();
 
                 double score = net.score();
-                if (iter==0 || Double.isNaN(score)){
+                if (Double.isNaN(score)){
                  //   System.out.println(net.params());
                     System.out.println("nan at "+iter);
                 }
