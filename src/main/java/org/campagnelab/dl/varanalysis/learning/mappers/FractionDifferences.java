@@ -27,8 +27,8 @@ public class FractionDifferences extends AbstractFeatureMapper implements Featur
 
     public int numberOfFeatures() {
         // we need features for the normal sample and for the tumor sample:
-
-        return MAX_GENOTYPES;
+        // 5 for positive difference, 5 for negative difference
+        return MAX_GENOTYPES * 2;
     }
 
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
@@ -69,12 +69,17 @@ public class FractionDifferences extends AbstractFeatureMapper implements Featur
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
+        int direction = 1;
+        if (featureIndex >= MAX_GENOTYPES){
+            featureIndex = featureIndex - MAX_GENOTYPES;
+            direction = -1;
+        }
         assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES: "Only MAX_GENOTYPES features";
-        int germCounts = getAllCounts(record, false, false).get(featureIndex).forwardCount
-                + getAllCounts(record, false, false).get(featureIndex).reverseCount;
-        int somCounts = getAllCounts(record, true, false).get(featureIndex).forwardCount
-                + getAllCounts(record, true, false).get(featureIndex).reverseCount;
-        return normalize(germCounts,totalCountsGerm) - normalize(somCounts,totalCountsSom);
+        int germCounts = getAllCounts(record, false, true).get(featureIndex).forwardCount
+                + getAllCounts(record, false, true).get(featureIndex).reverseCount;
+        int somCounts = getAllCounts(record, true, true).get(featureIndex).forwardCount
+                + getAllCounts(record, true, true).get(featureIndex).reverseCount;
+        return Math.max(0,(normalize(germCounts,totalCountsGerm) - normalize(somCounts,totalCountsSom))*direction);
     }
 
     @Override

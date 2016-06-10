@@ -36,7 +36,7 @@ public class DetectMutations {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV3S();//new PositiveControlFeatureMapper();//
+        final FeatureMapper featureCalculator = new FeatureMapperFT();//new PositiveControlFeatureMapper();//
 
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file> ");
