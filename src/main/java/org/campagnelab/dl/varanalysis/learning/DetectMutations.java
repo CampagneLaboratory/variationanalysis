@@ -36,6 +36,7 @@ public class DetectMutations {
 
 
     public static void main(String[] args) throws IOException {
+        final FeatureMapper featureCalculator = new FeatureMapperVT();//new PositiveControlFeatureMapper();//
 
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file> ");
@@ -51,7 +52,6 @@ public class DetectMutations {
         int generateSamplesEveryNMinibatches = 10;
 
         //Load the training data:
-        final FeatureMapper featureCalculator = new FeatureMapperV3S();//new PositiveControlFeatureMapper();//
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
         BaseInformationIterator trainIter = new BaseInformationIterator(inputFile, miniBatchSize,
                 featureCalculator, labelMapper);
@@ -121,7 +121,6 @@ int iter=0;
                 }
 
                 net.fit(ds);
-
                 INDArray predictedLabels = net.output(ds.getFeatures(), false);
 
 

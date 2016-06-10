@@ -49,9 +49,9 @@ public class PredictMutationsV3 {
 
 
     public static void main(String[] args) throws IOException {
-        double learningRate = 0.05;
+        double learningRate = 0.01;
         int miniBatchSize = 100;
-        String time = "1465505595805";
+        String time = "1465507382463";
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
 
         PredictMutationsV3 predictor = new PredictMutationsV3(attempt, "sample_data/protobuf/", "tests/" + time + "/");
@@ -120,7 +120,7 @@ public class PredictMutationsV3 {
 
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
                 //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
-                FeatureMapperV3SOld featureMapper = new FeatureMapperV3SOld();
+                FeatureMapperV3S featureMapper = new FeatureMapperV3S();
                 RecordReader reader = new RecordReader(dataDirPath+dataFilenames[i]);
                 //DataSet ds = baseIter.next();
 
