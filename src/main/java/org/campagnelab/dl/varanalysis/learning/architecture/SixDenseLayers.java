@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning.architecture;
 
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
@@ -22,7 +23,7 @@ public class SixDenseLayers extends AbstractNeuralNetAssembler implements Neural
 
 
     public MultiLayerConfiguration createNetwork() {
-        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+        NeuralNetConfiguration.ListBuilder confBuilder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(1)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
@@ -31,30 +32,30 @@ public class SixDenseLayers extends AbstractNeuralNetAssembler implements Neural
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                         .weightInit(WEIGHT_INIT)
-                        .activation("relu")
+                        .activation("relu").learningRateDecayPolicy(LearningRatePolicy.Poly)
                         .build())
                 .layer(1, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
                         .weightInit(WEIGHT_INIT)
-                        .activation("relu")
+                        .activation("relu").learningRateDecayPolicy(LearningRatePolicy.Poly)
                         .build())
                 .layer(2, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                        .weightInit(WEIGHT_INIT)
+                        .weightInit(WEIGHT_INIT).learningRateDecayPolicy(LearningRatePolicy.Poly)
                         .activation("relu")
                         .build())
                 .layer(3, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                        .weightInit(WEIGHT_INIT)
+                        .weightInit(WEIGHT_INIT).learningRateDecayPolicy(LearningRatePolicy.Poly)
                         .activation("relu")
                         .build())
                 .layer(4, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                        .weightInit(WEIGHT_INIT)
+                        .weightInit(WEIGHT_INIT).learningRateDecayPolicy(LearningRatePolicy.Poly)
                         .activation("relu")
                         .build())
                 .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .weightInit(WEIGHT_INIT)
-                        .activation("softmax").weightInit(WEIGHT_INIT)
+                        .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LearningRatePolicy.Poly)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
-                .pretrain(false).backprop(true).build();
-        return conf;
+                .pretrain(false).backprop(true);
+       return confBuilder.build();
 
     }
 }
