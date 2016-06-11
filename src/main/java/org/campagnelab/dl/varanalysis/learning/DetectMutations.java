@@ -1,28 +1,28 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.varanalysis.learning.architecture.NeuralNetAssembler;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayers;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.learning.mappers.*;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.api.Layer;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.api.Updater;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.layers.DenseLayer;
-import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.ui.weights.HistogramIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -49,7 +49,7 @@ public class DetectMutations {
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        int numEpochs = 50;
+        int numEpochs = 3;
         long time = new Date().getTime();
         System.out.println("time: " + time);
         System.out.println("epochs: " + numEpochs);
@@ -101,7 +101,7 @@ public class DetectMutations {
         double bestScore = Double.MAX_VALUE;
         LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
         int iter = 0;
-        for (int i = 0; i < numEpochs; i++) {
+        for (int epotch = 0; epotch < numEpochs; epotch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
 
@@ -135,6 +135,10 @@ public class DetectMutations {
                 }
 
             }
+            //save latest after the end of an epoch:
+            saver.saveLatestModel(net, net.score());
+            saveModel(saver, attempt, Integer.toString(epotch) + "-", net);
+
             pg.stop();
             pgEpoch.update();
             trainIter.reset();    //Reset iterator for another epoch
@@ -145,8 +149,32 @@ public class DetectMutations {
         FileWriter scoreWriter = new FileWriter(attempt + "/bestScore");
         scoreWriter.append(Double.toString(bestScore));
         scoreWriter.close();
+
         System.out.println("Model completed, saved at time: " + attempt);
 
+    }
+
+    public static void saveModel(LocalFileModelSaver saver, String directory, String prefix, MultiLayerNetwork net) throws IOException {
+        FilenameUtils.concat(directory, prefix + "ModelConf.json");
+        String confOut = FilenameUtils.concat(directory, prefix + "ModelConf.json");
+        String paramOut = FilenameUtils.concat(directory, prefix + "ModelParams.bin");
+        String updaterOut = FilenameUtils.concat(directory, prefix + "ModelUpdater.bin");
+        save(net, confOut, paramOut, updaterOut);
+    }
+
+    private static void save(MultiLayerNetwork net, String confOut, String paramOut, String updaterOut) throws IOException {
+        String confJSON = net.getLayerWiseConfigurations().toJson();
+        INDArray params = net.params();
+        Updater updater = net.getUpdater();
+
+        FileUtils.writeStringToFile(new File(confOut), confJSON, "UTF-8");
+        try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(Paths.get(paramOut))))) {
+            Nd4j.write(params, dos);
+        }
+
+        try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(new File(updaterOut))))) {
+            oos.writeObject(updater);
+        }
     }
 
     private static int numLabels(INDArray labels) {
