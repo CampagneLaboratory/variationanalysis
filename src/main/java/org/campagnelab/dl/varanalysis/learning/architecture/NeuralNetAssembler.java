@@ -1,5 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.architecture;
 
+import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.weights.WeightInit;
 
@@ -13,11 +14,14 @@ public interface NeuralNetAssembler {
     public MultiLayerConfiguration createNetwork();
 
     public void setWeightInitialization(WeightInit init);
+
     public void setLearningRate(double learningRate);
+
+    public void setLearningRatePolicy(LearningRatePolicy learningRatePolicy);
 
     public void setSeed(int seed);
 
-  //  public void setInputs(int numInputs, int numOutputs, int[] numHiddenNodes);
+    //  public void setInputs(int numInputs, int numOutputs, int[] numHiddenNodes);
 
     public void setNumInputs(int numInputs);
 

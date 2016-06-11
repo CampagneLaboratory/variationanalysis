@@ -5,12 +5,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.varanalysis.learning.architecture.NeuralNetAssembler;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayers;
+import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersNarrower;
 import org.campagnelab.dl.varanalysis.learning.architecture.ThreeDenseLayers;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.learning.mappers.*;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Updater;
+import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -40,7 +42,7 @@ public class DetectMutations {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV7();
+        final FeatureMapper featureCalculator = new FeatureMapperV8();
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file> ");
         }
@@ -65,7 +67,7 @@ public class DetectMutations {
         int numInputs = trainIter.inputColumns();
         int numOutputs = trainIter.totalOutcomes();
         int numHiddenNodes = 500;
-        NeuralNetAssembler assembler = new ThreeDenseLayers();
+        NeuralNetAssembler assembler = new SixDenseLayersNarrower();
         assembler.setSeed(seed);
         assembler.setLearningRate(learningRate);
         assembler.setNumHiddenNodes(numHiddenNodes);
@@ -74,7 +76,7 @@ public class DetectMutations {
         assembler.setRegularization(false);
         //changed from XAVIER in iteration 14
         assembler.setWeightInitialization(WeightInit.RELU);
-
+        assembler.setLearningRatePolicy(LearningRatePolicy.Poly);
         MultiLayerConfiguration conf = assembler.createNetwork();
 
 
@@ -128,7 +130,7 @@ public class DetectMutations {
                     System.out.println("nan at " + iter);
                 }
                 iter++;
-                if (score < bestScore) {
+                if (score < bestScore*0.95) {
                     bestScore = score;
                     saver.saveBestModel(net, score);
                     System.out.println("Saving best score model.. score=" + bestScore);
