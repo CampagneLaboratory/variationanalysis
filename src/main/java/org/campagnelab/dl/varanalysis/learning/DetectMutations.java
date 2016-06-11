@@ -47,12 +47,12 @@ public class DetectMutations {
         String inputFile = args[0];
 
         int seed = 123;
-        double learningRate = 0.05;
+        double learningRate = 0.1;
         int miniBatchSize = 100;
-        int numEpochs = 3;
+        int numEpochs = 50;
         long time = new Date().getTime();
-        System.out.println("time: " +time);
-        System.out.println("epochs: " +numEpochs);
+        System.out.println("time: " + time);
+        System.out.println("epochs: " + numEpochs);
         System.out.println(featureCalculator.getClass().getTypeName());
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
         int generateSamplesEveryNMinibatches = 10;
@@ -65,21 +65,22 @@ public class DetectMutations {
         int numInputs = trainIter.inputColumns();
         int numOutputs = trainIter.totalOutcomes();
         int numHiddenNodes = 500;
-        NeuralNetAssembler assembler= new SixDenseLayers();
+        NeuralNetAssembler assembler = new SixDenseLayers();
         assembler.setSeed(seed);
         assembler.setLearningRate(learningRate);
         assembler.setNumHiddenNodes(numHiddenNodes);
         assembler.setNumInputs(numInputs);
-        assembler.setNumHiddenNodes(numHiddenNodes);
         assembler.setNumOutputs(numOutputs);
         assembler.setRegularization(false);
+        //changed from XAVIER in iteration 14
+        assembler.setWeightInitialization(WeightInit.RELU);
 
         MultiLayerConfiguration conf = assembler.createNetwork();
 
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-      //      net.setListeners(new HistogramIterationListener(10) /*, new ScoreIterationListener(1) */);
+        //      net.setListeners(new HistogramIterationListener(10) /*, new ScoreIterationListener(1) */);
         //Print the  number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
         int totalNumParams = 0;
@@ -99,7 +100,7 @@ public class DetectMutations {
         pgEpoch.start();
         double bestScore = Double.MAX_VALUE;
         LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
-int iter=0;
+        int iter = 0;
         for (int i = 0; i < numEpochs; i++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -122,9 +123,9 @@ int iter=0;
                 pg.update();
 
                 double score = net.score();
-                if (Double.isNaN(score)){
-                 //   System.out.println(net.params());
-                    System.out.println("nan at "+iter);
+                if (Double.isNaN(score)) {
+                    //   System.out.println(net.params());
+                    System.out.println("nan at " + iter);
                 }
                 iter++;
                 if (score < bestScore) {
@@ -153,7 +154,6 @@ int iter=0;
         //for (labels.size(1));
         return 2;
     }
-
 
 
 }

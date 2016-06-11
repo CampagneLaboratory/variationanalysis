@@ -37,6 +37,26 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-core:0.4-rc3.10" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:canova-api:0.0.0.16" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:canova-nd4j-image:0.0.0.16" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-buffer:0.4-rc3.10" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-common:0.4-rc3.10" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:canova-nd4j-common:0.0.0.16" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:canova-data-image:0.0.0.16" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:3.0.2-1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:macosx-x86_64:3.0.2-1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:leptonica:1.73-1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:leptonica:macosx-x86_64:1.73-1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-api:0.4-rc3.10" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-context:0.4-rc3.10" level="project" />
+    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-ui:0.4-rc3.10" level="project" />
+    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-nlp:0.4-rc3.10" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-jackson:0.4-rc3.10" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:0.4-rc3.10" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:macosx-x86_64:0.4-rc3.10" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-api:0.4-rc3.10" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:javacpp:1.2.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.hadoop:hadoop-core:1.1.0" level="project" />
     <orderEntry type="library" name="Maven: commons-cli:commons-cli:1.2" level="project" />
     <orderEntry type="library" name="Maven: xmlenc:xmlenc:0.52" level="project" />

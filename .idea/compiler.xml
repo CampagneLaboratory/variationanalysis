@@ -23,6 +23,12 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="variation-analysis" />
+      </profile>
+      <profile default="false" name="Annotation profile for VariationAnalysis" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
         <module name="VariationAnalysis" />
       </profile>
     </annotationProcessing>

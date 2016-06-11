@@ -1,5 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning.architecture;
 
+import org.deeplearning4j.nn.weights.WeightInit;
+
 /**
  * Created by fac2003 on 6/10/16.
  */
@@ -11,6 +13,12 @@ public abstract class AbstractNeuralNetAssembler implements NeuralNetAssembler {
     protected int numHiddenNodes;
     protected boolean regularization = false;
     protected double regularizationRate = 0.00002;
+
+    public void setWeightInitialization(WeightInit init) {
+        this.WEIGHT_INIT = init;
+    }
+
+    public WeightInit WEIGHT_INIT = WeightInit.XAVIER;
 
     public void setLearningRate(double learningRate) {
         this.learningRate = learningRate;

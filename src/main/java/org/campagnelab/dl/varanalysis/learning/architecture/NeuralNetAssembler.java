@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning.architecture;
 
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.weights.WeightInit;
 
 /**
  * An interface for classes that assemble neural network configuration according to some architecture.
@@ -11,6 +12,7 @@ import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 public interface NeuralNetAssembler {
     public MultiLayerConfiguration createNetwork();
 
+    public void setWeightInitialization(WeightInit init);
     public void setLearningRate(double learningRate);
 
     public void setSeed(int seed);
