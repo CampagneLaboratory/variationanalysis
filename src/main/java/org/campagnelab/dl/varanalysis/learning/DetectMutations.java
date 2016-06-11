@@ -42,7 +42,7 @@ public class DetectMutations {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV8();
+        final FeatureMapper featureCalculator = new FeatureMapperV9();
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file> ");
         }
@@ -51,7 +51,7 @@ public class DetectMutations {
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        int numEpochs = 3;
+        int numEpochs = 10;
         long time = new Date().getTime();
         System.out.println("time: " + time);
         System.out.println("epochs: " + numEpochs);
@@ -66,7 +66,7 @@ public class DetectMutations {
 
         int numInputs = trainIter.inputColumns();
         int numOutputs = trainIter.totalOutcomes();
-        int numHiddenNodes = 500;
+        int numHiddenNodes = numInputs*10;
         NeuralNetAssembler assembler = new SixDenseLayersNarrower();
         assembler.setSeed(seed);
         assembler.setLearningRate(learningRate);
