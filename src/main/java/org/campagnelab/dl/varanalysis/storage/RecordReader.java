@@ -3,6 +3,7 @@ package org.campagnelab.dl.varanalysis.storage;
 import com.codahale.metrics.MetricRegistryListener;
 import com.google.protobuf.CodedInputStream;
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
@@ -34,7 +35,7 @@ public class RecordReader implements Closeable, RecordIterable {
 
     private final String filepath;
     private final ParquetReader<BaseInformationRecords.BaseInformation> pqReader;
-    private  UserDefinedFileAttributeView view;
+    private UserDefinedFileAttributeView view;
     private long recordLoadedSoFar = 0;
     private long totalRecords = -1;
 
@@ -42,7 +43,7 @@ public class RecordReader implements Closeable, RecordIterable {
         this.filepath = filepath;
         this.countRecords();
 
-        ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder( new Path(filepath));
+        ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder(new Path(filepath));
         Configuration conf = new Configuration();
         conf.set("parquet.proto.class", BaseInformationRecords.BaseInformation.class.getCanonicalName());
         pqBuilder.withConf(conf);
@@ -52,12 +53,12 @@ public class RecordReader implements Closeable, RecordIterable {
     private void countRecords() throws IOException {
         String countPath = FilenameUtils.removeExtension(filepath) + ".info";
         File countFile = new File(countPath);
-        if (countFile.exists()){
+        if (countFile.exists()) {
             BufferedReader countReader = new BufferedReader(new FileReader(countFile));
             totalRecords = Integer.valueOf(countReader.readLine());
         } else {
-            System.out.println("count file not found: " + filepath.substring(0,filepath.length()-8)+".info");
-            totalRecords=0;
+            System.out.println("count file not found: " + filepath.substring(0, filepath.length() - 8) + ".info");
+            totalRecords = 0;
             ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder(new Path(this.filepath));
             Configuration conf = new Configuration();
             conf.set("parquet.proto.class", BaseInformationRecords.BaseInformation.class.getCanonicalName());
@@ -84,9 +85,9 @@ public class RecordReader implements Closeable, RecordIterable {
         recordLoadedSoFar++;
 
         if (record instanceof BaseInformationRecords.BaseInformation.Builder) {
-            return  ((BaseInformationRecords.BaseInformation.Builder) record).build();
-        }else {
-           assert false:"Cannot build record.";
+            return ((BaseInformationRecords.BaseInformation.Builder) record).build();
+        } else {
+            assert false : "Cannot build record.";
             return null;
         }
     }
@@ -191,32 +192,37 @@ public class RecordReader implements Closeable, RecordIterable {
         return null;
     }
 
-    public static List<Integer> expandFreq(List<BaseInformationRecords.NumberWithFrequency> freqList){
-        List<Integer> expanded = new IntArrayList();
-        for (BaseInformationRecords.NumberWithFrequency freq : freqList){
-            for (int i = 0; i < freq.getFrequency(); i++){
+    public static List<Integer> expandFreq(List<BaseInformationRecords.NumberWithFrequency> freqList) {
+        int capacity = 0;
+        for (BaseInformationRecords.NumberWithFrequency freq : freqList) {
+            capacity += freq.getFrequency();
+        }
+        IntArrayList expanded = new IntArrayList(capacity);
+        for (BaseInformationRecords.NumberWithFrequency freq : freqList) {
+            for (int i = 0; i < freq.getFrequency(); i++) {
                 expanded.add(freq.getNumber());
             }
         }
+
         return expanded;
     }
 
-    public static List<BaseInformationRecords.NumberWithFrequency> compressFreq(List<Integer> numList){
+    public static List<BaseInformationRecords.NumberWithFrequency> compressFreq(List<Integer> numList) {
 
         //compress into map
-        Map<Integer,Integer> freqMap = new Int2IntArrayMap(100);
-        for (int num : numList){
+        Int2IntArrayMap freqMap = new Int2IntArrayMap(100);
+        for (int num : numList) {
             Integer freq = freqMap.putIfAbsent(num, 1);
             if (freq != null) {
-                freqMap.put(num,freq+1);
+                freqMap.put(num, freq + 1);
             }
         }
         //iterate map into freqlist
         List<BaseInformationRecords.NumberWithFrequency> freqList = new ObjectArrayList<>(freqMap.size());
-        for (Map.Entry<Integer,Integer> entry : freqMap.entrySet()){
+        for (Int2IntMap.Entry entry : freqMap.int2IntEntrySet()) {
             BaseInformationRecords.NumberWithFrequency.Builder freqBuilder = BaseInformationRecords.NumberWithFrequency.newBuilder();
-            freqBuilder.setFrequency(entry.getValue());
-            freqBuilder.setNumber(entry.getKey());
+            freqBuilder.setFrequency(entry.getIntValue());
+            freqBuilder.setNumber(entry.getIntKey());
             freqList.add(freqBuilder.build());
         }
         return freqList;
