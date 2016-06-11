@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.varanalysis.learning.architecture.NeuralNetAssembler;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayers;
+import org.campagnelab.dl.varanalysis.learning.architecture.ThreeDenseLayers;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.learning.mappers.*;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
@@ -39,8 +40,7 @@ public class DetectMutations {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV4();//new PositiveControlFeatureMapper();//
-
+        final FeatureMapper featureCalculator = new FeatureMapperV7();
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file> ");
         }
@@ -65,7 +65,7 @@ public class DetectMutations {
         int numInputs = trainIter.inputColumns();
         int numOutputs = trainIter.totalOutcomes();
         int numHiddenNodes = 500;
-        NeuralNetAssembler assembler = new SixDenseLayers();
+        NeuralNetAssembler assembler = new ThreeDenseLayers();
         assembler.setSeed(seed);
         assembler.setLearningRate(learningRate);
         assembler.setNumHiddenNodes(numHiddenNodes);
