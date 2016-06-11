@@ -76,7 +76,7 @@ public class DetectMutations {
         assembler.setRegularization(false);
         //changed from XAVIER in iteration 14
         assembler.setWeightInitialization(WeightInit.RELU);
-        assembler.setLearningRatePolicy(LearningRatePolicy.Poly);
+        assembler.setLearningRatePolicy(LearningRatePolicy.Score);
         MultiLayerConfiguration conf = assembler.createNetwork();
 
 
@@ -103,7 +103,7 @@ public class DetectMutations {
         double bestScore = Double.MAX_VALUE;
         LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
         int iter = 0;
-        for (int epotch = 0; epotch < numEpochs; epotch++) {
+        for (int epoch = 0; epoch < numEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
 
@@ -139,7 +139,7 @@ public class DetectMutations {
             }
             //save latest after the end of an epoch:
             saver.saveLatestModel(net, net.score());
-            saveModel(saver, attempt, Integer.toString(epotch) + "-", net);
+            saveModel(saver, attempt, Integer.toString(epoch) + "-", net);
 
             pg.stop();
             pgEpoch.update();
