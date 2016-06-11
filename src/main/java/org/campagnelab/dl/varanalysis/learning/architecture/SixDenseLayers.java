@@ -21,41 +21,41 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 public class SixDenseLayers extends AbstractNeuralNetAssembler implements NeuralNetAssembler {
 
 
-
     public MultiLayerConfiguration createNetwork() {
+        learningRatePolicy = LearningRatePolicy.Poly;
         NeuralNetConfiguration.ListBuilder confBuilder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(1)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(learningRate).regularization(regularization).l2(regularizationRate)
-                .updater(Updater.ADAGRAD).momentum(0.9)
+                .updater(Updater.ADAGRAD)
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                         .weightInit(WEIGHT_INIT)
-                        .activation("relu").learningRateDecayPolicy(LearningRatePolicy.Poly)
+                        .activation("relu").learningRateDecayPolicy(learningRatePolicy)
                         .build())
                 .layer(1, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
                         .weightInit(WEIGHT_INIT)
-                        .activation("relu").learningRateDecayPolicy(LearningRatePolicy.Poly)
+                        .activation("relu").learningRateDecayPolicy(learningRatePolicy)
                         .build())
                 .layer(2, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                        .weightInit(WEIGHT_INIT).learningRateDecayPolicy(LearningRatePolicy.Poly)
+                        .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build())
                 .layer(3, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                        .weightInit(WEIGHT_INIT).learningRateDecayPolicy(LearningRatePolicy.Poly)
+                        .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build())
                 .layer(4, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                        .weightInit(WEIGHT_INIT).learningRateDecayPolicy(LearningRatePolicy.Poly)
+                        .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build())
                 .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .weightInit(WEIGHT_INIT)
-                        .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LearningRatePolicy.Poly)
+                        .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
                 .pretrain(false).backprop(true);
-       return confBuilder.build();
+        return confBuilder.build();
 
     }
 }

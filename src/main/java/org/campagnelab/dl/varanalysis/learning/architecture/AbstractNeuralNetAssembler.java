@@ -1,5 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.architecture;
 
+import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.weights.WeightInit;
 
 /**
@@ -13,6 +14,11 @@ public abstract class AbstractNeuralNetAssembler implements NeuralNetAssembler {
     protected int numHiddenNodes;
     protected boolean regularization = false;
     protected double regularizationRate = 0.00002;
+    protected LearningRatePolicy learningRatePolicy=LearningRatePolicy.None;
+
+    public void setLearningRatePolicy(LearningRatePolicy learningRatePolicy) {
+        this.learningRatePolicy = learningRatePolicy;
+    }
 
     public void setWeightInitialization(WeightInit init) {
         this.WEIGHT_INIT = init;
