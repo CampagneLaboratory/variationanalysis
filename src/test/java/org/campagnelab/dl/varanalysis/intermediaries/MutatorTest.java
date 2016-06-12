@@ -13,8 +13,9 @@ import static org.junit.Assert.*;
  * Created by fac2003 on 5/27/16.
  */
 public class MutatorTest {
-    // test not updated for new mutator @Test
-    public void mutateTests() throws Exception {
+
+    @Test
+    public void mutateTest() throws Exception {
         int index = 0;
         for (String record : records) {
             Mutator m = new Mutator();
@@ -27,6 +28,70 @@ public class MutatorTest {
             assertEquals(expectedMutatedRecords[index], writer.getBuffer().toString());
             index++;
         }
+    }
+
+    String hetExample = "reference_index: 18\n" +
+            "position: 17214616\n" +
+            "mutated: false\n" +
+            "referenceBase: \"A\"\n" +
+            "samples {\n" +
+            "  counts {\n" +
+            "    matchesReference: true\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"A\"\n" +
+            "    genotypeCountForwardStrand: 5\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"T\"\n" +
+            "    genotypeCountForwardStrand: 5\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+            "}\n" +
+            "samples {\n" +
+            "  counts {\n" +
+            "    matchesReference: true\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"A\"\n" +
+            "    genotypeCountForwardStrand: 5\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"T\"\n" +
+            "    genotypeCountForwardStrand: 5\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+
+            "} ";
+
+    @Test
+    public void testDontMutateAcrossHet() throws Exception {
+        int index = 0;
+        Mutator m = new Mutator();
+        m.setSeed(1);
+        final BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
+        TextFormat.getParser().merge(hetExample, builder);
+        int MAX_TRIALS = 10000;
+        for (int i = 0; i < MAX_TRIALS; i++) {
+            BaseInformationRecords.BaseInformation.Builder germline = builder.clone();
+            BaseInformationRecords.BaseInformation result = m.mutate(builder);
+            BaseInformationRecords.SampleInfo germlineSample = germline.getSamples(0);
+            int countExistingBase0= germlineSample.getCounts(0).getGenotypeCountForwardStrand()+ germlineSample.getCounts(0).getGenotypeCountReverseStrand();
+            BaseInformationRecords.SampleInfo somaticSample = result.getSamples(1);
+            int countExistingBase1= somaticSample.getCounts(1).getGenotypeCountForwardStrand()+ somaticSample.getCounts(1).getGenotypeCountReverseStrand();
+            if (countExistingBase1>countExistingBase0) {
+                System.out.println("germline: "+germline);
+                System.out.println("somatic:  "+result);
+                fail("Do not mutate bases towards pre-existing het base ");
+            }else{
+                // OK
+            }
+        }
+
     }
 
     String[] records = {"reference_index: 18\n" +
@@ -106,7 +171,8 @@ public class MutatorTest {
             "    genotypeCountForwardStrand: 0\n" +
             "    genotypeCountReverseStrand: 0\n" +
             "  }\n" +
-            "} "};
+            "} ",
+    };
     String[] expectedMutatedRecords = {"reference_index: 18\n" +
             "position: 17214616\n" +
             "mutated: true\n" +
