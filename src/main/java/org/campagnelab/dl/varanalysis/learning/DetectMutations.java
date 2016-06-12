@@ -18,6 +18,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.dataset.api.iterator.StandardScaler;
 import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ public class DetectMutations {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV10();
+        final FeatureMapper featureCalculator = new FeatureMapperV9();
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file> ");
         }
@@ -51,22 +52,32 @@ public class DetectMutations {
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        int numEpochs =3;
+        int numEpochs = 10;
         long time = new Date().getTime();
         System.out.println("time: " + time);
         System.out.println("epochs: " + numEpochs);
         System.out.println(featureCalculator.getClass().getTypeName());
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
         int generateSamplesEveryNMinibatches = 10;
+        FileUtils.forceMkdir(new File(attempt));
 
-        //Load the training data:
+
+        System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
         BaseInformationIterator trainIter = new BaseInformationIterator(inputFile, miniBatchSize,
                 featureCalculator, labelMapper);
+        // measure means and std deviations over the training set:
+        StandardScaler scaler = new StandardScaler();
+        scaler.fit(trainIter);
+        scaler.save(new File(attempt + "/.means"), new File(attempt + "/.stdevs"));
 
+        // move back to start of training set:
+        trainIter.reset();
+        System.out.println("Scaling estimation done");
+        //Load the training data:
         int numInputs = trainIter.inputColumns();
         int numOutputs = trainIter.totalOutcomes();
-        int numHiddenNodes = numInputs*10;
+        int numHiddenNodes = numInputs * 10;
         NeuralNetAssembler assembler = new SixDenseLayersNarrower();
         assembler.setSeed(seed);
         assembler.setLearningRate(learningRate);
@@ -117,7 +128,10 @@ public class DetectMutations {
                 if (numLabels(ds.getLabels()) != 2) {
                     System.out.println("There should be two labels in the miniBatch");
                 }
+                // scale the features:
+                scaler.transform(ds);
 
+                // fit the net:
                 net.fit(ds);
                 INDArray predictedLabels = net.output(ds.getFeatures(), false);
 
@@ -130,7 +144,7 @@ public class DetectMutations {
                     System.out.println("nan at " + iter);
                 }
                 iter++;
-                if (score < bestScore*0.95) {
+                if (score < bestScore * 0.95) {
                     bestScore = score;
                     saver.saveBestModel(net, score);
                     System.out.println("Saving best score model.. score=" + bestScore);
