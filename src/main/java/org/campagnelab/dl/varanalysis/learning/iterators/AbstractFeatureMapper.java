@@ -60,17 +60,44 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
 
     protected abstract void initializeCount(BaseInformationRecords.CountInfo sampleCounts, GenotypeCount count);
 
-    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor, boolean sort) {
-        assert oneSampleHasTumor(record.getSamplesList()) : "at least one sample must have hasTumor=true.";
-        for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
-            if (isTumor != sampleInfo.getIsTumor()) continue;
-            // a subclass is expected to override getGenotypeCountFactory to provide its own type for Genotype counts:
-            return getAllCounts(sampleInfo, getGenotypeCountFactory(), sort);
+    private BaseInformationRecords.BaseInformationOrBuilder recordCached[][] = new BaseInformationRecords.BaseInformationOrBuilder[2][2];
+    private ObjectArrayList<? extends GenotypeCount> cachedResult[][] = new ObjectArrayList[2][2];
+
+    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record,
+                                                                    boolean isTumor, boolean sort) {
+        ObjectArrayList<? extends GenotypeCount> cached = getCachedResult(isTumor, sort);
+        if (cached != null && record.equals(recordCached[isTumor?1:0][sort?1:0])) {
+            return cached;
+        } else {
+
+            assert oneSampleHasTumor(record.getSamplesList()) : "at least one sample must have hasTumor=true.";
+
+            for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
+                if (isTumor != sampleInfo.getIsTumor()) continue;
+                // a subclass is expected to override getGenotypeCountFactory to provide its own type for Genotype counts:
+                cached = getAllCounts(sampleInfo, getGenotypeCountFactory(), sort);
+                putInCache(record, cached, isTumor, sort);
+                return cached;
+            }
+            throw new InternalError("At least one sample matching isTumor, and one matching not isTumor must be found.");
         }
-        throw new InternalError("At least one sample matching isTumor, and one matching not isTumor must be found.");
     }
 
-    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, boolean isTumor) {
+    private void putInCache(BaseInformationRecords.BaseInformationOrBuilder record, ObjectArrayList<? extends GenotypeCount> cached, boolean isTumor, boolean sort) {
+        int index1 = isTumor ? 1 : 0;
+        int index2 = sort ? 1 : 0;
+        recordCached[index1][index2]=record;
+        cachedResult[index1][index2] = cached;
+    }
+
+    private ObjectArrayList<? extends GenotypeCount> getCachedResult(boolean isTumor, boolean sort) {
+        int index1 = isTumor ? 1 : 0;
+        int index2 = sort ? 1 : 0;
+        return cachedResult[index1][index2];
+    }
+
+    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record,
+                                                                    boolean isTumor) {
         return getAllCounts(record, isTumor, true);
     }
 
