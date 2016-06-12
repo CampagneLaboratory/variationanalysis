@@ -3,10 +3,7 @@ package org.campagnelab.dl.varanalysis.learning;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.campagnelab.dl.varanalysis.learning.architecture.NeuralNetAssembler;
-import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayers;
-import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersNarrower;
-import org.campagnelab.dl.varanalysis.learning.architecture.ThreeDenseLayers;
+import org.campagnelab.dl.varanalysis.learning.architecture.*;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.learning.mappers.*;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
@@ -53,6 +50,7 @@ public class DetectMutations {
         double learningRate = 0.1;
         int miniBatchSize = 100;
         int numEpochs = 10;
+        double dropoutRate = 0.5;
         long time = new Date().getTime();
         System.out.println("time: " + time);
         System.out.println("epochs: " + numEpochs);
@@ -71,13 +69,16 @@ public class DetectMutations {
         int numInputs = trainIter.inputColumns();
         int numOutputs = trainIter.totalOutcomes();
         int numHiddenNodes = numInputs * 5;
-        NeuralNetAssembler assembler = new SixDenseLayersNarrower();
+        NeuralNetAssembler assembler = new SixDenseLayersNarrower2();
         assembler.setSeed(seed);
         assembler.setLearningRate(learningRate);
         assembler.setNumHiddenNodes(numHiddenNodes);
         assembler.setNumInputs(numInputs);
         assembler.setNumOutputs(numOutputs);
         assembler.setRegularization(false);
+       // assembler.setRegularizationRate(1e-6);
+        //   assembler.setDropoutRate(dropoutRate);
+
         //changed from XAVIER in iteration 14
         assembler.setWeightInitialization(WeightInit.RELU);
         assembler.setLearningRatePolicy(LearningRatePolicy.Score);
@@ -122,7 +123,7 @@ public class DetectMutations {
                     System.out.println("There should be two labels in the miniBatch");
                 }
                 // scale the features:
-             //   scaler.transform(ds);
+                //   scaler.transform(ds);
 
                 // fit the net:
                 net.fit(ds);

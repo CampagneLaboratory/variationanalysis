@@ -17,12 +17,12 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  *
  * @author Fabien Campagne
  */
-public class SixDenseLayersNarrower extends AbstractNeuralNetAssembler implements NeuralNetAssembler {
+public class SixDenseLayersNarrower2 extends AbstractNeuralNetAssembler implements NeuralNetAssembler {
 
 
     public MultiLayerConfiguration createNetwork() {
         learningRatePolicy = LearningRatePolicy.Poly;
-        float reduction = 0.9f;
+        float reduction = 0.65f;
         int minimum = (int) (numHiddenNodes * Math.pow(reduction, 4));
         assert minimum > numOutputs : "Too much reduction, not enough outputs: ";
         NeuralNetConfiguration.ListBuilder confBuilder = null;

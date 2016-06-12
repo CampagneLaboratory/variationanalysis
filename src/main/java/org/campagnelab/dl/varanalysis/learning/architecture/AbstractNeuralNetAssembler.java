@@ -15,6 +15,8 @@ public abstract class AbstractNeuralNetAssembler implements NeuralNetAssembler {
     protected boolean regularization = false;
     protected double regularizationRate = 0.00002;
     protected LearningRatePolicy learningRatePolicy=LearningRatePolicy.None;
+    boolean dropOut;
+    protected double dropOutRate;
 
     public void setLearningRatePolicy(LearningRatePolicy learningRatePolicy) {
         this.learningRatePolicy = learningRatePolicy;
@@ -52,5 +54,11 @@ public abstract class AbstractNeuralNetAssembler implements NeuralNetAssembler {
 
     public void setRegularizationRate(double regularizationRate) {
         this.regularizationRate = regularizationRate;
+    }
+
+    @Override
+    public void setDropoutRate(double rate) {
+        this.dropOut=true;
+        this.dropOutRate=rate;
     }
 }
