@@ -42,7 +42,7 @@ public class DetectMutations {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV9();
+        final FeatureMapper featureCalculator = new FeatureMapperV10();
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file> ");
         }
@@ -51,7 +51,7 @@ public class DetectMutations {
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        int numEpochs = 10;
+        int numEpochs =3;
         long time = new Date().getTime();
         System.out.println("time: " + time);
         System.out.println("epochs: " + numEpochs);
