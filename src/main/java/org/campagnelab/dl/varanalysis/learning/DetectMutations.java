@@ -66,18 +66,11 @@ public class DetectMutations {
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
         BaseInformationIterator trainIter = new BaseInformationIterator(inputFile, miniBatchSize,
                 featureCalculator, labelMapper);
-        // measure means and std deviations over the training set:
-        StandardScaler scaler = new StandardScaler();
-        scaler.fit(trainIter);
-        scaler.save(new File(attempt + "/.means"), new File(attempt + "/.stdevs"));
 
-        // move back to start of training set:
-        trainIter.reset();
-        System.out.println("Scaling estimation done");
         //Load the training data:
         int numInputs = trainIter.inputColumns();
         int numOutputs = trainIter.totalOutcomes();
-        int numHiddenNodes = numInputs * 10;
+        int numHiddenNodes = numInputs * 5;
         NeuralNetAssembler assembler = new SixDenseLayersNarrower();
         assembler.setSeed(seed);
         assembler.setLearningRate(learningRate);
@@ -129,7 +122,7 @@ public class DetectMutations {
                     System.out.println("There should be two labels in the miniBatch");
                 }
                 // scale the features:
-                scaler.transform(ds);
+             //   scaler.transform(ds);
 
                 // fit the net:
                 net.fit(ds);

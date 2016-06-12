@@ -30,7 +30,7 @@ public class PredictMutationsV8 extends AbstractPredictMutations {
     String resultsPath;
     String version = "VN";
     String[] dataFilenames = new String[]{"genotypes_proto_" + version + "_mutated_randomized.parquet", "genotypes_test_proto_" + version + "_mutated_randomized.parquet"};
-    String[] resultsFileNames = new String[]{"training", "test"};
+    String[] resultsFileNames = new String[]{ "test","training"};
 
 
     public PredictMutationsV8(String modelPath, String dataDirPath, String resultsPath) {
@@ -50,7 +50,7 @@ public class PredictMutationsV8 extends AbstractPredictMutations {
         }
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        String time = "1465688931539";
+        String time = "1465740947674";
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
 
         PredictMutationsV8 predictor = new PredictMutationsV8(attempt, datasetPath, "tests/" + time + "/");
