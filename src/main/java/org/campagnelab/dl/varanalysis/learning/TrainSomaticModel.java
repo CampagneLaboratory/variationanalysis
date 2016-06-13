@@ -16,14 +16,12 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.api.iterator.StandardScaler;
 import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashSet;
@@ -36,8 +34,9 @@ import java.util.Set;
  *
  * @author Fabien Campagne
  */
-public class DetectMutations {
-    static private Logger LOG = LoggerFactory.getLogger(DetectMutations.class);
+public class TrainSomaticModel {
+    public static final int MIN_ITERATION_BETWEEN_BEST_MODEL = 1000;
+    static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
 
 
     public static void main(String[] args) throws IOException {
@@ -50,7 +49,7 @@ public class DetectMutations {
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        int numEpochs = 10;
+        int numEpochs = 50;
         double dropoutRate = 0.5;
         long time = new Date().getTime();
         System.out.println("time: " + time);
@@ -59,7 +58,6 @@ public class DetectMutations {
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
         int generateSamplesEveryNMinibatches = 10;
         FileUtils.forceMkdir(new File(attempt));
-
 
         System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
@@ -115,6 +113,7 @@ public class DetectMutations {
 
             pg.expectedUpdates = async.totalExamples() / miniBatchSize; // one iteration processes miniBatchIterator elements.
             pg.start();
+            int lastIter=0;
             while (async.hasNext()) {
                 // trigger bugs early:
 //                printSample(miniBatchSize, exampleLength, nSamplesToGenerate, nCharactersToSample, generationInitialization, rng, attempt, iter, net, miniBatchNumber);
@@ -139,10 +138,11 @@ public class DetectMutations {
                     System.out.println("nan at " + iter);
                 }
                 iter++;
-                if (score < bestScore * 0.95) {
+                if (score < bestScore * 0.95 && iter>(lastIter+ MIN_ITERATION_BETWEEN_BEST_MODEL)) {
                     bestScore = score;
                     saver.saveBestModel(net, score);
                     System.out.println("Saving best score model.. score=" + bestScore);
+                    lastIter=iter;
                 }
 
             }
