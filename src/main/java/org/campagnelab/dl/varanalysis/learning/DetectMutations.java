@@ -6,6 +6,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.varanalysis.learning.architecture.*;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.learning.mappers.*;
+import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Updater;
@@ -62,12 +63,12 @@ public class DetectMutations {
 
         System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
-        BaseInformationIterator trainIter = new BaseInformationIterator(inputFile, miniBatchSize,
+        final BaseInformationIterator trainIter = new BaseInformationIterator(inputFile, miniBatchSize,
                 featureCalculator, labelMapper);
-
+        final AsyncDataSetIterator async = new AsyncDataSetIterator(trainIter);
         //Load the training data:
-        int numInputs = trainIter.inputColumns();
-        int numOutputs = trainIter.totalOutcomes();
+        int numInputs = async.inputColumns();
+        int numOutputs = async.totalOutcomes();
         int numHiddenNodes = numInputs * 5;
         NeuralNetAssembler assembler = new SixDenseLayersNarrower2();
         assembler.setSeed(seed);
@@ -76,7 +77,7 @@ public class DetectMutations {
         assembler.setNumInputs(numInputs);
         assembler.setNumOutputs(numOutputs);
         assembler.setRegularization(false);
-       // assembler.setRegularizationRate(1e-6);
+        // assembler.setRegularizationRate(1e-6);
         //   assembler.setDropoutRate(dropoutRate);
 
         //changed from XAVIER in iteration 14
@@ -112,13 +113,13 @@ public class DetectMutations {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
 
-            pg.expectedUpdates = trainIter.totalExamples() / miniBatchSize; // one iteration processes miniBatchIterator elements.
+            pg.expectedUpdates = async.totalExamples() / miniBatchSize; // one iteration processes miniBatchIterator elements.
             pg.start();
-            while (trainIter.hasNext()) {
+            while (async.hasNext()) {
                 // trigger bugs early:
 //                printSample(miniBatchSize, exampleLength, nSamplesToGenerate, nCharactersToSample, generationInitialization, rng, attempt, iter, net, miniBatchNumber);
 
-                DataSet ds = trainIter.next(miniBatchSize);
+                DataSet ds = async.next();
                 if (numLabels(ds.getLabels()) != 2) {
                     System.out.println("There should be two labels in the miniBatch");
                 }
@@ -151,7 +152,7 @@ public class DetectMutations {
 
             pg.stop();
             pgEpoch.update();
-            trainIter.reset();    //Reset iterator for another epoch
+            async.reset();    //Reset iterator for another epoch
         }
         pgEpoch.stop();
         System.out.println("Saving last model with score=" + net.score());
