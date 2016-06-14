@@ -51,6 +51,7 @@ public class TrainSomaticModelEStop {
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file> ");
         }
+        //VALIDATION FILE IS FIRST ARGUMENT
         String valFile = args[0];
         String inputFile = args[1];
 
@@ -94,7 +95,7 @@ public class TrainSomaticModelEStop {
 
         LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
 
-        EarlyStoppingConfiguration esConf = new EarlyStoppingConfiguration.Builder()
+        EarlyStoppingConfiguration<MultiLayerNetwork> esConf = new EarlyStoppingConfiguration.Builder()
                 .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),new ScoreImprovementEpochTerminationCondition(3))
                 .scoreCalculator(new DataSetLossCalculator(new BaseInformationIterator(valFile, miniBatchSize,
                 featureCalculator, labelMapper), true))
@@ -103,7 +104,7 @@ public class TrainSomaticModelEStop {
                 .build();
 
         EarlyStoppingTrainer trainer = new EarlyStoppingTrainer(esConf,conf,async);
-        EarlyStoppingResult result = trainer.fit();
+        EarlyStoppingResult<MultiLayerNetwork> result = trainer.fit();
 
 
         //Print out the results:
@@ -187,7 +188,7 @@ public class TrainSomaticModelEStop {
 //        pgEpoch.stop();
 
 
-        Model bestModel = result.getBestModel();
+        MultiLayerNetwork bestModel = result.getBestModel();
         double bestScore = bestModel.score();
 
 
