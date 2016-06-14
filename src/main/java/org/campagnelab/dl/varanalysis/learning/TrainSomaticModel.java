@@ -1,5 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -25,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -44,6 +46,7 @@ public class TrainSomaticModel {
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file> ");
         }
+
         String inputFile = args[0];
 
         int seed = 123;
@@ -61,9 +64,12 @@ public class TrainSomaticModel {
 
         System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
-        final BaseInformationIterator trainIter = new BaseInformationIterator(inputFile, miniBatchSize,
-                featureCalculator, labelMapper);
-        final AsyncDataSetIterator async = new AsyncDataSetIterator(trainIter);
+        List<BaseInformationIterator> trainIterList = new ObjectArrayList<>(args.length);
+        for (int i = 0; i < args.length; i++){
+            trainIterList.add(new BaseInformationIterator(inputFile, miniBatchSize,
+                    featureCalculator, labelMapper));
+        }
+        final AsyncDataSetIterator async = new AsyncDataSetIterator(new BaseInformationConcatIterator(trainIterList,miniBatchSize,featureCalculator,labelMapper));
         //Load the training data:
         int numInputs = async.inputColumns();
         int numOutputs = async.totalOutcomes();

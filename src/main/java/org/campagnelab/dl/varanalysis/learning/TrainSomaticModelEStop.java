@@ -7,8 +7,15 @@ import org.campagnelab.dl.varanalysis.learning.architecture.*;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.learning.mappers.*;
 import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
+import org.deeplearning4j.earlystopping.EarlyStoppingConfiguration;
+import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
+import org.deeplearning4j.earlystopping.scorecalc.DataSetLossCalculator;
+import org.deeplearning4j.earlystopping.termination.MaxEpochsTerminationCondition;
+import org.deeplearning4j.earlystopping.termination.ScoreImprovementEpochTerminationCondition;
+import org.deeplearning4j.earlystopping.trainer.EarlyStoppingTrainer;
 import org.deeplearning4j.nn.api.Layer;
+import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.api.Updater;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -44,7 +51,9 @@ public class TrainSomaticModelEStop {
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file> ");
         }
-        String inputFile = args[0];
+        String valFile = args[0];
+        String inputFile = args[1];
+
 
         int seed = 123;
         double learningRate = 0.1;
@@ -83,80 +92,105 @@ public class TrainSomaticModelEStop {
         assembler.setLearningRatePolicy(LearningRatePolicy.Score);
         MultiLayerConfiguration conf = assembler.createNetwork();
 
-
-        MultiLayerNetwork net = new MultiLayerNetwork(conf);
-        net.init();
-        //      net.setListeners(new HistogramIterationListener(10) /*, new ScoreIterationListener(1) */);
-        //Print the  number of parameters in the network (and for each layer)
-        Layer[] layers = net.getLayers();
-        int totalNumParams = 0;
-        for (int i = 0; i < layers.length; i++) {
-            int nParams = layers[i].numParams();
-            System.out.println("Number of parameters in layer " + i + ": " + nParams);
-            totalNumParams += nParams;
-        }
-        System.out.println("Total number of network parameters: " + totalNumParams);
-
-        //Do training, and then generate and print samples from network
-        int miniBatchNumber = 0;
-        boolean init = true;
-        ProgressLogger pgEpoch = new ProgressLogger(LOG);
-        pgEpoch.itemsName = "epoch";
-        pgEpoch.expectedUpdates = numEpochs;
-        pgEpoch.start();
-        double bestScore = Double.MAX_VALUE;
         LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
-        int iter = 0;
-        for (int epoch = 0; epoch < numEpochs; epoch++) {
-            ProgressLogger pg = new ProgressLogger(LOG);
-            pg.itemsName = "mini-batch";
 
-            pg.expectedUpdates = async.totalExamples() / miniBatchSize; // one iteration processes miniBatchIterator elements.
-            pg.start();
-            int lastIter=0;
-            while (async.hasNext()) {
-                // trigger bugs early:
-//                printSample(miniBatchSize, exampleLength, nSamplesToGenerate, nCharactersToSample, generationInitialization, rng, attempt, iter, net, miniBatchNumber);
+        EarlyStoppingConfiguration esConf = new EarlyStoppingConfiguration.Builder()
+                .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),new ScoreImprovementEpochTerminationCondition(3))
+                .scoreCalculator(new DataSetLossCalculator(new BaseInformationIterator(valFile, miniBatchSize,
+                featureCalculator, labelMapper), true))
+                .evaluateEveryNEpochs(1)
+                .modelSaver(new LocalFileModelSaver(attempt))
+                .build();
 
-                DataSet ds = async.next();
-                if (numLabels(ds.getLabels()) != 2) {
-                    System.out.println("There should be two labels in the miniBatch");
-                }
-                // scale the features:
-                //   scaler.transform(ds);
-
-                // fit the net:
-                net.fit(ds);
-                INDArray predictedLabels = net.output(ds.getFeatures(), false);
+        EarlyStoppingTrainer trainer = new EarlyStoppingTrainer(esConf,conf,async);
+        EarlyStoppingResult result = trainer.fit();
 
 
-                pg.update();
+        //Print out the results:
+        System.out.println("Termination reason: " + result.getTerminationReason());
+        System.out.println("Termination details: " + result.getTerminationDetails());
+        System.out.println("Total epochs: " + result.getTotalEpochs());
+        System.out.println("Best epoch number: " + result.getBestModelEpoch());
+        System.out.println("Score at best epoch: " + result.getBestModelScore());
 
-                double score = net.score();
-                if (Double.isNaN(score)) {
-                    //   System.out.println(net.params());
-                    System.out.println("nan at " + iter);
-                }
-                iter++;
-                if (score < bestScore * 0.95 && iter>(lastIter+ MIN_ITERATION_BETWEEN_BEST_MODEL)) {
-                    bestScore = score;
-                    saver.saveBestModel(net, score);
-                    System.out.println("Saving best score model.. score=" + bestScore);
-                    lastIter=iter;
-                }
 
-            }
-            //save latest after the end of an epoch:
-            saver.saveLatestModel(net, net.score());
-            saveModel(saver, attempt, Integer.toString(epoch) + "-", net);
 
-            pg.stop();
-            pgEpoch.update();
-            async.reset();    //Reset iterator for another epoch
-        }
-        pgEpoch.stop();
-        System.out.println("Saving last model with score=" + net.score());
-        saver.saveLatestModel(net, net.score());
+        //MultiLayerNetwork net = new MultiLayerNetwork(conf);
+//        net.init();
+//        //      net.setListeners(new HistogramIterationListener(10) /*, new ScoreIterationListener(1) */);
+//        //Print the  number of parameters in the network (and for each layer)
+//        Layer[] layers = net.getLayers();
+//        int totalNumParams = 0;
+//        for (int i = 0; i < layers.length; i++) {
+//            int nParams = layers[i].numParams();
+//            System.out.println("Number of parameters in layer " + i + ": " + nParams);
+//            totalNumParams += nParams;
+//        }
+//        System.out.println("Total number of network parameters: " + totalNumParams);
+//
+//        //Do training, and then generate and print samples from network
+//        int miniBatchNumber = 0;
+//        boolean init = true;
+//        ProgressLogger pgEpoch = new ProgressLogger(LOG);
+//        pgEpoch.itemsName = "epoch";
+//        pgEpoch.expectedUpdates = numEpochs;
+//        pgEpoch.start();
+//        double bestScore = Double.MAX_VALUE;
+//        int iter = 0;
+//        for (int epoch = 0; epoch < numEpochs; epoch++) {
+//            ProgressLogger pg = new ProgressLogger(LOG);
+//            pg.itemsName = "mini-batch";
+//
+//            pg.expectedUpdates = async.totalExamples() / miniBatchSize; // one iteration processes miniBatchIterator elements.
+//            pg.start();
+//            int lastIter=0;
+//            while (async.hasNext()) {
+//                // trigger bugs early:
+////                printSample(miniBatchSize, exampleLength, nSamplesToGenerate, nCharactersToSample, generationInitialization, rng, attempt, iter, net, miniBatchNumber);
+//
+//                DataSet ds = async.next();
+//                if (numLabels(ds.getLabels()) != 2) {
+//                    System.out.println("There should be two labels in the miniBatch");
+//                }
+//                // scale the features:
+//                //   scaler.transform(ds);
+//
+//                // fit the net:
+//                net.fit(ds);
+//                INDArray predictedLabels = net.output(ds.getFeatures(), false);
+//
+//
+//                pg.update();
+//
+//                double score = net.score();
+//                if (Double.isNaN(score)) {
+//                    //   System.out.println(net.params());
+//                    System.out.println("nan at " + iter);
+//                }
+//                iter++;
+//                if (score < bestScore * 0.95 && iter>(lastIter+ MIN_ITERATION_BETWEEN_BEST_MODEL)) {
+//                    bestScore = score;
+//                    saver.saveBestModel(net, score);
+//                    System.out.println("Saving best score model.. score=" + bestScore);
+//                    lastIter=iter;
+//                }
+//
+//            }
+//            //save latest after the end of an epoch:
+//            saver.saveLatestModel(net, net.score());
+//            saveModel(saver, attempt, Integer.toString(epoch) + "-", net);
+//
+//            pg.stop();
+//            pgEpoch.update();
+//            async.reset();    //Reset iterator for another epoch
+//        }
+//        pgEpoch.stop();
+
+
+        Model bestModel = result.getBestModel();
+        double bestScore = bestModel.score();
+
+
         FileWriter scoreWriter = new FileWriter(attempt + "/bestScore");
         scoreWriter.append(Double.toString(bestScore));
         scoreWriter.close();
