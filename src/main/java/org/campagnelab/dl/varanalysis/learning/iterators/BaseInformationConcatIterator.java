@@ -105,6 +105,7 @@ public class BaseInformationConcatIterator implements DataSetIterator {
         }
 
         cursor = 0;
+        readerIndex = 0;
         nextPosRecord = null;
         //    System.out.println("reset called");
     }
