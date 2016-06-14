@@ -177,7 +177,7 @@ public class BaseInformationIterator implements DataSetIterator {
      *
      * @return the next available record, or throws NoSuchElementException if there are no more records.
      */
-    private BaseInformationRecords.BaseInformationOrBuilder nextRecord() {
+    BaseInformationRecords.BaseInformationOrBuilder nextRecord() {
         if (hasNextRecord()) {
             BaseInformationRecords.BaseInformationOrBuilder tmp = nextPosRecord;
             // setting nextPosRecord will make hasNextRecord load the next record from the underlying reader.
