@@ -1,5 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -32,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -48,12 +50,11 @@ public class TrainSomaticModelEStop {
 
     public static void main(String[] args) throws IOException {
         final FeatureMapper featureCalculator = new FeatureMapperV9();
-        if (args.length < 1) {
-            System.err.println("usage: DetectMutations <input-training-file> ");
+        if (args.length < 2) {
+            System.err.println("usage: DetectMutations <input-validation-file> <input-training-file_1> <input-training-file_2> ...");
         }
         //VALIDATION FILE IS FIRST ARGUMENT
         String valFile = args[0];
-        String inputFile = args[1];
 
 
         int seed = 123;
@@ -71,7 +72,12 @@ public class TrainSomaticModelEStop {
 
         System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
-        final BaseInformationIterator trainIter = new BaseInformationIterator(inputFile, miniBatchSize,
+        List<BaseInformationIterator> trainIterList = new ObjectArrayList<>(args.length);
+        for (int i = 1; i < args.length; i++){
+            trainIterList.add(new BaseInformationIterator(args[i], miniBatchSize,
+                    featureCalculator, labelMapper));
+        }
+        final BaseInformationConcatIterator trainIter = new BaseInformationConcatIterator(trainIterList, miniBatchSize,
                 featureCalculator, labelMapper);
         final AsyncDataSetIterator async = new AsyncDataSetIterator(trainIter);
         //Load the training data:

@@ -29,7 +29,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     String dataDirPath;
     String resultsPath;
     String version = "VN";
-    String[] dataFilenames = new String[]{"genotypes_proto_" + version + "_randomized_mutated.parquet", "genotypes_test_proto_" + version + "_randomized_mutated.parquet"};
+    String[] dataFilenames = new String[]{"training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet", "genotypes_test_proto_" + version + "_randomized_mutated.parquet"};
     String[] resultsFileNames = new String[]{ "training","test"};
 
 
@@ -50,7 +50,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         }
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        String time = "1465851259258";
+        String time = "1466011041250";
         System.out.println("time: " + time);
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
 

@@ -44,10 +44,9 @@ public class TrainSomaticModel {
     public static void main(String[] args) throws IOException {
         final FeatureMapper featureCalculator = new FeatureMapperV9();
         if (args.length < 1) {
-            System.err.println("usage: DetectMutations <input-training-file> ");
+            System.err.println("usage: DetectMutations <input-training-file_1> <input-training-file_2> ... ");
         }
 
-        String inputFile = args[0];
 
         int seed = 123;
         double learningRate = 0.1;
@@ -66,7 +65,7 @@ public class TrainSomaticModel {
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
         List<BaseInformationIterator> trainIterList = new ObjectArrayList<>(args.length);
         for (int i = 0; i < args.length; i++){
-            trainIterList.add(new BaseInformationIterator(inputFile, miniBatchSize,
+            trainIterList.add(new BaseInformationIterator(args[i], miniBatchSize,
                     featureCalculator, labelMapper));
         }
         final AsyncDataSetIterator async = new AsyncDataSetIterator(new BaseInformationConcatIterator(trainIterList,miniBatchSize,featureCalculator,labelMapper));
