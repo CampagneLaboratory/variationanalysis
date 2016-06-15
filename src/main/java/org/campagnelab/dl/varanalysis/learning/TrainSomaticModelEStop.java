@@ -102,7 +102,7 @@ public class TrainSomaticModelEStop {
         LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
 
         EarlyStoppingConfiguration<MultiLayerNetwork> esConf = new EarlyStoppingConfiguration.Builder()
-                .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),new ScoreImprovementEpochTerminationCondition(3))
+                .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),new ScoreImprovementEpochTerminationCondition(1))
                 .scoreCalculator(new DataSetLossCalculator(new BaseInformationIterator(valFile, miniBatchSize,
                 featureCalculator, labelMapper), true))
                 .evaluateEveryNEpochs(1)

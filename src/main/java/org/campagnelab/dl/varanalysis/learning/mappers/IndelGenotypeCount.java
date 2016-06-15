@@ -11,18 +11,8 @@ public class IndelGenotypeCount extends GenotypeCount {
     public IndelGenotypeCount() {
     }
 
-
-    public int totalCount() {
-        return forwardCount + reverseCount;
-    }
-
     public boolean getIsIndel() {
         return isIndel;
-    }
-
-    @Override
-    public int compareTo(GenotypeCount other) {
-        return other.totalCount() - totalCount();
     }
 
     @Override

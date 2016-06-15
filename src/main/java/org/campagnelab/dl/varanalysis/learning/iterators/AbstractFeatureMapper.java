@@ -25,33 +25,35 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
 
     }
 
-    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.SampleInfo sample, GenotypeCountFactory factory) {
-        return getAllCounts(sample, factory, true);
+    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, GenotypeCountFactory factory, boolean isTumor) {
+        return getAllCounts(record, factory, isTumor, true);
     }
 
-    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.SampleInfo sample, GenotypeCountFactory factory, boolean sort) {
+    protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, GenotypeCountFactory factory, boolean isTumor, boolean sort) {
+        int sampleIndex = isTumor ? 1 : 0;
         ObjectArrayList<GenotypeCount> list = new ObjectArrayList<>();
         int genotypeIndex = 0;
-        for (BaseInformationRecords.CountInfo sampleCounts : sample.getCountsList()) {
+        for (int i = 0; i < record.getSamples(0).getCountsCount(); i++){
+            int germCount = record.getSamples(0).getCounts(i).getGenotypeCountForwardStrand() + record.getSamples(0).getCounts(i).getGenotypeCountReverseStrand();
+            BaseInformationRecords.CountInfo genoInfo = record.getSamples(sampleIndex).getCounts(i);
+            int forwCount = genoInfo.getGenotypeCountForwardStrand();
+            int revCount = genoInfo.getGenotypeCountReverseStrand();
             GenotypeCount count = factory.create();
-            count.set(sampleCounts.getGenotypeCountForwardStrand(), sampleCounts.getGenotypeCountReverseStrand(),
-                    sampleCounts.getToSequence(), genotypeIndex);
-            initializeCount(sampleCounts, count);
+            count.set(forwCount, revCount, genoInfo.getToSequence(),i,germCount);
             list.add(count);
-            genotypeIndex++;
         }
         // DO not increment genotypeIndex. It must remain constant for all N bases
         int genotypeIndexFor_Ns = N_GENOTYPE_INDEX;
         // pad with zero until we have 10 elements:
         while (list.size() < MAX_GENOTYPES) {
             final GenotypeCount genotypeCount = getGenotypeCountFactory().create();
-            genotypeCount.set(0, 0, "N", genotypeIndexFor_Ns);
+            genotypeCount.set(0, 0, "N", genotypeIndexFor_Ns,0);
             list.add(genotypeCount);
 
         }
         //sort in decreasing order of counts:
         if (sort) {
-                       Collections.sort(list);
+            Collections.sort(list);
         }
         // trim the list at 5 elements because we will consider only the 5 genotypes with largest total counts:
         list.trim(MAX_GENOTYPES);
@@ -74,10 +76,10 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
 
             assert oneSampleHasTumor(record.getSamplesList()) : "at least one sample must have hasTumor=true.";
 
-            for (BaseInformationRecords.SampleInfo sampleInfo : record.getSamplesList()) {
-                if (isTumor != sampleInfo.getIsTumor()) continue;
+            for (int i = 0; i < record.getSamplesCount(); i++) {
+                if (isTumor != record.getSamples(i).getIsTumor()) continue;
                 // a subclass is expected to override getGenotypeCountFactory to provide its own type for Genotype counts:
-                cached = getAllCounts(sampleInfo, getGenotypeCountFactory(), sort);
+                cached = getAllCounts(record, getGenotypeCountFactory(), isTumor, sort);
                 putInCache(record, cached, isTumor, sort);
                 return cached;
             }

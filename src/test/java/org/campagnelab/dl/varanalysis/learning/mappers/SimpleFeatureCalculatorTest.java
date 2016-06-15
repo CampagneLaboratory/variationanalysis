@@ -34,7 +34,8 @@ int index=0;
         }
     }
 
-    String[] records = {"reference_index: 18\n" +
+    String[] records = {
+            "reference_index: 18\n" +
             "position: 17214616\n" +
             "mutated: true\n" +
             "mutatedBase: \"C\"\n"+
@@ -114,6 +115,91 @@ int index=0;
             "    genotypeCountForwardStrand: 0\n" +
             "    genotypeCountReverseStrand: 0\n" +
             "  }\n" +
-            "} "};
-    String[] expectedFeatures = {"[0.12, 0.12, 0.12, 0.12, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.12, 0.12, 0.06, 0.06, 0.06, 0.06, 0.00, 0.00, 0.00, 0.00]"};
+            "} " ,
+
+
+            "reference_index: 18\n" +
+                    "position: 17214616\n" +
+                    "mutated: true\n" +
+                    "mutatedBase: \"C\"\n"+
+                    "indexOfMutatedBase: 2\n"+
+                    "referenceBase: \"A\"\n" +
+                    "samples {\n" +
+                    "  counts {\n" +
+                    "    matchesReference: true\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"A\"\n" +
+                    "    genotypeCountForwardStrand: 5\n" +
+                    "    genotypeCountReverseStrand: 0\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"T\"\n" +
+                    "    genotypeCountForwardStrand: 0\n" +
+                    "    genotypeCountReverseStrand: 4\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"C\"\n" +
+                    "    genotypeCountForwardStrand: 3\n" +
+                    "    genotypeCountReverseStrand: 0\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"G\"\n" +
+                    "    genotypeCountForwardStrand: 0\n" +
+                    "    genotypeCountReverseStrand: 2\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"N\"\n" +
+                    "    genotypeCountForwardStrand: 1\n" +
+                    "    genotypeCountReverseStrand: 0\n" +
+                    "  }\n" +
+                    "}\n" +
+                    "samples {\n" +
+                    "  isTumor: true\n"+
+                    "  counts {\n" +
+                    "    matchesReference: true\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"A\"\n" +
+                    "    genotypeCountForwardStrand: 0\n" +
+                    "    genotypeCountReverseStrand: 1\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"T\"\n" +
+                    "    genotypeCountForwardStrand: 2\n" +
+                    "    genotypeCountReverseStrand: 0\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"C\"\n" +
+                    "    genotypeCountForwardStrand: 0\n" +
+                    "    genotypeCountReverseStrand: 3\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"G\"\n" +
+                    "    genotypeCountForwardStrand: 4\n" +
+                    "    genotypeCountReverseStrand: 0\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"N\"\n" +
+                    "    genotypeCountForwardStrand: 0\n" +
+                    "    genotypeCountReverseStrand: 5\n" +
+                    "  }\n" +
+                    "} "};
+    String[] expectedFeatures = {
+            "[0.12, 0.12, 0.12, 0.12, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.12, 0.12, 0.06, 0.06, 0.00, 0.00, 0.06, 0.06, 0.00, 0.00]",
+            "[0.00, 0.17, 0.13, 0.00, 0.00, 0.10, 0.07, 0.00, 0.00, 0.03, 0.03, 0.00, 0.00, 0.07, 0.10, 0.00, 0.00, 0.13, 0.17, 0.00]"};
 }

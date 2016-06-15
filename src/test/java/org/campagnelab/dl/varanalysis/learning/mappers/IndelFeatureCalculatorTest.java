@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
  * Created by fac2003 on 5/27/16.
  */
 public class IndelFeatureCalculatorTest {
+    //test not yet written/finished
     //@Test
     public void mapFeatures() throws Exception {
         int index=0;
