@@ -141,6 +141,8 @@ public class TrainSomaticModel {
                 if (Double.isNaN(score)) {
                     //   System.out.println(net.params());
                     System.out.println("nan at " + iter);
+                    System.err.println("Aborting because NaN was generated for score.");
+                    System.exit(1);
                 }
                 iter++;
                 if (score < bestScore * 0.95 && iter>(lastIter+ MIN_ITERATION_BETWEEN_BEST_MODEL)) {
