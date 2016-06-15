@@ -7,7 +7,6 @@ import org.campagnelab.dl.varanalysis.learning.mappers.GenotypeCount;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Collections;
-
 /**
  * AbstractFeatureMapper encapsulates behavior common to many feature mappers.
  * Created by fac2003 on 6/3/16.
@@ -50,10 +49,13 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
             list.add(genotypeCount);
 
         }
+        //sort in decreasing order of counts:
+        if (sort) {
+                       Collections.sort(list);
+        }
         // trim the list at 5 elements because we will consider only the 5 genotypes with largest total counts:
         list.trim(MAX_GENOTYPES);
-        //sort in decreasing order of counts:
-        if (sort) Collections.sort(list);
+
         return list;
     }
 
@@ -66,7 +68,7 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
     protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record,
                                                                     boolean isTumor, boolean sort) {
         ObjectArrayList<? extends GenotypeCount> cached = getCachedResult(isTumor, sort);
-        if (cached != null && record.equals(recordCached[isTumor?1:0][sort?1:0])) {
+        if (cached != null && record.equals(recordCached[isTumor ? 1 : 0][sort ? 1 : 0])) {
             return cached;
         } else {
 
@@ -86,7 +88,7 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
     private void putInCache(BaseInformationRecords.BaseInformationOrBuilder record, ObjectArrayList<? extends GenotypeCount> cached, boolean isTumor, boolean sort) {
         int index1 = isTumor ? 1 : 0;
         int index2 = sort ? 1 : 0;
-        recordCached[index1][index2]=record;
+        recordCached[index1][index2] = record;
         cachedResult[index1][index2] = cached;
     }
 
