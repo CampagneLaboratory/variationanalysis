@@ -94,10 +94,11 @@ public class Mutator extends Intermediary {
     //List instead of array because of avro code generation...
     protected BaseInformationRecords.BaseInformation mutate(BaseInformationRecords.BaseInformation.Builder baseBuild) {
         baseBuild.setMutated(true);
-        int[] forward = new int[5];
-        int[] backward = new int[5];
-        int[] sums = new int[5];
         BaseInformationRecords.SampleInfo somatic = baseBuild.getSamples(1);
+        int numGenos = somatic.getCountsList().size();
+        int[] forward = new int[numGenos];
+        int[] backward = new int[numGenos];
+        int[] sums = new int[numGenos];
         //fill declared arrays
         int i = 0;
         for (BaseInformationRecords.CountInfo count : somatic.getCountsList()) {
