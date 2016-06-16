@@ -143,19 +143,23 @@ public class Mutator extends Intermediary {
         if (monozygotic) {
             oldBase = maxCountIdx;
             //generate from non-max bases uniformly
-            newBase = rand.nextInt(3);
-            if (newBase == oldBase) {
-                newBase = 3;
-            }
+
             //only one allele mutates, so halve delta when monozygotic
             delta = delta / 2;
         } else {
             boolean mutatingAllele = rand.nextBoolean();
             oldBase = mutatingAllele ? maxCountIdx : scndCountIdx;
-            newBase = rand.nextInt(3);
-            if (newBase == oldBase) {
-                newBase = 3;
-            }
+
+        }
+        newBase = rand.nextInt(numGenos-2);
+
+        if (newBase == oldBase) {
+            //replace self case
+            newBase = numGenos-1;
+        }
+        else if (newBase == 4) {
+            //replace genotype N case
+            newBase = numGenos-2;
         }
         int fMutCount = 0;
         int oldCount = forward[oldBase];

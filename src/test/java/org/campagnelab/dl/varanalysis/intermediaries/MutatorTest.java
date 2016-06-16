@@ -272,10 +272,10 @@ public class MutatorTest {
     String[] expectedMutatedRecords = {"reference_index: 18\n" +
             "position: 17214616\n" +
             "mutated: true\n" +
-            "mutatedBase: \"T\"\n" +
+            "mutatedBase: \"C\"\n" +
             "referenceBase: \"A\"\n" +
             "frequencyOfMutation: 0.616643\n" +
-            "indexOfMutatedBase: 1\n" +
+            "indexOfMutatedBase: 2\n" +
             "samples {\n" +
             "  counts {\n" +
             "    matchesReference: true\n" +
@@ -333,15 +333,15 @@ public class MutatorTest {
             "    matchesReference: false\n" +
             "    fromSequence: \"A\"\n" +
             "    toSequence: \"T\"\n" +
-            "    genotypeCountForwardStrand: 134\n" +
-            "    genotypeCountReverseStrand: 119\n" +
+            "    genotypeCountForwardStrand: 0\n" +
+            "    genotypeCountReverseStrand: 0\n" +
             "  }\n" +
             "  counts {\n" +
             "    matchesReference: false\n" +
             "    fromSequence: \"A\"\n" +
             "    toSequence: \"C\"\n" +
-            "    genotypeCountForwardStrand: 0\n" +
-            "    genotypeCountReverseStrand: 0\n" +
+            "    genotypeCountForwardStrand: 134\n" +
+            "    genotypeCountReverseStrand: 119\n" +
             "  }\n" +
             "  counts {\n" +
             "    matchesReference: false\n" +
