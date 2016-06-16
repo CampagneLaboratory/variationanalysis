@@ -42,7 +42,7 @@ public class TrainSomaticModel {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperVT();
+        final FeatureMapper featureCalculator = new FeatureMapperV11();
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file_1> <input-training-file_2> ... ");
         }
@@ -51,7 +51,7 @@ public class TrainSomaticModel {
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        int numEpochs = 50;
+        int numEpochs = 15;
         double dropoutRate = 0.5;
         long time = new Date().getTime();
         System.out.println("time: " + time);

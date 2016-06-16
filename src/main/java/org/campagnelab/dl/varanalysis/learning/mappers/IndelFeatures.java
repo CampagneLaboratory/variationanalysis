@@ -19,7 +19,7 @@ public class IndelFeatures extends AbstractFeatureMapper implements FeatureMappe
 
     public int numberOfFeatures() {
         // we need features for the normal sample and for the tumor sample:
-        return MAX_GENOTYPES * 2;
+        return MAX_GENOTYPES;
     }
 
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
@@ -53,17 +53,10 @@ public class IndelFeatures extends AbstractFeatureMapper implements FeatureMappe
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2 : "Only MAX_GENOTYPES*2*2 features";
-        if (featureIndex < MAX_GENOTYPES) {
-            // germline counts written first:
-            final IndelGenotypeCount genotypeCount = (IndelGenotypeCount) getAllCounts(record, false, true).get(featureIndex);
-            return genotypeCount.getIsIndel()?1F:0F;
-        } else {
-            // tumor counts written next:
-            featureIndex -= MAX_GENOTYPES;
-            final IndelGenotypeCount genotypeCount = (IndelGenotypeCount) getAllCounts(record, true, true).get(featureIndex);
-            return genotypeCount.getIsIndel()?1F:0F;
-        }
+        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES : "Only MAX_GENOTYPES*2*2 features";
+        // germline counts written first:
+        final IndelGenotypeCount genotypeCount = (IndelGenotypeCount) getAllCounts(record, false, true).get(featureIndex);
+        return genotypeCount.getIsIndel() ? 1F : 0F;
     }
 
     @Override
