@@ -50,7 +50,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         }
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        String time = "1466011041250";
+        String time = "1466090457834";
         System.out.println("time: " + time);
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
 
@@ -121,7 +121,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
                 //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
-                FeatureMapper featureMapper = new FeatureMapperV9();
+                FeatureMapper featureMapper = new FeatureMapperVT();
                 RecordReader reader = new RecordReader(dataDirPath + dataFilenames[i]);
                 //DataSet ds = baseIter.next();
 //set up logger

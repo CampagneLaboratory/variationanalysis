@@ -114,5 +114,5 @@ public class FractionDifferenceTest {
             "    genotypeCountReverseStrand: 0\n" +
             "  }\n" +
             "} "};
-    String[] expectedFeatures = {"[0.00, 0.25, 0.00, 0.00, 0.00, 0.00, 0.00, 0.25, 0.00, 0.00]"};
+    String[] expectedFeatures = {"[0.00, 0.25, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.25, 0.00]"};
 }

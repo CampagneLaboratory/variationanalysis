@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
  */
 public class IndelFeatureCalculatorTest {
     //test not yet written/finished
-    //@Test
+    @Test
     public void mapFeatures() throws Exception {
         int index=0;
 
@@ -77,6 +77,14 @@ public class IndelFeatureCalculatorTest {
             "    genotypeCountForwardStrand: 0\n" +
             "    genotypeCountReverseStrand: 0\n" +
             "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"ABC\"\n" +
+            "    toSequence: \"-\"\n" +
+            "    genotypeCountForwardStrand: 5\n" +
+            "    genotypeCountReverseStrand: 5\n" +
+            "    isIndel: true\n" +
+            "  }\n" +
             "}\n" +
             "samples {\n" +
             "  isTumor: true\n"+
@@ -119,10 +127,10 @@ public class IndelFeatureCalculatorTest {
             "    matchesReference: false\n" +
             "    fromSequence: \"ABC\"\n" +
             "    toSequence: \"-\"\n" +
-            "    genotypeCountForwardStrand: 50\n" +
-            "    genotypeCountReverseStrand: 50\n" +
+            "    genotypeCountForwardStrand: 999\n" +
+            "    genotypeCountReverseStrand: 999\n" +
             "    isIndel: true\n" +
             "  }\n" +
             "} "};
-    String[] expectedFeatures = {"[0.00, 0.00, 0.00, 0.00, 0.00, 1.00, 0.00, 0.00, 0.00, 0.00]"};
+    String[] expectedFeatures = {"[0.00, 0.00, 1.00, 0.00, 0.00, 0.00, 0.00, 1.00, 0.00, 0.00]"};
 }

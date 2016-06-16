@@ -40,6 +40,7 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
             int revCount = genoInfo.getGenotypeCountReverseStrand();
             GenotypeCount count = factory.create();
             count.set(forwCount, revCount, genoInfo.getToSequence(),i,germCount);
+            initializeCount(record.getSamples(sampleIndex).getCounts(i), count);
             list.add(count);
         }
         // DO not increment genotypeIndex. It must remain constant for all N bases

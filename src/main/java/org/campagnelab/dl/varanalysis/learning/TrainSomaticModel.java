@@ -42,7 +42,7 @@ public class TrainSomaticModel {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV9();
+        final FeatureMapper featureCalculator = new FeatureMapperVT();
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file_1> <input-training-file_2> ... ");
         }
