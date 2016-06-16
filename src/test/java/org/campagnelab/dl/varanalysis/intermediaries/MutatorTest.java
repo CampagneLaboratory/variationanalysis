@@ -134,6 +134,101 @@ public class MutatorTest {
             "    genotypeCountForwardStrand: 0\n" +
             "    genotypeCountReverseStrand: 0\n" +
             "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"ABC\"\n" +
+            "    toSequence: \"-\"\n" +
+            "    genotypeCountForwardStrand: 400\n" +
+            "    genotypeCountReverseStrand: 400\n" +
+            "    isIndel: true\n" +
+            "  }\n" +
+            "}\n" +
+            "samples {\n" +
+            "  counts {\n" +
+            "    matchesReference: true\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"A\"\n" +
+            "    genotypeCountForwardStrand: 13\n" +
+            "    genotypeCountReverseStrand: 16\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"T\"\n" +
+            "    genotypeCountForwardStrand: 0\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"C\"\n" +
+            "    genotypeCountForwardStrand: 0\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"G\"\n" +
+            "    genotypeCountForwardStrand: 1\n" +
+            "    genotypeCountReverseStrand: 2\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"N\"\n" +
+            "    genotypeCountForwardStrand: 0\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"ABC\"\n" +
+            "    toSequence: \"-\"\n" +
+            "    genotypeCountForwardStrand: 400\n" +
+            "    genotypeCountReverseStrand: 400\n" +
+            "    isIndel: true\n" +
+            "  }\n" +
+            "} ",
+
+            "reference_index: 18\n" +
+            "position: 17214616\n" +
+            "mutated: false\n" +
+            "referenceBase: \"A\"\n" +
+            "samples {\n" +
+            "  counts {\n" +
+            "    matchesReference: true\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"A\"\n" +
+            "    genotypeCountForwardStrand: 11\n" +
+            "    genotypeCountReverseStrand: 14\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"T\"\n" +
+            "    genotypeCountForwardStrand: 0\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"C\"\n" +
+            "    genotypeCountForwardStrand: 0\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"G\"\n" +
+            "    genotypeCountForwardStrand: 7\n" +
+            "    genotypeCountReverseStrand: 13\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"N\"\n" +
+            "    genotypeCountForwardStrand: 0\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
             "}\n" +
             "samples {\n" +
             "  counts {\n" +
@@ -172,8 +267,107 @@ public class MutatorTest {
             "    genotypeCountReverseStrand: 0\n" +
             "  }\n" +
             "} ",
+
     };
     String[] expectedMutatedRecords = {"reference_index: 18\n" +
+            "position: 17214616\n" +
+            "mutated: true\n" +
+            "mutatedBase: \"T\"\n" +
+            "referenceBase: \"A\"\n" +
+            "frequencyOfMutation: 0.616643\n" +
+            "indexOfMutatedBase: 1\n" +
+            "samples {\n" +
+            "  counts {\n" +
+            "    matchesReference: true\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"A\"\n" +
+            "    genotypeCountForwardStrand: 11\n" +
+            "    genotypeCountReverseStrand: 14\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"T\"\n" +
+            "    genotypeCountForwardStrand: 0\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"C\"\n" +
+            "    genotypeCountForwardStrand: 0\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"G\"\n" +
+            "    genotypeCountForwardStrand: 7\n" +
+            "    genotypeCountReverseStrand: 13\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"N\"\n" +
+            "    genotypeCountForwardStrand: 0\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"ABC\"\n" +
+            "    toSequence: \"-\"\n" +
+            "    genotypeCountForwardStrand: 400\n" +
+            "    genotypeCountReverseStrand: 400\n" +
+            "    isIndel: true\n" +
+            "  }\n" +
+            "}\n" +
+            "samples {\n" +
+            "  counts {\n" +
+            "    matchesReference: true\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"A\"\n" +
+            "    genotypeCountForwardStrand: 13\n" +
+            "    genotypeCountReverseStrand: 16\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"T\"\n" +
+            "    genotypeCountForwardStrand: 134\n" +
+            "    genotypeCountReverseStrand: 119\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"C\"\n" +
+            "    genotypeCountForwardStrand: 0\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"G\"\n" +
+            "    genotypeCountForwardStrand: 1\n" +
+            "    genotypeCountReverseStrand: 2\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"A\"\n" +
+            "    toSequence: \"N\"\n" +
+            "    genotypeCountForwardStrand: 0\n" +
+            "    genotypeCountReverseStrand: 0\n" +
+            "  }\n" +
+            "  counts {\n" +
+            "    matchesReference: false\n" +
+            "    fromSequence: \"ABC\"\n" +
+            "    toSequence: \"-\"\n" +
+            "    genotypeCountForwardStrand: 266\n" +
+            "    genotypeCountReverseStrand: 281\n" +
+            "    isIndel: true\n" +
+            "  }\n" +
+            "}\n"
+            ,
+            "reference_index: 18\n" +
             "position: 17214616\n" +
             "mutated: true\n" +
             "mutatedBase: \"T\"\n" +
@@ -253,6 +447,7 @@ public class MutatorTest {
             "    genotypeCountForwardStrand: 0\n" +
             "    genotypeCountReverseStrand: 0\n" +
             "  }\n" +
-            "}\n"};
+            "}\n"
+    };
 
 }

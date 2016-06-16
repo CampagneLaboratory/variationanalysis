@@ -112,7 +112,7 @@ public class Mutator extends Intermediary {
         int scndCountIdx = -1;
         int numCounts = 0;
         //find highest count idx, second highest count idx, and record number of counts
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < numGenos; i++) {
             numCounts += sums[i];
             if (sums[i] > maxCount) {
                 scndCountIdx = maxCountIdx;
