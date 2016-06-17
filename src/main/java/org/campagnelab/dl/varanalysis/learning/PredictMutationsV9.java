@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 /**
  * Train a neural network to predict mutations.
@@ -29,8 +30,8 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     String dataDirPath;
     String resultsPath;
     String version = "VN";
-    String[] dataFilenames = new String[]{"training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet", "genotypes_test_proto_" + version + "_randomized_mutated.parquet"};
-    String[] resultsFileNames = new String[]{ "training","test"};
+    String[] dataFilenames = new String[]{"genotypes_test_proto_" + version + "_randomized_mutated.parquet","training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
+    String[] resultsFileNames = new String[]{ "test","training"};
 
 
     public PredictMutationsV9(String modelPath, String dataDirPath, String resultsPath) {
@@ -50,7 +51,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         }
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        String time = "1466098262054";
+        String time = "1466098280410";
         System.out.println("time: " + time);
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
 
@@ -88,7 +89,8 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 + Arrays.toString(s1Counts) + "\t"
                 + Arrays.toString(s2Counts) + "\t"
                 + Arrays.toString(s1Scores) + "\t"
-                + Arrays.toString(s2Scores);
+                + Arrays.toString(s2Scores) + "\t"
+                + Integer.toString(IntStream.of(s1Counts).sum() + IntStream.of(s2Counts).sum());
         return features;
     }
 
@@ -122,7 +124,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
                 //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
-                FeatureMapper featureMapper = new FeatureMapperV9();
+                FeatureMapper featureMapper = new FeatureMapperV11();
                 RecordReader reader = new RecordReader(dataDirPath + dataFilenames[i]);
                 //DataSet ds = baseIter.next();
 //set up logger

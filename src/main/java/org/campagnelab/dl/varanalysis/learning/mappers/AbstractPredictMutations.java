@@ -13,7 +13,7 @@ import java.io.PrintWriter;
  */
 public abstract class AbstractPredictMutations {
 
-    final String header = "mutatedLabel\tProbabilityMut\tProbabilityUnmut\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts\tsample1Scores\tsample2Scores\tformatted1\tformatted2\n";
+    final String header = "mutatedLabel\tProbabilityMut\tProbabilityUnmut\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts\tsample1Scores\tsample2Scores\tsumCounts\tformatted1\tformatted2\n";
 
     protected void writeHeader(PrintWriter results) {
         results.append(header);
@@ -30,7 +30,6 @@ public abstract class AbstractPredictMutations {
         boolean predictedMutated = probabilities[0] > probabilities[1];
         String formatted0 = record.getSamples(0).getFormattedCounts().replaceAll("\n","");
         String formatted1 = record.getSamples(1).getFormattedCounts().replaceAll("\n","");
-
         String correctness = (predictedMutated == mutated) ? "right" : "wrong";
         results.append((mutated?"1":"0") + "\t" + Float.toString(probabilities[0]) + "\t" + Float.toString(probabilities[1]) +  "\t" + correctness + "\t" + features + "\t" + formatted0 + "\t" + formatted1 + "\n");
         pgReadWrite.update();
