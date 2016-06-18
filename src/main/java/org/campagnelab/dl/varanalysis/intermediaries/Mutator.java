@@ -255,14 +255,15 @@ public class Mutator extends Intermediary {
                 countBuild.clearReadIndicesReverseStrand();
                 countBuild.addAllReadIndicesForwardStrand(RecordReader.compressFreq(toForwardR));
                 countBuild.addAllReadIndicesReverseStrand(RecordReader.compressFreq(toBackwardR));
+                baseBuild.setMutatedBase(count.getToSequence());
             }
             somaticBuild.setCounts(i, countBuild);
             i++;
         }
         baseBuild.setSamples(1, somaticBuild);
         baseBuild.setFrequencyOfMutation((float) deltaOrig);
-        String newBaseString = STRING[newBase];
-        baseBuild.setMutatedBase(newBaseString);
+       // String newBaseString = newBase<STRING.length? STRING[newBase]:"N";
+        //baseBuild.setMutatedBase(newBaseString);
         baseBuild.setIndexOfMutatedBase(newBase);
         return baseBuild.build();
     }
