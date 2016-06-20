@@ -31,10 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Train a neural network to predict mutations.
@@ -55,13 +52,18 @@ public class TrainSomaticModelEStop {
         }
         //VALIDATION FILE IS FIRST ARGUMENT
         String valFile = args[0];
-        File[] fileList = new File(args[1]).listFiles();
-        String[] fileNames = new String[fileList.length];
-
-        for (int i = 0; i < fileList.length; i++){
-            fileNames[i] = fileList[i].getAbsolutePath();
+        List<File> fileList = new ObjectArrayList<File>(new File(args[1]).listFiles());
+        String[] fileNames = new String[fileList.size()/2];
+        int i = 0;
+        String path = "";
+        for (File file : fileList) {
+            path = file.getAbsolutePath();
+            if (path.toString().endsWith(".parquet")) {
+                fileNames[i] = path;
+                i++;
+                System.out.println("Adding " + path + " to training batch");
+            }
         }
-
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
@@ -78,7 +80,7 @@ public class TrainSomaticModelEStop {
         System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
         List<BaseInformationIterator> trainIterList = new ObjectArrayList<>(fileNames.length);
-        for (int i = 1; i < fileNames.length; i++){
+        for (i = 1; i < fileNames.length; i++){
             trainIterList.add(new BaseInformationIterator(fileNames[i], miniBatchSize,
                     featureCalculator, labelMapper));
         }
@@ -107,7 +109,7 @@ public class TrainSomaticModelEStop {
         LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
 
         EarlyStoppingConfiguration<MultiLayerNetwork> esConf = new EarlyStoppingConfiguration.Builder()
-                .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),new ScoreImprovementEpochTerminationCondition(1))
+                .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),new ScoreImprovementEpochTerminationCondition(3))
                 .scoreCalculator(new DataSetLossCalculator(new BaseInformationIterator(valFile, miniBatchSize,
                 featureCalculator, labelMapper), true))
                 .evaluateEveryNEpochs(1)
