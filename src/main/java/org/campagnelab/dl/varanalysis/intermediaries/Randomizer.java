@@ -57,27 +57,13 @@ public class Randomizer extends Intermediary{
                 pgRead.lightUpdate();
                 i++;
                 if (i >= MAX_ELEMENTS){
-                    //System.out.println(rec.getSamples(0).getFormattedCounts());
-                    Collections.shuffle(recList,rand);
-
-                    //set up logger2
-                    ProgressLogger pgWrite = new ProgressLogger(LOG);
-                    pgWrite.itemsName = "write";
-                    pgWrite.expectedUpdates = MAX_ELEMENTS;
-                    pgWrite.displayFreeMemory = true;
-                    pgWrite.start();
-                    for ( BaseInformationRecords.BaseInformation recWrite : recList){
-                        writer.writeRecord(recWrite);
-                        pgWrite.lightUpdate();
-                    }
-                    pgWrite.stop();
-
-
+                    flush(recList,rand,writer);
                     recList.clear();
                     i = 0;
                 }
 
             }
+            flush(recList,rand,writer);
             pgRead.stop();
             reader.close();
             writer.close();
@@ -88,4 +74,22 @@ public class Randomizer extends Intermediary{
             throw new RuntimeException(e);
         }
     }
+
+    private void flush(List<BaseInformationRecords.BaseInformation> recList, Random rand, RecordWriter writer) throws IOException {
+        //System.out.println(rec.getSamples(0).getFormattedCounts());
+        Collections.shuffle(recList,rand);
+
+        //set up logger2
+        ProgressLogger pgWrite = new ProgressLogger(LOG);
+        pgWrite.itemsName = "write";
+        pgWrite.expectedUpdates = MAX_ELEMENTS;
+        pgWrite.displayFreeMemory = true;
+        pgWrite.start();
+        for ( BaseInformationRecords.BaseInformation recWrite : recList){
+            writer.writeRecord(recWrite);
+            pgWrite.lightUpdate();
+        }
+        pgWrite.stop();
+    }
+
 }
