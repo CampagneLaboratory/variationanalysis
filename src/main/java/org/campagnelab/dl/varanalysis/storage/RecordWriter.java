@@ -29,7 +29,7 @@ public class RecordWriter implements Closeable {
     private String path;
 
     public RecordWriter(java.nio.file.Path path, ProtoParquetWriter<BaseInformationRecords.BaseInformation> parquetWriter) throws IOException {
-        this.path = path.toString();
+        this.path=FilenameUtils.removeExtension(path.toString()) + ".parquet";
         this.parquetWriter = parquetWriter;
     }
 

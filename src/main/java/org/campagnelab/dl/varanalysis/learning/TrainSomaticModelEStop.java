@@ -59,7 +59,7 @@ public class TrainSomaticModelEStop {
         String[] fileNames = new String[fileList.length];
 
         for (int i = 0; i < fileList.length; i++){
-            fileNames[i]=FilenameUtils.removeExtension(fileList[i].getAbsolutePath()) + ".parquet";
+            fileNames[i] = fileList[i].getAbsolutePath();
         }
 
         int seed = 123;
