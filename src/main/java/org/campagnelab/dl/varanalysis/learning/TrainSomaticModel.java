@@ -42,11 +42,17 @@ public class TrainSomaticModel {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV11();
+        final FeatureMapper featureCalculator = new FeatureMapperV9();
         if (args.length < 1) {
-            System.err.println("usage: DetectMutations <input-training-file_1> <input-training-file_2> ... ");
+            System.err.println("usage: DetectMutations <input-training-directory>");
         }
 
+        File[] fileList = new File(args[0]).listFiles();
+        String[] fileNames = new String[fileList.length];
+
+        for (int i = 0; i < fileList.length; i++){
+            fileNames[i]=fileList[i].getAbsolutePath();
+        }
 
         int seed = 123;
         double learningRate = 0.1;
@@ -63,9 +69,9 @@ public class TrainSomaticModel {
 
         System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
-        List<BaseInformationIterator> trainIterList = new ObjectArrayList<>(args.length);
-        for (int i = 0; i < args.length; i++){
-            trainIterList.add(new BaseInformationIterator(args[i], miniBatchSize,
+        List<BaseInformationIterator> trainIterList = new ObjectArrayList<>(fileNames.length);
+        for (int i = 0; i < fileNames.length; i++){
+            trainIterList.add(new BaseInformationIterator(fileNames[i], miniBatchSize,
                     featureCalculator, labelMapper));
         }
         final AsyncDataSetIterator async = new AsyncDataSetIterator(new BaseInformationConcatIterator(trainIterList,miniBatchSize,featureCalculator,labelMapper));

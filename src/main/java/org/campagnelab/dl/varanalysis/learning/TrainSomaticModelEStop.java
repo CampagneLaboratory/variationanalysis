@@ -51,11 +51,16 @@ public class TrainSomaticModelEStop {
     public static void main(String[] args) throws IOException {
         final FeatureMapper featureCalculator = new FeatureMapperV9();
         if (args.length < 2) {
-            System.err.println("usage: DetectMutations <input-validation-file> <input-training-file_1> <input-training-file_2> ...");
+            System.err.println("usage: DetectMutations <input-validation-file> <input-training-directory>");
         }
         //VALIDATION FILE IS FIRST ARGUMENT
         String valFile = args[0];
+        File[] fileList = new File(args[1]).listFiles();
+        String[] fileNames = new String[fileList.length];
 
+        for (int i = 0; i < fileList.length; i++){
+            fileNames[i]=fileList[i].getAbsolutePath();
+        }
 
         int seed = 123;
         double learningRate = 0.1;
@@ -72,9 +77,9 @@ public class TrainSomaticModelEStop {
 
         System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
-        List<BaseInformationIterator> trainIterList = new ObjectArrayList<>(args.length);
-        for (int i = 1; i < args.length; i++){
-            trainIterList.add(new BaseInformationIterator(args[i], miniBatchSize,
+        List<BaseInformationIterator> trainIterList = new ObjectArrayList<>(fileNames.length);
+        for (int i = 1; i < fileNames.length; i++){
+            trainIterList.add(new BaseInformationIterator(fileNames[i], miniBatchSize,
                     featureCalculator, labelMapper));
         }
         final BaseInformationConcatIterator trainIter = new BaseInformationConcatIterator(trainIterList, miniBatchSize,
