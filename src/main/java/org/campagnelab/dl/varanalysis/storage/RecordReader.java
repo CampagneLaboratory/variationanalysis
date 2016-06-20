@@ -40,7 +40,7 @@ public class RecordReader implements Closeable, RecordIterable {
     private long totalRecords = -1;
 
     public RecordReader(String filepath) throws IOException {
-        this.filepath=FilenameUtils.removeExtension(filepath) + ".parquet";
+        this.filepath=RecordWriter.addParqExtension(filepath);
         this.countRecords();
 
         ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder(new Path(filepath));

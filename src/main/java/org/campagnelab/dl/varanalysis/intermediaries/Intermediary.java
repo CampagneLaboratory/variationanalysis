@@ -1,5 +1,7 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
+import org.campagnelab.dl.varanalysis.storage.RecordWriter;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,13 +24,13 @@ public abstract class Intermediary {
     static int pageSize = 64 * 1024;
 
     public void executeOver(String inPath, String outPath) throws IOException {
-        java.nio.file.Path toDelete = Paths.get(outPath);
+        java.nio.file.Path toDelete = Paths.get(RecordWriter.addParqExtension(outPath));
         Files.deleteIfExists(toDelete);
         execute(inPath, outPath, blockSize, pageSize);
     }
 
     public void executeOver(String inPath, String outPath, int blockSize, int pageSize) throws IOException {
-        java.nio.file.Path toDelete = Paths.get(outPath);
+        java.nio.file.Path toDelete = Paths.get(RecordWriter.addParqExtension(outPath));
         Files.deleteIfExists(toDelete);
         execute(inPath, outPath, blockSize, pageSize);
     }

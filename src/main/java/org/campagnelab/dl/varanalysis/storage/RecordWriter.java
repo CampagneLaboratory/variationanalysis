@@ -29,29 +29,29 @@ public class RecordWriter implements Closeable {
     private String path;
 
     public RecordWriter(java.nio.file.Path path, ProtoParquetWriter<BaseInformationRecords.BaseInformation> parquetWriter) throws IOException {
-        this.path=FilenameUtils.removeExtension(path.toString()) + ".parquet";
+        this.path=addParqExtension(path.toString());
         this.parquetWriter = parquetWriter;
     }
 
     public RecordWriter(String file, int blockSize, int pageSize) throws IOException {
-
-        this(new File(file).toPath(), new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(file), BaseInformationRecords.BaseInformation.class, CompressionCodecName.UNCOMPRESSED, blockSize, pageSize));
-        this.path = file;
+        this(new File(addParqExtension(file)).toPath(), new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(addParqExtension(file)), BaseInformationRecords.BaseInformation.class, CompressionCodecName.UNCOMPRESSED, blockSize, pageSize));
 
     }
 
     public RecordWriter(String file, int blockSize, int pageSize, boolean compress) throws IOException {
-        this(new File(file).toPath(),
+        this(new File(addParqExtension(file)).toPath(),
 
-                new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(file), BaseInformationRecords.BaseInformation.class,
+                new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(addParqExtension(file)), BaseInformationRecords.BaseInformation.class,
                         compress ? CompressionCodecName.SNAPPY : CompressionCodecName.UNCOMPRESSED, blockSize, pageSize));
-        this.path = file;
-
     }
 
     public void writeRecord(BaseInformationRecords.BaseInformation record) throws IOException {
         this.parquetWriter.write(record);
         numRecordsWritten += 1;
+    }
+
+    public static String addParqExtension(String path){
+        return  FilenameUtils.removeExtension(path) + ".parquet";
     }
 
     /**
