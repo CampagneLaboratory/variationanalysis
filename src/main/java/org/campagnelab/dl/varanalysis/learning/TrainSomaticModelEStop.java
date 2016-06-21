@@ -48,7 +48,7 @@ public class TrainSomaticModelEStop {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV11();
+        final FeatureMapper featureCalculator = new FeatureMapperV9();
         if (args.length < 2) {
             System.err.println("usage: DetectMutations <input-validation-file> <input-training-directory>");
         }
@@ -109,7 +109,7 @@ public class TrainSomaticModelEStop {
                 .build();
 
         EarlyStoppingTrainer trainer = new EarlyStoppingTrainer(esConf,conf,async);
-        //trainer.setListener()   new ScoreIterationListener(10));
+        trainer.setListener(new EStatusListener());
         EarlyStoppingResult<MultiLayerNetwork> result = trainer.fit();
 
 
