@@ -314,11 +314,6 @@
             <version>1.0.13</version>
         </dependency>
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-ui</artifactId>
-            <version>${dl4j.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
