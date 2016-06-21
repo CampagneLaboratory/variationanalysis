@@ -7,6 +7,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.varanalysis.learning.architecture.*;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.learning.mappers.*;
+import org.campagnelab.dl.varanalysis.storage.RecordWriter;
 import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.api.Layer;
@@ -47,13 +48,6 @@ public class TrainSomaticModel {
             System.err.println("usage: DetectMutations <input-training-directory>");
         }
 
-        File[] fileList = new File(args[0]).listFiles();
-        String[] fileNames = new String[fileList.length];
-
-        for (int i = 0; i < fileList.length; i++){
-            fileNames[i] = fileList[i].getAbsolutePath();
-        }
-
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
@@ -69,9 +63,9 @@ public class TrainSomaticModel {
 
         System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
-        List<BaseInformationIterator> trainIterList = new ObjectArrayList<>(fileNames.length);
-        for (int i = 0; i < fileNames.length; i++){
-            trainIterList.add(new BaseInformationIterator(fileNames[i], miniBatchSize,
+        List<BaseInformationIterator> trainIterList = new ObjectArrayList<>(args.length);
+        for (int i = 0; i < args.length; i++){
+            trainIterList.add(new BaseInformationIterator(RecordWriter.addParqExtension(args[i]), miniBatchSize,
                     featureCalculator, labelMapper));
         }
         final AsyncDataSetIterator async = new AsyncDataSetIterator(new BaseInformationConcatIterator(trainIterList,miniBatchSize,featureCalculator,labelMapper));

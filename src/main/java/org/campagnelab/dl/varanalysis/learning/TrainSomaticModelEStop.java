@@ -7,6 +7,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.varanalysis.learning.architecture.*;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.learning.mappers.*;
+import org.campagnelab.dl.varanalysis.storage.RecordWriter;
 import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.earlystopping.EarlyStoppingConfiguration;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
@@ -22,6 +23,7 @@ import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -46,24 +48,14 @@ public class TrainSomaticModelEStop {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV9();
+        final FeatureMapper featureCalculator = new FeatureMapperV11();
         if (args.length < 2) {
             System.err.println("usage: DetectMutations <input-validation-file> <input-training-directory>");
         }
         //VALIDATION FILE IS FIRST ARGUMENT
-        String valFile = args[0];
-        List<File> fileList = new ObjectArrayList<File>(new File(args[1]).listFiles());
-        String[] fileNames = new String[fileList.size()/2];
+        String valFile = RecordWriter.addParqExtension(args[0]);
         int i = 0;
         String path = "";
-        for (File file : fileList) {
-            path = file.getAbsolutePath();
-            if (path.toString().endsWith(".parquet")) {
-                fileNames[i] = path;
-                i++;
-                System.out.println("Adding " + path + " to training batch");
-            }
-        }
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
@@ -79,9 +71,9 @@ public class TrainSomaticModelEStop {
 
         System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
-        List<BaseInformationIterator> trainIterList = new ObjectArrayList<>(fileNames.length);
-        for (i = 1; i < fileNames.length; i++){
-            trainIterList.add(new BaseInformationIterator(fileNames[i], miniBatchSize,
+        List<BaseInformationIterator> trainIterList = new ObjectArrayList<>(args.length-1);
+        for (i = 1; i < args.length; i++){
+            trainIterList.add(new BaseInformationIterator(RecordWriter.addParqExtension(args[i]), miniBatchSize,
                     featureCalculator, labelMapper));
         }
         final BaseInformationConcatIterator trainIter = new BaseInformationConcatIterator(trainIterList, miniBatchSize,
@@ -106,7 +98,7 @@ public class TrainSomaticModelEStop {
         assembler.setLearningRatePolicy(LearningRatePolicy.Score);
         MultiLayerConfiguration conf = assembler.createNetwork();
 
-        LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
+        //LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
 
         EarlyStoppingConfiguration<MultiLayerNetwork> esConf = new EarlyStoppingConfiguration.Builder()
                 .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),new ScoreImprovementEpochTerminationCondition(3))
@@ -117,6 +109,7 @@ public class TrainSomaticModelEStop {
                 .build();
 
         EarlyStoppingTrainer trainer = new EarlyStoppingTrainer(esConf,conf,async);
+        //trainer.setListener()   new ScoreIterationListener(10));
         EarlyStoppingResult<MultiLayerNetwork> result = trainer.fit();
 
 
