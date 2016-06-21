@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
  * Created by fac2003 on 5/27/16.
  */
 public class IndelV9Test {
-    @Test
+    //@Test this test was just for seeing a full feature example
     public void mapFeatures() throws Exception {
 int index=0;
 
