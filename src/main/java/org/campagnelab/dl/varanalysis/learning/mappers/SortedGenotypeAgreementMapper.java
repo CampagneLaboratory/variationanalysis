@@ -50,8 +50,8 @@ public class SortedGenotypeAgreementMapper extends AbstractFeatureMapper impleme
     @Override
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
 // compare genotype indices after sorting:
-        final ObjectArrayList<? extends GenotypeCount> sortedCountsSample0 = getAllCounts(record.getSamples(0), getGenotypeCountFactory(), true);
-        final ObjectArrayList<? extends GenotypeCount> sortedCountsSample1 = getAllCounts(record.getSamples(1), getGenotypeCountFactory(), true);
+        final ObjectArrayList<? extends GenotypeCount> sortedCountsSample0 = getAllCounts(record, getGenotypeCountFactory(), false, true);
+        final ObjectArrayList<? extends GenotypeCount> sortedCountsSample1 = getAllCounts(record, getGenotypeCountFactory(), true,  true);
         int genotypeIndexSample0 = sortedCountsSample0.get(featureIndex).genotypeIndex;
         int genotypeIndexSample1 = sortedCountsSample1.get(featureIndex).genotypeIndex;
         return genotypeIndexSample0 == genotypeIndexSample1 ? 1f : .0f;

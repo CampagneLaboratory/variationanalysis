@@ -1,13 +1,13 @@
 library("AUC")
-modelDir <- "~/lab_repos/VariationAnalysis/tests/1465407490858"
+modelDir <- "~/lab_repos/VariationAnalysis/tests/1465429904060"
 rm(test)
 rm(training)
 training <- read.delim(paste(modelDir,"training",sep="/"), header=TRUE)
 View(training)
 test <- read.delim(paste(modelDir,"test",sep="/"), header=TRUE)
 View(test)
-auc(roc(predictions=training$Probability,labels=factor(training$mutatedLabel)))
-auc(roc(predictions=test$Probability,labels=factor(test$mutatedLabel)))
-plot(roc(predictions=training$Probability,labels=factor(training$mutatedLabel)),col="red")
+auc(roc(predictions=training$ProbabilityMut,labels=factor(training$mutatedLabel)))
+auc(roc(predictions=test$ProbabilityMut,labels=factor(test$mutatedLabel)))
+plot(roc(predictions=training$ProbabilityMut,labels=factor(training$mutatedLabel)),col="red")
 par(new=TRUE)
-plot(roc(predictions=test$Probability,labels=factor(test$mutatedLabel)),col="green")
+plot(roc(predictions=test$ProbabilityMut,labels=factor(test$mutatedLabel)),col="green")

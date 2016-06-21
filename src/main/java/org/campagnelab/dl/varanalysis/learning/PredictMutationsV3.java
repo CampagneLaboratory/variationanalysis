@@ -3,10 +3,7 @@ package org.campagnelab.dl.varanalysis.learning;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.varanalysis.intermediaries.Mutator;
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3S;
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3SOld;
-import org.campagnelab.dl.varanalysis.learning.mappers.QualityFeatures;
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV3;
+import org.campagnelab.dl.varanalysis.learning.mappers.*;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -26,7 +23,7 @@ import java.util.Arrays;
  *
  * @author Remi Torracinta
  */
-public class PredictMutationsV3 {
+public class PredictMutationsV3 extends AbstractPredictMutations{
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV3.class);
 
     String modelPath;
@@ -35,7 +32,6 @@ public class PredictMutationsV3 {
     String version = "VN";
     String[] dataFilenames = new String[]{"genotypes_proto_"+version+"_mutated_randomized.parquet","genotypes_test_proto_"+version+"_mutated_randomized.parquet"};
     String[] resultsFileNames = new String[]{"training","test"};
-    final String header = "mutatedLabel\tProbabilityMut\tProbabilityUnmut\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts\tsample1Scores\tsample2Scores\tformatted1\tformatted2\n";
 
 
 
@@ -51,15 +47,17 @@ public class PredictMutationsV3 {
     public static void main(String[] args) throws IOException {
         double learningRate = 0.05;
         int miniBatchSize = 100;
-        String time = "1465505595805";
+        String time = "1465585807140";
+        System.out.println("time: " + time);
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
 
-        PredictMutationsV3 predictor = new PredictMutationsV3(attempt, "sample_data/protobuf/", "tests/" + time + "/");
+        PredictMutationsV3 predictor = new PredictMutationsV3(attempt, "sample_data/profiling_data/", "tests/" + time + "/");
+        predictor.PrintPredictions();
         predictor.PrintPredictions();
     }
 
 
-    String featuresToString(BaseInformationRecords.BaseInformation pos){
+    public String featuresToString(BaseInformationRecords.BaseInformation pos){
         //indels not handled
         int[] s1Counts = new int[10];
         int[] s2Counts = new int[10];
@@ -116,11 +114,12 @@ public class PredictMutationsV3 {
             for (int i = 0; i < 2; i++){
                 //initialize results printer
                 PrintWriter results = new PrintWriter(resultsPath+resultsFileNames[i], "UTF-8");
-                results.append(header);
+                writeHeader(results);
 
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
                 //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
-                FeatureMapperV3SOld featureMapper = new FeatureMapperV3SOld();
+                FeatureMapperV3S featureMapper = new FeatureMapperV3S();
+                System.out.println("mapper: " + featureMapper.getClass().getTypeName());
                 RecordReader reader = new RecordReader(dataDirPath+dataFilenames[i]);
                 //DataSet ds = baseIter.next();
 
@@ -134,20 +133,7 @@ public class PredictMutationsV3 {
                 pgReadWrite.start();
 
                 for (BaseInformationRecords.BaseInformation record : reader){
-                    INDArray testFeatures = Nd4j.zeros(1, featureMapper.numberOfFeatures());
-                    featureMapper.mapFeatures(record,testFeatures,0);
-                    INDArray testPredicted = model.output(testFeatures,false);
-                    String features = featuresToString(record);
-                    //boolean
-                    boolean mutated = record.getMutated();
-                    float[] probabilities = testPredicted.getRow(0).data().asFloat();
-                    boolean predictedMutated = probabilities[0] > probabilities[1];
-                    String formatted0 = record.getSamples(0).getFormattedCounts().replaceAll("\n","");
-                    String formatted1 = record.getSamples(1).getFormattedCounts().replaceAll("\n","");
-
-                    String correctness = (predictedMutated == mutated) ? "right" : "wrong";
-                    results.append((mutated?"1":"0") + "\t" + Float.toString(probabilities[0]) + "\t" + Float.toString(probabilities[1]) +  "\t" + correctness + "\t" + features + "\t" + formatted0 + "\t" + formatted1 + "\n");
-                    pgReadWrite.update();
+                    writeRecordResult(model, results, featureMapper, pgReadWrite, record);
                 }
                 pgReadWrite.stop();
                 results.close();
@@ -162,5 +148,7 @@ public class PredictMutationsV3 {
 
 
     }
+
+
 
 }

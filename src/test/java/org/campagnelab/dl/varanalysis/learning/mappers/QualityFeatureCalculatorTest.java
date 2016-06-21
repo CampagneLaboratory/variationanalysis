@@ -36,7 +36,6 @@ public class QualityFeatureCalculatorTest {
         Features features = new Features(calc.numberOfFeatures());
         for (int i = 0; i < calc.numberOfFeatures(); i++) {
             features.setFeatureValue(calc.produceFeature(record, i), i);
-
         }
         features.setFeatureValue(gr, 0);
         features.setFeatureValue(gf, 1);

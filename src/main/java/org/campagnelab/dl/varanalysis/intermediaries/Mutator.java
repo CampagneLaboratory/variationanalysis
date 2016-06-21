@@ -4,17 +4,13 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift128PlusRandom;
-import org.apache.commons.math3.util.Pair;
-import org.campagnelab.dl.varanalysis.learning.DetectMutations;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.dl.varanalysis.storage.ParquetPrinter;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -98,10 +94,11 @@ public class Mutator extends Intermediary {
     //List instead of array because of avro code generation...
     protected BaseInformationRecords.BaseInformation mutate(BaseInformationRecords.BaseInformation.Builder baseBuild) {
         baseBuild.setMutated(true);
-        int[] forward = new int[5];
-        int[] backward = new int[5];
-        int[] sums = new int[5];
         BaseInformationRecords.SampleInfo somatic = baseBuild.getSamples(1);
+        int numGenos = somatic.getCountsList().size();
+        int[] forward = new int[numGenos];
+        int[] backward = new int[numGenos];
+        int[] sums = new int[numGenos];
         //fill declared arrays
         int i = 0;
         for (BaseInformationRecords.CountInfo count : somatic.getCountsList()) {
@@ -115,7 +112,7 @@ public class Mutator extends Intermediary {
         int scndCountIdx = -1;
         int numCounts = 0;
         //find highest count idx, second highest count idx, and record number of counts
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < numGenos; i++) {
             numCounts += sums[i];
             if (sums[i] > maxCount) {
                 scndCountIdx = maxCountIdx;
@@ -146,19 +143,23 @@ public class Mutator extends Intermediary {
         if (monozygotic) {
             oldBase = maxCountIdx;
             //generate from non-max bases uniformly
-            newBase = rand.nextInt(3);
-            if (newBase == oldBase) {
-                newBase = 3;
-            }
+
             //only one allele mutates, so halve delta when monozygotic
             delta = delta / 2;
         } else {
             boolean mutatingAllele = rand.nextBoolean();
             oldBase = mutatingAllele ? maxCountIdx : scndCountIdx;
-            newBase = rand.nextInt(3);
-            if (newBase == oldBase) {
-                newBase = 3;
-            }
+
+        }
+        newBase = rand.nextInt(numGenos-2);
+
+        if (newBase == oldBase) {
+            //replace self case
+            newBase = numGenos-1;
+        }
+        else if (newBase == 4) {
+            //replace genotype N case
+            newBase = numGenos-2;
         }
         int fMutCount = 0;
         int oldCount = forward[oldBase];
@@ -254,14 +255,15 @@ public class Mutator extends Intermediary {
                 countBuild.clearReadIndicesReverseStrand();
                 countBuild.addAllReadIndicesForwardStrand(RecordReader.compressFreq(toForwardR));
                 countBuild.addAllReadIndicesReverseStrand(RecordReader.compressFreq(toBackwardR));
+                baseBuild.setMutatedBase(count.getToSequence());
             }
             somaticBuild.setCounts(i, countBuild);
             i++;
         }
         baseBuild.setSamples(1, somaticBuild);
         baseBuild.setFrequencyOfMutation((float) deltaOrig);
-        String newBaseString = STRING[newBase];
-        baseBuild.setMutatedBase(newBaseString);
+       // String newBaseString = newBase<STRING.length? STRING[newBase]:"N";
+        //baseBuild.setMutatedBase(newBaseString);
         baseBuild.setIndexOfMutatedBase(newBase);
         return baseBuild.build();
     }

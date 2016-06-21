@@ -26,11 +26,6 @@ public class QualityGenotypeCount extends GenotypeCount {
     }
 
     @Override
-    public int compareTo(GenotypeCount o) {
-        return o.totalCount() - totalCount();
-    }
-
-    @Override
     public String toString() {
         return String.format("totalCount=%d %d on + / %d on - %s, quality on + / %e on - %e", totalCount(), forwardCount, reverseCount, toSequence, qualityScoreForward, qualityScoreReverse);
     }
