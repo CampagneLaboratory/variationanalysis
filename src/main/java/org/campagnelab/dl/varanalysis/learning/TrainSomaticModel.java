@@ -51,7 +51,7 @@ public class TrainSomaticModel {
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        int numEpochs = 15;
+        int numEpochs = 50;
         double dropoutRate = 0.5;
         long time = new Date().getTime();
         System.out.println("time: " + time);
@@ -141,6 +141,7 @@ public class TrainSomaticModel {
                 if (Double.isNaN(score)) {
                     //   System.out.println(net.params());
                     System.out.println("nan at " + iter);
+                    System.out.println(ds.toString());
                     System.err.println("Aborting because NaN was generated for score.");
                     System.exit(1);
                 }

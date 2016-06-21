@@ -33,12 +33,14 @@ public class FractionDifferences2 extends AbstractFeatureMapper implements Featu
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
         totalCountsGermline = 0;
         totalCountsSomatic = 0;
-        for (int i = 0; i < MAX_GENOTYPES; i++) {
-            BaseInformationRecords.CountInfo germline = record.getSamples(0).getCounts(i);
-            BaseInformationRecords.CountInfo somatic = record.getSamples(1).getCounts(i);
-            totalCountsGermline += (germline.getGenotypeCountForwardStrand() + germline.getGenotypeCountReverseStrand());
-            totalCountsSomatic += (somatic.getGenotypeCountForwardStrand() + somatic.getGenotypeCountReverseStrand());
+        ObjectArrayList<? extends GenotypeCount> germlineCounts = getAllCounts(record, false, true);
+        ObjectArrayList<? extends GenotypeCount> somaticCounts = getAllCounts(record, true, true);
+        for (int i = 0; i < germlineCounts.size(); i++) {
+            totalCountsGermline += (germlineCounts.get(i).totalCount());
+            totalCountsSomatic += (somaticCounts.get(i).totalCount());
         }
+        assert(totalCountsGermline>0):"0 total";
+        assert(totalCountsSomatic>0):"0 total";
     }
 
 
@@ -53,26 +55,27 @@ public class FractionDifferences2 extends AbstractFeatureMapper implements Featu
     }
 
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        return normalize(produceFeatureInternal(record, featureIndex), FRACTION_NORM);
+        float producedFeat = produceFeatureInternal(record, featureIndex);
+        return normalize(producedFeat, FRACTION_NORM);
     }
 
 
     private float normalize(float value, int normalizationFactor) {
+        assert(value>=0F):"value must be positive " + Float.toString(value);
         return 1f / ((float)(value + 1f));
     }
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-
         assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES : "Only MAX_GENOTYPES features";
-        ObjectArrayList<? extends GenotypeCount> germlineCounts = getAllCounts(record, false, false);
-        ObjectArrayList<? extends GenotypeCount> somaticCounts = getAllCounts(record, true, false);
+        ObjectArrayList<? extends GenotypeCount> germlineCounts = getAllCounts(record, false, true);
+        ObjectArrayList<? extends GenotypeCount> somaticCounts = getAllCounts(record, true, true);
         // note that we normalize the counts to frequency before substracting:
-        int germlineCount = germlineCounts.get(featureIndex).forwardCount + germlineCounts.get(featureIndex).reverseCount;
-        int somaticCount = somaticCounts.get(featureIndex).forwardCount + somaticCounts.get(featureIndex).reverseCount;
+        int germlineCount = germlineCounts.get(featureIndex).totalCount();
+        int somaticCount = somaticCounts.get(featureIndex).totalCount();
 
-        float germFrequency = ((float) germlineCount / totalCountsGermline);
-        float somaticFrequency = ((float) somaticCount) / totalCountsSomatic;
+        float germFrequency = ((float) germlineCount / (float) totalCountsGermline);
+        float somaticFrequency = ((float) somaticCount / (float) totalCountsSomatic);
         // then multiply again by somatic counts to reintroduce size effect:
         return  (float) (Math.max(0f,(somaticFrequency - germFrequency)) * somaticCount);
     }
