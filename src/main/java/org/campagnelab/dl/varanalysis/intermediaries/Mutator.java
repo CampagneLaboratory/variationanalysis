@@ -155,11 +155,11 @@ public class Mutator extends Intermediary {
 
         if (newBase == oldBase) {
             //replace self case
-            newBase = numGenos-1;
+            newBase = numGenos-2;
         }
         else if (newBase == 4) {
             //replace genotype N case
-            newBase = numGenos-2;
+            newBase = numGenos-1;
         }
         int fMutCount = 0;
         int oldCount = forward[oldBase];
