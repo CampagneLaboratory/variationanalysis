@@ -50,6 +50,12 @@
                     <include>record.avsc</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>config</directory>
+                <includes>
+                    <include>logback.xml</include>
+                </includes>
+            </resource>
         </resources>
         <extensions>
             <!-- provides os.detected.classifier (i.e. linux-x86_64, osx-x86_64) property -->
