@@ -15,7 +15,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Fabien Campagne
  */
 
-public class FractionDifferences2 extends AbstractFeatureMapper implements FeatureMapper {
+public class FractionDifferences3 extends AbstractFeatureMapper implements FeatureMapper {
 
 
     //only implemented for records with 2 samples exactly
@@ -62,7 +62,9 @@ public class FractionDifferences2 extends AbstractFeatureMapper implements Featu
 
     private float normalize(float value, int normalizationFactor) {
         assert(value>=0f):"value must be positive " + Float.toString(value);
-        return 1f / ((float)(value + 1f));
+        assert(value<=1f):"value must be positive " + Float.toString(value);
+        return value;
+        //return 1f / ((float)(value + 1f));
     }
 
 
@@ -77,7 +79,7 @@ public class FractionDifferences2 extends AbstractFeatureMapper implements Featu
         float germFrequency = ((float) germlineCount / (float) totalCountsGermline);
         float somaticFrequency = ((float) somaticCount / (float) totalCountsSomatic);
         // then multiply again by somatic counts to reintroduce size effect:
-        return  (float) (Math.max(0f,(somaticFrequency - germFrequency)) * somaticCount);
+        return  (float) Math.max(0f,(somaticFrequency - germFrequency));
     }
 
     @Override
