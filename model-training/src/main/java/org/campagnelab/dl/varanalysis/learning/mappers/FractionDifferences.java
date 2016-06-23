@@ -1,14 +1,11 @@
 package org.campagnelab.dl.varanalysis.learning.mappers;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.campagnelab.dl.model.utils.FeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.learning.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.learning.iterators.AbstractFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
-
-import java.util.List;
 
 /**
  * This is a fraction difference mapper, producing (germline proportion of total counts at base) - (somatic proportion of total counts at this base).

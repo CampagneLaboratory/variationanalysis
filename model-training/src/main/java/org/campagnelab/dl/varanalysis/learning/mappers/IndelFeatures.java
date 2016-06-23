@@ -1,13 +1,11 @@
 package org.campagnelab.dl.varanalysis.learning.mappers;
 
+import org.campagnelab.dl.model.utils.FeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.learning.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.learning.iterators.AbstractFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
-
-import java.util.List;
 
 /**
  * This is the indel feature mapper. maps to binary yes/no isIndel for sorted coutnnts

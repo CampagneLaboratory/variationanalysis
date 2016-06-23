@@ -1,12 +1,9 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
-import com.codahale.metrics.MetricRegistryListener;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.apache.commons.compress.utils.IOUtils;
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapper;
+import org.campagnelab.dl.model.utils.FeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.mappers.LabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;

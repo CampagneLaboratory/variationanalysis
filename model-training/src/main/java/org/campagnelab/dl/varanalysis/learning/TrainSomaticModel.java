@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.campagnelab.dl.model.utils.FeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.architecture.*;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.learning.mappers.*;

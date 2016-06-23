@@ -1,6 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapper;
+import org.campagnelab.dl.model.utils.FeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.mappers.LabelMapper;
 
 /**

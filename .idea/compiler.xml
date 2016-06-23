@@ -22,17 +22,14 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
+        <module name="model-training" />
+        <module name="model-utils" />
         <module name="variation-analysis" />
-      </profile>
-      <profile default="false" name="Annotation profile for VariationAnalysis" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="VariationAnalysis" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="model-training" target="1.8" />
+      <module name="model-utils" target="1.8" />
       <module name="variation-analysis" target="1.7" />
       <module name="VariationAnalysis" target="1.8" />
     </bytecodeTargetLevel>

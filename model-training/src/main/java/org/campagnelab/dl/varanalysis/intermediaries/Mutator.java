@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift128PlusRandom;
+import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
@@ -234,27 +235,27 @@ public class Mutator extends Intermediary {
                 //replace quality scores
                 countBuild.clearQualityScoresForwardStrand();
                 countBuild.clearQualityScoresReverseStrand();
-                countBuild.addAllQualityScoresForwardStrand(RecordReader.compressFreq(fromForward));
-                countBuild.addAllQualityScoresReverseStrand(RecordReader.compressFreq(fromBackward));
+                countBuild.addAllQualityScoresForwardStrand(ProtoPredictor.compressFreq(fromForward));
+                countBuild.addAllQualityScoresReverseStrand(ProtoPredictor.compressFreq(fromBackward));
 
                 //replace readIndices
                 countBuild.clearReadIndicesForwardStrand();
                 countBuild.clearReadIndicesReverseStrand();
-                countBuild.addAllReadIndicesForwardStrand(RecordReader.compressFreq(fromForwardR));
-                countBuild.addAllReadIndicesReverseStrand(RecordReader.compressFreq(fromBackwardR));
+                countBuild.addAllReadIndicesForwardStrand(ProtoPredictor.compressFreq(fromForwardR));
+                countBuild.addAllReadIndicesReverseStrand(ProtoPredictor.compressFreq(fromBackwardR));
 
             } else if (i == newBase) {
                 //replace quality scores
                 countBuild.clearQualityScoresForwardStrand();
                 countBuild.clearQualityScoresReverseStrand();
-                countBuild.addAllQualityScoresForwardStrand(RecordReader.compressFreq(toForward));
-                countBuild.addAllQualityScoresReverseStrand(RecordReader.compressFreq(toBackward));
+                countBuild.addAllQualityScoresForwardStrand(ProtoPredictor.compressFreq(toForward));
+                countBuild.addAllQualityScoresReverseStrand(ProtoPredictor.compressFreq(toBackward));
 
                 //replace readIndices
                 countBuild.clearReadIndicesForwardStrand();
                 countBuild.clearReadIndicesReverseStrand();
-                countBuild.addAllReadIndicesForwardStrand(RecordReader.compressFreq(toForwardR));
-                countBuild.addAllReadIndicesReverseStrand(RecordReader.compressFreq(toBackwardR));
+                countBuild.addAllReadIndicesForwardStrand(ProtoPredictor.compressFreq(toForwardR));
+                countBuild.addAllReadIndicesReverseStrand(ProtoPredictor.compressFreq(toBackwardR));
                 baseBuild.setMutatedBase(count.getToSequence());
             }
             somaticBuild.setCounts(i, countBuild);

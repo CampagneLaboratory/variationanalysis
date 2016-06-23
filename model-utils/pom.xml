@@ -31,7 +31,7 @@
 
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>java/main/resources</directory>
                 <includes>
                     <include>record.avsc</include>
                 </includes>

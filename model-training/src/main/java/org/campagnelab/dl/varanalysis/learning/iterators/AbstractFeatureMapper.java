@@ -2,7 +2,7 @@ package org.campagnelab.dl.varanalysis.learning.iterators;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.varanalysis.learning.genotypes.GenotypeCountFactory;
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapper;
+import org.campagnelab.dl.model.utils.FeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.mappers.GenotypeCount;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 

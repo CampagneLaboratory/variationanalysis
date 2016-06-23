@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning.mappers;
 
 import it.unimi.dsi.logging.ProgressLogger;
+import org.campagnelab.dl.model.utils.FeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
