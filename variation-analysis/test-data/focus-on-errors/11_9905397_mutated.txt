@@ -1,0 +1,4029 @@
+reference_index: 11
+position: 9905397
+mutated: true
+mutatedBase: "C"
+referenceBase: "A"
+frequencyOfMutation: 0.14226465
+indexOfMutatedBase: 2
+samples {
+  counts {
+    matchesReference: true
+    fromSequence: "A"
+    toSequence: "A"
+    genotypeCountForwardStrand: 465
+    genotypeCountReverseStrand: 695
+    qualityScoresForwardStrand {
+      number: 255
+      frequency: 465
+    }
+    qualityScoresReverseStrand {
+      number: 255
+      frequency: 695
+    }
+    readIndicesForwardStrand {
+      number: 101
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 100
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 99
+      frequency: 9
+    }
+    readIndicesForwardStrand {
+      number: 98
+      frequency: 9
+    }
+    readIndicesForwardStrand {
+      number: 97
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 95
+      frequency: 11
+    }
+    readIndicesForwardStrand {
+      number: 94
+      frequency: 11
+    }
+    readIndicesForwardStrand {
+      number: 93
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 92
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 91
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 90
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 89
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 88
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 87
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 86
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 85
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 84
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 83
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 82
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 81
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 80
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 79
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 78
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 77
+      frequency: 14
+    }
+    readIndicesForwardStrand {
+      number: 76
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 96
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 75
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 74
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 73
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 72
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 71
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 70
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 69
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 68
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 67
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 65
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 64
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 63
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 62
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 61
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 60
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 59
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 58
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 57
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 56
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 55
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 54
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 53
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 52
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 51
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 50
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 49
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 48
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 47
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 46
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 45
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 44
+      frequency: 9
+    }
+    readIndicesForwardStrand {
+      number: 43
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 42
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 41
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 40
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 39
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 38
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 37
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 36
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 35
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 34
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 33
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 32
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 31
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 30
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 29
+      frequency: 11
+    }
+    readIndicesForwardStrand {
+      number: 28
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 27
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 26
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 25
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 24
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 23
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 22
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 21
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 20
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 19
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 17
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 16
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 14
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 13
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 12
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 11
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 10
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 9
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 8
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 7
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 6
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 5
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 4
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 3
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 2
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 1
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 1
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 2
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 3
+      frequency: 8
+    }
+    readIndicesReverseStrand {
+      number: 4
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 5
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 6
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 7
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 8
+      frequency: 8
+    }
+    readIndicesReverseStrand {
+      number: 9
+      frequency: 8
+    }
+    readIndicesReverseStrand {
+      number: 10
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 11
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 12
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 13
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 14
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 15
+      frequency: 10
+    }
+    readIndicesReverseStrand {
+      number: 16
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 17
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 18
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 19
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 20
+      frequency: 10
+    }
+    readIndicesReverseStrand {
+      number: 21
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 22
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 23
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 24
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 25
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 26
+      frequency: 16
+    }
+    readIndicesReverseStrand {
+      number: 27
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 28
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 29
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 30
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 31
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 32
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 33
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 34
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 35
+      frequency: 8
+    }
+    readIndicesReverseStrand {
+      number: 36
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 37
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 38
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 39
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 40
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 41
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 42
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 43
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 44
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 45
+      frequency: 12
+    }
+    readIndicesReverseStrand {
+      number: 46
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 47
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 48
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 49
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 50
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 51
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 52
+      frequency: 8
+    }
+    readIndicesReverseStrand {
+      number: 53
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 54
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 55
+      frequency: 10
+    }
+    readIndicesReverseStrand {
+      number: 56
+      frequency: 10
+    }
+    readIndicesReverseStrand {
+      number: 57
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 58
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 59
+      frequency: 12
+    }
+    readIndicesReverseStrand {
+      number: 60
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 61
+      frequency: 11
+    }
+    readIndicesReverseStrand {
+      number: 62
+      frequency: 15
+    }
+    readIndicesReverseStrand {
+      number: 63
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 64
+      frequency: 12
+    }
+    readIndicesReverseStrand {
+      number: 65
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 66
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 67
+      frequency: 8
+    }
+    readIndicesReverseStrand {
+      number: 68
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 70
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 71
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 72
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 73
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 74
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 75
+      frequency: 8
+    }
+    readIndicesReverseStrand {
+      number: 76
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 77
+      frequency: 8
+    }
+    readIndicesReverseStrand {
+      number: 78
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 79
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 80
+      frequency: 14
+    }
+    readIndicesReverseStrand {
+      number: 81
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 82
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 83
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 84
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 85
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 86
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 87
+      frequency: 10
+    }
+    readIndicesReverseStrand {
+      number: 88
+      frequency: 20
+    }
+    readIndicesReverseStrand {
+      number: 89
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 90
+      frequency: 11
+    }
+    readIndicesReverseStrand {
+      number: 91
+      frequency: 17
+    }
+    readIndicesReverseStrand {
+      number: 92
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 93
+      frequency: 18
+    }
+    readIndicesReverseStrand {
+      number: 94
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 95
+      frequency: 10
+    }
+    readIndicesReverseStrand {
+      number: 96
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 97
+      frequency: 10
+    }
+    readIndicesReverseStrand {
+      number: 98
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 99
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 100
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 101
+      frequency: 5
+    }
+  }
+  counts {
+    matchesReference: false
+    fromSequence: "A"
+    toSequence: "T"
+    genotypeCountForwardStrand: 2
+    genotypeCountReverseStrand: 0
+    qualityScoresForwardStrand {
+      number: 73
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 25
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 7
+      frequency: 1
+    }
+  }
+  counts {
+    matchesReference: false
+    fromSequence: "A"
+    toSequence: "C"
+    genotypeCountForwardStrand: 0
+    genotypeCountReverseStrand: 0
+  }
+  counts {
+    matchesReference: false
+    fromSequence: "A"
+    toSequence: "G"
+    genotypeCountForwardStrand: 422
+    genotypeCountReverseStrand: 549
+    qualityScoresForwardStrand {
+      number: 73
+      frequency: 362
+    }
+    qualityScoresForwardStrand {
+      number: 53
+      frequency: 3
+    }
+    qualityScoresForwardStrand {
+      number: 68
+      frequency: 39
+    }
+    qualityScoresForwardStrand {
+      number: 63
+      frequency: 12
+    }
+    qualityScoresForwardStrand {
+      number: 42
+      frequency: 3
+    }
+    qualityScoresForwardStrand {
+      number: 58
+      frequency: 3
+    }
+    qualityScoresReverseStrand {
+      number: 68
+      frequency: 35
+    }
+    qualityScoresReverseStrand {
+      number: 42
+      frequency: 1
+    }
+    qualityScoresReverseStrand {
+      number: 73
+      frequency: 493
+    }
+    qualityScoresReverseStrand {
+      number: 58
+      frequency: 4
+    }
+    qualityScoresReverseStrand {
+      number: 63
+      frequency: 10
+    }
+    qualityScoresReverseStrand {
+      number: 3
+      frequency: 2
+    }
+    qualityScoresReverseStrand {
+      number: 53
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 99
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 98
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 97
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 96
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 95
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 94
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 93
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 92
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 91
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 90
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 89
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 88
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 87
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 86
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 85
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 84
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 83
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 82
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 81
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 80
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 79
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 78
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 77
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 76
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 75
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 74
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 73
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 72
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 71
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 70
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 69
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 68
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 67
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 66
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 65
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 64
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 63
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 62
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 61
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 60
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 59
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 58
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 57
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 56
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 55
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 54
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 53
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 52
+      frequency: 14
+    }
+    readIndicesForwardStrand {
+      number: 51
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 50
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 49
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 48
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 47
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 46
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 45
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 44
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 43
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 42
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 41
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 40
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 39
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 38
+      frequency: 9
+    }
+    readIndicesForwardStrand {
+      number: 37
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 36
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 35
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 34
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 33
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 32
+      frequency: 9
+    }
+    readIndicesForwardStrand {
+      number: 31
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 30
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 29
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 28
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 27
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 26
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 25
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 24
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 23
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 21
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 20
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 19
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 18
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 17
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 16
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 15
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 14
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 13
+      frequency: 5
+    }
+    readIndicesForwardStrand {
+      number: 12
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 11
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 10
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 9
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 8
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 5
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 4
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 3
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 3
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 4
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 5
+      frequency: 8
+    }
+    readIndicesReverseStrand {
+      number: 6
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 7
+      frequency: 10
+    }
+    readIndicesReverseStrand {
+      number: 8
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 9
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 10
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 11
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 12
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 13
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 14
+      frequency: 13
+    }
+    readIndicesReverseStrand {
+      number: 15
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 16
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 17
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 18
+      frequency: 8
+    }
+    readIndicesReverseStrand {
+      number: 19
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 20
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 21
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 22
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 23
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 24
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 25
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 26
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 27
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 28
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 29
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 30
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 31
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 32
+      frequency: 11
+    }
+    readIndicesReverseStrand {
+      number: 33
+      frequency: 8
+    }
+    readIndicesReverseStrand {
+      number: 34
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 35
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 36
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 37
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 38
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 39
+      frequency: 11
+    }
+    readIndicesReverseStrand {
+      number: 40
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 41
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 42
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 43
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 44
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 45
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 46
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 47
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 48
+      frequency: 8
+    }
+    readIndicesReverseStrand {
+      number: 49
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 50
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 51
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 52
+      frequency: 19
+    }
+    readIndicesReverseStrand {
+      number: 53
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 54
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 55
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 56
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 57
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 58
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 59
+      frequency: 8
+    }
+    readIndicesReverseStrand {
+      number: 60
+      frequency: 13
+    }
+    readIndicesReverseStrand {
+      number: 61
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 62
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 63
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 64
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 65
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 66
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 68
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 69
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 70
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 71
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 72
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 73
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 74
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 75
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 76
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 77
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 78
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 79
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 80
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 81
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 82
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 83
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 84
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 85
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 86
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 87
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 88
+      frequency: 10
+    }
+    readIndicesReverseStrand {
+      number: 89
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 90
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 91
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 92
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 93
+      frequency: 10
+    }
+    readIndicesReverseStrand {
+      number: 94
+      frequency: 13
+    }
+    readIndicesReverseStrand {
+      number: 95
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 96
+      frequency: 11
+    }
+    readIndicesReverseStrand {
+      number: 97
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 98
+      frequency: 11
+    }
+    readIndicesReverseStrand {
+      number: 99
+      frequency: 8
+    }
+  }
+  counts {
+    matchesReference: false
+    fromSequence: "A"
+    toSequence: "N"
+    genotypeCountForwardStrand: 0
+    genotypeCountReverseStrand: 0
+    qualityScoresReverseStrand {
+      number: 0
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 28
+      frequency: 3
+    }
+  }
+  isTumor: false
+  formattedCounts: "sample: 0 counts A=1160 T=2 C=0 G=971 N=0 FB=0 indels={ null }\n"
+}
+samples {
+  counts {
+    matchesReference: true
+    fromSequence: "A"
+    toSequence: "A"
+    genotypeCountForwardStrand: 1577
+    genotypeCountReverseStrand: 2691
+    qualityScoresForwardStrand {
+      number: 255
+      frequency: 1577
+    }
+    qualityScoresReverseStrand {
+      number: 255
+      frequency: 2691
+    }
+    readIndicesForwardStrand {
+      number: 79
+      frequency: 37
+    }
+    readIndicesForwardStrand {
+      number: 95
+      frequency: 25
+    }
+    readIndicesForwardStrand {
+      number: 32
+      frequency: 15
+    }
+    readIndicesForwardStrand {
+      number: 18
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 55
+      frequency: 17
+    }
+    readIndicesForwardStrand {
+      number: 14
+      frequency: 15
+    }
+    readIndicesForwardStrand {
+      number: 62
+      frequency: 19
+    }
+    readIndicesForwardStrand {
+      number: 50
+      frequency: 29
+    }
+    readIndicesForwardStrand {
+      number: 19
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 96
+      frequency: 21
+    }
+    readIndicesForwardStrand {
+      number: 61
+      frequency: 17
+    }
+    readIndicesForwardStrand {
+      number: 63
+      frequency: 20
+    }
+    readIndicesForwardStrand {
+      number: 9
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 75
+      frequency: 15
+    }
+    readIndicesForwardStrand {
+      number: 39
+      frequency: 18
+    }
+    readIndicesForwardStrand {
+      number: 89
+      frequency: 20
+    }
+    readIndicesForwardStrand {
+      number: 80
+      frequency: 18
+    }
+    readIndicesForwardStrand {
+      number: 27
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 13
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 67
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 69
+      frequency: 27
+    }
+    readIndicesForwardStrand {
+      number: 92
+      frequency: 21
+    }
+    readIndicesForwardStrand {
+      number: 28
+      frequency: 17
+    }
+    readIndicesForwardStrand {
+      number: 8
+      frequency: 17
+    }
+    readIndicesForwardStrand {
+      number: 43
+      frequency: 15
+    }
+    readIndicesForwardStrand {
+      number: 42
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 56
+      frequency: 16
+    }
+    readIndicesForwardStrand {
+      number: 65
+      frequency: 21
+    }
+    readIndicesForwardStrand {
+      number: 59
+      frequency: 25
+    }
+    readIndicesForwardStrand {
+      number: 83
+      frequency: 23
+    }
+    readIndicesForwardStrand {
+      number: 4
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 84
+      frequency: 28
+    }
+    readIndicesForwardStrand {
+      number: 17
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 54
+      frequency: 15
+    }
+    readIndicesForwardStrand {
+      number: 99
+      frequency: 24
+    }
+    readIndicesForwardStrand {
+      number: 93
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 73
+      frequency: 23
+    }
+    readIndicesForwardStrand {
+      number: 98
+      frequency: 25
+    }
+    readIndicesForwardStrand {
+      number: 58
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 85
+      frequency: 16
+    }
+    readIndicesForwardStrand {
+      number: 33
+      frequency: 18
+    }
+    readIndicesForwardStrand {
+      number: 77
+      frequency: 21
+    }
+    readIndicesForwardStrand {
+      number: 2
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 90
+      frequency: 29
+    }
+    readIndicesForwardStrand {
+      number: 41
+      frequency: 15
+    }
+    readIndicesForwardStrand {
+      number: 86
+      frequency: 16
+    }
+    readIndicesForwardStrand {
+      number: 45
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 91
+      frequency: 20
+    }
+    readIndicesForwardStrand {
+      number: 34
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 38
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 57
+      frequency: 15
+    }
+    readIndicesForwardStrand {
+      number: 3
+      frequency: 11
+    }
+    readIndicesForwardStrand {
+      number: 52
+      frequency: 22
+    }
+    readIndicesForwardStrand {
+      number: 76
+      frequency: 17
+    }
+    readIndicesForwardStrand {
+      number: 70
+      frequency: 16
+    }
+    readIndicesForwardStrand {
+      number: 81
+      frequency: 17
+    }
+    readIndicesForwardStrand {
+      number: 97
+      frequency: 26
+    }
+    readIndicesForwardStrand {
+      number: 25
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 68
+      frequency: 21
+    }
+    readIndicesForwardStrand {
+      number: 72
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 5
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 46
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 100
+      frequency: 15
+    }
+    readIndicesForwardStrand {
+      number: 24
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 71
+      frequency: 25
+    }
+    readIndicesForwardStrand {
+      number: 20
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 94
+      frequency: 17
+    }
+    readIndicesForwardStrand {
+      number: 29
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 60
+      frequency: 17
+    }
+    readIndicesForwardStrand {
+      number: 51
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 53
+      frequency: 19
+    }
+    readIndicesForwardStrand {
+      number: 10
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 88
+      frequency: 23
+    }
+    readIndicesForwardStrand {
+      number: 82
+      frequency: 20
+    }
+    readIndicesForwardStrand {
+      number: 66
+      frequency: 30
+    }
+    readIndicesForwardStrand {
+      number: 37
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 36
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 35
+      frequency: 23
+    }
+    readIndicesForwardStrand {
+      number: 31
+      frequency: 14
+    }
+    readIndicesForwardStrand {
+      number: 23
+      frequency: 14
+    }
+    readIndicesForwardStrand {
+      number: 87
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 78
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 15
+      frequency: 16
+    }
+    readIndicesForwardStrand {
+      number: 26
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 11
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 48
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 74
+      frequency: 16
+    }
+    readIndicesForwardStrand {
+      number: 47
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 16
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 64
+      frequency: 15
+    }
+    readIndicesForwardStrand {
+      number: 30
+      frequency: 11
+    }
+    readIndicesForwardStrand {
+      number: 1
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 49
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 21
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 7
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 22
+      frequency: 9
+    }
+    readIndicesForwardStrand {
+      number: 40
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 6
+      frequency: 15
+    }
+    readIndicesForwardStrand {
+      number: 44
+      frequency: 11
+    }
+    readIndicesForwardStrand {
+      number: 12
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 40
+      frequency: 16
+    }
+    readIndicesReverseStrand {
+      number: 99
+      frequency: 59
+    }
+    readIndicesReverseStrand {
+      number: 43
+      frequency: 11
+    }
+    readIndicesReverseStrand {
+      number: 59
+      frequency: 27
+    }
+    readIndicesReverseStrand {
+      number: 84
+      frequency: 31
+    }
+    readIndicesReverseStrand {
+      number: 95
+      frequency: 36
+    }
+    readIndicesReverseStrand {
+      number: 22
+      frequency: 31
+    }
+    readIndicesReverseStrand {
+      number: 65
+      frequency: 22
+    }
+    readIndicesReverseStrand {
+      number: 32
+      frequency: 32
+    }
+    readIndicesReverseStrand {
+      number: 97
+      frequency: 47
+    }
+    readIndicesReverseStrand {
+      number: 92
+      frequency: 51
+    }
+    readIndicesReverseStrand {
+      number: 52
+      frequency: 35
+    }
+    readIndicesReverseStrand {
+      number: 56
+      frequency: 28
+    }
+    readIndicesReverseStrand {
+      number: 17
+      frequency: 26
+    }
+    readIndicesReverseStrand {
+      number: 46
+      frequency: 29
+    }
+    readIndicesReverseStrand {
+      number: 81
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 82
+      frequency: 42
+    }
+    readIndicesReverseStrand {
+      number: 94
+      frequency: 38
+    }
+    readIndicesReverseStrand {
+      number: 62
+      frequency: 42
+    }
+    readIndicesReverseStrand {
+      number: 10
+      frequency: 24
+    }
+    readIndicesReverseStrand {
+      number: 89
+      frequency: 56
+    }
+    readIndicesReverseStrand {
+      number: 19
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 11
+      frequency: 28
+    }
+    readIndicesReverseStrand {
+      number: 12
+      frequency: 34
+    }
+    readIndicesReverseStrand {
+      number: 50
+      frequency: 30
+    }
+    readIndicesReverseStrand {
+      number: 61
+      frequency: 31
+    }
+    readIndicesReverseStrand {
+      number: 30
+      frequency: 19
+    }
+    readIndicesReverseStrand {
+      number: 71
+      frequency: 17
+    }
+    readIndicesReverseStrand {
+      number: 1
+      frequency: 30
+    }
+    readIndicesReverseStrand {
+      number: 54
+      frequency: 23
+    }
+    readIndicesReverseStrand {
+      number: 85
+      frequency: 49
+    }
+    readIndicesReverseStrand {
+      number: 8
+      frequency: 34
+    }
+    readIndicesReverseStrand {
+      number: 42
+      frequency: 9
+    }
+    readIndicesReverseStrand {
+      number: 16
+      frequency: 28
+    }
+    readIndicesReverseStrand {
+      number: 21
+      frequency: 22
+    }
+    readIndicesReverseStrand {
+      number: 39
+      frequency: 13
+    }
+    readIndicesReverseStrand {
+      number: 79
+      frequency: 22
+    }
+    readIndicesReverseStrand {
+      number: 98
+      frequency: 39
+    }
+    readIndicesReverseStrand {
+      number: 91
+      frequency: 43
+    }
+    readIndicesReverseStrand {
+      number: 5
+      frequency: 29
+    }
+    readIndicesReverseStrand {
+      number: 6
+      frequency: 30
+    }
+    readIndicesReverseStrand {
+      number: 37
+      frequency: 13
+    }
+    readIndicesReverseStrand {
+      number: 41
+      frequency: 14
+    }
+    readIndicesReverseStrand {
+      number: 25
+      frequency: 27
+    }
+    readIndicesReverseStrand {
+      number: 78
+      frequency: 36
+    }
+    readIndicesReverseStrand {
+      number: 51
+      frequency: 18
+    }
+    readIndicesReverseStrand {
+      number: 100
+      frequency: 33
+    }
+    readIndicesReverseStrand {
+      number: 74
+      frequency: 17
+    }
+    readIndicesReverseStrand {
+      number: 88
+      frequency: 49
+    }
+    readIndicesReverseStrand {
+      number: 20
+      frequency: 16
+    }
+    readIndicesReverseStrand {
+      number: 47
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 53
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 90
+      frequency: 46
+    }
+    readIndicesReverseStrand {
+      number: 96
+      frequency: 43
+    }
+    readIndicesReverseStrand {
+      number: 67
+      frequency: 14
+    }
+    readIndicesReverseStrand {
+      number: 23
+      frequency: 21
+    }
+    readIndicesReverseStrand {
+      number: 58
+      frequency: 42
+    }
+    readIndicesReverseStrand {
+      number: 63
+      frequency: 24
+    }
+    readIndicesReverseStrand {
+      number: 93
+      frequency: 55
+    }
+    readIndicesReverseStrand {
+      number: 55
+      frequency: 26
+    }
+    readIndicesReverseStrand {
+      number: 87
+      frequency: 46
+    }
+    readIndicesReverseStrand {
+      number: 14
+      frequency: 27
+    }
+    readIndicesReverseStrand {
+      number: 70
+      frequency: 10
+    }
+    readIndicesReverseStrand {
+      number: 49
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 73
+      frequency: 16
+    }
+    readIndicesReverseStrand {
+      number: 2
+      frequency: 23
+    }
+    readIndicesReverseStrand {
+      number: 76
+      frequency: 28
+    }
+    readIndicesReverseStrand {
+      number: 77
+      frequency: 30
+    }
+    readIndicesReverseStrand {
+      number: 26
+      frequency: 28
+    }
+    readIndicesReverseStrand {
+      number: 69
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 27
+      frequency: 16
+    }
+    readIndicesReverseStrand {
+      number: 86
+      frequency: 32
+    }
+    readIndicesReverseStrand {
+      number: 3
+      frequency: 14
+    }
+    readIndicesReverseStrand {
+      number: 75
+      frequency: 27
+    }
+    readIndicesReverseStrand {
+      number: 60
+      frequency: 32
+    }
+    readIndicesReverseStrand {
+      number: 28
+      frequency: 23
+    }
+    readIndicesReverseStrand {
+      number: 64
+      frequency: 28
+    }
+    readIndicesReverseStrand {
+      number: 15
+      frequency: 32
+    }
+    readIndicesReverseStrand {
+      number: 18
+      frequency: 23
+    }
+    readIndicesReverseStrand {
+      number: 66
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 33
+      frequency: 26
+    }
+    readIndicesReverseStrand {
+      number: 68
+      frequency: 23
+    }
+    readIndicesReverseStrand {
+      number: 57
+      frequency: 20
+    }
+    readIndicesReverseStrand {
+      number: 80
+      frequency: 31
+    }
+    readIndicesReverseStrand {
+      number: 4
+      frequency: 23
+    }
+    readIndicesReverseStrand {
+      number: 24
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 38
+      frequency: 10
+    }
+    readIndicesReverseStrand {
+      number: 35
+      frequency: 19
+    }
+    readIndicesReverseStrand {
+      number: 9
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 29
+      frequency: 16
+    }
+    readIndicesReverseStrand {
+      number: 34
+      frequency: 14
+    }
+    readIndicesReverseStrand {
+      number: 45
+      frequency: 18
+    }
+    readIndicesReverseStrand {
+      number: 48
+      frequency: 15
+    }
+    readIndicesReverseStrand {
+      number: 36
+      frequency: 11
+    }
+    readIndicesReverseStrand {
+      number: 44
+      frequency: 14
+    }
+    readIndicesReverseStrand {
+      number: 83
+      frequency: 27
+    }
+    readIndicesReverseStrand {
+      number: 72
+      frequency: 12
+    }
+    readIndicesReverseStrand {
+      number: 13
+      frequency: 31
+    }
+    readIndicesReverseStrand {
+      number: 7
+      frequency: 22
+    }
+    readIndicesReverseStrand {
+      number: 31
+      frequency: 12
+    }
+  }
+  counts {
+    matchesReference: false
+    fromSequence: "A"
+    toSequence: "T"
+    genotypeCountForwardStrand: 1
+    genotypeCountReverseStrand: 1
+    qualityScoresForwardStrand {
+      number: 63
+      frequency: 1
+    }
+    qualityScoresReverseStrand {
+      number: 42
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 82
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 80
+      frequency: 1
+    }
+  }
+  counts {
+    matchesReference: false
+    fromSequence: "A"
+    toSequence: "C"
+    genotypeCountForwardStrand: 127
+    genotypeCountReverseStrand: 204
+    qualityScoresForwardStrand {
+      number: 73
+      frequency: 1
+    }
+    qualityScoresForwardStrand {
+      number: 255
+      frequency: 126
+    }
+    qualityScoresReverseStrand {
+      number: 42
+      frequency: 2
+    }
+    qualityScoresReverseStrand {
+      number: 73
+      frequency: 1
+    }
+    qualityScoresReverseStrand {
+      number: 255
+      frequency: 201
+    }
+    readIndicesForwardStrand {
+      number: 59
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 85
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 55
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 67
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 7
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 21
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 46
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 3
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 64
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 45
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 80
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 72
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 82
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 54
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 29
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 56
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 20
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 86
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 4
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 87
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 52
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 31
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 42
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 34
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 60
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 1
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 12
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 100
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 37
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 62
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 51
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 35
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 96
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 69
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 53
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 70
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 66
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 39
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 97
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 18
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 8
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 84
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 71
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 88
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 74
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 65
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 83
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 81
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 14
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 19
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 63
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 43
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 58
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 2
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 78
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 95
+      frequency: 3
+    }
+    readIndicesForwardStrand {
+      number: 76
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 23
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 77
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 41
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 33
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 28
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 40
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 61
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 36
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 90
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 92
+      frequency: 2
+    }
+    readIndicesForwardStrand {
+      number: 93
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 91
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 11
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 17
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 42
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 59
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 63
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 14
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 19
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 23
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 46
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 16
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 80
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 8
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 93
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 82
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 45
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 6
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 52
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 20
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 5
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 88
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 96
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 90
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 94
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 13
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 67
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 60
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 35
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 86
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 87
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 85
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 56
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 49
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 71
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 12
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 74
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 22
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 61
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 33
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 81
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 77
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 76
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 30
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 62
+      frequency: 7
+    }
+    readIndicesReverseStrand {
+      number: 89
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 51
+      frequency: 5
+    }
+    readIndicesReverseStrand {
+      number: 55
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 18
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 27
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 73
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 58
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 95
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 32
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 78
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 98
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 4
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 91
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 69
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 7
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 92
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 84
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 1
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 100
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 99
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 41
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 79
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 28
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 29
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 25
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 21
+      frequency: 4
+    }
+    readIndicesReverseStrand {
+      number: 64
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 68
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 37
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 65
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 70
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 72
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 10
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 24
+      frequency: 2
+    }
+    readIndicesReverseStrand {
+      number: 66
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 36
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 48
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 3
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 26
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 75
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 31
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 34
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 2
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 50
+      frequency: 3
+    }
+    readIndicesReverseStrand {
+      number: 54
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 9
+      frequency: 1
+    }
+    readIndicesReverseStrand {
+      number: 44
+      frequency: 1
+    }
+  }
+  counts {
+    matchesReference: false
+    fromSequence: "A"
+    toSequence: "G"
+    genotypeCountForwardStrand: 1577
+    genotypeCountReverseStrand: 2806
+    qualityScoresForwardStrand {
+      number: 73
+      frequency: 1379
+    }
+    qualityScoresForwardStrand {
+      number: 68
+      frequency: 132
+    }
+    qualityScoresForwardStrand {
+      number: 42
+      frequency: 7
+    }
+    qualityScoresForwardStrand {
+      number: 63
+      frequency: 43
+    }
+    qualityScoresForwardStrand {
+      number: 58
+      frequency: 13
+    }
+    qualityScoresForwardStrand {
+      number: 53
+      frequency: 3
+    }
+    qualityScoresReverseStrand {
+      number: 68
+      frequency: 258
+    }
+    qualityScoresReverseStrand {
+      number: 63
+      frequency: 42
+    }
+    qualityScoresReverseStrand {
+      number: 58
+      frequency: 24
+    }
+    qualityScoresReverseStrand {
+      number: 73
+      frequency: 2437
+    }
+    qualityScoresReverseStrand {
+      number: 42
+      frequency: 20
+    }
+    qualityScoresReverseStrand {
+      number: 53
+      frequency: 18
+    }
+    qualityScoresReverseStrand {
+      number: 1
+      frequency: 3
+    }
+    qualityScoresReverseStrand {
+      number: 3
+      frequency: 4
+    }
+    readIndicesForwardStrand {
+      number: 98
+      frequency: 25
+    }
+    readIndicesForwardStrand {
+      number: 97
+      frequency: 19
+    }
+    readIndicesForwardStrand {
+      number: 96
+      frequency: 21
+    }
+    readIndicesForwardStrand {
+      number: 95
+      frequency: 24
+    }
+    readIndicesForwardStrand {
+      number: 94
+      frequency: 26
+    }
+    readIndicesForwardStrand {
+      number: 93
+      frequency: 26
+    }
+    readIndicesForwardStrand {
+      number: 92
+      frequency: 20
+    }
+    readIndicesForwardStrand {
+      number: 91
+      frequency: 16
+    }
+    readIndicesForwardStrand {
+      number: 90
+      frequency: 27
+    }
+    readIndicesForwardStrand {
+      number: 89
+      frequency: 23
+    }
+    readIndicesForwardStrand {
+      number: 88
+      frequency: 20
+    }
+    readIndicesForwardStrand {
+      number: 87
+      frequency: 23
+    }
+    readIndicesForwardStrand {
+      number: 86
+      frequency: 9
+    }
+    readIndicesForwardStrand {
+      number: 85
+      frequency: 18
+    }
+    readIndicesForwardStrand {
+      number: 84
+      frequency: 28
+    }
+    readIndicesForwardStrand {
+      number: 83
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 82
+      frequency: 19
+    }
+    readIndicesForwardStrand {
+      number: 81
+      frequency: 15
+    }
+    readIndicesForwardStrand {
+      number: 80
+      frequency: 21
+    }
+    readIndicesForwardStrand {
+      number: 79
+      frequency: 28
+    }
+    readIndicesForwardStrand {
+      number: 78
+      frequency: 20
+    }
+    readIndicesForwardStrand {
+      number: 77
+      frequency: 21
+    }
+    readIndicesForwardStrand {
+      number: 76
+      frequency: 20
+    }
+    readIndicesForwardStrand {
+      number: 75
+      frequency: 26
+    }
+    readIndicesForwardStrand {
+      number: 74
+      frequency: 17
+    }
+    readIndicesForwardStrand {
+      number: 73
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 72
+      frequency: 22
+    }
+    readIndicesForwardStrand {
+      number: 71
+      frequency: 17
+    }
+    readIndicesForwardStrand {
+      number: 70
+      frequency: 23
+    }
+    readIndicesForwardStrand {
+      number: 69
+      frequency: 18
+    }
+    readIndicesForwardStrand {
+      number: 68
+      frequency: 27
+    }
+    readIndicesForwardStrand {
+      number: 67
+      frequency: 22
+    }
+    readIndicesForwardStrand {
+      number: 66
+      frequency: 26
+    }
+    readIndicesForwardStrand {
+      number: 65
+      frequency: 24
+    }
+    readIndicesForwardStrand {
+      number: 64
+      frequency: 18
+    }
+    readIndicesForwardStrand {
+      number: 63
+      frequency: 26
+    }
+    readIndicesForwardStrand {
+      number: 62
+      frequency: 31
+    }
+    readIndicesForwardStrand {
+      number: 61
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 60
+      frequency: 19
+    }
+    readIndicesForwardStrand {
+      number: 59
+      frequency: 18
+    }
+    readIndicesForwardStrand {
+      number: 58
+      frequency: 17
+    }
+    readIndicesForwardStrand {
+      number: 57
+      frequency: 11
+    }
+    readIndicesForwardStrand {
+      number: 56
+      frequency: 20
+    }
+    readIndicesForwardStrand {
+      number: 55
+      frequency: 22
+    }
+    readIndicesForwardStrand {
+      number: 54
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 53
+      frequency: 17
+    }
+    readIndicesForwardStrand {
+      number: 52
+      frequency: 31
+    }
+    readIndicesForwardStrand {
+      number: 51
+      frequency: 9
+    }
+    readIndicesForwardStrand {
+      number: 50
+      frequency: 21
+    }
+    readIndicesForwardStrand {
+      number: 49
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 48
+      frequency: 9
+    }
+    readIndicesForwardStrand {
+      number: 47
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 46
+      frequency: 9
+    }
+    readIndicesForwardStrand {
+      number: 45
+      frequency: 17
+    }
+    readIndicesForwardStrand {
+      number: 44
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 43
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 42
+      frequency: 14
+    }
+    readIndicesForwardStrand {
+      number: 41
+      frequency: 25
+    }
+    readIndicesForwardStrand {
+      number: 40
+      frequency: 18
+    }
+    readIndicesForwardStrand {
+      number: 39
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 38
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 37
+      frequency: 16
+    }
+    readIndicesForwardStrand {
+      number: 36
+      frequency: 25
+    }
+    readIndicesForwardStrand {
+      number: 35
+      frequency: 20
+    }
+    readIndicesForwardStrand {
+      number: 34
+      frequency: 16
+    }
+    readIndicesForwardStrand {
+      number: 33
+      frequency: 25
+    }
+    readIndicesForwardStrand {
+      number: 32
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 31
+      frequency: 9
+    }
+    readIndicesForwardStrand {
+      number: 30
+      frequency: 16
+    }
+    readIndicesForwardStrand {
+      number: 29
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 28
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 27
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 26
+      frequency: 12
+    }
+    readIndicesForwardStrand {
+      number: 25
+      frequency: 9
+    }
+    readIndicesForwardStrand {
+      number: 24
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 23
+      frequency: 14
+    }
+    readIndicesForwardStrand {
+      number: 22
+      frequency: 18
+    }
+    readIndicesForwardStrand {
+      number: 21
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 20
+      frequency: 11
+    }
+    readIndicesForwardStrand {
+      number: 19
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 18
+      frequency: 14
+    }
+    readIndicesForwardStrand {
+      number: 17
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 16
+      frequency: 15
+    }
+    readIndicesForwardStrand {
+      number: 15
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 14
+      frequency: 13
+    }
+    readIndicesForwardStrand {
+      number: 13
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 12
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 11
+      frequency: 11
+    }
+    readIndicesForwardStrand {
+      number: 10
+      frequency: 6
+    }
+    readIndicesForwardStrand {
+      number: 9
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 8
+      frequency: 9
+    }
+    readIndicesForwardStrand {
+      number: 7
+      frequency: 15
+    }
+    readIndicesForwardStrand {
+      number: 6
+      frequency: 8
+    }
+    readIndicesForwardStrand {
+      number: 5
+      frequency: 10
+    }
+    readIndicesForwardStrand {
+      number: 4
+      frequency: 7
+    }
+    readIndicesForwardStrand {
+      number: 3
+      frequency: 12
+    }
+    readIndicesReverseStrand {
+      number: 3
+      frequency: 17
+    }
+    readIndicesReverseStrand {
+      number: 4
+      frequency: 46
+    }
+    readIndicesReverseStrand {
+      number: 5
+      frequency: 22
+    }
+    readIndicesReverseStrand {
+      number: 6
+      frequency: 22
+    }
+    readIndicesReverseStrand {
+      number: 7
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 8
+      frequency: 24
+    }
+    readIndicesReverseStrand {
+      number: 9
+      frequency: 23
+    }
+    readIndicesReverseStrand {
+      number: 10
+      frequency: 40
+    }
+    readIndicesReverseStrand {
+      number: 11
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 12
+      frequency: 44
+    }
+    readIndicesReverseStrand {
+      number: 13
+      frequency: 22
+    }
+    readIndicesReverseStrand {
+      number: 14
+      frequency: 24
+    }
+    readIndicesReverseStrand {
+      number: 15
+      frequency: 27
+    }
+    readIndicesReverseStrand {
+      number: 16
+      frequency: 12
+    }
+    readIndicesReverseStrand {
+      number: 17
+      frequency: 18
+    }
+    readIndicesReverseStrand {
+      number: 18
+      frequency: 23
+    }
+    readIndicesReverseStrand {
+      number: 19
+      frequency: 17
+    }
+    readIndicesReverseStrand {
+      number: 20
+      frequency: 26
+    }
+    readIndicesReverseStrand {
+      number: 21
+      frequency: 28
+    }
+    readIndicesReverseStrand {
+      number: 22
+      frequency: 22
+    }
+    readIndicesReverseStrand {
+      number: 23
+      frequency: 19
+    }
+    readIndicesReverseStrand {
+      number: 24
+      frequency: 20
+    }
+    readIndicesReverseStrand {
+      number: 25
+      frequency: 16
+    }
+    readIndicesReverseStrand {
+      number: 26
+      frequency: 21
+    }
+    readIndicesReverseStrand {
+      number: 27
+      frequency: 23
+    }
+    readIndicesReverseStrand {
+      number: 28
+      frequency: 42
+    }
+    readIndicesReverseStrand {
+      number: 29
+      frequency: 19
+    }
+    readIndicesReverseStrand {
+      number: 30
+      frequency: 24
+    }
+    readIndicesReverseStrand {
+      number: 31
+      frequency: 19
+    }
+    readIndicesReverseStrand {
+      number: 32
+      frequency: 30
+    }
+    readIndicesReverseStrand {
+      number: 33
+      frequency: 22
+    }
+    readIndicesReverseStrand {
+      number: 34
+      frequency: 41
+    }
+    readIndicesReverseStrand {
+      number: 35
+      frequency: 39
+    }
+    readIndicesReverseStrand {
+      number: 36
+      frequency: 16
+    }
+    readIndicesReverseStrand {
+      number: 37
+      frequency: 6
+    }
+    readIndicesReverseStrand {
+      number: 38
+      frequency: 11
+    }
+    readIndicesReverseStrand {
+      number: 39
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 40
+      frequency: 24
+    }
+    readIndicesReverseStrand {
+      number: 41
+      frequency: 18
+    }
+    readIndicesReverseStrand {
+      number: 42
+      frequency: 21
+    }
+    readIndicesReverseStrand {
+      number: 43
+      frequency: 22
+    }
+    readIndicesReverseStrand {
+      number: 44
+      frequency: 21
+    }
+    readIndicesReverseStrand {
+      number: 45
+      frequency: 28
+    }
+    readIndicesReverseStrand {
+      number: 46
+      frequency: 17
+    }
+    readIndicesReverseStrand {
+      number: 47
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 48
+      frequency: 14
+    }
+    readIndicesReverseStrand {
+      number: 49
+      frequency: 28
+    }
+    readIndicesReverseStrand {
+      number: 50
+      frequency: 24
+    }
+    readIndicesReverseStrand {
+      number: 51
+      frequency: 30
+    }
+    readIndicesReverseStrand {
+      number: 52
+      frequency: 47
+    }
+    readIndicesReverseStrand {
+      number: 53
+      frequency: 27
+    }
+    readIndicesReverseStrand {
+      number: 54
+      frequency: 41
+    }
+    readIndicesReverseStrand {
+      number: 55
+      frequency: 36
+    }
+    readIndicesReverseStrand {
+      number: 56
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 57
+      frequency: 33
+    }
+    readIndicesReverseStrand {
+      number: 58
+      frequency: 21
+    }
+    readIndicesReverseStrand {
+      number: 59
+      frequency: 36
+    }
+    readIndicesReverseStrand {
+      number: 60
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 61
+      frequency: 39
+    }
+    readIndicesReverseStrand {
+      number: 62
+      frequency: 35
+    }
+    readIndicesReverseStrand {
+      number: 63
+      frequency: 26
+    }
+    readIndicesReverseStrand {
+      number: 64
+      frequency: 37
+    }
+    readIndicesReverseStrand {
+      number: 65
+      frequency: 30
+    }
+    readIndicesReverseStrand {
+      number: 66
+      frequency: 16
+    }
+    readIndicesReverseStrand {
+      number: 67
+      frequency: 21
+    }
+    readIndicesReverseStrand {
+      number: 68
+      frequency: 25
+    }
+    readIndicesReverseStrand {
+      number: 69
+      frequency: 12
+    }
+    readIndicesReverseStrand {
+      number: 70
+      frequency: 20
+    }
+    readIndicesReverseStrand {
+      number: 71
+      frequency: 16
+    }
+    readIndicesReverseStrand {
+      number: 72
+      frequency: 24
+    }
+    readIndicesReverseStrand {
+      number: 73
+      frequency: 19
+    }
+    readIndicesReverseStrand {
+      number: 74
+      frequency: 28
+    }
+    readIndicesReverseStrand {
+      number: 75
+      frequency: 28
+    }
+    readIndicesReverseStrand {
+      number: 76
+      frequency: 39
+    }
+    readIndicesReverseStrand {
+      number: 77
+      frequency: 26
+    }
+    readIndicesReverseStrand {
+      number: 78
+      frequency: 38
+    }
+    readIndicesReverseStrand {
+      number: 79
+      frequency: 22
+    }
+    readIndicesReverseStrand {
+      number: 80
+      frequency: 30
+    }
+    readIndicesReverseStrand {
+      number: 81
+      frequency: 23
+    }
+    readIndicesReverseStrand {
+      number: 82
+      frequency: 26
+    }
+    readIndicesReverseStrand {
+      number: 83
+      frequency: 37
+    }
+    readIndicesReverseStrand {
+      number: 84
+      frequency: 45
+    }
+    readIndicesReverseStrand {
+      number: 85
+      frequency: 49
+    }
+    readIndicesReverseStrand {
+      number: 86
+      frequency: 32
+    }
+    readIndicesReverseStrand {
+      number: 87
+      frequency: 53
+    }
+    readIndicesReverseStrand {
+      number: 88
+      frequency: 54
+    }
+    readIndicesReverseStrand {
+      number: 89
+      frequency: 48
+    }
+    readIndicesReverseStrand {
+      number: 90
+      frequency: 48
+    }
+    readIndicesReverseStrand {
+      number: 91
+      frequency: 58
+    }
+    readIndicesReverseStrand {
+      number: 92
+      frequency: 48
+    }
+    readIndicesReverseStrand {
+      number: 93
+      frequency: 70
+    }
+    readIndicesReverseStrand {
+      number: 94
+      frequency: 43
+    }
+    readIndicesReverseStrand {
+      number: 95
+      frequency: 45
+    }
+    readIndicesReverseStrand {
+      number: 96
+      frequency: 41
+    }
+    readIndicesReverseStrand {
+      number: 97
+      frequency: 52
+    }
+    readIndicesReverseStrand {
+      number: 98
+      frequency: 40
+    }
+  }
+  counts {
+    matchesReference: false
+    fromSequence: "A"
+    toSequence: "N"
+    genotypeCountForwardStrand: 0
+    genotypeCountReverseStrand: 0
+    qualityScoresForwardStrand {
+      number: 0
+      frequency: 1
+    }
+    readIndicesForwardStrand {
+      number: 68
+      frequency: 1
+    }
+  }
+  isTumor: true
+  formattedCounts: "sample: 1 counts A=4595 T=2 C=4 G=4383 N=0 FB=0 indels={ null }\n"
+}

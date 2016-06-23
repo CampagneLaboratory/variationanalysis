@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>variation-analysis</artifactId>
+        <groupId>org.campagnelab.dl</groupId>
+        <version>0.2.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>model-utils</artifactId>
+     <properties>
+         <!-- protobuf paths -->
+         <protobuf.input.directory>${project.basedir}/protobuf</protobuf.input.directory>
+         <protobuf.output.directory>${project.build.directory}/generated-sources</protobuf.output.directory>
+
+         <!-- library versions -->
+         <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
+         <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
+         <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
+         <maven-shade-plugin.version>2.4.2</maven-shade-plugin.version>
+         <os-maven-plugin.version>1.5.0.Final</os-maven-plugin.version>
+         <protobuf.version>3.0.0-beta-3</protobuf.version>
+         <parquet.project.version>1.8.1</parquet.project.version>
+         <log4j.configuration>file:${basedir}/config/logback.xml</log4j.configuration>
+     </properties>
+
+
+    <build>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>record.avsc</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>config</directory>
+                <includes>
+                    <include>logback.xml</include>
+                </includes>
+            </resource>
+        </resources>
+        <extensions>
+            <!-- provides os.detected.classifier (i.e. linux-x86_64, osx-x86_64) property -->
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>${os-maven-plugin.version}</version>
+            </extension>
+        </extensions>
+
+        <plugins>
+            <!-- copy protoc binary into build directory -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-protoc</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.google.protobuf</groupId>
+                                    <artifactId>protoc</artifactId>
+                                    <version>${protobuf.version}</version>
+                                    <classifier>${os.detected.classifier}</classifier>
+                                    <type>exe</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- compile proto buffer files using copied protoc binary -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${maven-antrun-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>exec-protoc</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <target>
+                                <chmod file="${project.build.directory}/protoc-${protobuf.version}-${os.detected.classifier}.exe" perm="ugo+rx"/>
+                                <mkdir dir="${protobuf.output.directory}" />
+                                <path id="protobuf.input.filepaths.path">
+                                    <fileset dir="${protobuf.input.directory}">
+                                        <include name="**/*.proto"/>
+                                    </fileset>
+                                </path>
+                                <pathconvert pathsep=" " property="protobuf.input.filepaths" refid="protobuf.input.filepaths.path"/>
+                                <exec executable="${project.build.directory}/protoc-${protobuf.version}-${os.detected.classifier}.exe" failonerror="true">
+                                    <arg value="-I"/>
+                                    <arg value="${protobuf.input.directory}"/>
+                                    <arg value="--java_out"/>
+                                    <arg value="${protobuf.output.directory}"/>
+                                    <arg line="${protobuf.input.filepaths}"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- add generated proto buffer classes into the package -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build-helper-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>add-classes</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${protobuf.output.directory}</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus snapshot repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>nexus-releases</id>
+            <name>Nexus Release Repository</name>
+            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.nd4j</groupId>
+                <artifactId>nd4j-native</artifactId>
+                <version>${nd4j.version}</version>
+            </dependency>
+            <!--dependency>
+                <groupId>org.nd4j</groupId>
+                <artifactId>nd4j-cuda-7.5</artifactId>
+                <version>${nd4j.version}</version>
+            </dependency-->
+        </dependencies>
+    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-core</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-tools</artifactId>
+            <version>${parquet.project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-hadoop</artifactId>
+            <version>${parquet.project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.7.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.7.4</version>
+        </dependency>
+        <dependency>
+            <groupId>it.unimi.dsi</groupId>
+            <artifactId>dsiutils</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>it.unimi.dsi</groupId>
+            <artifactId>fastutil</artifactId>
+            <version>7.0.12</version>
+        </dependency>
+
+        <!-- Deeplearning4j: -->
+
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-core</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-ui</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-native</artifactId>
+        </dependency>
+        <!--dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-cuda-7.5</artifactId>
+            <version>${nd4j.version}</version>
+        </dependency-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commonsio.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.13</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.0.13</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-common</artifactId>
+            <version>${parquet.project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-protobuf</artifactId>
+            <version>${parquet.project.version}</version>
+        </dependency>
+
+
+    </dependencies>
+
+</project>

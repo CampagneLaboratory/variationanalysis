@@ -1,0 +1,21 @@
+<configuration  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/enricopulatzo/logback-XSD/master/src/main/xsd/logback.xsd">
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="STDOUT" />
+    </root>
+    <logger name="org.apache.hadoop.conf.Configuration" level="info"/>
+    <logger name="org.apache.hadoop" level="error"/>
+    <logger name="org.apache.parquet.hadoop" level="error"/>
+    <logger name="org.apache.parquet.hadoop.ParquetFileReader" level="error"/>
+    <logger name="org.reflections" level="info"/>
+
+</configuration>
