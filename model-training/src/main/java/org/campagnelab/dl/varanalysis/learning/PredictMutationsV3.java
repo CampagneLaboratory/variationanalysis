@@ -2,8 +2,10 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
-import org.campagnelab.dl.varanalysis.intermediaries.Mutator;
-import org.campagnelab.dl.varanalysis.learning.mappers.*;
+import org.campagnelab.dl.model.utils.ProtoPredictor;
+import org.campagnelab.dl.model.utils.mappers.AbstractPredictMutations;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV3S;
+import org.campagnelab.dl.model.utils.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -23,7 +25,7 @@ import java.util.Arrays;
  *
  * @author Remi Torracinta
  */
-public class PredictMutationsV3 extends AbstractPredictMutations{
+public class PredictMutationsV3 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV3.class);
 
     String modelPath;
@@ -70,10 +72,10 @@ public class PredictMutationsV3 extends AbstractPredictMutations{
         float[] s1Scores = new float[10];
         float[] s2Scores = new float[10];
         for (int i = 0; i < 5; i++){
-            s1Scores[i] = QualityFeatures.avgQuality(RecordReader.expandFreq(pos.getSamples(0).getCounts(i).getQualityScoresForwardStrandList()));
-            s1Scores[i+5] = QualityFeatures.avgQuality(RecordReader.expandFreq(pos.getSamples(0).getCounts(i).getQualityScoresReverseStrandList()));
-            s2Scores[i] = QualityFeatures.avgQuality(RecordReader.expandFreq(pos.getSamples(1).getCounts(i).getQualityScoresForwardStrandList()));
-            s2Scores[i+5] = QualityFeatures.avgQuality(RecordReader.expandFreq(pos.getSamples(1).getCounts(i).getQualityScoresReverseStrandList()));
+            s1Scores[i] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(0).getCounts(i).getQualityScoresForwardStrandList()));
+            s1Scores[i+5] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(0).getCounts(i).getQualityScoresReverseStrandList()));
+            s2Scores[i] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(1).getCounts(i).getQualityScoresForwardStrandList()));
+            s2Scores[i+5] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(1).getCounts(i).getQualityScoresReverseStrandList()));
         }
 
         String features = (pos.hasFrequencyOfMutation()?pos.getFrequencyOfMutation():"") + "\t"

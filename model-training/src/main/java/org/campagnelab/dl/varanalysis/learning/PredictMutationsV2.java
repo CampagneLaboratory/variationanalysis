@@ -1,7 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import org.apache.commons.io.FileUtils;
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV2;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV2;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;

@@ -1,7 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
-import org.campagnelab.dl.varanalysis.learning.mappers.FeatureMapperV2;
-import org.campagnelab.dl.varanalysis.learning.mappers.SimpleFeatureCalculator;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV2;
+import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
 import org.junit.Test;
 import org.nd4j.linalg.dataset.DataSet;
 

@@ -1,8 +1,8 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.campagnelab.dl.model.utils.FeatureMapper;
-import org.campagnelab.dl.varanalysis.learning.mappers.LabelMapper;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
+import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.nd4j.linalg.api.ndarray.INDArray;

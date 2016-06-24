@@ -1,6 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.mappers;
 
-import org.campagnelab.dl.varanalysis.learning.mappers.MagnitudeFeatures;
+import org.campagnelab.dl.model.utils.mappers.MagnitudeFeatures;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 

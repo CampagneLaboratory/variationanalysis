@@ -194,13 +194,13 @@ public class Mutator extends Intermediary {
         if (somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandCount() > 0 && somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandCount() > 0) {
 
             //forward strand
-            fromForward.addAll(RecordReader.expandFreq(somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList()));
-            toForward.addAll(RecordReader.expandFreq(somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList()));
+            fromForward.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList()));
+            toForward.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList()));
             mutateIntegerLists(fMutCount, fromForward, toForward);
 
             //reverse strand
-            fromBackward.addAll(RecordReader.expandFreq(somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList()));
-            toBackward.addAll(RecordReader.expandFreq(somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList()));
+            fromBackward.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList()));
+            toBackward.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList()));
             mutateIntegerLists(bMutCount, fromBackward, toBackward);
 
         }
@@ -213,13 +213,13 @@ public class Mutator extends Intermediary {
         if (somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandCount() > 0 && somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandCount() > 0) {
 
             //forward strand
-            fromForwardR.addAll(RecordReader.expandFreq(somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList()));
-            toForwardR.addAll(RecordReader.expandFreq(somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList()));
+            fromForwardR.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList()));
+            toForwardR.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList()));
             mutateIntegerLists(fMutCount, fromForwardR, toForwardR);
 
             //reverse strand
-            fromBackwardR.addAll(RecordReader.expandFreq(somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList()));
-            toBackwardR.addAll(RecordReader.expandFreq(somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList()));
+            fromBackwardR.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList()));
+            toBackwardR.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList()));
             mutateIntegerLists(bMutCount, fromBackwardR, toBackwardR);
 
 

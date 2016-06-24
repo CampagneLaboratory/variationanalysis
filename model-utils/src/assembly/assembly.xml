@@ -15,7 +15,11 @@
             <outputDirectory>/</outputDirectory>
             <unpack>true</unpack>
             <scope>runtime</scope>
-            <excludes/>
+            <excludes>
+                <!-- exclude>com.google.protobuf:protobuf-java</exclude -->
+                <exclude>it.unimi.dsi:fastutil</exclude>
+                <exclude>it.unimi.dsi:dsiutils</exclude>
+            </excludes>
         </dependencySet>
     </dependencySets>
 </assembly>

@@ -192,19 +192,5 @@ public class RecordReader implements Closeable, RecordIterable {
         return null;
     }
 
-    public static List<Integer> expandFreq(List<BaseInformationRecords.NumberWithFrequency> freqList) {
-        int capacity = 0;
-        for (BaseInformationRecords.NumberWithFrequency freq : freqList) {
-            capacity += freq.getFrequency();
-        }
-        IntArrayList expanded = new IntArrayList(capacity);
-        for (BaseInformationRecords.NumberWithFrequency freq : freqList) {
-            for (int i = 0; i < freq.getFrequency(); i++) {
-                expanded.add(freq.getNumber());
-            }
-        }
-
-        return expanded;
-    }
 
 }

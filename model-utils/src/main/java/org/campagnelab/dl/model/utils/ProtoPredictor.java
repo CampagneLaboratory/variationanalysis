@@ -2,13 +2,14 @@ package org.campagnelab.dl.model.utils;
 
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
-import java.io.PrintWriter;
 import java.util.List;
 
 /**
@@ -25,7 +26,20 @@ public class ProtoPredictor {
         this.model = model;
         this.mapper = mapper;
     }
+    public static List<Integer> expandFreq(List<BaseInformationRecords.NumberWithFrequency> freqList) {
+        int capacity = 0;
+        for (BaseInformationRecords.NumberWithFrequency freq : freqList) {
+            capacity += freq.getFrequency();
+        }
+        IntArrayList expanded = new IntArrayList(capacity);
+        for (BaseInformationRecords.NumberWithFrequency freq : freqList) {
+            for (int i = 0; i < freq.getFrequency(); i++) {
+                expanded.add(freq.getNumber());
+            }
+        }
 
+        return expanded;
+    }
     public static List<BaseInformationRecords.NumberWithFrequency> compressFreq(List<Integer> numList) {
         //compress into map
         Int2IntArrayMap freqMap = new Int2IntArrayMap(100);

@@ -1,7 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning.mappers;
 
 import com.google.protobuf.TextFormat;
-import org.campagnelab.dl.varanalysis.learning.mappers.SimpleFeatureCalculator;
+import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
