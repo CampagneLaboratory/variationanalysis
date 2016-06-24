@@ -46,12 +46,28 @@ public class ProtoPredictor {
         return freqList;
     }
 
-    private boolean mutPrediction(BaseInformationRecords.BaseInformation record) {
+    public Prediction mutPrediction(BaseInformationRecords.BaseInformation record) {
         INDArray testFeatures = Nd4j.zeros(1, mapper.numberOfFeatures());
         mapper.mapFeatures(record, testFeatures, 0);
         INDArray testPredicted = model.output(testFeatures, false);
         float[] probabilities = testPredicted.getRow(0).data().asFloat();
-        boolean predictedMutated = probabilities[0] > probabilities[1];
-        return predictedMutated;
+        Prediction ret = new Prediction(probabilities[0],probabilities[1]);
+        return ret;
+    }
+
+    public class Prediction {
+        public boolean clas;
+        public float posProb;
+        public float negProb;
+
+        protected Prediction(float posProb, float negProb){
+            this.posProb = posProb;
+            this.negProb = negProb;
+            this.clas = (posProb > negProb);
+        }
+
+
     }
 }
+
+

@@ -2,6 +2,7 @@ package org.campagnelab.dl.varanalysis.learning.mappers;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.FeatureMapper;
+import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -27,12 +28,12 @@ public abstract class AbstractPredictMutations {
         String features = featuresToString(record);
         //boolean
         boolean mutated = record.getMutated();
-        float[] probabilities = testPredicted.getRow(0).data().asFloat();
-        boolean predictedMutated = probabilities[0] > probabilities[1];
+        ProtoPredictor predictor = new ProtoPredictor(model,featureMapper);
+        ProtoPredictor.Prediction prediction = predictor.mutPrediction(record);
         String formatted0 = record.getSamples(0).getFormattedCounts().replaceAll("\n","");
         String formatted1 = record.getSamples(1).getFormattedCounts().replaceAll("\n","");
-        String correctness = (predictedMutated == mutated) ? "right" : "wrong";
-        results.append((mutated?"1":"0") + "\t" + Float.toString(probabilities[0]) + "\t" + Float.toString(probabilities[1]) +  "\t" + correctness + "\t" + features + "\t" + formatted0 + "\t" + formatted1 + "\n");
+        String correctness = (prediction.clas == mutated) ? "right" : "wrong";
+        results.append((mutated?"1":"0") + "\t" + Float.toString(prediction.posProb) + "\t" + Float.toString(prediction.negProb) +  "\t" + correctness + "\t" + features + "\t" + formatted0 + "\t" + formatted1 + "\n");
         pgReadWrite.update();
     }
 

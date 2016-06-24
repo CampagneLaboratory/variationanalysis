@@ -22,8 +22,6 @@
          <maven-shade-plugin.version>2.4.2</maven-shade-plugin.version>
          <os-maven-plugin.version>1.5.0.Final</os-maven-plugin.version>
          <protobuf.version>3.0.0-beta-3</protobuf.version>
-         <parquet.project.version>1.8.1</parquet.project.version>
-         <log4j.configuration>file:${basedir}/config/logback.xml</log4j.configuration>
      </properties>
 
 
@@ -54,6 +52,22 @@
 
         <plugins>
             <!-- copy protoc binary into build directory -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -91,6 +105,7 @@
                         <id>exec-protoc</id>
                         <phase>generate-sources</phase>
                         <configuration>
+
                             <target>
                                 <chmod file="${project.build.directory}/protoc-${protobuf.version}-${os.detected.classifier}.exe" perm="ugo+rx"/>
                                 <mkdir dir="${protobuf.output.directory}" />
@@ -196,32 +211,6 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-core</artifactId>
-            <version>1.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.parquet</groupId>
-            <artifactId>parquet-tools</artifactId>
-            <version>${parquet.project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.parquet</groupId>
-            <artifactId>parquet-hadoop</artifactId>
-            <version>${parquet.project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.7.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.7.4</version>
-        </dependency>
-        <dependency>
             <groupId>it.unimi.dsi</groupId>
             <artifactId>dsiutils</artifactId>
             <version>2.3.2</version>
@@ -246,11 +235,6 @@
             <version>${dl4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-native</artifactId>
         </dependency>
@@ -260,42 +244,9 @@
             <version>${nd4j.version}</version>
         </dependency-->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commonsio.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.0.13</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>1.0.13</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.parquet</groupId>
-            <artifactId>parquet-common</artifactId>
-            <version>${parquet.project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.parquet</groupId>
-            <artifactId>parquet-protobuf</artifactId>
-            <version>${parquet.project.version}</version>
         </dependency>
 
 
