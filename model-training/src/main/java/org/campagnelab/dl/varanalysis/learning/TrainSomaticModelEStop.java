@@ -58,6 +58,7 @@ public class TrainSomaticModelEStop {
         double learningRate = 0.1;
         int miniBatchSize = 100;
         int numEpochs = 50;
+        int earlyStopCondition = 3;
         double dropoutRate = 0.5;
         long time = new Date().getTime();
         System.out.println("time: " + time);
@@ -66,6 +67,22 @@ public class TrainSomaticModelEStop {
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
         int generateSamplesEveryNMinibatches = 10;
         FileUtils.forceMkdir(new File(attempt));
+
+
+        //write properties file to model foldero
+        Properties modelProp = new Properties();
+        modelProp.setProperty("mapper",featureCalculator.getClass().toString());
+        modelProp.setProperty("learningRate",Double.toString(learningRate));
+        modelProp.setProperty("time",Long.toString(time));
+        modelProp.setProperty("miniBatchSize",Integer.toString(miniBatchSize));
+        modelProp.setProperty("numEpochs",Integer.toString(numEpochs));
+        modelProp.setProperty("numTrainingSets",Integer.toString(args.length-1));
+        modelProp.setProperty("randSeed",Integer.toString(seed));
+        modelProp.setProperty("earlyStopCondition",Integer.toString(earlyStopCondition));
+        File file = new File(attempt + "/config.properties");
+        FileOutputStream fileOut = new FileOutputStream(file);
+        modelProp.store(fileOut, "The settings used to generate this model");
+
 
         System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
@@ -99,7 +116,7 @@ public class TrainSomaticModelEStop {
         //LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
 
         EarlyStoppingConfiguration<MultiLayerNetwork> esConf = new EarlyStoppingConfiguration.Builder()
-                .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),new ScoreImprovementEpochTerminationCondition(3))
+                .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),new ScoreImprovementEpochTerminationCondition(earlyStopCondition))
                 .scoreCalculator(new DataSetLossCalculator(new BaseInformationIterator(valFile, miniBatchSize,
                 featureCalculator, labelMapper), true))
                 .evaluateEveryNEpochs(1)

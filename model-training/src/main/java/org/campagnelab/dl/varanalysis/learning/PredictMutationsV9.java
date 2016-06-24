@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.Properties;
 import java.util.stream.IntStream;
 
 /**
@@ -36,13 +37,13 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     String version = "VN";
     String[] dataFilenames = new String[]{"genotypes_test_proto_" + version + "_randomized_mutated.parquet","training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
     String[] resultsFileNames = new String[]{ "test","training"};
+    FeatureMapper featureMapper = new FeatureMapperV11();
 
 
     public PredictMutationsV9(String modelPath, String dataDirPath, String resultsPath) {
         this.modelPath = modelPath;
         this.dataDirPath = dataDirPath;
         this.resultsPath = resultsPath;
-
     }
 
 
@@ -63,6 +64,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         predictor.PrintPredictions("best");
         predictor.PrintPredictions("latest");
         System.out.println(attempt);
+
     }
 
 
@@ -128,7 +130,6 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
                 //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
-                FeatureMapper featureMapper = new FeatureMapperV11();
                 RecordReader reader = new RecordReader(dataDirPath + dataFilenames[i]);
                 //DataSet ds = baseIter.next();
 //set up logger

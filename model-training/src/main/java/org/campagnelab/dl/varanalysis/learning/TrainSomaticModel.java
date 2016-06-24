@@ -28,10 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Train a neural network to predict mutations.
@@ -60,9 +57,24 @@ public class TrainSomaticModel {
         System.out.println("time: " + time);
         System.out.println("epochs: " + numEpochs);
         System.out.println(featureCalculator.getClass().getTypeName());
+
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
         int generateSamplesEveryNMinibatches = 10;
         FileUtils.forceMkdir(new File(attempt));
+
+        //write properties file to model foldero
+        Properties modelProp = new Properties();
+        modelProp.setProperty("mapper",featureCalculator.getClass().toString());
+        modelProp.setProperty("learningRate",Double.toString(learningRate));
+        modelProp.setProperty("time",Long.toString(time));
+        modelProp.setProperty("miniBatchSize",Integer.toString(miniBatchSize));
+        modelProp.setProperty("numEpochs",Integer.toString(numEpochs));
+        modelProp.setProperty("numTrainingSets",Integer.toString(args.length));
+        modelProp.setProperty("randSeed",Integer.toString(seed));
+        modelProp.setProperty("earlyStopCondition",Integer.toString(-1));
+        File file = new File(attempt + "/config.properties");
+        FileOutputStream fileOut = new FileOutputStream(file);
+        modelProp.store(fileOut, "The settings used to generate this model");
 
         System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
@@ -204,6 +216,8 @@ public class TrainSomaticModel {
         //for (labels.size(1));
         return 2;
     }
+
+
 
 
 }
