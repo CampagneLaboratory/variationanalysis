@@ -6,6 +6,9 @@ import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.model.utils.mappers.AbstractPredictMutations;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV11;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV9;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV13;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV12;
 import org.campagnelab.dl.model.utils.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
@@ -17,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.stream.IntStream;
@@ -31,19 +36,72 @@ import java.util.stream.IntStream;
 public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV8.class);
 
+
+    final static String TIME = "1466805887521";
     String modelPath;
     String dataDirPath;
     String resultsPath;
     String version = "VN";
     String[] dataFilenames = new String[]{"genotypes_test_proto_" + version + "_randomized_mutated.parquet","training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
     String[] resultsFileNames = new String[]{ "test","training"};
-    FeatureMapper featureMapper = new FeatureMapperV11();
+    FeatureMapper featureMapper;// = new FeatureMapperV9();
+
+
 
 
     public PredictMutationsV9(String modelPath, String dataDirPath, String resultsPath) {
         this.modelPath = modelPath;
         this.dataDirPath = dataDirPath;
         this.resultsPath = resultsPath;
+
+        Properties prop = new Properties();
+        InputStream input = null;
+
+        try {
+
+
+
+            input = new FileInputStream(modelPath + "/config.properties");
+
+            // load a properties file
+            prop.load(input);
+
+            // get the property value and print it out
+            String mapperName = prop.getProperty("mapper");
+
+
+            ClassLoader classLoader = this.getClass().getClassLoader();
+
+            // Load the target class using its binary name
+            Class loadedMyClass = classLoader.loadClass(mapperName);
+
+            System.out.println("Loaded class name: " + loadedMyClass.getName());
+
+            // Create a new instance from the loaded class
+            Constructor constructor = loadedMyClass.getConstructor();
+            featureMapper = (FeatureMapper) constructor.newInstance();
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 
@@ -56,11 +114,10 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         }
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        String time = "1466098280410";
-        System.out.println("time: " + time);
-        String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
+        System.out.println("time: " + TIME);
+        String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + TIME;
 
-        PredictMutationsV9 predictor = new PredictMutationsV9(attempt, datasetPath, "tests/" + time + "/");
+        PredictMutationsV9 predictor = new PredictMutationsV9(attempt, datasetPath, "tests/" + TIME + "/");
         predictor.PrintPredictions("best");
         predictor.PrintPredictions("latest");
         System.out.println(attempt);

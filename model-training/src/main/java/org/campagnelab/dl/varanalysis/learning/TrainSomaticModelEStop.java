@@ -3,10 +3,7 @@ package org.campagnelab.dl.varanalysis.learning;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV9;
-import org.campagnelab.dl.model.utils.mappers.LabelMapper;
-import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
+import org.campagnelab.dl.model.utils.mappers.*;
 import org.campagnelab.dl.varanalysis.learning.architecture.*;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
@@ -46,7 +43,7 @@ public class TrainSomaticModelEStop {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV9();
+        final FeatureMapper featureCalculator = new FeatureMapperV13();
         if (args.length < 2) {
             System.err.println("usage: DetectMutations <input-validation-file> <input-training-directory>");
         }
@@ -71,7 +68,7 @@ public class TrainSomaticModelEStop {
 
         //write properties file to model foldero
         Properties modelProp = new Properties();
-        modelProp.setProperty("mapper",featureCalculator.getClass().toString());
+        modelProp.setProperty("mapper",featureCalculator.getClass().getName());
         modelProp.setProperty("learningRate",Double.toString(learningRate));
         modelProp.setProperty("time",Long.toString(time));
         modelProp.setProperty("miniBatchSize",Integer.toString(miniBatchSize));
