@@ -48,16 +48,17 @@ public class TrainSomaticModel {
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        int numEpochs = 50;
+        int numEpochs = 1;
         double dropoutRate = 0.5;
         long time = new Date().getTime();
+        String directory = "models/" + Long.toString(time);
         System.out.println("time: " + time);
         System.out.println("epochs: " + numEpochs);
         System.out.println(featureCalculator.getClass().getTypeName());
 
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
         int generateSamplesEveryNMinibatches = 10;
-        FileUtils.forceMkdir(new File(attempt));
+        FileUtils.forceMkdir(new File(directory));
 
         //write properties file to model foldero
         Properties modelProp = new Properties();
@@ -69,7 +70,7 @@ public class TrainSomaticModel {
         modelProp.setProperty("numTrainingSets",Integer.toString(args.length));
         modelProp.setProperty("randSeed",Integer.toString(seed));
         modelProp.setProperty("earlyStopCondition",Integer.toString(-1));
-        File file = new File(attempt + "/config.properties");
+        File file = new File(time + "/config.properties");
         FileOutputStream fileOut = new FileOutputStream(file);
         modelProp.store(fileOut, "The settings used to generate this model");
 
@@ -122,7 +123,7 @@ public class TrainSomaticModel {
         pgEpoch.expectedUpdates = numEpochs;
         pgEpoch.start();
         double bestScore = Double.MAX_VALUE;
-        LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
+        LocalFileModelSaver saver = new LocalFileModelSaver(directory);
         int iter = 0;
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
@@ -133,7 +134,7 @@ public class TrainSomaticModel {
             int lastIter=0;
             while (async.hasNext()) {
                 // trigger bugs early:
-//                printSample(miniBatchSize, exampleLength, nSamplesToGenerate, nCharactersToSample, generationInitialization, rng, attempt, iter, net, miniBatchNumber);
+//                printSample(miniBatchSize, exampleLength, nSamplesToGenerate, nCharactersToSample, generationInitialization, rng, directory, iter, net, miniBatchNumber);
 
                 DataSet ds = async.next();
                 if (numLabels(ds.getLabels()) != 2) {
@@ -168,7 +169,7 @@ public class TrainSomaticModel {
             }
             //save latest after the end of an epoch:
             saver.saveLatestModel(net, net.score());
-            saveModel(saver, attempt, Integer.toString(epoch) + "-", net);
+            saveModel(saver, directory, Integer.toString(epoch) + "-", net);
 
             pg.stop();
             pgEpoch.update();
@@ -177,7 +178,7 @@ public class TrainSomaticModel {
         pgEpoch.stop();
         System.out.println("Saving last model with score=" + net.score());
         saver.saveLatestModel(net, net.score());
-        FileWriter scoreWriter = new FileWriter(attempt + "/bestScore");
+        FileWriter scoreWriter = new FileWriter(directory + "/bestScore");
         scoreWriter.append(Double.toString(bestScore));
         scoreWriter.close();
 

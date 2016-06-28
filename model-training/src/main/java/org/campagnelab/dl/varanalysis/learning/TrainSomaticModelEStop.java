@@ -54,16 +54,17 @@ public class TrainSomaticModelEStop {
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        int numEpochs = 50;
+        int numEpochs = 1;
         int earlyStopCondition = 3;
         double dropoutRate = 0.5;
         long time = new Date().getTime();
         System.out.println("time: " + time);
         System.out.println("epochs: " + numEpochs);
         System.out.println(featureCalculator.getClass().getTypeName());
+        String directory = "models/" + Long.toString(time);
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
         int generateSamplesEveryNMinibatches = 10;
-        FileUtils.forceMkdir(new File(attempt));
+        FileUtils.forceMkdir(new File(directory));
 
 
         //write properties file to model foldero
@@ -76,7 +77,7 @@ public class TrainSomaticModelEStop {
         modelProp.setProperty("numTrainingSets",Integer.toString(args.length-1));
         modelProp.setProperty("randSeed",Integer.toString(seed));
         modelProp.setProperty("earlyStopCondition",Integer.toString(earlyStopCondition));
-        File file = new File(attempt + "/config.properties");
+        File file = new File(directory + "/config.properties");
         FileOutputStream fileOut = new FileOutputStream(file);
         modelProp.store(fileOut, "The settings used to generate this model");
 
@@ -117,7 +118,7 @@ public class TrainSomaticModelEStop {
                 .scoreCalculator(new DataSetLossCalculator(new BaseInformationIterator(valFile, miniBatchSize,
                 featureCalculator, labelMapper), true))
                 .evaluateEveryNEpochs(1)
-                .modelSaver(new LocalFileModelSaver(attempt))
+                .modelSaver(new LocalFileModelSaver(directory))
                 .build();
 
         EarlyStoppingTrainer trainer = new EarlyStoppingTrainer(esConf,conf,async);
@@ -210,7 +211,7 @@ public class TrainSomaticModelEStop {
         double bestScore = bestModel.score();
 
 
-        FileWriter scoreWriter = new FileWriter(attempt + "/bestScore");
+        FileWriter scoreWriter = new FileWriter(directory + "/bestScore");
         scoreWriter.append(Double.toString(bestScore));
         scoreWriter.close();
 

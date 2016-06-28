@@ -37,7 +37,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV8.class);
 
 
-    final static String TIME = "1466805887521";
+    final static String TIME = "1467125122101";
     String modelPath;
     String dataDirPath;
     String resultsPath;
@@ -116,8 +116,8 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         int miniBatchSize = 100;
         System.out.println("time: " + TIME);
         String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + TIME;
-
-        PredictMutationsV9 predictor = new PredictMutationsV9(attempt, datasetPath, "tests/" + TIME + "/");
+        String modelDir = "models/" + TIME;
+                PredictMutationsV9 predictor = new PredictMutationsV9(modelDir, datasetPath, "tests/" + TIME + "/");
         predictor.PrintPredictions("best");
         predictor.PrintPredictions("latest");
         System.out.println(attempt);
