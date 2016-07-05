@@ -37,12 +37,12 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV8.class);
 
 
-    final static String TIME = "1467125122101";
+    final static String TIME = "1467301179892";
     String modelPath;
     String dataDirPath;
     String resultsPath;
     String version = "VN";
-    String[] dataFilenames = new String[]{"genotypes_test_proto_" + version + "_randomized_mutated.parquet","training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
+    String[] dataFilenames = new String[]{"mutated-MHFC-13-CTL_B_NK.parquet","training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
     String[] resultsFileNames = new String[]{ "test","training"};
     FeatureMapper featureMapper;// = new FeatureMapperV9();
 
@@ -115,7 +115,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         double learningRate = 0.1;
         int miniBatchSize = 100;
         System.out.println("time: " + TIME);
-        String attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + TIME;
+        String attempt = "models/" + TIME;
         String modelDir = "models/" + TIME;
                 PredictMutationsV9 predictor = new PredictMutationsV9(modelDir, datasetPath, "tests/" + TIME + "/");
         predictor.PrintPredictions("best");

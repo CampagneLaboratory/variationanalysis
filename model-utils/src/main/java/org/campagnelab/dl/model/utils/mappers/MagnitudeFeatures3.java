@@ -31,18 +31,18 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Fabien Campagne
  */
 
-public class MagnitudeFeatures2 extends AbstractFeatureMapper implements FeatureCalculator {
+public class MagnitudeFeatures3 extends AbstractFeatureMapper implements FeatureCalculator {
 
 
 
-    public MagnitudeFeatures2(){
+    public MagnitudeFeatures3(){
     }
 
     @Override
     public int numberOfFeatures() {
         // we need features for the normal sample and for the tumor sample:
 
-        return AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2;
+        return AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2 + 1;
     }
 
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
@@ -88,7 +88,17 @@ public class MagnitudeFeatures2 extends AbstractFeatureMapper implements Feature
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert (featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2) : "Only MAX_GENOTYPES*2*2 + 1 features";
+        assert (featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2 + 1) : "Only MAX_GENOTYPES*2*2 + 1 features";
+        if (featureIndex == AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2 + 1){
+            int sum = 0;
+            for (GenotypeCount baseCount : getAllCounts(record,false,true) ){
+                sum += baseCount.totalCount();
+            }
+            for (GenotypeCount baseCount : getAllCounts(record,true,true) ){
+                sum += baseCount.totalCount();
+            }
+            return sum;
+        }
         if (featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2) {
             // germline counts written first:
             if ((featureIndex % 2) == 1) {

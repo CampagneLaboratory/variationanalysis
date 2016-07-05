@@ -48,7 +48,7 @@ public class TrainSomaticModel {
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        int numEpochs = 1;
+        int numEpochs = 15;
         double dropoutRate = 0.5;
         long time = new Date().getTime();
         String directory = "models/" + Long.toString(time);
@@ -60,19 +60,7 @@ public class TrainSomaticModel {
         int generateSamplesEveryNMinibatches = 10;
         FileUtils.forceMkdir(new File(directory));
 
-        //write properties file to model foldero
-        Properties modelProp = new Properties();
-        modelProp.setProperty("mapper",featureCalculator.getClass().getName());
-        modelProp.setProperty("learningRate",Double.toString(learningRate));
-        modelProp.setProperty("time",Long.toString(time));
-        modelProp.setProperty("miniBatchSize",Integer.toString(miniBatchSize));
-        modelProp.setProperty("numEpochs",Integer.toString(numEpochs));
-        modelProp.setProperty("numTrainingSets",Integer.toString(args.length));
-        modelProp.setProperty("randSeed",Integer.toString(seed));
-        modelProp.setProperty("earlyStopCondition",Integer.toString(-1));
-        File file = new File(time + "/config.properties");
-        FileOutputStream fileOut = new FileOutputStream(file);
-        modelProp.store(fileOut, "The settings used to generate this model");
+
 
         System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
@@ -95,6 +83,9 @@ public class TrainSomaticModel {
         assembler.setRegularization(false);
         // assembler.setRegularizationRate(1e-6);
         //   assembler.setDropoutRate(dropoutRate);
+
+
+
 
         //changed from XAVIER in iteration 14
         assembler.setWeightInitialization(WeightInit.RELU);
@@ -178,11 +169,28 @@ public class TrainSomaticModel {
         pgEpoch.stop();
         System.out.println("Saving last model with score=" + net.score());
         saver.saveLatestModel(net, net.score());
-        FileWriter scoreWriter = new FileWriter(directory + "/bestScore");
-        scoreWriter.append(Double.toString(bestScore));
-        scoreWriter.close();
+
+        //write properties file to model folder
+        Properties modelProp = new Properties();
+        modelProp.setProperty("mapper",featureCalculator.getClass().getName());
+        modelProp.setProperty("learningRate",Double.toString(learningRate));
+        modelProp.setProperty("time",Long.toString(time));
+        modelProp.setProperty("miniBatchSize",Integer.toString(miniBatchSize));
+        modelProp.setProperty("numEpochs",Integer.toString(numEpochs));
+        modelProp.setProperty("numTrainingSets",Integer.toString(args.length));
+        modelProp.setProperty("randSeed",Integer.toString(seed));
+        modelProp.setProperty("earlyStopCondition",Integer.toString(-1));
+        modelProp.setProperty("hiddenNodes",Integer.toString(numHiddenNodes));
+        modelProp.setProperty("bestScore",Double.toString(bestScore));
+
+        File file = new File(directory + "/config.properties");
+        FileOutputStream fileOut = new FileOutputStream(file);
+        modelProp.store(fileOut, "The settings used to generate this model");
+
 
         System.out.println("Model completed, saved at time: " + attempt);
+
+
 
     }
 

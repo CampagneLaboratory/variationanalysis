@@ -69,12 +69,16 @@ public class ProtoPredictor {
         return ret;
     }
 
+    public Prediction getNullPrediction(){
+        return new Prediction(0,0);
+    }
+
     public class Prediction {
         public boolean clas;
         public float posProb;
         public float negProb;
 
-        protected Prediction(float posProb, float negProb){
+        public Prediction(float posProb, float negProb){
             this.posProb = posProb;
             this.negProb = negProb;
             this.clas = (posProb > negProb);
