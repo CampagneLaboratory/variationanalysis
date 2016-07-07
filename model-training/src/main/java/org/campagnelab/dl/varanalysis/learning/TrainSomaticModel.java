@@ -40,7 +40,7 @@ public class TrainSomaticModel {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV13();
+        final FeatureMapper featureCalculator = new FeatureMapperV14();
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-directory>");
         }
@@ -73,7 +73,7 @@ public class TrainSomaticModel {
         //Load the training data:
         int numInputs = async.inputColumns();
         int numOutputs = async.totalOutcomes();
-        int numHiddenNodes = numInputs * 5;
+        int numHiddenNodes = numInputs * 20;
         NeuralNetAssembler assembler = new SixDenseLayersNarrower2();
         assembler.setSeed(seed);
         assembler.setLearningRate(learningRate);

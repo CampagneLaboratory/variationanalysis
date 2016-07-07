@@ -89,7 +89,7 @@ public class MagnitudeFeatures3 extends AbstractFeatureMapper implements Feature
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         assert (featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2 + 1) : "Only MAX_GENOTYPES*2*2 + 1 features";
-        if (featureIndex == AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2 + 1){
+        if (featureIndex == AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2){
             int sum = 0;
             for (GenotypeCount baseCount : getAllCounts(record,false,true) ){
                 sum += baseCount.totalCount();
