@@ -81,7 +81,7 @@ public class ProtoPredictor {
         public Prediction(float posProb, float negProb){
             this.posProb = posProb;
             this.negProb = negProb;
-            this.clas = (posProb > negProb);
+            this.clas = (posProb > 0.5);
         }
 
 

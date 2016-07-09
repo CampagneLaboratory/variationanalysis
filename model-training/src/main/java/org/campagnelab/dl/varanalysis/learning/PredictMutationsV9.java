@@ -37,12 +37,15 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV8.class);
 
 
-    final static String TIME = "1467827859191";
+    final static String TIME = "1467846291273";
     String modelPath;
     String dataDirPath;
     String resultsPath;
     String version = "VN";
-    String[] dataFilenames = new String[]{"mutated-MHFC-13-CTL_B_NK.parquet","training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
+    String[] dataFilenames;
+    boolean TEST_UNMUT = false;
+    String[] unmutFilenames = new String[]{"unmut_genotypes_test_proto_VN.parquet","training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
+    String[] mutFilenames =  new String[]{"mutated-MHFC-13-CTL_B_NK.parquet","training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
     String[] resultsFileNames = new String[]{ "test","training"};
     FeatureMapper featureMapper;// = new FeatureMapperV9();
 
@@ -53,6 +56,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         this.modelPath = modelPath;
         this.dataDirPath = dataDirPath;
         this.resultsPath = resultsPath;
+        this.dataFilenames = TEST_UNMUT?unmutFilenames:mutFilenames;
 
         Properties prop = new Properties();
         InputStream input = null;

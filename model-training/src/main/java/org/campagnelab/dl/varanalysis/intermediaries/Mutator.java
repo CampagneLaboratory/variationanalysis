@@ -35,6 +35,7 @@ public class Mutator extends Intermediary {
     double zygHeuristic = 0.1;
     final String[] STRING = new String[]{"A", "T", "C", "G"};
     Random rand;
+    final boolean MUTATE = true;
 
 
     public static void main(String[] args) throws IOException {
@@ -80,7 +81,9 @@ public class Mutator extends Intermediary {
             writer.writeRecord(baseBuilder.build());
 
             //mutate record and write it again
-            writer.writeRecord(mutate(baseBuilder));
+            if (MUTATE) {
+                writer.writeRecord(mutate(baseBuilder));
+            }
             pgReadWrite.update();
         }
         pgReadWrite.stop();
