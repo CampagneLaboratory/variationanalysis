@@ -130,6 +130,11 @@ public class BaseInformationIterator implements DataSetIterator {
     }
 
     @Override
+    public DataSetPreProcessor getPreProcessor() {
+        return null;
+    }
+
+    @Override
     public List<String> getLabels() {
         throw new UnsupportedOperationException("Not implemented for the entire dataset.");
     }
