@@ -28,7 +28,7 @@ public class Mutator extends Intermediary {
 
     //delta will be halved in homozygous cases (to account for twice the reads at a base)
     //min fraction of bases mutated at a record (ceilinged fraction)
-    double deltaSmall = 0.1;
+    double deltaSmall = 0.0;
     //max fraction of bases mutated at a record (floored fraction)
     double deltaBig = 1;
     //minimum proportion of counts to presume allele
@@ -40,8 +40,9 @@ public class Mutator extends Intermediary {
 
     public static void main(String[] args) throws IOException {
         //new ParquetPrinter(args[0]).print();
-        new Mutator().executeOver(args[0], args[1]);
-        //new Randomizer().executeOver(args[1],args[2]);
+
+        new Randomizer().executeOver(args[0],args[1]);
+        new Mutator().executeOver(args[1], args[2]);
         //new ParquetPrinter(args[2]).print();
     }
 

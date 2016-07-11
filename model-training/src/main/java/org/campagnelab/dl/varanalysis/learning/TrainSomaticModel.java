@@ -40,7 +40,7 @@ public class TrainSomaticModel {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV14();
+        final FeatureMapper featureCalculator = new FeatureMapperV13();
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-directory>");
         }
@@ -48,7 +48,7 @@ public class TrainSomaticModel {
         int seed = 123;
         double learningRate = 0.1;
         int miniBatchSize = 100;
-        int numEpochs = 15;
+        int numEpochs = 3;
         double dropoutRate = 0.5;
         long time = new Date().getTime();
         String directory = "models/" + Long.toString(time);
