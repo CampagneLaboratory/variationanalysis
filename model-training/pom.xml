@@ -6,12 +6,10 @@
     <parent>
         <artifactId>variation-analysis</artifactId>
         <groupId>org.campagnelab.dl</groupId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.campagnelab.dl</groupId>
     <artifactId>model-training</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
@@ -71,7 +69,7 @@
                     <execution>
                         <configuration>
                             <descriptors>
-                                <descriptor>model-training/src/assembly/assembly.xml</descriptor>
+                                <descriptor>./src/assembly/assembly.xml</descriptor>
                             </descriptors>
                         </configuration>
                         <phase>package</phase>
@@ -248,7 +246,7 @@
         <dependency>
             <groupId>org.campagnelab.dl</groupId>
             <artifactId>model-utils</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
