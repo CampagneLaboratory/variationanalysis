@@ -43,7 +43,9 @@ public class BaseInformationConcatIterator implements DataSetIterator {
         this.labelMapper = labelMapper;
         this.batchSize = batchSize;
         this.baseIters = iterators;
-        for (BaseInformationIterator iter : iterators) this.totalExamples+=iter.totalExamples();
+        for (BaseInformationIterator iter : iterators) {
+            this.totalExamples+=iter.totalExamples();
+        }
 
     }
 
