@@ -122,78 +122,6 @@ public class TrainSomaticModelEStop {
 
 
 
-        //MultiLayerNetwork net = new MultiLayerNetwork(conf);
-//        net.init();
-//        //      net.setListeners(new HistogramIterationListener(10) /*, new ScoreIterationListener(1) */);
-//        //Print the  number of parameters in the network (and for each layer)
-//        Layer[] layers = net.getLayers();
-//        int totalNumParams = 0;
-//        for (int i = 0; i < layers.length; i++) {
-//            int nParams = layers[i].numParams();
-//            System.out.println("Number of parameters in layer " + i + ": " + nParams);
-//            totalNumParams += nParams;
-//        }
-//        System.out.println("Total number of network parameters: " + totalNumParams);
-//
-//        //Do training, and then generate and print samples from network
-//        int miniBatchNumber = 0;
-//        boolean init = true;
-//        ProgressLogger pgEpoch = new ProgressLogger(LOG);
-//        pgEpoch.itemsName = "epoch";
-//        pgEpoch.expectedUpdates = numEpochs;
-//        pgEpoch.start();
-//        double bestScore = Double.MAX_VALUE;
-//        int iter = 0;
-//        for (int epoch = 0; epoch < numEpochs; epoch++) {
-//            ProgressLogger pg = new ProgressLogger(LOG);
-//            pg.itemsName = "mini-batch";
-//
-//            pg.expectedUpdates = async.totalExamples() / miniBatchSize; // one iteration processes miniBatchIterator elements.
-//            pg.start();
-//            int lastIter=0;
-//            while (async.hasNext()) {
-//                // trigger bugs early:
-////                printSample(miniBatchSize, exampleLength, nSamplesToGenerate, nCharactersToSample, generationInitialization, rng, attempt, iter, net, miniBatchNumber);
-//
-//                DataSet ds = async.next();
-//                if (numLabels(ds.getLabels()) != 2) {
-//                    System.out.println("There should be two labels in the miniBatch");
-//                }
-//                // scale the features:
-//                //   scaler.transform(ds);
-//
-//                // fit the net:
-//                net.fit(ds);
-//                INDArray predictedLabels = net.output(ds.getFeatures(), false);
-//
-//
-//                pg.update();
-//
-//                double score = net.score();
-//                if (Double.isNaN(score)) {
-//                    //   System.out.println(net.params());
-//                    System.out.println("nan at " + iter);
-//                }
-//                iter++;
-//                if (score < bestScore * 0.95 && iter>(lastIter+ MIN_ITERATION_BETWEEN_BEST_MODEL)) {
-//                    bestScore = score;
-//                    saver.saveBestModel(net, score);
-//                    System.out.println("Saving best score model.. score=" + bestScore);
-//                    lastIter=iter;
-//                }
-//
-//            }
-//            //save latest after the end of an epoch:
-//            saver.saveLatestModel(net, net.score());
-//            saveModel(saver, attempt, Integer.toString(epoch) + "-", net);
-//
-//            pg.stop();
-//            pgEpoch.update();
-//            async.reset();    //Reset iterator for another epoch
-//        }
-//        pgEpoch.stop();
-
-
         MultiLayerNetwork bestModel = result.getBestModel();
         double bestScore = bestModel.score();
 
@@ -202,22 +130,17 @@ public class TrainSomaticModelEStop {
         scoreWriter.append(Double.toString(bestScore));
         scoreWriter.close();
 
-        //write properties file to model folder
-        Properties modelProp = new Properties();
-        modelProp.setProperty("mapper",featureCalculator.getClass().getName());
-        modelProp.setProperty("learningRate",Double.toString(learningRate));
-        modelProp.setProperty("time",Long.toString(time));
-        modelProp.setProperty("miniBatchSize",Integer.toString(miniBatchSize));
-        modelProp.setProperty("numEpochs",Integer.toString(numEpochs));
-        modelProp.setProperty("numTrainingSets",Integer.toString(args.length));
-        modelProp.setProperty("randSeed",Integer.toString(seed));
-        modelProp.setProperty("earlyStopCondition",Integer.toString(-1));
-        modelProp.setProperty("hiddenNodes",Integer.toString(numHiddenNodes));
-        modelProp.setProperty("bestScore",Double.toString(bestScore));
-
-        File file = new File(directory + "/config.properties");
-        FileOutputStream fileOut = new FileOutputStream(file);
-        modelProp.store(fileOut, "The settings used to generate this model");
+        ModelPropertiesHelper mpHelper=new ModelPropertiesHelper();
+        mpHelper.setFeatureCalculator(featureCalculator);
+        mpHelper.setLearningRate(learningRate);
+        mpHelper.setNumHiddenNodes(numHiddenNodes);
+        mpHelper.setMiniBatchSize(miniBatchSize);
+        mpHelper.setBestScore(bestScore);
+        mpHelper.setNumEpochs(numEpochs);
+        mpHelper.setNumTrainingSets(args.length);
+        mpHelper.setTime(time);
+        mpHelper.setSeed(seed);
+        mpHelper.writeProperties(directory);
 
 
         System.out.println("Model completed, saved at time: " + attempt);

@@ -40,7 +40,7 @@ public class TrainSomaticModel {
 
 
     public static void main(String[] args) throws IOException {
-        final FeatureMapper featureCalculator = new FeatureMapperV14();
+        final FeatureMapper featureCalculator = new FeatureMapperV15();
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-directory>");
         }
@@ -61,15 +61,14 @@ public class TrainSomaticModel {
         FileUtils.forceMkdir(new File(directory));
 
 
-
         System.out.println("Estimating scaling parameters:");
         final LabelMapper labelMapper = new SimpleFeatureCalculator();
         List<BaseInformationIterator> trainIterList = new ObjectArrayList<>(args.length);
-        for (int i = 0; i < args.length; i++){
+        for (int i = 0; i < args.length; i++) {
             trainIterList.add(new BaseInformationIterator(RecordWriter.addParqExtension(args[i]), miniBatchSize,
                     featureCalculator, labelMapper));
         }
-        final AsyncDataSetIterator async = new AsyncDataSetIterator(new BaseInformationConcatIterator(trainIterList,miniBatchSize,featureCalculator,labelMapper));
+        final AsyncDataSetIterator async = new AsyncDataSetIterator(new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper));
         //Load the training data:
         int numInputs = async.inputColumns();
         int numOutputs = async.totalOutcomes();
@@ -83,8 +82,6 @@ public class TrainSomaticModel {
         assembler.setRegularization(false);
         // assembler.setRegularizationRate(1e-6);
         //   assembler.setDropoutRate(dropoutRate);
-
-
 
 
         //changed from XAVIER in iteration 14
@@ -122,7 +119,7 @@ public class TrainSomaticModel {
 
             pg.expectedUpdates = async.totalExamples() / miniBatchSize; // one iteration processes miniBatchIterator elements.
             pg.start();
-            int lastIter=0;
+            int lastIter = 0;
             while (async.hasNext()) {
                 // trigger bugs early:
 //                printSample(miniBatchSize, exampleLength, nSamplesToGenerate, nCharactersToSample, generationInitialization, rng, directory, iter, net, miniBatchNumber);
@@ -150,11 +147,11 @@ public class TrainSomaticModel {
                     System.exit(1);
                 }
                 iter++;
-                if (score < bestScore * 0.95 && iter>(lastIter+ MIN_ITERATION_BETWEEN_BEST_MODEL)) {
+                if (score < bestScore * 0.95 && iter > (lastIter + MIN_ITERATION_BETWEEN_BEST_MODEL)) {
                     bestScore = score;
                     saver.saveBestModel(net, score);
                     System.out.println("Saving best score model.. score=" + bestScore);
-                    lastIter=iter;
+                    lastIter = iter;
                 }
 
             }
@@ -169,30 +166,24 @@ public class TrainSomaticModel {
         pgEpoch.stop();
         System.out.println("Saving last model with score=" + net.score());
         saver.saveLatestModel(net, net.score());
-
-        //write properties file to model folder
-        Properties modelProp = new Properties();
-        modelProp.setProperty("mapper",featureCalculator.getClass().getName());
-        modelProp.setProperty("learningRate",Double.toString(learningRate));
-        modelProp.setProperty("time",Long.toString(time));
-        modelProp.setProperty("miniBatchSize",Integer.toString(miniBatchSize));
-        modelProp.setProperty("numEpochs",Integer.toString(numEpochs));
-        modelProp.setProperty("numTrainingSets",Integer.toString(args.length));
-        modelProp.setProperty("randSeed",Integer.toString(seed));
-        modelProp.setProperty("earlyStopCondition",Integer.toString(-1));
-        modelProp.setProperty("hiddenNodes",Integer.toString(numHiddenNodes));
-        modelProp.setProperty("bestScore",Double.toString(bestScore));
-
-        File file = new File(directory + "/config.properties");
-        FileOutputStream fileOut = new FileOutputStream(file);
-        modelProp.store(fileOut, "The settings used to generate this model");
+        mpHelper.setFeatureCalculator(featureCalculator);
+        mpHelper.setLearningRate(learningRate);
+        mpHelper.setNumHiddenNodes(numHiddenNodes);
+        mpHelper.setMiniBatchSize(miniBatchSize);
+        mpHelper.setBestScore(bestScore);
+        mpHelper.setNumEpochs(numEpochs);
+        mpHelper.setNumTrainingSets(args.length);
+        mpHelper.setTime(time);
+        mpHelper.setSeed(seed);
+        mpHelper.writeProperties(directory);
 
 
         System.out.println("Model completed, saved at time: " + attempt);
 
 
-
     }
+
+    private static ModelPropertiesHelper mpHelper = new ModelPropertiesHelper();
 
     public static void saveModel(LocalFileModelSaver saver, String directory, String prefix, MultiLayerNetwork net) throws IOException {
         FilenameUtils.concat(directory, prefix + "ModelConf.json");
@@ -222,8 +213,6 @@ public class TrainSomaticModel {
         //for (labels.size(1));
         return 2;
     }
-
-
 
 
 }
