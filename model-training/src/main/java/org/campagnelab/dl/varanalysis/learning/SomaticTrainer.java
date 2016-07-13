@@ -110,7 +110,7 @@ public abstract class SomaticTrainer {
         }
         System.out.println("Total number of network parameters: " + totalNumParams);
 
-        //LocalFileModelSaver saver = new LocalFileModelSaver(attempt);
+        writeProperties(featureCalculator);
 
         EarlyStoppingResult<MultiLayerNetwork> result = train(conf, async);
 
@@ -122,30 +122,31 @@ public abstract class SomaticTrainer {
         System.out.println("Best epoch number: " + result.getBestModelEpoch());
         System.out.println("Score at best epoch: " + result.getBestModelScore());
 
+        writeProperties(featureCalculator);
+        writeBestScoreFile();
+        System.out.println("Model completed, saved at time: " + attempt);
 
-        MultiLayerNetwork bestModel = result.getBestModel();
-        double bestScore = bestModel.score();
+    }
 
+    protected void writeBestScoreFile() throws IOException {
 
         FileWriter scoreWriter = new FileWriter(directory + "/bestScore");
         scoreWriter.append(Double.toString(bestScore));
         scoreWriter.close();
+    }
 
+    protected void writeProperties(FeatureMapper featureCalculator) throws IOException {
         ModelPropertiesHelper mpHelper = new ModelPropertiesHelper();
         mpHelper.setFeatureCalculator(featureCalculator);
         mpHelper.setLearningRate(learningRate);
         mpHelper.setNumHiddenNodes(numHiddenNodes);
         mpHelper.setMiniBatchSize(miniBatchSize);
-        mpHelper.setBestScore(bestScore);
+        // mpHelper.setBestScore(bestScore);
         mpHelper.setNumEpochs(numEpochs);
         mpHelper.setNumTrainingSets(numTrainingFiles);
         mpHelper.setTime(time);
         mpHelper.setSeed(seed);
         mpHelper.writeProperties(directory);
-
-
-        System.out.println("Model completed, saved at time: " + attempt);
-
     }
 
     protected abstract EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async)

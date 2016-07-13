@@ -62,10 +62,11 @@ public class TrainSomaticModel extends SomaticTrainer {
         pgEpoch.itemsName = "epoch";
         pgEpoch.expectedUpdates = numEpochs;
         pgEpoch.start();
-        double bestScore = Double.MAX_VALUE;
+        bestScore = Double.MAX_VALUE;
         LocalFileModelSaver saver = new LocalFileModelSaver(directory);
         int iter = 0;
-        Map<Integer, Double> scoreMap=new HashMap<Integer,Double>();
+        Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
+
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -106,12 +107,13 @@ public class TrainSomaticModel extends SomaticTrainer {
                     System.out.println("Saving best score model.. score=" + bestScore);
                     lastIter = iter;
                 }
-                scoreMap.put(iter,bestScore);
+                scoreMap.put(iter, bestScore);
             }
             //save latest after the end of an epoch:
             saver.saveLatestModel(net, net.score());
             saveModel(saver, directory, Integer.toString(epoch) + "-", net);
-
+            writeProperties(featureCalculator);
+            writeBestScoreFile();
             pg.stop();
             pgEpoch.update();
             async.reset();    //Reset iterator for another epoch
@@ -119,6 +121,6 @@ public class TrainSomaticModel extends SomaticTrainer {
         pgEpoch.stop();
 
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-         "not early stopping",scoreMap, numEpochs,bestScore, numEpochs, net);
+                "not early stopping", scoreMap, numEpochs, bestScore, numEpochs, net);
     }
 }

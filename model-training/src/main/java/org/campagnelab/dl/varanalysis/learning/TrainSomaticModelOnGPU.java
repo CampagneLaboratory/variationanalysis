@@ -30,7 +30,8 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
 
     public static void main(String[] args) throws IOException {
-
+        // uncomment the following line when running on a machine with multiple GPUs:
+        //org.nd4j.jita.conf.CudaEnvironment.getInstance().getConfiguration().allowMultiGPU(true);
         TrainSomaticModelOnGPU trainer = new TrainSomaticModelOnGPU();
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-directory>");
@@ -55,16 +56,21 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         pgEpoch.itemsName = "epoch";
         pgEpoch.expectedUpdates = numEpochs;
         pgEpoch.start();
-        double bestScore = Double.MAX_VALUE;
+        bestScore = Double.MAX_VALUE;
         LocalFileModelSaver saver = new LocalFileModelSaver(directory);
 
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
-        for (int i = 0; i < numEpochs; i++) {
+        for (int epoch = 0; epoch < numEpochs; epoch++) {
 
             wrapper.fit(async);
             pgEpoch.update();
             async.reset();
-            scoreMap.put(i, net.score());
+            double score = net.score();
+            scoreMap.put(epoch, score);
+            bestScore=Math.min(score,bestScore);
+            saveModel(saver,directory,String.format("%d-",epoch),net);
+
+            writeBestScoreFile();
         }
 
         pgEpoch.stop();
