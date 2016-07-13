@@ -6,18 +6,15 @@
     <parent>
         <artifactId>variation-analysis</artifactId>
         <groupId>org.campagnelab.dl</groupId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.campagnelab.dl</groupId>
     <artifactId>model-training</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
         <java.version>1.8</java.version>
-        <nd4j.version>0.4-rc3.10</nd4j.version>
-        <dl4j.version>0.4-rc3.10</dl4j.version>
+
         <canova.version>0.0.0.14</canova.version>
         <guava.version>19.0</guava.version>
         <jfreechart.version>1.0.13</jfreechart.version>
@@ -72,7 +69,7 @@
                     <execution>
                         <configuration>
                             <descriptors>
-                                <descriptor>model-training/src/assembly/assembly.xml</descriptor>
+                                <descriptor>./src/assembly/assembly.xml</descriptor>
                             </descriptors>
                         </configuration>
                         <phase>package</phase>
@@ -135,11 +132,11 @@
                 <artifactId>nd4j-native</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
-            <!--dependency>
+            <dependency>
                 <groupId>org.nd4j</groupId>
                 <artifactId>nd4j-cuda-7.5</artifactId>
                 <version>${nd4j.version}</version>
-            </dependency-->
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -249,7 +246,7 @@
         <dependency>
             <groupId>org.campagnelab.dl</groupId>
             <artifactId>model-utils</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
