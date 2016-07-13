@@ -53,7 +53,7 @@ public class ParallelWrapper {
             zoo[cnt].start();
         }
     }
-
+    DataSet cache=null;
     /**
      * This method takes DataSetIterator, and starts training over it by scheduling DataSets to different executors
      *
@@ -71,7 +71,9 @@ public class ParallelWrapper {
         progressLogger.start("fit");
         iterator.reset();
         while (iterator.hasNext()) {
-            DataSet dataSet = iterator.next();
+            // TODO cache dataset to measure GPU utilization: Training is non functional, so THIS MUST BE REMOVED !
+            DataSet dataSet = cache!=null? cache:  iterator.next();
+            cache=dataSet;
             progressLogger.lightUpdate();
 
             /*
