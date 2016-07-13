@@ -45,8 +45,8 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
 
         ParallelWrapper wrapper = new ParallelWrapper.Builder(net)
-                .prefetchBuffer(24)
-                .workers(2)
+                .prefetchBuffer(48)
+                .workers(24)
                 .averagingFrequency(3)
                 .build();
 
