@@ -54,9 +54,10 @@ public abstract class SomaticTrainer {
     protected double bestScore;
     protected int numTrainingFiles;
     protected MultiLayerNetwork net;
+
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
         this.featureCalculator = featureCalculator;
-this.miniBatchSize=miniBatchSize;
+        this.miniBatchSize = miniBatchSize;
 
         String path = "";
 
@@ -76,7 +77,7 @@ this.miniBatchSize=miniBatchSize;
             trainIterList.add(new BaseInformationIterator(trainingDataset[i], miniBatchSize,
                     featureCalculator, labelMapper));
         }
-        final AsyncDataSetIterator async = new AsyncDataSetIterator(new BaseInformationConcatIterator(trainIterList, miniBatchSize*2, featureCalculator, labelMapper));
+        final AsyncDataSetIterator async = new AsyncDataSetIterator(new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper));
 
         System.out.println("Estimating scaling parameters:");
         //Load the training data:
@@ -98,7 +99,7 @@ this.miniBatchSize=miniBatchSize;
         assembler.setWeightInitialization(WeightInit.RELU);
         assembler.setLearningRatePolicy(LearningRatePolicy.Score);
         MultiLayerConfiguration conf = assembler.createNetwork();
-        net= new MultiLayerNetwork(conf);
+        net = new MultiLayerNetwork(conf);
         net.init();
         //Print the  number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
