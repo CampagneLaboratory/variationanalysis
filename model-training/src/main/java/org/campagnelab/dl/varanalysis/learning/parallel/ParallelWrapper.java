@@ -41,7 +41,7 @@ public class ParallelWrapper {
 
     protected ParallelWrapper(Model model, int workers, int prefetchSize) {
         progressLogger = new ProgressLogger();
-        progressLogger.itemsName="examples";
+        progressLogger.itemsName="datasets";
 
         this.model = model;
         this.workers = workers;
@@ -67,15 +67,13 @@ public class ParallelWrapper {
 
         AtomicInteger locker = new AtomicInteger(0);
         int miniBatchSize = source.batch();
-        progressLogger.expectedUpdates=source.totalExamples()* miniBatchSize;
+        progressLogger.expectedUpdates=source.totalExamples()/miniBatchSize;
         progressLogger.start("fit");
         iterator.reset();
         while (iterator.hasNext()) {
             DataSet dataSet = iterator.next();
-            for (int i = 0; i< dataSet.numExamples(); i++) {
-                // increment for each example in the datset.
-                progressLogger.lightUpdate();
-            }
+            progressLogger.lightUpdate();
+
             /*
              now dataSet should be dispatched to next free workers, until all workers are busy. And then we should block till all finished.
             */
