@@ -274,7 +274,7 @@ public class MutatorTest {
             "mutated: true\n" +
             "mutatedBase: \"C\"\n" +
             "referenceBase: \"A\"\n" +
-            "frequencyOfMutation: 0.616643\n" +
+            "frequencyOfMutation: 0.5740478\n" +
             "indexOfMutatedBase: 2\n" +
             "samples {\n" +
             "  counts {\n" +
@@ -340,8 +340,8 @@ public class MutatorTest {
             "    matchesReference: false\n" +
             "    fromSequence: \"A\"\n" +
             "    toSequence: \"C\"\n" +
-            "    genotypeCountForwardStrand: 134\n" +
-            "    genotypeCountReverseStrand: 119\n" +
+            "    genotypeCountForwardStrand: 127\n" +
+            "    genotypeCountReverseStrand: 111\n" +
             "  }\n" +
             "  counts {\n" +
             "    matchesReference: false\n" +
@@ -361,8 +361,8 @@ public class MutatorTest {
             "    matchesReference: false\n" +
             "    fromSequence: \"ABC\"\n" +
             "    toSequence: \"-\"\n" +
-            "    genotypeCountForwardStrand: 266\n" +
-            "    genotypeCountReverseStrand: 281\n" +
+            "    genotypeCountForwardStrand: 273\n" +
+            "    genotypeCountReverseStrand: 289\n" +
             "    isIndel: true\n" +
             "  }\n" +
             "}\n"
@@ -372,7 +372,7 @@ public class MutatorTest {
             "mutated: true\n" +
             "mutatedBase: \"T\"\n" +
             "referenceBase: \"A\"\n" +
-            "frequencyOfMutation: 0.616643\n" +
+            "frequencyOfMutation: 0.5740478\n" +
             "indexOfMutatedBase: 1\n" +
             "samples {\n" +
             "  counts {\n" +
