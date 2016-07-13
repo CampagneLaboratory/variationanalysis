@@ -54,9 +54,9 @@ public abstract class SomaticTrainer {
     protected double bestScore;
     protected int numTrainingFiles;
     protected MultiLayerNetwork net;
-    public void execute(FeatureMapper featureCalculator, String trainingDataset[]) throws IOException {
+    public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
         this.featureCalculator = featureCalculator;
-
+this.miniBatchSize=miniBatchSize;
 
         String path = "";
 

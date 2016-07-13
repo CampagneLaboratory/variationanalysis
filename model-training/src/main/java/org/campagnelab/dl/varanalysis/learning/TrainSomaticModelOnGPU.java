@@ -37,7 +37,8 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-directory>");
         }
-        trainer.execute(new FeatureMapperV15(), args);
+
+        trainer.execute(new FeatureMapperV15(), args, 32*8);
     }
 
 
@@ -49,7 +50,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
                 .workers(8)
                 .averagingFrequency(3)
                 .build();
-        this.miniBatchSize *= 100;
+
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
         boolean init = true;

@@ -59,7 +59,7 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
             trainIterList.add(RecordWriter.addParqExtension(trainingFiles[i]));
         }
 
-        super.execute(featureCalculator, trainIterList.toArray(new String[trainIterList.size()]));
+        super.execute(featureCalculator, trainIterList.toArray(new String[trainIterList.size()]),32);
 
         ModelPropertiesHelper mpHelper=new ModelPropertiesHelper();
         mpHelper.setFeatureCalculator(featureCalculator);
