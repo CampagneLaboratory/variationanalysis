@@ -32,7 +32,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
     public static void main(String[] args) throws IOException {
         // uncomment the following line when running on a machine with multiple GPUs:
-        //org.nd4j.jita.conf.CudaEnvironment.getInstance().getConfiguration().allowMultiGPU(true);
+      //  org.nd4j.jita.conf.CudaEnvironment.getInstance().getConfiguration().allowMultiGPU(true);
         TrainSomaticModelOnGPU trainer = new TrainSomaticModelOnGPU();
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-directory>");
@@ -45,11 +45,11 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
 
         ParallelWrapper wrapper = new ParallelWrapper.Builder(net)
-                .prefetchBuffer(48)
-                .workers(24)
+                .prefetchBuffer(8)
+                .workers(8)
                 .averagingFrequency(3)
                 .build();
-
+        this.miniBatchSize *= 100;
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
         boolean init = true;
@@ -68,8 +68,8 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
             async.reset();
             double score = net.score();
             scoreMap.put(epoch, score);
-            bestScore=Math.min(score,bestScore);
-            saveModel(saver,directory,String.format("%d-",epoch),net);
+            bestScore = Math.min(score, bestScore);
+            saveModel(saver, directory, String.format("%d-", epoch), net);
 
             writeBestScoreFile();
         }

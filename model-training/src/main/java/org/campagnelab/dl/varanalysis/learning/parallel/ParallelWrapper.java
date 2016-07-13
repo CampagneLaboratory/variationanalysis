@@ -1,5 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.parallel;
 
+import it.unimi.dsi.logging.ProgressLogger;
 import lombok.NonNull;
 import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
@@ -36,8 +37,12 @@ public class ParallelWrapper {
     private int averagingFrequency = 1;
     private ParallelWrapper.Trainer zoo[];
     private AtomicLong iterationsCounter = new AtomicLong(0);
+    ProgressLogger progressLogger;
 
     protected ParallelWrapper(Model model, int workers, int prefetchSize) {
+        progressLogger = new ProgressLogger();
+        progressLogger.itemsName="examples";
+
         this.model = model;
         this.workers = workers;
         this.prefetchSize = prefetchSize;
@@ -61,12 +66,16 @@ public class ParallelWrapper {
         } else iterator = source;
 
         AtomicInteger locker = new AtomicInteger(0);
-
-
+        int miniBatchSize = source.batch();
+        progressLogger.expectedUpdates=source.totalExamples()* miniBatchSize;
+        progressLogger.start("fit");
         iterator.reset();
         while (iterator.hasNext()) {
             DataSet dataSet = iterator.next();
-
+            for (int i = 0; i< dataSet.numExamples(); i++) {
+                // increment for each example in the datset.
+                progressLogger.lightUpdate();
+            }
             /*
              now dataSet should be dispatched to next free workers, until all workers are busy. And then we should block till all finished.
             */
@@ -79,7 +88,7 @@ public class ParallelWrapper {
             if (pos + 1 == workers || !iterator.hasNext()) {
                 iterationsCounter.incrementAndGet();
 
-                for (int cnt = 0; cnt < workers && cnt < locker.get(); cnt ++) {
+                for (int cnt = 0; cnt < workers && cnt < locker.get(); cnt++) {
                     try {
                         zoo[cnt].waitTillRunning();
                     } catch (Exception e) {
@@ -107,7 +116,7 @@ public class ParallelWrapper {
                     logger.info("Averaged score: " + score);
 
                     if (model instanceof MultiLayerNetwork) {
-                        UpdaterAggregator uag = ((MultiLayerNetwork)zoo[0].getModel()).getUpdater().getAggregator(false);
+                        UpdaterAggregator uag = ((MultiLayerNetwork) zoo[0].getModel()).getUpdater().getAggregator(false);
 
                         for (int cnt = 0; cnt < workers; cnt++) {
                             uag.merge(((MultiLayerNetwork) zoo[cnt].getModel()).getUpdater().getAggregator(true));
@@ -116,7 +125,7 @@ public class ParallelWrapper {
                         ((MultiLayerNetwork) model).setScore(score);
                         ((MultiLayerNetwork) model).setUpdater(uag.getUpdater());
                     } else if (model instanceof ComputationGraph) {
-                        ComputationGraphUpdater.Aggregator uag = ((ComputationGraph)zoo[0].getModel()).getUpdater().getAggregator(false);
+                        ComputationGraphUpdater.Aggregator uag = ((ComputationGraph) zoo[0].getModel()).getUpdater().getAggregator(false);
 
                         for (int cnt = 0; cnt < workers; cnt++) {
                             uag.merge(((ComputationGraph) zoo[cnt].getModel()).getUpdater().getAggregator(true));
@@ -133,6 +142,7 @@ public class ParallelWrapper {
                 locker.set(0);
             }
         }
+        progressLogger.stop();
     }
 
     public static class Builder {
@@ -187,7 +197,7 @@ public class ParallelWrapper {
         /**
          * Size of prefetch buffer that will be used for background data prefetching.
          * Usually it's better to keep this value equal to the number of workers.
-         *
+         * <p>
          * Default value: 2
          *
          * @param size 0 to disable prefetching, any positive number
@@ -231,12 +241,12 @@ public class ParallelWrapper {
                 this.replicatedModel = ((MultiLayerNetwork) model).clone();
 
                 if (threadId != 0)
-                    ((MultiLayerNetwork)this.replicatedModel).setListeners(new ArrayList<IterationListener>());
+                    ((MultiLayerNetwork) this.replicatedModel).setListeners(new ArrayList<IterationListener>());
             } else if (model instanceof ComputationGraph) {
                 this.replicatedModel = ((ComputationGraph) model).clone();
 
                 if (threadId != 0)
-                    ((ComputationGraph)this.replicatedModel).setListeners(new ArrayList<IterationListener>());
+                    ((ComputationGraph) this.replicatedModel).setListeners(new ArrayList<IterationListener>());
             }
         }
 
@@ -254,14 +264,14 @@ public class ParallelWrapper {
 
             if (model instanceof MultiLayerNetwork) {
                 replicatedModel = ((MultiLayerNetwork) model).clone();
-     //           replicatedModel.setParams(model.params().dup());
+                //           replicatedModel.setParams(model.params().dup());
 //                ((MultiLayerNetwork) replicatedModel).setUpdater(((MultiLayerNetwork)model).getUpdater().clone());
-            } else if (model instanceof  ComputationGraph) {
+            } else if (model instanceof ComputationGraph) {
                 replicatedModel = ((ComputationGraph) model).clone();
             }
         }
 
-        public boolean isRunning(){
+        public boolean isRunning() {
             return running.get() == 0;
         }
 
