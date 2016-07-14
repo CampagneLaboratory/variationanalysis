@@ -41,12 +41,12 @@ import java.util.Set;
 public abstract class SomaticTrainer {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
     protected int seed = 123;
-    protected double learningRate = 0.1;
+    protected double learningRate = 0.01;
     protected int miniBatchSize = 32;
-    protected int numEpochs = 3;
-    protected int earlyStopCondition = 3;
+    protected int numEpochs = 15;
+    protected int earlyStopCondition =3;
     protected double dropoutRate = 0.5;
-    protected LabelMapper labelMapper;
+    protected LabelMapper labelMapper= new SimpleFeatureCalculator();
     protected FeatureMapper featureCalculator;
     protected String directory;
     protected long time;
@@ -92,10 +92,13 @@ public abstract class SomaticTrainer {
         assembler.setNumHiddenNodes(numHiddenNodes);
         assembler.setNumInputs(numInputs);
         assembler.setNumOutputs(numOutputs);
-        assembler.setRegularization(false);
-        lossFunction = LossFunctions.LossFunction.XENT;
+
+
+        lossFunction = LossFunctions.LossFunction.MCXENT;
+
         assembler.setLossFunction(lossFunction);
-        // assembler.setRegularizationRate(1e-6);
+        assembler.setRegularization(true);
+        assembler.setRegularizationRate(1e-6);
         // assembler.setDropoutRate(dropoutRate);
 
 

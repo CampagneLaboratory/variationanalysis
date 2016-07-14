@@ -7,7 +7,7 @@ package org.campagnelab.dl.model.utils.mappers;
 public class FeatureMapperV15 extends ConcatFeatureMapper {
     public FeatureMapperV15() {
         super(new SimpleFeatureCalculator(true), new IndelFeatures(),
-                new ReadIndexFeatures(), new FractionDifferences3(), new MagnitudeFeatures3(),
+                new ReadIndexFeatures(), new FractionDifferences3(), new MagnitudeFeatures2(),
                 new GenomicPositionMapper()
         );
     }

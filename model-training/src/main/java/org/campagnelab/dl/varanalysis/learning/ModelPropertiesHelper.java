@@ -39,8 +39,9 @@ public class ModelPropertiesHelper {
         modelProp.setProperty("earlyStopCondition", Integer.toString(-1));
         modelProp.setProperty("hiddenNodes", Integer.toString(numHiddenNodes));
         modelProp.setProperty("bestScore", Double.toString(bestScore));
-        modelProp.setProperty("lossFunction", lossFunction);
-
+        if (lossFunction != null) {
+            modelProp.setProperty("lossFunction", lossFunction);
+        }
         File file = new File(modelDirectory + "/config.properties");
         FileWriter fileWriter = new FileWriter(file);
         modelProp.store(fileWriter, "The settings used to generate this model");

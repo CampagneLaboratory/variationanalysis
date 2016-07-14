@@ -11,16 +11,16 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 public class EStatusListener implements EarlyStoppingListener<org.deeplearning4j.nn.multilayer.MultiLayerNetwork> {
     @Override
     public void onStart(EarlyStoppingConfiguration<MultiLayerNetwork> esConfig, MultiLayerNetwork net) {
-        System.out.println("Training has started on:" + net.toString());
+        System.out.println("Training has started on: " + net.toString());
     }
 
     @Override
     public void onEpoch(int epochNum, double score, EarlyStoppingConfiguration<MultiLayerNetwork> esConfig, MultiLayerNetwork net) {
-        System.out.println("Epoch" + Integer.toString(epochNum) + "has completed with score:" + Double.toString(score));
+        System.out.println("Epoch " + Integer.toString(epochNum) + "  has completed with score: " + Double.toString(score));
     }
 
     @Override
     public void onCompletion(EarlyStoppingResult<MultiLayerNetwork> esResult) {
-        System.out.println("Training has completed with result:" + esResult.toString());
+        System.out.println("Training has completed with result: " + esResult.toString());
     }
 }

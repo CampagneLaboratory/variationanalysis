@@ -48,7 +48,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-directory>");
         }
-        trainer.execute(new FeatureMapperV15(), args,32);
+        trainer.execute(new FeatureMapperV14(), args,32);
 
     }
 

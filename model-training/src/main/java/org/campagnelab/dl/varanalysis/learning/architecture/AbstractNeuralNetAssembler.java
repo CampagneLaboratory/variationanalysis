@@ -19,6 +19,7 @@ public abstract class AbstractNeuralNetAssembler implements NeuralNetAssembler {
     boolean dropOut;
     protected double dropOutRate;
     protected LossFunctions.LossFunction lossFunction= LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD;
+
     public void setLearningRatePolicy(LearningRatePolicy learningRatePolicy) {
         this.learningRatePolicy = learningRatePolicy;
     }
