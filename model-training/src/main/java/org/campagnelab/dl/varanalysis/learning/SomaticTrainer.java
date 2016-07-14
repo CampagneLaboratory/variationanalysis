@@ -22,6 +22,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,8 +55,9 @@ public abstract class SomaticTrainer {
     protected double bestScore;
     protected int numTrainingFiles;
     protected MultiLayerNetwork net;
+    private LossFunctions.LossFunction lossFunction;
 
-    public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
+    public void execute(FeatureMapper featureCalculator, String trainingDataset[]) throws IOException {
         this.featureCalculator = featureCalculator;
         this.miniBatchSize = miniBatchSize;
 
@@ -91,6 +93,8 @@ public abstract class SomaticTrainer {
         assembler.setNumInputs(numInputs);
         assembler.setNumOutputs(numOutputs);
         assembler.setRegularization(false);
+        lossFunction = LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD;
+        assembler.setLossFunction(lossFunction);
         // assembler.setRegularizationRate(1e-6);
         // assembler.setDropoutRate(dropoutRate);
 
@@ -147,6 +151,7 @@ public abstract class SomaticTrainer {
         mpHelper.setNumTrainingSets(numTrainingFiles);
         mpHelper.setTime(time);
         mpHelper.setSeed(seed);
+        mpHelper.setLossFunction(lossFunction.name());
         mpHelper.writeProperties(directory);
     }
 

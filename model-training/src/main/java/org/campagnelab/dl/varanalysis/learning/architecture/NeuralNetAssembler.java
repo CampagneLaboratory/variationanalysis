@@ -3,6 +3,7 @@ package org.campagnelab.dl.varanalysis.learning.architecture;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
  * An interface for classes that assemble neural network configuration according to some architecture.
@@ -33,4 +34,6 @@ public interface NeuralNetAssembler {
 
     public void setRegularizationRate(double regularizationRate);
     public void setDropoutRate(double rate);
+
+    void setLossFunction(LossFunctions.LossFunction lossFunction);
 }
