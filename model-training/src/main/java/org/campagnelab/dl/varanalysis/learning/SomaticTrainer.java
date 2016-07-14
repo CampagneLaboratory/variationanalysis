@@ -41,7 +41,7 @@ import java.util.Set;
 public abstract class SomaticTrainer {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
     protected int seed = 123;
-    protected double learningRate = 0.1;
+    protected double learningRate = 0.01;
     protected int miniBatchSize = 32;
     protected int numEpochs = 3;
     protected int earlyStopCondition = 3;

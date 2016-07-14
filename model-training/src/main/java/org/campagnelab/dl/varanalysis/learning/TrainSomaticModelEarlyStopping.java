@@ -48,7 +48,7 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
         System.arraycopy(args,0, otherArgs,0, otherArgs.length);
         TrainSomaticModelEarlyStopping trainer=new TrainSomaticModelEarlyStopping(args[0]);
         System.out.println("Early stopping using validation="+args[0]);
-        trainer.execute(new FeatureMapperV15(), otherArgs);
+        trainer.execute(new FeatureMapperV9(), otherArgs);
     }
 
     public  void execute(FeatureMapper featureCalculator, String[] trainingFiles) throws IOException {
