@@ -93,7 +93,7 @@ public abstract class SomaticTrainer {
         assembler.setNumInputs(numInputs);
         assembler.setNumOutputs(numOutputs);
         assembler.setRegularization(false);
-        lossFunction = LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD;
+        lossFunction = LossFunctions.LossFunction.XENT;
         assembler.setLossFunction(lossFunction);
         // assembler.setRegularizationRate(1e-6);
         // assembler.setDropoutRate(dropoutRate);
