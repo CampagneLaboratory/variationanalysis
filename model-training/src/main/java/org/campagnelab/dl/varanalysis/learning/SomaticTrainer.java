@@ -43,8 +43,8 @@ public abstract class SomaticTrainer {
     protected int seed = 123;
     protected double learningRate = 0.01;
     protected int miniBatchSize = 32;
-    protected int numEpochs = 3;
-    protected int earlyStopCondition = 3;
+    protected int numEpochs = 15;
+    protected int earlyStopCondition =3;
     protected double dropoutRate = 0.5;
     protected LabelMapper labelMapper= new SimpleFeatureCalculator();
     protected FeatureMapper featureCalculator;
@@ -92,10 +92,13 @@ public abstract class SomaticTrainer {
         assembler.setNumHiddenNodes(numHiddenNodes);
         assembler.setNumInputs(numInputs);
         assembler.setNumOutputs(numOutputs);
-        assembler.setRegularization(false);
-        lossFunction = LossFunctions.LossFunction.XENT;
+
+
+        lossFunction = LossFunctions.LossFunction.MCXENT;
+
         assembler.setLossFunction(lossFunction);
-        // assembler.setRegularizationRate(1e-6);
+        assembler.setRegularization(true);
+        assembler.setRegularizationRate(1e-6);
         // assembler.setDropoutRate(dropoutRate);
 
 

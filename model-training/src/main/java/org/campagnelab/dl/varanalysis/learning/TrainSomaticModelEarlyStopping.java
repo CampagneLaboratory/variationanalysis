@@ -16,6 +16,7 @@ import org.deeplearning4j.earlystopping.trainer.EarlyStoppingTrainer;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.deeplearning4j.ui.weights.HistogramIterationListener;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
         System.arraycopy(args,0, otherArgs,0, otherArgs.length);
         TrainSomaticModelEarlyStopping trainer=new TrainSomaticModelEarlyStopping(args[0]);
         System.out.println("Early stopping using validation="+args[0]);
-        trainer.execute(new FeatureMapperV9(), otherArgs);
+        trainer.execute(new FeatureMapperV15(), otherArgs);
     }
 
     public  void execute(FeatureMapper featureCalculator, String[] trainingFiles) throws IOException {
@@ -78,12 +79,13 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
 
     }
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
-        net.setListeners(new ScoreIterationListener(100));
+        net.setListeners(new ScoreIterationListener(1000));
+        final int numValidationBatches = 1000;
         EarlyStoppingConfiguration esConf = new EarlyStoppingConfiguration.Builder()
                 .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),
                         new ScoreImprovementEpochTerminationCondition(earlyStopCondition))
-                .scoreCalculator(new DataSetLossCalculator(new BaseInformationIterator(validationFile, miniBatchSize,
-                        featureCalculator, labelMapper), true))
+                .scoreCalculator(new DataSetLossCalculator(new FirstNIterator(new BaseInformationIterator(validationFile, miniBatchSize,
+                        featureCalculator, labelMapper), numValidationBatches), true))
                 .evaluateEveryNEpochs(1)
                 .modelSaver(new LocalFileModelSaver(directory))
                 .build();
