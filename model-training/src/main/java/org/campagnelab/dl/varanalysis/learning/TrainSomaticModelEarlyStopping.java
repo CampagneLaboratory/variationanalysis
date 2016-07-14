@@ -55,7 +55,7 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
 
 
         List<String> trainIterList = new ObjectArrayList<String>(trainingFiles.length - 1);
-        for (int i = 1; i < trainingFiles.length; i++) {
+        for (int i = 0; i < trainingFiles.length; i++) {
             trainIterList.add(RecordWriter.addParqExtension(trainingFiles[i]));
         }
 
@@ -79,15 +79,17 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
     }
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
         net.setListeners(new ScoreIterationListener(100));
-        EarlyStoppingConfiguration<MultiLayerNetwork> esConf = new EarlyStoppingConfiguration.Builder()
-                .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),new ScoreImprovementEpochTerminationCondition(earlyStopCondition))
+        EarlyStoppingConfiguration esConf = new EarlyStoppingConfiguration.Builder()
+                .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),
+                        new ScoreImprovementEpochTerminationCondition(earlyStopCondition))
                 .scoreCalculator(new DataSetLossCalculator(new BaseInformationIterator(validationFile, miniBatchSize,
                         featureCalculator, labelMapper), true))
                 .evaluateEveryNEpochs(1)
                 .modelSaver(new LocalFileModelSaver(directory))
                 .build();
 
-        EarlyStoppingTrainer trainer = new EarlyStoppingTrainer(esConf,conf,async);
+        EarlyStoppingTrainer trainer = new EarlyStoppingTrainer(esConf,net,async);
+
         trainer.setListener(new EStatusListener());
         EarlyStoppingResult<MultiLayerNetwork> result = trainer.fit();
 

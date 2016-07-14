@@ -46,7 +46,7 @@ public abstract class SomaticTrainer {
     protected int numEpochs = 3;
     protected int earlyStopCondition = 3;
     protected double dropoutRate = 0.5;
-    protected LabelMapper labelMapper;
+    protected LabelMapper labelMapper= new SimpleFeatureCalculator();
     protected FeatureMapper featureCalculator;
     protected String directory;
     protected long time;
