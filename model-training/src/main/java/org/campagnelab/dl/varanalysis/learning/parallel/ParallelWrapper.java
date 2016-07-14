@@ -71,7 +71,9 @@ public class ParallelWrapper {
         progressLogger.start("fit");
         iterator.reset();
         while (iterator.hasNext()) {
-            DataSet dataSet = iterator.next();
+
+            DataSet dataSet =  iterator.next();
+
             progressLogger.lightUpdate();
 
             /*
@@ -277,7 +279,7 @@ public class ParallelWrapper {
         public void run() {
             try {
                 while (true) {
-                    DataSet dataSet = queue.poll(10, TimeUnit.MICROSECONDS);
+                    DataSet dataSet = queue.poll(10, TimeUnit.MILLISECONDS);
                     if (dataSet != null) {
                         if (replicatedModel instanceof MultiLayerNetwork) {
                             ((MultiLayerNetwork) replicatedModel).fit(dataSet);

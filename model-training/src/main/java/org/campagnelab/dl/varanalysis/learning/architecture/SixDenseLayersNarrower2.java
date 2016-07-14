@@ -20,6 +20,8 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 public class SixDenseLayersNarrower2 extends AbstractNeuralNetAssembler implements NeuralNetAssembler {
 
 
+
+
     public MultiLayerConfiguration createNetwork() {
         learningRatePolicy = LearningRatePolicy.Poly;
         float reduction = 0.65f;
@@ -59,7 +61,7 @@ public class SixDenseLayersNarrower2 extends AbstractNeuralNetAssembler implemen
                         .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build())
-                .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .layer(5, new OutputLayer.Builder(lossFunction)
                         .weightInit(WEIGHT_INIT)
                         .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(numOutputs).build())

@@ -37,7 +37,8 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-directory>");
         }
-        trainer.execute(new FeatureMapperV15(), args);
+
+        trainer.execute(new FeatureMapperV15(), args, 32);
     }
 
 
@@ -45,11 +46,11 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
 
         ParallelWrapper wrapper = new ParallelWrapper.Builder(net)
-                .prefetchBuffer(8)
-                .workers(8)
+                .prefetchBuffer(32)
+                .workers(32)
                 .averagingFrequency(3)
                 .build();
-        this.miniBatchSize *= 100;
+
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
         boolean init = true;

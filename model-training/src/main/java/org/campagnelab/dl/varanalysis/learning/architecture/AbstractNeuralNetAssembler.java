@@ -2,6 +2,7 @@ package org.campagnelab.dl.varanalysis.learning.architecture;
 
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
  * Created by fac2003 on 6/10/16.
@@ -17,7 +18,7 @@ public abstract class AbstractNeuralNetAssembler implements NeuralNetAssembler {
     protected LearningRatePolicy learningRatePolicy=LearningRatePolicy.None;
     boolean dropOut;
     protected double dropOutRate;
-
+    protected LossFunctions.LossFunction lossFunction= LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD;
     public void setLearningRatePolicy(LearningRatePolicy learningRatePolicy) {
         this.learningRatePolicy = learningRatePolicy;
     }
@@ -60,5 +61,9 @@ public abstract class AbstractNeuralNetAssembler implements NeuralNetAssembler {
     public void setDropoutRate(double rate) {
         this.dropOut=true;
         this.dropOutRate=rate;
+    }
+
+    public void setLossFunction(LossFunctions.LossFunction lossFunction) {
+        this.lossFunction = lossFunction;
     }
 }
