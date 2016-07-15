@@ -85,18 +85,8 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
             Constructor constructor = loadedMyClass.getConstructor();
             featureMapper = (FeatureMapper) constructor.newInstance();
 
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
             if (input != null) {
                 try {
