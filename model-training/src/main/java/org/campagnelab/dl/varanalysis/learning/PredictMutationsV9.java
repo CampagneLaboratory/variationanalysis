@@ -34,63 +34,29 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
 
     final static String TIME = "1468533491636";
+    private final ModelLoader modelLoader;
     String modelPath;
     String dataDirPath;
     String resultsPath;
     String version = "VN";
     String[] dataFilenames;
     boolean TEST_UNMUT = false;
-    String[] unmutFilenames = new String[]{"unmut_genotypes_test_proto_VN.parquet","training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
-    String[] mutFilenames =  new String[]{"mutated-MHFC-13-CTL_B_NK.parquet","training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
-    String[] resultsFileNames = new String[]{ "test","training"};
+    String[] unmutFilenames = new String[]{"unmut_genotypes_test_proto_VN.parquet", "training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
+    String[] mutFilenames = new String[]{"mutated-MHFC-13-CTL_B_NK.parquet", "training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
+    String[] resultsFileNames = new String[]{"test", "training"};
     FeatureMapper featureMapper;// = new FeatureMapperV9();
-    private int scoreN=Integer.MAX_VALUE;
+    private int scoreN = Integer.MAX_VALUE;
 
 
     public PredictMutationsV9(String modelPath, String dataDirPath, String resultsPath) {
         this.modelPath = modelPath;
         this.dataDirPath = dataDirPath;
         this.resultsPath = resultsPath;
-        this.dataFilenames = TEST_UNMUT?unmutFilenames:mutFilenames;
-
-        Properties prop = new Properties();
-        InputStream input = null;
-
-        try {
+        this.dataFilenames = TEST_UNMUT ? unmutFilenames : mutFilenames;
 
 
-
-            input = new FileInputStream(modelPath + "/config.properties");
-
-            // load a properties file
-            prop.load(input);
-
-            // get the property value and print it out
-            String mapperName = prop.getProperty("mapper");
-
-
-            ClassLoader classLoader = this.getClass().getClassLoader();
-
-            // Load the target class using its binary name
-            Class loadedMyClass = classLoader.loadClass(mapperName);
-
-            System.out.println("Loaded class name: " + loadedMyClass.getName());
-
-            // Create a new instance from the loaded class
-            Constructor constructor = loadedMyClass.getConstructor();
-            featureMapper = (FeatureMapper) constructor.newInstance();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        modelLoader = new ModelLoader(modelPath);
+        featureMapper = modelLoader.loadFeatureMapper();
     }
 
 
@@ -106,7 +72,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         System.out.println("time: " + TIME);
         String attempt = "models/" + TIME;
         String modelDir = "models/" + TIME;
-                PredictMutationsV9 predictor = new PredictMutationsV9(modelDir, datasetPath, "tests/" + TIME + "/");
+        PredictMutationsV9 predictor = new PredictMutationsV9(modelDir, datasetPath, "tests/" + TIME + "/");
         predictor.printPredictions("best");
         predictor.printPredictions("latest");
         System.out.println(attempt);
@@ -148,25 +114,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
     public void printPredictions(String prefix) {
         try {
-            MultiLayerNetwork model;
-            if (! new File(modelPath + String.format("/%sModelParams.bin",prefix)).isFile()){
-                model = new LocalFileModelSaver(modelPath).getBestModel();
-            } else {
-                //Load parameters from disk:
-                INDArray newParams;
-                DataInputStream dis = new DataInputStream(new FileInputStream(modelPath + String.format("/%sModelParams.bin", prefix)));
-                newParams = Nd4j.read(dis);
-
-                //Load network configuration from disk:
-                MultiLayerConfiguration confFromJson =
-                        MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File(modelPath + String.format("/%sModelConf.json", prefix))));
-
-                //Create a MultiLayerNetwork from the saved configuration and parameters
-                model = new MultiLayerNetwork(confFromJson);
-                model.init();
-                model.setParameters(newParams);
-            }
-
+            MultiLayerNetwork model=modelLoader.loadModel(prefix);
             File dir = new File(resultsPath);
             // attempt to create the directory here
             dir.mkdir();
@@ -175,7 +123,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
             for (int i = 0; i < 2; i++) {
                 //initialize results printer
                 String typeOfTestFile = resultsFileNames[i];
-                PrintWriter results = new PrintWriter(resultsPath + prefix+"-"+ typeOfTestFile, "UTF-8");
+                PrintWriter results = new PrintWriter(resultsPath + prefix + "-" + typeOfTestFile, "UTF-8");
                 writeHeader(results);
 
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
@@ -184,19 +132,19 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 //DataSet ds = baseIter.next();
 //set up logger
                 ProgressLogger pgReadWrite = new ProgressLogger(LOG);
-                pgReadWrite.itemsName = prefix+"/"+typeOfTestFile;
+                pgReadWrite.itemsName = prefix + "/" + typeOfTestFile;
                 pgReadWrite.expectedUpdates = reader.getTotalRecords();
                 pgReadWrite.displayFreeMemory = true;
                 pgReadWrite.start();
 
-                AreaUnderTheROCCurve aucLossCalculator=new AreaUnderTheROCCurve();
-                int index=0;
+                AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve();
+                int index = 0;
                 for (BaseInformationRecords.BaseInformation record : reader) {
-                    writeRecordResult(model, results, featureMapper, pgReadWrite, record,aucLossCalculator);
+                    writeRecordResult(model, results, featureMapper, pgReadWrite, record, aucLossCalculator);
                     index++;
-                    if (index>scoreN) break;
+                    if (index > scoreN) break;
                 }
-                System.out.println("AUC on "+prefix+"="+aucLossCalculator.evaluateStatistic());
+                System.out.println("AUC on " + prefix + "=" + aucLossCalculator.evaluateStatistic());
                 results.close();
                 pgReadWrite.stop();
             }
