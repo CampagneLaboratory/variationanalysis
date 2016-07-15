@@ -1,5 +1,8 @@
 package org.campagnelab.dl.varanalysis.learning;
 
+import it.unimi.dsi.fastutil.floats.FloatAVLTreeSet;
+import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
+import it.unimi.dsi.fastutil.ints.IntSortedSet;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
@@ -20,6 +23,8 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.stream.IntStream;
 
 /**
@@ -33,7 +38,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
 
-    final static String TIME = "1468533491636";
+    final static String TIME = "model_sets_count_test";
     private final ModelLoader modelLoader;
     String modelPath;
     String dataDirPath;
@@ -46,6 +51,9 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     String[] resultsFileNames = new String[]{"test", "training"};
     FeatureMapper featureMapper;// = new FeatureMapperV9();
     private int scoreN = Integer.MAX_VALUE;
+    SortedSet<Float> plantedMutSet = new FloatAVLTreeSet();
+    SortedSet<Float> allRecSet = new FloatAVLTreeSet();
+
 
 
     public PredictMutationsV9(String modelPath, String dataDirPath, String resultsPath) {
@@ -129,6 +137,8 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
                 //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
                 RecordReader reader = new RecordReader(dataDirPath + dataFilenames[i]);
+
+
                 //DataSet ds = baseIter.next();
 //set up logger
                 ProgressLogger pgReadWrite = new ProgressLogger(LOG);
@@ -140,18 +150,50 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve();
                 int index = 0;
                 for (BaseInformationRecords.BaseInformation record : reader) {
-                    writeRecordResult(model, results, featureMapper, pgReadWrite, record, aucLossCalculator);
+                    writeRecordResult(model, results, featureMapper, pgReadWrite, record, aucLossCalculator, plantedMutSet, allRecSet);
                     index++;
                     if (index > scoreN) break;
                 }
                 System.out.println("AUC on " + prefix + "=" + aucLossCalculator.evaluateStatistic());
                 results.close();
                 pgReadWrite.stop();
+
+                //write sorted trees and total count to file:
+                if (i == 0) { //only save for test set
+                    saveRunningTotals();
+                    //write record count to prop file
+                    modelLoader.writeTestCount(reader.getTotalRecords());
+                }
+
             }
 
 
         } catch (Exception e) {
             throw new RuntimeException((e));
+        }
+
+
+    }
+
+
+    void saveRunningTotals(){
+        File dir = new File(modelPath + "/stats");
+        // attempt to create the directory here
+        dir.mkdir();
+        //serialize the List
+        try {
+            OutputStream file = new FileOutputStream(modelPath + "/stats" + "/plantedMutSet");
+            OutputStream buffer = new BufferedOutputStream(file);
+            ObjectOutput output = new ObjectOutputStream(buffer);
+            output.writeObject(plantedMutSet);
+            file = new FileOutputStream(modelPath + "/stats" + "/allRecSet");
+            buffer = new BufferedOutputStream(file);
+            output = new ObjectOutputStream(buffer);
+            output.writeObject(allRecSet);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
 

@@ -23,6 +23,27 @@ public class ModelLoader {
         this.modelPath = modelPath;
     }
 
+    void writeTestCount(long testRecordCount){
+        try {
+            FileInputStream input = new FileInputStream(modelPath + "/config.properties");
+            // load a properties file
+            Properties prop = new Properties();
+            prop.load(input);
+            input.close();
+            // get the property value and print it out
+            prop.setProperty("testRecordCount",Long.toString(testRecordCount));
+            FileOutputStream output = new FileOutputStream(modelPath + "/config.properties");
+            prop.store(output,"total testRecords added other settings, for use in statistics");
+            output.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
     FeatureMapper loadFeatureMapper() {
 
         try {

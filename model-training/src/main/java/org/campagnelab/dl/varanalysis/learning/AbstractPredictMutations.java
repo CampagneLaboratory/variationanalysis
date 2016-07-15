@@ -10,6 +10,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.PrintWriter;
+import java.util.SortedSet;
 
 /**
  * Created by fac2003 on 6/10/16.
@@ -23,6 +24,10 @@ public abstract class AbstractPredictMutations {
     }
 
     protected void writeRecordResult(MultiLayerNetwork model, PrintWriter results, FeatureMapper featureMapper, ProgressLogger pgReadWrite, BaseInformationRecords.BaseInformation record, AreaUnderTheROCCurve aucLossCalculator) {
+        writeRecordResult(model,results,featureMapper,pgReadWrite,record,aucLossCalculator,null,null);
+    }
+
+    protected void writeRecordResult(MultiLayerNetwork model, PrintWriter results, FeatureMapper featureMapper, ProgressLogger pgReadWrite, BaseInformationRecords.BaseInformation record, AreaUnderTheROCCurve aucLossCalculator, SortedSet<Float> plantedMutSet, SortedSet<Float> allRecSet) {
         INDArray testFeatures = Nd4j.zeros(1, featureMapper.numberOfFeatures());
         featureMapper.mapFeatures(record, testFeatures, 0);
         INDArray testPredicted = model.output(testFeatures, false);
@@ -39,6 +44,14 @@ public abstract class AbstractPredictMutations {
         }
         results.append((mutated ? "1" : "0") + "\t" + Float.toString(prediction.posProb) + "\t" + Float.toString(prediction.negProb) + "\t" + correctness + "\t" + features + "\t" + formatted0 + "\t" + formatted1 + "\n");
         pgReadWrite.update();
+
+        //update treesets
+        if (plantedMutSet != null){
+            allRecSet.add(prediction.posProb);
+            if (mutated){
+                plantedMutSet.add(prediction.posProb);
+            }
+        }
     }
 
     protected abstract String featuresToString(BaseInformationRecords.BaseInformation record);
