@@ -60,6 +60,7 @@ public abstract class SomaticTrainer {
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
         this.featureCalculator = featureCalculator;
         this.miniBatchSize = miniBatchSize;
+        this.numTrainingFiles = trainingDataset.length;
 
         String path = "";
 
