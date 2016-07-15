@@ -3,14 +3,10 @@ package org.campagnelab.dl.varanalysis.learning;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
-import org.campagnelab.dl.model.utils.mappers.AbstractPredictMutations;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV11;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV9;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV13;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV12;
 import org.campagnelab.dl.model.utils.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -21,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.stream.IntStream;
@@ -34,10 +29,10 @@ import java.util.stream.IntStream;
  * @author Remi Torracinta
  */
 public class PredictMutationsV9 extends AbstractPredictMutations {
-    static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV8.class);
+    static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
 
-    final static String TIME = "1467846291273";
+    final static String TIME = "1468533491636";
     String modelPath;
     String dataDirPath;
     String resultsPath;
@@ -112,8 +107,8 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         String attempt = "models/" + TIME;
         String modelDir = "models/" + TIME;
                 PredictMutationsV9 predictor = new PredictMutationsV9(modelDir, datasetPath, "tests/" + TIME + "/");
-        predictor.PrintPredictions("best");
-        predictor.PrintPredictions("latest");
+        predictor.printPredictions("best");
+        predictor.printPredictions("latest");
         System.out.println(attempt);
 
     }
@@ -151,7 +146,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         return features;
     }
 
-    public void PrintPredictions(String prefix) {
+    public void printPredictions(String prefix) {
         try {
 
             //Load parameters from disk:
@@ -190,11 +185,11 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 pgReadWrite.displayFreeMemory = true;
                 pgReadWrite.start();
 
-
+                AreaUnderTheROCCurve aucLossCalculator=new AreaUnderTheROCCurve();
                 for (BaseInformationRecords.BaseInformation record : reader) {
-                    writeRecordResult(model, results, featureMapper, pgReadWrite, record);
+                    writeRecordResult(model, results, featureMapper, pgReadWrite, record,aucLossCalculator);
                 }
-
+                System.out.println("AUC on "+prefix+"="+aucLossCalculator.evaluateStatistic());
                 results.close();
                 pgReadWrite.stop();
             }
