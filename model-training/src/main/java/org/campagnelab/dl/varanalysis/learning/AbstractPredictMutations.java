@@ -35,7 +35,7 @@ public abstract class AbstractPredictMutations {
         String formatted1 = record.getSamples(1).getFormattedCounts().replaceAll("\n", "");
         String correctness = (prediction.clas == mutated) ? "right" : "wrong";
         if (aucLossCalculator != null) {
-            aucLossCalculator.observe(prediction.posProb > prediction.negProb ? prediction.posProb : -prediction.posProb , mutated ? 1 : -1);
+            aucLossCalculator.observe(prediction.posProb , mutated ? 1 : -1);
         }
         results.append((mutated ? "1" : "0") + "\t" + Float.toString(prediction.posProb) + "\t" + Float.toString(prediction.negProb) + "\t" + correctness + "\t" + features + "\t" + formatted0 + "\t" + formatted1 + "\n");
         pgReadWrite.update();
