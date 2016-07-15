@@ -44,8 +44,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     String[] mutFilenames =  new String[]{"mutated-MHFC-13-CTL_B_NK.parquet","training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
     String[] resultsFileNames = new String[]{ "test","training"};
     FeatureMapper featureMapper;// = new FeatureMapperV9();
-
-
+    private int scoreN=Integer.MAX_VALUE;
 
 
     public PredictMutationsV9(String modelPath, String dataDirPath, String resultsPath) {
@@ -191,8 +190,11 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 pgReadWrite.start();
 
                 AreaUnderTheROCCurve aucLossCalculator=new AreaUnderTheROCCurve();
+                int index=0;
                 for (BaseInformationRecords.BaseInformation record : reader) {
                     writeRecordResult(model, results, featureMapper, pgReadWrite, record,aucLossCalculator);
+                    index++;
+                    if (index>scoreN) break;
                 }
                 System.out.println("AUC on "+prefix+"="+aucLossCalculator.evaluateStatistic());
                 results.close();
