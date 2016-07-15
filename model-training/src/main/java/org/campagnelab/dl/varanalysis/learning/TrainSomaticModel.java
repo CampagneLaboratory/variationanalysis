@@ -9,6 +9,7 @@ import org.campagnelab.dl.model.utils.mappers.*;
 import org.campagnelab.dl.varanalysis.learning.architecture.*;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
+import org.campagnelab.dl.varanalysis.util.HitBoundedPriorityQueue;
 import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
@@ -39,6 +40,7 @@ import java.util.*;
  */
 public class TrainSomaticModel extends SomaticTrainer {
     public static final int MIN_ITERATION_BETWEEN_BEST_MODEL = 1000;
+    public static final int MAX_ERRORS_KEPT = 1;
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
     private String validationDatasetFilename = null;
 
@@ -82,9 +84,12 @@ public class TrainSomaticModel extends SomaticTrainer {
                     System.out.println("There should be two labels in the miniBatch");
                 }
 
+                DataSet enriched=new DataSet();
                 // fit the net:
                 net.fit(ds);
-                //   INDArray predictedLabels = net.output(ds.getFeatures(), false);
+
+                INDArray predictedLabels = net.output(ds.getFeatures(), false);
+                keepWorseErrors(ds, predictedLabels, ds.getLabels());
 
 
                 pg.update();
@@ -103,16 +108,17 @@ public class TrainSomaticModel extends SomaticTrainer {
                     saver.saveBestModel(net, score);
                     System.out.println("Saving best score model.. score=" + bestScore);
                     lastIter = iter;
-                    estimateTestSetPerf(epoch);
+                    estimateTestSetPerf(epoch, iter);
                 }
                 scoreMap.put(iter, bestScore);
+                queue.clear();
             }
             //save latest after the end of an epoch:
             saver.saveLatestModel(net, net.score());
             saveModel(saver, directory, Integer.toString(epoch) + "-", net);
             writeProperties(featureCalculator);
             writeBestScoreFile();
-            estimateTestSetPerf(epoch);
+            estimateTestSetPerf(epoch, iter);
             pg.stop();
             pgEpoch.update();
             async.reset();    //Reset iterator for another epoch
@@ -123,11 +129,45 @@ public class TrainSomaticModel extends SomaticTrainer {
                 "not early stopping", scoreMap, numEpochs, bestScore, numEpochs, net);
     }
 
-    private void estimateTestSetPerf(int epoch) throws IOException {
+    HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
+
+    private void keepWorseErrors( DataSet minibatch, INDArray predictedLabels, INDArray labels) {
+        int size=minibatch.numExamples();
+        for (int exampleIndex = 0; exampleIndex < size; exampleIndex++) {
+            if (isWrongPrediction(exampleIndex, predictedLabels, labels)) {
+                float wrongness = calculateWrongness(exampleIndex, predictedLabels, labels);
+                queue.enqueue(wrongness, minibatch.getFeatures(), labels.getRow(exampleIndex));
+            //    System.out.println("largest error so far: "+ queue.first());
+            }
+        }
+    }
+
+    private float calculateWrongness(int exampleIndex, INDArray predictedLabels, INDArray labels) {
+        final int positiveLabelMutated = 0;
+        final int negativeLabel = 1;
+        final boolean predictedPositive = predictedLabels.getDouble(exampleIndex, positiveLabelMutated) > predictedLabels.getDouble(exampleIndex, negativeLabel);
+        if (predictedPositive) {
+            return predictedLabels.getFloat(exampleIndex, positiveLabelMutated);
+        } else{
+            return predictedLabels.getFloat(exampleIndex, negativeLabel);
+        }
+
+    }
+
+    private boolean isWrongPrediction(int exampleIndex, INDArray predictedLabels, INDArray labels) {
+        final int positiveLabelMutated = 0;
+        final int negativeLabel = 1;
+        final boolean predictedPositive = predictedLabels.getDouble(exampleIndex, positiveLabelMutated) > predictedLabels.getDouble(exampleIndex, negativeLabel);
+        final double trueLabelPositive = labels.getDouble(exampleIndex, positiveLabelMutated);
+        return predictedPositive && trueLabelPositive ==0 ||
+                !predictedPositive && trueLabelPositive >0;
+    }
+
+    private void estimateTestSetPerf(int epoch, int iter) throws IOException {
         if (validationDatasetFilename == null) return;
         MeasurePerformance perf = new MeasurePerformance(10000);
         validationDatasetFilename = "/data/mutated-MHFC-13-CTL_B_NK.parquet";
         double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
-        System.out.printf("Epoch %d Test AUC=%f%n", epoch, auc);
+        System.out.printf("Epoch %d Iteration %d AUC=%f%n", epoch, iter, auc);
     }
 }
