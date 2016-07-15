@@ -3,7 +3,6 @@ package org.campagnelab.dl.varanalysis.learning;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
-import org.campagnelab.dl.model.utils.mappers.AbstractPredictMutations;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV4;
 import org.campagnelab.dl.model.utils.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -132,7 +131,7 @@ public class PredictMutationsV4 extends AbstractPredictMutations {
 
 
                 for (BaseInformationRecords.BaseInformation record : reader) {
-                    writeRecordResult(model, results, featureMapper, pgReadWrite, record);
+                    writeRecordResult(model, results, featureMapper, pgReadWrite, record, null);
                 }
 
                 results.close();

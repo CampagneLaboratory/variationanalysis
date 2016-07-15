@@ -1,9 +1,10 @@
-package org.campagnelab.dl.model.utils.mappers;
+package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -21,19 +22,22 @@ public abstract class AbstractPredictMutations {
         results.append(header);
     }
 
-    protected void writeRecordResult(MultiLayerNetwork model, PrintWriter results, FeatureMapper featureMapper, ProgressLogger pgReadWrite, BaseInformationRecords.BaseInformation record) {
+    protected void writeRecordResult(MultiLayerNetwork model, PrintWriter results, FeatureMapper featureMapper, ProgressLogger pgReadWrite, BaseInformationRecords.BaseInformation record, AreaUnderTheROCCurve aucLossCalculator) {
         INDArray testFeatures = Nd4j.zeros(1, featureMapper.numberOfFeatures());
-        featureMapper.mapFeatures(record,testFeatures,0);
-        INDArray testPredicted = model.output(testFeatures,false);
+        featureMapper.mapFeatures(record, testFeatures, 0);
+        INDArray testPredicted = model.output(testFeatures, false);
         String features = featuresToString(record);
         //boolean
         boolean mutated = record.getMutated();
-        ProtoPredictor predictor = new ProtoPredictor(model,featureMapper);
+        ProtoPredictor predictor = new ProtoPredictor(model, featureMapper);
         ProtoPredictor.Prediction prediction = predictor.mutPrediction(record);
-        String formatted0 = record.getSamples(0).getFormattedCounts().replaceAll("\n","");
-        String formatted1 = record.getSamples(1).getFormattedCounts().replaceAll("\n","");
+        String formatted0 = record.getSamples(0).getFormattedCounts().replaceAll("\n", "");
+        String formatted1 = record.getSamples(1).getFormattedCounts().replaceAll("\n", "");
         String correctness = (prediction.clas == mutated) ? "right" : "wrong";
-        results.append((mutated?"1":"0") + "\t" + Float.toString(prediction.posProb) + "\t" + Float.toString(prediction.negProb) +  "\t" + correctness + "\t" + features + "\t" + formatted0 + "\t" + formatted1 + "\n");
+        if (aucLossCalculator != null) {
+            aucLossCalculator.observe(prediction.posProb , mutated ? 1 : -1);
+        }
+        results.append((mutated ? "1" : "0") + "\t" + Float.toString(prediction.posProb) + "\t" + Float.toString(prediction.negProb) + "\t" + correctness + "\t" + features + "\t" + formatted0 + "\t" + formatted1 + "\n");
         pgReadWrite.update();
     }
 

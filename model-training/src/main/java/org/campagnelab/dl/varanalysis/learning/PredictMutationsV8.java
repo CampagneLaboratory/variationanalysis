@@ -3,11 +3,11 @@ package org.campagnelab.dl.varanalysis.learning;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
-import org.campagnelab.dl.model.utils.mappers.AbstractPredictMutations;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV9;
 import org.campagnelab.dl.model.utils.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -34,7 +34,7 @@ public class PredictMutationsV8 extends AbstractPredictMutations {
     String resultsPath;
     String version = "VN";
     String[] dataFilenames = new String[]{"genotypes_proto_" + version + "_mutated_randomized.parquet", "genotypes_test_proto_" + version + "_mutated_randomized.parquet"};
-    String[] resultsFileNames = new String[]{ "test","training"};
+    String[] resultsFileNames = new String[]{"test", "training"};
 
 
     public PredictMutationsV8(String modelPath, String dataDirPath, String resultsPath) {
@@ -99,12 +99,12 @@ public class PredictMutationsV8 extends AbstractPredictMutations {
 
             //Load parameters from disk:
             INDArray newParams;
-            DataInputStream dis = new DataInputStream(new FileInputStream(modelPath + String.format("/%sModelParams.bin",prefix)));
+            DataInputStream dis = new DataInputStream(new FileInputStream(modelPath + String.format("/%sModelParams.bin", prefix)));
             newParams = Nd4j.read(dis);
 
             //Load network configuration from disk:
             MultiLayerConfiguration confFromJson =
-                    MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File(modelPath +  String.format("/%sModelConf.json",prefix))));
+                    MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File(modelPath + String.format("/%sModelConf.json", prefix))));
 
             //Create a MultiLayerNetwork from the saved configuration and parameters
             MultiLayerNetwork model = new MultiLayerNetwork(confFromJson);
@@ -119,7 +119,7 @@ public class PredictMutationsV8 extends AbstractPredictMutations {
             for (int i = 0; i < 2; i++) {
                 //initialize results printer
                 String typeOfTestFile = resultsFileNames[i];
-                PrintWriter results = new PrintWriter(resultsPath + prefix+"-"+ typeOfTestFile, "UTF-8");
+                PrintWriter results = new PrintWriter(resultsPath + prefix + "-" + typeOfTestFile, "UTF-8");
                 writeHeader(results);
 
                 //may need to adjust batch size and write outputs piecewise if test sets are very large
@@ -129,15 +129,15 @@ public class PredictMutationsV8 extends AbstractPredictMutations {
                 //DataSet ds = baseIter.next();
 //set up logger
                 ProgressLogger pgReadWrite = new ProgressLogger(LOG);
-                pgReadWrite.itemsName = prefix+"/"+typeOfTestFile;
+                pgReadWrite.itemsName = prefix + "/" + typeOfTestFile;
                 pgReadWrite.expectedUpdates = reader.getTotalRecords();
                 pgReadWrite.displayFreeMemory = true;
                 pgReadWrite.start();
 
-
                 for (BaseInformationRecords.BaseInformation record : reader) {
-                    writeRecordResult(model, results, featureMapper, pgReadWrite, record);
+                    writeRecordResult(model, results, featureMapper, pgReadWrite, record, null);
                 }
+
 
                 results.close();
                 pgReadWrite.stop();

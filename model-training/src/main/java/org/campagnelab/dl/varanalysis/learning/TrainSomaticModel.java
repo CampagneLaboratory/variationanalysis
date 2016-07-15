@@ -40,15 +40,16 @@ import java.util.*;
 public class TrainSomaticModel extends SomaticTrainer {
     public static final int MIN_ITERATION_BETWEEN_BEST_MODEL = 1000;
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
+    private String validationDatasetFilename = null;
 
 
     public static void main(String[] args) throws IOException {
 
         TrainSomaticModel trainer = new TrainSomaticModel();
         if (args.length < 1) {
-            System.err.println("usage: DetectMutations <input-training-directory>");
+            System.err.println("usage: DetectMutations <input-training-file+>");
         }
-        trainer.execute(new FeatureMapperV14(), args,32);
+        trainer.execute(new FeatureMapperV14(), args, 32);
 
     }
 
@@ -75,19 +76,15 @@ public class TrainSomaticModel extends SomaticTrainer {
             pg.start();
             int lastIter = 0;
             while (async.hasNext()) {
-                // trigger bugs early:
-//                printSample(miniBatchSize, exampleLength, nSamplesToGenerate, nCharactersToSample, generationInitialization, rng, directory, iter, net, miniBatchNumber);
 
                 DataSet ds = async.next();
                 if (numLabels(ds.getLabels()) != 2) {
                     System.out.println("There should be two labels in the miniBatch");
                 }
-                // scale the features:
-                //   scaler.transform(ds);
 
                 // fit the net:
                 net.fit(ds);
-                INDArray predictedLabels = net.output(ds.getFeatures(), false);
+                //   INDArray predictedLabels = net.output(ds.getFeatures(), false);
 
 
                 pg.update();
@@ -106,6 +103,7 @@ public class TrainSomaticModel extends SomaticTrainer {
                     saver.saveBestModel(net, score);
                     System.out.println("Saving best score model.. score=" + bestScore);
                     lastIter = iter;
+                    estimateTestSetPerf(epoch);
                 }
                 scoreMap.put(iter, bestScore);
             }
@@ -114,6 +112,7 @@ public class TrainSomaticModel extends SomaticTrainer {
             saveModel(saver, directory, Integer.toString(epoch) + "-", net);
             writeProperties(featureCalculator);
             writeBestScoreFile();
+            estimateTestSetPerf(epoch);
             pg.stop();
             pgEpoch.update();
             async.reset();    //Reset iterator for another epoch
@@ -122,5 +121,13 @@ public class TrainSomaticModel extends SomaticTrainer {
 
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, numEpochs, bestScore, numEpochs, net);
+    }
+
+    private void estimateTestSetPerf(int epoch) throws IOException {
+        if (validationDatasetFilename == null) return;
+        MeasurePerformance perf = new MeasurePerformance(10000);
+        validationDatasetFilename = "/data/mutated-MHFC-13-CTL_B_NK.parquet";
+        double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
+        System.out.printf("Epoch %d Test AUC=%f%n", epoch, auc);
     }
 }

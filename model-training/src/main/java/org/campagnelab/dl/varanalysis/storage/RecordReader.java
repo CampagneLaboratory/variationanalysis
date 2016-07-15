@@ -41,6 +41,9 @@ public class RecordReader implements Closeable, RecordIterable {
 
     public RecordReader(String filepath) throws IOException {
         this.filepath=RecordWriter.addParqExtension(filepath);
+        if (!new File(filepath).exists()) {
+            throw new FileNotFoundException("File "+filepath+" could not be loaded");
+        }
         this.countRecords();
 
         ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder(new Path(filepath));
