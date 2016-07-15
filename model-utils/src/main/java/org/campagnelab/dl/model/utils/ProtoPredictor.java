@@ -19,6 +19,8 @@ public class ProtoPredictor {
 
     public static final int POSITIVE_STRAND = 0;
     public static final int NEGATIVE_STRAND = 1;
+    public static final int POSITIVE_PROBABILITY_INDEX = 0;
+    public static final int NEGATIVE_PROBABILITY_INDEX = 1;
     private MultiLayerNetwork model;
     private FeatureMapper mapper;
 
@@ -65,7 +67,9 @@ public class ProtoPredictor {
         mapper.mapFeatures(record, testFeatures, 0);
         INDArray testPredicted = model.output(testFeatures, false);
         float[] probabilities = testPredicted.getRow(0).data().asFloat();
-        Prediction ret = new Prediction(probabilities[0],probabilities[1]);
+        Prediction ret = new Prediction(
+                probabilities[POSITIVE_PROBABILITY_INDEX],
+                probabilities[NEGATIVE_PROBABILITY_INDEX]);
         return ret;
     }
 
