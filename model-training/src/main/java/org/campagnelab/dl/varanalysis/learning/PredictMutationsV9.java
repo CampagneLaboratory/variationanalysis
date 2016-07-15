@@ -8,6 +8,7 @@ import org.campagnelab.dl.model.utils.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
+import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -148,20 +149,24 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
     public void printPredictions(String prefix) {
         try {
+            MultiLayerNetwork model;
+            if (! new File(modelPath + String.format("/%sModelParams.bin",prefix)).isFile()){
+                model = new LocalFileModelSaver(modelPath).getBestModel();
+            } else {
+                //Load parameters from disk:
+                INDArray newParams;
+                DataInputStream dis = new DataInputStream(new FileInputStream(modelPath + String.format("/%sModelParams.bin", prefix)));
+                newParams = Nd4j.read(dis);
 
-            //Load parameters from disk:
-            INDArray newParams;
-            DataInputStream dis = new DataInputStream(new FileInputStream(modelPath + String.format("/%sModelParams.bin",prefix)));
-            newParams = Nd4j.read(dis);
+                //Load network configuration from disk:
+                MultiLayerConfiguration confFromJson =
+                        MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File(modelPath + String.format("/%sModelConf.json", prefix))));
 
-            //Load network configuration from disk:
-            MultiLayerConfiguration confFromJson =
-                    MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File(modelPath +  String.format("/%sModelConf.json",prefix))));
-
-            //Create a MultiLayerNetwork from the saved configuration and parameters
-            MultiLayerNetwork model = new MultiLayerNetwork(confFromJson);
-            model.init();
-            model.setParameters(newParams);
+                //Create a MultiLayerNetwork from the saved configuration and parameters
+                model = new MultiLayerNetwork(confFromJson);
+                model.init();
+                model.setParameters(newParams);
+            }
 
             File dir = new File(resultsPath);
             // attempt to create the directory here
