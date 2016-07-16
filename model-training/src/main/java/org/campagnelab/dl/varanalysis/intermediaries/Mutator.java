@@ -40,8 +40,11 @@ public class Mutator extends Intermediary {
 
     public static void main(String[] args) throws IOException {
         //new ParquetPrinter(args[0]).print();
-
-        new Randomizer().executeOver(args[0],args[1]);
+        if (args.length < 3) {
+            System.err.println("usage: input.parquet mutated-filename mutated-randomized-filename");
+            System.exit(1);
+        }
+        new Randomizer().executeOver(args[0], args[1]);
         new Mutator().executeOver(args[1], args[2]);
         //new ParquetPrinter(args[2]).print();
     }
@@ -156,15 +159,14 @@ public class Mutator extends Intermediary {
             oldBase = mutatingAllele ? maxCountIdx : scndCountIdx;
 
         }
-        newBase = rand.nextInt(numGenos-2);
+        newBase = rand.nextInt(numGenos - 2);
 
         if (newBase == oldBase) {
             //replace self case
-            newBase = numGenos-2;
-        }
-        else if (newBase == 4) {
+            newBase = numGenos - 2;
+        } else if (newBase == 4) {
             //replace genotype N case
-            newBase = numGenos-1;
+            newBase = numGenos - 1;
         }
         int fMutCount = 0;
         int oldCount = forward[oldBase];
@@ -267,7 +269,7 @@ public class Mutator extends Intermediary {
         }
         baseBuild.setSamples(1, somaticBuild);
         baseBuild.setFrequencyOfMutation((float) deltaOrig);
-       // String newBaseString = newBase<STRING.length? STRING[newBase]:"N";
+        // String newBaseString = newBase<STRING.length? STRING[newBase]:"N";
         //baseBuild.setMutatedBase(newBaseString);
         baseBuild.setIndexOfMutatedBase(newBase);
         return baseBuild.build();
