@@ -5,6 +5,7 @@ import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.*;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.dl.varanalysis.util.HitBoundedPriorityQueue;
+import org.deeplearning4j.clustering.cluster.Point;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -38,6 +39,7 @@ public class TrainSomaticModel extends SomaticTrainer {
     public static final int MAX_ERRORS_KEPT = 25;
     private final boolean ERROR_ENRICHMENT = true;
     private final int NUM_ERRORS_ADDED = 3;
+    private final boolean IGNORE_ERRORS_ON_SIMULATED_EXAMPLES = false;
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
 
     public static void main(String[] args) throws IOException {
@@ -46,7 +48,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file+>");
         }
-        trainer.execute(new FeatureMapperV13(), args, 32);
+        trainer.execute(new FeatureMapperV16(), args, 32);
 
     }
 
@@ -128,9 +130,10 @@ public class TrainSomaticModel extends SomaticTrainer {
     @Override
     public void appendProperties(ModelPropertiesHelper helper) {
         super.appendProperties(helper);
-    helper.put("ErrorEnrichment.active",ERROR_ENRICHMENT);
-    helper.put("ErrorEnrichment.MAX_ERRORS_KEPT",MAX_ERRORS_KEPT);
-    helper.put("ErrorEnrichment.NUM_ERRORS_ADDED",NUM_ERRORS_ADDED);
+        helper.put("ErrorEnrichment.active", ERROR_ENRICHMENT);
+        helper.put("ErrorEnrichment.MAX_ERRORS_KEPT", MAX_ERRORS_KEPT);
+        helper.put("ErrorEnrichment.NUM_ERRORS_ADDED", NUM_ERRORS_ADDED);
+        helper.put("ErrorEnrichment.IGNORE_ERRORS_ON_SIMULATED_EXAMPLES", IGNORE_ERRORS_ON_SIMULATED_EXAMPLES);
     }
 
     DataSet[] array = new DataSet[2];
@@ -192,20 +195,24 @@ public class TrainSomaticModel extends SomaticTrainer {
         if (!ERROR_ENRICHMENT) {
             return false;
         }
+        if (IGNORE_ERRORS_ON_SIMULATED_EXAMPLES && labels.get(new PointIndex(exampleIndex)).getDouble(0) == 1) {
+            //  do not consider errors on simulated/mutated examples. The simulator may be wrong.
+            return false;
+        }
         return ErrorRecord.isWrongPrediction(exampleIndex, predictedLabels, labels);
 
     }
 
     private void estimateTestSetPerf(int epoch, int iter) throws IOException {
-        validationDatasetFilename = "/data/NN/validation/mutated-MHFC-53-CTL_B_NK.parquet";
+        validationDatasetFilename = "/data/NN/no-threshold/validation/mutated-randomized-MHFC-63-CTL_B_NK.parquet";
         if (validationDatasetFilename == null) return;
         MeasurePerformance perf = new MeasurePerformance(10000);
         double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
-        float minWrongness=queue.getMinWrongness();
-        float maxWrongness=queue.getMaxWrongness();
-        float meanWrongness=queue.getMeanWrongness();
+        float minWrongness = queue.getMinWrongness();
+        float maxWrongness = queue.getMaxWrongness();
+        float meanWrongness = queue.getMeanWrongness();
         System.out.printf("Epoch %d Iteration %d AUC=%f wrongness: %f-%f mean: %f #examples: %d %n", epoch, iter, auc,
-                minWrongness, maxWrongness,meanWrongness,
+                minWrongness, maxWrongness, meanWrongness,
                 queue.size());
     }
 }

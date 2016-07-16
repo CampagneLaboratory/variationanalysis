@@ -68,6 +68,7 @@ public class ErrorRecord {
         final int negativeLabel = 1;
         final boolean predictedPositive = predictedLabels.getDouble(exampleIndex, positiveLabelMutated) > predictedLabels.getDouble(exampleIndex, negativeLabel);
         final double trueLabelPositive = labels.getDouble(exampleIndex, positiveLabelMutated);
+
         return predictedPositive && trueLabelPositive == 0 ||
                 !predictedPositive && trueLabelPositive > 0;
 
