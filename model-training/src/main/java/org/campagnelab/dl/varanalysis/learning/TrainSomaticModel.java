@@ -2,33 +2,22 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.model.utils.mappers.*;
-import org.campagnelab.dl.varanalysis.learning.architecture.*;
-import org.campagnelab.dl.varanalysis.learning.iterators.*;
-import org.campagnelab.dl.varanalysis.storage.RecordWriter;
+import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.dl.varanalysis.util.HitBoundedPriorityQueue;
-import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
-import org.deeplearning4j.nn.api.Layer;
-import org.deeplearning4j.nn.api.Updater;
-import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.PointIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -40,10 +29,16 @@ import java.util.*;
  */
 public class TrainSomaticModel extends SomaticTrainer {
     public static final int MIN_ITERATION_BETWEEN_BEST_MODEL = 1000;
-    public static final int MAX_ERRORS_KEPT = 1;
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
     private String validationDatasetFilename = null;
 
+    /**
+     * Error enrichment support.
+     **/
+    public static final int MAX_ERRORS_KEPT = 10;
+    private final boolean ERROR_ENRICHMENT = true;
+    private final int NUM_ERRORS_ADDED = 3;
+    private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
 
     public static void main(String[] args) throws IOException {
 
@@ -51,7 +46,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file+>");
         }
-        trainer.execute(new FeatureMapperV14(), args, 32);
+        trainer.execute(new FeatureMapperV9(), args, 32);
 
     }
 
@@ -69,7 +64,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         LocalFileModelSaver saver = new LocalFileModelSaver(directory);
         int iter = 0;
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
-
+        System.out.println("ERROR_ENRICHMENT=" + ERROR_ENRICHMENT);
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -84,14 +79,12 @@ public class TrainSomaticModel extends SomaticTrainer {
                     System.out.println("There should be two labels in the miniBatch");
                 }
 
-                DataSet enriched=new DataSet();
+                ds = enrichWithErrors(ds);
                 // fit the net:
                 net.fit(ds);
-
+                queue.updateWrongness(net);
                 INDArray predictedLabels = net.output(ds.getFeatures(), false);
                 keepWorseErrors(ds, predictedLabels, ds.getLabels());
-
-
                 pg.update();
 
                 double score = net.score();
@@ -109,9 +102,10 @@ public class TrainSomaticModel extends SomaticTrainer {
                     System.out.println("Saving best score model.. score=" + bestScore);
                     lastIter = iter;
                     estimateTestSetPerf(epoch, iter);
+                    queue.clear();
                 }
                 scoreMap.put(iter, bestScore);
-                queue.clear();
+
             }
             //save latest after the end of an epoch:
             saver.saveLatestModel(net, net.score());
@@ -129,45 +123,76 @@ public class TrainSomaticModel extends SomaticTrainer {
                 "not early stopping", scoreMap, numEpochs, bestScore, numEpochs, net);
     }
 
-    HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
+    DataSet[] array = new DataSet[2];
 
-    private void keepWorseErrors( DataSet minibatch, INDArray predictedLabels, INDArray labels) {
-        int size=minibatch.numExamples();
+    private DataSet enrichWithErrors(DataSet ds) {
+        if (!ERROR_ENRICHMENT) {
+            return ds;
+        }
+        if (queue.isEmpty()) {
+            // no errors were collected yet. Return the un-enriched dataset.
+            return ds;
+        }
+
+        int size = this.NUM_ERRORS_ADDED;
+        INDArray inputs = Nd4j.zeros(size, featureCalculator.numberOfFeatures());
+        INDArray labels = Nd4j.zeros(size, labelMapper.numberOfLabels());
+        int i = 0;
+
+        for (ErrorRecord errorRecord : queue.getRandomSample(size)) {
+            // we are going to call nextRecord directly, without checking hasNextRecord, because we have
+            // determined how many times we can call (in size). We should get the exception if we were
+            // wrong in our estimate of size.
+
+            // fill in features and labels for a given record i:
+            Nd4j.copy(errorRecord.features.get(new PointIndex(0)), inputs.get(new PointIndex(i)));
+            Nd4j.copy(errorRecord.label, labels.get(new PointIndex(i)));
+            i++;
+
+        }
+        DataSet errorDataSet = new DataSet(inputs, labels);
+        array[0] = ds;
+        array[1] = errorDataSet;
+        final DataSet enrichedDataset = DataSet.merge(ObjectArrayList.wrap(array));
+        return enrichedDataset;
+    }
+
+
+    private void keepWorseErrors(DataSet minibatch, INDArray predictedLabels, INDArray labels) {
+        if (!ERROR_ENRICHMENT) {
+            return;
+        }
+        int size = minibatch.numExamples();
         for (int exampleIndex = 0; exampleIndex < size; exampleIndex++) {
             if (isWrongPrediction(exampleIndex, predictedLabels, labels)) {
                 float wrongness = calculateWrongness(exampleIndex, predictedLabels, labels);
                 queue.enqueue(wrongness, minibatch.getFeatures(), labels.getRow(exampleIndex));
-            //    System.out.println("largest error so far: "+ queue.first());
+                //    System.out.println("largest error so far: "+ queue.first());
             }
         }
     }
 
     private float calculateWrongness(int exampleIndex, INDArray predictedLabels, INDArray labels) {
-        final int positiveLabelMutated = 0;
-        final int negativeLabel = 1;
-        final boolean predictedPositive = predictedLabels.getDouble(exampleIndex, positiveLabelMutated) > predictedLabels.getDouble(exampleIndex, negativeLabel);
-        if (predictedPositive) {
-            return predictedLabels.getFloat(exampleIndex, positiveLabelMutated);
-        } else{
-            return predictedLabels.getFloat(exampleIndex, negativeLabel);
-        }
+
+        return ErrorRecord.calculateWrongness(exampleIndex, predictedLabels, labels);
 
     }
 
     private boolean isWrongPrediction(int exampleIndex, INDArray predictedLabels, INDArray labels) {
-        final int positiveLabelMutated = 0;
-        final int negativeLabel = 1;
-        final boolean predictedPositive = predictedLabels.getDouble(exampleIndex, positiveLabelMutated) > predictedLabels.getDouble(exampleIndex, negativeLabel);
-        final double trueLabelPositive = labels.getDouble(exampleIndex, positiveLabelMutated);
-        return predictedPositive && trueLabelPositive ==0 ||
-                !predictedPositive && trueLabelPositive >0;
+        if (!ERROR_ENRICHMENT) {
+            return false;
+        }
+        return ErrorRecord.isWrongPrediction(exampleIndex, predictedLabels, labels);
+
     }
 
     private void estimateTestSetPerf(int epoch, int iter) throws IOException {
+        validationDatasetFilename = "/data/NN/validation/mutated-MHFC-53-CTL_B_NK.parquet";
         if (validationDatasetFilename == null) return;
         MeasurePerformance perf = new MeasurePerformance(10000);
-        validationDatasetFilename = "/data/mutated-MHFC-13-CTL_B_NK.parquet";
         double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
-        System.out.printf("Epoch %d Iteration %d AUC=%f%n", epoch, iter, auc);
+        float minWrongness=queue.getMinWrongness();
+        float maxWrongness=queue.getMaxWrongness();
+        System.out.printf("Epoch %d Iteration %d AUC=%f wrongness: %f-%f %n", epoch, iter, auc, minWrongness, maxWrongness);
     }
 }

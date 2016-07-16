@@ -18,10 +18,13 @@
 
 package org.campagnelab.dl.varanalysis.util;
 
-import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
-import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
-import it.unimi.dsi.fastutil.objects.ObjectSortedSet;
+import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
+
+import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -59,21 +62,18 @@ public class HitBoundedPriorityQueue {
     /**
      * Enqueues a transcript with given score and info.
      *
-     * @param targetPosition position on the target
-     * @param score          its score
+
      * @return true if the document has been actually enqueued.
      */
 
     public synchronized boolean enqueue(float wrongness, INDArray features, INDArray label) {
-
-
+        ErrorRecord dsi = new ErrorRecord(wrongness, features, label);
+        if (queue.contains(dsi)) return false;
         if (queue.size() < maxSize) {
-
-            final ErrorRecord dsi = new ErrorRecord(wrongness, features, label);
             queue.add(dsi);
             return true;
         } else {
-            final ErrorRecord dsi = queue.first();
+            dsi = queue.first();
 
             if (wrongness > dsi.wrongness) {
                 queue.remove(dsi);
@@ -103,7 +103,7 @@ public class HitBoundedPriorityQueue {
      * @return the next {@link ErrorRecord}.
      */
     public final ErrorRecord dequeue() {
-        ErrorRecord v=queue.first();
+        ErrorRecord v = queue.first();
         queue.remove(v);
         return v;
     }
@@ -118,5 +118,54 @@ public class HitBoundedPriorityQueue {
 
     public void clear() {
         queue.clear();
+    }
+
+    private XoRoShiRo128PlusRandom random = new XoRoShiRo128PlusRandom();
+
+    /**
+     * Return a random sample of exactly numElements.
+     *
+     * @param numElements The number of elements to return
+     * @return a random sample drawn with replacement.
+     */
+    public List<ErrorRecord> getRandomSample(int numElements) {
+        List<ErrorRecord> sample = new ObjectArrayList<>();
+        assert !queue.isEmpty() : "queue cannot be empty to return a random sample";
+        while (sample.size() < numElements) {
+            for (ErrorRecord record : queue) {
+                float value = random.nextFloat();
+                if (value < 1f / queue.size()) {
+                    sample.add(record);
+                }
+                if (sample.size() >= numElements) {
+                    break;
+                }
+            }
+        }
+        return sample;
+    }
+
+    List<ErrorRecord> tmpList = new ObjectArrayList<>();
+
+    public void updateWrongness(MultiLayerNetwork net) {
+        tmpList.clear();
+
+        for (ErrorRecord record : this.queue) {
+            record.updateWrongness(record.features, net);
+            tmpList.add(record);
+        }
+        //enqueue elements again to reorder them according to updated wrongness:
+        queue.clear();
+        queue.addAll(tmpList);
+
+    }
+
+
+    public float getMinWrongness() {
+        return (float) queue.stream().mapToDouble((er ->er.wrongness)).min().getAsDouble();
+    }
+
+    public float getMaxWrongness() {
+        return (float) queue.stream().mapToDouble((er ->er.wrongness)).max().getAsDouble();
     }
 }
