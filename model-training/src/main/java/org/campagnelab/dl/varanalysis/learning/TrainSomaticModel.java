@@ -35,7 +35,7 @@ public class TrainSomaticModel extends SomaticTrainer {
     /**
      * Error enrichment support.
      **/
-    public static final int MAX_ERRORS_KEPT = 10;
+    public static final int MAX_ERRORS_KEPT = 25;
     private final boolean ERROR_ENRICHMENT = true;
     private final int NUM_ERRORS_ADDED = 3;
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
@@ -46,7 +46,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file+>");
         }
-        trainer.execute(new FeatureMapperV9(), args, 32);
+        trainer.execute(new FeatureMapperV13(), args, 32);
 
     }
 
@@ -82,11 +82,11 @@ public class TrainSomaticModel extends SomaticTrainer {
                 ds = enrichWithErrors(ds);
                 // fit the net:
                 net.fit(ds);
-                queue.updateWrongness(net);
+
                 INDArray predictedLabels = net.output(ds.getFeatures(), false);
                 keepWorseErrors(ds, predictedLabels, ds.getLabels());
                 pg.update();
-
+                queue.updateWrongness(net);
                 double score = net.score();
                 if (Double.isNaN(score)) {
                     //   System.out.println(net.params());
@@ -102,7 +102,8 @@ public class TrainSomaticModel extends SomaticTrainer {
                     System.out.println("Saving best score model.. score=" + bestScore);
                     lastIter = iter;
                     estimateTestSetPerf(epoch, iter);
-                    queue.clear();
+
+
                 }
                 scoreMap.put(iter, bestScore);
 
@@ -110,17 +111,26 @@ public class TrainSomaticModel extends SomaticTrainer {
             //save latest after the end of an epoch:
             saver.saveLatestModel(net, net.score());
             saveModel(saver, directory, Integer.toString(epoch) + "-", net);
-            writeProperties(featureCalculator);
+            writeProperties(this);
             writeBestScoreFile();
             estimateTestSetPerf(epoch, iter);
             pg.stop();
             pgEpoch.update();
+            queue.clear();
             async.reset();    //Reset iterator for another epoch
         }
         pgEpoch.stop();
 
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, numEpochs, bestScore, numEpochs, net);
+    }
+
+    @Override
+    public void appendProperties(ModelPropertiesHelper helper) {
+        super.appendProperties(helper);
+    helper.put("ErrorEnrichment.active",ERROR_ENRICHMENT);
+    helper.put("ErrorEnrichment.MAX_ERRORS_KEPT",MAX_ERRORS_KEPT);
+    helper.put("ErrorEnrichment.NUM_ERRORS_ADDED",NUM_ERRORS_ADDED);
     }
 
     DataSet[] array = new DataSet[2];
@@ -193,6 +203,9 @@ public class TrainSomaticModel extends SomaticTrainer {
         double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
         float minWrongness=queue.getMinWrongness();
         float maxWrongness=queue.getMaxWrongness();
-        System.out.printf("Epoch %d Iteration %d AUC=%f wrongness: %f-%f %n", epoch, iter, auc, minWrongness, maxWrongness);
+        float meanWrongness=queue.getMeanWrongness();
+        System.out.printf("Epoch %d Iteration %d AUC=%f wrongness: %f-%f mean: %f #examples: %d %n", epoch, iter, auc,
+                minWrongness, maxWrongness,meanWrongness,
+                queue.size());
     }
 }

@@ -62,7 +62,6 @@ public class HitBoundedPriorityQueue {
     /**
      * Enqueues a transcript with given score and info.
      *
-
      * @return true if the document has been actually enqueued.
      */
 
@@ -162,10 +161,14 @@ public class HitBoundedPriorityQueue {
 
 
     public float getMinWrongness() {
-        return (float) queue.stream().mapToDouble((er ->er.wrongness)).min().getAsDouble();
+        return (float) queue.stream().mapToDouble((er -> er.wrongness)).min().getAsDouble();
     }
 
     public float getMaxWrongness() {
-        return (float) queue.stream().mapToDouble((er ->er.wrongness)).max().getAsDouble();
+        return (float) queue.stream().mapToDouble((er -> er.wrongness)).max().getAsDouble();
+    }
+
+    public float getMeanWrongness() {
+        return (float) queue.stream().mapToDouble((er -> er.wrongness)).sum() / queue.size();
     }
 }

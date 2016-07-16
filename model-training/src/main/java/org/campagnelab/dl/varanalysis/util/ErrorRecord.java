@@ -36,14 +36,19 @@ public class ErrorRecord {
         return features.equals(errorRecord.features) && label.equals(errorRecord.label);
     }
 
-    public static Comparator<ErrorRecord> INCREASING_SCORE_COMPARATOR = new Comparator<ErrorRecord>() {
-        public int compare(ErrorRecord a, ErrorRecord b) {
+    public static Comparator<ErrorRecord> INCREASING_SCORE_COMPARATOR = (a, b) -> {
 
-            if (a.equals(b)) {
-                return 0;
-            }
-            return Float.compare(a.wrongness, b.wrongness);
+        if (a.equals(b)) {
+            return 0;
         }
+        return Float.compare(a.wrongness, b.wrongness);
+    };
+    public static Comparator<ErrorRecord> DECREASING_SCORE_COMPARATOR = (a, b) -> {
+
+        if (a.equals(b)) {
+            return 0;
+        }
+        return Float.compare( b.wrongness,a.wrongness);
     };
 
     public void updateWrongness(INDArray features, MultiLayerNetwork net) {

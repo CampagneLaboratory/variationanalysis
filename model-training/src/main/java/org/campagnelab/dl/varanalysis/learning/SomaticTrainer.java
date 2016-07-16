@@ -29,10 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Abatract class to facilitate variations of training protocols.
@@ -44,9 +41,9 @@ public abstract class SomaticTrainer {
     protected double learningRate = 0.1;
     protected int miniBatchSize = 32;
     protected int numEpochs = 150;
-    protected int earlyStopCondition =3;
+    protected int earlyStopCondition = 3;
     protected double dropoutRate = 0.5;
-    protected LabelMapper labelMapper= new SimpleFeatureCalculator();
+    protected LabelMapper labelMapper = new SimpleFeatureCalculator();
     protected FeatureMapper featureCalculator;
     protected String directory;
     protected long time;
@@ -55,7 +52,7 @@ public abstract class SomaticTrainer {
     protected double bestScore;
     protected int numTrainingFiles;
     protected MultiLayerNetwork net;
-    private LossFunctions.LossFunction lossFunction;
+    protected LossFunctions.LossFunction lossFunction;
 
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
         this.featureCalculator = featureCalculator;
@@ -119,7 +116,7 @@ public abstract class SomaticTrainer {
         }
         System.out.println("Total number of network parameters: " + totalNumParams);
 
-        writeProperties(featureCalculator);
+        writeProperties(this);
 
         EarlyStoppingResult<MultiLayerNetwork> result = train(conf, async);
 
@@ -131,7 +128,7 @@ public abstract class SomaticTrainer {
         System.out.println("Best epoch number: " + result.getBestModelEpoch());
         System.out.println("Score at best epoch: " + result.getBestModelScore());
 
-        writeProperties(featureCalculator);
+        writeProperties(this);
         writeBestScoreFile();
         System.out.println("Model completed, saved at time: " + attempt);
 
@@ -144,18 +141,8 @@ public abstract class SomaticTrainer {
         scoreWriter.close();
     }
 
-    protected void writeProperties(FeatureMapper featureCalculator) throws IOException {
-        ModelPropertiesHelper mpHelper = new ModelPropertiesHelper();
-        mpHelper.setFeatureCalculator(featureCalculator);
-        mpHelper.setLearningRate(learningRate);
-        mpHelper.setNumHiddenNodes(numHiddenNodes);
-        mpHelper.setMiniBatchSize(miniBatchSize);
-        // mpHelper.setBestScore(bestScore);
-        mpHelper.setNumEpochs(numEpochs);
-        mpHelper.setNumTrainingSets(numTrainingFiles);
-        mpHelper.setTime(time);
-        mpHelper.setSeed(seed);
-        mpHelper.setLossFunction(lossFunction.name());
+    protected void writeProperties(SomaticTrainer trainer) throws IOException {
+        ModelPropertiesHelper mpHelper = new ModelPropertiesHelper(this);
         mpHelper.writeProperties(directory);
     }
 
@@ -191,4 +178,17 @@ public abstract class SomaticTrainer {
         return 2;
     }
 
+    public void appendProperties(ModelPropertiesHelper helper) {
+        helper.setFeatureCalculator(featureCalculator);
+        helper.setLearningRate(learningRate);
+        helper.setNumHiddenNodes(numHiddenNodes);
+        helper.setMiniBatchSize(miniBatchSize);
+        // mpHelper.setBestScore(bestScore);
+        helper.setNumEpochs(numEpochs);
+        helper.setNumTrainingSets(numTrainingFiles);
+        helper.setTime(time);
+        helper.setSeed(seed);
+        helper.setLossFunction(lossFunction.name());
+        helper.setEarlyStopCriterion(earlyStopCondition);
+    }
 }

@@ -62,16 +62,7 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
 
         super.execute(featureCalculator, trainIterList.toArray(new String[trainIterList.size()]),32);
 
-        ModelPropertiesHelper mpHelper=new ModelPropertiesHelper();
-        mpHelper.setFeatureCalculator(featureCalculator);
-        mpHelper.setLearningRate(learningRate);
-        mpHelper.setNumHiddenNodes(numHiddenNodes);
-        mpHelper.setMiniBatchSize(miniBatchSize);
-        mpHelper.setBestScore(bestScore);
-        mpHelper.setNumEpochs(numEpochs);
-        mpHelper.setNumTrainingSets(trainingFiles.length);
-        mpHelper.setTime(time);
-        mpHelper.setSeed(seed);
+        ModelPropertiesHelper mpHelper=new ModelPropertiesHelper(this);
         mpHelper.writeProperties(directory);
 
 

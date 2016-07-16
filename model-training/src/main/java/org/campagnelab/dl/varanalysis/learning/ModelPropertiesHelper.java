@@ -14,6 +14,11 @@ import java.util.Properties;
  * Created by fac2003 on 7/12/16.
  */
 public class ModelPropertiesHelper {
+    Properties modelProp = new Properties();
+
+    public ModelPropertiesHelper(SomaticTrainer trainer) {
+        trainer.appendProperties(this);
+    }
 
     private FeatureMapper featureCalculator;
     private double learningRate;
@@ -28,15 +33,12 @@ public class ModelPropertiesHelper {
 
     public void writeProperties(String modelDirectory) throws IOException {
         //write properties file to model folder
-        Properties modelProp = new Properties();
-        modelProp.setProperty("mapper", featureCalculator.getClass().getName());
-        modelProp.setProperty("learningRate", Double.toString(learningRate));
-        modelProp.setProperty("time", Long.toString(time));
-        modelProp.setProperty("miniBatchSize", Integer.toString(miniBatchSize));
-        modelProp.setProperty("numEpochs", Integer.toString(numEpochs));
-        modelProp.setProperty("numTrainingSets", Integer.toString(numTrainingSets));
-        modelProp.setProperty("randSeed", Integer.toString(seed));
-        modelProp.setProperty("earlyStopCondition", Integer.toString(-1));
+
+
+
+
+
+
         modelProp.setProperty("hiddenNodes", Integer.toString(numHiddenNodes));
         modelProp.setProperty("bestScore", Double.toString(bestScore));
         if (lossFunction != null) {
@@ -48,11 +50,11 @@ public class ModelPropertiesHelper {
     }
 
     public void setFeatureCalculator(FeatureMapper featureCalculator) {
-        this.featureCalculator = featureCalculator;
+        modelProp.setProperty("mapper", featureCalculator.getClass().getName());
     }
 
     public void setLearningRate(double learningRate) {
-        this.learningRate = learningRate;
+        modelProp.setProperty("learningRate", Double.toString(learningRate));
     }
 
     public void setNumHiddenNodes(int numHiddenNodes) {
@@ -60,23 +62,27 @@ public class ModelPropertiesHelper {
     }
 
     public void setMiniBatchSize(int miniBatchSize) {
-        this.miniBatchSize = miniBatchSize;
+        modelProp.setProperty("miniBatchSize", Integer.toString(miniBatchSize));
+
     }
 
     public void setNumEpochs(int numEpochs) {
-        this.numEpochs = numEpochs;
+        modelProp.setProperty("numEpochs", Integer.toString(numEpochs));
     }
 
     public void setSeed(int seed) {
-        this.seed = seed;
+        modelProp.setProperty("randomSeed", Integer.toString(seed));
     }
 
     public void setTime(long time) {
-        this.time = time;
+        modelProp.setProperty("time", Long.toString(time));
     }
 
     public void setNumTrainingSets(int numTrainingSets) {
-        this.numTrainingSets = numTrainingSets;
+        modelProp.setProperty("numTrainingSets", Integer.toString(numTrainingSets));
+    }
+    public void setEarlyStopCriterion(int value) {
+        modelProp.setProperty("earlyStopCondition", Integer.toString(value));
     }
 
     public void setBestScore(double bestScore) {
@@ -85,5 +91,15 @@ public class ModelPropertiesHelper {
 
     public void setLossFunction(String lossFunction) {
         this.lossFunction = lossFunction;
+    }
+
+    public void put(String key, int value) {
+        modelProp.setProperty(key,Integer.toString(value));
+    }
+    public void put(String key, String value) {
+        modelProp.setProperty(key,value);
+    }
+    public void put(String key, boolean value) {
+        modelProp.setProperty(key,Boolean.toString(value));
     }
 }
