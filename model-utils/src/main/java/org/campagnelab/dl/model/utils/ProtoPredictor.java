@@ -24,10 +24,11 @@ public class ProtoPredictor {
     private MultiLayerNetwork model;
     private FeatureMapper mapper;
 
-    public ProtoPredictor(MultiLayerNetwork model, FeatureMapper mapper){
+    public ProtoPredictor(MultiLayerNetwork model, FeatureMapper mapper) {
         this.model = model;
         this.mapper = mapper;
     }
+
     public static List<Integer> expandFreq(List<BaseInformationRecords.NumberWithFrequency> freqList) {
         int capacity = 0;
         for (BaseInformationRecords.NumberWithFrequency freq : freqList) {
@@ -42,6 +43,7 @@ public class ProtoPredictor {
 
         return expanded;
     }
+
     public static List<BaseInformationRecords.NumberWithFrequency> compressFreq(List<Integer> numList) {
         //compress into map
         Int2IntArrayMap freqMap = new Int2IntArrayMap(100);
@@ -73,8 +75,8 @@ public class ProtoPredictor {
         return ret;
     }
 
-    public Prediction getNullPrediction(){
-        return new Prediction(0,0);
+    public Prediction getNullPrediction() {
+        return new Prediction(0, 0);
     }
 
     public class Prediction {
@@ -82,13 +84,20 @@ public class ProtoPredictor {
         public float posProb;
         public float negProb;
 
-        public Prediction(float posProb, float negProb){
+        public boolean isMutated() {
+            return posProb > negProb;
+        }
+
+        public Prediction(float posProb, float negProb) {
             this.posProb = posProb;
             this.negProb = negProb;
             this.clas = (posProb > 0.5);
         }
 
 
+        public boolean isCorrect(boolean isPositiveTrueLabel) {
+            return isMutated()&&isPositiveTrueLabel || (!isMutated()&&!isPositiveTrueLabel);
+        }
     }
 }
 

@@ -5,6 +5,7 @@ import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -23,7 +24,7 @@ public class ModelLoader {
         this.modelPath = modelPath;
     }
 
-    void writeTestCount(long testRecordCount){
+    void writeTestCount(long testRecordCount) {
         try {
             FileInputStream input = new FileInputStream(modelPath + "/config.properties");
             // load a properties file
@@ -31,9 +32,9 @@ public class ModelLoader {
             prop.load(input);
             input.close();
             // get the property value and print it out
-            prop.setProperty("testRecordCount",Long.toString(testRecordCount));
+            prop.setProperty("testRecordCount", Long.toString(testRecordCount));
             FileOutputStream output = new FileOutputStream(modelPath + "/config.properties");
-            prop.store(output,"total testRecords added other settings, for use in statistics");
+            prop.store(output, "total testRecords added other settings, for use in statistics");
             output.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -44,7 +45,7 @@ public class ModelLoader {
 
     }
 
-    FeatureMapper loadFeatureMapper() {
+    public FeatureMapper loadFeatureMapper() {
 
         try {
             FileInputStream input = new FileInputStream(modelPath + "/config.properties");
@@ -76,17 +77,21 @@ public class ModelLoader {
     public MultiLayerNetwork loadModel(String modelNamePrefix) throws IOException {
 
         MultiLayerNetwork model = null;
-        if (!new File(modelPath + String.format("/%sModelParams.bin", modelNamePrefix)).isFile()) {
-            model = new LocalFileModelSaver(modelPath).getBestModel();
+        String pathname = getPath(modelNamePrefix, "/%sModel.bin");
+        if (new File(pathname).exists()) {
+            model = loadNativeModel(pathname);
         } else {
+            if (!new File(pathname).exists()) {
+                return null;
+            }
             //Load parameters from disk:
             INDArray newParams;
-            DataInputStream dis = new DataInputStream(new FileInputStream(modelPath + String.format("/%sModelParams.bin", modelNamePrefix)));
+            DataInputStream dis = new DataInputStream(new FileInputStream(getPath(modelNamePrefix, "/%sModelParams.bin")));
             newParams = Nd4j.read(dis);
 
             //Load network configuration from disk:
             MultiLayerConfiguration confFromJson =
-                    MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File(modelPath + String.format("/%sModelConf.json", modelNamePrefix))));
+                    MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File(getPath(modelNamePrefix, "/%sModelConf.json"))));
 
             //Create a MultiLayerNetwork from the saved configuration and parameters
             model = new MultiLayerNetwork(confFromJson);
@@ -95,4 +100,14 @@ public class ModelLoader {
         }
         return model;
     }
+
+    private String getPath(String modelNamePrefix, String format) {
+        return modelPath + String.format(format, modelNamePrefix);
+    }
+
+    private MultiLayerNetwork loadNativeModel(String path) throws IOException {
+        MultiLayerNetwork net = ModelSerializer.restoreMultiLayerNetwork(path);
+        return net;
+    }
+
 }

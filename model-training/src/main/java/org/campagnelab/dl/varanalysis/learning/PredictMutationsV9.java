@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.QualityFeatures;
+import org.campagnelab.dl.varanalysis.learning.calibrate.CalibratingModel;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
@@ -38,7 +39,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
 
-    final static String TIME = "1468720068547";
+    final static String TIME = "1468697912832";
     private ModelLoader modelLoader;
 
     String version = "VN";
@@ -70,8 +71,8 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         PredictMutationsV9 predictor = new PredictMutationsV9();
         //   predictor.printPredictions("best");
 
-        predictor.printPredictions("latest", modelDir, datasetPath, "tests/" + TIME + "/", "test");
-        predictor.printPredictions("latest", modelDir, datasetPath, "tests/" + TIME + "/", "training");
+        predictor.printPredictions("best", modelDir, datasetPath, "tests/" + TIME + "/", "test");
+        predictor.printPredictions("best", modelDir, datasetPath, "tests/" + TIME + "/", "training");
 
         System.out.println(attempt);
 
@@ -117,10 +118,14 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         modelLoader = new ModelLoader(modelPath);
         featureMapper = modelLoader.loadFeatureMapper();
         MultiLayerNetwork model = modelLoader.loadModel(prefix);
+        MultiLayerNetwork calibratingModel = modelLoader.loadModel(prefix + "Calibrated");
+        if (cmodel == null && calibratingModel != null) {
+            cmodel = new CalibratingModel(model, featureMapper, calibratingModel);
+        }
+
         File dir = new File(resultsPath);
         // attempt to create the directory here
         dir.mkdir();
-
 
         //initialize results printer
 
@@ -143,7 +148,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve();
         int index = 0;
         for (BaseInformationRecords.BaseInformation record : reader) {
-            writeRecordResult(model, results, featureMapper, pgReadWrite, record, aucLossCalculator, plantedMutSet, allRecSet);
+            writeRecordResult(model, calibratingModel, results, featureMapper, pgReadWrite, record, aucLossCalculator, plantedMutSet, allRecSet);
             index++;
             if (index > scoreN) break;
         }
