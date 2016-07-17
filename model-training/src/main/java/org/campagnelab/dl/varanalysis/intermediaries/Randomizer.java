@@ -3,17 +3,14 @@ package org.campagnelab.dl.varanalysis.intermediaries;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
-import org.apache.hadoop.fs.FileUtil;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
 import it.unimi.dsi.util.XorShift128PlusRandom;
-import org.eclipse.jetty.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -57,13 +54,13 @@ public class Randomizer extends Intermediary{
                 pgRead.lightUpdate();
                 i++;
                 if (i >= MAX_ELEMENTS){
-                    flush(recList,rand,writer);
+                    shuffle(recList,rand,writer);
                     recList.clear();
                     i = 0;
                 }
 
             }
-            flush(recList,rand,writer);
+            shuffle(recList,rand,writer);
             pgRead.stop();
             reader.close();
             writer.close();
@@ -75,7 +72,7 @@ public class Randomizer extends Intermediary{
         }
     }
 
-    private void flush(List<BaseInformationRecords.BaseInformation> recList, Random rand, RecordWriter writer) throws IOException {
+    private void shuffle(List<BaseInformationRecords.BaseInformation> recList, Random rand, RecordWriter writer) throws IOException {
         //System.out.println(rec.getSamples(0).getFormattedCounts());
         Collections.shuffle(recList,rand);
 
