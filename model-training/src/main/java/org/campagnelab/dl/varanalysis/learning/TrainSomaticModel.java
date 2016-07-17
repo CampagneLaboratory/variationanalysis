@@ -38,7 +38,7 @@ public class TrainSomaticModel extends SomaticTrainer {
      **/
     public static final int MAX_ERRORS_KEPT = 25;
     private final boolean ERROR_ENRICHMENT = true;
-    private final int NUM_ERRORS_ADDED = 3;
+    private final int NUM_ERRORS_ADDED = 16;
     private final boolean IGNORE_ERRORS_ON_SIMULATED_EXAMPLES = false;
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
 
@@ -211,8 +211,14 @@ public class TrainSomaticModel extends SomaticTrainer {
         float minWrongness = queue.getMinWrongness();
         float maxWrongness = queue.getMaxWrongness();
         float meanWrongness = queue.getMeanWrongness();
-        System.out.printf("Epoch %d Iteration %d AUC=%f wrongness: %f-%f mean: %f #examples: %d %n", epoch, iter, auc,
-                minWrongness, maxWrongness, meanWrongness,
-                queue.size());
+
+        System.out.printf("Epoch %d Iteration %d AUC=%f ",epoch, iter, auc);
+        if (ERROR_ENRICHMENT) {
+            System.out.printf("wrongness: %f-%f mean: %f #examples: %d %n",
+                     minWrongness, maxWrongness, meanWrongness,
+                    queue.size());
+        }else{
+            System.out.println();
+        }
     }
 }

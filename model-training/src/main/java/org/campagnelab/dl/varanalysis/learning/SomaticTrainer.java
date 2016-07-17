@@ -40,7 +40,7 @@ public abstract class SomaticTrainer {
     protected int seed = 123;
     protected double learningRate = 0.1;
     protected int miniBatchSize = 32;
-    protected int numEpochs = 150;
+    protected int numEpochs = 3;
     protected int earlyStopCondition = 3;
     protected double dropoutRate = 0.5;
     protected LabelMapper labelMapper = new SimpleFeatureCalculator();
