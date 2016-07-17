@@ -161,14 +161,17 @@ public class HitBoundedPriorityQueue {
 
 
     public float getMinWrongness() {
+        if (queue.isEmpty()) return Float.NaN;
         return (float) queue.stream().mapToDouble((er -> er.wrongness)).min().getAsDouble();
     }
 
     public float getMaxWrongness() {
+        if (queue.isEmpty()) return Float.NaN;
         return (float) queue.stream().mapToDouble((er -> er.wrongness)).max().getAsDouble();
     }
 
     public float getMeanWrongness() {
+        if (queue.isEmpty()) return Float.NaN;
         return (float) queue.stream().mapToDouble((er -> er.wrongness)).sum() / queue.size();
     }
 }
