@@ -163,12 +163,19 @@ public class CalibrateModelOutput {
                                     FeatureMapper modelFeatureMapper, BaseInformationRecords.BaseInformation record) {
         int indexOfNewRecordInMinibatch = currentMiniBatchSize;
         ProtoPredictor predictor = new ProtoPredictor(model, modelFeatureMapper);
-        boolean isCorrect = predictor.mutPrediction(record).isCorrect(record.getSamplesList().get(1).getIsTumor());
+        boolean isTumor = record.getSamplesList().get(1).getIsTumor();
+        ProtoPredictor.Prediction prediction = predictor.mutPrediction(record);
+        boolean isCorrect = prediction.isCorrect(isTumor);
+        // consider only errors predicting mutation (false positive predictions):
+        if (!prediction.isMutated()) {
+
+            return indexOfNewRecordInMinibatch;
+        }
         int half = miniBatchSize / 2;
         if (isCorrect && numCorrectInMiniBatch(miniBatch, indexOfNewRecordInMinibatch) > half) {
             return indexOfNewRecordInMinibatch;
         }
-        if (!isCorrect && numIncorrectInMiniBatch(miniBatch,indexOfNewRecordInMinibatch) > half) {
+        if (!isCorrect && numIncorrectInMiniBatch(miniBatch, indexOfNewRecordInMinibatch) > half) {
             return indexOfNewRecordInMinibatch;
         }
         // calculate the model output and use as features for the calibration model:

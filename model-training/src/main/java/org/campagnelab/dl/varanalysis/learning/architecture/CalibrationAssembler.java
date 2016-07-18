@@ -40,7 +40,7 @@ public class CalibrationAssembler extends AbstractNeuralNetAssembler implements 
                         .build())
                 .layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.RMSE_XENT)
                         .weightInit(WEIGHT_INIT)
-                        .activation("identity").learningRateDecayPolicy(learningRatePolicy)
+                        .activation("sigmoid").learningRateDecayPolicy(learningRatePolicy)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
                 .pretrain(false).backprop(true).build();
         return conf;
