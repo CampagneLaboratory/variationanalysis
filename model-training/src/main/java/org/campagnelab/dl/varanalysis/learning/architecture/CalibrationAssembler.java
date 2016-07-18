@@ -6,6 +6,7 @@ import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
+import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
  * A network with three dense layers. This is the first neural net architecture we tried for detecting
@@ -33,9 +34,13 @@ public class CalibrationAssembler extends AbstractNeuralNetAssembler implements 
                         .weightInit(WEIGHT_INIT)
                         .activation("relu").learningRateDecayPolicy(learningRatePolicy)
                         .build())
-                .layer(2, new OutputLayer.Builder(lossFunction)
+                .layer(2, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
                         .weightInit(WEIGHT_INIT)
-                        .activation("sigmoid").learningRateDecayPolicy(learningRatePolicy)
+                        .activation("relu").learningRateDecayPolicy(learningRatePolicy)
+                        .build())
+                .layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.RMSE_XENT)
+                        .weightInit(WEIGHT_INIT)
+                        .activation("identity").learningRateDecayPolicy(learningRatePolicy)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
                 .pretrain(false).backprop(true).build();
         return conf;

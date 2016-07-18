@@ -85,8 +85,8 @@ public class CalibrateModelOutput {
         assembler.setNumHiddenNodes(numHiddenNodes);
         assembler.setNumInputs(numInputs);
         assembler.setNumOutputs(numOutputs);
-        assembler.setLossFunction(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD); // binary: correct or not correct.
-        assembler.setRegularization(false);
+        assembler.setLossFunction(LossFunctions.LossFunction.RMSE_XENT); // RMSE for regression.
+        assembler.setRegularization(true);
         assembler.setRegularizationRate(1e-6);
 
         assembler.setWeightInitialization(WeightInit.RELU);
@@ -179,9 +179,9 @@ public class CalibrateModelOutput {
             miniBatch.getFeatures().putScalar(indices, floats.getFloat(i));
         }
         // run the model again to obtain the predicted label (possibility to optimize):
-        // set calibration model as 1 when the prediction was incorrect, 0 otherwise.
+        // set calibration model as 1 when the prediction was correct, 1 otherwise.
         indices[1] = 0;
-        miniBatch.getLabels().putScalar(indices, !isCorrect ? 1 : 0);
+        miniBatch.getLabels().putScalar(indices, isCorrect ? 1 : 0);
         return ++indexOfNewRecordInMinibatch;
     }
 
