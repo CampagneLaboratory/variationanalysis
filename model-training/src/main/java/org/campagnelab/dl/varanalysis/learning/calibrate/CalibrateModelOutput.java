@@ -32,7 +32,7 @@ public class CalibrateModelOutput {
     private static final int MIN_ITERATION_BETWEEN_BEST_MODEL = 10000;
     static private Logger LOG = LoggerFactory.getLogger(CalibrateModelOutput.class);
     private int seed = 232323;
-    private double learningRate = 0.01;
+    private double learningRate = 0.1;
     private int miniBatchSize = 32;
     private int numEpoch = 3;
 
@@ -85,7 +85,7 @@ public class CalibrateModelOutput {
         assembler.setNumHiddenNodes(numHiddenNodes);
         assembler.setNumInputs(numInputs);
         assembler.setNumOutputs(numOutputs);
-        assembler.setLossFunction(LossFunctions.LossFunction.MSE); // binary: correct or not correct.
+        assembler.setLossFunction(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD); // binary: correct or not correct.
         assembler.setRegularization(false);
         assembler.setRegularizationRate(1e-6);
 
