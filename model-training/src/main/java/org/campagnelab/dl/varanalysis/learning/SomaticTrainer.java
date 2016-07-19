@@ -77,7 +77,8 @@ public abstract class SomaticTrainer {
             trainIterList.add(new BaseInformationIterator(trainingDataset[i], miniBatchSize,
                     featureCalculator, labelMapper));
         }
-        final AsyncDataSetIterator async = new AsyncDataSetIterator(new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper));
+        final AsyncDataSetIterator async = new AsyncDataSetIterator(new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper),
+                4);
 
         System.out.println("Estimating scaling parameters:");
         //Load the training data:
