@@ -49,11 +49,16 @@ public class FirstSimulationStrategy implements SimulationStrategy {
                                                          BaseInformationRecords.SampleInfo germlineSample,
                                                          BaseInformationRecords.SampleInfo otherSample,
                                                          SimulationCharacteristics sim) {
+
         BaseInformationRecords.BaseInformation.Builder baseBuild = record.toBuilder();
         baseBuild.setMutated(makeSomatic);
         baseBuild.setSamples(0, record.getSamples(0).toBuilder().setIsTumor(false));
         baseBuild.setSamples(1, record.getSamples(1).toBuilder().setIsTumor(true));
+        if (!makeSomatic) {
 
+            // don't change counts if we are not to make the second sample somatic.
+            return baseBuild.build();
+        }
         BaseInformationRecords.SampleInfo somatic = baseBuild.getSamples(1);
         int numGenos = somatic.getCountsList().size();
         int[] forward = new int[numGenos];
