@@ -5,6 +5,7 @@ import org.campagnelab.dl.model.utils.BayesCalibrator;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.StringWriter;
 
 import static org.junit.Assert.*;
@@ -17,7 +18,9 @@ public class BayesCalibratorTest {
 
     @Test
     public void bayesTest() throws Exception {
-        BayesCalibrator calc = new BayesCalibrator("test-results/testModel",false);
+        String modelDir = "test-results/testModel";
+        new File(modelDir).mkdir();
+        BayesCalibrator calc = new BayesCalibrator(modelDir,false);
         calc.observe(0.1f,false);
         calc.observe(0.2f,false);
         calc.observe(0.3f,false);
@@ -31,7 +34,7 @@ public class BayesCalibratorTest {
 
         calc.save();
 
-        calc = new BayesCalibrator("test-results/testModel",true);
+        calc = new BayesCalibrator(modelDir,true);
 
 
         float expected = (1f/5f)/((4f*1000000f)*(1f/5f));

@@ -16,9 +16,9 @@ public class BayesCalibrator extends CalcCalibrator {
     @Override
     public float calibrateProb(float prob) {
         double mutGreater = plantedMutSet.subSet(prob,1.1f).size() + 1;
-        double unMutGreater = allRecSet.subSet(prob,1.1f).size() + 1;
+        double unMutGreater = unMutSet.subSet(prob,1.1f).size() + 1;
         double  pMGreater = mutGreater/plantedMutSet.size();
-        double  pUGreater = unMutGreater/allRecSet.size();
+        double  pUGreater = unMutGreater/ unMutSet.size();
         double bayes = pMGreater*PRIOR_MUT_RATE/pUGreater;
         return (float) bayes;
     }

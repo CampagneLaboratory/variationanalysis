@@ -2,6 +2,7 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
+import org.campagnelab.dl.model.utils.CalcCalibrator;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.calibrate.CalibratingModel;
@@ -32,13 +33,12 @@ public abstract class AbstractPredictMutations {
     }
 
     protected void writeRecordResult(MultiLayerNetwork model, PrintWriter results, FeatureMapper featureMapper, ProgressLogger pgReadWrite, BaseInformationRecords.BaseInformation record, AreaUnderTheROCCurve aucLossCalculator) {
-        writeRecordResult(model, null, results, featureMapper, pgReadWrite, record, aucLossCalculator, null, null);
+        writeRecordResult(model, null, results, featureMapper, pgReadWrite, record, aucLossCalculator, null);
     }
 
     CalibratingModel cmodel;
 
-    protected void writeRecordResult(MultiLayerNetwork model, MultiLayerNetwork calibrationModel, PrintWriter results, FeatureMapper featureMapper, ProgressLogger pgReadWrite, BaseInformationRecords.BaseInformation record, AreaUnderTheROCCurve aucLossCalculator, SortedSet<Float> plantedMutSet, SortedSet<Float> allRecSet) {
-
+    protected void writeRecordResult(MultiLayerNetwork model, MultiLayerNetwork calibrationModel, PrintWriter results, FeatureMapper featureMapper, ProgressLogger pgReadWrite, BaseInformationRecords.BaseInformation record, AreaUnderTheROCCurve aucLossCalculator, CalcCalibrator calc) {
         INDArray testFeatures = Nd4j.zeros(1, featureMapper.numberOfFeatures());
         featureMapper.mapFeatures(record, testFeatures, 0);
         INDArray testPredicted = model.output(testFeatures, false);
@@ -69,14 +69,7 @@ public abstract class AbstractPredictMutations {
         pgReadWrite.update();
 
         //update tree sets
-        if (plantedMutSet != null)
-
-        {
-            allRecSet.add(prediction.posProb);
-            if (mutated) {
-                plantedMutSet.add(prediction.posProb);
-            }
-        }
+        calc.observe(prediction.posProb,mutated);
 
     }
 

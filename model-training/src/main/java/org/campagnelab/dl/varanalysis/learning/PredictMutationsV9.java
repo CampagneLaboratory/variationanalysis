@@ -4,6 +4,8 @@ import it.unimi.dsi.fastutil.floats.FloatAVLTreeSet;
 import it.unimi.dsi.fastutil.io.BinIO;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
+import org.campagnelab.dl.model.utils.BayesCalibrator;
+import org.campagnelab.dl.model.utils.CalcCalibrator;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.QualityFeatures;
@@ -40,6 +42,8 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     private ModelLoader modelLoader;
 
     String version = "VN";
+
+    CalcCalibrator calculator;
 
     // String[] unmutFilenames = new String[]{"unmut_genotypes_test_proto_VN.parquet", "training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
     // String[] mutFilenames = new String[]{"mutated-MHFC-13-CTL_B_NK.parquet", "training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
@@ -126,6 +130,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
         modelLoader = new ModelLoader(modelPath);
         featureMapper = modelLoader.loadFeatureMapper();
+        calculator = new BayesCalibrator(modelPath,false);
         MultiLayerNetwork model = modelLoader.loadModel(prefix);
         MultiLayerNetwork calibratingModel = modelLoader.loadModel(prefix + "Calibrated");
         if (cmodel == null && calibratingModel != null) {
@@ -157,7 +162,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve();
         int index = 0;
         for (BaseInformationRecords.BaseInformation record : reader) {
-            writeRecordResult(model, calibratingModel, results, featureMapper, pgReadWrite, record, aucLossCalculator, null, null);
+            writeRecordResult(model, calibratingModel, results, featureMapper, pgReadWrite, record, aucLossCalculator, calculator);
             index++;
             if (index > scoreN) break;
         }
@@ -168,7 +173,9 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         //write sorted trees and total count to file:
         if ("test".equals(typeOfTestFile)) { //only save for test set
             //write record count to prop file
+            calculator.save();
             modelLoader.writeTestCount(reader.getTotalRecords());
+
         }
 
     }
