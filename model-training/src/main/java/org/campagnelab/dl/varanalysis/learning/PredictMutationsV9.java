@@ -1,8 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.fastutil.floats.FloatAVLTreeSet;
-import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
-import it.unimi.dsi.fastutil.ints.IntSortedSet;
+import it.unimi.dsi.fastutil.io.BinIO;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
@@ -24,7 +23,6 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Properties;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
 
@@ -38,8 +36,7 @@ import java.util.stream.IntStream;
 public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
-
-    final static String TIME = "1468861025965";
+    final static String TIME = "sortedmapstest";
     private ModelLoader modelLoader;
 
     String version = "VN";
@@ -48,8 +45,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     // String[] mutFilenames = new String[]{"mutated-MHFC-13-CTL_B_NK.parquet", "training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
     FeatureMapper featureMapper;// = new FeatureMapperV9();
     private int scoreN = Integer.MAX_VALUE;
-    SortedSet<Float> plantedMutSet = new FloatAVLTreeSet();
-    SortedSet<Float> allRecSet = new FloatAVLTreeSet();
+
 
 
     public PredictMutationsV9() {
@@ -83,7 +79,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 }else{
                     datasetPath=item;
                 }
-                predictor.printPredictions("bestAUC", modelDir,datasetPath , "tests/" + TIME + "/", type);
+                predictor.printPredictions("best", modelDir,datasetPath , "tests/" + TIME + "/", type);
             }
         }
 
@@ -161,7 +157,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve();
         int index = 0;
         for (BaseInformationRecords.BaseInformation record : reader) {
-            writeRecordResult(model, calibratingModel, results, featureMapper, pgReadWrite, record, aucLossCalculator, plantedMutSet, allRecSet);
+            writeRecordResult(model, calibratingModel, results, featureMapper, pgReadWrite, record, aucLossCalculator, null, null);
             index++;
             if (index > scoreN) break;
         }
@@ -171,34 +167,9 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
         //write sorted trees and total count to file:
         if ("test".equals(typeOfTestFile)) { //only save for test set
-            saveRunningTotals(modelPath);
             //write record count to prop file
             modelLoader.writeTestCount(reader.getTotalRecords());
         }
-
-    }
-
-
-    void saveRunningTotals(String modelPath) {
-        File dir = new File(modelPath + "/stats");
-        // attempt to create the directory here
-        dir.mkdir();
-        //serialize the List
-        try {
-            OutputStream file = new FileOutputStream(modelPath + "/stats" + "/plantedMutSet");
-            OutputStream buffer = new BufferedOutputStream(file);
-            ObjectOutput output = new ObjectOutputStream(buffer);
-            output.writeObject(plantedMutSet);
-            file = new FileOutputStream(modelPath + "/stats" + "/allRecSet");
-            buffer = new BufferedOutputStream(file);
-            output = new ObjectOutputStream(buffer);
-            output.writeObject(allRecSet);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
 
     }
 
