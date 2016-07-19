@@ -66,7 +66,7 @@ public class RecordWriterTest {
             sampleBuilderS.addCounts(builderInfoS.build());
             builder.addSamples(sampleBuilderS.build());
 
-            writer.writeRecord(builder.build());
+            writer.writeRecord( builder.build());
         }
 
     }
