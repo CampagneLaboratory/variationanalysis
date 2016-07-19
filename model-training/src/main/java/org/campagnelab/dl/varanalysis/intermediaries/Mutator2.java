@@ -25,7 +25,7 @@ import java.util.Random;
  */
 public class Mutator2 extends Intermediary {
     private static final int CHUNK_SIZE = 10000;
-    private static final int NUM_SIMULATED_RECORD_PER_DATUM = 10;
+    private static final int NUM_SIMULATED_RECORD_PER_DATUM = 1;
     static private Logger LOG = LoggerFactory.getLogger(Mutator2.class);
 
     //delta will be halved in homozygous cases (to account for twice the reads at a base)
@@ -42,13 +42,13 @@ public class Mutator2 extends Intermediary {
 
     public static void main(String[] args) throws IOException {
         //new ParquetPrinter(args[0]).print();
-        if (args.length < 3) {
-            System.err.println("usage: input.parquet mutated-filename mutated-randomized-filename");
+        if (args.length < 2) {
+            System.err.println("usage: input.parquet mutated-randomized-filename");
             System.exit(1);
         }
-        new Randomizer().executeOver(args[0], args[1]);
-        new Mutator2().executeOver(args[1], args[2]);
-        //new ParquetPrinter(args[2]).print();
+
+        new Mutator2().executeOver(args[0], args[1]);
+        //  new ParquetPrinter(args[2]).print();
     }
 
     public Mutator2() {
@@ -78,9 +78,11 @@ public class Mutator2 extends Intermediary {
         pgReadWrite.displayFreeMemory = true;
         pgReadWrite.start();
         SimulationCharacteristics sim = new SimulationCharacteristics();
+        int maxProcess = Integer.MAX_VALUE;
+        int iteration = 0;
         try {
             for (BaseInformationRecords.BaseInformation base : reader) {
-
+                iteration++;
                 sim.observe(base);
                 if (sim.size() >= CHUNK_SIZE) {
                     sim.batchIsComplete();
@@ -89,7 +91,11 @@ public class Mutator2 extends Intermediary {
                 }
 
                 pgReadWrite.lightUpdate();
+                if (iteration > maxProcess) {
+                    break;
+                }
             }
+            processBatch(sim, writer);
         } finally {
             pgReadWrite.stop();
             reader.close();
@@ -121,7 +127,7 @@ public class Mutator2 extends Intermediary {
         for (BaseInformationRecords.BaseInformation record : shufflingList) {
             writer.writeRecord(record);
         }
-
+        shufflingList.clear();
     }
 
 
