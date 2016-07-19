@@ -12,6 +12,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -46,8 +47,8 @@ public abstract class AbstractPredictMutations {
         boolean mutated = record.getMutated();
         ProtoPredictor predictor = new ProtoPredictor(model, featureMapper);
         ProtoPredictor.Prediction prediction = predictor.mutPrediction(record);
-        String formatted0 = record.getSamples(0).getFormattedCounts().replaceAll("\n", "");
-        String formatted1 = record.getSamples(1).getFormattedCounts().replaceAll("\n", "");
+        String formatted0 = genFormattedString(record.getSamples(0));
+        String formatted1 = genFormattedString(record.getSamples(1));
         String correctness = (prediction.clas == mutated) ? "right" : "wrong";
         if (aucLossCalculator != null) {
             aucLossCalculator.observe(prediction.posProb, mutated ? 1 : -1);
@@ -77,6 +78,21 @@ public abstract class AbstractPredictMutations {
             }
         }
 
+    }
+
+    private String genFormattedString(BaseInformationRecords.SampleInfo sample) {
+        int a = sample.getCounts(0).getGenotypeCountReverseStrand() + sample.getCounts(0).getGenotypeCountForwardStrand();
+        int t = sample.getCounts(1).getGenotypeCountReverseStrand() + sample.getCounts(1).getGenotypeCountForwardStrand();
+        int c = sample.getCounts(2).getGenotypeCountReverseStrand() + sample.getCounts(2).getGenotypeCountForwardStrand();
+        int g = sample.getCounts(3).getGenotypeCountReverseStrand() + sample.getCounts(3).getGenotypeCountForwardStrand();
+        int n = sample.getCounts(4).getGenotypeCountReverseStrand() + sample.getCounts(4).getGenotypeCountForwardStrand();
+        String fb = sample.getFormattedCounts().split(" ")[8];
+        int numIndels = sample.getCountsCount() - 5;
+        int[] indels = new int[numIndels];
+        for (int i = 5; i < numIndels + 5 ; i++) {
+            indels[i-5] = sample.getCounts(i).getGenotypeCountForwardStrand() + sample.getCounts(i).getGenotypeCountReverseStrand();
+        }
+        return String.format("counts A=%d T=%d C=%d G=%d N=%d %s indels:%s",a,t,c,g,n,fb, Arrays.toString(indels));
     }
 
     protected abstract String featuresToString(BaseInformationRecords.BaseInformation record);

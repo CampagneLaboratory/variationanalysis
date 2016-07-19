@@ -81,7 +81,7 @@ public class ModelLoader {
         if (new File(pathname).exists()) {
             model = loadNativeModel(pathname);
         } else {
-            if (!new File(pathname).exists()) {
+            if (!(new File(pathname).exists() || new File(getPath(modelNamePrefix, "/%sModelParams.bin")).exists())) {
                 return null;
             }
             //Load parameters from disk:
