@@ -248,6 +248,11 @@
             <artifactId>model-utils</artifactId>
             <version>1.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>it.unimi.dsi</groupId>
+            <artifactId>dsiutils</artifactId>
+            <version>2.3.3</version>
+        </dependency>
 
     </dependencies>
 

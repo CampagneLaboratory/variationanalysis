@@ -39,7 +39,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
 
-    final static String TIME = "1468697912832";
+    final static String TIME = "1468861025965";
     private ModelLoader modelLoader;
 
     String version = "VN";
@@ -70,9 +70,22 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         String modelDir = "models/" + TIME;
         PredictMutationsV9 predictor = new PredictMutationsV9();
         //   predictor.printPredictions("best");
-
-        predictor.printPredictions("best", modelDir, datasetPath, "tests/" + TIME + "/", "test");
-        predictor.printPredictions("best", modelDir, datasetPath, "tests/" + TIME + "/", "training");
+        String type=null;
+        for (String item : args) {
+            if (!new File(item).exists()) {
+                type=item;
+                System.out.println("Will process files of type "+type);
+                System.out.flush();
+            } else{
+                if (type==null) {
+                    System.err.println("Invalid syntax, dataset type must be specified: type file+");
+                    System.exit(1);
+                }else{
+                    datasetPath=item;
+                }
+                predictor.printPredictions("bestAUC", modelDir,datasetPath , "tests/" + TIME + "/", type);
+            }
+        }
 
         System.out.println(attempt);
 
