@@ -39,8 +39,6 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     final static String TIME = "sortedmapstest";
     private ModelLoader modelLoader;
 
-    String version = "VN";
-
     // String[] unmutFilenames = new String[]{"unmut_genotypes_test_proto_VN.parquet", "training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
     // String[] mutFilenames = new String[]{"mutated-MHFC-13-CTL_B_NK.parquet", "training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
     FeatureMapper featureMapper;// = new FeatureMapperV9();
