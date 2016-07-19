@@ -41,8 +41,6 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     final static String TIME = "sortedmapstest";
     private ModelLoader modelLoader;
 
-    String version = "VN";
-
     CalcCalibrator calculator;
 
     // String[] unmutFilenames = new String[]{"unmut_genotypes_test_proto_VN.parquet", "training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};

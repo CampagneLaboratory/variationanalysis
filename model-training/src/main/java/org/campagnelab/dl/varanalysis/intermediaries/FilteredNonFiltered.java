@@ -1,22 +1,13 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
 
-import com.google.protobuf.TextFormat;
 import it.unimi.dsi.logging.ProgressLogger;
-import it.unimi.dsi.util.XorShift128PlusRandom;
-import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.fs.FileUtil;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.DualReader;
-import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
 
 import org.slf4j.*;
 

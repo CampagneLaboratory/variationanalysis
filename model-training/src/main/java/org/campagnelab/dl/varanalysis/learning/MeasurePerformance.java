@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
+import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -33,19 +34,24 @@ public class MeasurePerformance {
         RecordReader reader = new RecordReader(datafilePath);
         //DataSet ds = baseIter.next();
 //set up logger
+        try {
+            AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve();
+            int index = 0;
+            for (BaseInformationRecords.BaseInformation record : reader) {
+                boolean mutated = record.getMutated();
+                ProtoPredictor predictor = new ProtoPredictor(model, featureMapper);
+                ProtoPredictor.Prediction prediction = predictor.mutPrediction(record);
+                aucLossCalculator.observe(prediction.posProb, mutated ? 1 : -1);
 
-        AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve();
-        int index = 0;
-        for (BaseInformationRecords.BaseInformation record : reader) {
-            boolean mutated = record.getMutated();
-            ProtoPredictor predictor = new ProtoPredictor(model, featureMapper);
-            ProtoPredictor.Prediction prediction = predictor.mutPrediction(record);
-            aucLossCalculator.observe(prediction.posProb, mutated ? 1 : -1);
+                index++;
+                if (index > scoreN) break;
+            }
+            return aucLossCalculator.evaluateStatistic();
+        } finally {
+            IOUtils.closeQuietly(reader);
 
-            index++;
-            if (index > scoreN) break;
         }
-        return aucLossCalculator.evaluateStatistic();
+
     }
 
 
