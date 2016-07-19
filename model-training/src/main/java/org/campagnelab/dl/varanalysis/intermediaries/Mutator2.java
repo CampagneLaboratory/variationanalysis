@@ -25,7 +25,7 @@ import java.util.Random;
  */
 public class Mutator2 extends Intermediary {
     private static final int CHUNK_SIZE = 10000;
-    private static final int NUM_SIMULATED_RECORD_PER_DATUM = 1;
+    private static final int NUM_SIMULATED_RECORD_PER_DATUM = 2;
     static private Logger LOG = LoggerFactory.getLogger(Mutator2.class);
 
     //delta will be halved in homozygous cases (to account for twice the reads at a base)
@@ -116,17 +116,26 @@ public class Mutator2 extends Intermediary {
         ObjectArrayList<BaseInformationRecords.BaseInformation> shufflingList = new ObjectArrayList<>();
         while (iterator.hasNext()) {
             BaseInformationRecords.BaseInformation record = iterator.next();
+            shufflingList.add(stragegy.mutate(false, record, record.getSamples(1), record.getSamples(0), sim));
 
             for (int i = 0; i < NUM_SIMULATED_RECORD_PER_DATUM; i++) {
 
-                shufflingList.add(stragegy.mutate(true, record, record.getSamples(0), record.getSamples(1), sim));
-                shufflingList.add(stragegy.mutate(false, record, record.getSamples(1), record.getSamples(0), sim));
+                BaseInformationRecords.BaseInformation possiblyMutated = stragegy.mutate(true, record, record.getSamples(0), record.getSamples(1), sim);
+                if (possiblyMutated.getMutated()) {
+                    shufflingList.add(possiblyMutated);
+                } else {
+                    break;
+                }
             }
         }
         Collections.shuffle(shufflingList);
+        double numMutated = 0;
         for (BaseInformationRecords.BaseInformation record : shufflingList) {
             writer.writeRecord(record);
+            numMutated += record.getMutated() ? 1 : 0;
         }
+        System.out.printf("Ratio of mutated to total record (0-1): %f%n", numMutated / shufflingList.size());
+        System.out.flush();
         shufflingList.clear();
     }
 
