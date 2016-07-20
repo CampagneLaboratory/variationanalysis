@@ -40,7 +40,7 @@ public abstract class SomaticTrainer {
     protected int seed = 123;
     protected double learningRate = 0.1;
     protected int miniBatchSize = 32;
-    protected int numEpochs = 15;
+    protected int numEpochs = 150;
     protected int earlyStopCondition = 3;
     protected double dropoutRate = 0.5;
     protected LabelMapper labelMapper = new SimpleFeatureCalculator();
@@ -77,8 +77,8 @@ public abstract class SomaticTrainer {
             trainIterList.add(new BaseInformationIterator(trainingDataset[i], miniBatchSize,
                     featureCalculator, labelMapper));
         }
-        final AsyncDataSetIterator async = new AsyncDataSetIterator(new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper),
-                4);
+        final BaseInformationConcatIterator async = new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper);
+
 
         System.out.println("Estimating scaling parameters:");
         //Load the training data:
