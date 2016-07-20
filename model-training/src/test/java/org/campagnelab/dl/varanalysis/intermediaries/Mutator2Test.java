@@ -15,7 +15,7 @@ import static org.junit.Assert.fail;
  */
 public class Mutator2Test {
 
-    //@Test
+    @Test
     public void mutateTest() throws Exception {
         int index = 0;
         for (String record : records) {
@@ -27,7 +27,7 @@ public class Mutator2Test {
             BaseInformationRecords.BaseInformation mutated = strategy.mutate(true, builder.build(), builder.getSamples(0), builder.getSamples(1), null);
             StringWriter writer = new StringWriter();
             TextFormat.print(mutated, writer);
-            assertEquals("failed for record "+index, expectedMutatedRecords[index], writer.getBuffer().toString());
+            assertEquals("failed for record " + index, expectedMutatedRecords[index], writer.getBuffer().toString());
             index++;
         }
     }
@@ -374,10 +374,7 @@ public class Mutator2Test {
             "reference_index: 18\n" +
                     "position: 17214616\n" +
                     "mutated: false\n" +   // not mutated because genotype indices differ between the two samples
-                    "mutatedBase: \"T\"\n" +
                     "referenceBase: \"A\"\n" +
-                    "frequencyOfMutation: 0.5740478\n" +
-                    "indexOfMutatedBase: 1\n" +
                     "samples {\n" +
                     "  counts {\n" +
                     "    matchesReference: true\n" +
@@ -421,15 +418,15 @@ public class Mutator2Test {
                     "    matchesReference: true\n" +
                     "    fromSequence: \"A\"\n" +
                     "    toSequence: \"A\"\n" +
-                    "    genotypeCountForwardStrand: 8\n" +
-                    "    genotypeCountReverseStrand: 8\n" +
+                    "    genotypeCountForwardStrand: 13\n" +
+                    "    genotypeCountReverseStrand: 16\n" +
                     "  }\n" +
                     "  counts {\n" +
                     "    matchesReference: false\n" +
                     "    fromSequence: \"A\"\n" +
                     "    toSequence: \"T\"\n" +
-                    "    genotypeCountForwardStrand: 5\n" +
-                    "    genotypeCountReverseStrand: 8\n" +
+                    "    genotypeCountForwardStrand: 0\n" +
+                    "    genotypeCountReverseStrand: 0\n" +
                     "  }\n" +
                     "  counts {\n" +
                     "    matchesReference: false\n" +
