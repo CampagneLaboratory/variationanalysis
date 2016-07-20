@@ -5,7 +5,6 @@ import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.*;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.dl.varanalysis.util.HitBoundedPriorityQueue;
-import org.deeplearning4j.clustering.cluster.Point;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -37,7 +36,7 @@ public class TrainSomaticModel extends SomaticTrainer {
      * Error enrichment support.
      **/
     public static final int MAX_ERRORS_KEPT = 8;
-    private final boolean ERROR_ENRICHMENT = true;
+    private final boolean ERROR_ENRICHMENT =false;
     private final int NUM_ERRORS_ADDED = 8;
     private final boolean IGNORE_ERRORS_ON_SIMULATED_EXAMPLES = false;
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
@@ -67,6 +66,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         int iter = 0;
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
         System.out.println("ERROR_ENRICHMENT=" + ERROR_ENRICHMENT);
+        double bestAUC = 0.5;
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -88,11 +88,11 @@ public class TrainSomaticModel extends SomaticTrainer {
                 INDArray predictedLabels = net.output(ds.getFeatures(), false);
                 keepWorseErrors(ds, predictedLabels, ds.getLabels());
                 pg.update();
-               if (iter% 5==1) {
-                   // update wrongness after 5 minibatches to give training a chance to learn how worse errors
-                   // compare to the other records.
-                   queue.updateWrongness(net);
-               }
+                if (iter % 5 == 1) {
+                    // update wrongness after 5 minibatches to give training a chance to learn how worse errors
+                    // compare to the other records.
+                    queue.updateWrongness(net);
+                }
                 double score = net.score();
                 if (Double.isNaN(score)) {
                     //   System.out.println(net.params());
@@ -107,9 +107,7 @@ public class TrainSomaticModel extends SomaticTrainer {
                     saver.saveBestModel(net, score);
                     System.out.println("Saving best score model.. score=" + bestScore);
                     lastIter = iter;
-                    estimateTestSetPerf(epoch, iter);
-
-
+                 //   estimateTestSetPerf(epoch, iter);
                 }
                 scoreMap.put(iter, bestScore);
 
@@ -119,7 +117,12 @@ public class TrainSomaticModel extends SomaticTrainer {
             saveModel(saver, directory, Integer.toString(epoch) + "-", net);
             writeProperties(this);
             writeBestScoreFile();
-            estimateTestSetPerf(epoch, iter);
+            double auc = estimateTestSetPerf(epoch, iter);
+            if (auc > bestAUC) {
+                saveModel(saver, directory, "bestAUC", net);
+                bestAUC = auc;
+                writeBestAUC(bestAUC);
+            }
             pg.stop();
             pgEpoch.update();
             queue.clear();
@@ -129,6 +132,17 @@ public class TrainSomaticModel extends SomaticTrainer {
 
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, numEpochs, bestScore, numEpochs, net);
+    }
+
+    private void writeBestAUC(double bestAUC) {
+        try {
+            FileWriter scoreWriter = new FileWriter(directory + "/bestAUC");
+            scoreWriter.append(Double.toString(bestAUC));
+            scoreWriter.close();
+        } catch (IOException e) {
+
+        }
+
     }
 
     @Override
@@ -207,22 +221,23 @@ public class TrainSomaticModel extends SomaticTrainer {
 
     }
 
-    private void estimateTestSetPerf(int epoch, int iter) throws IOException {
+    private double estimateTestSetPerf(int epoch, int iter) throws IOException {
         validationDatasetFilename = "/data/no-threshold/validation-2/m-r-MHFC-63-CTL_B_NK_VN.parquet";
-        if (validationDatasetFilename == null) return;
+        if (validationDatasetFilename == null) return 0;
         MeasurePerformance perf = new MeasurePerformance(10000);
         double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
         float minWrongness = queue.getMinWrongness();
         float maxWrongness = queue.getMaxWrongness();
         float meanWrongness = queue.getMeanWrongness();
 
-        System.out.printf("Epoch %d Iteration %d AUC=%f ",epoch, iter, auc);
+        System.out.printf("Epoch %d Iteration %d AUC=%f ", epoch, iter, auc);
         if (ERROR_ENRICHMENT) {
             System.out.printf("wrongness: %f-%f mean: %f #examples: %d %n",
-                     minWrongness, maxWrongness, meanWrongness,
+                    minWrongness, maxWrongness, meanWrongness,
                     queue.size());
-        }else{
+        } else {
             System.out.println();
         }
+        return auc;
     }
 }
