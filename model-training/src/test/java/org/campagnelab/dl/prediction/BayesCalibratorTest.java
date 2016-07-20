@@ -19,7 +19,7 @@ public class BayesCalibratorTest {
     @Test
     public void bayesTest() throws Exception {
         String modelDir = "test-results/testModel";
-        new File(modelDir).mkdir();
+        new File(modelDir).mkdirs();
         BayesCalibrator calc = new BayesCalibrator(modelDir,false);
         calc.observe(0.1f,false);
         calc.observe(0.2f,false);
