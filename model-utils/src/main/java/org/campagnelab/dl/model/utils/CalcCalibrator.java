@@ -9,8 +9,13 @@ import java.io.IOException;
 /**
  * Created by rct66 on 7/19/16.
  * Defines the class which calibrates model probability using some formula, such as bayes theorem.
+ *
  */
 public abstract class CalcCalibrator {
+    /**
+     * These are two sorted sets containing the model probabilities encountered in PredictMutations (mutated and unmutated examples seperate).
+     * They structured for easy access to the number of model probabilities greater than x, (or less than), for any given x.
+     */
     FloatAVLTreeSet plantedMutSet = new FloatAVLTreeSet();
     FloatAVLTreeSet unMutSet = new FloatAVLTreeSet();
     int totalExamples;
