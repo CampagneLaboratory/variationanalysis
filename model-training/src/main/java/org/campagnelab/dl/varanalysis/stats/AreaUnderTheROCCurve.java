@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
  * complexity n square, so won't scale with very large number of examples.
  * See http://www.cs.waikato.ac.nz/~remco/roc.pdf for an alternative.
  * Created by fac2003 on 7/15/16.
+ *
  * @author Fabien Campagne
  */
 
@@ -27,12 +28,16 @@ public class AreaUnderTheROCCurve {
     public void reset() {
         positiveDecisions.clear();
         negativeDecisions.clear();
+        foundNan = false;
     }
 
+    boolean foundNan = false;
+
     public void observe(double decisionValue, double label) {
-        if (decisionValue != decisionValue) {
+        if (!foundNan && decisionValue != decisionValue) {
             // decision value is NaN:
             LOG.warn("NaN found instead of a decision value. NaN are always interpreted as wrong predictions. ");
+            foundNan = true;
         }
         if (label >= 0) {
             positiveDecisions.add(decisionValue);

@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 /**
- * Train a neural network to predict mutations.
+ * Use a trained neural network model to predict mutations.
  * <p>
  * Created by rct2002 on 6/8/16.
  *
@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
 public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
-    final static String TIME = "sortedmapstest";
+    final static String TIME = "1469129573830";
     final boolean SKIP0COUNTS = true;
     private ModelLoader modelLoader;
 
@@ -72,7 +72,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 }else{
                     datasetPath=item;
                 }
-                predictor.printPredictions("best", modelDir,datasetPath , "tests/" + TIME + "/", type);
+                predictor.printPredictions("bestAUC", modelDir,datasetPath , "tests/" + TIME + "/", type);
             }
         }
 

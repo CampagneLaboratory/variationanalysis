@@ -24,4 +24,16 @@ public class FirstNIteratorTest {
     assertEquals(10,count);
     }
 
+    @Test
+    public void testNIteratorBatch() throws IOException {
+        int count=0;
+        FirstNIterator it = new FirstNIterator(new BaseInformationIterator("sample_data/protobuf/genotypes_proto_test_mutated_randomized.parquet", 32,
+                new SimpleFeatureCalculator(), new SimpleFeatureCalculator()), 10);
+        while (it.hasNext()) {
+            DataSet next = it.next(10);
+            count+=next.numExamples();
+        }
+        assertEquals(10,count);
+    }
+
 }

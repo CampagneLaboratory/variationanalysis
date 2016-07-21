@@ -1,5 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
+import it.unimi.dsi.fastutil.floats.FloatArraySet;
+import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -40,7 +42,7 @@ public abstract class SomaticTrainer {
     protected int seed = 123;
     protected double learningRate = 0.1;
     protected int miniBatchSize = 32;
-    protected int numEpochs = 150;
+    protected int numEpochs = 300;
     protected int earlyStopCondition = 3;
     protected double dropoutRate = 0.5;
     protected LabelMapper labelMapper = new SimpleFeatureCalculator();
@@ -77,7 +79,7 @@ public abstract class SomaticTrainer {
             trainIterList.add(new BaseInformationIterator(trainingDataset[i], miniBatchSize,
                     featureCalculator, labelMapper));
         }
-        final BaseInformationConcatIterator async = new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper);
+        final DataSetIterator async =decorateIterator( new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper));
 
 
         System.out.println("Estimating scaling parameters:");
@@ -98,7 +100,7 @@ public abstract class SomaticTrainer {
         assembler.setLossFunction(lossFunction);
         assembler.setRegularization(false);
         assembler.setRegularizationRate(1e-6);
-        // assembler.setDropoutRate(dropoutRate);
+     //   assembler.setDropoutRate(dropoutRate);
 
 
         //changed from XAVIER in iteration 14
@@ -133,6 +135,10 @@ public abstract class SomaticTrainer {
         writeBestScoreFile();
         System.out.println("Model completed, saved at time: " + attempt);
 
+    }
+
+    protected DataSetIterator decorateIterator(BaseInformationConcatIterator iterator) {
+        return iterator;
     }
 
     protected void writeBestScoreFile() throws IOException {
@@ -174,9 +180,11 @@ public abstract class SomaticTrainer {
     }
 
     protected static int numLabels(INDArray labels) {
-        Set<Float> set = new HashSet<>();
-        //for (labels.size(1));
-        return 2;
+        FloatSet set = new FloatArraySet();
+        for (int i=0;i<labels.size(0);i++) {
+        set.add(labels.getFloat(i));
+        }
+        return set.size();
     }
 
     public void appendProperties(ModelPropertiesHelper helper) {

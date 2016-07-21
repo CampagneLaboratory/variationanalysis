@@ -3,6 +3,7 @@ package org.campagnelab.dl.varanalysis.learning;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.*;
+import org.campagnelab.dl.varanalysis.learning.io.ModelSaver;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.dl.varanalysis.util.HitBoundedPriorityQueue;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
@@ -36,7 +37,7 @@ public class TrainSomaticModel extends SomaticTrainer {
      * Error enrichment support.
      **/
     public static final int MAX_ERRORS_KEPT = 8;
-    private final boolean ERROR_ENRICHMENT =false;
+    private final boolean ERROR_ENRICHMENT = true;
     private final int NUM_ERRORS_ADDED = 8;
     private final boolean IGNORE_ERRORS_ON_SIMULATED_EXAMPLES = false;
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
@@ -62,7 +63,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         pgEpoch.expectedUpdates = numEpochs;
         pgEpoch.start();
         bestScore = Double.MAX_VALUE;
-        LocalFileModelSaver saver = new LocalFileModelSaver(directory);
+        ModelSaver saver = new ModelSaver(directory);
         int iter = 0;
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
         System.out.println("ERROR_ENRICHMENT=" + ERROR_ENRICHMENT);
@@ -107,19 +108,18 @@ public class TrainSomaticModel extends SomaticTrainer {
                     saver.saveBestModel(net, score);
                     System.out.println("Saving best score model.. score=" + bestScore);
                     lastIter = iter;
-                 //   estimateTestSetPerf(epoch, iter);
+
                 }
                 scoreMap.put(iter, bestScore);
 
             }
             //save latest after the end of an epoch:
             saver.saveLatestModel(net, net.score());
-            saveModel(saver, directory, Integer.toString(epoch) + "-", net);
             writeProperties(this);
             writeBestScoreFile();
             double auc = estimateTestSetPerf(epoch, iter);
             if (auc > bestAUC) {
-                saveModel(saver, directory, "bestAUC", net);
+                saver.saveModel(net, "bestAUC", auc);
                 bestAUC = auc;
                 writeBestAUC(bestAUC);
             }

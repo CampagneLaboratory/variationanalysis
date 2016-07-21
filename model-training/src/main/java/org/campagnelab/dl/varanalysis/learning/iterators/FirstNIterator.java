@@ -16,8 +16,12 @@ public class FirstNIterator implements DataSetIterator {
 int index;
     @Override
     public DataSet next(int num) {
-        index+=1;
-        return delegate.next(num);
+        if (index>=N) {
+            throw new NoSuchElementException();
+        }
+        final DataSet next = delegate.next(num);
+        index+=next.numExamples();
+        return next;
     }
 
     @Override

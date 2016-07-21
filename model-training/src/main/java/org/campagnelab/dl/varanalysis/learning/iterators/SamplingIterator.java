@@ -1,11 +1,15 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.IntervalIndex;
+import org.nd4j.linalg.indexing.PointIndex;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -35,6 +39,9 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
      */
     private int lastMinibatchSize;
     private int delegateBatchSize;
+    private int numReturned;
+    private int numSkipped;
+    private int currentRecordIndex;
 
     public SamplingIterator(DataSetIterator delegate, long seed) {
         this.delegate = delegate;
@@ -47,20 +54,33 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
 
     private void recalculateMinibatchSize() {
 
-        miniBatchSize=delegate.batch();
+        miniBatchSize = delegate.batch();
         averageProbability = 0f;
         for (float p : samplingProbabilities) {
             averageProbability += p;
         }
         averageProbability /= samplingProbabilities.length;
         float willIgnoreFraction = 1 - averageProbability;
-        this.delegateBatchSize = Math.round(delegate.batch() *(1+willIgnoreFraction));
+        this.delegateBatchSize = Math.round(delegate.batch() * (1 + willIgnoreFraction));
         assert delegateBatchSize >= miniBatchSize : "delegate minibatch size must be larger than output size.";
 
     }
 
+    public float getAverageSamplingP() {
+        return averageProbability;
+    }
+
     public void setSamplingProbability(int indexInMinibatch, float probability) {
-        samplingProbabilities[offsetStartOfMinibatch - lastMinibatchSize + indexInMinibatch] = probability;
+        if (!sampleToDelegateIndexMap.containsKey(indexInMinibatch)) {
+            return;
+        }
+        final int index = sampleToDelegateIndexMap.get(indexInMinibatch);
+        if (index >= samplingProbabilities.length) {
+       //     System.out.println("Incorrect index: " + index + " length was " + samplingProbabilities.length);
+        } else {
+            samplingProbabilities[index] = probability;
+        }
+
     }
 
     @Override
@@ -70,14 +90,16 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
 
     @Override
     public DataSet next() {
-
+        //int previousPoint = numReturned + numSkipped;
         DataSet dataset = sample(delegate.next(delegateBatchSize), samplingProbabilities, offsetStartOfMinibatch);
-        this.offsetStartOfMinibatch += dataset.numExamples();
-        this.lastMinibatchSize = dataset.numExamples();
+        //int newPoint = numReturned + numSkipped;
+        this.offsetStartOfMinibatch += lastMinibatchSize;
+        //    this.lastMinibatchSize = delegateBatchSize;
         return dataset;
     }
 
     private XoRoShiRo128PlusRandom randomGenerator;
+    private Int2IntArrayMap sampleToDelegateIndexMap = new Int2IntArrayMap();
 
     /**
      * Sample from delegate according to the sampling probabilities. Include a record from the delegate
@@ -89,25 +111,53 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
      * @return
      */
     private DataSet sample(DataSet next, float[] samplingProbabilities, int offsetStartOfMinibatch) {
+        sampleToDelegateIndexMap.clear();
         int numSamples = miniBatchSize;
+        lastMinibatchSize = delegateBatchSize;
+
+        int delegateNumExamples = next.numExamples();
+        lastMinibatchSize = delegateNumExamples;
+        int num = 0;
+        IntArrayList selectedIndices = new IntArrayList();
+        for (int delegateIndex = 0; delegateIndex < delegateNumExamples; delegateIndex++) {
+
+            final float random = randomGenerator.nextFloat();
+            final float p = getSamplingProbability(currentRecordIndex);
+         //   System.out.printf("random=%f p=%f%n",random,p);
+         //   System.out.flush();
+
+            if (random < p) {
+                selectedIndices.add(delegateIndex);
+                sampleToDelegateIndexMap.put(num, currentRecordIndex);
+                numReturned++;
+            } else {
+                numSkipped++;
+            }
+            currentRecordIndex++;
+        }
+
+        numSamples = selectedIndices.size();
+
         INDArray examples = Nd4j.create(numSamples, next.getFeatures().columns());
         INDArray outcomes = Nd4j.create(numSamples, next.numOutcomes());
-        int delegateNumExamples = next.numExamples();
-        int num = 0;
-        int delegateIndex = 0;
-        do {
-            if (randomGenerator.nextFloat() < samplingProbabilities[offsetStartOfMinibatch + delegateIndex]) {
+        for (int delegateIndex : selectedIndices) {
+            DataSet dataSet = next.get(delegateIndex);
+            examples.putRow(num, dataSet.getFeatures());
+            outcomes.putRow(num, dataSet.getLabels());
+            num++;
 
-                // include in sample:
-                DataSet dataSet = next.get(delegateIndex);
-                examples.putRow(num, dataSet.getFeatures());
-                outcomes.putRow(num, dataSet.getLabels());
-                num++;
-            }
-            delegateIndex++;
-            if (delegateIndex >= delegateNumExamples) break;
-        } while (num < miniBatchSize );
+        }
+
         return new DataSet(examples, outcomes);
+    }
+
+    private float getSamplingProbability(int i) {
+        if (i >= samplingProbabilities.length) {
+       //     System.out.println("STOP " + i);
+            return 1;
+        } else {
+            return samplingProbabilities[i];
+        }
     }
 
     @Override
@@ -144,6 +194,12 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
     public void reset() {
         recalculateMinibatchSize();
         delegate.reset();
+        numReturned = 0;
+        numSkipped = 0;
+        offsetStartOfMinibatch = 0;
+        lastMinibatchSize = 0;
+        currentRecordIndex = 0;
+        sampleToDelegateIndexMap.clear();
     }
 
     @Override
@@ -175,5 +231,11 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
     @Override
     public List<String> getLabels() {
         return delegate.getLabels();
+    }
+
+
+    public double percentSkipped() {
+        final double numSkipped = this.numSkipped;
+        return 100f*numSkipped /(numSkipped +numReturned);
     }
 }

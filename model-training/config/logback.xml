@@ -9,13 +9,14 @@
         </encoder>
     </appender>
 
-    <root level="info">
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
-    <logger name="org.apache.hadoop.conf.Configuration" level="info"/>
+    <logger name="it.unimi.dsi.logging" level="INFO"/>
+    <logger name="org.apache.hadoop.conf.Configuration" level="error"/>
     <logger name="org.apache.hadoop" level="error"/>
     <logger name="org.apache.parquet.hadoop" level="error"/>
     <logger name="org.apache.parquet.hadoop.ParquetFileReader" level="error"/>
-    <logger name="org.reflections" level="info"/>
+    <logger name="org.reflections" level="error"/>
 
 </configuration>
