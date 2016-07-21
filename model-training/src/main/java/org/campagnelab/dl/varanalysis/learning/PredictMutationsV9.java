@@ -1,9 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning;
 
-import it.unimi.dsi.fastutil.floats.FloatAVLTreeSet;
-import it.unimi.dsi.fastutil.io.BinIO;
 import it.unimi.dsi.logging.ProgressLogger;
-import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.BayesCalibrator;
 import org.campagnelab.dl.model.utils.CalcCalibrator;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
@@ -13,19 +10,12 @@ import org.campagnelab.dl.varanalysis.learning.calibrate.CalibratingModel;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
-import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.lang.reflect.Constructor;
 import java.util.Arrays;
-import java.util.Properties;
-import java.util.TreeMap;
 import java.util.stream.IntStream;
 
 /**
@@ -39,6 +29,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
     final static String TIME = "sortedmapstest";
+    final boolean SKIP0COUNTS = true;
     private ModelLoader modelLoader;
 
     CalcCalibrator calculator;
@@ -159,7 +150,28 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
         AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve();
         int index = 0;
+
         for (BaseInformationRecords.BaseInformation record : reader) {
+            //don't bother trying to make predictions when a sample has 0 counts. model outputs nan apparently.
+            if (SKIP0COUNTS) {
+                boolean bothHaveCount = true;
+                for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()){
+                    boolean hasCount = false;
+                    for (BaseInformationRecords.CountInfo count : sample.getCountsList()){
+                        if (count.getGenotypeCountReverseStrand() > 0 || count.getGenotypeCountForwardStrand() > 0){
+                            hasCount = true;
+                            break;
+                        }
+                    }
+                    if (!hasCount){
+                        bothHaveCount = false;
+                        break;
+                    }
+                }
+                if (!bothHaveCount){
+                    continue;
+                }
+            }
             writeRecordResult(model, calibratingModel, results, featureMapper, pgReadWrite, record, aucLossCalculator, calculator);
             index++;
             if (index > scoreN) break;
