@@ -36,9 +36,9 @@ public class TrainSomaticModel extends SomaticTrainer {
     /**
      * Error enrichment support.
      **/
-    public static final int MAX_ERRORS_KEPT = 25;
-    private final boolean ERROR_ENRICHMENT = false;
-    private final int NUM_ERRORS_ADDED = 16;
+    public static final int MAX_ERRORS_KEPT = 8;
+    private final boolean ERROR_ENRICHMENT = true;
+    private final int NUM_ERRORS_ADDED = 8;
     private final boolean IGNORE_ERRORS_ON_SIMULATED_EXAMPLES = false;
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
 
@@ -88,7 +88,11 @@ public class TrainSomaticModel extends SomaticTrainer {
                 INDArray predictedLabels = net.output(ds.getFeatures(), false);
                 keepWorseErrors(ds, predictedLabels, ds.getLabels());
                 pg.update();
-                queue.updateWrongness(net);
+               if (iter% 5==1) {
+                   // update wrongness after 5 minibatches to give training a chance to learn how worse errors
+                   // compare to the other records.
+                   queue.updateWrongness(net);
+               }
                 double score = net.score();
                 if (Double.isNaN(score)) {
                     //   System.out.println(net.params());
