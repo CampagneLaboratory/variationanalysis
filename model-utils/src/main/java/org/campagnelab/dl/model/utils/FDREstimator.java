@@ -16,10 +16,9 @@ public class FDREstimator extends CalcCalibrator {
 
     @Override
     public float calibrateProb(float prob) {
-        double mutGreater = plantedMutSet.subSet(prob,1.1f).size() + 1;
-        double unMutGreater = unMutSet.subSet(prob,1.1f).size() + 1;
-
-        double FDR = unMutGreater/(unMutGreater+mutGreater);
+        double unMutGreater = unMutSet.subSet(prob,1.1f).size();
+        double unMutTotal = unMutSet.size();
+        double FDR = unMutGreater/(unMutTotal);
         return (float) FDR;
     }
 
