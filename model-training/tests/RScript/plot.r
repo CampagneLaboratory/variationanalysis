@@ -1,4 +1,5 @@
 library("AUC")
+library("SpecsVerification")
 modelDir <- "~/lab_repos/VariationAnalysis/tests/1465429904060"
 rm(test)
 rm(training)
