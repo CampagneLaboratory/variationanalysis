@@ -88,9 +88,9 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
                 DataSet ds = async.next();
                 if (numLabels(ds.getLabels()) != 2) {
-                    System.err.println("Dataset must have two labels.");
-                    System.err.println(ds);
-                    System.exit(1);
+                    // just be chance, some minibatches will have zero or only one label.
+                    // Since we cannot learn from them, we skip them.
+                    continue;
                 }
 
                 // fit the net:
@@ -129,7 +129,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
         }
         pgEpoch.stop();
-        saver.saveModel(net, "final",finalAUC);
+        saver.saveModel(net, "final", finalAUC);
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, numEpochs, bestScore, numEpochs, net);
     }
