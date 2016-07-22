@@ -154,6 +154,18 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
         return new DataSet(examples, outcomes);
     }
 
+    public float getProbability(int indexInMinibatch) {
+        if (!sampleToDelegateIndexMap.containsKey(indexInMinibatch)) {
+            return 1;
+        }
+        final int index = sampleToDelegateIndexMap.get(indexInMinibatch);
+        if (index >= samplingProbabilities.length) {
+            return 1;
+        } else {
+            return samplingProbabilities[index];
+        }
+    }
+
     private float getSamplingProbability(int i) {
         if (i >= samplingProbabilities.length) {
             //     System.out.println("STOP " + i);
