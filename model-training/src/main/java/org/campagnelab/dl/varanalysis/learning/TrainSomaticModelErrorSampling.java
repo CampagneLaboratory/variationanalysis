@@ -2,10 +2,8 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV16;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV9_2;
 import org.campagnelab.dl.varanalysis.learning.io.ModelSaver;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
-import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.SamplingIterator;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
@@ -14,7 +12,6 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.indexing.PointIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +76,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
         System.out.println("ERROR_SAMPLING=" + ERROR_SAMPLING);
         double bestAUC = 0.5;
+        double finalAUC = 0.5;
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -103,6 +101,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
                 pg.update();
                 iter++;
+
                 if (iter > maxProcessPerEpoch) break;
 
             }
@@ -120,6 +119,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
                 if (numEpochSinceImprovement > MAX_EPOCHS_WITHOUT_IMPROVEMENT) {
                     System.out.printf("AUC did not improve after %d epoch. Early stop.",
                             MAX_EPOCHS_WITHOUT_IMPROVEMENT);
+                    finalAUC = auc;
                     break;
                 }
             }
@@ -128,7 +128,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
             async.reset();    //Reset iterator for another epoch
         }
         pgEpoch.stop();
-
+        saver.saveModel(net, "final",finalAUC);
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, numEpochs, bestScore, numEpochs, net);
     }
@@ -149,7 +149,8 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
             /*if (!wrongPrediction) {
                 p=0.05f;
             }*/
-            samplingIterator.setSamplingProbability(wrongPrediction, exampleIndex, p);
+            final float previousP = samplingIterator.getProbability(exampleIndex);
+            samplingIterator.setSamplingProbability(wrongPrediction, exampleIndex, p * previousP);
 
         }
     }
