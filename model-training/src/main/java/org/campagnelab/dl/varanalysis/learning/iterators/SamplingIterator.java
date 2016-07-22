@@ -73,9 +73,7 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
     }
 
     public void setSamplingProbability(boolean wrongPrediction, int indexInMinibatch, float probability) {
-        if (!sampleToDelegateIndexMap.containsKey(indexInMinibatch)) {
-            return;
-        }
+        assert sampleToDelegateIndexMap.containsKey(indexInMinibatch): "The index (in minibatch) must be found: "+indexInMinibatch;
         final int index = sampleToDelegateIndexMap.get(indexInMinibatch);
         if (index >= samplingProbabilities.length) {
 
@@ -135,16 +133,19 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
                 selectedIndices.add(delegateIndex);
                 sampleToDelegateIndexMap.put(num, currentRecordIndex);
                 numReturned++;
+                num++;
             } else {
                 numSkipped++;
             }
             currentRecordIndex++;
+
         }
 
         numSamples = selectedIndices.size();
         if (numSamples == 0) {
             return next;
         }
+        num=0;
         INDArray examples = Nd4j.create(numSamples, next.getFeatures().columns());
         INDArray outcomes = Nd4j.create(numSamples, next.numOutcomes());
         for (int delegateIndex : selectedIndices) {
@@ -152,16 +153,13 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
             examples.putRow(num, dataSet.getFeatures());
             outcomes.putRow(num, dataSet.getLabels());
             num++;
-
         }
 
         return new DataSet(examples, outcomes);
     }
 
     public float getProbability(int indexInMinibatch) {
-        if (!sampleToDelegateIndexMap.containsKey(indexInMinibatch)) {
-            return 1;
-        }
+        assert sampleToDelegateIndexMap.containsKey(indexInMinibatch): "The index (in mini-batch returned) must be found: "+indexInMinibatch;
         final int index = sampleToDelegateIndexMap.get(indexInMinibatch);
         if (index >= samplingProbabilities.length) {
             return 1;
