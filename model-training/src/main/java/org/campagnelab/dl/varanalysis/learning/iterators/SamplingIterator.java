@@ -50,6 +50,10 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
         recalculateMinibatchSize();
     }
 
+    public void updateStatistics() {
+        recalculateMinibatchSize();
+    }
+
     private void recalculateMinibatchSize() {
 
         miniBatchSize = delegate.batch();

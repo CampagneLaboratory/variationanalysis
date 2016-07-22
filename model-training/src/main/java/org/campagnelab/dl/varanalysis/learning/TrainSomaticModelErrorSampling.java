@@ -4,6 +4,7 @@ import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV16;
 import org.campagnelab.dl.varanalysis.learning.io.ModelSaver;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.SamplingIterator;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
@@ -55,7 +56,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     @Override
     protected DataSetIterator decorateIterator(BaseInformationConcatIterator iterator) {
-        samplingIterator = new SamplingIterator(iterator, seed);
+        samplingIterator = new SamplingIterator(new FirstNIterator(iterator,20000), seed);
         return samplingIterator;
     }
 
@@ -106,10 +107,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
             }
 
-            pg.stop();
-            pgEpoch.update();
-            async.reset();    //Reset iterator for another epoch
-
+            samplingIterator.updateStatistics();
             double auc = estimateTestSetPerf(epoch, iter);
             if (auc > bestAUC) {
                 saver.saveModel(net, "bestAUC", auc);
@@ -126,6 +124,10 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
                     break;
                 }
             }
+            pg.stop();
+            pgEpoch.update();
+            async.reset();    //Reset iterator for another epoch
+
 
         }
         pgEpoch.stop();
