@@ -8,8 +8,6 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.indexing.IntervalIndex;
-import org.nd4j.linalg.indexing.PointIndex;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -70,14 +68,17 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
         return averageProbability;
     }
 
-    public void setSamplingProbability(int indexInMinibatch, float probability) {
+    public void setSamplingProbability(boolean wrongPrediction, int indexInMinibatch, float probability) {
         if (!sampleToDelegateIndexMap.containsKey(indexInMinibatch)) {
             return;
         }
         final int index = sampleToDelegateIndexMap.get(indexInMinibatch);
         if (index >= samplingProbabilities.length) {
-       //     System.out.println("Incorrect index: " + index + " length was " + samplingProbabilities.length);
+
         } else {
+//            if (wrongPrediction) {
+//                System.out.printf("Wrong prediction getting sample prob=%f %n",probability);
+//            }
             samplingProbabilities[index] = probability;
         }
 
@@ -123,8 +124,8 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
 
             final float random = randomGenerator.nextFloat();
             final float p = getSamplingProbability(currentRecordIndex);
-         //   System.out.printf("random=%f p=%f%n",random,p);
-         //   System.out.flush();
+            //   System.out.printf("random=%f p=%f%n",random,p);
+            //   System.out.flush();
 
             if (random < p) {
                 selectedIndices.add(delegateIndex);
@@ -137,7 +138,9 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
         }
 
         numSamples = selectedIndices.size();
-
+        if (numSamples == 0) {
+            return next;
+        }
         INDArray examples = Nd4j.create(numSamples, next.getFeatures().columns());
         INDArray outcomes = Nd4j.create(numSamples, next.numOutcomes());
         for (int delegateIndex : selectedIndices) {
@@ -153,7 +156,7 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
 
     private float getSamplingProbability(int i) {
         if (i >= samplingProbabilities.length) {
-       //     System.out.println("STOP " + i);
+            //     System.out.println("STOP " + i);
             return 1;
         } else {
             return samplingProbabilities[i];
@@ -236,6 +239,6 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
 
     public double percentSkipped() {
         final double numSkipped = this.numSkipped;
-        return 100f*numSkipped /(numSkipped +numReturned);
+        return 100f * numSkipped / (numSkipped + numReturned);
     }
 }

@@ -143,9 +143,13 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         for (int exampleIndex = 0; exampleIndex < predictedLabels.size(0); exampleIndex++) {
 
             final float pOfWrongLabel = ErrorRecord.calculateWrongness(exampleIndex, predictedLabels, labels);
-            float p = ErrorRecord.isWrongPrediction(exampleIndex, predictedLabels, labels) ? pOfWrongLabel :
+            final boolean wrongPrediction = ErrorRecord.isWrongPrediction(exampleIndex, predictedLabels, labels);
+            float p = wrongPrediction ? pOfWrongLabel :
                     1 - pOfWrongLabel;
-            samplingIterator.setSamplingProbability(exampleIndex, p);
+            /*if (!wrongPrediction) {
+                p=0.05f;
+            }*/
+            samplingIterator.setSamplingProbability(wrongPrediction, exampleIndex, p);
 
         }
     }
