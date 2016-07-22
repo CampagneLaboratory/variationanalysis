@@ -106,6 +106,9 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
             }
 
+            pg.stop();
+            pgEpoch.update();
+            async.reset();    //Reset iterator for another epoch
 
             double auc = estimateTestSetPerf(epoch, iter);
             if (auc > bestAUC) {
@@ -123,9 +126,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
                     break;
                 }
             }
-            pg.stop();
-            pgEpoch.update();
-            async.reset();    //Reset iterator for another epoch
+
         }
         pgEpoch.stop();
         saver.saveModel(net, "final",finalAUC);
