@@ -4,6 +4,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.*;
 import org.campagnelab.dl.varanalysis.learning.io.ModelSaver;
+import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.dl.varanalysis.util.HitBoundedPriorityQueue;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
@@ -36,9 +38,9 @@ public class TrainSomaticModel extends SomaticTrainer {
     /**
      * Error enrichment support.
      **/
-    public static final int MAX_ERRORS_KEPT = 8;
+    public static final int MAX_ERRORS_KEPT = 16;
     private final boolean ERROR_ENRICHMENT = true;
-    private final int NUM_ERRORS_ADDED = 8;
+    private final int NUM_ERRORS_ADDED = 16;
     private final boolean IGNORE_ERRORS_ON_SIMULATED_EXAMPLES = false;
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
 
@@ -51,7 +53,6 @@ public class TrainSomaticModel extends SomaticTrainer {
         trainer.execute(new FeatureMapperV16(), args, 32);
 
     }
-
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {

@@ -56,7 +56,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     @Override
     protected DataSetIterator decorateIterator(BaseInformationConcatIterator iterator) {
-        samplingIterator = new SamplingIterator(new FirstNIterator(iterator,20000), seed);
+        samplingIterator = new SamplingIterator(iterator, seed);
         return samplingIterator;
     }
 
@@ -143,17 +143,20 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
      * @param labels
      */
     private void updateProbabilities(INDArray predictedLabels, INDArray labels) {
+        if (!ERROR_SAMPLING) {
+            return;
+        }
         for (int exampleIndex = 0; exampleIndex < predictedLabels.size(0); exampleIndex++) {
 
             final float pOfWrongLabel = ErrorRecord.calculateWrongness(exampleIndex, predictedLabels, labels);
             final boolean wrongPrediction = ErrorRecord.isWrongPrediction(exampleIndex, predictedLabels, labels);
             float p = wrongPrediction ? pOfWrongLabel :
-                    1-pOfWrongLabel;
+                    0.5f;
             /*if (!wrongPrediction) {
                 p=0.05f;
             }*/
             final float previousP = samplingIterator.getProbability(exampleIndex);
-            samplingIterator.setSamplingProbability(wrongPrediction, exampleIndex, (float) p);
+            samplingIterator.setSamplingProbability(wrongPrediction, exampleIndex, p);
 
         }
     }
