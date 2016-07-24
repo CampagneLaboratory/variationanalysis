@@ -50,7 +50,6 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file+>");
         }
-
         trainer.execute(new FeatureMapperV16(), args, 32);
 
     }
@@ -111,10 +110,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
             }
 
-            pg.stop();
-            pgEpoch.update();
-            async.reset();    //Reset iterator for another epoch
-
+            samplingIterator.updateStatistics();
             double auc = estimateTestSetPerf(epoch, iter);
             performanceLogger.log("epochs", iter, epoch, Double.NaN, auc);
             if (auc > bestAUC) {
@@ -134,6 +130,11 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
                 }
             }
             performanceLogger.write();
+            pg.stop();
+            pgEpoch.update();
+            async.reset();    //Reset iterator for another epoch
+
+
         }
         pgEpoch.stop();
         saver.saveModel(net, "final", finalAUC);
@@ -153,12 +154,12 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
             final float pOfWrongLabel = ErrorRecord.calculateWrongness(exampleIndex, predictedLabels, labels);
             final boolean wrongPrediction = ErrorRecord.isWrongPrediction(exampleIndex, predictedLabels, labels);
             float p = wrongPrediction ? pOfWrongLabel :
-                    1 - pOfWrongLabel;
+                    1-pOfWrongLabel;
             /*if (!wrongPrediction) {
                 p=0.05f;
             }*/
             final float previousP = samplingIterator.getProbability(exampleIndex);
-            samplingIterator.setSamplingProbability(wrongPrediction, exampleIndex, p * previousP);
+            samplingIterator.setSamplingProbability(wrongPrediction, exampleIndex, (float) p);
 
         }
     }
