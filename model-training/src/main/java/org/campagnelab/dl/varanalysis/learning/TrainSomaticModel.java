@@ -2,12 +2,12 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
-import org.campagnelab.dl.model.utils.mappers.*;
-import org.campagnelab.dl.varanalysis.learning.io.ModelSaver;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV16;
+import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
+import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.dl.varanalysis.util.HitBoundedPriorityQueue;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
-import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -18,8 +18,10 @@ import org.nd4j.linalg.indexing.PointIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Train a neural network to predict mutations.
@@ -107,6 +109,7 @@ public class TrainSomaticModel extends SomaticTrainer {
                     bestScore = score;
                     saver.saveBestModel(net, score);
                     System.out.println("Saving best score model.. score=" + bestScore);
+                    performanceLogger.log("best", iter, epoch, score);
                     lastIter = iter;
 
                 }
@@ -122,11 +125,14 @@ public class TrainSomaticModel extends SomaticTrainer {
                 saver.saveModel(net, "bestAUC", auc);
                 bestAUC = auc;
                 writeBestAUC(bestAUC);
+                performanceLogger.log("bestAUC", iter, epoch, bestScore, bestAUC);
+
             }
             pg.stop();
             pgEpoch.update();
             queue.clear();
             async.reset();    //Reset iterator for another epoch
+            performanceLogger.write();
         }
         pgEpoch.stop();
 

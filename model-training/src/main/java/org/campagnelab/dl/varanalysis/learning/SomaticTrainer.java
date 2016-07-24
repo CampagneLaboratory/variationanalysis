@@ -12,7 +12,8 @@ import org.campagnelab.dl.varanalysis.learning.architecture.NeuralNetAssembler;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersNarrower2;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
-import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
+import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
+import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.api.Layer;
@@ -31,7 +32,8 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Abatract class to facilitate variations of training protocols.
@@ -39,10 +41,11 @@ import java.util.*;
  */
 public abstract class SomaticTrainer {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
+    protected String condition=null;
     protected int seed = 123;
     protected double learningRate = 0.1;
     protected int miniBatchSize = 32;
-    protected int numEpochs = 300;
+    protected int numEpochs = 100;
     protected int earlyStopCondition = 3;
     protected double dropoutRate = 0.5;
     protected LabelMapper labelMapper = new SimpleFeatureCalculator();
@@ -55,6 +58,7 @@ public abstract class SomaticTrainer {
     protected int numTrainingFiles;
     protected MultiLayerNetwork net;
     protected LossFunctions.LossFunction lossFunction;
+    protected PerformanceLogger performanceLogger;
 
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
         this.featureCalculator = featureCalculator;
@@ -79,7 +83,7 @@ public abstract class SomaticTrainer {
             trainIterList.add(new BaseInformationIterator(trainingDataset[i], miniBatchSize,
                     featureCalculator, labelMapper));
         }
-        final DataSetIterator async =decorateIterator( new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper));
+        final DataSetIterator async = decorateIterator(new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper));
 
 
         System.out.println("Estimating scaling parameters:");
@@ -100,7 +104,7 @@ public abstract class SomaticTrainer {
         assembler.setLossFunction(lossFunction);
         assembler.setRegularization(false);
         assembler.setRegularizationRate(1e-6);
-     //   assembler.setDropoutRate(dropoutRate);
+        //   assembler.setDropoutRate(dropoutRate);
 
 
         //changed from XAVIER in iteration 14
@@ -120,7 +124,7 @@ public abstract class SomaticTrainer {
         System.out.println("Total number of network parameters: " + totalNumParams);
 
         writeProperties(this);
-
+        performanceLogger = new PerformanceLogger(directory);
         EarlyStoppingResult<MultiLayerNetwork> result = train(conf, async);
 
 
@@ -134,7 +138,7 @@ public abstract class SomaticTrainer {
         writeProperties(this);
         writeBestScoreFile();
         System.out.println("Model completed, saved at time: " + attempt);
-
+        performanceLogger.write();
     }
 
     protected DataSetIterator decorateIterator(BaseInformationConcatIterator iterator) {
@@ -181,8 +185,8 @@ public abstract class SomaticTrainer {
 
     protected static int numLabels(INDArray labels) {
         FloatSet set = new FloatArraySet();
-        for (int i=0;i<labels.size(0);i++) {
-        set.add(labels.getFloat(i));
+        for (int i = 0; i < labels.size(0); i++) {
+            set.add(labels.getFloat(i));
         }
         return set.size();
     }

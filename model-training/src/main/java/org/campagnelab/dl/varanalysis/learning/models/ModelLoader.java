@@ -1,4 +1,4 @@
-package org.campagnelab.dl.varanalysis.learning;
+package org.campagnelab.dl.varanalysis.learning.models;
 
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
@@ -24,7 +24,7 @@ public class ModelLoader {
         this.modelPath = modelPath;
     }
 
-    void writeTestCount(long testRecordCount) {
+   public void writeTestCount(long testRecordCount) {
         try {
             FileInputStream input = new FileInputStream(modelPath + "/config.properties");
             // load a properties file

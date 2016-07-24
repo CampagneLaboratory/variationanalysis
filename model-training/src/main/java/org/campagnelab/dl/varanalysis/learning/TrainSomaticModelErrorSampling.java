@@ -2,9 +2,11 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV16;
-import org.campagnelab.dl.varanalysis.learning.io.ModelSaver;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.SamplingIterator;
+import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
+import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -31,6 +33,7 @@ import java.util.Map;
 public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     private static final int MAX_EPOCHS_WITHOUT_IMPROVEMENT = 10;
+    private static final String EXPERIMENTAL_CONDITION = "error_sampling_p/1-p";
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModelErrorSampling.class);
     private String validationDatasetFilename = null;
 
@@ -47,6 +50,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file+>");
         }
+
         trainer.execute(new FeatureMapperV16(), args, 32);
 
     }
@@ -55,7 +59,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     @Override
     protected DataSetIterator decorateIterator(BaseInformationConcatIterator iterator) {
-        samplingIterator = new SamplingIterator(iterator, seed);
+        samplingIterator = new SamplingIterator(new FirstNIterator(iterator,1000), seed);
         return samplingIterator;
     }
 
@@ -64,6 +68,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
         boolean init = true;
+        performanceLogger.setCondition(EXPERIMENTAL_CONDITION);
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
         pgEpoch.itemsName = "epoch";
         pgEpoch.expectedUpdates = numEpochs;
@@ -111,12 +116,14 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
             async.reset();    //Reset iterator for another epoch
 
             double auc = estimateTestSetPerf(epoch, iter);
+            performanceLogger.log("epochs", iter, epoch, Double.NaN, auc);
             if (auc > bestAUC) {
                 saver.saveModel(net, "bestAUC", auc);
                 bestAUC = auc;
                 writeBestAUC(bestAUC);
                 writeProperties(this);
                 numEpochSinceImprovement = 0;
+                performanceLogger.log("bestAUC", iter, epoch, Double.NaN, bestAUC);
             } else {
                 numEpochSinceImprovement++;
                 if (numEpochSinceImprovement > MAX_EPOCHS_WITHOUT_IMPROVEMENT) {
@@ -126,7 +133,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
                     break;
                 }
             }
-
+            performanceLogger.write();
         }
         pgEpoch.stop();
         saver.saveModel(net, "final", finalAUC);

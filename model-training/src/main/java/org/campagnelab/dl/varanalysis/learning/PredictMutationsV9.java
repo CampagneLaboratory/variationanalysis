@@ -7,6 +7,7 @@ import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.learning.calibrate.CalibratingModel;
+import org.campagnelab.dl.varanalysis.learning.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
@@ -28,7 +29,7 @@ import java.util.stream.IntStream;
 public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
-    final static String TIME = "1469129573830";
+    final static String TIME = "1469160378396";
     final boolean SKIP0COUNTS = true;
     private ModelLoader modelLoader;
 

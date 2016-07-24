@@ -1,6 +1,7 @@
-package org.campagnelab.dl.varanalysis.learning;
+package org.campagnelab.dl.varanalysis.learning.models;
 
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
+import org.campagnelab.dl.varanalysis.learning.SomaticTrainer;
 import sun.misc.ProxyGenerator;
 
 import java.io.File;
@@ -33,13 +34,7 @@ public class ModelPropertiesHelper {
 
     public void writeProperties(String modelDirectory) throws IOException {
         //write properties file to model folder
-
-
-
-
-
-
-        modelProp.setProperty("hiddenNodes", Integer.toString(numHiddenNodes));
+     modelProp.setProperty("hiddenNodes", Integer.toString(numHiddenNodes));
         modelProp.setProperty("bestScore", Double.toString(bestScore));
         if (lossFunction != null) {
             modelProp.setProperty("lossFunction", lossFunction);
