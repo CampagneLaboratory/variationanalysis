@@ -3,6 +3,8 @@ package org.campagnelab.dl.varanalysis.learning;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV16;
+import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
@@ -34,6 +36,7 @@ public class TrainSomaticModel extends SomaticTrainer {
     public static final int MIN_ITERATION_BETWEEN_BEST_MODEL = 1000;
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
     private String validationDatasetFilename = null;
+    private static final String EXPERIMENTAL_CONDITION = "error_enrichment_ne=8";
 
     /**
      * Error enrichment support.
@@ -54,6 +57,10 @@ public class TrainSomaticModel extends SomaticTrainer {
 
     }
 
+    @Override
+    protected DataSetIterator decorateIterator(BaseInformationConcatIterator iterator) {
+        return new FirstNIterator(iterator,1000);
+    }
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
@@ -70,6 +77,8 @@ public class TrainSomaticModel extends SomaticTrainer {
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
         System.out.println("ERROR_ENRICHMENT=" + ERROR_ENRICHMENT);
         double bestAUC = 0.5;
+        performanceLogger.setCondition(EXPERIMENTAL_CONDITION);
+        int numExamplesUsed=0;
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -77,6 +86,7 @@ public class TrainSomaticModel extends SomaticTrainer {
             pg.expectedUpdates = async.totalExamples() / miniBatchSize; // one iteration processes miniBatchIterator elements.
             pg.start();
             int lastIter = 0;
+
             while (async.hasNext()) {
 
                 DataSet ds = async.next();
@@ -87,7 +97,7 @@ public class TrainSomaticModel extends SomaticTrainer {
                 ds = enrichWithErrors(ds);
                 // fit the net:
                 net.fit(ds);
-
+                numExamplesUsed+=ds.numExamples();
                 INDArray predictedLabels = net.output(ds.getFeatures(), false);
                 keepWorseErrors(ds, predictedLabels, ds.getLabels());
                 pg.update();
@@ -109,23 +119,25 @@ public class TrainSomaticModel extends SomaticTrainer {
                     bestScore = score;
                     saver.saveBestModel(net, score);
                     System.out.println("Saving best score model.. score=" + bestScore);
-                    performanceLogger.log("best", iter, epoch, score);
+                    performanceLogger.log("best", numExamplesUsed, epoch, score);
                     lastIter = iter;
 
                 }
                 scoreMap.put(iter, bestScore);
 
             }
+            System.err.println("Num Examples Used: "+numExamplesUsed);
             //save latest after the end of an epoch:
             saver.saveLatestModel(net, net.score());
             writeProperties(this);
             writeBestScoreFile();
             double auc = estimateTestSetPerf(epoch, iter);
+            performanceLogger.log("epochs", numExamplesUsed, epoch, Double.NaN, auc);
             if (auc > bestAUC) {
                 saver.saveModel(net, "bestAUC", auc);
                 bestAUC = auc;
                 writeBestAUC(bestAUC);
-                performanceLogger.log("bestAUC", iter, epoch, bestScore, bestAUC);
+                performanceLogger.log("bestAUC", numExamplesUsed, epoch, bestScore, bestAUC);
 
             }
             pg.stop();

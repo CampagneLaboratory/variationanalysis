@@ -41,15 +41,15 @@ public class PerformanceLogger {
      * of the model that got best AUC on the test set. Use final for the model created at the end of the
      * training process, irrespective of performance.
      *
-     * @param prefix    Identifies a specific model.
-     * @param iteration The iteration seen by the model.
-     * @param epoch     The number of epochs used to train the model.
-     * @param score     The  score obtained at iteration and epoch for the model.
-     * @param auc       The AUC on the test set, or NaN.
+     * @param prefix          Identifies a specific model.
+     * @param numExamplesUsed The number of training examples seen by the model. Note that examples used in training several times count several times.
+     * @param epoch           The number of epochs used to train the model.
+     * @param score           The  score obtained at numExamplesUsed and epoch for the model.
+     * @param auc             The AUC on the test set, or NaN.
      */
-    public void log(String prefix, int iteration, int epoch, double score, double auc) {
+    public void log(String prefix, long numExamplesUsed, int epoch, double score, double auc) {
         ObjectArrayList<Performance> defaultValue = new ObjectArrayList<>();
-        log.getOrDefault(prefix, defaultValue).add(new Performance(iteration, epoch, score, auc));
+        log.getOrDefault(prefix, defaultValue).add(new Performance(numExamplesUsed, epoch, score, auc));
         if (defaultValue.size() > 0) {
             log.put(prefix, defaultValue);
         }
@@ -61,13 +61,14 @@ public class PerformanceLogger {
      * of the model that got best AUC on the test set. Use final for the model created at the end of the
      * training process, irrespective of performance.
      *
-     * @param prefix    Identifies a specific model.
-     * @param iteration The iteration seen by the model.
-     * @param epoch     The number of epochs used to train the model.
-     * @param score     The  score obtained at iteration and epoch for the model.
+     * @param prefix          Identifies a specific model.
+     * @param numExamplesUsed The number of training examples used to train the model so far. Note that
+     *                        reused examples are counted again.
+     * @param epoch           The number of epochs used to train the model.
+     * @param score           The  score obtained at numExamplesUsed and epoch for the model.
      */
-    public void log(String prefix, int iteration, int epoch, double score) {
-        log.getOrDefault(prefix, new ObjectArrayList<>()).add(new Performance(iteration, epoch, score, Float.NaN));
+    public void log(String prefix, long numExamplesUsed, int epoch, double score) {
+        log.getOrDefault(prefix, new ObjectArrayList<>()).add(new Performance(numExamplesUsed, epoch, score, Float.NaN));
     }
 
     /**
@@ -98,9 +99,9 @@ public class PerformanceLogger {
             }
             for (Performance perf : perfs) {
                 writer.write(String.format("%d\t%d\t%f\t%f",
-                        perf.iteration, perf.epoch, perf.score, perf.auc));
+                        perf.numExamplesUsed, perf.epoch, perf.score, perf.auc));
                 if (conditionId != null) {
-                    writer.write("\t"+conditionId);
+                    writer.write("\t" + conditionId);
                 }
                 writer.write("\n");
             }
@@ -112,8 +113,8 @@ public class PerformanceLogger {
     }
 
     private void writeHeaders(Writer writer) throws IOException {
-        writer.write("iteration\tepoch\tscore\tAUC");
-        if (conditionId!=null) {
+        writer.write("numExamplesUsed\tepoch\tscore\tAUC");
+        if (conditionId != null) {
             writer.write("\tcondition");
         }
         writer.write("\n");
@@ -124,11 +125,11 @@ public class PerformanceLogger {
 
     private class Performance {
 
-        int iteration;
+        long numExamplesUsed;
         int epoch;
 
-        public Performance(int iteration, int epoch, double score, double auc) {
-            this.iteration = iteration;
+        public Performance(long numExamplesUsed, int epoch, double score, double auc) {
+            this.numExamplesUsed = numExamplesUsed;
             this.epoch = epoch;
             this.score = score;
             this.auc = auc;

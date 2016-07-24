@@ -33,7 +33,7 @@ import java.util.Map;
 public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     private static final int MAX_EPOCHS_WITHOUT_IMPROVEMENT = 10;
-    private static final String EXPERIMENTAL_CONDITION = "error_sampling_p/1-p";
+    private static final String EXPERIMENTAL_CONDITION = "error_sampling_p/0.5";
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModelErrorSampling.class);
     private String validationDatasetFilename = null;
 
@@ -58,7 +58,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     @Override
     protected DataSetIterator decorateIterator(BaseInformationConcatIterator iterator) {
-        samplingIterator = new SamplingIterator(new FirstNIterator(iterator,1000), seed);
+        samplingIterator = new SamplingIterator(new FirstNIterator(iterator, 1000), seed);
         return samplingIterator;
     }
 
@@ -81,6 +81,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         System.out.println("ERROR_SAMPLING=" + ERROR_SAMPLING);
         double bestAUC = 0.5;
         double finalAUC = 0.5;
+        long numExamplesUsed = 0;
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -102,24 +103,25 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
                 INDArray predictedLabels = net.output(ds.getFeatures(), false);
                 updateProbabilities(predictedLabels, ds.getLabels());
-
+                numExamplesUsed += ds.numExamples();
                 pg.update();
                 iter++;
 
                 if (iter > maxProcessPerEpoch) break;
 
             }
+            System.err.println("Num Examples Used: "+numExamplesUsed);
 
             samplingIterator.updateStatistics();
             double auc = estimateTestSetPerf(epoch, iter);
-            performanceLogger.log("epochs", iter, epoch, Double.NaN, auc);
+            performanceLogger.log("epochs", numExamplesUsed, epoch, Double.NaN, auc);
             if (auc > bestAUC) {
                 saver.saveModel(net, "bestAUC", auc);
                 bestAUC = auc;
                 writeBestAUC(bestAUC);
                 writeProperties(this);
                 numEpochSinceImprovement = 0;
-                performanceLogger.log("bestAUC", iter, epoch, Double.NaN, bestAUC);
+                performanceLogger.log("bestAUC", numExamplesUsed, epoch, Double.NaN, bestAUC);
             } else {
                 numEpochSinceImprovement++;
                 if (numEpochSinceImprovement > MAX_EPOCHS_WITHOUT_IMPROVEMENT) {
@@ -154,7 +156,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
             final float pOfWrongLabel = ErrorRecord.calculateWrongness(exampleIndex, predictedLabels, labels);
             final boolean wrongPrediction = ErrorRecord.isWrongPrediction(exampleIndex, predictedLabels, labels);
             float p = wrongPrediction ? pOfWrongLabel :
-                    1-pOfWrongLabel;
+                    0.5f;
             /*if (!wrongPrediction) {
                 p=0.05f;
             }*/
