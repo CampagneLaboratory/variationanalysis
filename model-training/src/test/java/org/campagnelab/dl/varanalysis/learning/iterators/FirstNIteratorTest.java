@@ -19,9 +19,9 @@ public class FirstNIteratorTest {
                 new SimpleFeatureCalculator(), new SimpleFeatureCalculator()), 10);
         while (it.hasNext()) {
             DataSet next = it.next();
-            count++;
+            count+=next.numExamples();
         }
-    assertEquals(10,count);
+    assertEquals(32,count);
     }
 
     @Test
