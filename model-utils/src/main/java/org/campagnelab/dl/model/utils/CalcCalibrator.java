@@ -20,6 +20,7 @@ public abstract class CalcCalibrator {
     FloatAVLTreeSet unMutSet = new FloatAVLTreeSet();
     int totalExamples;
     String modelPath;
+    String prefix;
 
     public void observe(float modelProb, boolean isMut){
         totalExamples++;
@@ -32,8 +33,8 @@ public abstract class CalcCalibrator {
 
     //call to save stats to disk
     public void save() throws IOException {
-        File mutFile =  new File(modelPath + "/mutSet");
-        File unMutFile = new File(modelPath + "/unMutSet");
+        File mutFile =  new File(modelPath + "/" + prefix + "mutSet");
+        File unMutFile = new File(modelPath + "/" + prefix + "unMutSet");
         mutFile.createNewFile();
         unMutFile.createNewFile();
         BinIO.storeObject(plantedMutSet,mutFile);
@@ -42,14 +43,15 @@ public abstract class CalcCalibrator {
 
     //call to load stats from disk
     public void load() throws IOException, ClassNotFoundException {
-        File mutFile =  new File(modelPath + "/mutSet");
-        File unMutFile = new File(modelPath + "/unMutSet");
+        File mutFile =  new File(modelPath + "/" + prefix + "mutSet");
+        File unMutFile = new File(modelPath + "/" + prefix + "unMutSet");
         plantedMutSet = (FloatAVLTreeSet)BinIO.loadObject(mutFile);
         unMutSet = (FloatAVLTreeSet)BinIO.loadObject(unMutFile);
     }
 
-    public CalcCalibrator(String modelPath, boolean loadStats) throws IOException, ClassNotFoundException {
+    public CalcCalibrator(String modelPath, String prefix, boolean loadStats) throws IOException, ClassNotFoundException {
         this.modelPath = modelPath;
+        this.prefix = prefix;
         if (loadStats){
             load();
         }

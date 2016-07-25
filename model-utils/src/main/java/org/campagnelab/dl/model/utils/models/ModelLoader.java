@@ -1,4 +1,4 @@
-package org.campagnelab.dl.varanalysis.learning.models;
+package org.campagnelab.dl.model.utils.models;
 
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;

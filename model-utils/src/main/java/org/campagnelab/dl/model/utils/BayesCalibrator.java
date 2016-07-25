@@ -9,8 +9,8 @@ public class BayesCalibrator extends CalcCalibrator {
 
     public final double PRIOR_MUT_RATE = (double) 1/(4*(2e6));
 
-    public BayesCalibrator(String modelPath, boolean loadStats) throws IOException, ClassNotFoundException {
-        super(modelPath, loadStats);
+    public BayesCalibrator(String modelPath, String prefix, boolean loadStats) throws IOException, ClassNotFoundException {
+        super(modelPath, prefix, loadStats);
     }
 
     @Override

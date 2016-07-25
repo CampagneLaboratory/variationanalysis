@@ -10,8 +10,8 @@ import java.net.MalformedURLException;
  */
 public class FDREstimator extends CalcCalibrator {
 
-    public FDREstimator(String modelPath, boolean loadStats) throws IOException, ClassNotFoundException {
-        super(modelPath, loadStats);
+    public FDREstimator(String modelPath, String prefix, boolean loadStats) throws IOException, ClassNotFoundException {
+        super(modelPath, prefix, loadStats);
     }
 
     @Override

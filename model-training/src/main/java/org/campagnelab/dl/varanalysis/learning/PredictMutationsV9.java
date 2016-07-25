@@ -7,7 +7,7 @@ import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.learning.calibrate.CalibratingModel;
-import org.campagnelab.dl.varanalysis.learning.models.ModelLoader;
+import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
-    final static String TIME = "1469227402939";
+    final static String TIME = "traditional-1469226748641";
     private int scoreN =Integer.MAX_VALUE;
 
 
@@ -58,8 +58,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         double learningRate = 0.1;
         int miniBatchSize = 100;
         System.out.println("time: " + TIME);
-        String attempt = "models/" + TIME;
-        String modelDir = "models/" + TIME;
+        String modelDir = "final-models/" + TIME;
         PredictMutationsV9 predictor = new PredictMutationsV9();
         //   predictor.printPredictions("best");
         String type=null;
@@ -79,7 +78,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
             }
         }
 
-        System.out.println(attempt);
+        System.out.println(modelDir);
 
     }
 
@@ -122,7 +121,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
         modelLoader = new ModelLoader(modelPath);
         featureMapper = modelLoader.loadFeatureMapper();
-        calculator = new BayesCalibrator(modelPath,false);
+        calculator = new BayesCalibrator(modelPath,prefix,false);
         MultiLayerNetwork model = modelLoader.loadModel(prefix);
         MultiLayerNetwork calibratingModel = modelLoader.loadModel(prefix + "Calibrated");
         if (cmodel == null && calibratingModel != null) {

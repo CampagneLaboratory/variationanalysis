@@ -1,7 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.varanalysis.learning.models.ModelLoader;
+import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 
 import java.io.IOException;
