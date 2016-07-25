@@ -25,7 +25,8 @@ public class SamplingIteratorTest {
         DataSet dataset = trainIter.next();
         assertNotNull(dataset);
         assertEquals(minibatchSize, dataset.numExamples());
-        for (int i = 0; i < trainIter.numExamples(); i++) {
+        for (int i = 0; i < dataset.numExamples(); i++) {
+
             trainIter.setSamplingProbability(true, i, 0.5f);
         }
         trainIter.reset();
