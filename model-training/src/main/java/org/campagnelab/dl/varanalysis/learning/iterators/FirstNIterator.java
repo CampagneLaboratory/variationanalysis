@@ -13,20 +13,21 @@ import java.util.NoSuchElementException;
 public class FirstNIterator implements DataSetIterator {
     private final int N;
     DataSetIterator delegate;
-int index;
+    int index;
+
     @Override
     public DataSet next(int num) {
-        if (index>=N) {
+        if (index >= N) {
             throw new NoSuchElementException();
         }
         final DataSet next = delegate.next(num);
-        index+=next.numExamples();
+        index += next.numExamples();
         return next;
     }
 
     @Override
     public int totalExamples() {
-        return Math.min(N,delegate.totalExamples());
+        return Math.min(N, delegate.totalExamples());
     }
 
     @Override
@@ -36,12 +37,12 @@ int index;
 
     @Override
     public int totalOutcomes() {
-        return Math.min(N,delegate.totalOutcomes());
+        return Math.min(N, delegate.totalOutcomes());
     }
 
     @Override
     public void reset() {
-        index=0;
+        index = 0;
         delegate.reset();
     }
 
@@ -78,7 +79,7 @@ int index;
 
     @Override
     public boolean hasNext() {
-        if (index>=N) {
+        if (index >= N) {
             return false;
         }
         return delegate.hasNext();
@@ -86,15 +87,17 @@ int index;
 
     @Override
     public DataSet next() {
-        if (index>=N) {
+        if (index >= N) {
             throw new NoSuchElementException();
         }
-        index+=1;
-        return delegate.next();
+
+        DataSet next = delegate.next();
+        index += next.numExamples();
+        return next;
     }
 
     public FirstNIterator(DataSetIterator delegate, int n) {
         this.delegate = delegate;
-        this.N=n;
+        this.N = n;
     }
 }

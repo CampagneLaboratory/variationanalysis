@@ -1,4 +1,4 @@
-package org.campagnelab.dl.varanalysis.learning.io;
+package org.campagnelab.dl.varanalysis.learning.models;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;

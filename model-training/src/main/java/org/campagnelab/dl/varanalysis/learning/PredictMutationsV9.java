@@ -7,6 +7,7 @@ import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.learning.calibrate.CalibratingModel;
+import org.campagnelab.dl.varanalysis.learning.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;

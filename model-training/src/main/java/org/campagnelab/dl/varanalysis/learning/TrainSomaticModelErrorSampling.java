@@ -2,10 +2,11 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV16;
-import org.campagnelab.dl.varanalysis.learning.io.ModelSaver;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.SamplingIterator;
+import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
+import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -32,6 +33,7 @@ import java.util.Map;
 public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     private static final int MAX_EPOCHS_WITHOUT_IMPROVEMENT = 10;
+    private static final String EXPERIMENTAL_CONDITION = "error_sampling_p/0.5";
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModelErrorSampling.class);
     private String validationDatasetFilename = null;
 
@@ -56,7 +58,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     @Override
     protected DataSetIterator decorateIterator(BaseInformationConcatIterator iterator) {
-        samplingIterator = new SamplingIterator(iterator, seed);
+        samplingIterator = new SamplingIterator(new FirstNIterator(iterator, 1000), seed);
         return samplingIterator;
     }
 
@@ -65,6 +67,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
         boolean init = true;
+        performanceLogger.setCondition(EXPERIMENTAL_CONDITION);
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
         pgEpoch.itemsName = "epoch";
         pgEpoch.expectedUpdates = numEpochs;
@@ -78,6 +81,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         System.out.println("ERROR_SAMPLING=" + ERROR_SAMPLING);
         double bestAUC = 0.5;
         double finalAUC = 0.5;
+        long numExamplesUsed = 0;
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -99,22 +103,25 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
                 INDArray predictedLabels = net.output(ds.getFeatures(), false);
                 updateProbabilities(predictedLabels, ds.getLabels());
-
+                numExamplesUsed += ds.numExamples();
                 pg.update();
                 iter++;
 
                 if (iter > maxProcessPerEpoch) break;
 
             }
+            System.err.println("Num Examples Used: "+numExamplesUsed);
 
             samplingIterator.updateStatistics();
             double auc = estimateTestSetPerf(epoch, iter);
+            performanceLogger.log("epochs", numExamplesUsed, epoch, Double.NaN, auc);
             if (auc > bestAUC) {
                 saver.saveModel(net, "bestAUC", auc);
                 bestAUC = auc;
                 writeBestAUC(bestAUC);
                 writeProperties(this);
                 numEpochSinceImprovement = 0;
+                performanceLogger.log("bestAUC", numExamplesUsed, epoch, Double.NaN, bestAUC);
             } else {
                 numEpochSinceImprovement++;
                 if (numEpochSinceImprovement > MAX_EPOCHS_WITHOUT_IMPROVEMENT) {
@@ -124,6 +131,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
                     break;
                 }
             }
+            performanceLogger.write();
             pg.stop();
             pgEpoch.update();
             async.reset();    //Reset iterator for another epoch
@@ -143,9 +151,6 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
      * @param labels
      */
     private void updateProbabilities(INDArray predictedLabels, INDArray labels) {
-        if (!ERROR_SAMPLING) {
-            return;
-        }
         for (int exampleIndex = 0; exampleIndex < predictedLabels.size(0); exampleIndex++) {
 
             final float pOfWrongLabel = ErrorRecord.calculateWrongness(exampleIndex, predictedLabels, labels);
@@ -156,7 +161,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
                 p=0.05f;
             }*/
             final float previousP = samplingIterator.getProbability(exampleIndex);
-            samplingIterator.setSamplingProbability(wrongPrediction, exampleIndex, p);
+            samplingIterator.setSamplingProbability(wrongPrediction, exampleIndex, (float) p);
 
         }
     }
