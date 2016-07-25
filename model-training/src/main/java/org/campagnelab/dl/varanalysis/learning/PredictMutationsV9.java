@@ -29,7 +29,10 @@ import java.util.stream.IntStream;
 public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
-    final static String TIME = "1469215306035";
+    final static String TIME = "1469227402939";
+    private int scoreN =Integer.MAX_VALUE;
+
+
     final boolean SKIP0COUNTS = true;
     private ModelLoader modelLoader;
 
@@ -38,7 +41,6 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     // String[] unmutFilenames = new String[]{"unmut_genotypes_test_proto_VN.parquet", "training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
     // String[] mutFilenames = new String[]{"mutated-MHFC-13-CTL_B_NK.parquet", "training_batch/genotypes_proto_" + version + "_randomized_mutated.parquet"};
     FeatureMapper featureMapper;// = new FeatureMapperV9();
-    private int scoreN = Integer.MAX_VALUE;
 
 
 
@@ -133,9 +135,11 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
         //initialize results printer
 
-        PrintWriter results = new PrintWriter(resultsPath + prefix + "-" + typeOfTestFile, "UTF-8");
+        String resultFilename=resultsPath + prefix + "-" + typeOfTestFile;
+        PrintWriter results = new PrintWriter(resultFilename, "UTF-8");
         writeHeader(results);
 
+        System.out.println("Writing predictions to "+resultFilename);
         //may need to adjust batch size and write outputs piecewise if test sets are very large
         //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
         RecordReader reader = new RecordReader(evaluationDataFilename);

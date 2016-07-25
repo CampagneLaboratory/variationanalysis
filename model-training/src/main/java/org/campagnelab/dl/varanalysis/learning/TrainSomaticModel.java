@@ -2,13 +2,7 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
-import org.campagnelab.dl.model.utils.mappers.*;
-import org.campagnelab.dl.varanalysis.learning.io.ModelSaver;
-import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
-import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV16;
-import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
-import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
