@@ -221,7 +221,7 @@
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.4" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.0.13" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.0.13" level="project" />
-    <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-3" level="project" />
+    <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.parquet:parquet-common:1.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.parquet:parquet-protobuf:1.8.1" level="project" />
     <orderEntry type="library" name="Maven: com.twitter.elephantbird:elephant-bird-core:4.4" level="project" />

@@ -16,6 +16,7 @@
       <excludeFolder url="file://$MODULE_DIR$/target/antrun" />
       <excludeFolder url="file://$MODULE_DIR$/target/archive-tmp" />
       <excludeFolder url="file://$MODULE_DIR$/target/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/target/dependency" />
       <excludeFolder url="file://$MODULE_DIR$/target/maven-archiver" />
       <excludeFolder url="file://$MODULE_DIR$/target/surefire" />
     </content>
@@ -189,6 +190,6 @@
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:macosx-x86_64:0.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-api:0.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:javacpp:1.2.2" level="project" />
-    <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-3" level="project" />
+    <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-4" level="project" />
   </component>
 </module>
