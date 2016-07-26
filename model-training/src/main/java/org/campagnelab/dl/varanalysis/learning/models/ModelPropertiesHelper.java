@@ -29,13 +29,11 @@ public class ModelPropertiesHelper {
     private int seed;
     private long time;
     private int numTrainingSets;
-    private double bestScore;
     private String lossFunction;
 
     public void writeProperties(String modelDirectory) throws IOException {
         //write properties file to model folder
-     modelProp.setProperty("hiddenNodes", Integer.toString(numHiddenNodes));
-        modelProp.setProperty("bestScore", Double.toString(bestScore));
+         modelProp.setProperty("hiddenNodes", Integer.toString(numHiddenNodes));
         if (lossFunction != null) {
             modelProp.setProperty("lossFunction", lossFunction);
         }
@@ -78,10 +76,6 @@ public class ModelPropertiesHelper {
     }
     public void setEarlyStopCriterion(int value) {
         modelProp.setProperty("earlyStopCondition", Integer.toString(value));
-    }
-
-    public void setBestScore(double bestScore) {
-        this.bestScore = bestScore;
     }
 
     public void setLossFunction(String lossFunction) {
