@@ -7,7 +7,7 @@ import java.io.IOException;
  */
 public class BayesCalibrator extends CalcCalibrator {
 
-    public final double PRIOR_MUT_RATE = (double) 1/(4*(2e6));
+    public double priorMutRate = (double) 1/(4e6);
 
     public BayesCalibrator(String modelPath, String prefix, boolean loadStats) throws IOException, ClassNotFoundException {
         super(modelPath, prefix, loadStats);
@@ -19,8 +19,12 @@ public class BayesCalibrator extends CalcCalibrator {
         double unMutGreater = unMutSet.subSet(prob,1.1f).size() + 1;
         double  pMGreater = mutGreater/plantedMutSet.size();
         double  pUGreater = unMutGreater/ unMutSet.size();
-        double bayes = pMGreater*PRIOR_MUT_RATE/pUGreater;
+        double bayes = pMGreater* priorMutRate /pUGreater;
         return (float) bayes;
+    }
+
+    public void setPriorMutRate(double prior){
+        priorMutRate = prior;
     }
 
 
