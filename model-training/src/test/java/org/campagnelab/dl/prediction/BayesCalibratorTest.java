@@ -20,7 +20,7 @@ public class BayesCalibratorTest {
     public void bayesTest() throws Exception {
         String modelDir = "test-results/testModel";
         new File(modelDir).mkdirs();
-        BayesCalibrator calc = new BayesCalibrator(modelDir,false);
+        BayesCalibrator calc = new BayesCalibrator(modelDir,"best",false);
         calc.observe(0.1f,false);
         calc.observe(0.2f,false);
         calc.observe(0.3f,false);
@@ -34,7 +34,7 @@ public class BayesCalibratorTest {
 
         calc.save();
 
-        calc = new BayesCalibrator(modelDir,true);
+        calc = new BayesCalibrator(modelDir,"best",true);
 
 
         float expected = (1f/5f)/((4f*1000000f)*(1f/5f));
