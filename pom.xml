@@ -11,7 +11,7 @@
     <groupId>org.campagnelab.dl</groupId>
     <artifactId>variation-analysis</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>${varanalysis.version}</version>
     <modules>
         <module>model-utils</module>
         <module>model-training</module>
@@ -19,6 +19,7 @@
     <name>Variation Analysis</name>
     <description>A project to train neural networks to recognize mutations in RNA-seq data.</description>
     <properties>
+       <varanalysis.version>1.0.1</varanalysis.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
         <java.version>1.8</java.version>

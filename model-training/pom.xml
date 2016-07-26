@@ -6,11 +6,12 @@
     <parent>
         <artifactId>variation-analysis</artifactId>
         <groupId>org.campagnelab.dl</groupId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>${varanalysis.version}</version>
     </parent>
 
     <artifactId>model-training</artifactId>
     <properties>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
         <java.version>1.8</java.version>
@@ -241,7 +242,7 @@
         <dependency>
             <groupId>org.campagnelab.dl</groupId>
             <artifactId>model-utils</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>${varanalysis.version}</version>
         </dependency>
         <dependency>
             <groupId>it.unimi.dsi</groupId>
