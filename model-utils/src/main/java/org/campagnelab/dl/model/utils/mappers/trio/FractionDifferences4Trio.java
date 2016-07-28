@@ -14,7 +14,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * here the features are 1/(n+1) where n is the count difference between germline and tumor
  * counts for a given genotype.
  *
- * @author Fabien Campagne
+ * Adjusted for trio.
+ * @author Fabien Campagne, Remi Torracinta
  */
 
 public class FractionDifferences4Trio extends AbstractFeatureMapperTrio implements FeatureMapper {
