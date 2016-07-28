@@ -103,7 +103,7 @@ public class SimpleFeatureCalculatorTrio extends AbstractFeatureMapperTrio imple
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         assert (featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2) : "Only MAX_GENOTYPES*2*2 features";
         if (featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2) {
-            // germline counts written first:
+            // father counts written first:
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
                 return getAllCounts(record, 0, sort).get(featureIndex / 2).forwardCount;
@@ -111,7 +111,7 @@ public class SimpleFeatureCalculatorTrio extends AbstractFeatureMapperTrio imple
                 return getAllCounts(record, 0, sort).get(featureIndex / 2).reverseCount;
             }
         } else if (featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 4) {
-            // fater counts written next:
+            // mother counts written next:
             featureIndex -= AbstractFeatureMapper.MAX_GENOTYPES * 2;
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
@@ -120,7 +120,7 @@ public class SimpleFeatureCalculatorTrio extends AbstractFeatureMapperTrio imple
                 return getAllCounts(record, 1, sort).get(featureIndex / 2).reverseCount;
             }
         } else {
-            //mother counts
+            //somatic written last counts
             featureIndex -= AbstractFeatureMapper.MAX_GENOTYPES * 4;
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:

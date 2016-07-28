@@ -1,9 +1,12 @@
-package org.campagnelab.dl.model.utils.mappers;
+package org.campagnelab.dl.model.utils.mappers.trio;
 
 import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.model.utils.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.model.utils.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.model.utils.mappers.AbstractFeatureMapper;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
+import org.campagnelab.dl.model.utils.mappers.GenotypeCount;
+import org.campagnelab.dl.model.utils.mappers.ReadIndexWithCounts;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -13,10 +16,10 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  *
  * @author Fabien Campagne
  */
-public class ReadIndexFeatures extends AbstractFeatureMapper implements FeatureMapper {
+public class ReadIndexFeaturesTrio extends AbstractFeatureMapperTrio implements FeatureMapper {
 
     public static final int NUM_GENOTYPES = 5;
-    public static final int NUM_SAMPLES = 2;
+    public static final int NUM_SAMPLES = 3;
 
     @Override
     public int numberOfFeatures() {
@@ -71,22 +74,27 @@ public class ReadIndexFeatures extends AbstractFeatureMapper implements FeatureM
         return normalized;*/
     }
 
-    //TODO: at the moment, every readindex count from the germline sample is repeated twice, and those of somatic are missing.
+
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2 * 2 : "Only MAX_GENOTYPES*2*2 features";
-        if (featureIndex < MAX_GENOTYPES * 2) {
-            // germline counts written first:
-            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, false).get(featureIndex / 2);
+        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 3 : "Only MAX_GENOTYPES*3 features";
+        if (featureIndex < MAX_GENOTYPES) {
+            // father counts written first:
+            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, 0).get(featureIndex / 2);
+            return genotypeCount.getDistinctReadIndices();
+        } else if (featureIndex < MAX_GENOTYPES * 2) {
+            // mother counts written next:
+            featureIndex -= MAX_GENOTYPES;
+            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, 1).get(featureIndex / 2);
             return genotypeCount.getDistinctReadIndices();
         } else {
-            // tumor counts written next:
+            // somatic counts written next:
             featureIndex -= MAX_GENOTYPES * 2;
-            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, true).get(featureIndex / 2);
+            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, 2).get(featureIndex / 2);
             return genotypeCount.getDistinctReadIndices();
         }
     }
 
-    public boolean oneSampleHasTumor(java.util.List<org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.SampleInfo> samples) {
+    public boolean oneSampleHasTumor(java.util.List<BaseInformationRecords.SampleInfo> samples) {
         for (BaseInformationRecords.SampleInfo sample : samples) {
             if (sample.getIsTumor()) return true;
         }
