@@ -15,9 +15,9 @@ import java.util.Collections;
  */
 public abstract class AbstractFeatureMapper implements FeatureMapper {
     public static final int MAX_GENOTYPES = 5;
-    private static final int N_GENOTYPE_INDEX = 6;
+    public static final int N_GENOTYPE_INDEX = 6;
 
-    private boolean oneSampleHasTumor(java.util.List<org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.SampleInfo> samples) {
+    public boolean oneSampleHasTumor(java.util.List<org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.SampleInfo> samples) {
         for (BaseInformationRecords.SampleInfo sample : samples) {
             if (sample.getIsTumor()) return true;
         }

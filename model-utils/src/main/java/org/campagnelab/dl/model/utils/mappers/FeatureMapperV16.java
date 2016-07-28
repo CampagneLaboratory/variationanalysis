@@ -8,7 +8,6 @@ public class FeatureMapperV16 extends ConcatFeatureMapper {
     public FeatureMapperV16() {
         super(new SimpleFeatureCalculator(true), new IndelFeatures(),
                 new ReadIndexFeatures(), new FractionDifferences4(), new MagnitudeFeatures2()
-          //
         );
     }
 }
