@@ -29,10 +29,10 @@ public class FractionDifferences4Trio extends AbstractFeatureMapperTrio implemen
     //set this to choose which germline sample to use. 0=father, 1=mother
     int germlineSampleIndex;
 
-    void setGermlineSample(int germlineSampleIndex){
+
+    FractionDifferences4Trio(int germlineSampleIndex){
         this.germlineSampleIndex = germlineSampleIndex;
     }
-
 
     public int numberOfFeatures() {
         // we need features for the normal sample and for the tumor sample:

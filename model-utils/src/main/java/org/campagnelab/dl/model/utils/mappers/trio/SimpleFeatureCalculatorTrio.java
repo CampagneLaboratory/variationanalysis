@@ -36,11 +36,11 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 
 public class SimpleFeatureCalculatorTrio extends AbstractFeatureMapperTrio implements FeatureCalculator {
 
-    public SimpleFeatureCalculatorTrio(boolean sort, int sampleIndex1, int sampleIndex2){
+    public SimpleFeatureCalculatorTrio(boolean sort){
         this.sort = sort;
     }
 
-    public SimpleFeatureCalculatorTrio(int sampleIndex1, int sampleIndex2){
+    public SimpleFeatureCalculatorTrio(){
         this.sort = true;
     }
 
