@@ -38,7 +38,8 @@ public class Mutator2 extends Intermediary {
     final String[] STRING = new String[]{"A", "T", "C", "G"};
     Random rand;
     final boolean MUTATE = true;
-    SimulationStrategy stragegy = new SimulationStrategyImpl();
+    SimulationStrategy strategy = new SimulationStrategyImpl();
+    boolean trioUnchecked = true;
 
     public static void main(String[] args) throws IOException {
         //new ParquetPrinter(args[0]).print();
@@ -116,11 +117,14 @@ public class Mutator2 extends Intermediary {
         ObjectArrayList<BaseInformationRecords.BaseInformation> shufflingList = new ObjectArrayList<>();
         while (iterator.hasNext()) {
             BaseInformationRecords.BaseInformation record = iterator.next();
-            shufflingList.add(stragegy.mutate(false, record, record.getSamples(1), record.getSamples(0), sim));
+            if (trioUnchecked && record.getSamplesCount() > 2){
+                strategy = new SimulationStrategyImplTrio();
+                trioUnchecked = false;
+            }
+            shufflingList.add(strategy.mutate(false, record, null, null, sim));
 
             for (int i = 0; i < NUM_SIMULATED_RECORD_PER_DATUM; i++) {
-
-                BaseInformationRecords.BaseInformation possiblyMutated = stragegy.mutate(true, record, record.getSamples(0), record.getSamples(1), sim);
+                BaseInformationRecords.BaseInformation possiblyMutated = strategy.mutate(true, record, null, null, sim);
                 if (possiblyMutated.getMutated()) {
                     shufflingList.add(possiblyMutated);
                 } else {
