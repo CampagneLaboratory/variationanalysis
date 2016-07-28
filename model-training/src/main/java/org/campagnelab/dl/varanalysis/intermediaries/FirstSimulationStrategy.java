@@ -52,14 +52,16 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         BaseInformationRecords.BaseInformation.Builder baseBuild = record.toBuilder();
         baseBuild.setMutated(makeSomatic);
-        baseBuild.setSamples(0, record.getSamples(0).toBuilder().setIsTumor(false));
-        baseBuild.setSamples(1, record.getSamples(1).toBuilder().setIsTumor(true));
+        int numSamples = record.getSamplesCount();
+        for (int i = 0; i < numSamples-1; i++){
+            baseBuild.setSamples(i, record.getSamples(i).toBuilder().setIsTumor(false));
+        }
+        baseBuild.setSamples(numSamples-1, record.getSamples(numSamples-1).toBuilder().setIsTumor(true));
         if (!makeSomatic) {
-
             // don't change counts if we are not to make the second sample somatic.
             return baseBuild.build();
         }
-        BaseInformationRecords.SampleInfo somatic = baseBuild.getSamples(1);
+        BaseInformationRecords.SampleInfo somatic = baseBuild.getSamples(numSamples-1);
         int numGenos = somatic.getCountsList().size();
         int[] forward = new int[numGenos];
         int[] backward = new int[numGenos];
@@ -224,7 +226,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             somaticBuild.setCounts(i, countBuild);
             i++;
         }
-        baseBuild.setSamples(1, somaticBuild);
+        baseBuild.setSamples(numSamples-1, somaticBuild);
         baseBuild.setFrequencyOfMutation((float) deltaOrig);
         // String newBaseString = newBase<STRING.length? STRING[newBase]:"N";
         //baseBuild.setMutatedBase(newBaseString);
