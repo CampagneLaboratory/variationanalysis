@@ -30,7 +30,7 @@ public class FractionDifferences4Trio extends AbstractFeatureMapperTrio implemen
     int germlineSampleIndex;
 
 
-    FractionDifferences4Trio(int germlineSampleIndex){
+    public FractionDifferences4Trio(int germlineSampleIndex){
         this.germlineSampleIndex = germlineSampleIndex;
     }
 
