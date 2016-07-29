@@ -43,12 +43,15 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
         BaseInformationRecords.SampleInfo germlineSample = record.getSamples(2);
         BaseInformationRecords.SampleInfo fatherSample = record.getSamples(0);
         BaseInformationRecords.SampleInfo motherSample = record.getSamples(1);
+
+        //note that from here, 0=germ, 1=father, 2=mother
         int sumCountGerm = getSumCounts(germlineSample, genotypeCounts0);
         int sumCountFather = getSumCounts(fatherSample, genotypeCounts1);
         int sumCountMother = getSumCounts(motherSample, genotypeCounts2);
         prepareSorted(genotypeCounts0, sortingPermutationGenotypeCounts0);
         prepareSorted(genotypeCounts1, sortingPermutationGenotypeCounts1);
         prepareSorted(genotypeCounts2, sortingPermutationGenotypeCounts2);
+
         int numAlleles0 = sumGenotype90P(sumCountGerm, genotypeCounts0, sortingPermutationGenotypeCounts0);
         int numAlleles1 = sumGenotype90P(sumCountFather, genotypeCounts1, sortingPermutationGenotypeCounts1);
         int numAlleles2 = sumGenotype90P(sumCountMother, genotypeCounts1, sortingPermutationGenotypeCounts1);
@@ -57,18 +60,29 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
 
         //define genotypes, eg AA or AB.
         int child1 = getSortedCountAtIndex(0,genotypeCounts0,sortingPermutationGenotypeCounts0);
-        int child2 = (numAlleles1>1)?getSortedCountAtIndex(1,genotypeCounts1,sortingPermutationGenotypeCounts1):child1;
+        int child2 = (numAlleles0>1)?getSortedCountAtIndex(1,genotypeCounts1,sortingPermutationGenotypeCounts1):child1;
         int father1 = getSortedCountAtIndex(0,genotypeCounts1,sortingPermutationGenotypeCounts1);
         int father2 = (numAlleles1>1)?getSortedCountAtIndex(1,genotypeCounts1,sortingPermutationGenotypeCounts1):father1;
         int mother1 = getSortedCountAtIndex(0,genotypeCounts2,sortingPermutationGenotypeCounts2);
         int mother2 = (numAlleles2>1)?getSortedCountAtIndex(1,genotypeCounts2,sortingPermutationGenotypeCounts2):mother1;
 
-        //determine child's genotype is possible, allowing either first allele from father or from mother
+        //first, check that germline/child doesn't have too many alleles. if not, then
+        //determine if the child's genotype is possible, allowing either first allele from father or from mother
+        if (numAlleles0 > 2){
+            makeSomatic = false;
+        } else {
+            makeSomatic = isMendelian(child1,child2,father1,father2,mother1,mother2);
+        }
+        return firstSimulationStrategy.mutate(makeSomatic, record, null, null, null);
+
+    }
+    public static boolean isMendelian(int child1, int child2, int father1, int father2, int mother1, int mother2){
         boolean firstFromFather = ((child1 == father1) || (child1 == father2)) && ((child2 == mother1) || (child2 == mother2));
         boolean firstFromMother = ((child1 == mother1) || (child1 == mother2)) && ((child2 == father1) || (child2 == father2));
-        makeSomatic = (firstFromFather ||  firstFromMother);
-        return firstSimulationStrategy.mutate(makeSomatic, record, null, null, null);
+        return (firstFromFather ||  firstFromMother);
     }
+
+
 
     @Override
     public void setSeed(int seed) {
