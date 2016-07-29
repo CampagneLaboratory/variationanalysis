@@ -101,7 +101,7 @@ public class SimpleFeatureCalculatorTrio extends AbstractFeatureMapperTrio imple
     }
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert (featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2) : "Only MAX_GENOTYPES*2*2 features";
+        assert (featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2 * 3) : "Only MAX_GENOTYPES*2*2 features";
         if (featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2) {
             // father counts written first:
             if ((featureIndex % 2) == 1) {

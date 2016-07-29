@@ -19,7 +19,7 @@ public class IndelFeaturesTrio extends AbstractFeatureMapperTrio implements Feat
 
     public int numberOfFeatures() {
         // now including features for both parent samples
-        return AbstractFeatureMapper.MAX_GENOTYPES*2;
+        return AbstractFeatureMapper.MAX_GENOTYPES;
     }
 
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
@@ -53,16 +53,10 @@ public class IndelFeaturesTrio extends AbstractFeatureMapperTrio implements Feat
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES*2 : "Only MAX_GENOTYPES*2*2 features";
+        assert featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES : "Only MAX_GENOTYPES*2*2 features";
         // father counts written first
-        if (featureIndex < AbstractFeatureMapper.MAX_GENOTYPES){
-            final IndelGenotypeCount genotypeCount = (IndelGenotypeCount) getAllCounts(record, 0, true).get(featureIndex);
-            return genotypeCount.getIsIndel() ? 1F : 0F;
-        } else {
-            featureIndex -= AbstractFeatureMapper.MAX_GENOTYPES;
-            final IndelGenotypeCount genotypeCount = (IndelGenotypeCount) getAllCounts(record, 1, true).get(featureIndex);
-            return genotypeCount.getIsIndel() ? 1F : 0F;
-        }
+        final IndelGenotypeCount genotypeCount = (IndelGenotypeCount) getAllCounts(record, 0, true).get(featureIndex);
+        return genotypeCount.getIsIndel() ? 1F : 0F;
 
     }
 

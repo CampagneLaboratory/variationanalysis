@@ -11,7 +11,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by fac2003 on 5/27/16.
+ * Created by rct66 on 7/29/16.
  */
 public class SimpleFeatureCalculatorTrioTest {
     @Test
