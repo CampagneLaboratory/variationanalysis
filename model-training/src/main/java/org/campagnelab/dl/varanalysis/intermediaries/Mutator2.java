@@ -121,10 +121,10 @@ public class Mutator2 extends Intermediary {
                 strategy = new SimulationStrategyImplTrio();
                 trioUnchecked = false;
             }
-            shufflingList.add(strategy.mutate(false, record, null, null, sim));
+            shufflingList.add(strategy.mutate(false, record, record.getSamples(0), record.getSamples(1), sim));
 
             for (int i = 0; i < NUM_SIMULATED_RECORD_PER_DATUM; i++) {
-                BaseInformationRecords.BaseInformation possiblyMutated = strategy.mutate(true, record, null, null, sim);
+                BaseInformationRecords.BaseInformation possiblyMutated = strategy.mutate(true, record, record.getSamples(0), record.getSamples(1), sim);
                 if (possiblyMutated.getMutated()) {
                     shufflingList.add(possiblyMutated);
                 } else {
