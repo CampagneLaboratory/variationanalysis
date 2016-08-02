@@ -3,6 +3,8 @@ package org.campagnelab.dl.varanalysis.learning;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV16;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
+import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
@@ -40,7 +42,7 @@ public class TrainSomaticModel extends SomaticTrainer {
      * Error enrichment support.
      **/
     public static final int MAX_ERRORS_KEPT = 16;
-    private final boolean ERROR_ENRICHMENT = true;
+    private final boolean ERROR_ENRICHMENT = false;
     private final int NUM_ERRORS_ADDED = 16;
     private final boolean IGNORE_ERRORS_ON_SIMULATED_EXAMPLES = false;
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
@@ -51,7 +53,10 @@ public class TrainSomaticModel extends SomaticTrainer {
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file+>");
         }
-        trainer.execute(new FeatureMapperV16(), args, 32);
+        //for trio:
+        //trainer.execute(new FeatureMapperV18Trio(), args, 32);
+        //for duo
+        trainer.execute(new FeatureMapperV18(), args, 32);
 
     }
 
@@ -234,7 +239,8 @@ public class TrainSomaticModel extends SomaticTrainer {
     }
 
     private double estimateTestSetPerf(int epoch, int iter) throws IOException {
-        validationDatasetFilename = "/data/no-threshold/validation-2/m-r-MHFC-63-CTL_B_NK_VN.parquet";
+        //for trio: validationDatasetFilename = "/Users/rct66/data/cfs/mutated-randomized-q2c-val-trio.parquet";
+        validationDatasetFilename = "/Users/rct66/data/cfs/mutated-randomized-qtt1-val-duo.parquet";
         if (validationDatasetFilename == null) return 0;
         MeasurePerformance perf = new MeasurePerformance(10000);
         double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);

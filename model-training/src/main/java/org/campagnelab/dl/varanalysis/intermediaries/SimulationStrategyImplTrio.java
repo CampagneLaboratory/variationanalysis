@@ -54,21 +54,21 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
 
         int numAlleles0 = sumGenotype90P(sumCountGerm, genotypeCounts0, sortingPermutationGenotypeCounts0);
         int numAlleles1 = sumGenotype90P(sumCountFather, genotypeCounts1, sortingPermutationGenotypeCounts1);
-        int numAlleles2 = sumGenotype90P(sumCountMother, genotypeCounts1, sortingPermutationGenotypeCounts1);
+        int numAlleles2 = sumGenotype90P(sumCountMother, genotypeCounts1, sortingPermutationGenotypeCounts2);
 
         // check that alleles can possibly come from parents
 
         //define genotypes, eg AA or AB.
-        int child1 = getSortedCountAtIndex(0,genotypeCounts0,sortingPermutationGenotypeCounts0);
-        int child2 = (numAlleles0>1)?getSortedCountAtIndex(1,genotypeCounts1,sortingPermutationGenotypeCounts1):child1;
-        int father1 = getSortedCountAtIndex(0,genotypeCounts1,sortingPermutationGenotypeCounts1);
-        int father2 = (numAlleles1>1)?getSortedCountAtIndex(1,genotypeCounts1,sortingPermutationGenotypeCounts1):father1;
-        int mother1 = getSortedCountAtIndex(0,genotypeCounts2,sortingPermutationGenotypeCounts2);
-        int mother2 = (numAlleles2>1)?getSortedCountAtIndex(1,genotypeCounts2,sortingPermutationGenotypeCounts2):mother1;
+        int child1 = sortingPermutationGenotypeCounts0.getInt(0);
+        int child2 = (numAlleles0>1)?sortingPermutationGenotypeCounts0.getInt(1):child1;
+        int father1 = sortingPermutationGenotypeCounts1.getInt(0);
+        int father2 = (numAlleles1>1)?sortingPermutationGenotypeCounts1.getInt(1):father1;
+        int mother1 = sortingPermutationGenotypeCounts2.getInt(0);;
+        int mother2 = (numAlleles2>1)?sortingPermutationGenotypeCounts2.getInt(1):mother1;
 
-        //first, check that germline/child doesn't have too many alleles. if not, then
+        //first, check that germline/child doesn't have too many alleles (or is not designated for mutation). if not, then
         //determine if the child's genotype is possible, allowing either first allele from father or from mother
-        if (numAlleles0 > 2){
+        if (numAlleles0 > 2 || (!makeSomatic)){
             makeSomatic = false;
         } else {
             makeSomatic = isMendelian(child1,child2,father1,father2,mother1,mother2);
