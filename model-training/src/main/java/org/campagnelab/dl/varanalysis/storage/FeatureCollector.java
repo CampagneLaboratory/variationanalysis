@@ -1,17 +1,12 @@
 package org.campagnelab.dl.varanalysis.storage;
 
 
-import com.fasterxml.jackson.core.util.BufferRecycler;
-import com.google.protobuf.TextFormat;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Set;
 
 
@@ -34,43 +29,69 @@ public class FeatureCollector {
     private static FeatureMapper mapper = new FeatureMapperV18();
     String recordsPath;
     BufferedReader positionsReader;
-    private Set<Integer> posSet = new IntOpenHashSet();
+    BufferedWriter outputWriter;
+    private Set<String> idSet = new ObjectOpenHashSet<String>();
 
     public static void main(String[] args) throws IOException {
         if (args.length<1) {
-            System.err.println("usage: printer <positions-file> <parquet-file>");
+            System.err.println("usage: printer <positions-file> <parquet-file> <feature-output>");
             System.exit(1);
         }
-        FeatureCollector featureCollector = new FeatureCollector(args[0], args[1]);
-        featureCollector.getPositions();
-        featureCollector.print();
+        FeatureCollector featureCollector = new FeatureCollector(args[0], args[1], args[2]);
+        featureCollector.getIds();
+        featureCollector.execute();
 
 
 
     }
 
-    public FeatureCollector(String positionsPath, String recordsPath) throws FileNotFoundException {
+    public FeatureCollector(String positionsPath, String recordsPath, String outputPath) throws IOException {
         this.recordsPath = recordsPath;
         this.positionsReader =  new BufferedReader((new FileReader(positionsPath)));
+        this.outputWriter = new BufferedWriter(new FileWriter(outputPath));
     }
 
-    private void recordPrinter(BaseInformationRecords.BaseInformation base) throws IOException {
-        //TODO
+    private void outputRecord(BaseInformationRecords.BaseInformation base) throws IOException {
+        String out =
+                base.getMutated()?"1":"0" + "\t"
+                + base.getReferenceIndex() + ":" + base.getPosition() + "\t"
+                + getSumCounts(base)
+                + getFeatures(base) + "\n";
+        outputWriter.append(out);
     }
 
-    private void getPositions() throws IOException{
+    private String getFeatures(BaseInformationRecords.BaseInformation base) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < mapper.numberOfFeatures(); i++){
+            sb.append("\t" + mapper.produceFeature(base,i));
+        }
+        return sb.toString();
+    }
+
+    private String getSumCounts(BaseInformationRecords.BaseInformation base) {
+        int sum = 0;
+        for (BaseInformationRecords.SampleInfo sample : base.getSamplesList()){
+            for (BaseInformationRecords.CountInfo count : sample.getCountsList()){
+                sum += (count.getGenotypeCountForwardStrand() + count.getGenotypeCountReverseStrand());
+            }
+        }
+        return Integer.toString(sum);
+    }
+
+    private void getIds() throws IOException{
         String line;
         while ((line = positionsReader.readLine()) != null) {
-            posSet.add(Integer.parseInt(line));
+            idSet.add(line);
         }
     }
 
-    public void print() {
+    private void execute() throws IOException {
+        outputWriter.write(getHeader());
         try {
             RecordReader reader = new RecordReader(recordsPath);
             for (BaseInformationRecords.BaseInformation base : reader) {
-                if (posSet.contains(base.getPosition())) {
-                    recordPrinter(base);
+                if (idSet.contains(base.getReferenceIndex()+":"+base.getPosition())) {
+                    outputRecord(base);
                 }
             }
         } catch (IOException e) {
@@ -79,4 +100,12 @@ public class FeatureCollector {
     }
 
 
+    private String getHeader() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("group\tid");
+        for (int i = 0; i < mapper.numberOfFeatures(); i++){
+            sb.append("\t" + mapper.getFeatureName(i));
+        }
+        return sb.toString();
+    }
 }

@@ -1,0 +1,13 @@
+numExamplesUsed	epoch	score	AUC	condition
+4487139	0	0.001645	0.993309	error_enrichment_ne=8
+8974278	1	0.001645	0.993709	error_enrichment_ne=8
+13461417	2	0.001645	0.993861	error_enrichment_ne=8
+17948556	3	0.001509	0.993938	error_enrichment_ne=8
+22435695	4	0.001509	0.993956	error_enrichment_ne=8
+26922834	5	0.001509	0.993987	error_enrichment_ne=8
+31409973	6	0.001509	0.994018	error_enrichment_ne=8
+35897112	7	0.001509	0.994027	error_enrichment_ne=8
+40384251	8	0.001509	0.994031	error_enrichment_ne=8
+44871390	9	0.001509	0.994035	error_enrichment_ne=8
+49358529	10	0.001509	0.994041	error_enrichment_ne=8
+53845668	11	0.001509	0.994043	error_enrichment_ne=8

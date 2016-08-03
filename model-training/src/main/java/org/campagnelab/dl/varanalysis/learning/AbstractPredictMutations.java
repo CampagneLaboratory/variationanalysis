@@ -22,9 +22,19 @@ import java.util.SortedSet;
  */
 public abstract class AbstractPredictMutations {
 
-    final String header = "mutatedLabel\tProbabilityMut\tProbabilityUnmut\tcorrectness\tfrequency\tmutatedBase\trefIdx\tposition\treferenceBase\tsample1Counts\tsample2Counts\tsample1Scores\tsample2Scores\tsumCounts\tformatted1\tformatted2";
+    String header;
+    final String s3Scores = "\tsample3Scores";
+    final String s3Counts = "\tsampleS3Counts";
+    final String formatted3 = "\tformatted3";
+
 
     protected void writeHeader(PrintWriter results) {
+
+        header = "mutatedLabel\tProbabilityMut\tProbabilityUnmut\tcorrectness\tfrequency" +
+                "\tmutatedBase\trefIdx\tposition\treferenceBase" +
+                "\tsample1Counts\tsample2Counts" + s3Counts +
+                "\tsample1Scores\tsample2Scores" + s3Scores +
+                "\tsumCounts\tformatted1\tformatted2" + formatted3;
         results.append(header);
         if (cmodel!=null) {
             results.append("\tcalibratedP");
@@ -32,13 +42,16 @@ public abstract class AbstractPredictMutations {
         results.append("\n");
     }
 
+    protected void writeRecordResult(MultiLayerNetwork model, PrintWriter results, FeatureMapper featureMapper, ProgressLogger pgReadWrite, BaseInformationRecords.BaseInformation record, AreaUnderTheROCCurve aucLossCalculator, boolean isTrio) {
+        writeRecordResult(model, null, results, featureMapper, pgReadWrite, record, aucLossCalculator, null, isTrio);
+    }
     protected void writeRecordResult(MultiLayerNetwork model, PrintWriter results, FeatureMapper featureMapper, ProgressLogger pgReadWrite, BaseInformationRecords.BaseInformation record, AreaUnderTheROCCurve aucLossCalculator) {
-        writeRecordResult(model, null, results, featureMapper, pgReadWrite, record, aucLossCalculator, null);
+        writeRecordResult(model, null, results, featureMapper, pgReadWrite, record, aucLossCalculator, null, false);
     }
 
     CalibratingModel cmodel;
 
-    protected void writeRecordResult(MultiLayerNetwork model, MultiLayerNetwork calibrationModel, PrintWriter results, FeatureMapper featureMapper, ProgressLogger pgReadWrite, BaseInformationRecords.BaseInformation record, AreaUnderTheROCCurve aucLossCalculator, CalcCalibrator calc) {
+    protected void writeRecordResult(MultiLayerNetwork model, MultiLayerNetwork calibrationModel, PrintWriter results, FeatureMapper featureMapper, ProgressLogger pgReadWrite, BaseInformationRecords.BaseInformation record, AreaUnderTheROCCurve aucLossCalculator, CalcCalibrator calc, boolean isTrio) {
         INDArray testFeatures = Nd4j.zeros(1, featureMapper.numberOfFeatures());
         featureMapper.mapFeatures(record, testFeatures, 0);
         INDArray testPredicted = model.output(testFeatures, false);
@@ -49,17 +62,18 @@ public abstract class AbstractPredictMutations {
         ProtoPredictor.Prediction prediction = predictor.mutPrediction(record);
         String formatted0 = genFormattedString(record.getSamples(0));
         String formatted1 = genFormattedString(record.getSamples(1));
+        String formatted2 = isTrio?"\t"+genFormattedString(record.getSamples(2)):"";
         String correctness = (prediction.clas == mutated) ? "right" : "wrong";
         if (aucLossCalculator != null) {
             aucLossCalculator.observe(prediction.posProb, mutated ? 1 : -1);
         }
 
 
-        results.append(String.format("%s\t%f\t%f\t%s\t%s\t%s\t%s",
+        results.append(String.format("%s\t%f\t%f\t%s\t%s\t%s\t%s%s",
                 (mutated ? "1" : "0"),
                 prediction.posProb, prediction.negProb,
                 correctness, features,
-                formatted0, formatted1
+                formatted0, formatted1, formatted3
         ));
         if (cmodel != null) {
             results.append(String.format("\t%f", cmodel.estimateCalibratedP(testFeatures)));

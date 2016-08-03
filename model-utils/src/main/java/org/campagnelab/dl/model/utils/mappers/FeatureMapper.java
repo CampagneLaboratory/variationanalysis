@@ -42,4 +42,6 @@ public interface FeatureMapper {
      * @return The value of the feature.
      */
     float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex);
+
+    String getFeatureName(int i);
 }

@@ -37,6 +37,7 @@ public class TrainSomaticModel extends SomaticTrainer {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
     private String validationDatasetFilename = null;
     private static final String EXPERIMENTAL_CONDITION = "error_enrichment_ne=8";
+    private static final boolean isTrio = true;
 
     /**
      * Error enrichment support.
@@ -54,10 +55,12 @@ public class TrainSomaticModel extends SomaticTrainer {
             System.err.println("usage: DetectMutations <input-training-file+>");
         }
         //for trio:
-        //trainer.execute(new FeatureMapperV18Trio(), args, 32);
+        if (isTrio){
+            trainer.execute(new FeatureMapperV18Trio(), args, 32);
+        } else {
+            trainer.execute(new FeatureMapperV18(), args, 32);
+        }
         //for duo
-        trainer.execute(new FeatureMapperV18(), args, 32);
-
     }
 
 
@@ -239,8 +242,11 @@ public class TrainSomaticModel extends SomaticTrainer {
     }
 
     private double estimateTestSetPerf(int epoch, int iter) throws IOException {
-        //for trio: validationDatasetFilename = "/Users/rct66/data/cfs/mutated-randomized-q2c-val-trio.parquet";
-        validationDatasetFilename = "/Users/rct66/data/cfs/mutated-randomized-qtt1-val-duo.parquet";
+        if (isTrio){
+            validationDatasetFilename = "/Users/rct66/data/cfs/mutated-randomized-q2c-val-trio.parquet";
+        } else {
+            validationDatasetFilename = "/Users/rct66/data/cfs/mutated-randomized-qtt1-val-duo.parquet";
+        }
         if (validationDatasetFilename == null) return 0;
         MeasurePerformance perf = new MeasurePerformance(10000);
         double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);

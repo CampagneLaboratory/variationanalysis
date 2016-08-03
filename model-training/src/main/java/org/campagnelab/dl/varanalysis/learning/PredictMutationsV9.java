@@ -206,7 +206,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                     continue;
                 }
             }
-            writeRecordResult(model, calibratingModel, results, featureMapper, pgReadWrite, record, aucLossCalculator, calculator);
+            writeRecordResult(model, calibratingModel, results, featureMapper, pgReadWrite, record, aucLossCalculator, calculator,isTrio);
             index++;
             if (index > scoreN) break;
         }
