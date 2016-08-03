@@ -81,6 +81,29 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
     }
 
     @Override
+    public String getFeatureName(int featureIndex) {
+        assert (featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2) : "Only MAX_GENOTYPES*2*2 features";
+        if (featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2) {
+            // germline counts written first:
+            if ((featureIndex % 2) == 1) {
+                // odd featureIndices are forward strand:
+                return ("normGermlineForwardCount"+(featureIndex/2));
+            } else {
+                return ("normGermlineReverseCount"+(featureIndex/2));
+            }
+        } else {
+            // tumor counts written next:
+            featureIndex -= AbstractFeatureMapper.MAX_GENOTYPES * 2;
+            if ((featureIndex % 2) == 1) {
+                // odd featureIndices are forward strand:
+                return ("normSomaticForwardCount"+(featureIndex/2));
+            } else {
+                return ("normGomaticReverseCount"+(featureIndex/2));
+            }
+        }
+    }
+
+    @Override
     public void mapLabels(BaseInformationRecords.BaseInformationOrBuilder record, INDArray labels, int indexOfRecord) {
         indices[0] = indexOfRecord;
 

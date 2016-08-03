@@ -37,6 +37,12 @@ public class IndelFeatures extends AbstractFeatureMapper implements FeatureMappe
         return produceFeatureInternal(record, featureIndex);
     }
 
+    @Override
+    public String getFeatureName(int featureIndex) {
+        assert featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES : "Only MAX_GENOTYPES*2*2 features";
+        return "count" + featureIndex + "isIndel";
+    }
+
 
     private float normalize(float value, int normalizationFactor) {
         if (normalizationFactor == 0) {

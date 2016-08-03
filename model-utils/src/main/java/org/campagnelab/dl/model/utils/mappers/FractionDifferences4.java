@@ -58,6 +58,12 @@ public class FractionDifferences4 extends AbstractFeatureMapper implements Featu
         return normalize(producedFeat, FRACTION_NORM);
     }
 
+    @Override
+    public String getFeatureName(int featureIndex) {
+        assert featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES : "Only MAX_GENOTYPES features";
+        return "fractionDiffCount" + featureIndex;
+    }
+
 
     private float normalize(float value, int normalizationFactor) {
         assert(value>=0f):"value must be positive " + Float.toString(value);

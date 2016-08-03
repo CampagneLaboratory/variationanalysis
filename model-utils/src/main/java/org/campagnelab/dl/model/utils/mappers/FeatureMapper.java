@@ -43,5 +43,5 @@ public interface FeatureMapper {
      */
     float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex);
 
-    String getFeatureName(int i);
+    String getFeatureName(int featureIndex);
 }

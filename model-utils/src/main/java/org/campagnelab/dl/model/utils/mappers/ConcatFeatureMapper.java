@@ -15,6 +15,8 @@ public class ConcatFeatureMapper implements FeatureMapper {
     private int numFeatures = 0;
     private int[] offsets;
 
+
+
     public ConcatFeatureMapper(FeatureMapper... featureMappers) {
         this.mappers = featureMappers;
         int offset = 0;
@@ -67,6 +69,15 @@ public class ConcatFeatureMapper implements FeatureMapper {
             indexOfDelegate = -(indexOfDelegate + 1) - 1;
         }
         return this.mappers[indexOfDelegate].produceFeature(record, featureIndex - offsets[indexOfDelegate]);
+    }
+
+    @Override
+    public String getFeatureName(int i) {
+        int indexOfDelegate = Arrays.binarySearch(offsets, i);
+        if (indexOfDelegate < 0) {
+            indexOfDelegate = -(indexOfDelegate + 1) - 1;
+        }
+        return this.mappers[indexOfDelegate].getFeatureName(i - offsets[indexOfDelegate]);
     }
 
 }

@@ -61,6 +61,16 @@ public class ReadIndexFeaturesFix extends AbstractFeatureMapper implements Featu
         return normalize(produceFeatureInternal(record, featureIndex), sumReadIndex);
     }
 
+    @Override
+    public String getFeatureName(int featureIndex) {
+        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2: "Only MAX_GENOTYPES*2*2 features";
+        if (featureIndex < MAX_GENOTYPES) {
+            return "numReadIdxsGermlineCount"+(featureIndex/2);
+        } else {
+            return "numReadIdxsSomaticCount"+(featureIndex/2);
+        }
+    }
+
 
     private float normalize(float value, int normalizationFactor) {
         // produce a value between zero and 1, increasingly smaller as the number of distinct read indices increases.
