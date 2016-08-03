@@ -29,11 +29,16 @@ import java.util.stream.IntStream;
 public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
-    final static String TIME = "traditional-1469226748641";
+    final static String TIME = "duo-1470154239523";
+    final static String MODEL_DIR = "final-models/" + TIME;
+
     private int scoreN =Integer.MAX_VALUE;
 
 
     final boolean SKIP0COUNTS = true;
+
+    //will be adjusted if model's loaded featuremapper is for trios.
+    boolean isTrio = false;
     private ModelLoader modelLoader;
 
     CalcCalibrator calculator;
@@ -58,7 +63,6 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         double learningRate = 0.1;
         int miniBatchSize = 100;
         System.out.println("time: " + TIME);
-        String modelDir = "final-models/" + TIME;
         PredictMutationsV9 predictor = new PredictMutationsV9();
         //   predictor.printPredictions("best");
         String type=null;
@@ -74,11 +78,11 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 }else{
                     datasetPath=item;
                 }
-                predictor.printPredictions("bestAUC", modelDir,datasetPath , "tests/" + TIME + "/", type);
+                predictor.printPredictions("bestAUC", MODEL_DIR,datasetPath , "tests/" + TIME + "/", type);
             }
         }
 
-        System.out.println(modelDir);
+        System.out.println(MODEL_DIR);
 
     }
 
@@ -101,6 +105,25 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
             s2Scores[i] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(1).getCounts(i).getQualityScoresForwardStrandList()));
             s2Scores[i + 5] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(1).getCounts(i).getQualityScoresReverseStrandList()));
         }
+        String s3CountsString = "";
+        String s3ScoresString = "";
+        int s3CountsSum = 0;
+        if (isTrio) {
+            int[] s3Counts = new int[10];
+            for (int i = 0; i < 5; i++) {
+                s2Counts[i] = pos.getSamples(2).getCounts(i).getGenotypeCountForwardStrand();
+                s2Counts[i + 5] = pos.getSamples(2).getCounts(i).getGenotypeCountReverseStrand();
+            }
+            float[] s3Scores = new float[10];
+            for (int i = 0; i < 5; i++) {
+                s1Scores[i] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(2).getCounts(i).getQualityScoresForwardStrandList()));
+                s1Scores[i + 5] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(2).getCounts(i).getQualityScoresReverseStrandList()));
+            }
+            s3CountsString = Arrays.toString(s3Counts) + "\t";
+            s3ScoresString = Arrays.toString(s3Scores) + "\t";
+            s3CountsSum = IntStream.of(s3Counts).sum();
+        }
+
 
         String features = (pos.hasFrequencyOfMutation() ? pos.getFrequencyOfMutation() : "") + "\t"
                 + (pos.hasMutatedBase() ? pos.getMutatedBase() : "") + "\t"
@@ -109,9 +132,11 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 + pos.getReferenceBase() + "\t"
                 + Arrays.toString(s1Counts) + "\t"
                 + Arrays.toString(s2Counts) + "\t"
+                + s3CountsString
                 + Arrays.toString(s1Scores) + "\t"
                 + Arrays.toString(s2Scores) + "\t"
-                + Integer.toString(IntStream.of(s1Counts).sum() + IntStream.of(s2Counts).sum());
+                + s3ScoresString
+                + Integer.toString(IntStream.of(s1Counts).sum() + IntStream.of(s2Counts).sum() + s3CountsSum);
         return features;
     }
 
@@ -121,6 +146,11 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
         modelLoader = new ModelLoader(modelPath);
         featureMapper = modelLoader.loadFeatureMapper();
+        if (featureMapper.getClass().getCanonicalName().contains("Trio")){
+            //we have a trio mapper, need to output features for a third sample
+            isTrio = true;
+            System.out.println("setting output to trio mode");
+        }
         calculator = new BayesCalibrator(modelPath,prefix,false);
         MultiLayerNetwork model = modelLoader.loadModel(prefix);
         MultiLayerNetwork calibratingModel = modelLoader.loadModel(prefix + "Calibrated");
