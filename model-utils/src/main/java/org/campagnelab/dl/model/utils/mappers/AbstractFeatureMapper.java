@@ -17,7 +17,7 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
     public static final int MAX_GENOTYPES = 5;
     public static final int N_GENOTYPE_INDEX = 6;
 
-    String getFeatureName(int featureIndex) {
+    public String getFeatureName(int featureIndex) {
         return null;
     }
 
