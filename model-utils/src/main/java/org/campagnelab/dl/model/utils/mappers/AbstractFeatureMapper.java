@@ -17,6 +17,10 @@ public abstract class AbstractFeatureMapper implements FeatureMapper {
     public static final int MAX_GENOTYPES = 5;
     public static final int N_GENOTYPE_INDEX = 6;
 
+    String getFeatureName(int featureIndex) {
+        return null;
+    }
+
     public boolean oneSampleHasTumor(java.util.List<org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.SampleInfo> samples) {
         for (BaseInformationRecords.SampleInfo sample : samples) {
             if (sample.getIsTumor()) return true;
