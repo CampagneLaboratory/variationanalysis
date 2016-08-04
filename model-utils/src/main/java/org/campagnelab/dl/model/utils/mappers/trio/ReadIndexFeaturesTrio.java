@@ -120,4 +120,20 @@ public class ReadIndexFeaturesTrio extends AbstractFeatureMapperTrio implements 
         };
     }
 
+    @Override
+    public String getFeatureName(int featureIndex) {
+        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 3: "Only MAX_GENOTYPES*2*2 features";
+        if (featureIndex < MAX_GENOTYPES) {
+            return "numReadIdxsFatherCount"+(featureIndex/2);
+        } else if (featureIndex < MAX_GENOTYPES * 2) {
+            // mother counts written next:
+            featureIndex -= MAX_GENOTYPES;
+            return "numReadIdxsMotherCount"+(featureIndex/2);
+        } else {
+            // somatic counts written next:
+            featureIndex -= MAX_GENOTYPES * 2;
+            return "numReadIdxsChildCount"+(featureIndex/2);
+        }
+    }
+
 }

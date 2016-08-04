@@ -67,6 +67,7 @@ public class ReadIndexFeaturesFix extends AbstractFeatureMapper implements Featu
         if (featureIndex < MAX_GENOTYPES) {
             return "numReadIdxsGermlineCount"+(featureIndex/2);
         } else {
+            featureIndex -= MAX_GENOTYPES;
             return "numReadIdxsSomaticCount"+(featureIndex/2);
         }
     }

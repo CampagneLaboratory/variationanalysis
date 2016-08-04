@@ -76,5 +76,11 @@ public class IndelFeaturesTrio extends AbstractFeatureMapperTrio implements Feat
         IndelGenotypeCount myCount = (IndelGenotypeCount) count;
         myCount.set(sampleCounts.getIsIndel());
     }
+
+    @Override
+    public String getFeatureName(int featureIndex) {
+        assert featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES : "Only MAX_GENOTYPES features";
+        return "count" + featureIndex + "isIndel";
+    }
 }
 
