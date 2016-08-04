@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
-    final static String TIME = "duo-1470154239523";
+    final static String TIME = "trio-1470154035669";
     final static String MODEL_DIR = "final-models/" + TIME;
 
     private int scoreN =Integer.MAX_VALUE;
@@ -111,13 +111,13 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         if (isTrio) {
             int[] s3Counts = new int[10];
             for (int i = 0; i < 5; i++) {
-                s2Counts[i] = pos.getSamples(2).getCounts(i).getGenotypeCountForwardStrand();
-                s2Counts[i + 5] = pos.getSamples(2).getCounts(i).getGenotypeCountReverseStrand();
+                s3Counts[i] = pos.getSamples(2).getCounts(i).getGenotypeCountForwardStrand();
+                s3Counts[i + 5] = pos.getSamples(2).getCounts(i).getGenotypeCountReverseStrand();
             }
             float[] s3Scores = new float[10];
             for (int i = 0; i < 5; i++) {
-                s1Scores[i] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(2).getCounts(i).getQualityScoresForwardStrandList()));
-                s1Scores[i + 5] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(2).getCounts(i).getQualityScoresReverseStrandList()));
+                s3Scores[i] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(2).getCounts(i).getQualityScoresForwardStrandList()));
+                s3Scores[i + 5] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(2).getCounts(i).getQualityScoresReverseStrandList()));
             }
             s3CountsString = Arrays.toString(s3Counts) + "\t";
             s3ScoresString = Arrays.toString(s3Scores) + "\t";
