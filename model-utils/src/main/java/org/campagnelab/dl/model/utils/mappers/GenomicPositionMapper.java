@@ -16,6 +16,7 @@ public class GenomicPositionMapper implements FeatureMapper {
 
     public GenomicPositionMapper() {
         this.chromosomeMapper = new OneHotFeatureMapper() {
+
             @Override
             public int getIntegerValue(BaseInformationRecords.BaseInformationOrBuilder record) {
                 return record.getReferenceIndex();

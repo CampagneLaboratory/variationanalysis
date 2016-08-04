@@ -28,7 +28,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * net to have more trouble predicting mutations at homozygous sites, than at heterozygous sites. We'll see. </ul>
  * Created by fac2003 on 5/21/16.
  *
- * @author Fabien Campagne
+ * @author Fabien Campagne, Remi Torracinta
  */
 
 public class MagnitudeFeatures3 extends AbstractFeatureMapper implements FeatureCalculator {

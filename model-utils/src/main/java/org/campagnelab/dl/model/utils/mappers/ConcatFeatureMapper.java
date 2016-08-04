@@ -11,9 +11,9 @@ import java.util.Arrays;
  * Created by fac2003 on 5/24/16.
  */
 public class ConcatFeatureMapper implements FeatureMapper {
-    private FeatureMapper mappers[];
-    private int numFeatures = 0;
-    private int[] offsets;
+    FeatureMapper mappers[];
+    int numFeatures = 0;
+    int[] offsets;
 
 
 
@@ -71,13 +71,6 @@ public class ConcatFeatureMapper implements FeatureMapper {
         return this.mappers[indexOfDelegate].produceFeature(record, featureIndex - offsets[indexOfDelegate]);
     }
 
-    @Override
-    public String getFeatureName(int i) {
-        int indexOfDelegate = Arrays.binarySearch(offsets, i);
-        if (indexOfDelegate < 0) {
-            indexOfDelegate = -(indexOfDelegate + 1) - 1;
-        }
-        return this.mappers[indexOfDelegate].getFeatureName(i - offsets[indexOfDelegate]);
-    }
+
 
 }

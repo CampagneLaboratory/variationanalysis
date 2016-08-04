@@ -2,8 +2,6 @@ package org.campagnelab.dl.model.utils.mappers;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.model.utils.genotypes.GenotypeCountFactory;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.GenotypeCount;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Collections;
@@ -13,7 +11,7 @@ import java.util.Collections;
  *
  * @author Fabien Campagne
  */
-public abstract class AbstractFeatureMapper implements FeatureMapper {
+public abstract class AbstractFeatureMapper implements FeatureNameMapper {
     public static final int MAX_GENOTYPES = 5;
     public static final int N_GENOTYPE_INDEX = 6;
 

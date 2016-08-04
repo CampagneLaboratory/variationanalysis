@@ -4,6 +4,7 @@ package org.campagnelab.dl.varanalysis.storage;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
+import org.campagnelab.dl.model.utils.mappers.FeatureNameMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.*;
@@ -26,7 +27,7 @@ import java.util.Set;
  * @author rct66
  */
 public class FeatureCollector {
-    private static FeatureMapper mapper = new FeatureMapperV18();
+    private static FeatureNameMapper mapper = new FeatureMapperV18();
     String recordsPath;
     BufferedReader positionsReader;
     BufferedWriter outputWriter;

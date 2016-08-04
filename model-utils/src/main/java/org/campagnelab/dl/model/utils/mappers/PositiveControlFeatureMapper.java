@@ -31,4 +31,5 @@ public class PositiveControlFeatureMapper implements FeatureMapper {
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         return record.getMutated() ? 1 : 0;
     }
+
 }

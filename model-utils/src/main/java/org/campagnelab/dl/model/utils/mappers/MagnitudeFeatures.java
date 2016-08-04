@@ -45,4 +45,5 @@ public class MagnitudeFeatures implements FeatureMapper {
         final int featureValue = (Math.log10(sumCounts) > featureIndex) ? 1 : 0;
         return featureValue;
     }
+
 }
