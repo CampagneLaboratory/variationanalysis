@@ -74,6 +74,38 @@ public class MagnitudeFeatures2Trio extends AbstractFeatureMapperTrio implements
     }
 
     @Override
+    public String getFeatureName(int featureIndex) {
+        assert (featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2) : "Only MAX_GENOTYPES*2*2 features";
+        if (featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2) {
+            // germline counts written first:
+            if ((featureIndex % 2) == 1) {
+                // odd featureIndices are forward strand:
+                return ("invFatherForwardCount"+(featureIndex/2));
+            } else {
+                return ("invFatherReverseCount"+(featureIndex/2));
+            }
+        } else if (featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 4) {
+            // mother counts written next:
+            featureIndex -= AbstractFeatureMapper.MAX_GENOTYPES * 2;
+            if ((featureIndex % 2) == 1) {
+                // odd featureIndices are forward strand:
+                return ("invMotherForwardCount"+(featureIndex/2));
+            } else {
+                return ("invMotherReverseCount"+(featureIndex/2));
+            }
+        } else {
+            //somatic written last counts
+            featureIndex -= AbstractFeatureMapper.MAX_GENOTYPES * 4;
+            if ((featureIndex % 2) == 1) {
+                // odd featureIndices are forward strand:
+                return ("invChildForwardCount"+(featureIndex/2));
+            } else {
+                return ("invChildReverseCount"+(featureIndex/2));
+            }
+        }
+    }
+
+    @Override
     public void mapLabels(BaseInformationRecords.BaseInformationOrBuilder record, INDArray labels, int indexOfRecord) {
         indices[0] = indexOfRecord;
 

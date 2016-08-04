@@ -28,10 +28,13 @@ public class FractionDifferences4Trio extends AbstractFeatureMapperTrio implemen
 
     //set this to choose which germline sample to use. 0=father, 1=mother
     int germlineSampleIndex;
+    String germlineSampleName;
 
 
     public FractionDifferences4Trio(int germlineSampleIndex){
+
         this.germlineSampleIndex = germlineSampleIndex;
+        this.germlineSampleName = (germlineSampleIndex==0)?"father(0)":"mother(1)";
     }
 
     public int numberOfFeatures() {
@@ -67,6 +70,12 @@ public class FractionDifferences4Trio extends AbstractFeatureMapperTrio implemen
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         float producedFeat = produceFeatureInternal(record, featureIndex);
         return normalize(producedFeat, FRACTION_NORM);
+    }
+
+    @Override
+    public String getFeatureName(int featureIndex) {
+        assert featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES : "Only MAX_GENOTYPES features";
+        return "fractionDiffCount" + featureIndex;
     }
 
 

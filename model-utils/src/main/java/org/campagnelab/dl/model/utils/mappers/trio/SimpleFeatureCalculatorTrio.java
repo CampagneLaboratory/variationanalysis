@@ -83,6 +83,37 @@ public class SimpleFeatureCalculatorTrio extends AbstractFeatureMapperTrio imple
     }
 
     @Override
+    public String getFeatureName(int featureIndex) {
+        assert (featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2) : "Only MAX_GENOTYPES*2*2 features";
+        if (featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 2) {
+            // germline counts written first:
+            if ((featureIndex % 2) == 1) {
+                // odd featureIndices are forward strand:
+                return ("normFatherForwardCount"+(featureIndex/2));
+            } else {
+                return ("normFatherReverseCount"+(featureIndex/2));
+            }
+        } else if (featureIndex < AbstractFeatureMapper.MAX_GENOTYPES * 4) {
+            // mother counts written next:
+            featureIndex -= AbstractFeatureMapper.MAX_GENOTYPES * 2;
+            if ((featureIndex % 2) == 1) {
+                // odd featureIndices are forward strand:
+                return ("normMotherForwardCount"+(featureIndex/2));
+            } else {
+                return ("normMotherReverseCount"+(featureIndex/2));
+            }
+        } else {
+            //somatic written last counts
+            featureIndex -= AbstractFeatureMapper.MAX_GENOTYPES * 4;
+            if ((featureIndex % 2) == 1) {
+                // odd featureIndices are forward strand:
+                return ("normChildForwardCount"+(featureIndex/2));
+            } else {
+                return ("normChildReverseCount"+(featureIndex/2));
+            }
+        }
+    }
+    @Override
     public void mapLabels(BaseInformationRecords.BaseInformationOrBuilder record, INDArray labels, int indexOfRecord) {
         indices[0] = indexOfRecord;
         for (int labelIndex = 0; labelIndex < numberOfLabels(); labelIndex++) {
