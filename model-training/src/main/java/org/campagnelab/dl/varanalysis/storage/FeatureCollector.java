@@ -54,7 +54,6 @@ public class FeatureCollector {
 
     private void outputRecord(BaseInformationRecords.BaseInformation base) throws IOException {
         String out =
-                base.getMutated()?"1":"0" + "\t"
                 + base.getReferenceIndex() + ":" + base.getPosition() + "\t"
                 + getSumCounts(base)
                 + getFeatures(base) + "\n";
@@ -104,7 +103,7 @@ public class FeatureCollector {
 
     private String getHeader() {
         StringBuffer sb = new StringBuffer();
-        sb.append("group\tid");
+        sb.append("id\tsumCounts");
         for (int i = 0; i < mapper.numberOfFeatures(); i++){
             sb.append("\t" + mapper.getFeatureName(i));
         }

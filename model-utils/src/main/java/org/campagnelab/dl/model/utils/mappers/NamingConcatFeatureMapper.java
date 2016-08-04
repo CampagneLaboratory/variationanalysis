@@ -10,8 +10,6 @@ import java.util.Arrays;
  */
 public class NamingConcatFeatureMapper extends ConcatFeatureMapper implements FeatureNameMapper {
 
-    FeatureNameMapper mappers[];
-
 
     public NamingConcatFeatureMapper(FeatureNameMapper... featureMappers) {
         this.mappers = featureMappers;
@@ -19,7 +17,7 @@ public class NamingConcatFeatureMapper extends ConcatFeatureMapper implements Fe
         int i = 1;
         offsets = new int[featureMappers.length + 1];
         offsets[0] = 0;
-        for (FeatureNameMapper calculator : mappers) {
+        for (FeatureMapper calculator : mappers) {
             numFeatures += calculator.numberOfFeatures();;
             offsets[i] = numFeatures;
 
@@ -32,6 +30,6 @@ public class NamingConcatFeatureMapper extends ConcatFeatureMapper implements Fe
         if (indexOfDelegate < 0) {
             indexOfDelegate = -(indexOfDelegate + 1) - 1;
         }
-        return this.mappers[indexOfDelegate].getFeatureName(i - offsets[indexOfDelegate]);
+        return ((FeatureNameMapper)this.mappers[indexOfDelegate]).getFeatureName(i - offsets[indexOfDelegate]);
     }
 }
