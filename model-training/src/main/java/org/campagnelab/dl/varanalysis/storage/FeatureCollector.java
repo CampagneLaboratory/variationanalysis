@@ -107,6 +107,7 @@ public class FeatureCollector {
         for (int i = 0; i < mapper.numberOfFeatures(); i++){
             sb.append("\t" + mapper.getFeatureName(i));
         }
+        sb.append("\n");
         return sb.toString();
     }
 }
