@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
-    final static String TIME = "trio-1470154035669";
+    final static String TIME = "trio-neworder-1470350501629";
     final static String MODEL_DIR = "final-models/" + TIME;
 
     private int scoreN =Integer.MAX_VALUE;
@@ -37,7 +37,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
     final boolean SKIP0COUNTS = true;
 
-    //will be adjusted if model's loaded featuremapper is for trios.
+    //will be adjusted if model's loaded featuremapper is for trios. don't manually change
     boolean isTrio = false;
     private ModelLoader modelLoader;
 
@@ -78,7 +78,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 }else{
                     datasetPath=item;
                 }
-                predictor.printPredictions("bestAUC", MODEL_DIR,datasetPath , "tests/" + TIME + "/", type);
+                predictor.printPredictions("latest", MODEL_DIR,datasetPath , "tests/" + TIME + "/", type);
             }
         }
 

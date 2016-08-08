@@ -62,6 +62,7 @@ public class FeatureCollector {
 
     private String getFeatures(BaseInformationRecords.BaseInformation base) {
         StringBuffer sb = new StringBuffer();
+        mapper.prepareToNormalize(base,-1);
         for (int i = 0; i < mapper.numberOfFeatures(); i++){
             sb.append("\t" + mapper.produceFeature(base,i));
         }
@@ -88,16 +89,13 @@ public class FeatureCollector {
 
     private void execute() throws IOException {
         outputWriter.write(getHeader());
-        try {
-            RecordReader reader = new RecordReader(recordsPath);
-            for (BaseInformationRecords.BaseInformation base : reader) {
-                if (idSet.contains(base.getReferenceIndex()+":"+base.getPosition())) {
-                    outputRecord(base);
-                }
+        RecordReader reader = new RecordReader(recordsPath);
+        for (BaseInformationRecords.BaseInformation base : reader) {
+            if (idSet.contains(base.getReferenceIndex()+":"+base.getPosition())) {
+                outputRecord(base);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
+        outputWriter.close();
     }
 
 

@@ -28,7 +28,8 @@ public abstract class AbstractFeatureMapperTrio extends AbstractFeatureMapper {
             int revCount = genoInfo.getGenotypeCountReverseStrand();
 
             //use sum of counts from all samples to define base order
-            int compareCount = fatherCount+motherCount+forwCount+revCount;
+            int compareCount = forwCount+revCount;
+            //int compareCount = fatherCount+motherCount+forwCount+revCount;
             GenotypeCount count = factory.create();
             count.set(forwCount, revCount, genoInfo.getToSequence(),i,compareCount);
             initializeCount(record.getSamples(sampleIndex).getCounts(i), count);
