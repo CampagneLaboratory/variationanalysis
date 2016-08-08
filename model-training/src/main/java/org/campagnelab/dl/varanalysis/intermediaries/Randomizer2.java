@@ -29,19 +29,26 @@ import java.util.Random;
 public class Randomizer2 extends Intermediary{
     public static final int BUCKET_SIZE = 20000;
     static private Logger LOG = LoggerFactory.getLogger(Randomizer2.class);
+    private List<RecordReader> sources = new ObjectArrayList<RecordReader>();
 
 
     public static void main (String[] args) throws IOException{
+        System.out.println("input format: source1.parquet source2.parquet ... randomized.parquet");
 
         //randomize
-        new Randomizer2().executeOver(args[0],args[1]);
+        Randomizer2 r = new Randomizer2();
+        r.setSourceFiles(args);
+        r.executeOver(null,args[args.length-1]);
     }
 
     public void execute(String inPath, String outPath, int blockSize, int pageSize) throws IOException {
         String workingDir = new File(outPath).getParent();
         try {
-            RecordReader allReader = new RecordReader(inPath);
-            int numBuckets = (int)(allReader.getTotalRecords()/BUCKET_SIZE)+1;
+            int totalRecords = 0;
+            for (RecordReader source : sources){
+                totalRecords += source.getTotalRecords();
+            }
+            int numBuckets = (totalRecords/BUCKET_SIZE)+1;
             List<RecordWriter> bucketWriters = new ObjectArrayList<RecordWriter>(numBuckets);
             for (int i = 0; i < numBuckets; i++){
                 bucketWriters.add(new RecordWriter(workingDir+"/tmp/bucket"+i+".parquet",blockSize,pageSize,true));
@@ -52,19 +59,22 @@ public class Randomizer2 extends Intermediary{
             //set up logger
             ProgressLogger pgRead = new ProgressLogger(LOG);
             pgRead.itemsName = "read";
-            pgRead.expectedUpdates = allReader.getTotalRecords();
+            pgRead.expectedUpdates = totalRecords;
             pgRead.displayFreeMemory = true;
             pgRead.start();
 
             //fill buckets randomly
             System.out.println("Filling " + numBuckets + " temp buckets randomly");
-            for (BaseInformationRecords.BaseInformation rec : allReader) {
-                pgRead.update();
-                int bucket = rand.nextInt(numBuckets);
-                bucketWriters.get(bucket).writeRecord(rec);
+            for (RecordReader source : sources){
+                for (BaseInformationRecords.BaseInformation rec : source) {
+                    int bucket = rand.nextInt(numBuckets);
+                    bucketWriters.get(bucket).writeRecord(rec);
+                    pgRead.update();
+                }
+                source.close();
             }
+
             pgRead.stop();
-            allReader.close();
 
             System.out.println("Shuffling contents of each bucket and writing to output file");
             //iterate over buckets
@@ -105,6 +115,12 @@ public class Randomizer2 extends Intermediary{
 
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+     void setSourceFiles(String[] args) throws IOException {
+        for (int i = 0; i < args.length-1; i++){
+            sources.add(new RecordReader(args[i]));
         }
     }
 
