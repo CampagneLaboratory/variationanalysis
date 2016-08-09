@@ -39,6 +39,7 @@ public class Randomizer2 extends Intermediary{
         Randomizer2 r = new Randomizer2();
         r.setSourceFiles(args);
         r.executeOver(null,args[args.length-1]);
+
     }
 
     public void execute(String inPath, String outPath, int blockSize, int pageSize) throws IOException {
@@ -49,6 +50,11 @@ public class Randomizer2 extends Intermediary{
                 totalRecords += source.getTotalRecords();
             }
             int numBuckets = (totalRecords/BUCKET_SIZE)+1;
+
+            //adjust block size. since there are potentially many buckets, we may need to flush them to disk more frequently.
+            //set max memory usage at 8gb
+            blockSize = (int)(8e9/numBuckets);
+
             List<RecordWriter> bucketWriters = new ObjectArrayList<RecordWriter>(numBuckets);
             for (int i = 0; i < numBuckets; i++){
                 bucketWriters.add(new RecordWriter(workingDir+"/tmp/bucket"+i+".parquet",blockSize,pageSize,true));
