@@ -20,6 +20,7 @@ import org.nd4j.linalg.indexing.PointIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,14 +37,14 @@ public class TrainSomaticModel extends SomaticTrainer {
     public static final int MIN_ITERATION_BETWEEN_BEST_MODEL = 1000;
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
     private String validationDatasetFilename = null;
-    private static final String EXPERIMENTAL_CONDITION = "error_enrichment_ne=8";
+    private static final String EXPERIMENTAL_CONDITION = "error_enrichment_16";
     private static final boolean isTrio = true;
 
     /**
      * Error enrichment support.
      **/
     public static final int MAX_ERRORS_KEPT = 16;
-    private final boolean ERROR_ENRICHMENT = false;
+    private final boolean ERROR_ENRICHMENT = true;
     private final int NUM_ERRORS_ADDED = 16;
     private final boolean IGNORE_ERRORS_ON_SIMULATED_EXAMPLES = false;
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
@@ -54,6 +55,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         if (args.length < 1) {
             System.err.println("usage: DetectMutations <input-training-file+>");
         }
+
         //for trio:
         if (isTrio){
             trainer.execute(new FeatureMapperV18Trio(), args, 32);
@@ -66,6 +68,16 @@ public class TrainSomaticModel extends SomaticTrainer {
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
+
+        //check validation file for error
+        if (isTrio){
+            validationDatasetFilename = "/Users/rct66/data/random2/trio_val_r2.parquet";
+        } else {
+            validationDatasetFilename = "/Users/rct66/data/random2/duo_val_r2.parquet";
+        }
+        if (!(new File(validationDatasetFilename).exists())){
+            throw new IOException("Validation file not found!");
+        }
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
         boolean init = true;
@@ -242,11 +254,6 @@ public class TrainSomaticModel extends SomaticTrainer {
     }
 
     private double estimateTestSetPerf(int epoch, int iter) throws IOException {
-        if (isTrio){
-            validationDatasetFilename = "/Users/rct66/data/cfs/mutated-randomized-q2c-val-trio.parquet";
-        } else {
-            validationDatasetFilename = "/Users/rct66/data/cfs/mutated-randomized-qtt1-val-duo.parquet";
-        }
         if (validationDatasetFilename == null) return 0;
         MeasurePerformance perf = new MeasurePerformance(10000);
         double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
