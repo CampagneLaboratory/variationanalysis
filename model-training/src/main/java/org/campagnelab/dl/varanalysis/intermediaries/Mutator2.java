@@ -40,6 +40,8 @@ public class Mutator2 extends Intermediary {
     final boolean MUTATE = true;
     SimulationStrategy strategy = new SimulationStrategyImpl();
     boolean trioUnchecked = true;
+    int numCanonical = 0;
+    int numRecordsTotal = 0;
 
     public static void main(String[] args) throws IOException {
         //new ParquetPrinter(args[0]).print();
@@ -47,9 +49,11 @@ public class Mutator2 extends Intermediary {
             System.err.println("usage: input.parquet mutated-randomized-filename");
             System.exit(1);
         }
-
-        new Mutator2().executeOver(args[0], args[1]);
+        Mutator2 m = new Mutator2();
+        m.executeOver(args[0], args[1]);
         //  new ParquetPrinter(args[2]).print();
+
+        System.out.println("Fraction of non-canonical:" + ((float)1-((float)m.numCanonical/(float)m.numRecordsTotal)));
     }
 
     public Mutator2() {
@@ -122,11 +126,15 @@ public class Mutator2 extends Intermediary {
                 trioUnchecked = false;
             }
             shufflingList.add(strategy.mutate(false, record, record.getSamples(0), record.getSamples(1), sim));
+            numRecordsTotal++;
 
             for (int i = 0; i < NUM_SIMULATED_RECORD_PER_DATUM; i++) {
                 BaseInformationRecords.BaseInformation possiblyMutated = strategy.mutate(true, record, record.getSamples(0), record.getSamples(1), sim);
                 if (possiblyMutated.getMutated()) {
                     shufflingList.add(possiblyMutated);
+                    if (i==0){
+                        numCanonical++;
+                    }
                 } else {
                     break;
                 }
