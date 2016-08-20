@@ -45,10 +45,10 @@ public abstract class SomaticTrainer {
     protected TrainingArguments arguments;
     protected String condition = null;
 
-    protected double learningRate = 0.1;
+
     protected int miniBatchSize = 32;
     protected int numEpochs = 200;
-    protected int earlyStopCondition = 3;
+
     protected double dropoutRate = 0.5;
     protected LabelMapper labelMapper = new SimpleFeatureCalculator();
     protected FeatureMapper featureCalculator;
@@ -74,7 +74,7 @@ public abstract class SomaticTrainer {
         System.out.println("epochs: " + numEpochs);
         System.out.println(featureCalculator.getClass().getTypeName());
         directory = "models/" + Long.toString(time);
-        attempt = "batch=" + miniBatchSize + "-learningRate=" + learningRate + "-time=" + time;
+        attempt = "batch=" + miniBatchSize + "-learningRate=" + arguments.learningRate + "-time=" + time;
         int generateSamplesEveryNMinibatches = 10;
         FileUtils.forceMkdir(new File(directory));
 
@@ -97,11 +97,10 @@ public abstract class SomaticTrainer {
         numHiddenNodes = numInputs * 5;
         NeuralNetAssembler assembler = new SixDenseLayersNarrower2();
         assembler.setSeed(arguments.seed);
-        assembler.setLearningRate(learningRate);
+        assembler.setLearningRate(arguments.learningRate);
         assembler.setNumHiddenNodes(numHiddenNodes);
         assembler.setNumInputs(numInputs);
         assembler.setNumOutputs(numOutputs);
-
 
         lossFunction = LossFunctions.LossFunction.MCXENT;
 
@@ -197,7 +196,7 @@ public abstract class SomaticTrainer {
 
     public void appendProperties(ModelPropertiesHelper helper) {
         helper.setFeatureCalculator(featureCalculator);
-        helper.setLearningRate(learningRate);
+        helper.setLearningRate(arguments.learningRate);
         helper.setNumHiddenNodes(numHiddenNodes);
         helper.setMiniBatchSize(miniBatchSize);
         // mpHelper.setBestScore(bestScore);
@@ -206,6 +205,6 @@ public abstract class SomaticTrainer {
         helper.setTime(time);
         helper.setSeed(arguments.seed);
         helper.setLossFunction(lossFunction.name());
-        helper.setEarlyStopCriterion(earlyStopCondition);
+        helper.setEarlyStopCriterion(arguments.stopWhenEpochsWithoutImprovement);
     }
 }

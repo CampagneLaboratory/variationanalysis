@@ -168,7 +168,7 @@ public class TrainSomaticModel extends SomaticTrainer {
             }else {
                 notImproved++;
             }
-            if (notImproved>earlyStopCondition) {
+            if (notImproved>arguments.stopWhenEpochsWithoutImprovement) {
                 // we have not improved after earlyStopCondition epoch, time to stop.
                 break;
             }

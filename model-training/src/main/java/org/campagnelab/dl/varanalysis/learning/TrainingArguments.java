@@ -32,6 +32,10 @@ public class TrainingArguments {
     @Parameter(names = {"-s", "--random-seed"}, description = "The random seed to initialize network weights. ")
     public long seed=new Date().getTime();
 
+    @Parameter(names = { "--early-stopping-num-epochs"}, description = "The number of epochs without performance improvement before early stopping is triggered. ")
+    public int stopWhenEpochsWithoutImprovement=10;
+    @Parameter(names={"-r","--learning-rate"}, description = "Learning rate.")
+    public double learningRate=0.1;
     public String[] getTrainingSets() {
       return  this.trainingSets.toArray(new String[this.trainingSets.size()]);
     }
