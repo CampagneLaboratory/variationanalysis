@@ -1,5 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV16;
@@ -36,31 +38,44 @@ import java.util.Map;
 public class TrainSomaticModel extends SomaticTrainer {
     public static final int MIN_ITERATION_BETWEEN_BEST_MODEL = 1000;
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
+
     private String validationDatasetFilename = null;
-    private static final String EXPERIMENTAL_CONDITION = "error_enrichment_16";
-    private static final boolean isTrio = true;
+    private static final String EXPERIMENTAL_CONDITION = "naive";
+    private static final boolean isTrio = false;
 
     /**
      * Error enrichment support.
      **/
     public static final int MAX_ERRORS_KEPT = 16;
-    private final boolean ERROR_ENRICHMENT = true;
+    private final boolean ERROR_ENRICHMENT = false;
     private final int NUM_ERRORS_ADDED = 16;
     private final boolean IGNORE_ERRORS_ON_SIMULATED_EXAMPLES = false;
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
 
-    public static void main(String[] args) throws IOException {
+    public TrainSomaticModel(TrainingArguments arguments) {
+        this.arguments=arguments;
+    }
 
-        TrainSomaticModel trainer = new TrainSomaticModel();
-        if (args.length < 1) {
-            System.err.println("usage: DetectMutations <input-training-file+>");
+    public static void main(String[] args) throws IOException {
+        TrainingArguments arguments=new TrainingArguments();
+        JCommander commander= new JCommander(arguments);
+        commander.setProgramName("TrainSomaticModel");
+        try {
+            commander.parse(args);
+        }catch (ParameterException e) {
+
+            commander.usage();
+            System.exit(1);
         }
 
+        TrainSomaticModel trainer = new TrainSomaticModel(arguments);
+
+
         //for trio:
-        if (isTrio){
-            trainer.execute(new FeatureMapperV18Trio(), args, 32);
+        if (arguments.isTrio){
+            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), 32);
         } else {
-            trainer.execute(new FeatureMapperV18(), args, 32);
+            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), 32);
         }
         //for duo
     }
@@ -68,15 +83,11 @@ public class TrainSomaticModel extends SomaticTrainer {
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
-
+        validationDatasetFilename = arguments.validationSet;
         //check validation file for error
-        if (isTrio){
-            validationDatasetFilename = "/Users/rct66/data/random2/trio_val_r2.parquet";
-        } else {
-            validationDatasetFilename = "/Users/rct66/data/random2/duo_val_r2.parquet";
-        }
+
         if (!(new File(validationDatasetFilename).exists())){
-            throw new IOException("Validation file not found!");
+            throw new IOException("Validation file not found! "+validationDatasetFilename);
         }
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
@@ -93,6 +104,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         double bestAUC = 0.5;
         performanceLogger.setCondition(EXPERIMENTAL_CONDITION);
         int numExamplesUsed=0;
+        int notImproved=0;
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -152,7 +164,13 @@ public class TrainSomaticModel extends SomaticTrainer {
                 bestAUC = auc;
                 writeBestAUC(bestAUC);
                 performanceLogger.log("bestAUC", numExamplesUsed, epoch, bestScore, bestAUC);
-
+                notImproved=0;
+            }else {
+                notImproved++;
+            }
+            if (notImproved>earlyStopCondition) {
+                // we have not improved after earlyStopCondition epoch, time to stop.
+                break;
             }
             pg.stop();
             pgEpoch.update();
@@ -255,7 +273,7 @@ public class TrainSomaticModel extends SomaticTrainer {
 
     private double estimateTestSetPerf(int epoch, int iter) throws IOException {
         if (validationDatasetFilename == null) return 0;
-        MeasurePerformance perf = new MeasurePerformance(10000);
+        MeasurePerformance perf = new MeasurePerformance(arguments.numValidation);
         double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
         float minWrongness = queue.getMinWrongness();
         float maxWrongness = queue.getMaxWrongness();

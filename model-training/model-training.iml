@@ -231,6 +231,7 @@
     <orderEntry type="library" name="Maven: com.googlecode.json-simple:json-simple:1.1" level="project" />
     <orderEntry type="library" name="Maven: com.hadoop.gplcompression:hadoop-lzo:0.4.16" level="project" />
     <orderEntry type="module" module-name="model-utils" />
+    <orderEntry type="library" name="Maven: com.beust:jcommander:1.48" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:dsiutils:2.3.3" level="project" />
     <orderEntry type="library" name="Maven: com.martiansoftware:jsap:2.1" level="project" />
     <orderEntry type="library" name="Maven: commons-collections:commons-collections:20040616" level="project" />

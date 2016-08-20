@@ -12,6 +12,7 @@ import org.campagnelab.dl.varanalysis.learning.architecture.NeuralNetAssembler;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersNarrower2;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
@@ -41,8 +42,9 @@ import java.util.List;
  */
 public abstract class SomaticTrainer {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
-    protected String condition=null;
-    protected int seed = 123;
+    protected TrainingArguments arguments;
+    protected String condition = null;
+
     protected double learningRate = 0.1;
     protected int miniBatchSize = 32;
     protected int numEpochs = 200;
@@ -83,8 +85,10 @@ public abstract class SomaticTrainer {
             trainIterList.add(new BaseInformationIterator(trainingDataset[i], miniBatchSize,
                     featureCalculator, labelMapper));
         }
-        final DataSetIterator async = decorateIterator(new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper));
-
+        DataSetIterator async = decorateIterator(new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper));
+        if (arguments.numTraining != Integer.MAX_VALUE) {
+            async = new FirstNIterator(async, arguments.numTraining);
+        }
 
         System.out.println("Estimating scaling parameters:");
         //Load the training data:
@@ -92,7 +96,7 @@ public abstract class SomaticTrainer {
         int numOutputs = async.totalOutcomes();
         numHiddenNodes = numInputs * 5;
         NeuralNetAssembler assembler = new SixDenseLayersNarrower2();
-        assembler.setSeed(seed);
+        assembler.setSeed(arguments.seed);
         assembler.setLearningRate(learningRate);
         assembler.setNumHiddenNodes(numHiddenNodes);
         assembler.setNumInputs(numInputs);
@@ -200,7 +204,7 @@ public abstract class SomaticTrainer {
         helper.setNumEpochs(numEpochs);
         helper.setNumTrainingSets(numTrainingFiles);
         helper.setTime(time);
-        helper.setSeed(seed);
+        helper.setSeed(arguments.seed);
         helper.setLossFunction(lossFunction.name());
         helper.setEarlyStopCriterion(earlyStopCondition);
     }

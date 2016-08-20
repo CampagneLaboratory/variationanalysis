@@ -21,7 +21,7 @@ import java.util.Random;
 /**
  *
  *
- * the randomizer object iterates over a parquet file and randomizes the order of records in batches
+ * The randomizer object iterates over a parquet file and randomizes the order of records in batches.
  *
  * Created by rct66 on 5/18/16.
  * @author rct66

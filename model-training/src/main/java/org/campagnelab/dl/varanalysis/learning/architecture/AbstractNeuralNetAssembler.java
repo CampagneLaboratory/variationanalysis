@@ -9,7 +9,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  */
 public abstract class AbstractNeuralNetAssembler implements NeuralNetAssembler {
     protected double learningRate;
-    protected int seed;
+    protected long seed;
     protected int numInputs;
     protected int numOutputs;
     protected int numHiddenNodes;
@@ -34,7 +34,7 @@ public abstract class AbstractNeuralNetAssembler implements NeuralNetAssembler {
         this.learningRate = learningRate;
     }
 
-    public void setSeed(int seed) {
+    public void setSeed(long seed) {
         this.seed = seed;
     }
 

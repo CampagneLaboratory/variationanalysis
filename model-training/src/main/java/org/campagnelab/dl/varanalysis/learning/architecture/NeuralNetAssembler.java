@@ -20,7 +20,7 @@ public interface NeuralNetAssembler {
 
     public void setLearningRatePolicy(LearningRatePolicy learningRatePolicy);
 
-    public void setSeed(int seed);
+    public void setSeed(long seed);
 
     //  public void setInputs(int numInputs, int numOutputs, int[] numHiddenNodes);
 

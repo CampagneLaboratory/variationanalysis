@@ -58,7 +58,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     @Override
     protected DataSetIterator decorateIterator(BaseInformationConcatIterator iterator) {
-        samplingIterator = new SamplingIterator(new FirstNIterator(iterator, 1000), seed);
+        samplingIterator = new SamplingIterator(new FirstNIterator(iterator, 1000), arguments.seed);
         return samplingIterator;
     }
 

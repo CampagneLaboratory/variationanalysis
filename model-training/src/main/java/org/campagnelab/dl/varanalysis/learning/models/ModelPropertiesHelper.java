@@ -63,8 +63,8 @@ public class ModelPropertiesHelper {
         modelProp.setProperty("numEpochs", Integer.toString(numEpochs));
     }
 
-    public void setSeed(int seed) {
-        modelProp.setProperty("randomSeed", Integer.toString(seed));
+    public void setSeed(long seed) {
+        modelProp.setProperty("randomSeed", Long.toString(seed));
     }
 
     public void setTime(long time) {
