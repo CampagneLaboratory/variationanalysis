@@ -2,6 +2,8 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV16;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
+import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.SamplingIterator;
@@ -32,10 +34,15 @@ import java.util.Map;
  */
 public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
-    private static final int MAX_EPOCHS_WITHOUT_IMPROVEMENT = 10;
-    private static final String EXPERIMENTAL_CONDITION = "error_sampling_p/0.5";
+
+    private static final String EXPERIMENTAL_CONDITION = "error_sampling_p/0.2";
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModelErrorSampling.class);
     private String validationDatasetFilename = null;
+
+    public TrainSomaticModelErrorSampling(TrainingArguments arguments) {
+        super(arguments);
+        this.validationDatasetFilename=arguments.validationSet;
+    }
 
     /**
      * Error enrichment support.
@@ -43,22 +50,23 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     private final boolean ERROR_SAMPLING = true;
 
-
     public static void main(String[] args) throws IOException {
-
-        TrainSomaticModelErrorSampling trainer = new TrainSomaticModelErrorSampling();
-        if (args.length < 1) {
-            System.err.println("usage: DetectMutations <input-training-file+>");
+        TrainingArguments arguments= parseArguments(args,"TrainSomaticModelErrorSampling");
+        TrainSomaticModelErrorSampling trainer=new TrainSomaticModelErrorSampling(arguments);
+        //for trio:
+        if (arguments.isTrio){
+            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), 32);
+        } else {
+            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), 32);
         }
-        trainer.execute(new FeatureMapperV16(), args, 32);
 
     }
 
     SamplingIterator samplingIterator = null;
 
     @Override
-    protected DataSetIterator decorateIterator(BaseInformationConcatIterator iterator) {
-        samplingIterator = new SamplingIterator(new FirstNIterator(iterator, 1000), arguments.seed);
+    protected DataSetIterator decorateIterator(DataSetIterator iterator) {
+        samplingIterator = new SamplingIterator(iterator, arguments.seed);
         return samplingIterator;
     }
 
@@ -92,9 +100,11 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
             while (async.hasNext()) {
 
                 DataSet ds = async.next();
-                if (numLabels(ds.getLabels()) != 2) {
-                    // just be chance, some minibatches will have zero or only one label.
+                if (numLabels(ds.getLabels()) != 2||ds.numExamples()==0) {
+                    // just by chance, some minibatches will have zero or only one label.
                     // Since we cannot learn from them, we skip them.
+                    // we also skip empty mini-batches
+                    // (can be empty when sampling ignored all records of the larger batch).
                     continue;
                 }
 
@@ -124,9 +134,9 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
                 performanceLogger.log("bestAUC", numExamplesUsed, epoch, Double.NaN, bestAUC);
             } else {
                 numEpochSinceImprovement++;
-                if (numEpochSinceImprovement > MAX_EPOCHS_WITHOUT_IMPROVEMENT) {
+                if (numEpochSinceImprovement > arguments.stopWhenEpochsWithoutImprovement) {
                     System.out.printf("AUC did not improve after %d epoch. Early stop.",
-                            MAX_EPOCHS_WITHOUT_IMPROVEMENT);
+                            arguments.stopWhenEpochsWithoutImprovement);
                     finalAUC = auc;
                     break;
                 }
@@ -134,7 +144,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
             performanceLogger.write();
             pg.stop();
             pgEpoch.update();
-            async.reset();    //Reset iterator for another epoch
+            samplingIterator.reset();    //Reset iterator for another epoch
 
 
         }
@@ -156,11 +166,11 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
             final float pOfWrongLabel = ErrorRecord.calculateWrongness(exampleIndex, predictedLabels, labels);
             final boolean wrongPrediction = ErrorRecord.isWrongPrediction(exampleIndex, predictedLabels, labels);
             float p = wrongPrediction ? pOfWrongLabel :
-                    0.5f;
+                    0.01f;
             /*if (!wrongPrediction) {
                 p=0.05f;
             }*/
-            final float previousP = samplingIterator.getProbability(exampleIndex);
+//            final float previousP = samplingIterator.getProbability(exampleIndex);
             samplingIterator.setSamplingProbability(wrongPrediction, exampleIndex, (float) p);
 
         }
@@ -186,9 +196,9 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
 
     private double estimateTestSetPerf(int epoch, int iter) throws IOException {
-        validationDatasetFilename = "/data/no-threshold/validation-2/m-r-MHFC-63-CTL_B_NK_VN.parquet";
+       // validationDatasetFilename = "/data/no-threshold/validation-2/m-r-MHFC-63-CTL_B_NK_VN.parquet";
         if (validationDatasetFilename == null) return 0;
-        MeasurePerformance perf = new MeasurePerformance(10000);
+        MeasurePerformance perf = new MeasurePerformance(arguments.numValidation);
         double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
         //   System.out.printf("Average sampling P=%f%n", samplingIterator.getAverageSamplingP());
 

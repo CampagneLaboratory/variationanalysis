@@ -40,7 +40,7 @@ public class TrainSomaticModel extends SomaticTrainer {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
 
     private String validationDatasetFilename = null;
-    private static final String EXPERIMENTAL_CONDITION = "naive";
+    private static final String EXPERIMENTAL_CONDITION = "error-enrichment";
     private static final boolean isTrio = false;
 
     /**
@@ -53,20 +53,11 @@ public class TrainSomaticModel extends SomaticTrainer {
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
 
     public TrainSomaticModel(TrainingArguments arguments) {
-        this.arguments=arguments;
+        super(arguments);
     }
 
     public static void main(String[] args) throws IOException {
-        TrainingArguments arguments=new TrainingArguments();
-        JCommander commander= new JCommander(arguments);
-        commander.setProgramName("TrainSomaticModel");
-        try {
-            commander.parse(args);
-        }catch (ParameterException e) {
-
-            commander.usage();
-            System.exit(1);
-        }
+        TrainingArguments arguments = parseArguments(args,"TrainSomaticModel");
 
         TrainSomaticModel trainer = new TrainSomaticModel(arguments);
 
@@ -79,6 +70,8 @@ public class TrainSomaticModel extends SomaticTrainer {
         }
         //for duo
     }
+
+
 
 
     @Override

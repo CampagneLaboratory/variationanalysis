@@ -29,16 +29,17 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
     public static final int MIN_ITERATION_BETWEEN_BEST_MODEL = 1000;
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModelOnGPU.class);
 
+    public TrainSomaticModelOnGPU(TrainingArguments arguments) {
+        super(arguments);
+    }
+
 
     public static void main(String[] args) throws IOException {
         // uncomment the following line when running on a machine with multiple GPUs:
-      //  org.nd4j.jita.conf.CudaEnvironment.getInstance().getConfiguration().allowMultiGPU(true);
-        TrainSomaticModelOnGPU trainer = new TrainSomaticModelOnGPU();
-        if (args.length < 1) {
-            System.err.println("usage: DetectMutations <input-training-directory>");
-        }
-
-        trainer.execute(new FeatureMapperV15(), args, 32);
+        //  org.nd4j.jita.conf.CudaEnvironment.getInstance().getConfiguration().allowMultiGPU(true);
+        TrainingArguments arguments = parseArguments(args, "TrainSomaticModelOnGPU");
+        TrainSomaticModelOnGPU trainer = new TrainSomaticModelOnGPU(arguments);
+        trainer.execute(new FeatureMapperV15(), arguments.getTrainingSets(), 32);
     }
 
 

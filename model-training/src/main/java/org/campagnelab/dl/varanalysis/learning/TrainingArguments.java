@@ -36,6 +36,10 @@ public class TrainingArguments {
     public int stopWhenEpochsWithoutImprovement=10;
     @Parameter(names={"-r","--learning-rate"}, description = "Learning rate.")
     public double learningRate=0.1;
+
+    @Parameter(names={"--regularization-rate"}, description = "Regularization rate. Disabled if set to NaN.")
+    public double regularizationRate=Double.NaN;
+
     public String[] getTrainingSets() {
       return  this.trainingSets.toArray(new String[this.trainingSets.size()]);
     }

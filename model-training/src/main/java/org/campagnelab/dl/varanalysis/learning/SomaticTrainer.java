@@ -1,5 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -45,6 +47,19 @@ public abstract class SomaticTrainer {
     protected TrainingArguments arguments;
     protected String condition = null;
 
+    protected static TrainingArguments parseArguments(String[] args, String commandName) {
+        TrainingArguments arguments = new TrainingArguments();
+        JCommander commander = new JCommander(arguments);
+        commander.setProgramName(commandName);
+        try {
+            commander.parse(args);
+        } catch (ParameterException e) {
+
+            commander.usage();
+            System.exit(1);
+        }
+        return arguments;
+    }
 
     protected int miniBatchSize = 32;
     protected int numEpochs = 200;
@@ -61,6 +76,10 @@ public abstract class SomaticTrainer {
     protected MultiLayerNetwork net;
     protected LossFunctions.LossFunction lossFunction;
     protected PerformanceLogger performanceLogger;
+
+    public SomaticTrainer(TrainingArguments arguments) {
+        this.arguments = arguments;
+    }
 
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
         this.featureCalculator = featureCalculator;
@@ -85,11 +104,11 @@ public abstract class SomaticTrainer {
             trainIterList.add(new BaseInformationIterator(trainingDataset[i], miniBatchSize,
                     featureCalculator, labelMapper));
         }
-        DataSetIterator async = decorateIterator(new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper));
+        DataSetIterator async = new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper);
         if (arguments.numTraining != Integer.MAX_VALUE) {
             async = new FirstNIterator(async, arguments.numTraining);
         }
-
+        async = decorateIterator(async);
         System.out.println("Estimating scaling parameters:");
         //Load the training data:
         int numInputs = async.inputColumns();
@@ -105,8 +124,10 @@ public abstract class SomaticTrainer {
         lossFunction = LossFunctions.LossFunction.MCXENT;
 
         assembler.setLossFunction(lossFunction);
-        assembler.setRegularization(false);
-        assembler.setRegularizationRate(1e-6);
+        if (arguments.regularizationRate != Double.NaN) {
+            assembler.setRegularization(true);
+            assembler.setRegularizationRate(arguments.regularizationRate);
+        }
         //   assembler.setDropoutRate(dropoutRate);
 
 
@@ -144,7 +165,7 @@ public abstract class SomaticTrainer {
         performanceLogger.write();
     }
 
-    protected DataSetIterator decorateIterator(BaseInformationConcatIterator iterator) {
+    protected DataSetIterator decorateIterator(DataSetIterator iterator) {
         return iterator;
     }
 

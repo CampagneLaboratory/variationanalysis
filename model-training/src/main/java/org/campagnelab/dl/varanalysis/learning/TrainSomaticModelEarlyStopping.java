@@ -35,20 +35,19 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
 
     protected  String validationFile;
 
-    public TrainSomaticModelEarlyStopping(String validationFilePath) {
-            this.validationFile=RecordWriter.addParqExtension(validationFilePath);
+    public TrainSomaticModelEarlyStopping(TrainingArguments arguments) {
+        super(arguments);
+        this.validationFile = RecordWriter.addParqExtension(arguments.validationSet);
     }
 
+
+
     public static void main(String[] args) throws IOException  {
-        if (args.length < 2) {
-            System.err.println("usage: DetectMutations <input-validation-file> <input-training-directory>");
-            System.exit(1);
-        }
-        String otherArgs[]=new String[args.length-1];
-        System.arraycopy(args,0, otherArgs,0, otherArgs.length);
-        TrainSomaticModelEarlyStopping trainer=new TrainSomaticModelEarlyStopping(args[0]);
-        System.out.println("Early stopping using validation="+args[0]);
-        trainer.execute(new FeatureMapperV15(), otherArgs);
+        TrainingArguments arguments= parseArguments(args,"TrainSomaticModelEarlyStopping");
+
+        TrainSomaticModelEarlyStopping trainer=new TrainSomaticModelEarlyStopping(arguments);
+        System.out.println("Early stopping using validation="+arguments.validationSet);
+        trainer.execute(new FeatureMapperV15(), arguments.getTrainingSets());
     }
 
     public  void execute(FeatureMapper featureCalculator, String[] trainingFiles) throws IOException {
