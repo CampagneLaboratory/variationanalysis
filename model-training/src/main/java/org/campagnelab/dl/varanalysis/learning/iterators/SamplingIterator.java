@@ -63,7 +63,7 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
         }
         averageProbability /= samplingProbabilities.length;
         float willIgnoreFraction = 1 - averageProbability;
-        this.delegateBatchSize = Math.round(delegate.batch() * (1 + willIgnoreFraction));
+        this.delegateBatchSize = Math.round(delegate.batch() * (1/averageProbability));
         assert delegateBatchSize >= miniBatchSize : "delegate minibatch size must be larger than output size.";
 
     }
@@ -73,6 +73,9 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
     }
 
     public void setSamplingProbability(boolean wrongPrediction, int indexInMinibatch, float probability) {
+if (!sampleToDelegateIndexMap.containsKey(indexInMinibatch)) {
+    System.out.println("STOP");
+}
         assert sampleToDelegateIndexMap.containsKey(indexInMinibatch): "The index (in minibatch) must be found: "+indexInMinibatch;
         final int index = sampleToDelegateIndexMap.get(indexInMinibatch);
         if (index >= samplingProbabilities.length) {
