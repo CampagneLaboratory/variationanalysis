@@ -5,6 +5,8 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+
 /**
  * AUC Calculator. This class was adapted from the BDVAl project. The calculation is straightforward, but has
  * complexity n square, so won't scale with very large number of examples.
@@ -16,13 +18,22 @@ import org.slf4j.LoggerFactory;
 
 public class AreaUnderTheROCCurve {
     static private Logger LOG = LoggerFactory.getLogger(AreaUnderTheROCCurve.class);
-
+    private int maxObservations;
+    private boolean clipObservations;
     private DoubleArrayList positiveDecisions;
     private DoubleArrayList negativeDecisions;
 
     public AreaUnderTheROCCurve() {
         positiveDecisions = new DoubleArrayList();
         negativeDecisions = new DoubleArrayList();
+        this.maxObservations = Integer.MAX_VALUE;
+        this.clipObservations = false;
+    }
+
+    public AreaUnderTheROCCurve(int maxObservations) {
+        this();
+        this.maxObservations = maxObservations;
+        this.clipObservations = true;
     }
 
     public void reset() {
@@ -50,7 +61,9 @@ public class AreaUnderTheROCCurve {
         double sum = 0;
         double numPositive = 0;
         double numNegative = 0;
-
+        if (clipObservations) {
+            clipObservations();
+        }
         for (final double decisionPositive : positiveDecisions) {
             for (final double decisionNegative : negativeDecisions) {
                 sum += decisionPositive > decisionNegative ? 1 : 0;
@@ -63,6 +76,27 @@ public class AreaUnderTheROCCurve {
 
         final double auc = sum / numPositive / numNegative;
         return auc;
+    }
+
+    /**
+     * Shuffle observations, then clip to the max number. This reduces the precision of the estimate,
+     * but ensures computation will finish in a reasonable time (we use a n^2 algorithm).
+     */
+    private void clipObservations() {
+        boolean needToClip = positiveDecisions.size() > maxObservations ||
+                negativeDecisions.size() > maxObservations;
+
+        if (needToClip) {
+            if (maxObservations < positiveDecisions.size()) {
+                Collections.shuffle(positiveDecisions);
+                positiveDecisions.size(maxObservations);
+            }
+            if (maxObservations < negativeDecisions.size()) {
+                Collections.shuffle(negativeDecisions);
+                negativeDecisions.size(maxObservations);
+            }
+        }
+
     }
 
     public static double evaluateStatistic(final double[] decisionValues, final double[] labels) {

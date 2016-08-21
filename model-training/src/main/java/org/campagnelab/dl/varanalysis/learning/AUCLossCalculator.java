@@ -23,14 +23,15 @@ public class AUCLossCalculator implements ScoreCalculator<MultiLayerNetwork> {
      * Calculate the score (loss function value) on a given data set (usually a test set)
      *
      * @param dataSetIterator Data set to calculate the score for
-     * @param average         Whether to return the av  erage (sum of loss / N) or just (sum of loss)
+     * @param average         Whether to return the average (sum of loss / N) or just (sum of loss)
      */
     public AUCLossCalculator(DataSetIterator dataSetIterator, boolean average) {
         this.dataSetIterator = dataSetIterator;
         this.average = average;
+        aucCalculator= new AreaUnderTheROCCurve();
     }
 
-    AreaUnderTheROCCurve aucCalculator = new AreaUnderTheROCCurve();
+    AreaUnderTheROCCurve aucCalculator;
 
     @Override
     public double calculateScore(MultiLayerNetwork network) {

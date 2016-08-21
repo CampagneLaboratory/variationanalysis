@@ -166,7 +166,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
             final float pOfWrongLabel = ErrorRecord.calculateWrongness(exampleIndex, predictedLabels, labels);
             final boolean wrongPrediction = ErrorRecord.isWrongPrediction(exampleIndex, predictedLabels, labels);
             float p = wrongPrediction ? pOfWrongLabel :
-                    0.01f;
+                    0.1f;
             /*if (!wrongPrediction) {
                 p=0.05f;
             }*/
@@ -198,7 +198,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
     private double estimateTestSetPerf(int epoch, int iter) throws IOException {
        // validationDatasetFilename = "/data/no-threshold/validation-2/m-r-MHFC-63-CTL_B_NK_VN.parquet";
         if (validationDatasetFilename == null) return 0;
-        MeasurePerformance perf = new MeasurePerformance(arguments.numValidation);
+        MeasurePerformance perf = new MeasurePerformance(arguments.numValidation,arguments.aucClipMaxObservations);
         double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
         //   System.out.printf("Average sampling P=%f%n", samplingIterator.getAverageSamplingP());
 

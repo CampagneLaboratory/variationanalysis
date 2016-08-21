@@ -182,7 +182,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         pgReadWrite.displayFreeMemory = true;
         pgReadWrite.start();
 
-        AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve();
+        AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve(50000);
         int index = 0;
 
         for (BaseInformationRecords.BaseInformation record : reader) {

@@ -40,6 +40,10 @@ public class TrainingArguments {
     @Parameter(names={"--regularization-rate"}, description = "Regularization rate. Disabled if set to NaN.")
     public double regularizationRate=Double.NaN;
 
+    @Parameter(names = { "--auc-clip-max-observations"}, description = "The maximum number of observations to use when evaluating the AUC. ")
+    public int aucClipMaxObservations=10000;
+
+
     public String[] getTrainingSets() {
       return  this.trainingSets.toArray(new String[this.trainingSets.size()]);
     }
