@@ -56,7 +56,8 @@ public abstract class SomaticTrainer {
         } catch (ParameterException e) {
 
             commander.usage();
-            System.exit(1);
+            throw e;
+
         }
         return arguments;
     }
