@@ -35,7 +35,7 @@ import java.util.Map;
 public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
 
-    private static final String EXPERIMENTAL_CONDITION = "error_sampling_p/0.2";
+    private static final String EXPERIMENTAL_CONDITION = "error_sampling_p/1-p";
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModelErrorSampling.class);
     private String validationDatasetFilename = null;
 
@@ -166,7 +166,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
             final float pOfWrongLabel = ErrorRecord.calculateWrongness(exampleIndex, predictedLabels, labels);
             final boolean wrongPrediction = ErrorRecord.isWrongPrediction(exampleIndex, predictedLabels, labels);
             float p = wrongPrediction ? pOfWrongLabel :
-                    0.1f;
+                    1-pOfWrongLabel;
             /*if (!wrongPrediction) {
                 p=0.05f;
             }*/
