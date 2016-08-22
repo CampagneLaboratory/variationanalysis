@@ -40,7 +40,6 @@ public class TrainSomaticModel extends SomaticTrainer {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
 
     private String validationDatasetFilename = null;
-    private static final String EXPERIMENTAL_CONDITION = "error-enrichment";
     private static final boolean isTrio = false;
 
     /**
@@ -78,7 +77,6 @@ public class TrainSomaticModel extends SomaticTrainer {
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
         validationDatasetFilename = arguments.validationSet;
         //check validation file for error
-
         if (!(new File(validationDatasetFilename).exists())){
             throw new IOException("Validation file not found! "+validationDatasetFilename);
         }
@@ -95,7 +93,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
         System.out.println("ERROR_ENRICHMENT=" + ERROR_ENRICHMENT);
         double bestAUC = 0.5;
-        performanceLogger.setCondition(EXPERIMENTAL_CONDITION);
+        performanceLogger.setCondition(arguments.experimentalCond);
         int numExamplesUsed=0;
         int notImproved=0;
         for (int epoch = 0; epoch < numEpochs; epoch++) {
