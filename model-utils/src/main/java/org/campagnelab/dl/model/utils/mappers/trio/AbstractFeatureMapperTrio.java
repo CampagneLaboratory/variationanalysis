@@ -13,7 +13,7 @@ import java.util.Collections;
  * AbstractFeatureMapper encapsulates behavior common to many feature mappers.
  * Created by fac2003 on 6/3/16.
  *
- * @author Fabien Campagne
+ * @author Fabien Campagnei
  */
 public abstract class AbstractFeatureMapperTrio extends AbstractFeatureMapper {
 
@@ -21,15 +21,11 @@ public abstract class AbstractFeatureMapperTrio extends AbstractFeatureMapper {
         ObjectArrayList<GenotypeCount> list = new ObjectArrayList<>();
         int genotypeIndex = 0;
         for (int i = 0; i < record.getSamples(0).getCountsCount(); i++){
-            int fatherCount = record.getSamples(0).getCounts(i).getGenotypeCountForwardStrand() + record.getSamples(0).getCounts(i).getGenotypeCountReverseStrand();
-            int motherCount = record.getSamples(1).getCounts(i).getGenotypeCountForwardStrand() + record.getSamples(1).getCounts(i).getGenotypeCountReverseStrand();
+            //use somatic counts for compare
+            int compareCount = record.getSamples(2).getCounts(i).getGenotypeCountForwardStrand() + record.getSamples(2).getCounts(i).getGenotypeCountReverseStrand();
             BaseInformationRecords.CountInfo genoInfo = record.getSamples(sampleIndex).getCounts(i);
             int forwCount = genoInfo.getGenotypeCountForwardStrand();
             int revCount = genoInfo.getGenotypeCountReverseStrand();
-
-            //use sum of counts from all samples to define base order
-            int compareCount = forwCount+revCount;
-            //int compareCount = fatherCount+motherCount+forwCount+revCount;
             GenotypeCount count = factory.create();
             count.set(forwCount, revCount, genoInfo.getToSequence(),i,compareCount);
             initializeCount(record.getSamples(sampleIndex).getCounts(i), count);
