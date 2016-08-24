@@ -1,10 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterException;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV16;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
@@ -40,8 +37,7 @@ public class TrainSomaticModel extends SomaticTrainer {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
 
     private String validationDatasetFilename = null;
-    private static final String EXPERIMENTAL_CONDITION = "error-enrichment";
-    private static final boolean isTrio = false;
+
 
     /**
      * Error enrichment support.
@@ -78,7 +74,6 @@ public class TrainSomaticModel extends SomaticTrainer {
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
         validationDatasetFilename = arguments.validationSet;
         //check validation file for error
-
         if (!(new File(validationDatasetFilename).exists())){
             throw new IOException("Validation file not found! "+validationDatasetFilename);
         }
@@ -95,7 +90,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
         System.out.println("ERROR_ENRICHMENT=" + ERROR_ENRICHMENT);
         double bestAUC = 0.5;
-        performanceLogger.setCondition(EXPERIMENTAL_CONDITION);
+        performanceLogger.setCondition(arguments.experimentalCondition);
         int numExamplesUsed=0;
         int notImproved=0;
         for (int epoch = 0; epoch < numEpochs; epoch++) {
