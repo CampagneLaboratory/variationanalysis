@@ -60,9 +60,9 @@ public class TrainSomaticModel extends SomaticTrainer {
 
         //for trio:
         if (arguments.isTrio){
-            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), 32);
+            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
         } else {
-            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), 32);
+            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), arguments.miniBatchSize);
         }
         //for duo
     }
@@ -97,7 +97,7 @@ public class TrainSomaticModel extends SomaticTrainer {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
 
-            pg.expectedUpdates = async.totalExamples() / miniBatchSize; // one iteration processes miniBatchIterator elements.
+            pg.expectedUpdates = async.totalExamples() / arguments.miniBatchSize; // one iteration processes miniBatchIterator elements.
             pg.start();
             int lastIter = 0;
 

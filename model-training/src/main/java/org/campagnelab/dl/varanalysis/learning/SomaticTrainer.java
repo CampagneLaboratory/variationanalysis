@@ -61,7 +61,7 @@ public abstract class SomaticTrainer {
         return arguments;
     }
 
-    protected int miniBatchSize = 32;
+
     protected int numEpochs = 200;
 
     protected double dropoutRate = 0.5;
@@ -83,7 +83,7 @@ public abstract class SomaticTrainer {
 
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
         this.featureCalculator = featureCalculator;
-        this.miniBatchSize = miniBatchSize;
+
         this.numTrainingFiles = trainingDataset.length;
 
         String path = "";
@@ -219,7 +219,7 @@ public abstract class SomaticTrainer {
         helper.setFeatureCalculator(featureCalculator);
         helper.setLearningRate(arguments.learningRate);
         helper.setNumHiddenNodes(numHiddenNodes);
-        helper.setMiniBatchSize(miniBatchSize);
+        helper.setMiniBatchSize(arguments.miniBatchSize);
         // mpHelper.setBestScore(bestScore);
         helper.setNumEpochs(numEpochs);
         helper.setNumTrainingSets(numTrainingFiles);
