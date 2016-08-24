@@ -19,6 +19,7 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ import java.util.Map;
 public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
 
-    private static final String EXPERIMENTAL_CONDITION = "error_sampling_p/0.2";
+    private static final String EXPERIMENTAL_CONDITION = "error_sampling_p/1-p";
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModelErrorSampling.class);
     private String validationDatasetFilename = null;
 
@@ -72,6 +73,13 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
+
+        validationDatasetFilename = arguments.validationSet;
+        //check validation file for error
+
+        if (!(new File(validationDatasetFilename).exists())){
+            throw new IOException("Validation file not found! "+validationDatasetFilename);
+        }
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
         boolean init = true;
@@ -166,7 +174,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
             final float pOfWrongLabel = ErrorRecord.calculateWrongness(exampleIndex, predictedLabels, labels);
             final boolean wrongPrediction = ErrorRecord.isWrongPrediction(exampleIndex, predictedLabels, labels);
             float p = wrongPrediction ? pOfWrongLabel :
-                    0.1f;
+                    1-pOfWrongLabel;
             /*if (!wrongPrediction) {
                 p=0.05f;
             }*/

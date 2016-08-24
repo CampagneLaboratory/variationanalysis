@@ -43,8 +43,8 @@ public class TrainingArguments {
     @Parameter(names = { "--auc-clip-max-observations"}, description = "The maximum number of observations to sample when evaluating the AUC. ")
     public int aucClipMaxObservations=10000;
 
-    @Parameter(names = { "--experimental-cond"}, description = "The experimental condition label used in validation loggin each epoch. ")
-    public String experimentalCond="default_condition";
+    @Parameter(names = { "--experimental-condition"}, description = "The experimental condition label used in validation loggin each epoch. ")
+    public String experimentalCondition ="not_specified";
 
     @Parameter(names = { "--max-epochs"}, description = "The maximum number of epochs to train if early stopping does not occur")
     public int maxEpochs=Integer.MAX_VALUE;

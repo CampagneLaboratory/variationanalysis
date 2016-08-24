@@ -45,7 +45,6 @@ import java.util.List;
 public abstract class SomaticTrainer {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
     protected TrainingArguments arguments;
-    protected String condition = null;
 
     protected static TrainingArguments parseArguments(String[] args, String commandName) {
         TrainingArguments arguments = new TrainingArguments();
@@ -56,7 +55,8 @@ public abstract class SomaticTrainer {
         } catch (ParameterException e) {
 
             commander.usage();
-            System.exit(1);
+            throw e;
+
         }
         return arguments;
     }
