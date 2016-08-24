@@ -26,7 +26,7 @@ public class TrainingArguments {
     @Parameter(names = {"-n","--num-training"}, description = "The maximum number of training samples to train with. ")
     public int numTraining=Integer.MAX_VALUE;
 
-    @Parameter(names = {"-x", "--num-validation"}, description = "The maximum number of training samples to train with. ")
+    @Parameter(names = {"-x", "--num-validation"}, description = "The maximum number of validate samples to validate with. ")
     public int numValidation=Integer.MAX_VALUE;
 
     @Parameter(names = {"-s", "--random-seed"}, description = "The random seed to initialize network weights. ")
@@ -45,6 +45,9 @@ public class TrainingArguments {
 
     @Parameter(names = { "--experimental-cond"}, description = "The experimental condition label used in validation loggin each epoch. ")
     public String experimentalCond="default_condition";
+
+    @Parameter(names = { "--max-epochs"}, description = "The maximum number of epochs to train if early stopping does not occur")
+    public int maxEpochs=Integer.MAX_VALUE;
 
 
     public String[] getTrainingSets() {

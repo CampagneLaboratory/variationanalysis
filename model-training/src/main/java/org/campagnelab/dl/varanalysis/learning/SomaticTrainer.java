@@ -62,7 +62,7 @@ public abstract class SomaticTrainer {
     }
 
     protected int miniBatchSize = 32;
-    protected int numEpochs = 200;
+    protected int numEpochs;
 
     protected double dropoutRate = 0.5;
     protected LabelMapper labelMapper = new SimpleFeatureCalculator();
@@ -84,6 +84,7 @@ public abstract class SomaticTrainer {
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
         this.featureCalculator = featureCalculator;
         this.miniBatchSize = miniBatchSize;
+        this.numEpochs = arguments.maxEpochs;
         this.numTrainingFiles = trainingDataset.length;
 
         String path = "";
