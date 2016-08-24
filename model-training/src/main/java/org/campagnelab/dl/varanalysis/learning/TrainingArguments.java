@@ -23,10 +23,10 @@ public class TrainingArguments {
     @Parameter(names = "--trio", description = "Use to train trio models. The training and validation datasets must have three samples, parents first, patient last.")
     public boolean isTrio = false;
 
-    @Parameter(names = {"-n","--num-training"}, description = "The maximum number of training samples to train with. ")
+    @Parameter(names = {"-n","--num-training"}, description = "The maximum number of training examples to train with. ")
     public int numTraining=Integer.MAX_VALUE;
 
-    @Parameter(names = {"-x", "--num-validation"}, description = "The maximum number of validate samples to validate with. ")
+    @Parameter(names = {"-x", "--num-validation"}, description = "The number of validation examples in the training set from which auc-clip-max-observations examples will be sampled ")
     public int numValidation=Integer.MAX_VALUE;
 
     @Parameter(names = {"-s", "--random-seed"}, description = "The random seed to initialize network weights. ")
@@ -40,7 +40,7 @@ public class TrainingArguments {
     @Parameter(names={"--regularization-rate"}, description = "Regularization rate. Disabled if set to NaN.")
     public double regularizationRate=Double.NaN;
 
-    @Parameter(names = { "--auc-clip-max-observations"}, description = "The maximum number of observations to use when evaluating the AUC. ")
+    @Parameter(names = { "--auc-clip-max-observations"}, description = "The maximum number of observations to sample when evaluating the AUC. ")
     public int aucClipMaxObservations=10000;
 
     @Parameter(names = { "--experimental-cond"}, description = "The experimental condition label used in validation loggin each epoch. ")
