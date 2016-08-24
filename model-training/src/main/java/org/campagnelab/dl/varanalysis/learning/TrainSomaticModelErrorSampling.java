@@ -19,6 +19,7 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
@@ -72,6 +73,13 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
+
+        validationDatasetFilename = arguments.validationSet;
+        //check validation file for error
+
+        if (!(new File(validationDatasetFilename).exists())){
+            throw new IOException("Validation file not found! "+validationDatasetFilename);
+        }
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
         boolean init = true;
