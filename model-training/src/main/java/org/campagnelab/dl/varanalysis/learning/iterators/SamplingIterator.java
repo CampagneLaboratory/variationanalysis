@@ -63,7 +63,7 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
         }
         averageProbability /= samplingProbabilities.length;
         float willIgnoreFraction = 1 - averageProbability;
-        this.delegateBatchSize = Math.round(delegate.batch() * (1/averageProbability));
+        this.delegateBatchSize = Math.round(delegate.batch() * (1 / averageProbability));
         assert delegateBatchSize >= miniBatchSize : "delegate minibatch size must be larger than output size.";
 
     }
@@ -73,10 +73,10 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
     }
 
     public void setSamplingProbability(boolean wrongPrediction, int indexInMinibatch, float probability) {
-if (!sampleToDelegateIndexMap.containsKey(indexInMinibatch)) {
-    System.out.println("STOP");
-}
-        assert sampleToDelegateIndexMap.containsKey(indexInMinibatch): "The index (in minibatch) must be found: "+indexInMinibatch;
+        if (!sampleToDelegateIndexMap.containsKey(indexInMinibatch)) {
+            System.out.println("STOP");
+        }
+        assert sampleToDelegateIndexMap.containsKey(indexInMinibatch) : "The index (in minibatch) must be found: " + indexInMinibatch;
         final int index = sampleToDelegateIndexMap.get(indexInMinibatch);
         if (index >= samplingProbabilities.length) {
 
@@ -148,7 +148,7 @@ if (!sampleToDelegateIndexMap.containsKey(indexInMinibatch)) {
         if (numSamples == 0) {
             return next;
         }
-        num=0;
+        num = 0;
         INDArray examples = Nd4j.create(numSamples, next.getFeatures().columns());
         INDArray outcomes = Nd4j.create(numSamples, next.numOutcomes());
         for (int delegateIndex : selectedIndices) {
@@ -162,7 +162,7 @@ if (!sampleToDelegateIndexMap.containsKey(indexInMinibatch)) {
     }
 
     public float getProbability(int indexInMinibatch) {
-        assert sampleToDelegateIndexMap.containsKey(indexInMinibatch): "The index (in mini-batch returned) must be found: "+indexInMinibatch;
+        assert sampleToDelegateIndexMap.containsKey(indexInMinibatch) : "The index (in mini-batch returned) must be found: " + indexInMinibatch;
         final int index = sampleToDelegateIndexMap.get(indexInMinibatch);
         if (index >= samplingProbabilities.length) {
             return 1;

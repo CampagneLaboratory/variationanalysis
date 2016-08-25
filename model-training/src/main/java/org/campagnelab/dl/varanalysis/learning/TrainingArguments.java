@@ -49,6 +49,9 @@ public class TrainingArguments {
     @Parameter(names = "--mini-batch-size", description = "The size of the training minibatch")
     public int miniBatchSize = 32;
 
+    @Parameter(names = { "--max-epochs"}, description = "The maximum number of epochs to train if early stopping does not occur")
+    public int maxEpochs=Integer.MAX_VALUE;
+
     public String[] getTrainingSets() {
       return  this.trainingSets.toArray(new String[this.trainingSets.size()]);
     }

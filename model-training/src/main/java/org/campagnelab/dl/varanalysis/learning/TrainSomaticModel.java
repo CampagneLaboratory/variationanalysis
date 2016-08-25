@@ -82,7 +82,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         boolean init = true;
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
         pgEpoch.itemsName = "epoch";
-        pgEpoch.expectedUpdates = numEpochs;
+        pgEpoch.expectedUpdates = arguments.maxEpochs;
         pgEpoch.start();
         bestScore = Double.MAX_VALUE;
         ModelSaver saver = new ModelSaver(directory);
@@ -93,7 +93,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         performanceLogger.setCondition(arguments.experimentalCondition);
         int numExamplesUsed=0;
         int notImproved=0;
-        for (int epoch = 0; epoch < numEpochs; epoch++) {
+        for (int epoch = 0; epoch < arguments.maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
 
@@ -169,7 +169,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         pgEpoch.stop();
 
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-                "not early stopping", scoreMap, numEpochs, bestScore, numEpochs, net);
+                "not early stopping", scoreMap, arguments.maxEpochs, bestScore, arguments.maxEpochs, net);
     }
 
     private void writeBestAUC(double bestAUC) {

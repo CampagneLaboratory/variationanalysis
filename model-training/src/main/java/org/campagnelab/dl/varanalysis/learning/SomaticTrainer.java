@@ -62,7 +62,6 @@ public abstract class SomaticTrainer {
     }
 
 
-    protected int numEpochs = 200;
 
     protected double dropoutRate = 0.5;
     protected LabelMapper labelMapper = new SimpleFeatureCalculator();
@@ -89,7 +88,7 @@ public abstract class SomaticTrainer {
 
         time = new Date().getTime();
         System.out.println("time: " + time);
-        System.out.println("epochs: " + numEpochs);
+        System.out.println("epochs: " + arguments.maxEpochs);
         System.out.println(featureCalculator.getClass().getTypeName());
         directory = "models/" + Long.toString(time);
         attempt = "batch=" + miniBatchSize + "-learningRate=" + arguments.learningRate + "-time=" + time;
@@ -220,7 +219,7 @@ public abstract class SomaticTrainer {
         helper.setNumHiddenNodes(numHiddenNodes);
         helper.setMiniBatchSize(arguments.miniBatchSize);
         // mpHelper.setBestScore(bestScore);
-        helper.setNumEpochs(numEpochs);
+        helper.setNumEpochs(arguments.maxEpochs);
         helper.setNumTrainingSets(numTrainingFiles);
         helper.setTime(time);
         helper.setSeed(arguments.seed);

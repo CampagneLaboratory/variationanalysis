@@ -71,7 +71,7 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
         net.setListeners(new ScoreIterationListener(1000));
         final int numValidationBatches = 1000;
         EarlyStoppingConfiguration esConf = new EarlyStoppingConfiguration.Builder()
-                .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),
+                .epochTerminationConditions(new MaxEpochsTerminationCondition(arguments.maxEpochs),
                         new ScoreImprovementEpochTerminationCondition(arguments.stopWhenEpochsWithoutImprovement))
                 .scoreCalculator(new DataSetLossCalculator(new FirstNIterator(new BaseInformationIterator(validationFile, arguments.miniBatchSize,
                         featureCalculator, labelMapper), numValidationBatches), true))
