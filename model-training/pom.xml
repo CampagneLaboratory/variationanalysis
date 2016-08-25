@@ -238,7 +238,6 @@
             <artifactId>parquet-protobuf</artifactId>
             <version>${parquet.project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.campagnelab.dl</groupId>
             <artifactId>model-utils</artifactId>
@@ -252,7 +251,7 @@
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
-            <version>1.7</version>
+            <version>1.48</version>
         </dependency>
 
     </dependencies>

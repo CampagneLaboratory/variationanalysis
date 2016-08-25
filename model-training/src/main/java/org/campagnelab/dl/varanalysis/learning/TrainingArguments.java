@@ -35,7 +35,7 @@ public class TrainingArguments {
     @Parameter(names = { "--early-stopping-num-epochs"}, description = "The number of epochs without performance improvement before early stopping is triggered. ")
     public int stopWhenEpochsWithoutImprovement=10;
     @Parameter(names={"-r","--learning-rate"}, description = "Learning rate.")
-    public double learningRate=0.1;
+    public double learningRate=1;
 
     @Parameter(names={"--regularization-rate"}, description = "Regularization rate. Disabled if set to NaN.")
     public double regularizationRate=Double.NaN;
@@ -50,7 +50,7 @@ public class TrainingArguments {
     public int miniBatchSize = 32;
 
     @Parameter(names = { "--max-epochs"}, description = "The maximum number of epochs to train if early stopping does not occur")
-    public int maxEpochs=200;
+    public int maxEpochs=Integer.MAX_VALUE;
 
     public String[] getTrainingSets() {
       return  this.trainingSets.toArray(new String[this.trainingSets.size()]);
