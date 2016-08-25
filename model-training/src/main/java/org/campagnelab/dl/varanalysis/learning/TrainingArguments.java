@@ -35,7 +35,7 @@ public class TrainingArguments {
     @Parameter(names = { "--early-stopping-num-epochs"}, description = "The number of epochs without performance improvement before early stopping is triggered. ")
     public int stopWhenEpochsWithoutImprovement=10;
     @Parameter(names={"-r","--learning-rate"}, description = "Learning rate.")
-    public double learningRate=0.1;
+    public double learningRate=1;
 
     @Parameter(names={"--regularization-rate"}, description = "Regularization rate. Disabled if set to NaN.")
     public double regularizationRate=Double.NaN;

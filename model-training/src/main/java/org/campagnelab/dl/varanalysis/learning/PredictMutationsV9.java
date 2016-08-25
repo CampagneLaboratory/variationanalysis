@@ -29,8 +29,8 @@ import java.util.stream.IntStream;
 public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
-    final static String TIME = "trio-neworder-1470350501629";
-    final static String MODEL_DIR = "final-models/" + TIME;
+    final static String TIME = "1472072394561";
+    final static String MODEL_DIR = "models/" + TIME;
 
     private int scoreN =Integer.MAX_VALUE;
 
