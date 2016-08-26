@@ -32,18 +32,19 @@ public class TrainingArguments {
     @Parameter(names = {"-s", "--random-seed"}, description = "The random seed to initialize network weights. ")
     public long seed=new Date().getTime();
 
-    @Parameter(names = { "--early-stopping-num-epochs"}, description = "The number of epochs without performance improvement before early stopping is triggered. ")
+    @Parameter(names = "--early-stopping-num-epochs", description = "The number of epochs without performance improvement before early stopping is triggered. ")
     public int stopWhenEpochsWithoutImprovement=10;
-    @Parameter(names={"-r","--learning-rate"}, description = "Learning rate.")
-    public double learningRate=1;
 
-    @Parameter(names={"--regularization-rate"}, description = "Regularization rate. Disabled if set to NaN.")
+    @Parameter(names={"-r","--learning-rate"}, description = "Learning rate.")
+    public double learningRate=0.1;
+
+    @Parameter(names="--regularization-rate", description = "Regularization rate. Disabled if set to NaN.")
     public double regularizationRate=Double.NaN;
 
-    @Parameter(names = { "--auc-clip-max-observations"}, description = "The maximum number of observations to use when evaluating the AUC. ")
+    @Parameter(names = "--auc-clip-max-observations", description = "The maximum number of observations to sample when evaluating the AUC. ")
     public int aucClipMaxObservations=10000;
 
-    @Parameter(names = { "--experimental-condition"}, description = "The experimental condition label used in validation loggin each epoch. ")
+    @Parameter(names ="--experimental-condition", description = "The experimental condition label used in validation loggin each epoch. ")
     public String experimentalCondition ="not_specified";
 
     @Parameter(names = "--mini-batch-size", description = "The size of the training minibatch")
@@ -51,6 +52,13 @@ public class TrainingArguments {
 
     @Parameter(names = { "--max-epochs"}, description = "The maximum number of epochs to train if early stopping does not occur")
     public int maxEpochs=Integer.MAX_VALUE;
+
+    @Parameter(names = "--previous-model-path", description = "A model path to load parameters to continue training.")
+    public String previousModelPath;
+
+    @Parameter(names = "--previous-model-name", description = "The name of the previous model to load (i.e., \"bestAUC\", \"best\" or \"latest\" and continue training.")
+    public String previousModelName="bestAUC";
+
 
     public String[] getTrainingSets() {
       return  this.trainingSets.toArray(new String[this.trainingSets.size()]);
