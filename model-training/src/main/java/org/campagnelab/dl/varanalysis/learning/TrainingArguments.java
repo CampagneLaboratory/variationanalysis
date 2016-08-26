@@ -56,8 +56,8 @@ public class TrainingArguments {
     @Parameter(names = "--previous-model-path", description = "A model path to load parameters to continue training.")
     public String previousModelPath;
 
-    @Parameter(names = "--previous-model-name", description = "The name of the previous model to load (i.e., \"best\" or \"latest\" and continue training.")
-    public String previousModelName="best";
+    @Parameter(names = "--previous-model-name", description = "The name of the previous model to load (i.e., \"bestAUC\", \"best\" or \"latest\" and continue training.")
+    public String previousModelName="bestAUC";
 
 
     public String[] getTrainingSets() {

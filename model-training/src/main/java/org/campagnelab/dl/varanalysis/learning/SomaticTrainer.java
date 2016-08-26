@@ -59,9 +59,11 @@ public abstract class SomaticTrainer {
             throw e;
 
         }
+        if (arguments.previousModelPath != null) {
+            System.out.println(String.format("Resuming training with %s model parameters from %s %n", arguments.previousModelName, arguments.previousModelPath));
+        }
         return arguments;
     }
-
 
 
     protected double dropoutRate = 0.5;
@@ -135,11 +137,22 @@ public abstract class SomaticTrainer {
         assembler.setLearningRatePolicy(LearningRatePolicy.Score);
         MultiLayerConfiguration conf = assembler.createNetwork();
         net = new MultiLayerNetwork(conf);
-        if (arguments.previousModelPath!=null) {
-            ModelLoader loader=new ModelLoader(arguments.previousModelPath);
-            net.setParameters(loader.loadModel("best").params());
-        }
         net.init();
+        if (arguments.previousModelPath != null) {
+            // Load the parameters of a previously trained model and set them on the new model to continue
+            // training where we left it off. Note that models must have the same architecture or setting
+            // parameters will fail.
+            ModelLoader loader = new ModelLoader(arguments.previousModelPath);
+            MultiLayerNetwork savedNetwork = loader.loadModel(arguments.previousModelName);
+            if (savedNetwork == null || savedNetwork.getUpdater()==null || savedNetwork.params()==null) {
+                System.err.println("Unable to load model or updater from " + arguments.previousModelPath);
+            } else {
+                net.setUpdater(savedNetwork.getUpdater());
+                net.setParams(savedNetwork.params());
+
+            }
+        }
+
         //Print the  number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
         int totalNumParams = 0;
