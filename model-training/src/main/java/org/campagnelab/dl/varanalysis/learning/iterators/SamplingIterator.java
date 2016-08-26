@@ -211,6 +211,11 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
     }
 
     @Override
+    public boolean resetSupported() {
+        return true;
+    }
+
+    @Override
     public void reset() {
         recalculateMinibatchSize();
         delegate.reset();
