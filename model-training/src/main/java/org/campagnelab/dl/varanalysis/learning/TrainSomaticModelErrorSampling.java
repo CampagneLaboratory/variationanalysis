@@ -56,9 +56,9 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         TrainSomaticModelErrorSampling trainer=new TrainSomaticModelErrorSampling(arguments);
         //for trio:
         if (arguments.isTrio){
-            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), 32);
+            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
         } else {
-            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), 32);
+            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), arguments.miniBatchSize);
         }
 
     }
@@ -86,7 +86,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         performanceLogger.setCondition(EXPERIMENTAL_CONDITION);
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
         pgEpoch.itemsName = "epoch";
-        pgEpoch.expectedUpdates = numEpochs;
+        pgEpoch.expectedUpdates = arguments.maxEpochs;
         pgEpoch.displayLocalSpeed = true;
         pgEpoch.start();
         bestScore = Double.MAX_VALUE;
@@ -98,11 +98,11 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         double bestAUC = 0.5;
         double finalAUC = 0.5;
         long numExamplesUsed = 0;
-        for (int epoch = 0; epoch < numEpochs; epoch++) {
+        for (int epoch = 0; epoch < arguments.maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
             pg.displayLocalSpeed = true;
-            pg.expectedUpdates = async.totalExamples() / miniBatchSize; // one iteration processes miniBatchIterator elements.
+            pg.expectedUpdates = async.totalExamples() / arguments.miniBatchSize; // one iteration processes miniBatchIterator elements.
             pg.start();
             int maxProcessPerEpoch = Integer.MAX_VALUE;
             while (async.hasNext()) {
@@ -159,7 +159,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         pgEpoch.stop();
         saver.saveModel(net, "final", finalAUC);
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-                "not early stopping", scoreMap, numEpochs, bestScore, numEpochs, net);
+                "not early stopping", scoreMap, arguments.maxEpochs, bestScore, arguments.maxEpochs, net);
     }
 
     /**

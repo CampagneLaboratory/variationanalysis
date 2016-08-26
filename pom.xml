@@ -19,7 +19,7 @@
     <name>Variation Analysis</name>
     <description>A project to train neural networks to recognize mutations in RNA-seq data.</description>
     <properties>
-       <varanalysis.version>1.0.1</varanalysis.version>
+        <varanalysis.version>1.0.2-SNAPSHOT</varanalysis.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
         <java.version>1.8</java.version>

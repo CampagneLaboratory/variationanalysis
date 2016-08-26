@@ -178,5 +178,5 @@ public class IndelFeatureCalculatorTrioTest {
             "    isIndel: true\n" +
             "  }\n" +
             "} "};
-    String[] expectedFeatures = {"[0.00, 0.00, 1.00, 0.00, 0.00]"};
+    String[] expectedFeatures = {"[1.00, 0.00, 0.00, 0.00, 0.00]"};
 }

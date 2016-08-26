@@ -13,7 +13,7 @@ import java.util.Collections;
  * AbstractFeatureMapper encapsulates behavior common to many feature mappers.
  * Created by fac2003 on 6/3/16.
  *
- * @author Fabien Campagnei
+ * @author Fabien Campagne
  */
 public abstract class AbstractFeatureMapperTrio extends AbstractFeatureMapper {
 

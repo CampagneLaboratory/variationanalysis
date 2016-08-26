@@ -58,7 +58,7 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
             trainIterList.add(RecordWriter.addParqExtension(trainingFiles[i]));
         }
 
-        super.execute(featureCalculator, trainIterList.toArray(new String[trainIterList.size()]),32);
+        super.execute(featureCalculator, trainIterList.toArray(new String[trainIterList.size()]),arguments.miniBatchSize);
 
         ModelPropertiesHelper mpHelper=new ModelPropertiesHelper(this);
         mpHelper.writeProperties(directory);
@@ -71,9 +71,9 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
         net.setListeners(new ScoreIterationListener(1000));
         final int numValidationBatches = 1000;
         EarlyStoppingConfiguration esConf = new EarlyStoppingConfiguration.Builder()
-                .epochTerminationConditions(new MaxEpochsTerminationCondition(numEpochs),
+                .epochTerminationConditions(new MaxEpochsTerminationCondition(arguments.maxEpochs),
                         new ScoreImprovementEpochTerminationCondition(arguments.stopWhenEpochsWithoutImprovement))
-                .scoreCalculator(new DataSetLossCalculator(new FirstNIterator(new BaseInformationIterator(validationFile, miniBatchSize,
+                .scoreCalculator(new DataSetLossCalculator(new FirstNIterator(new BaseInformationIterator(validationFile, arguments.miniBatchSize,
                         featureCalculator, labelMapper), numValidationBatches), true))
                 .evaluateEveryNEpochs(1)
                 .modelSaver(new LocalFileModelSaver(directory))

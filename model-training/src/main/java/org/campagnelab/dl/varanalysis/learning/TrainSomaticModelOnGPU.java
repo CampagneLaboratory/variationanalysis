@@ -39,7 +39,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         //  org.nd4j.jita.conf.CudaEnvironment.getInstance().getConfiguration().allowMultiGPU(true);
         TrainingArguments arguments = parseArguments(args, "TrainSomaticModelOnGPU");
         TrainSomaticModelOnGPU trainer = new TrainSomaticModelOnGPU(arguments);
-        trainer.execute(new FeatureMapperV15(), arguments.getTrainingSets(), 32);
+        trainer.execute(new FeatureMapperV15(), arguments.getTrainingSets(), arguments.miniBatchSize);
     }
 
 
@@ -47,8 +47,8 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
 
         ParallelWrapper wrapper = new ParallelWrapper.Builder(net)
-                .prefetchBuffer(32)
-                .workers(32)
+                .prefetchBuffer(arguments.miniBatchSize)
+                .workers(arguments.miniBatchSize)
                 .averagingFrequency(3)
                 .build();
 
@@ -57,13 +57,13 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         boolean init = true;
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
         pgEpoch.itemsName = "epoch";
-        pgEpoch.expectedUpdates = numEpochs;
+        pgEpoch.expectedUpdates = arguments.maxEpochs;
         pgEpoch.start();
         bestScore = Double.MAX_VALUE;
         LocalFileModelSaver saver = new LocalFileModelSaver(directory);
 
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
-        for (int epoch = 0; epoch < numEpochs; epoch++) {
+        for (int epoch = 0; epoch < arguments.maxEpochs; epoch++) {
 
             wrapper.fit(async);
             pgEpoch.update();
@@ -79,6 +79,6 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         pgEpoch.stop();
 
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-                "not early stopping", scoreMap, numEpochs, bestScore, numEpochs, net);
+                "not early stopping", scoreMap, arguments.maxEpochs, bestScore, arguments.maxEpochs, net);
     }
 }

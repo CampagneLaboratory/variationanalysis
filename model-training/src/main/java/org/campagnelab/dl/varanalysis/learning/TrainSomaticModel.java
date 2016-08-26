@@ -60,9 +60,9 @@ public class TrainSomaticModel extends SomaticTrainer {
 
         //for trio:
         if (arguments.isTrio){
-            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), 32);
+            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
         } else {
-            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), 32);
+            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), arguments.miniBatchSize);
         }
         //for duo
     }
@@ -82,7 +82,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         boolean init = true;
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
         pgEpoch.itemsName = "epoch";
-        pgEpoch.expectedUpdates = numEpochs;
+        pgEpoch.expectedUpdates = arguments.maxEpochs;
         pgEpoch.start();
         bestScore = Double.MAX_VALUE;
         ModelSaver saver = new ModelSaver(directory);
@@ -93,11 +93,11 @@ public class TrainSomaticModel extends SomaticTrainer {
         performanceLogger.setCondition(arguments.experimentalCondition);
         int numExamplesUsed=0;
         int notImproved=0;
-        for (int epoch = 0; epoch < numEpochs; epoch++) {
+        for (int epoch = 0; epoch < arguments.maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
 
-            pg.expectedUpdates = async.totalExamples() / miniBatchSize; // one iteration processes miniBatchIterator elements.
+            pg.expectedUpdates = async.totalExamples() / arguments.miniBatchSize; // one iteration processes miniBatchIterator elements.
             pg.start();
             int lastIter = 0;
 
@@ -169,7 +169,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         pgEpoch.stop();
 
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-                "not early stopping", scoreMap, numEpochs, bestScore, numEpochs, net);
+                "not early stopping", scoreMap, arguments.maxEpochs, bestScore, arguments.maxEpochs, net);
     }
 
     private void writeBestAUC(double bestAUC) {

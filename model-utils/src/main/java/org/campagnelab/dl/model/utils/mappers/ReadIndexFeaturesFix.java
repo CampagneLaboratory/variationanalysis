@@ -85,17 +85,16 @@ public class ReadIndexFeaturesFix extends AbstractFeatureMapper implements Featu
         return normalized;*/
     }
 
-    //TODO: at the moment, every readindex count from the germline sample is repeated twice, and those of somatic are missing.
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2: "Only MAX_GENOTYPES*2*2 features";
+        assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2: "Only MAX_GENOTYPES*2 features";
         if (featureIndex < MAX_GENOTYPES) {
             // germline counts written first:
-            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, false).get(featureIndex / 2);
+            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, false, true).get(featureIndex);
             return genotypeCount.getDistinctReadIndices();
         } else {
             // tumor counts written next:
             featureIndex -= MAX_GENOTYPES;
-            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, true).get(featureIndex / 2);
+            final ReadIndexWithCounts genotypeCount = (ReadIndexWithCounts) getAllCounts(record, true, true).get(featureIndex);
             return genotypeCount.getDistinctReadIndices();
         }
     }
