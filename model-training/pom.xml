@@ -126,16 +126,17 @@
             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-native</artifactId>
+                <artifactId>nd4j-native-platform</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-7.5</artifactId>
+                <artifactId>nd4j-cuda-7.5-platform</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
         </dependencies>
@@ -199,7 +200,18 @@
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-cuda-7.5</artifactId>
             <version>${nd4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-cuda-7.5-platform</artifactId>
+            <version>${nd4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-cuda-7.5</artifactId>
+            <version>${dl4j.version}</version>
         </dependency-->
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
