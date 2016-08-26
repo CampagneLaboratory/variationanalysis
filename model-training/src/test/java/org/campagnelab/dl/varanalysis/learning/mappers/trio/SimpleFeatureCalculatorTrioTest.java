@@ -144,7 +144,7 @@ int index=0;
             "    matchesReference: false\n" +
             "    fromSequence: \"A\"\n" +
             "    toSequence: \"G\"\n" +
-            "    genotypeCountForwardStrand: 25\n" +
+            "    genotypeCountForwardStran2xtd: 25\n" +
             "    genotypeCountReverseStrand: 25\n" +
             "  }\n" +
             "  counts {\n" +

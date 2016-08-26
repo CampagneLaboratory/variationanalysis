@@ -2,12 +2,12 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV15;
-import org.campagnelab.dl.varanalysis.learning.parallel.ParallelWrapper;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 
+import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;

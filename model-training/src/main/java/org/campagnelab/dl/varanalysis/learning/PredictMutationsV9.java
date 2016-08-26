@@ -29,8 +29,8 @@ import java.util.stream.IntStream;
 public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
-    final static String TIME = "1472072394561";
-    final static String MODEL_DIR = "models/" + TIME;
+    final static String TIME = "rna-seq-fr-1472165630220";
+    final static String MODEL_DIR = "final-models/" + TIME;
 
     private int scoreN =Integer.MAX_VALUE;
 
@@ -78,7 +78,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 }else{
                     datasetPath=item;
                 }
-                predictor.printPredictions("latest", MODEL_DIR,datasetPath , "tests/" + TIME + "/", type);
+                predictor.printPredictions("bestAUC", MODEL_DIR,datasetPath , "tests/" + TIME + "/", type);
             }
         }
 

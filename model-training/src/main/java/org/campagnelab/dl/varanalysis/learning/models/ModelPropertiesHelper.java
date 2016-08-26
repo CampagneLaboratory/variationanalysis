@@ -2,7 +2,6 @@ package org.campagnelab.dl.varanalysis.learning.models;
 
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.SomaticTrainer;
-import sun.misc.ProxyGenerator;
 
 import java.io.File;
 import java.io.FileOutputStream;
