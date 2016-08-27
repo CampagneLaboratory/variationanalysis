@@ -1,3 +1,4 @@
+syntax = "proto2";
 package org.campagnelab.dl.varanalysis.protobuf;
 
 option java_package = "org.campagnelab.dl.varanalysis.protobuf";
@@ -8,6 +9,11 @@ option optimize_for = SPEED;
 One such message per position in the genome that we observe. These records will be written to collections and
 packed in a binary file.
 */
+
+
+message BaseInformationCollection {
+    repeated BaseInformation records = 1;
+}
 
 message BaseInformation {
     /** Index of the reference sequence where this base is observed in the genome. */
