@@ -8,6 +8,7 @@ import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.dl.varanalysis.util.HitBoundedPriorityQueue;
+import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -67,8 +68,10 @@ public class TrainSomaticModel extends SomaticTrainer {
         //for duo
     }
 
-
-
+    @Override
+    protected DataSetIterator decorateIterator(DataSetIterator iterator) {
+        return new AsyncDataSetIterator(iterator);
+    }
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
@@ -93,11 +96,13 @@ public class TrainSomaticModel extends SomaticTrainer {
         performanceLogger.setCondition(arguments.experimentalCondition);
         int numExamplesUsed=0;
         int notImproved=0;
+        int miniBatchesPerEpoch = async.totalExamples() / arguments.miniBatchSize;
+        System.out.printf("Training with %d minibatches per epoch%n",miniBatchesPerEpoch);
         for (int epoch = 0; epoch < arguments.maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
 
-            pg.expectedUpdates = async.totalExamples() / arguments.miniBatchSize; // one iteration processes miniBatchIterator elements.
+            pg.expectedUpdates = miniBatchesPerEpoch; // one iteration processes miniBatchIterator elements.
             pg.start();
             int lastIter = 0;
 
@@ -112,10 +117,12 @@ public class TrainSomaticModel extends SomaticTrainer {
                 // fit the net:
                 net.fit(ds);
                 numExamplesUsed+=ds.numExamples();
-                INDArray predictedLabels = net.output(ds.getFeatures(), false);
-                keepWorseErrors(ds, predictedLabels, ds.getLabels());
-                pg.update();
-                if (iter % 5 == 1) {
+                if (ERROR_ENRICHMENT) {
+                    INDArray predictedLabels = net.output(ds.getFeatures(), false);
+                    keepWorseErrors(ds, predictedLabels, ds.getLabels());
+                }
+                pg.lightUpdate();
+                if (ERROR_ENRICHMENT && iter % 5 == 1) {
                     // update wrongness after 5 minibatches to give training a chance to learn how worse errors
                     // compare to the other records.
                     queue.updateWrongness(net);
