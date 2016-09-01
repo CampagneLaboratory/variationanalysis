@@ -29,13 +29,13 @@ import java.util.stream.IntStream;
 public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
-    final static String TIME = "rna-seq-fr-1472165630220";
-    final static String MODEL_DIR = "final-models/" + TIME;
+    final static String TIME = "1472667738273";
+    final static String MODEL_DIR = "models/" + TIME;
 
     private int scoreN =Integer.MAX_VALUE;
 
 
-    final boolean SKIP0COUNTS = true;
+    final boolean SKIP0COUNTS = false;
 
     //will be adjusted if model's loaded featuremapper is for trios. don't manually change
     boolean isTrio = false;
@@ -71,14 +71,14 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 type=item;
                 System.out.println("Will process files of type "+type);
                 System.out.flush();
-            } else{
+            } else {
                 if (type==null) {
                     System.err.println("Invalid syntax, dataset type must be specified: type file+");
                     System.exit(1);
-                }else{
+                } else {
                     datasetPath=item;
                 }
-                predictor.printPredictions("bestAUC", MODEL_DIR,datasetPath , "tests/" + TIME + "/", type);
+                predictor.printPredictions("latest", MODEL_DIR, datasetPath , "tests/" + TIME + "/", type);
             }
         }
 

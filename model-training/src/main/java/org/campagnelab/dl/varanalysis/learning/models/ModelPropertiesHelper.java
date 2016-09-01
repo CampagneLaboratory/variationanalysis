@@ -29,6 +29,7 @@ public class ModelPropertiesHelper {
     private long time;
     private int numTrainingSets;
     private String lossFunction;
+    private double regularization;
 
     public void writeProperties(String modelDirectory) throws IOException {
         //write properties file to model folder
@@ -47,6 +48,10 @@ public class ModelPropertiesHelper {
 
     public void setLearningRate(double learningRate) {
         modelProp.setProperty("learningRate", Double.toString(learningRate));
+    }
+
+    public void setRegularization(double regularization) {
+        modelProp.setProperty("learningRate", Double.toString(regularization));
     }
 
     public void setNumHiddenNodes(int numHiddenNodes) {

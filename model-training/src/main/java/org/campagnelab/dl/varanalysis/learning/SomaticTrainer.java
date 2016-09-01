@@ -243,5 +243,6 @@ public abstract class SomaticTrainer {
         helper.setSeed(arguments.seed);
         helper.setLossFunction(lossFunction.name());
         helper.setEarlyStopCriterion(arguments.stopWhenEpochsWithoutImprovement);
+        helper.setRegularization(arguments.regularizationRate);
     }
 }

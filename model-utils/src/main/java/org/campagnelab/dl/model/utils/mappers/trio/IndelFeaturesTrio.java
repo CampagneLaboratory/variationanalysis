@@ -53,7 +53,7 @@ public class IndelFeaturesTrio extends AbstractFeatureMapperTrio implements Feat
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES : "Only MAX_GENOTYPES*2*2 features";
+        assert featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES : "Only MAX_GENOTYPES*2 features";
         // father counts written first
         final IndelGenotypeCount genotypeCount = (IndelGenotypeCount) getAllCounts(record, 0, true).get(featureIndex);
         return genotypeCount.getIsIndel() ? 1F : 0F;

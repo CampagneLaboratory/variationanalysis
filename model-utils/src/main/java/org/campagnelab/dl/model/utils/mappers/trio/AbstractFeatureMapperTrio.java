@@ -17,18 +17,34 @@ import java.util.Collections;
  */
 public abstract class AbstractFeatureMapperTrio extends AbstractFeatureMapper {
 
+    final boolean STABLE = false;
+
+
     protected ObjectArrayList<? extends GenotypeCount> getAllCounts(BaseInformationRecords.BaseInformationOrBuilder record, GenotypeCountFactory factory, int sampleIndex, boolean sort) {
         ObjectArrayList<GenotypeCount> list = new ObjectArrayList<>();
         int genotypeIndex = 0;
         for (int i = 0; i < record.getSamples(0).getCountsCount(); i++){
-            //use somatic counts for compare
-            int compareCount = record.getSamples(2).getCounts(i).getGenotypeCountForwardStrand() + record.getSamples(2).getCounts(i).getGenotypeCountReverseStrand();
+
+
+            //need to define comparecount, which will set feature order
+            int compareCount;
+            int patientCount = record.getSamples(2).getCounts(i).getGenotypeCountForwardStrand() + record.getSamples(2).getCounts(i).getGenotypeCountReverseStrand();
+            int sumAllCounts = patientCount +
+                    record.getSamples(0).getCounts(i).getGenotypeCountForwardStrand() +
+                    record.getSamples(0).getCounts(i).getGenotypeCountReverseStrand() +
+                    record.getSamples(1).getCounts(i).getGenotypeCountForwardStrand() +
+                    record.getSamples(1).getCounts(i).getGenotypeCountReverseStrand();
+            if (STABLE){
+                compareCount = sumAllCounts;
+            } else {
+                compareCount = patientCount;
+            }
             BaseInformationRecords.CountInfo genoInfo = record.getSamples(sampleIndex).getCounts(i);
             int forwCount = genoInfo.getGenotypeCountForwardStrand();
             int revCount = genoInfo.getGenotypeCountReverseStrand();
             GenotypeCount count = factory.create();
             count.set(forwCount, revCount, genoInfo.getToSequence(),i,compareCount);
-            initializeCount(record.getSamples(sampleIndex).getCounts(i), count);
+            initializeCount(genoInfo, count);
             list.add(count);
         }
         // DO not increment genotypeIndex. It must remain constant for all N bases
