@@ -2,6 +2,8 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV15;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
+import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -39,7 +41,11 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         //  org.nd4j.jita.conf.CudaEnvironment.getInstance().getConfiguration().allowMultiGPU(true);
         TrainingArguments arguments = parseArguments(args, "TrainSomaticModelOnGPU");
         TrainSomaticModelOnGPU trainer = new TrainSomaticModelOnGPU(arguments);
-        trainer.execute(new FeatureMapperV15(), arguments.getTrainingSets(), arguments.miniBatchSize);
+        if (arguments.isTrio) {
+            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
+        } else {
+            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), arguments.miniBatchSize);
+        }
     }
 
 

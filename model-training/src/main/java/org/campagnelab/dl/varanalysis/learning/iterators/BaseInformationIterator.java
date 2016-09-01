@@ -93,6 +93,11 @@ public class BaseInformationIterator implements DataSetIterator {
     }
 
     @Override
+    public boolean resetSupported() {
+        return true;
+    }
+
+    @Override
     public void reset() {
         if (this.reader != null) {
             IOUtils.closeQuietly(reader);

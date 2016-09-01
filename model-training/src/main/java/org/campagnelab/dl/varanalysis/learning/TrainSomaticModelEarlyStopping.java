@@ -2,6 +2,7 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.model.utils.mappers.*;
+import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.architecture.*;
 import org.campagnelab.dl.varanalysis.learning.iterators.*;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
@@ -47,7 +48,11 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
 
         TrainSomaticModelEarlyStopping trainer=new TrainSomaticModelEarlyStopping(arguments);
         System.out.println("Early stopping using validation="+arguments.validationSet);
-        trainer.execute(new FeatureMapperV15(), arguments.getTrainingSets());
+        if (arguments.isTrio) {
+            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
+        } else {
+            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), arguments.miniBatchSize);
+        }
     }
 
     public  void execute(FeatureMapper featureCalculator, String[] trainingFiles) throws IOException {
