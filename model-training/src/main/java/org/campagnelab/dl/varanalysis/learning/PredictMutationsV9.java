@@ -35,7 +35,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
     private int scoreN =Integer.MAX_VALUE;
 
 
-    final boolean SKIP0COUNTS = false;
+    final boolean SKIP0COUNTS = true;
 
     //will be adjusted if model's loaded featuremapper is for trios. don't manually change
     boolean isTrio = false;
