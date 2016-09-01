@@ -39,7 +39,7 @@ public class FilteredNonFiltered {
     public void execute(String inputFilenameA, String inputFilenameB, String outputFilename) {
         try {
             DualReader reader = new DualReader(inputFilenameA, inputFilenameB);
-            RecordWriter writer = new RecordWriter(outputFilename, blockSize, pageSize, true);
+            RecordWriter writer = new RecordWriter(outputFilename);
             ProgressLogger pg = new ProgressLogger(LOG);
 
             pg.expectedUpdates = reader.getTotalRecords();

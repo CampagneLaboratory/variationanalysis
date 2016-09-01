@@ -1,29 +1,13 @@
 package org.campagnelab.dl.varanalysis.storage;
 
-import com.codahale.metrics.MetricRegistryListener;
-import com.google.protobuf.CodedInputStream;
-import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.logging.ProgressLogger;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.parquet.hadoop.ParquetReader;
-import org.apache.parquet.hadoop.api.ReadSupport;
-import org.apache.parquet.io.api.RecordMaterializer;
-import org.apache.parquet.proto.ProtoParquetReader;
-import org.apache.parquet.schema.MessageType;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.file.FileStore;
-import java.nio.file.Files;
-import java.nio.file.attribute.UserDefinedFileAttributeView;
-import java.util.*;
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Spliterator;
 import java.util.function.Consumer;
 
 /**
@@ -33,45 +17,13 @@ import java.util.function.Consumer;
  */
 public class RecordReader implements Closeable, RecordIterable {
 
-    private final String filepath;
-    private final ParquetReader<BaseInformationRecords.BaseInformation> pqReader;
-    private UserDefinedFileAttributeView view;
-    private long recordLoadedSoFar = 0;
-    private long totalRecords = -1;
+    private SequenceBaseInformationReader reader;
 
     public RecordReader(String filepath) throws IOException {
-        this.filepath=RecordWriter.addParqExtension(filepath);
-        if (!new File(filepath).exists()) {
-            throw new FileNotFoundException("File "+filepath+" could not be loaded");
-        }
-        this.countRecords();
 
-        ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder(new Path(filepath));
-        Configuration conf = new Configuration();
-        conf.set("parquet.proto.class", BaseInformationRecords.BaseInformation.class.getCanonicalName());
-        pqBuilder.withConf(conf);
-        pqReader = pqBuilder.build();
+        reader = new SequenceBaseInformationReader(filepath);
     }
 
-    private void countRecords() throws IOException {
-        String countPath = FilenameUtils.removeExtension(filepath) + ".info";
-        File countFile = new File(countPath);
-        if (countFile.exists()) {
-            BufferedReader countReader = new BufferedReader(new FileReader(countFile));
-            totalRecords = Integer.valueOf(countReader.readLine());
-        } else {
-            System.out.println("count file not found: " + filepath.substring(0, filepath.length() - 8) + ".info");
-            totalRecords = 0;
-            ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder(new Path(this.filepath));
-            Configuration conf = new Configuration();
-            conf.set("parquet.proto.class", BaseInformationRecords.BaseInformation.class.getCanonicalName());
-            pqBuilder.withConf(conf);
-            ParquetReader<BaseInformationRecords.BaseInformation> localReader = pqBuilder.build();
-            while (localReader.read() != null) this.totalRecords++;
-            IOUtils.closeQuietly(localReader);
-        }
-
-    }
 
     /**
      * Reads the next record, if available.
@@ -80,19 +32,8 @@ public class RecordReader implements Closeable, RecordIterable {
      * @throws IOException
      */
     public BaseInformationRecords.BaseInformation nextRecord() throws IOException {
-        BaseInformationRecords.BaseInformationOrBuilder record = pqReader.read();
-
-        if (record == null) {
-            return null;
-        }
-        recordLoadedSoFar++;
-
-        if (record instanceof BaseInformationRecords.BaseInformation.Builder) {
-            return ((BaseInformationRecords.BaseInformation.Builder) record).build();
-        } else {
-            assert false : "Cannot build record.";
-            return null;
-        }
+        if (reader.hasNext()) return reader.next();
+        else return null;
     }
 
     /**
@@ -110,7 +51,7 @@ public class RecordReader implements Closeable, RecordIterable {
      */
     @Override
     public void close() throws IOException {
-        IOUtils.closeQuietly(pqReader);
+        IOUtils.closeQuietly(reader);
     }
 
     /**
@@ -119,7 +60,7 @@ public class RecordReader implements Closeable, RecordIterable {
      * @return records loaded
      */
     public long getRecordsLoadedSoFar() {
-        return this.recordLoadedSoFar;
+        return reader.getRecordsLoadedSoFar();
     }
 
     /**
@@ -128,27 +69,13 @@ public class RecordReader implements Closeable, RecordIterable {
      * @return total records
      */
     public long getTotalRecords() {
-        return this.totalRecords;
+        return reader.getTotalRecords();
     }
 
-    /**
-     * Returns an iterator over elements of type {@code T}.
-     *
-     * @return an Iterator.
-     */
+
     @Override
-    public RecordIterator iterator() {
-        ProtoParquetReader.Builder<BaseInformationRecords.BaseInformation> pqBuilder = ProtoParquetReader.builder(new Path(filepath));
-        Configuration conf = new Configuration();
-        conf.set("parquet.proto.class", BaseInformationRecords.BaseInformation.class.getCanonicalName());
-        pqBuilder.withConf(conf);
-        try {
-            RecordIterator iterator = new RecordIterator(pqBuilder.build());
-            iterator.setTotalRecords(this.totalRecords);
-            return iterator;
-        } catch (IOException e) {
-            return null;
-        }
+    public Iterator<BaseInformationRecords.BaseInformation> iterator() {
+        return reader.iterator();
     }
 
     /**

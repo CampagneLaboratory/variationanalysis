@@ -24,7 +24,7 @@ public class RecordWriterTest {
     public void setUp() throws Exception {
         FileUtils.deleteQuietly(new File("test-results"));
         FileUtils.forceMkdir(new File("test-results"));
-        writer = new RecordWriter(filename, blockSize, pageSize, true);
+        writer = new RecordWriter(filename);
     }
 
     @After

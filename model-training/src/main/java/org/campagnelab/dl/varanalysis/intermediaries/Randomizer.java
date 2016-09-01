@@ -37,7 +37,7 @@ public class Randomizer extends Intermediary{
     public void execute(String inPath, String outPath, int blockSize, int pageSize) throws IOException {
         try {
             RecordReader reader = new RecordReader(inPath);
-            RecordWriter writer = new RecordWriter(outPath,blockSize,pageSize,true);
+            RecordWriter writer = new RecordWriter(outPath);
             Random rand = new XorShift128PlusRandom();
 
             //set up logger

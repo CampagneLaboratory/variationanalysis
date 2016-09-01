@@ -74,7 +74,7 @@ public class Mutator2 extends Intermediary {
 
     public void execute(String in, String out, int blockSize, int pageSize) throws IOException {
         RecordReader reader = new RecordReader(in);
-        RecordWriter writer = new RecordWriter(out, blockSize, pageSize, true);
+        RecordWriter writer = new RecordWriter(out);
 
         //set up logger
         ProgressLogger pgReadWrite = new ProgressLogger(LOG);

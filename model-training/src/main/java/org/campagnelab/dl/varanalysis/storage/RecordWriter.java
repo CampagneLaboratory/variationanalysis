@@ -2,17 +2,11 @@ package org.campagnelab.dl.varanalysis.storage;
 
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.fs.Path;
-import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-import org.apache.parquet.proto.ProtoParquetWriter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-//import java.nio.file.Path;
 
 /**
  * A writer for base information records in protobuf format.
@@ -21,34 +15,22 @@ import java.io.IOException;
  */
 public class RecordWriter implements Closeable {
 
-    private final ProtoParquetWriter<BaseInformationRecords.BaseInformation> parquetWriter;
-    private long numRecordsWritten = 0;
-    private String path;
-
-    public RecordWriter(java.nio.file.Path path, ProtoParquetWriter<BaseInformationRecords.BaseInformation> parquetWriter) throws IOException {
-        this.path=addParqExtension(path.toString());
-        this.parquetWriter = parquetWriter;
+   private SequenceBaseInformationWriter writer;
+    public RecordWriter(String file, int numEntriesPerChunk) throws IOException {
+        writer = new SequenceBaseInformationWriter(file);
+        writer.setNumEntriesPerChunk(numEntriesPerChunk);
     }
 
-    public RecordWriter(String file, int blockSize, int pageSize) throws IOException {
-        this(new File(addParqExtension(file)).toPath(), new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(addParqExtension(file)), BaseInformationRecords.BaseInformation.class, CompressionCodecName.UNCOMPRESSED, blockSize, pageSize));
-
-    }
-
-    public RecordWriter(String file, int blockSize, int pageSize, boolean compress) throws IOException {
-        this(new File(addParqExtension(file)).toPath(),
-
-                new ProtoParquetWriter<BaseInformationRecords.BaseInformation>(new Path(addParqExtension(file)), BaseInformationRecords.BaseInformation.class,
-                        compress ? CompressionCodecName.SNAPPY : CompressionCodecName.UNCOMPRESSED, blockSize, pageSize));
+    public RecordWriter(String file) throws IOException {
+        writer = new SequenceBaseInformationWriter(file);
     }
 
     public void writeRecord(BaseInformationRecords.BaseInformation record) throws IOException {
-        this.parquetWriter.write(record);
-        numRecordsWritten += 1;
+        writer.appendEntry(record);
     }
 
-    public static String addParqExtension(String path){
-        return  FilenameUtils.removeExtension(path) + ".parquet";
+    public static String addParqExtension(String path) {
+        return FilenameUtils.removeExtension(path) + ".parquet";
     }
 
     /**
@@ -67,12 +49,7 @@ public class RecordWriter implements Closeable {
     @Override
     public void close() throws IOException {
 
-        String infoOut = FilenameUtils.removeExtension(path) + ".info";
-        new File(infoOut).delete();
-        FileWriter infoWriter = new FileWriter(infoOut);
-        infoWriter.write(Integer.toString((int)numRecordsWritten));
-        infoWriter.close();
-        IOUtils.closeQuietly(parquetWriter);
+        writer.close();
     }
 
 }

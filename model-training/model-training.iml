@@ -53,6 +53,7 @@
     <orderEntry type="library" name="Maven: org.apache.parquet:parquet-tools:1.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.parquet:parquet-hadoop:1.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.parquet:parquet-column:1.8.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.parquet:parquet-common:1.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.parquet:parquet-encoding:1.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.parquet:parquet-format:2.3.0-incubating" level="project" />
     <orderEntry type="library" name="Maven: org.apache.parquet:parquet-jackson:1.8.1" level="project" />
@@ -226,14 +227,7 @@
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.0.13" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.0.13" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-4" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.parquet:parquet-common:1.8.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.parquet:parquet-protobuf:1.8.1" level="project" />
-    <orderEntry type="library" name="Maven: com.twitter.elephantbird:elephant-bird-core:4.4" level="project" />
-    <orderEntry type="library" name="Maven: com.twitter.elephantbird:elephant-bird-hadoop-compat:4.4" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.thrift:libthrift:0.7.0" level="project" />
-    <orderEntry type="library" name="Maven: javax.servlet:servlet-api:2.5" level="project" />
-    <orderEntry type="library" name="Maven: com.googlecode.json-simple:json-simple:1.1" level="project" />
-    <orderEntry type="library" name="Maven: com.hadoop.gplcompression:hadoop-lzo:0.4.16" level="project" />
+    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.0-SNAPSHOT" level="project" />
     <orderEntry type="module" module-name="model-utils" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:dsiutils:2.3.3" level="project" />
     <orderEntry type="library" name="Maven: com.martiansoftware:jsap:2.1" level="project" />

@@ -1,9 +1,9 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
 
-import com.codahale.metrics.MetricRegistryListener;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
+import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XorShift128PlusRandom;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -54,13 +54,13 @@ public class Randomizer2 extends Intermediary{
             //adjust block size. since there are potentially many buckets, we may need to flush them to disk more frequently.
             //set max memory usage at 8gb
             blockSize = (int)(8e9/numBuckets);
-
+            new File(workingDir+"/tmp").mkdir();
             List<RecordWriter> bucketWriters = new ObjectArrayList<RecordWriter>(numBuckets);
             for (int i = 0; i < numBuckets; i++){
-                bucketWriters.add(new RecordWriter(workingDir+"/tmp/bucket"+i+".parquet",blockSize,pageSize,true));
+                bucketWriters.add(new RecordWriter(workingDir+"/tmp/bucket"+i+".parquet",1000));
             }
-            RecordWriter allWriter = new RecordWriter(outPath,blockSize,pageSize,true);
-            Random rand = new XorShift128PlusRandom();
+            RecordWriter allWriter = new RecordWriter(outPath);
+            Random rand = new XoRoShiRo128PlusRandom();
 
             //set up logger
             ProgressLogger pgRead = new ProgressLogger(LOG);

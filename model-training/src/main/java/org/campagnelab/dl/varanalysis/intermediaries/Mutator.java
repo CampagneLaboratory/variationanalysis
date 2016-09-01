@@ -1,8 +1,6 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
-import it.unimi.dsi.util.XorShift128PlusRandom;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
@@ -10,9 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
 
 /**
  * The mutator object iterates over a parquet file and creates an additional mutated copy of every record.
@@ -55,7 +50,7 @@ public class Mutator extends Intermediary {
 
     public void execute(String in, String out, int blockSize, int pageSize) throws IOException {
         RecordReader reader = new RecordReader(in);
-        RecordWriter writer = new RecordWriter(out, blockSize, pageSize, true);
+        RecordWriter writer = new RecordWriter(out);
 
         //set up logger
         ProgressLogger pgReadWrite = new ProgressLogger(LOG);
