@@ -1,18 +1,11 @@
 package org.campagnelab.dl.varanalysis.storage;
 
 
-import com.codahale.metrics.MetricRegistryListener;
 import com.google.protobuf.TextFormat;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import org.apache.parquet.hadoop.ParquetReader;
-import org.apache.parquet.it.unimi.dsi.fastutil.ints.IntSet;
-import org.campagnelab.dl.varanalysis.intermediaries.Mutator;
-import org.campagnelab.dl.varanalysis.intermediaries.Randomizer;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.eclipse.jetty.util.IO;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 

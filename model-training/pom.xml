@@ -231,6 +231,8 @@
             <groupId>org.campagnelab.goby</groupId>
             <artifactId>goby-io</artifactId>
             <version>3.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../lib/goby-io-3.0-20160831.163144-1.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.campagnelab.dl</groupId>

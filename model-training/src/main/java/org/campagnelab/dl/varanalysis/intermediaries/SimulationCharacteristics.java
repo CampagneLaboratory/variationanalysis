@@ -1,6 +1,6 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
-import org.apache.parquet.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Iterator;
