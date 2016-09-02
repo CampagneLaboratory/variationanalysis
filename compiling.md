@@ -19,7 +19,7 @@ If the version is less than 3.2 or Maven is not installed, you need to install a
 
 ### Upgrade your Maven installation
 
-To install a new version of Maven, first, [download](https://maven.apache.org/download.html)Maven and follow the [installation instructions](https://maven.apache.org/install.html).
+To install a new version of Maven, first, [download](https://maven.apache.org/download.html) Maven and then follow the [installation instructions](https://maven.apache.org/install.html).
 
 Then, check again that the new version has been correctly installed:
 
