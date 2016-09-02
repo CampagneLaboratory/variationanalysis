@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
  * Temporarily disabled for creation of new test data
  */
 public class RecordReaderTest {
-    private String  filename = "test-data/reader/c1_genotypes_test_proto_VN.parquet";
+    private String  filename = "test-data/reader/c1_genotypes_test_proto_VN";
 
     private RecordReader reader;
 

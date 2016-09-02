@@ -15,7 +15,7 @@ public class FirstNIteratorTest {
     @Test
     public void testNIterator() throws IOException {
         int count=0;
-        FirstNIterator it = new FirstNIterator(new BaseInformationIterator("sample_data/protobuf/genotypes_proto_test_mutated_randomized.parquet", 32,
+        FirstNIterator it = new FirstNIterator(new BaseInformationIterator("sample_data/protobuf/genotypes_proto_test_mutated_randomized", 32,
                 new SimpleFeatureCalculator(), new SimpleFeatureCalculator()), 10);
         while (it.hasNext()) {
             DataSet next = it.next();
@@ -27,7 +27,7 @@ public class FirstNIteratorTest {
     @Test
     public void testNIteratorBatch() throws IOException {
         int count=0;
-        FirstNIterator it = new FirstNIterator(new BaseInformationIterator("sample_data/protobuf/genotypes_proto_test_mutated_randomized.parquet", 32,
+        FirstNIterator it = new FirstNIterator(new BaseInformationIterator("sample_data/protobuf/genotypes_proto_test_mutated_randomized", 32,
                 new SimpleFeatureCalculator(), new SimpleFeatureCalculator()), 10);
         while (it.hasNext()) {
             DataSet next = it.next(10);

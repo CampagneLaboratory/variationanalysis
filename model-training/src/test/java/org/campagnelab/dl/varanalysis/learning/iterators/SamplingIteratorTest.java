@@ -18,7 +18,7 @@ public class SamplingIteratorTest {
         long seed = 012;
         int minibatchSize = 3;
         SamplingIterator trainIter = new SamplingIterator(
-                new BaseInformationIterator("sample_data/protobuf/genotypes_proto_mutated_randomized.parquet",
+                new BaseInformationIterator("sample_data/protobuf/genotypes_proto_mutated_randomized",
                         minibatchSize, new SimpleFeatureCalculator(), new SimpleFeatureCalculator()),
                 seed);
         assertTrue(trainIter.hasNext());

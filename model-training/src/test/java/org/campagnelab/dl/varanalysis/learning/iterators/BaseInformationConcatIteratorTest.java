@@ -20,9 +20,9 @@ public class BaseInformationConcatIteratorTest {
     public void testIterator() throws IOException{
 
         List<BaseInformationIterator> iterList = new ObjectArrayList<BaseInformationIterator>(2);
-        iterList.add( new BaseInformationIterator("sample_data/protobuf/concat_genotypes_test_proto_mutated.parquet",
+        iterList.add( new BaseInformationIterator("sample_data/protobuf/concat_genotypes_test_proto_mutated",
                 100, new SimpleFeatureCalculator(),new SimpleFeatureCalculator()));
-        iterList.add( new BaseInformationIterator("sample_data/protobuf/concat_genotypes_test_proto_mutated.parquet",
+        iterList.add( new BaseInformationIterator("sample_data/protobuf/concat_genotypes_test_proto_mutated",
                 100, new SimpleFeatureCalculator(),new SimpleFeatureCalculator()));
         BaseInformationConcatIterator trainIter = new BaseInformationConcatIterator(iterList, 3, new FeatureMapperV2(), new SimpleFeatureCalculator());
         assertTrue(trainIter.hasNext());
@@ -48,9 +48,9 @@ public class BaseInformationConcatIteratorTest {
     public void testIterator2() throws IOException{
 
         List<BaseInformationIterator> iterList = new ObjectArrayList<BaseInformationIterator>(2);
-        iterList.add( new BaseInformationIterator("sample_data/protobuf/concat_genotypes_test_proto_mutated.parquet",
+        iterList.add( new BaseInformationIterator("sample_data/protobuf/concat_genotypes_test_proto_mutated",
                 100, new SimpleFeatureCalculator(),new SimpleFeatureCalculator()));
-        iterList.add( new BaseInformationIterator("sample_data/protobuf/concat_genotypes_test_proto_mutated.parquet",
+        iterList.add( new BaseInformationIterator("sample_data/protobuf/concat_genotypes_test_proto_mutated",
                 100, new SimpleFeatureCalculator(),new SimpleFeatureCalculator()));
         BaseInformationConcatIterator trainIter = new BaseInformationConcatIterator(iterList, 2, new FeatureMapperV2(), new SimpleFeatureCalculator());
         assertTrue(trainIter.hasNext());
