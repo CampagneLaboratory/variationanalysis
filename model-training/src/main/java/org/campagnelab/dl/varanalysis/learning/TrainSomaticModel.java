@@ -69,11 +69,6 @@ public class TrainSomaticModel extends SomaticTrainer {
     }
 
     @Override
-    protected DataSetIterator decorateIterator(DataSetIterator iterator) {
-        return new AsyncDataSetIterator(iterator);
-    }
-
-    @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
         validationDatasetFilename = arguments.validationSet;
         //check validation file for error
