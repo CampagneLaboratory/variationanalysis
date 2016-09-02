@@ -1,6 +1,6 @@
 ## How to compile
 
-To build the project [Maven](https://maven.apache.org) 3.2+ is required. Maven is a Java tool, so you must have[Java 1.8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html) installed in order to proceed.
+To build the project [Maven](https://maven.apache.org) 3.2+ is required. Maven is a Java tool, so you must have [Java 1.8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html) installed in order to proceed.
 
 To check your local Maven installation, type the following in a terminal or in a command prompt:
 ```sh
