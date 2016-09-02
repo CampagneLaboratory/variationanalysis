@@ -147,7 +147,7 @@ public class TrainSomaticModel extends SomaticTrainer {
                 scoreMap.put(iter, bestScore);
 
             }
-            System.err.println("Num Examples Used: "+numExamplesUsed);
+         //   System.err.println("Num Examples Used: "+numExamplesUsed);
             //save latest after the end of an epoch:
             saver.saveLatestModel(net, net.score());
             writeProperties(this);

@@ -128,7 +128,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
                 if (iter > maxProcessPerEpoch) break;
 
             }
-            System.err.println("Num Examples Used: "+numExamplesUsed);
+         //   System.err.println("Num Examples Used: "+numExamplesUsed);
 
             samplingIterator.updateStatistics();
             double auc = estimateTestSetPerf(epoch, iter);
