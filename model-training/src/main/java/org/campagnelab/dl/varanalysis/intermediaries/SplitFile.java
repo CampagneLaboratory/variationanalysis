@@ -68,7 +68,7 @@ public class SplitFile {
             int index;
             for (index = 0; index < numOutputs; index++) {
                 cumulativeFration += fractions[index];
-                if (choice > cumulativeFration) {
+                if (choice < cumulativeFration) {
                     // we found the index of the output that should contain this record.
                     break;
                 }
