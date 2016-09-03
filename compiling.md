@@ -19,9 +19,9 @@ If the version is less than 3.2 or Maven is not installed, you need to install a
 
 ### Upgrade your Maven installation
 
-To install a new version of Maven, first, [download](https://maven.apache.org/download.html) Maven and then follow the [installation instructions](https://maven.apache.org/install.html).
+To install a new version of Maven, first, [download](https://maven.apache.org/download.html) the software and then follow the [installation instructions](https://maven.apache.org/install.html).
 
-Then, check again that the new version has been correctly installed:
+After the installation, check that the new version has been correctly installed:
 
 ```sh
 mvn -version
@@ -34,9 +34,8 @@ OS name: "mac os x", version: "10.10.5", arch: "x86_64", family: "mac"
 ```
 
 ### Compile from the command line
-Just go in the project root folder (the folder where you cloned this git repo) and type the following in a terminal or in a command prompt
+In a terminal or in a command prompt, change to the project root folder (the folder where you cloned this git repo) and type the following command:
 ```sh
-cd <project roo>
 mvn package
 ```
 The command line will print out various actions, and end with the following:
@@ -65,7 +64,7 @@ To check/change the Maven Integration settings:
 
 - go to Preferences...>Build,Execution,Deployment>Build Tools and select Maven
 - in the dialog, check the Version number reported under "Maven home directory"
-- if the version is less than 3.2+, click on the browse button next to the input field and select the "Maven home" folder reported by the mvn -version command
+- if the version is less than 3.2+, click on the browse button next to the input field and select the "Maven home" folder reported by the mvn --version command
 
 ### Troubleshooting
 
