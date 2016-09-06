@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
@@ -29,16 +31,15 @@ import java.util.stream.IntStream;
 public class PredictMutationsV9 extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
 
-    final static String TIME = "1472667738273";
-    final static String MODEL_DIR = "models/" + TIME;
+
 
     private int scoreN =Integer.MAX_VALUE;
-
 
     final boolean SKIP0COUNTS = true;
 
     //will be adjusted if model's loaded featuremapper is for trios. don't manually change
     boolean isTrio = false;
+
     private ModelLoader modelLoader;
 
     CalcCalibrator calculator;
@@ -49,46 +50,29 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
 
 
-    public PredictMutationsV9() {
+    public PredictMutationsV9(PredictionArguments arguments) {
+        super(arguments);
     }
 
 
     public static void main(String[] args) throws Exception {
-        String datasetPath;
-        if (args.length == 0) {
-            datasetPath = "sample_data/profiling_data/";
-        } else {
-            datasetPath = args[0];
-        }
-        double learningRate = 0.1;
-        int miniBatchSize = 100;
-        System.out.println("time: " + TIME);
-        PredictMutationsV9 predictor = new PredictMutationsV9();
-        //   predictor.printPredictions("best");
-        String type=null;
-        for (String item : args) {
-            if (!new File(item).exists()) {
-                type=item;
-                System.out.println("Will process files of type "+type);
-                System.out.flush();
-            } else {
-                if (type==null) {
-                    System.err.println("Invalid syntax, dataset type must be specified: type file+");
-                    System.exit(1);
-                } else {
-                    datasetPath=item;
-                }
-                predictor.printPredictions("latest", MODEL_DIR, datasetPath , "tests/" + TIME + "/", type);
-            }
-        }
+        PredictionArguments arguments = parseArguments(args,"TrainSomaticModel");
+        PredictMutationsV9 predictor = new PredictMutationsV9(arguments);
+        System.out.println("modelName: " + predictor.modelName);
 
-        System.out.println(MODEL_DIR);
+
+        predictor.printPredictions(predictor.version, arguments.modelPath, predictor.testSet, "tests/" + predictor.modelName + "/");
+
+        System.out.println(arguments.modelPath);
 
     }
 
 
-    public String featuresToString(BaseInformationRecords.BaseInformation pos) {
-        //indels not handled
+    public String featuresToString(BaseInformationRecords.BaseInformation pos, boolean longReport) {
+
+
+
+
         int[] s1Counts = new int[10];
         int[] s2Counts = new int[10];
         for (int i = 0; i < 5; i++) {
@@ -123,25 +107,36 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
             s3ScoresString = Arrays.toString(s3Scores) + "\t";
             s3CountsSum = IntStream.of(s3Counts).sum();
         }
+        String features;
+        if (!longReport) {
+            features = (pos.hasFrequencyOfMutation() ? pos.getFrequencyOfMutation() : "") + "\t"
+                    + pos.getReferenceIndex() + "\t"
+                    + pos.getPosition() + "\t"
+                    + pos.getReferenceBase() + "\t"
+                    + Arrays.toString(s1Scores) + "\t"
+                    + Arrays.toString(s2Scores) + "\t"
+                    + s3ScoresString
+                    + Integer.toString(IntStream.of(s1Counts).sum() + IntStream.of(s2Counts).sum() + s3CountsSum);
+        } else {
+            features = (pos.hasFrequencyOfMutation() ? pos.getFrequencyOfMutation() : "") + "\t"
+                    + pos.getReferenceIndex() + "\t"
+                    + pos.getPosition() + "\t"
+                    + pos.getReferenceBase() + "\t"
+                    + Arrays.toString(s1Scores) + "\t"
+                    + Arrays.toString(s2Scores) + "\t"
+                    + s3ScoresString
+                    + Integer.toString(IntStream.of(s1Counts).sum() + IntStream.of(s2Counts).sum() + s3CountsSum)
+                    + (pos.hasMutatedBase() ? pos.getMutatedBase() : "") + "\t"
+                    + Arrays.toString(s1Counts) + "\t"
+                    + Arrays.toString(s2Counts) + "\t"
+                    + s3CountsString;
 
-
-        String features = (pos.hasFrequencyOfMutation() ? pos.getFrequencyOfMutation() : "") + "\t"
-                + (pos.hasMutatedBase() ? pos.getMutatedBase() : "") + "\t"
-                + pos.getReferenceIndex() + "\t"
-                + pos.getPosition() + "\t"
-                + pos.getReferenceBase() + "\t"
-                + Arrays.toString(s1Counts) + "\t"
-                + Arrays.toString(s2Counts) + "\t"
-                + s3CountsString
-                + Arrays.toString(s1Scores) + "\t"
-                + Arrays.toString(s2Scores) + "\t"
-                + s3ScoresString
-                + Integer.toString(IntStream.of(s1Counts).sum() + IntStream.of(s2Counts).sum() + s3CountsSum);
+        }
         return features;
     }
 
     public void printPredictions(String prefix, String modelPath, String evaluationDataFilename,
-                                 String resultsPath, String typeOfTestFile) throws Exception {
+                                 String resultsPath) throws Exception {
 
 
         modelLoader = new ModelLoader(modelPath);
@@ -164,9 +159,9 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
         //initialize results printer
 
-        String resultFilename=resultsPath + prefix + "-" + typeOfTestFile;
+        String resultFilename= resultsPath + prefix + "-" + type;
         PrintWriter results = new PrintWriter(resultFilename, "UTF-8");
-        writeHeader(results);
+        writeHeader(results,isTrio);
 
         System.out.println("Writing predictions to "+resultFilename);
         //may need to adjust batch size and write outputs piecewise if test sets are very large
@@ -177,7 +172,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         //DataSet ds = baseIter.next();
 //set up logger
         ProgressLogger pgReadWrite = new ProgressLogger(LOG);
-        pgReadWrite.itemsName = prefix + "/" + typeOfTestFile;
+        pgReadWrite.itemsName = prefix;
         pgReadWrite.expectedUpdates = reader.getTotalRecords();
         pgReadWrite.displayFreeMemory = true;
         pgReadWrite.start();
@@ -214,13 +209,10 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
         results.close();
         pgReadWrite.stop();
 
-        //write sorted trees and total count to file:
-        if ("test".equals(typeOfTestFile)) { //only save for test set
-            //write record count to prop file
-            calculator.save();
-            modelLoader.writeTestCount(reader.getTotalRecords());
 
-        }
+        calculator.save();
+        modelLoader.writeTestCount(reader.getTotalRecords());
+
 
     }
 
