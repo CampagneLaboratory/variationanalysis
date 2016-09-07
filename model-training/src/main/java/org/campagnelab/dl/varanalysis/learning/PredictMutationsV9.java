@@ -67,11 +67,8 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
     }
 
-
+    //no starting tab, no ending tab
     public String featuresToString(BaseInformationRecords.BaseInformation pos, boolean longReport) {
-
-
-
 
         int[] s1Counts = new int[10];
         int[] s2Counts = new int[10];
@@ -103,8 +100,8 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                 s3Scores[i] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(2).getCounts(i).getQualityScoresForwardStrandList()));
                 s3Scores[i + 5] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(2).getCounts(i).getQualityScoresReverseStrandList()));
             }
-            s3CountsString = Arrays.toString(s3Counts) + "\t";
-            s3ScoresString = Arrays.toString(s3Scores) + "\t";
+            s3CountsString = "\t" + Arrays.toString(s3Counts).replaceAll(" ","");
+            s3ScoresString =  "\t" + Arrays.toString(s3Scores).replaceAll(" ","");
             s3CountsSum = IntStream.of(s3Counts).sum();
         }
         String features;
@@ -113,22 +110,22 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
                     + pos.getReferenceIndex() + "\t"
                     + pos.getPosition() + "\t"
                     + pos.getReferenceBase() + "\t"
-                    + Arrays.toString(s1Scores) + "\t"
-                    + Arrays.toString(s2Scores) + "\t"
-                    + s3ScoresString
+                    + Arrays.toString(s1Scores).replaceAll(" ","") + "\t"
+                    + Arrays.toString(s2Scores).replaceAll(" ","")
+                    + s3ScoresString + "\t"
                     + Integer.toString(IntStream.of(s1Counts).sum() + IntStream.of(s2Counts).sum() + s3CountsSum);
         } else {
             features = (pos.hasFrequencyOfMutation() ? pos.getFrequencyOfMutation() : "") + "\t"
                     + pos.getReferenceIndex() + "\t"
                     + pos.getPosition() + "\t"
                     + pos.getReferenceBase() + "\t"
-                    + Arrays.toString(s1Scores) + "\t"
-                    + Arrays.toString(s2Scores) + "\t"
-                    + s3ScoresString
+                    + Arrays.toString(s1Scores).replaceAll(" ","") + "\t"
+                    + Arrays.toString(s2Scores).replaceAll(" ","")
+                    + s3ScoresString + "\t"
                     + Integer.toString(IntStream.of(s1Counts).sum() + IntStream.of(s2Counts).sum() + s3CountsSum)
                     + (pos.hasMutatedBase() ? pos.getMutatedBase() : "") + "\t"
-                    + Arrays.toString(s1Counts) + "\t"
-                    + Arrays.toString(s2Counts) + "\t"
+                    + Arrays.toString(s1Counts).replaceAll(" ","") + "\t"
+                    + Arrays.toString(s2Counts).replaceAll(" ","")
                     + s3CountsString;
 
         }

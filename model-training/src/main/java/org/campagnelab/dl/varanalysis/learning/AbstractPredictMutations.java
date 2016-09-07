@@ -116,8 +116,8 @@ public abstract class AbstractPredictMutations {
         boolean mutated = record.getMutated();
         ProtoPredictor predictor = new ProtoPredictor(model, featureMapper);
         ProtoPredictor.Prediction prediction = predictor.mutPrediction(record);
-        String formatted0 = longReport?genFormattedString(record.getSamples(0)):"";
-        String formatted1 = longReport?genFormattedString(record.getSamples(1)):"";
+        String formatted0 = longReport?"\t"+genFormattedString(record.getSamples(0)):"";
+        String formatted1 = longReport?"\t"+genFormattedString(record.getSamples(1)):"";
         String formatted2 = longReport?isTrio?"\t"+genFormattedString(record.getSamples(2)):"":"";
         String correctness = (prediction.clas == mutated) ? "right" : "wrong";
         if (aucLossCalculator != null) {
@@ -125,7 +125,7 @@ public abstract class AbstractPredictMutations {
         }
 
 
-        results.append(String.format("%s\t%f\t%f\t%s\t%s\t%s\t%s%s",
+        results.append(String.format("%s\t%f\t%f\t%s\t%s%s%s%s",
                 (mutated ? "1" : "0"),
                 prediction.posProb, prediction.negProb,
                 correctness, features,
