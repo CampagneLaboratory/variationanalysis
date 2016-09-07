@@ -20,7 +20,8 @@ public class PredictionArguments {
     @Parameter(names = {"-k", "--kind"}, description = "Kind of dataset used for testing (ie test, validation, training). The kind of dataset is used to construct the output filename. ")
     public String type = "test";
 
-    @Parameter(required = true, names = {"-m", "--model-path"}, description = "directory containing the model to use for prediction. ")
+    @Parameter(required = true, names = {"-m", "--model-path"}, description = "directory containing the model to use for prediction. " +
+            "The prediction output will be stored in this directory following the pattern <model-label>-<kind>.tsv")
     public String modelPath;
 
     @Parameter(names = {"-l", "--model-label"}, description = "keyword specifying which version of the model to use for predictions (ie bestAUC, latest)")
