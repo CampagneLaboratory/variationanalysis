@@ -13,15 +13,15 @@ import java.util.List;
 @Parameters(commandDescription = "Test a model given test files.")
 
 public class PredictionArguments {
-    @Parameter(names = {"-t", "--test-set"}, description = "test set. When more than one dataset is provided (multiple -t options), " +
+    @Parameter(required = true, names = {"-t", "--test-set"}, description = "test set. When more than one dataset is provided (multiple -t options), " +
     "only the first will be used to produce metadata files for statistical analysis in Goby.")
     public String testSet;
 
     //TODO
-    @Parameter(names = {"-k", "--kind"}, description = "the type of dataset used for testing (ie test, val, training) ")
+    @Parameter(names = {"-k", "--kind"}, description = "the kind of dataset used for testing (ie test, val, training) ")
     public String type = "test";
 
-    @Parameter(names = {"-m", "--model-path"}, description = "directory containing the model to use for prediction. ")
+    @Parameter(required = true, names = {"-m", "--model-path"}, description = "directory containing the model to use for prediction. ")
     public String modelPath;
 
     @Parameter(names = {"-l", "--model-label"}, description = "keyword specifying which version of the model to use for predictions (ie bestAUC, latest)")

@@ -44,7 +44,7 @@ public abstract class AbstractPredictMutations {
 
     @Deprecated
     public AbstractPredictMutations(){
-        System.out.println("deprectated predictor in use");
+        System.out.println("deprecated predictor in use");
     }
 
     public AbstractPredictMutations(PredictionArguments arguments) {

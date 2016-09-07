@@ -16,8 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
@@ -28,8 +26,8 @@ import java.util.stream.IntStream;
  *
  * @author Remi Torracinta
  */
-public class PredictMutationsV9 extends AbstractPredictMutations {
-    static private Logger LOG = LoggerFactory.getLogger(PredictMutationsV9.class);
+public class PredictMutations extends AbstractPredictMutations {
+    static private Logger LOG = LoggerFactory.getLogger(PredictMutations.class);
 
 
 
@@ -50,14 +48,14 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
 
 
-    public PredictMutationsV9(PredictionArguments arguments) {
+    public PredictMutations(PredictionArguments arguments) {
         super(arguments);
     }
 
 
     public static void main(String[] args) throws Exception {
-        PredictionArguments arguments = parseArguments(args,"TrainSomaticModel");
-        PredictMutationsV9 predictor = new PredictMutationsV9(arguments);
+        PredictionArguments arguments = parseArguments(args,"PredictMutations");
+        PredictMutations predictor = new PredictMutations(arguments);
         System.out.println("modelName: " + predictor.modelName);
 
 
