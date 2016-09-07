@@ -67,8 +67,8 @@ public abstract class AbstractPredictMutations {
         } catch (ParameterException e) {
 
             commander.usage();
+            System.out.flush();
             throw e;
-
         }
         return arguments;
     }
