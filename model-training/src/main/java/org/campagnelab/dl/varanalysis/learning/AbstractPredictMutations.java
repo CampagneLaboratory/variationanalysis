@@ -35,6 +35,7 @@ public abstract class AbstractPredictMutations {
     String version;
     String testSet;
     String type;
+    int scoreN;
     boolean longReport;
     String s3Scores = "\tsample3Scores";
     String s3Counts = "\tsampleS3Counts";
@@ -55,6 +56,7 @@ public abstract class AbstractPredictMutations {
         version = arguments.modelVersion;
         type = arguments.type;
         longReport = arguments.longReport;
+        scoreN = arguments.scoreN;
     }
 
 

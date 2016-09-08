@@ -33,7 +33,7 @@ public class PredictMutationsV9 extends AbstractPredictMutations {
 
 
 
-    private int scoreN =Integer.MAX_VALUE;
+
 
     final boolean SKIP0COUNTS = true;
 

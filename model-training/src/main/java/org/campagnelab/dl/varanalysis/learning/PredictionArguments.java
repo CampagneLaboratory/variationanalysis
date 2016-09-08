@@ -30,6 +30,10 @@ public class PredictionArguments {
     @Parameter(names = {"-r", "--long-report"}, description = "long report: include base count and other feature data in the prediction output")
     public boolean longReport = false;
 
+    @Parameter(names = {"-n", "--num-examples"}, description = "number of examples to iterate over in the test set. useful for quickly approximating performance with fewer examples.")
+    public int scoreN = Integer.MAX_VALUE;
+
+
 
 
 }
