@@ -10,18 +10,18 @@ import java.util.List;
 /**
  * Created by rct66 on 9/6/16.
  */
-@Parameters(commandDescription = "Test a model given test files.")
+@Parameters(commandDescription = "Predict the label in a dataset. Dataset must be provided in the .sbi/sbip format.")
 
 public class PredictionArguments {
-    @Parameter(names = {"-t", "--test-set"}, description = "test set. When more than one dataset is provided (multiple -t options), " +
-    "only the first will be used to produce metadata files for statistical analysis in Goby.")
+    @Parameter(required = true, names = {"-i", "--dataset"}, description = "Path to the dataset to where prediction will be evaluated.")
     public String testSet;
 
     //TODO
-    @Parameter(names = {"-k", "--kind"}, description = "the type of dataset used for testing (ie test, val, training) ")
+    @Parameter(names = {"-k", "--kind"}, description = "Kind of dataset used for testing (ie test, validation, training). The kind of dataset is used to construct the output filename. ")
     public String type = "test";
 
-    @Parameter(names = {"-m", "--model-path"}, description = "directory containing the model to use for prediction. ")
+    @Parameter(required = true, names = {"-m", "--model-path"}, description = "directory containing the model to use for prediction. " +
+            "The prediction output will be stored in this directory following the pattern <model-label>-<kind>.tsv")
     public String modelPath;
 
     @Parameter(names = {"-l", "--model-label"}, description = "keyword specifying which version of the model to use for predictions (ie bestAUC, latest)")
