@@ -154,7 +154,7 @@ public class PredictMutations extends AbstractPredictMutations {
 
         //initialize results printer
 
-        String resultFilename= resultsPath + prefix + "-" + type;
+        String resultFilename= resultsPath + prefix + "-" + type + ".tsv";
         PrintWriter results = new PrintWriter(resultFilename, "UTF-8");
         writeHeader(results,isTrio);
 

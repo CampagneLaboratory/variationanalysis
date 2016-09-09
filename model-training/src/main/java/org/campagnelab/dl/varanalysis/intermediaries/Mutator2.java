@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.Random;
 
 /**
- * The mutator object iterates over a parquet file and creates additional copies of every record, where
+ * The mutator object iterates over a file and creates additional copies of every record, where
  * some copies are mutated, and some are not. In constrast to Mutator, Mutator2 observes the sum of counts in the
  * second sample, discards the counts in the second sample, and recreates them using a simulation protocol
  * that either simulates random sampling from the same genotype, or from a second tumor genotype derived from germline.
@@ -46,7 +46,7 @@ public class Mutator2 extends Intermediary {
     public static void main(String[] args) throws IOException {
         //new ParquetPrinter(args[0]).print();
         if (args.length < 2) {
-            System.err.println("usage: input.parquet mutated-randomized-filename");
+            System.err.println("usage: input.sbi mutated-randomized-filename");
             System.exit(1);
         }
         Mutator2 m = new Mutator2();
