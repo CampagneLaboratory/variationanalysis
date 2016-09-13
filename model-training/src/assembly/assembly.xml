@@ -4,21 +4,39 @@
         xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2
       http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 
-    <id>all</id>
+    <id>bin</id>
     <formats>
         <format>jar</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
-
+    <fileSets>
+        <fileSet>
+            <directory>${basedir}</directory>
+            <includes>
+                <include>*.txt</include>
+            </includes>
+                <excludes>
+                    <exclude>org/datanucleus/**</exclude>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                </excludes>
+        </fileSet>
+    </fileSets>
     <dependencySets>
+
+        <dependencySet>
+            <outputDirectory>/</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <unpack>true</unpack>
+            <scope>runtime</scope>
+        </dependencySet>
         <dependencySet>
             <outputDirectory>/</outputDirectory>
             <unpack>true</unpack>
-            <scope>runtime</scope>
-            <excludes>
-                <!--exclude>org.nd4j:nd4j-native</exclude-->
-                <!--exclude>org.nd4j:nativeblas</exclude-->
-            </excludes>
+            <scope>system</scope>
         </dependencySet>
     </dependencySets>
+
+
 </assembly>

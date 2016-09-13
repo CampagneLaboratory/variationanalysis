@@ -200,7 +200,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="model-utils" />
+    <orderEntry type="library" name="Maven: org.campagnelab.dl:model-utils:1.0.2-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:dsiutils:2.3.3" level="project" />
     <orderEntry type="library" name="Maven: com.martiansoftware:jsap:2.1" level="project" />
     <orderEntry type="library" name="Maven: commons-configuration:commons-configuration:1.10" level="project" />

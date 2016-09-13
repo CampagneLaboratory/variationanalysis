@@ -50,6 +50,24 @@
                 </configuration>
             </plugin>
             <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/assembly/assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>${maven-shade-plugin.version}</version>
@@ -57,6 +75,7 @@
                     <shadedArtifactAttached>true</shadedArtifactAttached>
                     <shadedClassifierName>${shadedClassifier}</shadedClassifierName>
                     <createDependencyReducedPom>true</createDependencyReducedPom>
+                    <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
@@ -87,7 +106,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin -->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
