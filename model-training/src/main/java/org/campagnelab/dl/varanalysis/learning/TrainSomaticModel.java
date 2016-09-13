@@ -56,6 +56,11 @@ public class TrainSomaticModel extends SomaticTrainer {
     public static void main(String[] args) throws IOException {
         TrainingArguments arguments = parseArguments(args,"TrainSomaticModel");
 
+        if (arguments.trainingSets.size() == 0){
+            System.out.println("Please add at least one training set to the arguments.");
+            return;
+        }
+
         TrainSomaticModel trainer = new TrainSomaticModel(arguments);
 
 
