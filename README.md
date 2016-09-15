@@ -52,10 +52,10 @@ java -cp model-training-1.0.2-SNAPSHOT-bin.jar org.campagnelab.dl.varanalysis.le
 wget http://dl.dropbox.com/u/357497/RRHCQKJ-discover-sequence-variants-demo-files.zip
 unzip RRHCQKJ-discover-sequence-variants-demo-files -d ./practice
 #and create a coviarates file to relate two samples to one another
-echo -e "sample-id\tpatient-id\tgender\ttype\tkind-of-sample\ttissue\tparents\nPVIZVB-pickrellNA18486_argonne\tP1\tMale\tPatient\tGermline\tBlood\tN/A\nPJCBGUJ-pickrellNA18486_yale\tP1\tMaletatient\tSomatic\tBlood\tN/A" > ./practice/covariates.txt
+echo -e "sample-id\tpatient-id\tgender\ttype\tkind-of-sample\ttissue\tparents\nPVIZVB-pickrellNA18486_argonne\tP1\tMale\tPatient\tGermline\tBlood\tN/A\nPJCBGUJ-pickrellNA18486_yale\tP1\tMale\tPatient\tSomatic\tBlood\tN/A" > ./practice/covariates.txt
 #Now produce a tsv file with all positions obtaining a variant score (note: not variant probability) for each position
 #(TODO: goby3 does not seem to accept custom model path?)
-java -jar goby.jar -m discover-sequence-variants ./practice/ZPVIZVB-pickrellNA18486_argonne.header ./practice/PJCBGUJ-pickrellNA18486_yale.header --format SOMATIC_VARIATIONS -o ./practice/NA18486_variants.vcf --genome human_g1k_v37 --covariates ./practice/covariates.txt -X SomaticVariationOutputFormat:model-path="./models/[timestamp]
+java -jar goby.jar -m discover-sequence-variants practice/ZPVIZVB-pickrellNA18486_argonne.header practice/PJCBGUJ-pickrellNA18486_yale.header --format SOMATIC_VARIATIONS -o practice/NA18486_variants.vcf --genome human_g1k_v37 --covariates practice/covariates.txt -X SomaticVariationOutputFormat:model-path=models/[timestamp]
 
 
 
