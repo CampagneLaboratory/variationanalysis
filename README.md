@@ -43,19 +43,21 @@ Split the jar file into test, training, and validation:
 ```sh
 java -cp model-training-1.0.2-SNAPSHOT-bin.jar org.campagnelab.dl.varanalysis.intermediaries.SplitFile -i mutset.sbi -f 0.8 -f 0.1 -f 0.1 -o "set_" -s train -s val -s test
 ```
-## Step 4: train model with training set
+## Step 4: train model with our training set
 To save time, we will only train for 10 epochs (10 full iterations over the whole training set) but in practice, you might leave out max-epochs and allow early stopping to interrupt training when validation set performance starts deteriorating.
 ```sh
 java -cp model-training-1.0.2-SNAPSHOT-bin.jar org.campagnelab.dl.varanalysis.learning.TrainSomaticModel -t set_train.sbi -v set_val.sbi --max-epochs 10
 ```
+This command generates the trained the model in ./models/[timestamp], where timestamp is a numeric value.
 ## Step 5: test our model
-Let's test our model on the test set. The AUC performance on the test set will be printed to standard out. The output of this test is stored in tests/[timestamp]/latest-test.tsv .
+Let's test our model on the test set. The AUC performance on the test set will be printed to standard out.
 It can be used in conjuction with our [MetaR](http://metaR.campagnelab.org) software to generate ROC and Reliability curves.
 ```sh
 mkdir tests
-java -cp model-training-1.0.2-SNAPSHOT-bin.jar org.campagnelab.dl.varanalysis.learning.PredictMutations -i set_test.sbi --long-report -m ./models/[timestamp (eg 1473798870063)]
+java -cp model-training-1.0.2-SNAPSHOT-bin.jar org.campagnelab.dl.varanalysis.learning.PredictMutations -i set_test.sbi --long-report -m ./models/*
 ```
-## Step 6:
+The output of this test is stored in tests/[timestamp]/latest-test.tsv.
+## Step 6: use the trained model on a real dataset to find variants
 In practice, you will want to use the model on data with no planted mutations, that way you can find actual variants. You can use Goby to do this. We'll download two pickrell 2010 datasets and look for variants.
 ```sh
 wget http://dl.dropbox.com/u/357497/RRHCQKJ-discover-sequence-variants-demo-files.zip
@@ -68,6 +70,7 @@ echo -e "sample-id\tpatient-id\tgender\ttype\tkind-of-sample\ttissue\tparents\nZ
 Now produce a vcf file with all positions obtaining a variant score (note: not true variant probability) for each position.
 We will use a model threshold of .99 but you are free to use a lower threshold to investigate more possible variant sites.
 ```sh
-java -jar goby.jar -m discover-sequence-variants practice/ZPVIZVB-pickrellNA18486_argonne.entries practice/PJCBGUJ-pickrellNA18486_yale.entries --format SOMATIC_VARIATIONS -o practice/NA18486_variants.vcf --genome human_g1k_v37 --covariates practice/covariates.txt -x SomaticVariationOutputFormat:model-path="models/[timestamp (eg 1473798870063)]/latestModel.bin" -x SomaticVariationOutputFormat:model-p-mutated-threshold:0.99
+MODEL_TIMESTAMP=`ls -1 models`
+java -jar goby.jar -m discover-sequence-variants practice/ZPVIZVB-pickrellNA18486_argonne.entries practice/PJCBGUJ-pickrellNA18486_yale.entries --format SOMATIC_VARIATIONS -o practice/NA18486_variants.vcf --genome human_g1k_v37 --covariates practice/covariates.txt -x SomaticVariationOutputFormat:model-path="models/${MODEL_TIMESTAMP}/latestModel.bin" -x SomaticVariationOutputFormat:model-p-mutated-threshold:0.99
 ```
 Our predictions will be outputted to practice/NA18486_variants.vcf.
