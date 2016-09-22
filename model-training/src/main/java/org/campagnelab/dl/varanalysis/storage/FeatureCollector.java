@@ -82,8 +82,8 @@ public class FeatureCollector {
     private void getIds() throws IOException{
         String line;
         while ((line = positionsReader.readLine()) != null) {
-            String[] fields = line.split(" ");
-            idSet.add(fields[2]+":"+fields[1]);
+            String[] fields = line.split("\t");
+            idSet.add(fields[0]+":"+fields[1]);
         }
     }
 
