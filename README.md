@@ -40,7 +40,7 @@ Plant mutations into the set:
 java -cp model-training-1.0.2-SNAPSHOT-bin.jar org.campagnelab.dl.varanalysis.intermediaries.Mutator2 fullset.sbi mutset.sbi
 ```
 Split the jar file into test, training, and validation:
- ```sh
+```sh
 java -cp model-training-1.0.2-SNAPSHOT-bin.jar org.campagnelab.dl.varanalysis.intermediaries.SplitFile -i mutset.sbi -f 0.8 -f 0.1 -f 0.1 -o "set_" -s train -s val -s test
 ```
 ## Step 4: train model with training set
