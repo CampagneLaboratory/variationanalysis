@@ -29,16 +29,14 @@ Download and build the reference genome cache with goby:
 wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz
 java -jar goby.jar -m build-sequence-cache human_g1k_v37.fasta.gz
 ```
-
 ## Step 2: generate an .sbi file with goby
 The .sbi file combines samples into a serialized version of each position, which will be used to generate training/testing examples:
- ```sh
+```sh
 java -jar goby.jar -m discover-sequence-variants germline/VEYNFJY-HRXABYP-pickrell-NA19239_yale.header somatic/JGSUBWW-ZXLHITM-pickrell-NA19239_argonne.header --format SEQUENCE_BASE_INFORMATION -o ./fullset --genome human_g1k_v37
 ```
-
-## Step 3:
+## Step 3: generate the model
 Plant mutations into the set:
- ```sh
+```sh
 java -cp model-training-1.0.2-SNAPSHOT-bin.jar org.campagnelab.dl.varanalysis.intermediaries.Mutator2 fullset.sbi mutset.sbi
 ```
 Split the jar file into test, training, and validation:
