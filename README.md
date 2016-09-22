@@ -1,7 +1,6 @@
-#This readme demonstrates the steps used to train and test a variation model
+#This readme demonstrates the steps used to train, test, and use a variation model
 
 #Step 1: create a working directory and download the jars and data.
-
 mkdir ~/variations
 cd ~/variations
 
@@ -16,6 +15,7 @@ unzip VEYNFJY-HRXABYP-pickrell-NA19239_yale-all-files.zip -d ./germline
 wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz
 java -jar goby.jar -m build-sequence-cache human_g1k_v37.fasta.gz
 
+
 #Step 2: generate an .sbi file with goby
 # the .sbi file combines samples into a serialized version of each position,
 # which will be used to generate training/testing examples
@@ -28,6 +28,7 @@ java -cp model-training-1.0.2-SNAPSHOT-bin.jar org.campagnelab.dl.varanalysis.in
 
 #split the jar file into test, training, and validation here
 java -cp model-training-1.0.2-SNAPSHOT-bin.jar org.campagnelab.dl.varanalysis.intermediaries.SplitFile -i mutset.sbi -f 0.8 -f 0.1 -f 0.1 -o "set_" -s train -s val -s test
+
 
 #Step 3: train model with training set
 # to save time, we will only traing for 10 epochs (10 full iterations over the whole training set)
@@ -52,9 +53,10 @@ java -cp model-training-1.0.2-SNAPSHOT-bin.jar org.campagnelab.dl.varanalysis.le
 wget http://dl.dropbox.com/u/357497/RRHCQKJ-discover-sequence-variants-demo-files.zip
 unzip RRHCQKJ-discover-sequence-variants-demo-files -d ./practice
 #and create a coviarates file to relate two samples to one another
-echo -e "sample-id\tpatient-id\tgender\ttype\tkind-of-sample\ttissue\tparents\nPVIZVB-pickrellNA18486_argonne\tP1\tMale\tPatient\tGermline\tBlood\tN/A\nPJCBGUJ-pickrellNA18486_yale\tP1\tMale\tPatient\tSomatic\tBlood\tN/A" > ./practice/covariates.txt
-#Now produce a tsv file with all positions obtaining a variant score (note: not variant probability) for each position
-#(TODO: goby3 does not seem to accept custom model path?)
-java -jar goby.jar -m discover-sequence-variants practice/ZPVIZVB-pickrellNA18486_argonne.entries practice/PJCBGUJ-pickrellNA18486_yale.entries --format SOMATIC_VARIATIONS -o practice/NA18486_variants.vcf --genome human_g1k_v37 --covariates practice/covariates.txt -x SomaticVariationOutputFormat:model-path="models/[timestamp]/latestModel.bin"
+echo -e "sample-id\tpatient-id\tgender\ttype\tkind-of-sample\ttissue\tparents\nZPVIZVB-pickrellNA18486_argonne\tP1\tMale\tPatient\tGermline\tBlood\tN/A\nPJCBGUJ-pickrellNA18486_yale\tP1\tMale\tPatient\tSomatic\tBlood\tN/A" > ./practice/covariates.txt
+#Now produce a vcf file with all positions obtaining a variant score (note: not true variant probability) for each position.
+#We will use a model threshold of .99 but you are free to use a lower threshold to investigate more possible variant sites.
+java -jar goby.jar -m discover-sequence-variants practice/ZPVIZVB-pickrellNA18486_argonne.entries practice/PJCBGUJ-pickrellNA18486_yale.entries --format SOMATIC_VARIATIONS -o practice/NA18486_variants.vcf --genome human_g1k_v37 --covariates practice/covariates.txt -x SomaticVariationOutputFormat:model-path="models/[timestamp (eg 1473798870063)]/latestModel.bin" -x SomaticVariationOutputFormat:model-p-mutated-threshold:0.99
+#our precictions will be outputted to practice/NA18486_variants.vcf
 
 
