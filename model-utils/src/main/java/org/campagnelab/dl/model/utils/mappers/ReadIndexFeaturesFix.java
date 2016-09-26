@@ -65,10 +65,10 @@ public class ReadIndexFeaturesFix extends AbstractFeatureMapper implements Featu
     public String getFeatureName(int featureIndex) {
         assert featureIndex >= 0 && featureIndex < MAX_GENOTYPES * 2: "Only MAX_GENOTYPES*2*2 features";
         if (featureIndex < MAX_GENOTYPES) {
-            return "numReadIdxsGermlineCount"+(featureIndex/2);
+            return "numReadIdxsGermlineCount"+(featureIndex);
         } else {
             featureIndex -= MAX_GENOTYPES;
-            return "numReadIdxsSomaticCount"+(featureIndex/2);
+            return "numReadIdxsSomaticCount"+(featureIndex);
         }
     }
 
