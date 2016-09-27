@@ -3,17 +3,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>variation-analysis</artifactId>
         <groupId>org.campagnelab.dl</groupId>
+        <artifactId>variation-analysis</artifactId>
         <version>${varanalysis.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>model-utils</artifactId>
-     <properties>
-         <!-- protobuf paths -->
-         <protobuf.input.directory>${project.basedir}/protobuf</protobuf.input.directory>
-         <protobuf.output.directory>${project.build.directory}/generated-sources</protobuf.output.directory>
+    <properties>
+        <!-- protobuf paths -->
+        <protobuf.input.directory>${project.basedir}/protobuf</protobuf.input.directory>
+        <protobuf.output.directory>${project.build.directory}/generated-sources</protobuf.output.directory>
 
          <!-- library versions -->
          <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
@@ -90,15 +90,18 @@
                         <configuration>
 
                             <target>
-                                <chmod file="${project.build.directory}/protoc-${protobuf.version}-${os.detected.classifier}.exe" perm="ugo+rx"/>
-                                <mkdir dir="${protobuf.output.directory}" />
+                                <chmod file="${project.build.directory}/protoc-${protobuf.version}-${os.detected.classifier}.exe"
+                                       perm="ugo+rx"/>
+                                <mkdir dir="${protobuf.output.directory}"/>
                                 <path id="protobuf.input.filepaths.path">
                                     <fileset dir="${protobuf.input.directory}">
                                         <include name="**/*.proto"/>
                                     </fileset>
                                 </path>
-                                <pathconvert pathsep=" " property="protobuf.input.filepaths" refid="protobuf.input.filepaths.path"/>
-                                <exec executable="${project.build.directory}/protoc-${protobuf.version}-${os.detected.classifier}.exe" failonerror="true">
+                                <pathconvert pathsep=" " property="protobuf.input.filepaths"
+                                             refid="protobuf.input.filepaths.path"/>
+                                <exec executable="${project.build.directory}/protoc-${protobuf.version}-${os.detected.classifier}.exe"
+                                      failonerror="true">
                                     <arg value="-I"/>
                                     <arg value="${protobuf.input.directory}"/>
                                     <arg value="--java_out"/>
