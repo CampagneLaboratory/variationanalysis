@@ -1,10 +1,18 @@
-#This readme demonstrates the steps used to train, test, and use a variation model
+# README.md
+This tutorial demonstrates how to train, test, and use an adaptive deep learning model to predict somatic variations. 
 
+The model is trained and tested with model-training jar, which can be compiled from source at https://github.com/CampagneLaboratory/variationanalysis (see [compilation](https://github.com/CampagneLaboratory/variationanalysis/compilation.md) instructions).
+
+Data used for training are processed with [Goby](http://goby.campagnelab.org) version 3.0 or later. 
+
+In this tutorial, we used RNA-Seq data described in Pickrell et al Nature. 2010 Apr 1;464(7289):768-72. doi: 10.1038/nature08872 
+and publicly available from GEO accession  [GSE19480](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE19480).
 ## Requirements:
  
 - [Java 1.8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 - wget or curl command or a web browser to download data and binaries (we use wget below)
 - unzip command
+- software dependencies of [DL4J](http://deeplearning4j.org/) (e.g., native libraries necessary for model training and inference, should be provided by recent Mac and Windows OS, may require specific installations on some Linux flavors).
 
 ## Step 1: download data and binaries
 * Create a working directory:
@@ -123,5 +131,8 @@ MODEL_TIMESTAMP=`ls -1 models`
  -x SomaticVariationOutputFormat:model-path=`pwd`/models/${MODEL_TIMESTAMP}/bestModel.bin \
  -x SomaticVariationOutputFormat:model-p-mutated-threshold:0.4
 ```
-The predictions will be written to practice/NA18486_variants.vcf. The probability estimated
-by the model is written to the field INFO/model-probability[ZPVIZVB-pickrellNA18486_argonne]. This indicates that the probability is for a somatic mutation in sample ZPVIZVB-pickrellNA18486_argonne.
+The predictions will be written to NA18486_variants.vcf. The probability estimated
+by the model is written to the VCF field `INFO/model-probability[ZPVIZVB-pickrellNA18486_argonne]`. This indicates that the probability is for a somatic mutation in sample ZPVIZVB-pickrellNA18486_argonne.
+
+## Contact
+Please address any questions or feedback to the [Goby user forum](https://groups.google.com/forum/#!forum/goby-framework), or open an issue on GitHub.
