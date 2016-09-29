@@ -135,4 +135,4 @@ The predictions will be written to NA18486_variants.vcf. The probability estimat
 by the model is written to the VCF field `INFO/model-probability[ZPVIZVB-pickrellNA18486_argonne]`. This indicates that the probability is for a somatic mutation in sample ZPVIZVB-pickrellNA18486_argonne.
 
 ## Contact
-Please address any questions or feedback to the [Goby user forum](https://groups.google.com/forum/#!forum/goby-framework), or open an issue on GitHub.
+This software is developed by members of the [Campagne laboratory](http://campagnelab.org). Please address any questions or feedback to the [Goby user forum](https://groups.google.com/forum/#!forum/goby-framework), or open an issue on GitHub.
