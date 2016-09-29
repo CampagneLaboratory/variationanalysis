@@ -192,6 +192,12 @@
             <version>1.48</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.campagnelab.goby</groupId>
+            <artifactId>goby-io</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
 </project>
