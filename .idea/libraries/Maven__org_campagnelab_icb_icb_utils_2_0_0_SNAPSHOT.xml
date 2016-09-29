@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.campagnelab.icb:icb-utils:2.0.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/campagnelab/icb/icb-utils/2.0.0-SNAPSHOT/icb-utils-2.0.0-20160929.154644-1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/campagnelab/icb/icb-utils/2.0.0-SNAPSHOT/icb-utils-2.0.0-20160929.154644-1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/campagnelab/icb/icb-utils/2.0.0-SNAPSHOT/icb-utils-2.0.0-20160929.154644-1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -190,7 +190,7 @@
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.0.13" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-4" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.0.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.campagnelab.icb:icb-utils:1.7.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.campagnelab.icb:icb-utils:2.0.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.ibm.icu:icu4j:3.4.4" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.4" level="project" />
     <orderEntry type="library" name="Maven: commons-beanutils:commons-beanutils:1.8.3" level="project" />
