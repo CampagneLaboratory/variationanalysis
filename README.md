@@ -100,22 +100,17 @@ _The model label "best" is the label of the model obtained before performance st
 ## Step 6: use the trained model on a real dataset to find variants
 In practice, you will want to use the model on data with no planted mutations, in order to identify
  actual variants. You can use Goby to do this.
+In this tutorial, to keep things simple, we use the files we trained with:
 
-* Let's download and unpack two independent pickrell 2010 datasets (we switch to Goby format here, but you can use BAM alignments instead as discussed previously):
-
-```sh
-wget http://dl.dropbox.com/u/357497/RRHCQKJ-discover-sequence-variants-demo-files.zip
-unzip RRHCQKJ-discover-sequence-variants-demo-files -d ./practice
-```
 * Create a covariates file to describe how the samples are related:
 ```sh
-echo -e "sample-id\tpatient-id\tgender\ttype\tkind-of-sample\ttissue\tparents\nPJCBGUJ-pickrellNA18486_yale\tP1\tMale\tPatient\tGermline\tBlood\tN/A\nZPVIZVB-pickrellNA18486_argonne\tP1\tMale\tPatient\tSomatic\tBlood\tN/A" > ./practice/covariates.txt
+echo -e "sample-id\tpatient-id\tgender\ttype\tkind-of-sample\ttissue\tparents\nNA18486_yale\tP1\tMale\tPatient\tGermline\tBlood\tN/A\nNA19239_argonne.bam\tP1\tMale\tPatient\tSomatic\tBlood\tN/A" > ./practice/covariates.txt
 ```
 This will create the following file (columns aligned for presentation, tabs must be used):
 ````
-sample-id                       patient-id      gender  type    kind-of-sample  tissue  parents
-PJCBGUJ-pickrellNA18486_yale P1              Male    Patient Germline        Blood   N/A
-ZPVIZVB-pickrellNA18486_argonne    P1              Male    Patient Somatic         Blood   N/A
+sample-id             patient-id      gender  type    kind-of-sample  tissue  parents
+NA19239_yale.bam      P1              Male    Patient Germline        Blood   N/A
+NA19239_argonne.bam   P1              Male    Patient Somatic         Blood   N/A
 ````
 * Now produce a vcf file with all positions obtaining a model probability
  larger than 0.99.
@@ -125,14 +120,14 @@ technical replicates of a lymphoblastoid cell line. No somatic variations should
 
 ```sh
 MODEL_TIMESTAMP=`ls -1 models`
-./goby 4g discover-sequence-variants practice/ZPVIZVB-pickrellNA18486_argonne.entries \
- practice/PJCBGUJ-pickrellNA18486_yale.entries --format SOMATIC_VARIATIONS -o NA18486_variants.vcf \
+./goby 4g discover-sequence-variants germline/NA19239_yale.bam somatic/NA19239_argonne.bam \
+ --format SOMATIC_VARIATIONS -o NA18486_variants.vcf \
  --genome human_g1k_v37 --covariates practice/covariates.txt \
  -x SomaticVariationOutputFormat:model-path=`pwd`/models/${MODEL_TIMESTAMP}/bestModel.bin \
  -x SomaticVariationOutputFormat:model-p-mutated-threshold:0.4
 ```
 The predictions will be written to NA18486_variants.vcf. The probability estimated
-by the model is written to the VCF field `INFO/model-probability[ZPVIZVB-pickrellNA18486_argonne]`. This indicates that the probability is for a somatic mutation in sample ZPVIZVB-pickrellNA18486_argonne.
+by the model is written to the VCF field `INFO/model-probability[NA18486_argonne]`. This indicates that the probability is for a somatic mutation in sample NA18486_argonne.
 
 ## Contact
-Please address any questions or feedback to the [Goby user forum](https://groups.google.com/forum/#!forum/goby-framework), or open an issue on GitHub.
+This software is developed by members of the [Campagne laboratory](http://campagnelab.org). Please address any questions or feedback to the [Goby user forum](https://groups.google.com/forum/#!forum/goby-framework), or open an issue on GitHub.
