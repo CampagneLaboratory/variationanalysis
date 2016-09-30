@@ -3,15 +3,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <!--parent>
-        <groupId>org.campagnelab.build-utils</groupId>
-        <artifactId>maven-parent</artifactId>
-        <version>1.0.6</version>
-    </parent-->
     <groupId>org.campagnelab.dl</groupId>
     <artifactId>variation-analysis</artifactId>
+    <version>1.0.2</version>
     <packaging>pom</packaging>
-    <version>${varanalysis.version}</version>
     <modules>
         <module>model-utils</module>
         <module>model-training</module>
@@ -19,7 +14,6 @@
     <name>Variation Analysis</name>
     <description>A project to train neural networks to recognize mutations in RNA-seq data.</description>
     <properties>
-        <varanalysis.version>1.0.2</varanalysis.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
          <!-- DL4J properties: -->
 
@@ -148,10 +142,7 @@
             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-    <dependencyManagement>
-        <dependencies>
-        </dependencies>
-    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.campagnelab.goby</groupId>
@@ -159,6 +150,5 @@
             <version>3.0.1</version>
         </dependency>
     </dependencies>
-
 
 </project>
