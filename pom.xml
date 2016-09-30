@@ -128,6 +128,12 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <!-- nexus staging can be used to test staged artifacts before their official release -->
+        <!--repository>
+            <id>nexus-staging</id>
+            <name>Nexus Release Repository</name>
+            <url>https://oss.sonatype.org/content/groups/staging</url>
+        </repository-->
     </repositories>
 
     <distributionManagement>
@@ -147,6 +153,11 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
+        <dependency>
+            <groupId>org.campagnelab.goby</groupId>
+            <artifactId>goby-io</artifactId>
+            <version>3.0.1</version>
+        </dependency>
     </dependencies>
 
 
