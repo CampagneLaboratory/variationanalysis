@@ -104,7 +104,7 @@ In this tutorial, to keep things simple, we use the files we trained with:
 
 * Create a covariates file to describe how the samples are related:
 ```sh
-echo -e "sample-id\tpatient-id\tgender\ttype\tkind-of-sample\ttissue\tparents\nNA18486_yale\tP1\tMale\tPatient\tGermline\tBlood\tN/A\nNA19239_argonne.bam\tP1\tMale\tPatient\tSomatic\tBlood\tN/A" > ./practice/covariates.txt
+echo -e "sample-id\tpatient-id\tgender\ttype\tkind-of-sample\ttissue\tparents\nNA19239_yale\tP1\tMale\tPatient\tGermline\tBlood\tN/A\nNA19239_argonne.bam\tP1\tMale\tPatient\tSomatic\tBlood\tN/A" > ./practice/covariates.txt
 ```
 This will create the following file (columns aligned for presentation, tabs must be used):
 ````
