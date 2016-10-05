@@ -56,7 +56,7 @@ This command should take a few minutes (there are ~15M aligned reads) and produc
 ## Step 3: generate the model
 * Plant mutations into the set:
 ```sh
-java -cp model-training-1.0.2-bin.jar org.campagnelab.dl.varanalysis.intermediaries.Mutator fullset.sbi \
+java -cp model-training-1.0.2-bin.jar org.campagnelab.dl.varanalysis.intermediaries.Mutator2 fullset.sbi \
     mutset.sbi
 ```
 * Split the .sbi file into training (80% of training examples), validation (10%), and test (10%) datasets:
