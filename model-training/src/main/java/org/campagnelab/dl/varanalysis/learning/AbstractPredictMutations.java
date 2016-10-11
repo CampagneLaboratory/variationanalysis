@@ -2,7 +2,6 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.CalcCalibrator;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
@@ -12,17 +11,12 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.transforms.Abs;
 import org.nd4j.linalg.factory.Nd4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
-import java.util.SortedSet;
 
 /**
  * Created by fac2003 on 6/10/16.

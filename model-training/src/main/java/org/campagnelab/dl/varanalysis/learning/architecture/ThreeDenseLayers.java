@@ -6,8 +6,6 @@ import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
-import org.deeplearning4j.nn.weights.WeightInit;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
  * A network with three dense layers. This is the first neural net architecture we tried for detecting

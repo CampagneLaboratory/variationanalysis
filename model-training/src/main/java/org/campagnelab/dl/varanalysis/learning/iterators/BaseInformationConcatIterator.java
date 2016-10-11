@@ -103,6 +103,11 @@ public class BaseInformationConcatIterator implements DataSetIterator {
     }
 
     @Override
+    public boolean asyncSupported() {
+        return true;
+    }
+
+    @Override
     public void reset() {
         for (BaseInformationIterator iter : baseIters) {
             iter.reset();

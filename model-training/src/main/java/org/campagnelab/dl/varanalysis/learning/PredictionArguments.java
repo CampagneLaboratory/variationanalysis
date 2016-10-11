@@ -3,10 +3,6 @@ package org.campagnelab.dl.varanalysis.learning;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 /**
  * Created by rct66 on 9/6/16.
  */

@@ -3,7 +3,6 @@ package org.campagnelab.dl.varanalysis.learning.mappers;
 import com.google.protobuf.TextFormat;
 import org.apache.uima.util.FileUtils;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.FractionDifferences3;
 import org.campagnelab.dl.model.utils.mappers.FractionDifferences4;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;

@@ -46,6 +46,11 @@ public class FirstNIterator implements DataSetIterator {
     }
 
     @Override
+    public boolean asyncSupported() {
+        return false;
+    }
+
+    @Override
     public void reset() {
         index = 0;
         delegate.reset();

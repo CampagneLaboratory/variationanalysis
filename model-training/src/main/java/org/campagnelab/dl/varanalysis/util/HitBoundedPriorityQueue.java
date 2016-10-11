@@ -18,12 +18,13 @@
 
 package org.campagnelab.dl.varanalysis.util;
 
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectSortedSet;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.util.Collection;
 import java.util.List;
 
 

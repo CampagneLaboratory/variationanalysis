@@ -6,7 +6,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by fac2003 on 7/15/16.

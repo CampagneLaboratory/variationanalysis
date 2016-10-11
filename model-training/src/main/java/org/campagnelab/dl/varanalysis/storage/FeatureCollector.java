@@ -2,7 +2,6 @@ package org.campagnelab.dl.varanalysis.storage;
 
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.model.utils.mappers.FeatureNameMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;

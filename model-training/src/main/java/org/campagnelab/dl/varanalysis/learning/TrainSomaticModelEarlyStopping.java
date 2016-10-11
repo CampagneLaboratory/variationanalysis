@@ -1,10 +1,12 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.campagnelab.dl.model.utils.mappers.*;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
-import org.campagnelab.dl.varanalysis.learning.architecture.*;
-import org.campagnelab.dl.varanalysis.learning.iterators.*;
+import org.campagnelab.dl.varanalysis.learning.architecture.EStatusListener;
+import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
 import org.deeplearning4j.earlystopping.EarlyStoppingConfiguration;
@@ -21,8 +23,9 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Train a neural network to predict mutations. Implement early stopping, using a validation set to measure performance

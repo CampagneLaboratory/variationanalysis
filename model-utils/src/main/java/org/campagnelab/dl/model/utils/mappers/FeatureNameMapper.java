@@ -1,6 +1,5 @@
 package org.campagnelab.dl.model.utils.mappers;
 
-import org.apache.uima.cas.Feature;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 

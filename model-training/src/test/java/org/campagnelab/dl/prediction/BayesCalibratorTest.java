@@ -1,14 +1,11 @@
 package org.campagnelab.dl.prediction;
 
-import com.google.protobuf.TextFormat;
 import org.campagnelab.dl.model.utils.BayesCalibrator;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.StringWriter;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test the mutator on some specific examples.

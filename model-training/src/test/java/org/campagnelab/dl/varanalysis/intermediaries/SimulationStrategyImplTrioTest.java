@@ -1,16 +1,7 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
-import org.campagnelab.dl.model.utils.mappers.ConcatFeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.varanalysis.intermediaries.SimulationStrategyImpl;
-import org.campagnelab.dl.varanalysis.intermediaries.SimulationStrategyImplTrio;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Assert;
 import org.junit.Test;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Created by rct66 on 7/29/16.

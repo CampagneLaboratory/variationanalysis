@@ -4,7 +4,7 @@ import org.campagnelab.dl.model.utils.mappers.MagnitudeFeatures;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by fac2003 on 5/24/16.

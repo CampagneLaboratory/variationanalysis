@@ -3,7 +3,7 @@ package org.campagnelab.dl.model.utils.mappers;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by fac2003 on 7/12/16.

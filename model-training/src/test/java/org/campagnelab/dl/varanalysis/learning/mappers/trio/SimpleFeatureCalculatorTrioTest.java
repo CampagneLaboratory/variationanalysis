@@ -1,7 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.mappers.trio;
 
 import com.google.protobuf.TextFormat;
-import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.model.utils.mappers.trio.SimpleFeatureCalculatorTrio;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;

@@ -4,7 +4,6 @@ package org.campagnelab.dl.varanalysis.intermediaries;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
-import it.unimi.dsi.util.XorShift128PlusRandom;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;

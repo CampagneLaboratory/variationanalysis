@@ -1,16 +1,11 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntComparator;
-import it.unimi.dsi.fastutil.ints.IntComparators;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
-import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by fac2003 on 7/19/16.

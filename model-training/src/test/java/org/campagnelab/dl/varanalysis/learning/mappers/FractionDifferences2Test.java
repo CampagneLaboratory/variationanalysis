@@ -11,7 +11,7 @@ import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.FileReader;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * Created by fac2003 on 6/11/16.

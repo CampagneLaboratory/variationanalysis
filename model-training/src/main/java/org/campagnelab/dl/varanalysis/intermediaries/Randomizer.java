@@ -3,10 +3,10 @@ package org.campagnelab.dl.varanalysis.intermediaries;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
+import it.unimi.dsi.util.XorShift128PlusRandom;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
-import it.unimi.dsi.util.XorShift128PlusRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

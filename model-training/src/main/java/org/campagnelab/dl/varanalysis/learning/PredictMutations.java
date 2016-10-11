@@ -6,8 +6,8 @@ import org.campagnelab.dl.model.utils.CalcCalibrator;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.QualityFeatures;
-import org.campagnelab.dl.varanalysis.learning.calibrate.CalibratingModel;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
+import org.campagnelab.dl.varanalysis.learning.calibrate.CalibratingModel;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
@@ -15,7 +15,8 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 

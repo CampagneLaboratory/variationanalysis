@@ -5,11 +5,11 @@ import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.DualReader;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.slf4j.*;
 
 /**
  * Combines two parquet files, where one file was produced with Goby and filtering on, and the

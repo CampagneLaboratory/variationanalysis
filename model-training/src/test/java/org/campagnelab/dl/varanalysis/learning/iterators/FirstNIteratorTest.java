@@ -6,7 +6,7 @@ import org.nd4j.linalg.dataset.DataSet;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by fac2003 on 7/14/16.

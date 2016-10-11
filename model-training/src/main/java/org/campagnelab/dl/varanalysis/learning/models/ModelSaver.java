@@ -1,19 +1,12 @@
 package org.campagnelab.dl.varanalysis.learning.models;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.deeplearning4j.nn.api.Updater;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.earlystopping.EarlyStoppingModelSaver;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /** Save a model to disk. Adapted from DL4J model saver, but supports different model prefixes (e.g., best, latest, 1- for epochs,
  * calibrated, etc.)

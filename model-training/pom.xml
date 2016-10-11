@@ -6,12 +6,15 @@
     <parent>
         <groupId>org.campagnelab.dl</groupId>
         <artifactId>variation-analysis</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>model-training</artifactId>
+
     <properties>
 
+        <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend>
+        <dl4j.version>0.6.0</dl4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
 
@@ -50,7 +53,7 @@
                 </configuration>
             </plugin>
             <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.6</version>
                 <configuration>
                     <descriptors>
@@ -134,7 +137,6 @@
             <artifactId>${nd4j.backend}</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
-
         <!-- Core DL4J functionality -->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
@@ -161,22 +163,12 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
-     <!-- Enable the following for GPU support (will also need to switch native backend to cuda-7.5 -->
-        <!--dependency>
-            <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-cuda-7.5</artifactId>
-            <version>${nd4j.version}</version>
-        </dependency>
+        <!-- Enable the following for GPU support (will also need to switch native backend to cuda-7.5 -->
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-cuda-7.5-platform</artifactId>
+            <artifactId>${nd4j.backend}</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-cuda-7.5</artifactId>
-            <version>${dl4j.version}</version>
-        </dependency-->
 
         <dependency>
             <groupId>junit</groupId>
@@ -208,7 +200,7 @@
         <dependency>
             <groupId>org.campagnelab.dl</groupId>
             <artifactId>model-utils</artifactId>
-            <version>1.0.2</version>
+            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>it.unimi.dsi</groupId>
@@ -220,7 +212,12 @@
             <artifactId>jcommander</artifactId>
             <version>1.48</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.uima</groupId>
+            <artifactId>uimaj-core</artifactId>
+            <version>2.9.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 

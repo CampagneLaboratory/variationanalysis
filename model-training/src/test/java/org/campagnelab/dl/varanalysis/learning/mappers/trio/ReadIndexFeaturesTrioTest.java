@@ -1,7 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.mappers.trio;
 
 import com.google.protobuf.TextFormat;
-import org.campagnelab.dl.model.utils.mappers.ReadIndexFeaturesFix;
 import org.campagnelab.dl.model.utils.mappers.trio.ReadIndexFeaturesTrio;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;

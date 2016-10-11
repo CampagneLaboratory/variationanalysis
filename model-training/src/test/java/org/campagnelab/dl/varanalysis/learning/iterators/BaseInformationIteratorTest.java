@@ -7,7 +7,8 @@ import org.nd4j.linalg.dataset.DataSet;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Run simple tests on the iterator.
