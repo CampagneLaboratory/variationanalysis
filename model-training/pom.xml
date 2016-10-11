@@ -121,7 +121,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
+    <dependencies>
 
     <dependency>
             <groupId>it.unimi.dsi</groupId>
