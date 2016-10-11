@@ -116,14 +116,14 @@
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-8.5-platform</artifactId>
+                <artifactId>nd4j-cuda-8.0-platform</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <dependencies>
 
-        <dependency>
+
+    <dependency>
             <groupId>it.unimi.dsi</groupId>
             <artifactId>fastutil</artifactId>
             <version>7.0.12</version>
