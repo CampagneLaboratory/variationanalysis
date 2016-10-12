@@ -18,7 +18,7 @@ public class ReadIndexWithCounts extends GenotypeCount {
 
     public void set(List<Integer>
             readIndicesForwardStrandList, List<Integer> readIndicesReverseStrandList) {
-
+        readIndices.clear();
         readIndices.addAll(readIndicesForwardStrandList);
         readIndices.addAll(readIndicesReverseStrandList);
     }
