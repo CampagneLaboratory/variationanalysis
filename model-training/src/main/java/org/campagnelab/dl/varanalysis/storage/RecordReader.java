@@ -3,6 +3,7 @@ package org.campagnelab.dl.varanalysis.storage;
 import org.apache.commons.io.IOUtils;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
+import org.campagnelab.goby.exception.GobyRuntimeException;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -32,8 +33,10 @@ public class RecordReader implements Closeable, RecordIterable {
      * @throws IOException
      */
     public BaseInformationRecords.BaseInformation nextRecord() throws IOException {
-        if (reader.hasNext()) return reader.next();
-        else return null;
+        try {
+            if (reader.hasNext()) return reader.next();
+            else return null;
+        } catch (GobyRuntimeException e) {return null;}
     }
 
     /**
