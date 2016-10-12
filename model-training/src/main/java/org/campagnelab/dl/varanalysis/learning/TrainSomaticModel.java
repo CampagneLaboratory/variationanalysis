@@ -16,7 +16,9 @@ import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.dataset.api.iterator.CachingDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.dataset.api.iterator.cache.InMemoryDataSetCache;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.PointIndex;
 import org.slf4j.Logger;
@@ -55,10 +57,15 @@ public class TrainSomaticModel extends SomaticTrainer {
         super(arguments);
     }
 
+    @Override
+    protected DataSetIterator decorateIterator(DataSetIterator iterator) {
+        return new CachingDataSetIterator(iterator,new InMemoryDataSetCache());
+    }
+
     public static void main(String[] args) throws IOException {
 
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
-        CudaEnvironment.getInstance().getConfiguration().enableDebug(false).allowMultiGPU(false)
+        CudaEnvironment.getInstance().getConfiguration().enableDebug(false).allowMultiGPU(true)
                 .setMaximumGridSize(512)
                 .setMaximumBlockSize(512);
         CudaEnvironment.getInstance().getConfiguration()

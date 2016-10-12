@@ -12,10 +12,13 @@ import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
+import org.nd4j.linalg.dataset.api.iterator.CachingDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.dataset.api.iterator.cache.InMemoryDataSetCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
@@ -40,6 +43,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
 
     public static void main(String[] args) throws IOException {
+
         // uncomment the following line when running on a machine with multiple GPUs:
         //  org.nd4j.jita.conf.CudaEnvironment.getInstance().getConfiguration().allowMultiGPU(true);
         TrainingArguments arguments = parseArguments(args, "TrainSomaticModelOnGPU");
@@ -51,16 +55,24 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         }
     }
 
+    @Override
+    protected DataSetIterator decorateIterator(DataSetIterator iterator) {
+        return new CachingDataSetIterator(iterator,new InMemoryDataSetCache());
+    }
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
-
+        validationDatasetFilename = arguments.validationSet;
+        //check validation file for error
+        if (!(new File(validationDatasetFilename).exists())){
+            throw new IOException("Validation file not found! "+validationDatasetFilename);
+        }
 
         ParallelWrapper wrapper = new ParallelWrapper.Builder(net)
                 .prefetchBuffer(arguments.miniBatchSize)
-                .workers(2)
-                .averagingFrequency(100)
-                .reportScoreAfterAveraging(true)
+                .workers(4)
+                .averagingFrequency(1)
+                .reportScoreAfterAveraging(false)
                 .useLegacyAveraging(false)
                 .build();
 
@@ -111,6 +123,7 @@ int numExamplesUsed=0;
                 // we have not improved after earlyStopCondition epoch, time to stop.
                 break;
             }
+            System.out.printf("epoch %d auc=%g%n",epoch,auc);
             numExamplesUsed+=arguments.numTraining;
         }
 
