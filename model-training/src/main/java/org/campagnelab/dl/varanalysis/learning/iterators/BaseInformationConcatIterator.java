@@ -104,7 +104,7 @@ public class BaseInformationConcatIterator implements DataSetIterator {
 
     @Override
     public boolean asyncSupported() {
-        return true;
+        return false;
     }
 
     @Override

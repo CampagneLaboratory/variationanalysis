@@ -12,6 +12,7 @@ import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.learning.architecture.NeuralNetAssembler;
+import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayers;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersNarrower2;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
@@ -115,7 +116,7 @@ public abstract class SomaticTrainer {
         int numInputs = async.inputColumns();
         int numOutputs = async.totalOutcomes();
         numHiddenNodes = numInputs * 5;
-        NeuralNetAssembler assembler = new SixDenseLayersNarrower2();
+        NeuralNetAssembler assembler = new SixDenseLayers();
         assembler.setSeed(arguments.seed);
         assembler.setLearningRate(arguments.learningRate);
         assembler.setNumHiddenNodes(numHiddenNodes);
