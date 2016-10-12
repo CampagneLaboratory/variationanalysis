@@ -18,7 +18,8 @@
          <!-- DL4J properties: -->
 
         <nd4j.backend>nd4j-native-platform</nd4j.backend>
-
+        <dl4j.version>0.6.0</dl4j.version>
+        <nd4j.version>0.6.0</nd4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
         <java.version>1.8</java.version>
