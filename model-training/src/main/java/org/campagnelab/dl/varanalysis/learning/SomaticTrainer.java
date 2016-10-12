@@ -27,6 +27,7 @@ import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
@@ -49,6 +50,7 @@ public abstract class SomaticTrainer {
     protected TrainingArguments arguments;
 
     protected static TrainingArguments parseArguments(String[] args, String commandName) {
+
         TrainingArguments arguments = new TrainingArguments();
         JCommander commander = new JCommander(arguments);
         commander.setProgramName(commandName);
@@ -85,6 +87,7 @@ public abstract class SomaticTrainer {
     }
 
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
+
         this.featureCalculator = featureCalculator;
         this.numTrainingFiles = trainingDataset.length;
 

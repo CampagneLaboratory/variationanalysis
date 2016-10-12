@@ -11,6 +11,9 @@ import org.campagnelab.dl.varanalysis.util.HitBoundedPriorityQueue;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.nd4j.jita.conf.CudaEnvironment;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -53,6 +56,17 @@ public class TrainSomaticModel extends SomaticTrainer {
     }
 
     public static void main(String[] args) throws IOException {
+
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+        CudaEnvironment.getInstance().getConfiguration().enableDebug(false).allowMultiGPU(false)
+                .setMaximumGridSize(512)
+                .setMaximumBlockSize(512);
+        CudaEnvironment.getInstance().getConfiguration()
+                .setMaximumDeviceCacheableLength(1024 * 1024 * 1024L)
+                .setMaximumDeviceCache(8L * 1024 * 1024 * 1024L)
+                .setMaximumHostCacheableLength(1024 * 1024 * 1024L)
+                .setMaximumHostCache(8L * 1024 * 1024 * 1024L);
+        System.err.println("Disallow Multi-GPU");
         TrainingArguments arguments = parseArguments(args,"TrainSomaticModel");
 
         if (arguments.trainingSets.size() == 0){
@@ -265,7 +279,7 @@ public class TrainSomaticModel extends SomaticTrainer {
 
     }
 
-    private double estimateTestSetPerf(int epoch, int iter) throws IOException {
+    protected double estimateTestSetPerf(int epoch, int iter) throws IOException {
         if (validationDatasetFilename == null) return 0;
         MeasurePerformance perf = new MeasurePerformance(arguments.numValidation);
         double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);

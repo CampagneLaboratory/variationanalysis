@@ -23,13 +23,13 @@
     </orderEntry>
     <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:2.3.4" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-platform:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0-platform:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-pool2:2.4.2" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-api:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:linux-x86_64:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:macosx-x86_64:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:windows-x86_64:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:linux-ppc64le:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:linux-x86_64:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:macosx-x86_64:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:windows-x86_64:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-core:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.12" level="project" />
     <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-nn:0.6.0" level="project" />
@@ -64,7 +64,6 @@
     <orderEntry type="library" name="Maven: com.twelvemonkeys.imageio:imageio-tiff:3.1.1" level="project" />
     <orderEntry type="library" name="Maven: com.twelvemonkeys.imageio:imageio-psd:3.1.1" level="project" />
     <orderEntry type="library" name="Maven: com.twelvemonkeys.imageio:imageio-bmp:3.1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco:javacpp:1.2.4" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:javacv:1.2" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:3.1.0-1.2" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:linux-x86_64:3.1.0-1.2" level="project" />
@@ -172,6 +171,8 @@
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.0.13" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-4" level="project" />
     <orderEntry type="module" module-name="model-utils" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:linux-x86_64:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:dsiutils:2.3.3" level="project" />
     <orderEntry type="library" name="Maven: com.martiansoftware:jsap:2.1" level="project" />
     <orderEntry type="library" name="Maven: commons-configuration:commons-configuration:1.10" level="project" />
@@ -179,6 +180,13 @@
     <orderEntry type="library" name="Maven: commons-collections:commons-collections:20040616" level="project" />
     <orderEntry type="library" name="Maven: com.beust:jcommander:1.48" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.uima:uimaj-core:2.9.0" level="project" />
+    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-cuda-8.0:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:javacpp:1.2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:8.0-1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:linux-x86_64:8.0-1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:macosx-x86_64:8.0-1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:windows-x86_64:8.0-1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:linux-ppc64le:8.0-1.2" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.icb:icb-utils:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.ibm.icu:icu4j:3.4.4" level="project" />
