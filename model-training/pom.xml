@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.campagnelab.dl</groupId>
         <artifactId>variation-analysis</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>model-training</artifactId>
@@ -208,7 +208,7 @@
         <dependency>
             <groupId>org.campagnelab.dl</groupId>
             <artifactId>model-utils</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>it.unimi.dsi</groupId>
