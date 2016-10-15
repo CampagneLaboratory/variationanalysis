@@ -22,6 +22,7 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:2.3.4" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:linux-x86_64:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0-platform:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:0.6.0" level="project" />
@@ -172,7 +173,7 @@
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-4" level="project" />
     <orderEntry type="module" module-name="model-utils" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:linux-x86_64:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:macosx-x86_64:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:dsiutils:2.3.3" level="project" />
     <orderEntry type="library" name="Maven: com.martiansoftware:jsap:2.1" level="project" />
     <orderEntry type="library" name="Maven: commons-configuration:commons-configuration:1.10" level="project" />

@@ -119,7 +119,7 @@ public abstract class SomaticTrainer {
         int numInputs = async.inputColumns();
         int numOutputs = async.totalOutcomes();
         numHiddenNodes = numInputs * 5;
-        NeuralNetAssembler assembler = new SixDenseLayers();
+        NeuralNetAssembler assembler = getNeuralNetAssembler();
         assembler.setSeed(arguments.seed);
         assembler.setLearningRate(arguments.learningRate);
         assembler.setNumHiddenNodes(numHiddenNodes);
@@ -184,6 +184,17 @@ public abstract class SomaticTrainer {
         System.out.println("Model completed, saved at time: " + attempt);
         performanceLogger.write();
     }
+
+    private NeuralNetAssembler getNeuralNetAssembler()  {
+        try {
+            return (NeuralNetAssembler) Class.forName(arguments.architectureClassname).newInstance();
+        } catch (Exception e) {
+            System.err.println("Unable to instantiate net architecture "+arguments.architectureClassname);
+            System.exit(1);
+        }
+        return null;
+    }
+
 
     protected DataSetIterator decorateIterator(DataSetIterator iterator) {
         return iterator;

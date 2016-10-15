@@ -23,6 +23,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:linux-x86_64:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:dsiutils:2.3.3" level="project" />
     <orderEntry type="library" name="Maven: com.martiansoftware:jsap:2.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:19.0" level="project" />
@@ -165,7 +166,7 @@
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.8" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-jackson:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:linux-x86_64:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:macosx-x86_64:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-api:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-4" level="project" />
     <orderEntry type="library" name="Maven: com.beust:jcommander:1.48" level="project" />
