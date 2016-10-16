@@ -40,6 +40,7 @@ public class MeasurePerformance {
             for (BaseInformationRecords.BaseInformation record : reader) {
                 records.add(record);
                 if (index > scoreN) break;
+                index++;
             }
         } finally {
             IOUtils.closeQuietly(reader);
