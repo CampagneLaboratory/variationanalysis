@@ -8,6 +8,9 @@ import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.parallelism.ParallelWrapper;
+import org.nd4j.jita.conf.CudaEnvironment;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.dataset.api.iterator.CachingDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.cache.InMemoryDataSetCache;
@@ -40,9 +43,19 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
     public static void main(String[] args) throws IOException {
 
-        // uncomment the following line when running on a machine with multiple GPUs:
-        //  org.nd4j.jita.conf.CudaEnvironment.getInstance().getConfiguration().allowMultiGPU(true);
-        TrainingArguments arguments = parseArguments(args, "TrainSomaticModelOnGPU");
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+        CudaEnvironment.getInstance().getConfiguration()
+                .enableDebug(false)
+                .allowMultiGPU(true)
+                .setMaximumGridSize(512)
+                .setMaximumBlockSize(512)
+                .setMaximumDeviceCacheableLength(1024 * 1024 * 1024L)
+                .setMaximumDeviceCache(8L * 1024 * 1024 * 1024L)
+                .setMaximumHostCacheableLength(1024 * 1024 * 1024L)
+                .setMaximumHostCache(8L * 1024 * 1024 * 1024L)
+                // cross-device access is used for faster model averaging over pcie
+                .allowCrossDeviceAccess(true);
+        System.err.println("Allow Multi-GPU"); TrainingArguments arguments = parseArguments(args, "TrainSomaticModelOnGPU");
         TrainSomaticModelOnGPU trainer = new TrainSomaticModelOnGPU(arguments);
         if (arguments.isTrio) {
             trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
