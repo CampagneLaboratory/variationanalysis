@@ -39,7 +39,7 @@ public class SixDenseLayersNarrower2 extends AbstractNeuralNetAssembler implemen
             netBuilder.setUseDropConnect(true);
         }
 
-        confBuilder = netBuilder.list()
+        confBuilder = netBuilder.lrPolicyDecayRate(0.5).list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                         .weightInit(WEIGHT_INIT)
                         .activation("relu").learningRateDecayPolicy(learningRatePolicy)
@@ -65,6 +65,7 @@ public class SixDenseLayersNarrower2 extends AbstractNeuralNetAssembler implemen
                         .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(numOutputs).build())
                 .pretrain(false).backprop(true);
+
         return confBuilder.build();
 
     }
