@@ -59,7 +59,7 @@ public class TrainSomaticModel extends SomaticTrainer {
 
     @Override
     protected DataSetIterator decorateIterator(DataSetIterator iterator) {
-        return new CachingDataSetIterator(iterator,new InMemoryDataSetCache());
+        return new CachingDataSetIterator(iterator, new InMemoryDataSetCache());
     }
 
     public static void main(String[] args) throws IOException {
@@ -68,15 +68,15 @@ public class TrainSomaticModel extends SomaticTrainer {
       /*  CudaEnvironment.getInstance().getConfiguration().enableDebug(false).allowMultiGPU(true)
                 .setMaximumGridSize(512)
                 .setMaximumBlockSize(512);*/
-       CudaEnvironment.getInstance().getConfiguration()
+        CudaEnvironment.getInstance().getConfiguration()
                 .setMaximumDeviceCacheableLength(1024 * 1024 * 1024L)
                 .setMaximumDeviceCache(8L * 1024 * 1024 * 1024L)
                 .setMaximumHostCacheableLength(1024 * 1024 * 1024L)
                 .setMaximumHostCache(8L * 1024 * 1024 * 1024L);
         System.err.println("Disallow Multi-GPU");
-        TrainingArguments arguments = parseArguments(args,"TrainSomaticModel");
+        TrainingArguments arguments = parseArguments(args, "TrainSomaticModel");
 
-        if (arguments.trainingSets.size() == 0){
+        if (arguments.trainingSets.size() == 0) {
             System.out.println("Please add at least one training set to the arguments.");
             return;
         }
@@ -85,7 +85,7 @@ public class TrainSomaticModel extends SomaticTrainer {
 
 
         //for trio:
-        if (arguments.isTrio){
+        if (arguments.isTrio) {
             trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
         } else {
             trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), arguments.miniBatchSize);
@@ -97,14 +97,14 @@ public class TrainSomaticModel extends SomaticTrainer {
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
         validationDatasetFilename = arguments.validationSet;
         //check validation file for error
-        if (!(new File(validationDatasetFilename).exists())){
-            throw new IOException("Validation file not found! "+validationDatasetFilename);
+        if (!(new File(validationDatasetFilename).exists())) {
+            throw new IOException("Validation file not found! " + validationDatasetFilename);
         }
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
         boolean init = true;
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
-        pgEpoch.displayLocalSpeed=true;
+        pgEpoch.displayLocalSpeed = true;
         pgEpoch.itemsName = "epoch";
         pgEpoch.expectedUpdates = arguments.maxEpochs;
         pgEpoch.start();
@@ -115,10 +115,12 @@ public class TrainSomaticModel extends SomaticTrainer {
         System.out.println("ERROR_ENRICHMENT=" + ERROR_ENRICHMENT);
         double bestAUC = 0.5;
         performanceLogger.setCondition(arguments.experimentalCondition);
-        int numExamplesUsed=0;
-        int notImproved=0;
+        int numExamplesUsed = 0;
+        int notImproved = 0;
         int miniBatchesPerEpoch = async.totalExamples() / arguments.miniBatchSize;
-        System.out.printf("Training with %d minibatches per epoch%n",miniBatchesPerEpoch);
+        System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
+        perf = new MeasurePerformance(arguments.numValidation, validationDatasetFilename);
+
         for (int epoch = 0; epoch < arguments.maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -137,7 +139,7 @@ public class TrainSomaticModel extends SomaticTrainer {
                 ds = enrichWithErrors(ds);
                 // fit the net:
                 net.fit(ds);
-                numExamplesUsed+=ds.numExamples();
+                numExamplesUsed += ds.numExamples();
                 if (ERROR_ENRICHMENT) {
                     INDArray predictedLabels = net.output(ds.getFeatures(), false);
                     keepWorseErrors(ds, predictedLabels, ds.getLabels());
@@ -168,7 +170,7 @@ public class TrainSomaticModel extends SomaticTrainer {
                 scoreMap.put(iter, bestScore);
 
             }
-         //   System.err.println("Num Examples Used: "+numExamplesUsed);
+            //   System.err.println("Num Examples Used: "+numExamplesUsed);
             //save latest after the end of an epoch:
             saver.saveLatestModel(net, net.score());
             writeProperties(this);
@@ -180,11 +182,11 @@ public class TrainSomaticModel extends SomaticTrainer {
                 bestAUC = auc;
                 writeBestAUC(bestAUC);
                 performanceLogger.log("bestAUC", numExamplesUsed, epoch, bestScore, bestAUC);
-                notImproved=0;
-            }else {
+                notImproved = 0;
+            } else {
                 notImproved++;
             }
-            if (notImproved>arguments.stopWhenEpochsWithoutImprovement) {
+            if (notImproved > arguments.stopWhenEpochsWithoutImprovement) {
                 // we have not improved after earlyStopCondition epoch, time to stop.
                 break;
             }
@@ -287,10 +289,11 @@ public class TrainSomaticModel extends SomaticTrainer {
 
     }
 
+    MeasurePerformance perf;
+
     protected double estimateTestSetPerf(int epoch, int iter) throws IOException {
         if (validationDatasetFilename == null) return 0;
-        MeasurePerformance perf = new MeasurePerformance(arguments.numValidation);
-        double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
+        double auc = perf.estimateAUC(featureCalculator, net);
         float minWrongness = queue.getMinWrongness();
         float maxWrongness = queue.getMaxWrongness();
         float meanWrongness = queue.getMeanWrongness();

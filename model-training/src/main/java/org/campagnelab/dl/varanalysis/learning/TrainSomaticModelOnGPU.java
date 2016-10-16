@@ -5,13 +5,9 @@ import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
-import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.parallelism.ParallelWrapper;
-import org.nd4j.jita.conf.CudaEnvironment;
-import org.nd4j.linalg.api.buffer.DataBuffer;
-import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.dataset.api.iterator.CachingDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.cache.InMemoryDataSetCache;
@@ -57,16 +53,17 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
     @Override
     protected DataSetIterator decorateIterator(DataSetIterator iterator) {
-        return new CachingDataSetIterator(iterator,new InMemoryDataSetCache());
+        return new CachingDataSetIterator(iterator, new InMemoryDataSetCache());
     }
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
         validationDatasetFilename = arguments.validationSet;
         //check validation file for error
-        if (!(new File(validationDatasetFilename).exists())){
-            throw new IOException("Validation file not found! "+validationDatasetFilename);
+        if (!(new File(validationDatasetFilename).exists())) {
+            throw new IOException("Validation file not found! " + validationDatasetFilename);
         }
+        perf = new MeasurePerformance(arguments.numValidation, validationDatasetFilename);
 
         ParallelWrapper wrapper = new ParallelWrapper.Builder(net)
                 .prefetchBuffer(arguments.miniBatchSize)
@@ -85,12 +82,12 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         pgEpoch.start();
         bestScore = Double.MAX_VALUE;
         ModelSaver saver = new ModelSaver(directory);
-int numExamplesUsed=0;
+        int numExamplesUsed = 0;
 
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
-        double bestAUC=0;
-        int notImproved=0;
-        int iter=0;
+        double bestAUC = 0;
+        int notImproved = 0;
+        int iter = 0;
         for (int epoch = 0; epoch < arguments.maxEpochs; epoch++) {
 
             wrapper.fit(async);
@@ -115,16 +112,16 @@ int numExamplesUsed=0;
                 bestAUC = auc;
                 writeBestAUC(bestAUC);
                 performanceLogger.log("bestAUC", numExamplesUsed, epoch, bestScore, bestAUC);
-                notImproved=0;
-            }else {
+                notImproved = 0;
+            } else {
                 notImproved++;
             }
-            if (notImproved>arguments.stopWhenEpochsWithoutImprovement) {
+            if (notImproved > arguments.stopWhenEpochsWithoutImprovement) {
                 // we have not improved after earlyStopCondition epoch, time to stop.
                 break;
             }
-            System.out.printf("epoch %d auc=%g%n",epoch,auc);
-            numExamplesUsed+=arguments.numTraining;
+            System.out.printf("epoch %d auc=%g%n", epoch, auc);
+            numExamplesUsed += arguments.numTraining;
         }
 
         pgEpoch.stop();
@@ -144,10 +141,11 @@ int numExamplesUsed=0;
 
     }
 
+    MeasurePerformance perf;
+
     protected double estimateTestSetPerf(int epoch, int iter) throws IOException {
         if (validationDatasetFilename == null) return 0;
-        MeasurePerformance perf = new MeasurePerformance(arguments.numValidation);
-        double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
+        double auc = perf.estimateAUC(featureCalculator, net);
 
         System.out.printf("Epoch %d Iteration %d AUC=%f %n", epoch, iter, auc);
 
