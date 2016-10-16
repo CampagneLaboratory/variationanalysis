@@ -36,9 +36,6 @@ public class Randomizer2 extends Intermediary{
     public static void main (String[] args) throws IOException{
         Randomizer2Arguments arguments = parseArguments(args, "Randomizer2");
 
-
-        System.out.println("input format: source1.parquet source2.parquet ... randomized.parquet");
-
         //randomize
         Randomizer2 r =  new Randomizer2();
         r.arguments=arguments;
