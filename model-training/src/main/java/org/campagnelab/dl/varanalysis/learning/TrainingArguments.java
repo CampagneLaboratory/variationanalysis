@@ -15,7 +15,7 @@ import java.util.List;
 @Parameters(commandDescription = "Train a model given training files and a validation file.")
 
 public class TrainingArguments {
-    @Parameter(names = {"-t", "--training-sets"}, description = "Training sets, must be provided in .parquet/.info format. When more than one dataset is provided (multiple -t options), the " +
+    @Parameter(names = {"-t", "--training-sets"}, variableArity=true, description = "Training sets, must be provided in .sbi/.sbip format (produced with Goby3). When more than one dataset is provided (multiple -t options), the " +
             "datasets are concatenated.")
     public List<String> trainingSets = new ArrayList<>();
 
