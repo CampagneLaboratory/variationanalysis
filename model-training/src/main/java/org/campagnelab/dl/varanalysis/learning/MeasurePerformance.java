@@ -31,7 +31,7 @@ public class MeasurePerformance {
         this.aucClipMaxObservations = aucClipMaxObservations;
     }
 
-    List<BaseInformationRecords.BaseInformation> records = new FastArrayList();
+    List<BaseInformationRecords.BaseInformation> records = new FastArrayList(100000);
 
     private void readValidation(String datafilePath) throws IOException {
         int index = 0;

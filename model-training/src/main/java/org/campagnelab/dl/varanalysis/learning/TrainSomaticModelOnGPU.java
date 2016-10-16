@@ -4,6 +4,7 @@ import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
+import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -122,6 +123,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
             }
             System.out.printf("epoch %d auc=%g%n", epoch, auc);
             numExamplesUsed += arguments.numTraining;
+            performanceLogger.write();
         }
 
         pgEpoch.stop();
