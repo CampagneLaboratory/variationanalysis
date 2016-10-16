@@ -120,7 +120,8 @@ public class TrainSomaticModel extends SomaticTrainer {
         int miniBatchesPerEpoch = async.totalExamples() / arguments.miniBatchSize;
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
         perf = new MeasurePerformance(arguments.numValidation, validationDatasetFilename);
-
+        System.out.println("Finished loading validation records.");
+        System.out.flush();
         for (int epoch = 0; epoch < arguments.maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
