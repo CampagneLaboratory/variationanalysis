@@ -11,8 +11,8 @@ import java.util.List;
 @Parameters(commandDescription = "Split a file into several components.")
 
 public class Randomizer2Arguments {
-    @Parameter(required = true, names = {"-i", "--input-files"}, description = "Input files in .bsi/.bsip format.")
-    public List<String> inputFiles;
+    @Parameter(required = true,variableArity=true,names = {"-i", "--input-files"}, description = "Input files in .bsi/.bsip format.")
+    public List<String> inputFiles=new ArrayList<>();
 
     @Parameter(required = false, names = {"-b", "--records-per-bucket"}, description = "Number of records to store in each bucket.")
     int recordsPerBucket = 20000;
