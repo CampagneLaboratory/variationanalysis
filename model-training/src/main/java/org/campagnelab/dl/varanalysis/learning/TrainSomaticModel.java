@@ -65,15 +65,18 @@ public class TrainSomaticModel extends SomaticTrainer {
     public static void main(String[] args) throws IOException {
 
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
-       CudaEnvironment.getInstance().getConfiguration().enableDebug(false).allowMultiGPU(true)
-                .setMaximumGridSize(512)
-                .setMaximumBlockSize(512);
         CudaEnvironment.getInstance().getConfiguration()
+                .enableDebug(false)
+                .allowMultiGPU(true)
+                .setMaximumGridSize(512)
+                .setMaximumBlockSize(512)
                 .setMaximumDeviceCacheableLength(1024 * 1024 * 1024L)
                 .setMaximumDeviceCache(8L * 1024 * 1024 * 1024L)
                 .setMaximumHostCacheableLength(1024 * 1024 * 1024L)
-                .setMaximumHostCache(8L * 1024 * 1024 * 1024L);
-        System.err.println("Disallow Multi-GPU");
+                .setMaximumHostCache(8L * 1024 * 1024 * 1024L)
+                // cross-device access is used for faster model averaging over pcie
+                .allowCrossDeviceAccess(true);
+        System.err.println("Allow Multi-GPU");
         TrainingArguments arguments = parseArguments(args, "TrainSomaticModel");
 
         if (arguments.trainingSets.size() == 0) {
@@ -129,7 +132,7 @@ public class TrainSomaticModel extends SomaticTrainer {
             pg.expectedUpdates = miniBatchesPerEpoch; // one iteration processes miniBatchIterator elements.
             pg.start();
             int lastIter = 0;
-
+            net.fit(async);
             while (async.hasNext()) {
 
                 DataSet ds = async.next();
@@ -173,7 +176,9 @@ public class TrainSomaticModel extends SomaticTrainer {
             }
             //   System.err.println("Num Examples Used: "+numExamplesUsed);
             //save latest after the end of an epoch:
-            saver.saveLatestModel(net, net.score());
+            if (epoch % 10 == 1) {
+                saver.saveLatestModel(net, net.score());
+            }
             writeProperties(this);
             writeBestScoreFile();
             double auc = estimateTestSetPerf(epoch, iter);

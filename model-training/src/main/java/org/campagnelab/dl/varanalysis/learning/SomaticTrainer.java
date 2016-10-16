@@ -12,8 +12,6 @@ import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.learning.architecture.NeuralNetAssembler;
-import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayers;
-import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersNarrower2;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
@@ -27,7 +25,6 @@ import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
@@ -148,7 +145,7 @@ public abstract class SomaticTrainer {
             // parameters will fail.
             ModelLoader loader = new ModelLoader(arguments.previousModelPath);
             MultiLayerNetwork savedNetwork = loader.loadModel(arguments.previousModelName);
-            if (savedNetwork == null || savedNetwork.getUpdater()==null || savedNetwork.params()==null) {
+            if (savedNetwork == null || savedNetwork.getUpdater() == null || savedNetwork.params() == null) {
                 System.err.println("Unable to load model or updater from " + arguments.previousModelPath);
             } else {
                 net.setUpdater(savedNetwork.getUpdater());
@@ -185,11 +182,11 @@ public abstract class SomaticTrainer {
         performanceLogger.write();
     }
 
-    private NeuralNetAssembler getNeuralNetAssembler()  {
+    private NeuralNetAssembler getNeuralNetAssembler() {
         try {
             return (NeuralNetAssembler) Class.forName(arguments.architectureClassname).newInstance();
         } catch (Exception e) {
-            System.err.println("Unable to instantiate net architecture "+arguments.architectureClassname);
+            System.err.println("Unable to instantiate net architecture " + arguments.architectureClassname);
             System.exit(1);
         }
         return null;

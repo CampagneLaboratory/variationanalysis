@@ -4,7 +4,6 @@ import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
-import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -78,6 +77,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         int miniBatchNumber = 0;
         boolean init = true;
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
+        pgEpoch.displayLocalSpeed = true;
         pgEpoch.itemsName = "epoch";
         pgEpoch.expectedUpdates = arguments.maxEpochs;
         pgEpoch.start();
@@ -127,7 +127,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         }
 
         pgEpoch.stop();
-
+        wrapper.shutdown();
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, arguments.maxEpochs, bestScore, arguments.maxEpochs, net);
     }
