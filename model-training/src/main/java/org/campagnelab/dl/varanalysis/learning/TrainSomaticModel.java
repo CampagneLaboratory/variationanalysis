@@ -65,9 +65,9 @@ public class TrainSomaticModel extends SomaticTrainer {
     public static void main(String[] args) throws IOException {
 
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
-      /*  CudaEnvironment.getInstance().getConfiguration().enableDebug(false).allowMultiGPU(true)
+       CudaEnvironment.getInstance().getConfiguration().enableDebug(false).allowMultiGPU(true)
                 .setMaximumGridSize(512)
-                .setMaximumBlockSize(512);*/
+                .setMaximumBlockSize(512);
         CudaEnvironment.getInstance().getConfiguration()
                 .setMaximumDeviceCacheableLength(1024 * 1024 * 1024L)
                 .setMaximumDeviceCache(8L * 1024 * 1024 * 1024L)
