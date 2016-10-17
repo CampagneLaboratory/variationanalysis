@@ -38,7 +38,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.0.3-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.icb:icb-utils:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.ibm.icu:icu4j:3.4.4" level="project" />

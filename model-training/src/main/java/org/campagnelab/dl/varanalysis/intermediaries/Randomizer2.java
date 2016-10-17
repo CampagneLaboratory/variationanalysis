@@ -64,13 +64,13 @@ public class Randomizer2 extends Intermediary {
             workingDir = ".";
         }
         try {
-            int totalRecords = 0;
+            long totalRecords = 0;
             for (String filename : sourceFilenames) {
                 RecordReader source = new RecordReader(filename);
                 totalRecords += source.getTotalRecords();
                 source.close();
             }
-            int numBuckets = (totalRecords / arguments.recordsPerBucket) + 1;
+            int numBuckets = (int)(totalRecords / arguments.recordsPerBucket) + 1;
 
             new File(workingDir + "/tmp").mkdir();
             List<RecordWriter> bucketWriters = new ObjectArrayList<RecordWriter>(numBuckets);
