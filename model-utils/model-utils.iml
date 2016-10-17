@@ -170,7 +170,7 @@
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-api:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-4" level="project" />
     <orderEntry type="library" name="Maven: com.beust:jcommander:1.48" level="project" />
-    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.0.3-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.icb:icb-utils:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.ibm.icu:icu4j:3.4.4" level="project" />
     <orderEntry type="library" name="Maven: commons-beanutils:commons-beanutils:1.8.3" level="project" />
