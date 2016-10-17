@@ -83,7 +83,7 @@ public class QuickConcat {
         }
         SequenceBaseInformationWriter.writeProperties(outputBasename, totalElements);
         try {
-            output = new FileOutputStream(outputFile).getChannel();
+            output = new FileOutputStream(outputFile+".sbi").getChannel();
             int lastFileNumToCopy = inputFilenames.length - 1;
             int curFileNum = 0;
             for (final String inputFilename : inputFilenames) {
