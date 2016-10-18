@@ -2,6 +2,7 @@ package org.campagnelab.dl.varanalysis.learning.models;
 
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.SomaticTrainer;
+import org.campagnelab.dl.varanalysis.learning.TrainSomaticModel;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -30,9 +31,15 @@ public class ModelPropertiesHelper {
     private String lossFunction;
     private double regularization;
 
+
+    public void setPrecision(TrainSomaticModel.Precision p) {
+        modelProp.setProperty("precicion", p.name());
+    }
+
     public void writeProperties(String modelDirectory) throws IOException {
         //write properties file to model folder
-         modelProp.setProperty("hiddenNodes", Integer.toString(numHiddenNodes));
+        modelProp.setProperty("hiddenNodes", Integer.toString(numHiddenNodes));
+
         if (lossFunction != null) {
             modelProp.setProperty("lossFunction", lossFunction);
         }
@@ -77,6 +84,7 @@ public class ModelPropertiesHelper {
     public void setNumTrainingSets(int numTrainingSets) {
         modelProp.setProperty("numTrainingSets", Integer.toString(numTrainingSets));
     }
+
     public void setEarlyStopCriterion(int value) {
         modelProp.setProperty("earlyStopCondition", Integer.toString(value));
     }
@@ -86,12 +94,14 @@ public class ModelPropertiesHelper {
     }
 
     public void put(String key, int value) {
-        modelProp.setProperty(key,Integer.toString(value));
+        modelProp.setProperty(key, Integer.toString(value));
     }
+
     public void put(String key, String value) {
-        modelProp.setProperty(key,value);
+        modelProp.setProperty(key, value);
     }
+
     public void put(String key, boolean value) {
-        modelProp.setProperty(key,Boolean.toString(value));
+        modelProp.setProperty(key, Boolean.toString(value));
     }
 }

@@ -242,7 +242,12 @@ public abstract class SomaticTrainer {
         }
         return set.size();
     }
+    protected Precision precision = Precision.FP32;
 
+    public enum Precision {
+        FP16,
+        FP32
+    }
     public void appendProperties(ModelPropertiesHelper helper) {
         helper.setFeatureCalculator(featureCalculator);
         helper.setLearningRate(arguments.learningRate);
@@ -256,5 +261,6 @@ public abstract class SomaticTrainer {
         helper.setLossFunction(lossFunction.name());
         helper.setEarlyStopCriterion(arguments.stopWhenEpochsWithoutImprovement);
         helper.setRegularization(arguments.regularizationRate);
+        helper.setPrecision(precision);
     }
 }

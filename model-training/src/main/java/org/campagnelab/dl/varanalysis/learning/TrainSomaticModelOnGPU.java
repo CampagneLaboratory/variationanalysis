@@ -57,6 +57,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
                 .allowCrossDeviceAccess(true);
         System.err.println("Allow Multi-GPU"); TrainingArguments arguments = parseArguments(args, "TrainSomaticModelOnGPU");
         TrainSomaticModelOnGPU trainer = new TrainSomaticModelOnGPU(arguments);
+        trainer.precision=Precision.FP16;
         if (arguments.isTrio) {
             trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
         } else {
