@@ -135,7 +135,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
                 break;
             }
             System.out.printf("epoch %d auc=%g%n", epoch, auc);
-            numExamplesUsed += arguments.numTraining;
+            numExamplesUsed += async.totalExamples();
             performanceLogger.write();
         }
 
