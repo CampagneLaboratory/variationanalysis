@@ -59,7 +59,7 @@ public class SplitFile {
 //set up logger
         ProgressLogger pgRead = new ProgressLogger(LOG);
         pgRead.itemsName = "records";
-        pgRead.expectedUpdates = Math.max(reader.getTotalRecords(),arguments.writeN);
+        pgRead.expectedUpdates = Math.min(reader.getTotalRecords(),arguments.writeN);
         pgRead.displayFreeMemory = true;
         pgRead.start();
         long numWritten=0;
