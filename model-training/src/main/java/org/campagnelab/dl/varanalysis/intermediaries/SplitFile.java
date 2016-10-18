@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.Random;
 
 /**
- * Split a BSI file into several parts. Useful for creating training/validation/test splits of a large dataset.
+ * Split a BSI file into several parts. Useful for creating training/validation/test splits of a large dataset.split
  * Created by fac2003 on 9/2/16.
  */
 public class SplitFile {
@@ -59,7 +59,7 @@ public class SplitFile {
 //set up logger
         ProgressLogger pgRead = new ProgressLogger(LOG);
         pgRead.itemsName = "records";
-        pgRead.expectedUpdates = reader.getTotalRecords();
+        pgRead.expectedUpdates = Math.max(reader.getTotalRecords(),arguments.writeN);
         pgRead.displayFreeMemory = true;
         pgRead.start();
         long numWritten=0;
