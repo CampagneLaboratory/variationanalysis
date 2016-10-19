@@ -1,6 +1,5 @@
 package org.campagnelab.dl.model.utils.mappers;
 
-import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -16,8 +15,7 @@ public class ReadIndexWithCounts extends GenotypeCount {
     public ReadIndexWithCounts() {
     }
 
-    public void set(List<Integer>
-            readIndicesForwardStrandList, List<Integer> readIndicesReverseStrandList) {
+    public void set(List<Integer> readIndicesForwardStrandList, List<Integer> readIndicesReverseStrandList) {
         readIndices.clear();
         readIndices.addAll(readIndicesForwardStrandList);
         readIndices.addAll(readIndicesReverseStrandList);

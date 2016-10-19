@@ -47,7 +47,6 @@ public abstract class SomaticTrainer {
     protected TrainingArguments arguments;
 
     protected static TrainingArguments parseArguments(String[] args, String commandName) {
-
         TrainingArguments arguments = new TrainingArguments();
         JCommander commander = new JCommander(arguments);
         commander.setProgramName(commandName);
@@ -84,7 +83,6 @@ public abstract class SomaticTrainer {
     }
 
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
-
         this.featureCalculator = featureCalculator;
         this.numTrainingFiles = trainingDataset.length;
 
@@ -181,6 +179,17 @@ public abstract class SomaticTrainer {
         System.out.println("Model completed, saved at time: " + attempt);
         performanceLogger.write();
     }
+
+    private NeuralNetAssembler getNeuralNetAssembler()  {
+        try {
+            return (NeuralNetAssembler) Class.forName(arguments.architectureClassname).newInstance();
+        } catch (Exception e) {
+            System.err.println("Unable to instantiate net architecture "+arguments.architectureClassname);
+            System.exit(1);
+        }
+        return null;
+    }
+
 
     private NeuralNetAssembler getNeuralNetAssembler() {
         try {
