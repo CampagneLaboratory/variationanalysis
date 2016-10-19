@@ -55,7 +55,7 @@ public class ModelLoader {
             // load a properties file
             Properties prop = new Properties();
             prop.load(input);
-            if (prop.getProperty("precision").equals("FP16")) {
+            if (prop.getProperty("precision")!=null &&prop.getProperty("precision").equals("FP16")) {
                 LOG.info("Model uses FP16 precision. Activating support.");
                 DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
             }
@@ -112,7 +112,7 @@ public class ModelLoader {
     }
 
     private MultiLayerNetwork loadNativeModel(String path) throws IOException {
-        MultiLayerNetwork net = ModelSerializer.restoreMultiLayerNetwork(path);
+        MultiLayerNetwork net = ModelSerializer.restoreMultiLayerNetwork(path,false);
         return net;
     }
 

@@ -69,4 +69,6 @@ public class TrainingArguments {
         return this.trainingSets.toArray(new String[this.trainingSets.size()]);
     }
 
+    @Parameter(names = "--parameter-precision", description = "Parameter precision, either FP16 or FP32. Note that models trained with FP16 cannot be used on the CPU (as of DL4J 0.6.0).")
+    public String precision="FP32";
 }

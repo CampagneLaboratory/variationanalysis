@@ -43,7 +43,12 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
     public static void main(String[] args) throws IOException {
 
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+
+        System.err.println("Allow Multi-GPU");
+        TrainingArguments arguments = parseArguments(args, "TrainSomaticModelOnGPU");
+        if ("FP16".equals(arguments.precision)) {
+            DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+        }
         CudaEnvironment.getInstance().getConfiguration()
                 .enableDebug(false)
                 .allowMultiGPU(true)
@@ -55,9 +60,11 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
                 .setMaximumHostCache(8L * 1024 * 1024 * 1024L)
                 // cross-device access is used for faster model averaging over pcie
                 .allowCrossDeviceAccess(true);
-        System.err.println("Allow Multi-GPU"); TrainingArguments arguments = parseArguments(args, "TrainSomaticModelOnGPU");
         TrainSomaticModelOnGPU trainer = new TrainSomaticModelOnGPU(arguments);
-        trainer.precision=Precision.FP16;
+        if ("FP16".equals(arguments.precision)) {
+            trainer.precision = Precision.FP16;
+            System.out.println("Parameter precision set to FP16.");
+        }
         if (arguments.isTrio) {
             trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
         } else {
