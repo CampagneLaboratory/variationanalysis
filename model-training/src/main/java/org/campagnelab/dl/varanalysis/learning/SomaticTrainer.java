@@ -191,15 +191,6 @@ public abstract class SomaticTrainer {
     }
 
 
-    private NeuralNetAssembler getNeuralNetAssembler() {
-        try {
-            return (NeuralNetAssembler) Class.forName(arguments.architectureClassname).newInstance();
-        } catch (Exception e) {
-            System.err.println("Unable to instantiate net architecture " + arguments.architectureClassname);
-            System.exit(1);
-        }
-        return null;
-    }
 
 
     protected DataSetIterator decorateIterator(DataSetIterator iterator) {
