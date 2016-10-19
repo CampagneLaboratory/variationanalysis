@@ -17,8 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- DL4J properties: -->
 
-        <nd4j.backend>nd4j-native-platform</nd4j.backend>
-        <!--nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend-->
+
         <dl4j.version>0.6.0</dl4j.version>
         <nd4j.version>0.6.0</nd4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -60,6 +59,7 @@
             <properties>
                 <!-- Classe names that end with the suffix are disabled. -->
                 <GPUSpecificSuffix>OnGPU</GPUSpecificSuffix>
+                <nd4j.backend>nd4j-native-platform</nd4j.backend>
             </properties>
         </profile>
         <profile>
@@ -70,7 +70,15 @@
             <properties>
                 <!-- Classe names that end with the suffix are disabled. -->
                 <GPUSpecificSuffix>XXXXXXXXX</GPUSpecificSuffix>
+                <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend>
             </properties>
+            <dependencies> <!-- enable below for CUDNN : -->
+                <dependency>
+                    <groupId>org.deeplearning4j</groupId>
+                    <artifactId>deeplearning4j-cuda-8.0</artifactId>
+                    <version>${dl4j.version}</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
     <build>

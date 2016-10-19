@@ -142,6 +142,7 @@
             <groupId>org.nd4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
             <version>${nd4j.version}</version>
+            <optional>true</optional>
         </dependency>
         <!-- Core DL4J functionality -->
         <dependency>
@@ -218,12 +219,7 @@
             <version>2.9.0</version>
             <scope>test</scope>
         </dependency>
-        <!-- enable below for CUDNN :
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-cuda-8.0</artifactId>
-            <version>${dl4j.version}</version>
-        </dependency-->
+
     </dependencies>
 
 
