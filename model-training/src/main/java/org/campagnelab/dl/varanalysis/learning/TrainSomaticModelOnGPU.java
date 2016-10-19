@@ -5,7 +5,6 @@ import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
-import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.parallelism.ParallelWrapper;
@@ -44,10 +43,28 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
     public static void main(String[] args) throws IOException {
 
-        // uncomment the following line when running on a machine with multiple GPUs:
-        //  org.nd4j.jita.conf.CudaEnvironment.getInstance().getConfiguration().allowMultiGPU(true);
+
+        System.err.println("Allow Multi-GPU");
         TrainingArguments arguments = parseArguments(args, "TrainSomaticModelOnGPU");
+        if ("FP16".equals(arguments.precision)) {
+            DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+        }
+        CudaEnvironment.getInstance().getConfiguration()
+                .enableDebug(false)
+                .allowMultiGPU(true)
+                .setMaximumGridSize(512)
+                .setMaximumBlockSize(512)
+                .setMaximumDeviceCacheableLength(1024 * 1024 * 1024L)
+                .setMaximumDeviceCache(8L * 1024 * 1024 * 1024L)
+                .setMaximumHostCacheableLength(1024 * 1024 * 1024L)
+                .setMaximumHostCache(8L * 1024 * 1024 * 1024L)
+                // cross-device access is used for faster model averaging over pcie
+                .allowCrossDeviceAccess(true);
         TrainSomaticModelOnGPU trainer = new TrainSomaticModelOnGPU(arguments);
+        if ("FP16".equals(arguments.precision)) {
+            trainer.precision = Precision.FP16;
+            System.out.println("Parameter precision set to FP16.");
+        }
         if (arguments.isTrio) {
             trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
         } else {
@@ -57,16 +74,17 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
     @Override
     protected DataSetIterator decorateIterator(DataSetIterator iterator) {
-        return new CachingDataSetIterator(iterator,new InMemoryDataSetCache());
+        return new CachingDataSetIterator(iterator, new InMemoryDataSetCache());
     }
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
         validationDatasetFilename = arguments.validationSet;
         //check validation file for error
-        if (!(new File(validationDatasetFilename).exists())){
-            throw new IOException("Validation file not found! "+validationDatasetFilename);
+        if (!(new File(validationDatasetFilename).exists())) {
+            throw new IOException("Validation file not found! " + validationDatasetFilename);
         }
+        perf = new MeasurePerformance(arguments.numValidation, validationDatasetFilename);
 
         ParallelWrapper wrapper = new ParallelWrapper.Builder(net)
                 .prefetchBuffer(arguments.miniBatchSize)
@@ -80,17 +98,18 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         int miniBatchNumber = 0;
         boolean init = true;
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
+        pgEpoch.displayLocalSpeed = true;
         pgEpoch.itemsName = "epoch";
         pgEpoch.expectedUpdates = arguments.maxEpochs;
         pgEpoch.start();
         bestScore = Double.MAX_VALUE;
         ModelSaver saver = new ModelSaver(directory);
-int numExamplesUsed=0;
+        int numExamplesUsed = 0;
 
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
-        double bestAUC=0;
-        int notImproved=0;
-        int iter=0;
+        double bestAUC = 0;
+        int notImproved = 0;
+        int iter = 0;
         for (int epoch = 0; epoch < arguments.maxEpochs; epoch++) {
 
             wrapper.fit(async);
@@ -115,20 +134,21 @@ int numExamplesUsed=0;
                 bestAUC = auc;
                 writeBestAUC(bestAUC);
                 performanceLogger.log("bestAUC", numExamplesUsed, epoch, bestScore, bestAUC);
-                notImproved=0;
-            }else {
+                notImproved = 0;
+            } else {
                 notImproved++;
             }
-            if (notImproved>arguments.stopWhenEpochsWithoutImprovement) {
+            if (notImproved > arguments.stopWhenEpochsWithoutImprovement) {
                 // we have not improved after earlyStopCondition epoch, time to stop.
                 break;
             }
-            System.out.printf("epoch %d auc=%g%n",epoch,auc);
-            numExamplesUsed+=arguments.numTraining;
+            System.out.printf("epoch %d auc=%g%n", epoch, auc);
+            numExamplesUsed += async.totalExamples();
+            performanceLogger.write();
         }
 
         pgEpoch.stop();
-
+        wrapper.shutdown();
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, arguments.maxEpochs, bestScore, arguments.maxEpochs, net);
     }
@@ -144,10 +164,11 @@ int numExamplesUsed=0;
 
     }
 
+    MeasurePerformance perf;
+
     protected double estimateTestSetPerf(int epoch, int iter) throws IOException {
         if (validationDatasetFilename == null) return 0;
-        MeasurePerformance perf = new MeasurePerformance(arguments.numValidation);
-        double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
+        double auc = perf.estimateAUC(featureCalculator, net);
 
         System.out.printf("Epoch %d Iteration %d AUC=%f %n", epoch, iter, auc);
 

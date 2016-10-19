@@ -31,9 +31,6 @@ public class PredictMutations extends AbstractPredictMutations {
     static private Logger LOG = LoggerFactory.getLogger(PredictMutations.class);
 
 
-
-
-
     final boolean SKIP0COUNTS = true;
 
     //will be adjusted if model's loaded featuremapper is for trios. don't manually change
@@ -48,14 +45,13 @@ public class PredictMutations extends AbstractPredictMutations {
     FeatureMapper featureMapper;// = new FeatureMapperV9();
 
 
-
     public PredictMutations(PredictionArguments arguments) {
         super(arguments);
     }
 
 
     public static void main(String[] args) throws Exception {
-        PredictionArguments arguments = parseArguments(args,"PredictMutations");
+        PredictionArguments arguments = parseArguments(args, "PredictMutations");
         PredictMutations predictor = new PredictMutations(arguments);
         System.out.println("modelName: " + predictor.modelName);
 
@@ -99,8 +95,8 @@ public class PredictMutations extends AbstractPredictMutations {
                 s3Scores[i] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(2).getCounts(i).getQualityScoresForwardStrandList()));
                 s3Scores[i + 5] = QualityFeatures.avgQuality(ProtoPredictor.expandFreq(pos.getSamples(2).getCounts(i).getQualityScoresReverseStrandList()));
             }
-            s3CountsString = "\t" + Arrays.toString(s3Counts).replaceAll(" ","");
-            s3ScoresString =  "\t" + Arrays.toString(s3Scores).replaceAll(" ","");
+            s3CountsString = "\t" + Arrays.toString(s3Counts).replaceAll(" ", "");
+            s3ScoresString = "\t" + Arrays.toString(s3Scores).replaceAll(" ", "");
             s3CountsSum = IntStream.of(s3Counts).sum();
         }
         String features;
@@ -109,8 +105,8 @@ public class PredictMutations extends AbstractPredictMutations {
                     + pos.getReferenceIndex() + "\t"
                     + pos.getPosition() + "\t"
                     + pos.getReferenceBase() + "\t"
-                    + Arrays.toString(s1Scores).replaceAll(" ","") + "\t"
-                    + Arrays.toString(s2Scores).replaceAll(" ","")
+                    + Arrays.toString(s1Scores).replaceAll(" ", "") + "\t"
+                    + Arrays.toString(s2Scores).replaceAll(" ", "")
                     + s3ScoresString + "\t"
                     + Integer.toString(IntStream.of(s1Counts).sum() + IntStream.of(s2Counts).sum() + s3CountsSum);
         } else {
@@ -118,13 +114,13 @@ public class PredictMutations extends AbstractPredictMutations {
                     + pos.getReferenceIndex() + "\t"
                     + pos.getPosition() + "\t"
                     + pos.getReferenceBase() + "\t"
-                    + Arrays.toString(s1Scores).replaceAll(" ","") + "\t"
-                    + Arrays.toString(s2Scores).replaceAll(" ","")
+                    + Arrays.toString(s1Scores).replaceAll(" ", "") + "\t"
+                    + Arrays.toString(s2Scores).replaceAll(" ", "")
                     + s3ScoresString + "\t"
                     + Integer.toString(IntStream.of(s1Counts).sum() + IntStream.of(s2Counts).sum() + s3CountsSum)
                     + (pos.hasMutatedBase() ? pos.getMutatedBase() : "") + "\t"
-                    + Arrays.toString(s1Counts).replaceAll(" ","") + "\t"
-                    + Arrays.toString(s2Counts).replaceAll(" ","")
+                    + Arrays.toString(s1Counts).replaceAll(" ", "") + "\t"
+                    + Arrays.toString(s2Counts).replaceAll(" ", "")
                     + s3CountsString;
 
         }
@@ -137,13 +133,18 @@ public class PredictMutations extends AbstractPredictMutations {
 
         modelLoader = new ModelLoader(modelPath);
         featureMapper = modelLoader.loadFeatureMapper();
-        if (featureMapper.getClass().getCanonicalName().contains("Trio")){
+        if (featureMapper.getClass().getCanonicalName().contains("Trio")) {
             //we have a trio mapper, need to output features for a third sample
             isTrio = true;
             System.out.println("setting output to trio mode");
         }
-        calculator = new BayesCalibrator(modelPath,prefix,false);
+        calculator = new BayesCalibrator(modelPath, prefix, false);
         MultiLayerNetwork model = modelLoader.loadModel(prefix);
+        if (model == null) {
+            System.err.println("Cannot load model with prefix: " + prefix);
+            System.exit(1);
+        }
+
         MultiLayerNetwork calibratingModel = modelLoader.loadModel(prefix + "Calibrated");
         if (cmodel == null && calibratingModel != null) {
             cmodel = new CalibratingModel(model, featureMapper, calibratingModel);
@@ -155,11 +156,11 @@ public class PredictMutations extends AbstractPredictMutations {
 
         //initialize results printer
 
-        String resultFilename= resultsPath + prefix + "-" + type + ".tsv";
+        String resultFilename = resultsPath + prefix + "-" + type + ".tsv";
         PrintWriter results = new PrintWriter(resultFilename, "UTF-8");
-        writeHeader(results,isTrio);
+        writeHeader(results, isTrio);
 
-        System.out.println("Writing predictions to "+resultFilename);
+        System.out.println("Writing predictions to " + resultFilename);
         //may need to adjust batch size and write outputs piecewise if test sets are very large
         //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
         RecordReader reader = new RecordReader(evaluationDataFilename);
@@ -180,24 +181,24 @@ public class PredictMutations extends AbstractPredictMutations {
             //don't bother trying to make predictions when a sample has 0 counts. model outputs nan apparently.
             if (SKIP0COUNTS) {
                 boolean bothHaveCount = true;
-                for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()){
+                for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()) {
                     boolean hasCount = false;
-                    for (BaseInformationRecords.CountInfo count : sample.getCountsList()){
-                        if (count.getGenotypeCountReverseStrand() > 0 || count.getGenotypeCountForwardStrand() > 0){
+                    for (BaseInformationRecords.CountInfo count : sample.getCountsList()) {
+                        if (count.getGenotypeCountReverseStrand() > 0 || count.getGenotypeCountForwardStrand() > 0) {
                             hasCount = true;
                             break;
                         }
                     }
-                    if (!hasCount){
+                    if (!hasCount) {
                         bothHaveCount = false;
                         break;
                     }
                 }
-                if (!bothHaveCount){
+                if (!bothHaveCount) {
                     continue;
                 }
             }
-            writeRecordResult(model, calibratingModel, results, featureMapper, pgReadWrite, record, aucLossCalculator, calculator,isTrio);
+            writeRecordResult(model, calibratingModel, results, featureMapper, pgReadWrite, record, aucLossCalculator, calculator, isTrio);
             index++;
             if (index > scoreN) break;
         }

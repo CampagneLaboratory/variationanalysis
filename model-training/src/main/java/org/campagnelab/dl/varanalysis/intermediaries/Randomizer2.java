@@ -1,6 +1,8 @@
 package org.campagnelab.dl.varanalysis.intermediaries;
 
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
@@ -18,45 +20,62 @@ import java.util.List;
 import java.util.Random;
 
 /**
- *
- *
  * The randomizer object iterates over a parquet file and randomizes the order of records in batches.
- *
+ * <p>
  * Created by rct66 on 5/18/16.
+ *
  * @author rct66
  */
-public class Randomizer2 extends Intermediary{
-    public static final int BUCKET_SIZE = 20000;
+public class Randomizer2 extends Intermediary {
+
     static private Logger LOG = LoggerFactory.getLogger(Randomizer2.class);
     private List<RecordReader> sources = new ObjectArrayList<RecordReader>();
+    private Randomizer2Arguments arguments;
 
-
-    public static void main (String[] args) throws IOException{
-        System.out.println("input format: source1.parquet source2.parquet ... randomized.parquet");
+    public static void main(String[] args) throws IOException {
+        Randomizer2Arguments arguments = parseArguments(args, "Randomizer2");
 
         //randomize
         Randomizer2 r = new Randomizer2();
-        r.setSourceFiles(args);
-        r.executeOver(null,args[args.length-1]);
+        r.arguments = arguments;
+        r.setSourceFiles(arguments.inputFiles.toArray(new String[0]));
+        r.executeOver(null, arguments.outputFile);
 
+    }
+
+    protected static Randomizer2Arguments parseArguments(String[] args, String commandName) {
+        Randomizer2Arguments arguments = new Randomizer2Arguments();
+        JCommander commander = new JCommander(arguments);
+        commander.setProgramName(commandName);
+        try {
+            commander.parse(args);
+        } catch (ParameterException e) {
+
+            commander.usage();
+            throw e;
+
+        }
+        return arguments;
     }
 
     public void execute(String inPath, String outPath, int blockSize, int pageSize) throws IOException {
         String workingDir = new File(outPath).getParent();
+        if (workingDir == null) {
+            workingDir = ".";
+        }
         try {
-            int totalRecords = 0;
-            for (RecordReader source : sources){
+            long totalRecords = 0;
+            for (String filename : sourceFilenames) {
+                RecordReader source = new RecordReader(filename);
                 totalRecords += source.getTotalRecords();
+                source.close();
             }
-            int numBuckets = (totalRecords/BUCKET_SIZE)+1;
+            int numBuckets = (int)(totalRecords / arguments.recordsPerBucket) + 1;
 
-            //adjust block size. since there are potentially many buckets, we may need to flush them to disk more frequently.
-            //set max memory usage at 8gb
-            blockSize = (int)(8e9/numBuckets);
-            new File(workingDir+"/tmp").mkdir();
+            new File(workingDir + "/tmp").mkdir();
             List<RecordWriter> bucketWriters = new ObjectArrayList<RecordWriter>(numBuckets);
-            for (int i = 0; i < numBuckets; i++){
-                bucketWriters.add(new RecordWriter(workingDir+"/tmp/bucket"+i+".parquet",1000));
+            for (int i = 0; i < numBuckets; i++) {
+                bucketWriters.add(new RecordWriter(workingDir + "/tmp/bucket" + i, arguments.chunkSizePerWriter));
             }
             RecordWriter allWriter = new RecordWriter(outPath);
             Random rand = new XoRoShiRo128PlusRandom();
@@ -70,13 +89,15 @@ public class Randomizer2 extends Intermediary{
 
             //fill buckets randomly
             System.out.println("Filling " + numBuckets + " temp buckets randomly");
-            for (RecordReader source : sources){
+            for (String filename : sourceFilenames) {
+                RecordReader source = new RecordReader(filename);
                 for (BaseInformationRecords.BaseInformation rec : source) {
                     int bucket = rand.nextInt(numBuckets);
                     bucketWriters.get(bucket).writeRecord(rec);
-                    pgRead.update();
+                    pgRead.lightUpdate();
                 }
                 source.close();
+                System.gc();
             }
 
             pgRead.stop();
@@ -89,22 +110,22 @@ public class Randomizer2 extends Intermediary{
             pgTempBucket.displayFreeMemory = true;
             pgTempBucket.start();
             int i = 0;
-            for (RecordWriter bucketWriter : bucketWriters){
+            for (RecordWriter bucketWriter : bucketWriters) {
                 bucketWriter.close();
 
                 //put contents of bucket in a list
-                RecordReader bucketReader = new RecordReader(workingDir+"/tmp/bucket"+i+".parquet");
-                List<BaseInformationRecords.BaseInformation> records = new ObjectArrayList<>(BUCKET_SIZE);
-                for (BaseInformationRecords.BaseInformation rec : bucketReader){
+                RecordReader bucketReader = new RecordReader(workingDir + "/tmp/bucket" + i );
+                List<BaseInformationRecords.BaseInformation> records = new ObjectArrayList<>(arguments.recordsPerBucket);
+                for (BaseInformationRecords.BaseInformation rec : bucketReader) {
                     records.add(rec);
                 }
                 bucketReader.close();
 
                 //shuffle list
-                Collections.shuffle(records,rand);
+                Collections.shuffle(records, rand);
 
                 //write list to final file
-                for (BaseInformationRecords.BaseInformation rec : records){
+                for (BaseInformationRecords.BaseInformation rec : records) {
                     allWriter.writeRecord(rec);
                 }
                 i++;
@@ -114,19 +135,17 @@ public class Randomizer2 extends Intermediary{
             allWriter.close();
 
             //delete temp files
-            FileUtils.deleteDirectory(new File((workingDir+"/tmp")));
-
-
+            FileUtils.deleteDirectory(new File((workingDir + "/tmp")));
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-     void setSourceFiles(String[] args) throws IOException {
-        for (int i = 0; i < args.length-1; i++){
-            sources.add(new RecordReader(args[i]));
-        }
+    String[] sourceFilenames;
+
+    void setSourceFiles(String[] args) throws IOException {
+        this.sourceFilenames = args;
     }
 
 }

@@ -2,16 +2,18 @@ package org.campagnelab.dl.model.utils.models;
 
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 /**
@@ -19,12 +21,13 @@ import java.util.Properties;
  */
 public class ModelLoader {
     String modelPath;
+    static private Logger LOG = LoggerFactory.getLogger(ModelLoader.class);
 
     public ModelLoader(String modelPath) {
         this.modelPath = modelPath;
     }
 
-   public void writeTestCount(long testRecordCount) {
+    public void writeTestCount(long testRecordCount) {
         try {
             FileInputStream input = new FileInputStream(modelPath + "/config.properties");
             // load a properties file
@@ -52,7 +55,10 @@ public class ModelLoader {
             // load a properties file
             Properties prop = new Properties();
             prop.load(input);
-
+            if (prop.getProperty("precision")!=null &&prop.getProperty("precision").equals("FP16")) {
+                LOG.info("Model uses FP16 precision. Activating support.");
+                DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+            }
             // get the property value and print it out
             String mapperName = prop.getProperty("mapper");
 
@@ -106,7 +112,7 @@ public class ModelLoader {
     }
 
     private MultiLayerNetwork loadNativeModel(String path) throws IOException {
-        MultiLayerNetwork net = ModelSerializer.restoreMultiLayerNetwork(path);
+        MultiLayerNetwork net = ModelSerializer.restoreMultiLayerNetwork(path,false);
         return net;
     }
 

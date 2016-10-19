@@ -16,16 +16,12 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
  *
  * @author Fabien Campagne
  */
-public class SixDenseLayersNarrower2 extends AbstractNeuralNetAssembler implements NeuralNetAssembler {
-
-
+public class SixDenseLayersForGPU extends AbstractNeuralNetAssembler implements NeuralNetAssembler {
 
 
     public MultiLayerConfiguration createNetwork() {
-        learningRatePolicy = LearningRatePolicy.Poly;
-        float reduction = 0.65f;
-        int minimum = (int) (numHiddenNodes * Math.pow(reduction, 4));
-        assert minimum > numOutputs : "Too much reduction, not enough outputs: ";
+        learningRatePolicy = LearningRatePolicy.Score;
+
         NeuralNetConfiguration.ListBuilder confBuilder = null;
         NeuralNetConfiguration.Builder netBuilder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
@@ -38,34 +34,37 @@ public class SixDenseLayersNarrower2 extends AbstractNeuralNetAssembler implemen
             netBuilder.dropOut(dropOutRate);
             netBuilder.setUseDropConnect(true);
         }
-
-        confBuilder = netBuilder.lrPolicyDecayRate(0.5).list()
+        numHiddenNodes = 0;
+        // at least as many hidden nodes as input nodes, but multiple number of 64.
+        while (numInputs > numHiddenNodes) {
+            numHiddenNodes += 64;
+        }
+        confBuilder = netBuilder.list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                         .weightInit(WEIGHT_INIT)
                         .activation("relu").learningRateDecayPolicy(learningRatePolicy)
                         .build())
-                .layer(1, new DenseLayer.Builder().nIn(numHiddenNodes).nOut((int) (numHiddenNodes * reduction))
+                .layer(1, new DenseLayer.Builder().nIn(numHiddenNodes).nOut((int) (numHiddenNodes))
                         .weightInit(WEIGHT_INIT)
                         .activation("relu").learningRateDecayPolicy(learningRatePolicy)
                         .build())
-                .layer(2, new DenseLayer.Builder().nIn((int) (numHiddenNodes * reduction)).nOut((int) (numHiddenNodes * Math.pow(reduction, 2)))
+                .layer(2, new DenseLayer.Builder().nIn((int) (numHiddenNodes)).nOut((int) (numHiddenNodes))
                         .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build())
-                .layer(3, new DenseLayer.Builder().nIn((int) (numHiddenNodes * Math.pow(reduction, 2))).nOut((int) (numHiddenNodes * Math.pow(reduction, 3)))
+                .layer(3, new DenseLayer.Builder().nIn((int) (numHiddenNodes)).nOut((int) (numHiddenNodes))
                         .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build())
-                .layer(4, new DenseLayer.Builder().nIn((int) (numHiddenNodes * Math.pow(reduction, 3))).nOut((int) (numHiddenNodes * Math.pow(reduction, 4)))
+                .layer(4, new DenseLayer.Builder().nIn((int) (numHiddenNodes)).nOut((int) (numHiddenNodes))
                         .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build())
                 .layer(5, new OutputLayer.Builder(lossFunction)
                         .weightInit(WEIGHT_INIT)
                         .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                        .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(numOutputs).build())
+                        .nIn((int) (numHiddenNodes)).nOut(numOutputs).build())
                 .pretrain(false).backprop(true);
-
         return confBuilder.build();
 
     }

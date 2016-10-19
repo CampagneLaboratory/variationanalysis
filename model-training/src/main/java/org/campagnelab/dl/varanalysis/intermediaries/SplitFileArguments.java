@@ -23,5 +23,8 @@ public class SplitFileArguments {
 
     @Parameter(required=true, names = {"-o", "--output-prefix"}, description = "Prefix for the output filenames.")
     public String outputFile;
+
+    @Parameter(required=false, names = {"-n", "--write-n"}, description = "Write at most n records.")
+    public long writeN=Long.MAX_VALUE;
 }
 

@@ -95,6 +95,8 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         double bestAUC = 0.5;
         double finalAUC = 0.5;
         long numExamplesUsed = 0;
+        perf=new MeasurePerformance(arguments.numValidation,arguments.aucClipMaxObservations,validationDatasetFilename);
+
         for (int epoch = 0; epoch < arguments.maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -198,13 +200,12 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         super.appendProperties(helper);
         helper.put("ErrorEnrichment.active", ERROR_SAMPLING);
     }
-
+    MeasurePerformance perf ;
 
     private double estimateTestSetPerf(int epoch, int iter) throws IOException {
        // validationDatasetFilename = "/data/no-threshold/validation-2/m-r-MHFC-63-CTL_B_NK_VN.parquet";
         if (validationDatasetFilename == null) return 0;
-        MeasurePerformance perf = new MeasurePerformance(arguments.numValidation,arguments.aucClipMaxObservations);
-        double auc = perf.estimateAUC(featureCalculator, net, validationDatasetFilename);
+        double auc = perf.estimateAUC(featureCalculator, net);
         //   System.out.printf("Average sampling P=%f%n", samplingIterator.getAverageSamplingP());
 
         System.out.printf("Epoch %d Iteration %d AUC=%f Average sampling P=%f %%skipped=%f %n ", epoch, iter, auc, samplingIterator.getAverageSamplingP(),

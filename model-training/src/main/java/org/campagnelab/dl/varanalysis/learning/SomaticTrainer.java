@@ -12,8 +12,6 @@ import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.learning.architecture.NeuralNetAssembler;
-import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayers;
-import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersNarrower2;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
@@ -27,7 +25,6 @@ import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
@@ -119,7 +116,7 @@ public abstract class SomaticTrainer {
         int numInputs = async.inputColumns();
         int numOutputs = async.totalOutcomes();
         numHiddenNodes = numInputs * 5;
-        NeuralNetAssembler assembler = new SixDenseLayers();
+        NeuralNetAssembler assembler = getNeuralNetAssembler();
         assembler.setSeed(arguments.seed);
         assembler.setLearningRate(arguments.learningRate);
         assembler.setNumHiddenNodes(numHiddenNodes);
@@ -148,7 +145,7 @@ public abstract class SomaticTrainer {
             // parameters will fail.
             ModelLoader loader = new ModelLoader(arguments.previousModelPath);
             MultiLayerNetwork savedNetwork = loader.loadModel(arguments.previousModelName);
-            if (savedNetwork == null || savedNetwork.getUpdater()==null || savedNetwork.params()==null) {
+            if (savedNetwork == null || savedNetwork.getUpdater() == null || savedNetwork.params() == null) {
                 System.err.println("Unable to load model or updater from " + arguments.previousModelPath);
             } else {
                 net.setUpdater(savedNetwork.getUpdater());
@@ -184,6 +181,17 @@ public abstract class SomaticTrainer {
         System.out.println("Model completed, saved at time: " + attempt);
         performanceLogger.write();
     }
+
+    private NeuralNetAssembler getNeuralNetAssembler() {
+        try {
+            return (NeuralNetAssembler) Class.forName(arguments.architectureClassname).newInstance();
+        } catch (Exception e) {
+            System.err.println("Unable to instantiate net architecture " + arguments.architectureClassname);
+            System.exit(1);
+        }
+        return null;
+    }
+
 
     protected DataSetIterator decorateIterator(DataSetIterator iterator) {
         return iterator;
@@ -234,7 +242,12 @@ public abstract class SomaticTrainer {
         }
         return set.size();
     }
+    protected Precision precision = Precision.FP32;
 
+    public enum Precision {
+        FP16,
+        FP32
+    }
     public void appendProperties(ModelPropertiesHelper helper) {
         helper.setFeatureCalculator(featureCalculator);
         helper.setLearningRate(arguments.learningRate);
@@ -248,5 +261,6 @@ public abstract class SomaticTrainer {
         helper.setLossFunction(lossFunction.name());
         helper.setEarlyStopCriterion(arguments.stopWhenEpochsWithoutImprovement);
         helper.setRegularization(arguments.regularizationRate);
+        helper.setPrecision(precision);
     }
 }
