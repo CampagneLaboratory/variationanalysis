@@ -33,6 +33,7 @@
 
     </properties>
 
+
     <build>
         <plugins>
             <plugin>
@@ -75,8 +76,15 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+
+                    <excludes>
+                        <exclude>org/campagnelab/dl/varanalysis/learning/TrainSomaticModel${GPUSpecificSuffix}.java</exclude>
+                    </excludes>
+
                 </configuration>
             </plugin>
+
+
         </plugins>
     </build>
 

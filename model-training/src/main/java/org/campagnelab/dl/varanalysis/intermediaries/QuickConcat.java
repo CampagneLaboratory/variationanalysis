@@ -98,7 +98,7 @@ public class QuickConcat {
                 }
 
                 // Copy the file about 10 megabytes at a time. It would probably
-                // be marginally faster to just tell NIO to copy the ENTIRE file
+                // be marginally faster to jugit st tell NIO to copy the ENTIRE file
                 // in one go, but with very large files Java will freeze until the
                 // entire chunck is copied so this makes for a more responsive program
                 // should you want to ^C in the middle of the copy. Also, with the single

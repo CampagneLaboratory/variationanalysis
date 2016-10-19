@@ -15,10 +15,10 @@
     <description>A project to train neural networks to recognize mutations in RNA-seq data.</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-         <!-- DL4J properties: -->
+        <!-- DL4J properties: -->
 
-        <!--nd4j.backend>nd4j-native-platform</nd4j.backend-->
-       <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend>
+        <nd4j.backend>nd4j-native-platform</nd4j.backend>
+        <!--nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend-->
         <dl4j.version>0.6.0</dl4j.version>
         <nd4j.version>0.6.0</nd4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -51,8 +51,29 @@
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>CPU</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <!-- Classe names that end with the suffix are disabled. -->
+                <GPUSpecificSuffix>OnGPU</GPUSpecificSuffix>
+            </properties>
+        </profile>
+        <profile>
+            <id>GPU</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <!-- Classe names that end with the suffix are disabled. -->
+                <GPUSpecificSuffix>XXXXXXXXX</GPUSpecificSuffix>
+            </properties>
+        </profile>
+    </profiles>
     <build>
-
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -110,9 +131,9 @@
 
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
-
     <repositories>
         <repository>
             <id>sonatype-nexus-snapshots</id>
