@@ -1,6 +1,8 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
 import org.apache.commons.compress.utils.IOUtils;
+import org.campagnelab.dl.model.utils.mappers.EfficientFeatureMapper;
+import org.campagnelab.dl.model.utils.mappers.EfficientLabelMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -25,24 +27,58 @@ import java.util.NoSuchElementException;
  * @author Fabien Campagne
  */
 public class BaseInformationIterator implements DataSetIterator {
-    private final long totalExamples;
+    private int[] labelStride;
+    private int[] featureStride;
+    protected long totalExamples;
     private RecordReader reader;
-    private final FeatureMapper featureMapper;
-    private final LabelMapper labelMapper;
-    private final String inputFilename;
-    private BaseInformationRecords.BaseInformationOrBuilder nextPosRecord;
-    private long cursor = 0;
-    private int batchSize = 32;
+    protected final FeatureMapper featureMapper;
+    protected final LabelMapper labelMapper;
+    private String inputFilename;
+    protected BaseInformationRecords.BaseInformationOrBuilder nextPosRecord;
+    protected long cursor = 0;
+    protected int batchSize = 32;
 
     public BaseInformationIterator(String inputFilename, int batchSize, FeatureMapper featureMapper, LabelMapper labelMapper) throws IOException {
+        this(featureMapper, labelMapper);
         this.inputFilename = inputFilename;
-        this.featureMapper = featureMapper;
-        this.labelMapper = labelMapper;
         this.batchSize = batchSize;
         this.reader = new RecordReader(inputFilename);
         this.totalExamples = reader.getTotalRecords();
 
     }
+
+    protected BaseInformationIterator(final FeatureMapper featureMapper,
+                                      final LabelMapper labelMapper) {
+        this.featureMapper = featureMapper;
+        this.labelMapper = labelMapper;
+        this.inputFilename = null;
+
+        if (featureMapper instanceof EfficientFeatureMapper) {
+            efficientFeatureLoading = true;
+            efm = (EfficientFeatureMapper) featureMapper;
+            featureStride = Nd4j.zeros(10, featureMapper.numberOfFeatures()).stride();
+        } else {
+            efficientFeatureLoading = false;
+            efm = null;
+        }
+        if (labelMapper instanceof EfficientLabelMapper) {
+            efficientLabelLoading = true;
+
+            elm = (EfficientLabelMapper) labelMapper;
+            labelStride = Nd4j.zeros(10, labelMapper.numberOfLabels()).stride();
+        } else {
+            efficientLabelLoading = false;
+            elm = null;
+        }
+    }
+
+    final boolean efficientFeatureLoading;
+    final boolean efficientLabelLoading;
+    // allocate features and labels for the entire dataset:
+    // dimension 0 = number of examples in minibatch
+    // dimension 1 = number of features per record.
+    final EfficientFeatureMapper efm;
+    final EfficientLabelMapper elm;
 
     @Override
     public DataSet next(int batchSize) {
@@ -51,13 +87,14 @@ public class BaseInformationIterator implements DataSetIterator {
 
         int size = Math.min(batchSize, (int) remainingExamples());
 
-        // allocate features and labels for the entire dataset:
-        // dimension 0 = number of examples in minibatch
-        // dimension 1 = number of features per record.
-
         //size changed from batchSize. huge batchSize values useful for tests
-        INDArray inputs = Nd4j.zeros(size, featureMapper.numberOfFeatures());
-        INDArray labels = Nd4j.zeros(size, labelMapper.numberOfLabels());
+
+        INDArray inputs = efficientFeatureLoading ? null : Nd4j.zeros(size, featureMapper.numberOfFeatures());
+        INDArray labels = efficientLabelLoading ? null : Nd4j.zeros(size, labelMapper.numberOfLabels());
+        float[] featureBuffer = new float[featureMapper.numberOfFeatures() * size];
+        float[] labelBuffer = new float[labelMapper.numberOfLabels() * size];
+        int featureOffset = 0;
+        int labelOffset = 0;
         for (int i = 0; i < size; i++) {
             // we are going to call nextRecord directly, without checking hasNextRecord, because we have
             // determined how many times we can call (in size). We should get the exception if we were
@@ -65,8 +102,26 @@ public class BaseInformationIterator implements DataSetIterator {
 
             // fill in features and labels for a given record i:
             BaseInformationRecords.BaseInformationOrBuilder record = nextRecord();
-            featureMapper.mapFeatures(record, inputs, i);
-            labelMapper.mapLabels(record, labels, i);
+            if (efficientFeatureLoading) {
+                efm.mapFeatures(record, featureBuffer, featureOffset, i);
+                featureOffset += featureMapper.numberOfFeatures();
+            } else {
+                featureMapper.mapFeatures(record, inputs, i);
+            }
+
+            if (efficientLabelLoading) {
+                elm.mapLabels(record, featureBuffer, labelOffset, i);
+                labelOffset += labelMapper.numberOfLabels();
+            } else {
+                labelMapper.mapLabels(record, labels, i);
+            }
+        }
+        if (efficientFeatureLoading) {
+            inputs = Nd4j.create(featureBuffer, size, featureMapper.numberOfFeatures(), featureStride, 0);
+            //   INDArray create(float[] data, int rows, int columns, int[] stride, int offset);
+        }
+        if (efficientLabelLoading) {
+            labels = Nd4j.create(labelBuffer, size, labelMapper.numberOfLabels(), labelStride, 0);
 
         }
         return new DataSet(inputs, labels);
@@ -109,7 +164,7 @@ public class BaseInformationIterator implements DataSetIterator {
         }
         try {
             this.reader = new RecordReader(inputFilename);
-        }catch (IOException e) {
+        } catch (IOException e) {
 
             throw new RuntimeException(e);
         }

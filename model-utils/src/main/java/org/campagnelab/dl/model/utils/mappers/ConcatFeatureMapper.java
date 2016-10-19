@@ -10,11 +10,10 @@ import java.util.Arrays;
  * Concatenate features from different mappers.
  * Created by fac2003 on 5/24/16.
  */
-public class ConcatFeatureMapper implements FeatureMapper {
+public class ConcatFeatureMapper implements FeatureMapper, EfficientFeatureMapper {
     FeatureMapper mappers[];
     int numFeatures = 0;
     int[] offsets;
-
 
 
     public ConcatFeatureMapper(FeatureMapper... featureMappers) {
@@ -24,7 +23,8 @@ public class ConcatFeatureMapper implements FeatureMapper {
         offsets = new int[featureMappers.length + 1];
         offsets[0] = 0;
         for (FeatureMapper calculator : mappers) {
-            numFeatures += calculator.numberOfFeatures();;
+            numFeatures += calculator.numberOfFeatures();
+            ;
             offsets[i] = numFeatures;
 
             i++;
@@ -40,7 +40,7 @@ public class ConcatFeatureMapper implements FeatureMapper {
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
         for (FeatureMapper calculator : mappers) {
-            calculator.prepareToNormalize(record,indexOfRecord);
+            calculator.prepareToNormalize(record, indexOfRecord);
         }
     }
 
@@ -48,13 +48,13 @@ public class ConcatFeatureMapper implements FeatureMapper {
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
         int offset = 0;
-        int[] indicesOuter = {0,0};
+        int[] indicesOuter = {0, 0};
         for (FeatureMapper delegate : mappers) {
 
             final int delNumFeatures = delegate.numberOfFeatures();
             delegate.prepareToNormalize(record, indexOfRecord);
             for (int j = 0; j < delNumFeatures; j++) {
-                indicesOuter[0]=indexOfRecord;
+                indicesOuter[0] = indexOfRecord;
                 indicesOuter[1] = j + offset;
                 inputs.putScalar(indicesOuter, delegate.produceFeature(record, j));
             }
@@ -71,6 +71,20 @@ public class ConcatFeatureMapper implements FeatureMapper {
         return this.mappers[indexOfDelegate].produceFeature(record, featureIndex - offsets[indexOfDelegate]);
     }
 
+    @Override
+    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
+
+        for (FeatureMapper delegate : mappers) {
+
+            final int delNumFeatures = delegate.numberOfFeatures();
+            delegate.prepareToNormalize(record, indexOfRecord);
+            for (int j = 0; j < delNumFeatures; j++) {
+
+                inputs[j + offset] = delegate.produceFeature(record, j);
+            }
+            offset += delNumFeatures;
+        }
+    }
 
 
 }

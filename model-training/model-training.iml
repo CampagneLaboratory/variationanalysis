@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
-    <output url="file://$MODULE_DIR$/target/classes" />
-    <output-test url="file://$MODULE_DIR$/target/test-classes" />
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="true">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/config" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
@@ -21,17 +19,14 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:2.3.4" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:macosx-x86_64:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:linux-x86_64:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0-platform:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-pool2:2.4.2" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-platform:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-api:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:linux-x86_64:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:macosx-x86_64:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:windows-x86_64:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:linux-x86_64:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:macosx-x86_64:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:windows-x86_64:0.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:linux-ppc64le:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-core:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.12" level="project" />
     <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-nn:0.6.0" level="project" />
@@ -174,8 +169,6 @@
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.0.13" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-4" level="project" />
     <orderEntry type="module" module-name="model-utils" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:0.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:macosx-x86_64:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:dsiutils:2.3.3" level="project" />
     <orderEntry type="library" name="Maven: com.martiansoftware:jsap:2.1" level="project" />
     <orderEntry type="library" name="Maven: commons-configuration:commons-configuration:1.10" level="project" />

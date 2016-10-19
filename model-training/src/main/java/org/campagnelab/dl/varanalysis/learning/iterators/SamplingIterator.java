@@ -42,12 +42,14 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
     private int currentRecordIndex;
 
     public SamplingIterator(DataSetIterator delegate, long seed) {
+
         this.delegate = delegate;
         this.randomGenerator = new XoRoShiRo128PlusRandom(seed);
         this.samplingProbabilities = new float[delegate.numExamples()];
         // sampling probabilities are set to 1, forcing all records to be returned by default.
         Arrays.fill(samplingProbabilities, 1f);
         recalculateMinibatchSize();
+        throw new UnsupportedOperationException("This iterator is broken in DL4J 0.6.0, do not use.");
     }
 
     public void updateStatistics() {

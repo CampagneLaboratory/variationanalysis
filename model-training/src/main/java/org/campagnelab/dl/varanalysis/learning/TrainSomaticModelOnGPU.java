@@ -8,7 +8,8 @@ import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.parallelism.ParallelWrapper;
-import org.nd4j.jita.conf.CudaEnvironment;
+
+//import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.dataset.api.iterator.CachingDataSetIterator;
@@ -49,7 +50,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         if ("FP16".equals(arguments.precision)) {
             DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
         }
-        CudaEnvironment.getInstance().getConfiguration()
+      /*  CudaEnvironment.getInstance().getConfiguration()
                 .enableDebug(false)
                 .allowMultiGPU(true)
                 .setMaximumGridSize(512)
@@ -59,7 +60,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
                 .setMaximumHostCacheableLength(1024 * 1024 * 1024L)
                 .setMaximumHostCache(8L * 1024 * 1024 * 1024L)
                 // cross-device access is used for faster model averaging over pcie
-                .allowCrossDeviceAccess(true);
+                .allowCrossDeviceAccess(true);*/
         TrainSomaticModelOnGPU trainer = new TrainSomaticModelOnGPU(arguments);
         if ("FP16".equals(arguments.precision)) {
             trainer.precision = Precision.FP16;

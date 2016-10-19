@@ -1,9 +1,14 @@
 package org.campagnelab.dl.model.utils.mappers;
 
+import org.bytedeco.javacpp.FloatPointer;
+import org.bytedeco.javacpp.Pointer;
+import org.bytedeco.javacpp.indexer.FloatIndexer;
 import org.campagnelab.dl.model.utils.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.model.utils.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
+
+import java.util.Arrays;
 
 /**
  * This is a simple feature mapper. It is designed using information currently available in the Parquet file.
@@ -31,14 +36,14 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Fabien Campagne
  */
 
-public class SimpleFeatureCalculator extends AbstractFeatureMapper implements FeatureCalculator {
+public class SimpleFeatureCalculator extends AbstractFeatureMapper implements FeatureCalculator,EfficientFeatureMapper , EfficientLabelMapper{
 
 
-    public SimpleFeatureCalculator(boolean sort){
+    public SimpleFeatureCalculator(boolean sort) {
         this.sort = sort;
     }
 
-    public SimpleFeatureCalculator(){
+    public SimpleFeatureCalculator() {
         this.sort = true;
     }
 
@@ -48,11 +53,13 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
 
         return AbstractFeatureMapper.MAX_GENOTYPES * 2 * 2;
     }
+
     boolean sort; //by default we sort
     int sumCounts;
 
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
         indices[0] = indexOfRecord;
+
         sumCounts = 0;
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
             sumCounts += produceFeatureInternal(record, featureIndex);
@@ -64,15 +71,28 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
         return 2;
     }
 
+
+
     int[] indices = new int[]{0, 0};
 
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
         indices[0] = indexOfRecord;
         prepareToNormalize(record, indexOfRecord);
+        final float[] buffer = getBuffer();
+        mapFeatures(record, buffer, 0, indexOfRecord);
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
             indices[1] = featureIndex;
-            inputs.putScalar(indices, produceFeature(record, featureIndex));
+            inputs.putScalar(indices, buffer[featureIndex]);
+        }
+    }
+
+
+    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
+        prepareToNormalize(record, indexOfRecord);
+        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
+
+            inputs[featureIndex+offset] = produceFeature(record, featureIndex);
         }
     }
 
@@ -87,18 +107,18 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
             // germline counts written first:
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
-                return ("normGermlineForwardCount"+(featureIndex/2));
+                return ("normGermlineForwardCount" + (featureIndex / 2));
             } else {
-                return ("normGermlineReverseCount"+(featureIndex/2));
+                return ("normGermlineReverseCount" + (featureIndex / 2));
             }
         } else {
             // tumor counts written next:
             featureIndex -= AbstractFeatureMapper.MAX_GENOTYPES * 2;
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
-                return ("normSomaticForwardCount"+(featureIndex/2));
+                return ("normSomaticForwardCount" + (featureIndex / 2));
             } else {
-                return ("normGomaticReverseCount"+(featureIndex/2));
+                return ("normGomaticReverseCount" + (featureIndex / 2));
             }
         }
     }
@@ -112,7 +132,13 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
             labels.putScalar(indices, produceLabel(record, labelIndex));
         }
     }
+    @Override
+    public void mapLabels(BaseInformationRecords.BaseInformationOrBuilder record, float[] labels, int offset, int indexOfRecord) {
 
+        for (int labelIndex = 0; labelIndex < numberOfLabels(); labelIndex++) {
+            labels[labelIndex+offset]= produceLabel(record, labelIndex);
+        }
+    }
     private float normalize(float value, int normalizationFactor) {
         if (normalizationFactor == 0) {
             return 0;

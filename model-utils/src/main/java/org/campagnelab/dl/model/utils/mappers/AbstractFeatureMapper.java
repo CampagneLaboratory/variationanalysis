@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.model.utils.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
+import java.util.Arrays;
 import java.util.Collections;
 /**
  * AbstractFeatureMapper encapsulates behavior common to many feature mappers.
@@ -14,7 +15,17 @@ import java.util.Collections;
 public abstract class AbstractFeatureMapper implements FeatureNameMapper {
     public static final int MAX_GENOTYPES = 5;
     public static final int N_GENOTYPE_INDEX = 6;
+    private float[] buffer;
 
+    protected float[] getBuffer() {
+
+        if (buffer==null) {
+            buffer = new float[numberOfFeatures()];
+        }else{
+            Arrays.fill(buffer,0f);
+        }
+        return buffer;
+    }
     @Override
     public String getFeatureName(int featureIndex) {
         return null;
