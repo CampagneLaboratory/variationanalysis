@@ -80,21 +80,19 @@ public class BaseInformationIterator implements DataSetIterator {
     final EfficientFeatureMapper efm;
     final EfficientLabelMapper elm;
 
-    @Override
     public DataSet next(int batchSize) {
 
         // allocate a new dataset with batchSize records and fill it with features and labels.
 
         int size = Math.min(batchSize, (int) remainingExamples());
 
-        //size changed from batchSize. huge batchSize values useful for tests
+        // allocate features and labels for the entire dataset:
+        // dimension 0 = number of examples in minibatch
+        // dimension 1 = number of features per record.
 
-        INDArray inputs = efficientFeatureLoading ? null : Nd4j.zeros(size, featureMapper.numberOfFeatures());
-        INDArray labels = efficientLabelLoading ? null : Nd4j.zeros(size, labelMapper.numberOfLabels());
-        float[] featureBuffer = new float[featureMapper.numberOfFeatures() * size];
-        float[] labelBuffer = new float[labelMapper.numberOfLabels() * size];
-        int featureOffset = 0;
-        int labelOffset = 0;
+        //size changed from batchSize. huge batchSize values useful for tests
+        INDArray inputs = Nd4j.zeros(size, featureMapper.numberOfFeatures());
+        INDArray labels = Nd4j.zeros(size, labelMapper.numberOfLabels());
         for (int i = 0; i < size; i++) {
             // we are going to call nextRecord directly, without checking hasNextRecord, because we have
             // determined how many times we can call (in size). We should get the exception if we were
@@ -102,31 +100,12 @@ public class BaseInformationIterator implements DataSetIterator {
 
             // fill in features and labels for a given record i:
             BaseInformationRecords.BaseInformationOrBuilder record = nextRecord();
-            if (efficientFeatureLoading) {
-                efm.mapFeatures(record, featureBuffer, featureOffset, i);
-                featureOffset += featureMapper.numberOfFeatures();
-            } else {
-                featureMapper.mapFeatures(record, inputs, i);
-            }
-
-            if (efficientLabelLoading) {
-                elm.mapLabels(record, featureBuffer, labelOffset, i);
-                labelOffset += labelMapper.numberOfLabels();
-            } else {
-                labelMapper.mapLabels(record, labels, i);
-            }
-        }
-        if (efficientFeatureLoading) {
-            inputs = Nd4j.create(featureBuffer, size, featureMapper.numberOfFeatures(), featureStride, 0);
-            //   INDArray create(float[] data, int rows, int columns, int[] stride, int offset);
-        }
-        if (efficientLabelLoading) {
-            labels = Nd4j.create(labelBuffer, size, labelMapper.numberOfLabels(), labelStride, 0);
+            featureMapper.mapFeatures(record, inputs, i);
+            labelMapper.mapLabels(record, labels, i);
 
         }
         return new DataSet(inputs, labels);
     }
-
 
     private long remainingExamples() {
         return totalExamples - cursor;
