@@ -2,6 +2,8 @@ package org.campagnelab.dl.varanalysis.intermediaries;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
@@ -14,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.Properties;
 
 /**
  * A utility to quickly concatenate a list of .sbi files. Concatenation does not decompress each file and simply
@@ -28,7 +31,7 @@ public class QuickConcat {
         QuickConcat r = new QuickConcat();
         r.arguments = arguments;
 
-        r.performQuickConcat(arguments.inputFiles.toArray(new String[0]),arguments.outputFile);
+        r.performQuickConcat(arguments.inputFiles.toArray(new String[0]), arguments.outputFile);
 
     }
 
@@ -46,6 +49,7 @@ public class QuickConcat {
         }
         return arguments;
     }
+
     /**
      * This version does a quick concat. It does NO filtering. It gathers no stats,
      * but, will quickly concat multiple compact-reads files together using NIO.
@@ -53,9 +57,10 @@ public class QuickConcat {
      * Copy all of the input files except the last MessageChunksWriter.DELIMITER_LENGTH
      * bytes of the first n-1 input files and the entire last input file
      * to the output file.
-     * @throws IOException
+     *
      * @param inputFilenames
      * @param outputBasename
+     * @throws IOException
      */
     private void performQuickConcat(String[] inputFilenames, String outputBasename) throws IOException {
         System.out.println("quick concatenating files");
@@ -75,15 +80,15 @@ public class QuickConcat {
         FileChannel output = null;
         long bufferSize = arguments.copyBufferSize;
 
-        long totalElements=0;
+        ObjectList<Properties> properties = new ObjectArrayList<>();
         for (final String inputFilename : inputFilenames) {
-            SequenceBaseInformationReader reader=new SequenceBaseInformationReader(inputFilename);
-            totalElements+=  reader.getTotalRecords();
+            SequenceBaseInformationReader reader = new SequenceBaseInformationReader(inputFilename);
+            properties.add(reader.getProperties());
             reader.close();
         }
-        SequenceBaseInformationWriter.writeProperties(outputBasename, totalElements);
+        SequenceBaseInformationWriter.writeProperties(outputBasename, properties);
         try {
-            output = new FileOutputStream(outputFile+".sbi").getChannel();
+            output = new FileOutputStream(outputFile + ".sbi").getChannel();
             int lastFileNumToCopy = inputFilenames.length - 1;
             int curFileNum = 0;
             for (final String inputFilename : inputFilenames) {
@@ -94,7 +99,7 @@ public class QuickConcat {
                     // Compact-reads files end with a delimiter (8 x 0xff)
                     // followed by a 4 byte int 0 (4 x 0x00). Strip
                     // these on all but the last file.
-                    bytesToCopy -= (MessageChunksWriter.DELIMITER_LENGTH + 1+ MessageChunksWriter.SIZE_OF_MESSAGE_LENGTH);
+                    bytesToCopy -= (MessageChunksWriter.DELIMITER_LENGTH + 1 + MessageChunksWriter.SIZE_OF_MESSAGE_LENGTH);
                 }
 
                 // Copy the file about 10 megabytes at a time. It would probably
