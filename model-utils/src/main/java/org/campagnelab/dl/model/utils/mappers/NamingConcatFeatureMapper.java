@@ -1,5 +1,7 @@
 package org.campagnelab.dl.model.utils.mappers;
 
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
+
 import java.util.Arrays;
 
 /**
@@ -31,5 +33,14 @@ public class NamingConcatFeatureMapper extends ConcatFeatureMapper implements Fe
             indexOfDelegate = -(indexOfDelegate + 1) - 1;
         }
         return ((FeatureNameMapper)this.mappers[indexOfDelegate]).getFeatureName(i - offsets[indexOfDelegate]);
+    }
+
+    /**
+     * A do nothing default implementation.
+     * @param reader
+     */
+    @Override
+    public void configure(SequenceBaseInformationReader reader) {
+
     }
 }

@@ -1,6 +1,7 @@
 package org.campagnelab.dl.model.utils.mappers;
 
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**

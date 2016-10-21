@@ -1,10 +1,12 @@
 package org.campagnelab.dl.model.utils.mappers;
 
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
  * A more efficient feature mapper interface, which does not depend on DL4J's INDArrays and the putScalar method.
+ * Also adds a configure method to customize mapping for properties of entire datasets.
  *
  * @author Fabien Campagne Created by fac2003 on 10/19/16.
  *         New feature mappers are written with this interface, which must be used in place of FeatureMapper. When the interface
@@ -12,7 +14,12 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @since 1.0.3
  */
 public interface EfficientFeatureMapper {
-
+    /**
+     * Configure the feature mapper for a specific set of sbi files. This method may access the properties of the reader
+     * to retrieve statistics about the data being mapped to features (such as dataset wide normalization data).
+     * @param reader
+     */
+    void configure(SequenceBaseInformationReader reader);
     /**
      * Return the number of features that this calculator will produce for each record.
      * The number of features is a constant across the datasets returned by the calculator.
