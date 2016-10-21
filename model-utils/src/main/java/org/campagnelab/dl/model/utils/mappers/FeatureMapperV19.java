@@ -2,6 +2,7 @@ package org.campagnelab.dl.model.utils.mappers;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.campagnelab.dl.model.utils.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.campagnelab.goby.baseinfo.StatAccumulatorNumVariationsInRead;
@@ -19,40 +20,25 @@ public class FeatureMapperV19 extends NamingConcatFeatureMapper {
 
     /**
      * Configure the feature mapper for a specific set of sbi files. This method accesses the properties of the reader.
+     *
      * @param reader
      */
     public void configure(SequenceBaseInformationReader reader) {
-        Properties sbiProperties=reader.getProperties();
-        if (!sbiProperties.containsKey("stats.numVariationsInRead.min")||!sbiProperties.containsKey("stats.numVariationsInRead.max")) {
+        Properties sbiProperties = reader.getProperties();
+        if (!sbiProperties.containsKey("stats.numVariationsInRead.min") || !sbiProperties.containsKey("stats.numVariationsInRead.max")) {
             throw new UnsupportedOperationException("The sbip file does not contain the statistics for numVariationsInRead (stats.numVariationsInRead.min and stats.numVariationsInRead.max)");
         }
-        float minNumVariationsInRead=Float.parseFloat(sbiProperties.getProperty("stats.numVariationsInRead.min"));
-        float maxNumVariationsInRead=Float.parseFloat(sbiProperties.getProperty("stats.numVariationsInRead.max"));
+        float minNumVariationsInRead = Float.parseFloat(sbiProperties.getProperty("stats.numVariationsInRead.min"));
+        float maxNumVariationsInRead = Float.parseFloat(sbiProperties.getProperty("stats.numVariationsInRead.max"));
 
-        delegate=new NamingConcatFeatureMapper(new SimpleFeatureCalculator(true),
+        delegate = new NamingConcatFeatureMapper(new SimpleFeatureCalculator(true),
                 new IndelFeatures(),
                 new ReadIndexFeaturesFix(),
                 new FractionDifferences4(),
                 new MagnitudeFeatures2(),
-                new DensityMapper("numVariationsInRead", 10, minNumVariationsInRead, maxNumVariationsInRead, baseInformationOrBuilder -> {
-                    List<BaseInformationRecords.NumberWithFrequency> list = new ObjectArrayList<>();
-
-                    baseInformationOrBuilder.getSamplesList().forEach(
-                            sampleInfo -> {
-                                sampleInfo.getCountsList().forEach(
-                                        countInfo -> {
-                                            countInfo.getNumVariationsInReadsList().forEach(
-                                                    list::add
-                                            );
-                                        }
-                                );
-                            }
-                    );
-                    return list;
-                }
-                ));
+                new DensityMapper("numVariationsInRead", 10, minNumVariationsInRead, maxNumVariationsInRead, baseInformationOrBuilder ->
+                        TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getNumVariationsInReadsList)));
     }
-
 
 
     @Override
