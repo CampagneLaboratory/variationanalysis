@@ -50,9 +50,7 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
 
         TrainSomaticModelEarlyStopping trainer = new TrainSomaticModelEarlyStopping(arguments);
         System.out.println("Early stopping using validation=" + arguments.validationSet);
-        final FeatureMapper featureMapper = arguments.isTrio ? new FeatureMapperV18Trio() :
-                new FeatureMapperV18();
-        configureFeatureMapper(arguments.featureMapperClassname,arguments.isTrio, arguments.getTrainingSets());
+        final FeatureMapper featureMapper =  configureFeatureMapper(arguments.featureMapperClassname,arguments.isTrio, arguments.getTrainingSets());
         trainer.execute(featureMapper, arguments.getTrainingSets(), arguments.miniBatchSize);
     }
 

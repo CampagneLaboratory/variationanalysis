@@ -71,9 +71,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
             trainer.precision = Precision.FP16;
             System.out.println("Parameter precision set to FP16.");
         }
-        final FeatureMapper featureMapper = arguments.isTrio ? new FeatureMapperV18Trio() :
-                new FeatureMapperV18();
-        configureFeatureMapper(arguments.featureMapperClassname, arguments.isTrio, arguments.getTrainingSets());
+        final FeatureMapper featureMapper = configureFeatureMapper(arguments.featureMapperClassname, arguments.isTrio, arguments.getTrainingSets());
         trainer.execute(featureMapper, arguments.getTrainingSets(), arguments.miniBatchSize);
     }
 

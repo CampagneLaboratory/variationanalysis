@@ -39,6 +39,9 @@ public class FeatureMapperV19 extends NamingConcatFeatureMapper implements Confi
                 new MagnitudeFeatures2(),
                 new DensityMapper("numVariationsInRead", 10, minNumVariationsInRead, maxNumVariationsInRead, baseInformationOrBuilder ->
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getNumVariationsInReadsList)));
+       // new DensityMapper("mappingQuality", 25, minNumVariationsInRead, maxNumVariationsInRead, baseInformationOrBuilder ->
+        //        TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getMap)));
+
     }
 
 
