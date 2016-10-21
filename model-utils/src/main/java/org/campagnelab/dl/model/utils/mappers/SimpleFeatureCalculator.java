@@ -6,6 +6,7 @@ import org.bytedeco.javacpp.indexer.FloatIndexer;
 import org.campagnelab.dl.model.utils.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.model.utils.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Arrays;
@@ -45,6 +46,11 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
 
     public SimpleFeatureCalculator() {
         this.sort = true;
+    }
+
+    @Override
+    public void configure(SequenceBaseInformationReader reader) {
+        //do nothing default.
     }
 
     @Override
