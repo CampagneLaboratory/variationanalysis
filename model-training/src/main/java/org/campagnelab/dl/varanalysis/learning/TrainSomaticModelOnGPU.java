@@ -131,22 +131,25 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
             writeProperties(this);
             writeBestScoreFile();
-            double auc = estimateTestSetPerf(epoch, iter);
-            performanceLogger.log("epochs", numExamplesUsed, epoch, Double.NaN, auc);
-            if (auc > bestAUC) {
-                saver.saveModel(net, "bestAUC", auc);
-                bestAUC = auc;
-                writeBestAUC(bestAUC);
-                performanceLogger.log("bestAUC", numExamplesUsed, epoch, bestScore, bestAUC);
-                notImproved = 0;
-            } else {
-                notImproved++;
+            if (epoch % arguments.validateEvery == 1) {
+                double auc = estimateTestSetPerf(epoch, iter);
+                performanceLogger.log("epochs", numExamplesUsed, epoch, Double.NaN, auc);
+                if (auc > bestAUC) {
+                    saver.saveModel(net, "bestAUC", auc);
+                    bestAUC = auc;
+                    writeBestAUC(bestAUC);
+                    performanceLogger.log("bestAUC", numExamplesUsed, epoch, bestScore, bestAUC);
+                    notImproved = 0;
+                } else {
+                    notImproved++;
+                }
+                if (notImproved > arguments.stopWhenEpochsWithoutImprovement) {
+                    // we have not improved after earlyStopCondition epoch, time to stop.
+                    break;
+                }
+                System.out.printf("epoch %d auc=%g%n", epoch, auc);
             }
-            if (notImproved > arguments.stopWhenEpochsWithoutImprovement) {
-                // we have not improved after earlyStopCondition epoch, time to stop.
-                break;
-            }
-            System.out.printf("epoch %d auc=%g%n", epoch, auc);
+
             numExamplesUsed += async.totalExamples();
             performanceLogger.write();
         }

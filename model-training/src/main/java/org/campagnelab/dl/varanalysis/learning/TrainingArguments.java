@@ -75,4 +75,8 @@ public class TrainingArguments {
 
     @Parameter(names = "--feature-mapper", description = "Fully qualified name of the feature mapper class.")
     public String featureMapperClassname= FeatureMapperV18.class.getCanonicalName();
+
+    @Parameter(names = {"-e","--validate-every"}, description = "Validate only every e epochs when using early stopping. This can save time if training is much faster than evaluation.")
+    public int validateEvery= 1;
+
 }
