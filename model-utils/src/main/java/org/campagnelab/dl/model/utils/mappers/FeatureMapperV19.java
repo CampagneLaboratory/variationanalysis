@@ -2,6 +2,7 @@ package org.campagnelab.dl.model.utils.mappers;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.campagnelab.dl.model.utils.ConfigurableFeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
@@ -15,7 +16,7 @@ import java.util.Properties;
 /**
  * Same as V18, but adds density features for numVariationsInRead. Starting to use Java8 lambdas to customize generic feature mappers.
  */
-public class FeatureMapperV19 extends NamingConcatFeatureMapper {
+public class FeatureMapperV19 extends NamingConcatFeatureMapper implements ConfigurableFeatureMapper {
     NamingConcatFeatureMapper delegate;
 
     /**

@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.iterators.SamplingIterator;
@@ -50,13 +51,9 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     public static void main(String[] args) throws IOException {
         TrainingArguments arguments= parseArguments(args,"TrainSomaticModelErrorSampling");
-        TrainSomaticModelErrorSampling trainer=new TrainSomaticModelErrorSampling(arguments);
-        //for trio:
-        if (arguments.isTrio){
-            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
-        } else {
-            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), arguments.miniBatchSize);
-        }
+        final FeatureMapper featureMapper = arguments.isTrio ? new FeatureMapperV18Trio() :
+                new FeatureMapperV18();
+        configureFeatureMapper(featureMapper, arguments.getTrainingSets());
 
     }
 

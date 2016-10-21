@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.campagnelab.dl.model.utils.ConfigurableFeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
@@ -17,6 +18,7 @@ import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator
 import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.api.Layer;
@@ -262,5 +264,15 @@ public abstract class SomaticTrainer {
         helper.setEarlyStopCriterion(arguments.stopWhenEpochsWithoutImprovement);
         helper.setRegularization(arguments.regularizationRate);
         helper.setPrecision(precision);
+    }
+
+
+    protected static void configureFeatureMapper(FeatureMapper featureMapper, String[] trainingSets) throws IOException {
+        if (featureMapper instanceof ConfigurableFeatureMapper) {
+            ConfigurableFeatureMapper cmapper = (ConfigurableFeatureMapper) featureMapper;
+            SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSets[0]);
+            cmapper.configure(reader);
+            reader.close();
+        }
     }
 }

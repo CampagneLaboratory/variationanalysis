@@ -9,6 +9,7 @@ import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator
 import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingConfiguration;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
@@ -31,13 +32,12 @@ import java.util.List;
  * Train a neural network to predict mutations. Implement early stopping, using a validation set to measure performance
  * after each training epoch completes.
  * <p>
- *
  */
 public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
     public static final int MIN_ITERATION_BETWEEN_BEST_MODEL = 1000;
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
 
-    protected  String validationFile;
+    protected String validationFile;
 
     public TrainSomaticModelEarlyStopping(TrainingArguments arguments) {
         super(arguments);
@@ -45,20 +45,18 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
     }
 
 
+    public static void main(String[] args) throws IOException {
+        TrainingArguments arguments = parseArguments(args, "TrainSomaticModelEarlyStopping");
 
-    public static void main(String[] args) throws IOException  {
-        TrainingArguments arguments= parseArguments(args,"TrainSomaticModelEarlyStopping");
-
-        TrainSomaticModelEarlyStopping trainer=new TrainSomaticModelEarlyStopping(arguments);
-        System.out.println("Early stopping using validation="+arguments.validationSet);
-        if (arguments.isTrio) {
-            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
-        } else {
-            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), arguments.miniBatchSize);
-        }
+        TrainSomaticModelEarlyStopping trainer = new TrainSomaticModelEarlyStopping(arguments);
+        System.out.println("Early stopping using validation=" + arguments.validationSet);
+        final FeatureMapper featureMapper = arguments.isTrio ? new FeatureMapperV18Trio() :
+                new FeatureMapperV18();
+        configureFeatureMapper(featureMapper, arguments.getTrainingSets());
+        trainer.execute(featureMapper, arguments.getTrainingSets(), arguments.miniBatchSize);
     }
 
-    public  void execute(FeatureMapper featureCalculator, String[] trainingFiles) throws IOException {
+    public void execute(FeatureMapper featureCalculator, String[] trainingFiles) throws IOException {
 
 
         List<String> trainIterList = new ObjectArrayList<String>(trainingFiles.length - 1);
@@ -66,15 +64,16 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
             trainIterList.add(RecordWriter.addParqExtension(trainingFiles[i]));
         }
 
-        super.execute(featureCalculator, trainIterList.toArray(new String[trainIterList.size()]),arguments.miniBatchSize);
+        super.execute(featureCalculator, trainIterList.toArray(new String[trainIterList.size()]), arguments.miniBatchSize);
 
-        ModelPropertiesHelper mpHelper=new ModelPropertiesHelper(this);
+        ModelPropertiesHelper mpHelper = new ModelPropertiesHelper(this);
         mpHelper.writeProperties(directory);
 
 
         System.out.println("Model completed, saved at time: " + attempt);
 
     }
+
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
         net.setListeners(new ScoreIterationListener(1000));
         final int numValidationBatches = 1000;
@@ -87,7 +86,7 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
                 .modelSaver(new LocalFileModelSaver(directory))
                 .build();
 
-        EarlyStoppingTrainer trainer = new EarlyStoppingTrainer(esConf,net,async);
+        EarlyStoppingTrainer trainer = new EarlyStoppingTrainer(esConf, net, async);
 
         trainer.setListener(new EStatusListener());
         EarlyStoppingResult<MultiLayerNetwork> result = trainer.fit();
@@ -98,7 +97,6 @@ public class TrainSomaticModelEarlyStopping extends SomaticTrainer {
         System.out.println("Total epochs: " + result.getTotalEpochs());
         System.out.println("Best epoch number: " + result.getBestModelEpoch());
         System.out.println("Score at best epoch: " + result.getBestModelScore());
-
 
 
         MultiLayerNetwork bestModel = result.getBestModel();

@@ -32,10 +32,6 @@ public class DensityMapper implements FeatureMapper, EfficientFeatureMapper, Fea
         this.binWidh = (maxValue - minValue) / numBins;
     }
 
-    @Override
-    public void configure(SequenceBaseInformationReader reader) {
-        // configuration is done once and for all before calling the constructor to set minValue and maxValue.
-    }
 
     @Override
     public int numberOfFeatures() {

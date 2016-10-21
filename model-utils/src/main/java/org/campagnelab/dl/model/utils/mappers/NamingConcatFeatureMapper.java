@@ -35,12 +35,5 @@ public class NamingConcatFeatureMapper extends ConcatFeatureMapper implements Fe
         return ((FeatureNameMapper)this.mappers[indexOfDelegate]).getFeatureName(i - offsets[indexOfDelegate]);
     }
 
-    /**
-     * A do nothing default implementation.
-     * @param reader
-     */
-    @Override
-    public void configure(SequenceBaseInformationReader reader) {
 
-    }
 }

@@ -48,10 +48,8 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
         this.sort = true;
     }
 
-    @Override
-    public void configure(SequenceBaseInformationReader reader) {
-        //do nothing default.
-    }
+
+
 
     @Override
     public int numberOfFeatures() {

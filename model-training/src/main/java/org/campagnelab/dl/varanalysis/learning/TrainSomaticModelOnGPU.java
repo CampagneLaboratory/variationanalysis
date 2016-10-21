@@ -1,9 +1,13 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
+import org.campagnelab.dl.model.utils.ConfigurableFeatureMapper;
+import org.campagnelab.dl.model.utils.mappers.EfficientFeatureMapper;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -21,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,12 +71,12 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
             trainer.precision = Precision.FP16;
             System.out.println("Parameter precision set to FP16.");
         }
-        if (arguments.isTrio) {
-            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
-        } else {
-            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), arguments.miniBatchSize);
-        }
+        final FeatureMapper featureMapper = arguments.isTrio ? new FeatureMapperV18Trio() :
+                new FeatureMapperV18();
+        configureFeatureMapper(featureMapper, arguments.getTrainingSets());
+        trainer.execute(featureMapper, arguments.getTrainingSets(), arguments.miniBatchSize);
     }
+
 
     @Override
     protected DataSetIterator decorateIterator(DataSetIterator iterator) {

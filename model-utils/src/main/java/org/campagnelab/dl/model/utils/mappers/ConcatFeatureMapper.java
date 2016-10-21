@@ -32,10 +32,8 @@ public class ConcatFeatureMapper implements FeatureMapper, EfficientFeatureMappe
         }
     }
 
-    @Override
-    public void configure(SequenceBaseInformationReader reader) {
-        // do nothing default.
-    }
+
+
 
     @Override
     public int numberOfFeatures() {
