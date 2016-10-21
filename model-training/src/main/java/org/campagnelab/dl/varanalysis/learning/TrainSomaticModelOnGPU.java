@@ -73,7 +73,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         }
         final FeatureMapper featureMapper = arguments.isTrio ? new FeatureMapperV18Trio() :
                 new FeatureMapperV18();
-        configureFeatureMapper(featureMapper, arguments.getTrainingSets());
+        configureFeatureMapper(arguments.featureMapperClassname, arguments.isTrio, arguments.getTrainingSets());
         trainer.execute(featureMapper, arguments.getTrainingSets(), arguments.miniBatchSize);
     }
 

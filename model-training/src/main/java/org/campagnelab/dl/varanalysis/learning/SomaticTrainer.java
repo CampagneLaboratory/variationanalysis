@@ -182,17 +182,15 @@ public abstract class SomaticTrainer {
         performanceLogger.write();
     }
 
-    private NeuralNetAssembler getNeuralNetAssembler()  {
+    private NeuralNetAssembler getNeuralNetAssembler() {
         try {
             return (NeuralNetAssembler) Class.forName(arguments.architectureClassname).newInstance();
         } catch (Exception e) {
-            System.err.println("Unable to instantiate net architecture "+arguments.architectureClassname);
+            System.err.println("Unable to instantiate net architecture " + arguments.architectureClassname);
             System.exit(1);
         }
         return null;
     }
-
-
 
 
     protected DataSetIterator decorateIterator(DataSetIterator iterator) {
@@ -244,12 +242,14 @@ public abstract class SomaticTrainer {
         }
         return set.size();
     }
+
     protected Precision precision = Precision.FP32;
 
     public enum Precision {
         FP16,
         FP32
     }
+
     public void appendProperties(ModelPropertiesHelper helper) {
         helper.setFeatureCalculator(featureCalculator);
         helper.setLearningRate(arguments.learningRate);
@@ -267,12 +267,26 @@ public abstract class SomaticTrainer {
     }
 
 
-    protected static void configureFeatureMapper(FeatureMapper featureMapper, String[] trainingSets) throws IOException {
-        if (featureMapper instanceof ConfigurableFeatureMapper) {
-            ConfigurableFeatureMapper cmapper = (ConfigurableFeatureMapper) featureMapper;
-            SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSets[0]);
-            cmapper.configure(reader);
-            reader.close();
+    protected static FeatureMapper configureFeatureMapper(String featureMapperClassname, boolean isTrio, String[] trainingSets) throws IOException {
+
+
+        try {
+            Class clazz = Class.forName(featureMapperClassname + (isTrio ? "Trio" : ""));
+            final FeatureMapper featureMapper = (FeatureMapper) clazz.newInstance();
+            if (featureMapper instanceof ConfigurableFeatureMapper) {
+                ConfigurableFeatureMapper cmapper = (ConfigurableFeatureMapper) featureMapper;
+                SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSets[0]);
+                cmapper.configure(reader);
+                reader.close();
+            }
+            return featureMapper;
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 }

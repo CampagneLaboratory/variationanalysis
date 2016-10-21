@@ -2,6 +2,7 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersForGPU;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersNarrower2;
 
@@ -71,4 +72,7 @@ public class TrainingArguments {
 
     @Parameter(names = "--parameter-precision", description = "Parameter precision, either FP16 or FP32. Note that models trained with FP16 cannot be used on the CPU (as of DL4J 0.6.0).")
     public String precision="FP32";
+
+    @Parameter(names = "--feature-mapper", description = "Fully qualified name of the feature mapper class.")
+    public String featureMapperClassname= FeatureMapperV18.class.getCanonicalName();
 }

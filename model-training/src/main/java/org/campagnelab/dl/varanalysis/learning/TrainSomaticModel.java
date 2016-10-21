@@ -73,11 +73,11 @@ public class TrainSomaticModel extends SomaticTrainer {
 
         TrainSomaticModel trainer = new TrainSomaticModel(arguments);
 
-        final FeatureMapper featureMapper = arguments.isTrio ? new FeatureMapperV18Trio() :
-                new FeatureMapperV18();
-        configureFeatureMapper(featureMapper, arguments.getTrainingSets());
+
+        FeatureMapper featureMapper = configureFeatureMapper(arguments.featureMapperClassname, arguments.isTrio, arguments.getTrainingSets());
         trainer.execute(featureMapper, arguments.getTrainingSets(), arguments.miniBatchSize);
     }
+
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
