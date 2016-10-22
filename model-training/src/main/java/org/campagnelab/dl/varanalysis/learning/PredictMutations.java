@@ -132,7 +132,8 @@ public class PredictMutations extends AbstractPredictMutations {
 
 
         modelLoader = new ModelLoader(modelPath);
-        featureMapper = modelLoader.loadFeatureMapper();
+        RecordReader reader = new RecordReader(evaluationDataFilename);
+        featureMapper = modelLoader.loadFeatureMapper(reader.getProperties());
         if (featureMapper.getClass().getCanonicalName().contains("Trio")) {
             //we have a trio mapper, need to output features for a third sample
             isTrio = true;
@@ -163,7 +164,6 @@ public class PredictMutations extends AbstractPredictMutations {
         System.out.println("Writing predictions to " + resultFilename);
         //may need to adjust batch size and write outputs piecewise if test sets are very large
         //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
-        RecordReader reader = new RecordReader(evaluationDataFilename);
 
 
         //DataSet ds = baseIter.next();

@@ -278,7 +278,7 @@ public abstract class SomaticTrainer {
             if (featureMapper instanceof ConfigurableFeatureMapper) {
                 ConfigurableFeatureMapper cmapper = (ConfigurableFeatureMapper) featureMapper;
                 SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSets[0]);
-                cmapper.configure(reader);
+                cmapper.configure(reader.getProperties());
                 reader.close();
             }
             return featureMapper;

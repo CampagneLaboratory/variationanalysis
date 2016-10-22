@@ -8,6 +8,7 @@ import org.campagnelab.goby.exception.GobyRuntimeException;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
@@ -126,4 +127,7 @@ public class RecordReader implements Closeable, RecordIterable {
     }
 
 
+    public Properties getProperties() {
+        return reader.getProperties();
+    }
 }

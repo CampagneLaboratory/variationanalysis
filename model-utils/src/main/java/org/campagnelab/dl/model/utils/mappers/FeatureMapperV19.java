@@ -3,7 +3,7 @@ package org.campagnelab.dl.model.utils.mappers;
 import org.campagnelab.dl.model.utils.ConfigurableFeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
+import org.datavec.api.records.reader.RecordReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Properties;
@@ -17,10 +17,10 @@ public class FeatureMapperV19 extends NamingConcatFeatureMapper implements Confi
     /**
      * Configure the feature mapper for a specific set of sbi files. This method accesses the properties of the reader.
      *
-     * @param reader
+     * @param sbiProperties properties from an sbi reader.
      */
-    public void configure(SequenceBaseInformationReader reader) {
-        Properties sbiProperties = reader.getProperties();
+    public void configure(Properties sbiProperties) {
+
         if (!propertiesPresent(sbiProperties, "stats.numVariationsInRead")) {
             throw new UnsupportedOperationException("The sbip file does not contain the statistics for numVariationsInRead (stats.numVariationsInRead.min and stats.numVariationsInRead.max)");
         }

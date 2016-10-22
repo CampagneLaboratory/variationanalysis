@@ -73,7 +73,7 @@ public class CalibrateModelOutput {
 //set up logger
 
         MultiLayerNetwork calibrationModel;
-        FeatureMapper modelFeatureMapper = loader.loadFeatureMapper();
+        FeatureMapper modelFeatureMapper = loader.loadFeatureMapper(reader.getProperties());
 
         int featureNumber = getModelActivationNumber(model, modelFeatureMapper);
         int numInputs = featureNumber;

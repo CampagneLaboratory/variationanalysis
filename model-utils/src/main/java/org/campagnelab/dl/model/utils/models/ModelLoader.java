@@ -1,6 +1,7 @@
 package org.campagnelab.dl.model.utils.models;
 
 import org.apache.commons.io.FileUtils;
+import org.campagnelab.dl.model.utils.ConfigurableFeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -48,7 +49,7 @@ public class ModelLoader {
 
     }
 
-    public FeatureMapper loadFeatureMapper() {
+    public FeatureMapper loadFeatureMapper(Properties sbiProperties) {
 
         try {
             FileInputStream input = new FileInputStream(modelPath + "/config.properties");
@@ -73,6 +74,10 @@ public class ModelLoader {
             // Create a new instance from the loaded class
             Constructor constructor = loadedMyClass.getConstructor();
             FeatureMapper featureMapper = (FeatureMapper) constructor.newInstance();
+            if (featureMapper instanceof ConfigurableFeatureMapper) {
+                ConfigurableFeatureMapper cfm= (ConfigurableFeatureMapper) featureMapper;
+                cfm.configure(sbiProperties);
+            }
             return featureMapper;
         } catch (Exception e) {
 
