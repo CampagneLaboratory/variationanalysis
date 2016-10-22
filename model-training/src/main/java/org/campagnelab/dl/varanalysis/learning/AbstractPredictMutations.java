@@ -81,7 +81,7 @@ public abstract class AbstractPredictMutations {
             formatted3 = "";
         }
         header = "mutatedLabel\tProbabilityMut\tProbabilityUnmut\tcorrectness\tfrequency" +
-                "\trefIdx\tposition\treferenceBase" +
+                "\trefId\tposition\treferenceBase" +
                 "\tsample1Scores\tsample2Scores" + s3Scores + "\tsumAllCounts";
 
         if (longReport){

@@ -100,18 +100,20 @@ public class PredictMutations extends AbstractPredictMutations {
             s3CountsSum = IntStream.of(s3Counts).sum();
         }
         String features;
+        String refId=(pos.hasReferenceId()?pos.getReferenceId():Integer.toString(pos.getReferenceIndex()));
         if (!longReport) {
             features = (pos.hasFrequencyOfMutation() ? pos.getFrequencyOfMutation() : "") + "\t"
-                    + pos.getReferenceIndex() + "\t"
+                    + refId + "\t"
                     + pos.getPosition() + "\t"
                     + pos.getReferenceBase() + "\t"
                     + Arrays.toString(s1Scores).replaceAll(" ", "") + "\t"
                     + Arrays.toString(s2Scores).replaceAll(" ", "")
                     + s3ScoresString + "\t"
                     + Integer.toString(IntStream.of(s1Counts).sum() + IntStream.of(s2Counts).sum() + s3CountsSum);
+
         } else {
             features = (pos.hasFrequencyOfMutation() ? pos.getFrequencyOfMutation() : "") + "\t"
-                    + pos.getReferenceIndex() + "\t"
+                    + refId + "\t"
                     + pos.getPosition() + "\t"
                     + pos.getReferenceBase() + "\t"
                     + Arrays.toString(s1Scores).replaceAll(" ", "") + "\t"
