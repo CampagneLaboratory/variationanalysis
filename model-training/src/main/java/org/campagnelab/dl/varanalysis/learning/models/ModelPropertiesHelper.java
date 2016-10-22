@@ -56,6 +56,12 @@ public class ModelPropertiesHelper {
         modelProp.setProperty("learningRate", Double.toString(learningRate));
     }
 
+    public void setDropoutRate(Double dropoutRate) {
+        if (dropoutRate != null) {
+            modelProp.setProperty("dropoutRate", Double.toString(dropoutRate));
+        }
+    }
+
     public void setRegularization(double regularization) {
         modelProp.setProperty("learningRate", Double.toString(regularization));
     }
@@ -104,4 +110,6 @@ public class ModelPropertiesHelper {
     public void put(String key, boolean value) {
         modelProp.setProperty(key, Boolean.toString(value));
     }
+
+
 }

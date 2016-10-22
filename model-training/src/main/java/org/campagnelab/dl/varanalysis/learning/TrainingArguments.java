@@ -41,6 +41,9 @@ public class TrainingArguments {
     @Parameter(names = {"-r", "--learning-rate"}, description = "Learning rate.")
     public double learningRate = 0.1;
 
+    @Parameter(names = { "--dropout-rate"}, description = "Dropout rate.")
+    public Double dropoutRate = null;
+
     @Parameter(names = "--regularization-rate", description = "Regularization rate. Disabled if set to NaN.")
     public double regularizationRate = Double.NaN;
 

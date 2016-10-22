@@ -33,7 +33,7 @@ public interface NeuralNetAssembler {
     public void setRegularization(boolean regularization);
 
     public void setRegularizationRate(double regularizationRate);
-    public void setDropoutRate(double rate);
+    public void setDropoutRate(Double rate);
 
     void setLossFunction(LossFunctions.LossFunction lossFunction);
 }

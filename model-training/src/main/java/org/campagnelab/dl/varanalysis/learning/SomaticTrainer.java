@@ -119,6 +119,7 @@ public abstract class SomaticTrainer {
         NeuralNetAssembler assembler = getNeuralNetAssembler();
         assembler.setSeed(arguments.seed);
         assembler.setLearningRate(arguments.learningRate);
+        assembler.setDropoutRate(arguments.dropoutRate);
         assembler.setNumHiddenNodes(numHiddenNodes);
         assembler.setNumInputs(numInputs);
         assembler.setNumOutputs(numOutputs);
@@ -253,6 +254,7 @@ public abstract class SomaticTrainer {
     public void appendProperties(ModelPropertiesHelper helper) {
         helper.setFeatureCalculator(featureCalculator);
         helper.setLearningRate(arguments.learningRate);
+        helper.setDropoutRate(arguments.dropoutRate);
         helper.setNumHiddenNodes(numHiddenNodes);
         helper.setMiniBatchSize(arguments.miniBatchSize);
         // mpHelper.setBestScore(bestScore);
