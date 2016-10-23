@@ -28,6 +28,10 @@ public class ModelLoader {
         this.modelPath = modelPath;
     }
 
+    /**
+     * Write the number of records used in test set to model config.properties.
+     * @param testRecordCount
+     */
     public void writeTestCount(long testRecordCount) {
         try {
             FileInputStream input = new FileInputStream(modelPath + "/config.properties");
