@@ -43,6 +43,7 @@ public abstract class AbstractPredictMutations {
     }
 
     public AbstractPredictMutations(PredictionArguments arguments) {
+        this.arguments=arguments;
         Path path = Paths.get(arguments.modelPath);
         modelName = path.getFileName().toString();
         modelDir = path.getParent().toString();
