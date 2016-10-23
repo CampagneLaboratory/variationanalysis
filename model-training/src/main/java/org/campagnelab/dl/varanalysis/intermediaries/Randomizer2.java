@@ -103,9 +103,10 @@ public class Randomizer2 extends Intermediary {
             pgRead.stop();
 
             System.out.println("Shuffling contents of each bucket and writing to output file");
+            System.out.printf("There are %d buckets to shuffle\n",numBuckets);
             //iterate over buckets
             ProgressLogger pgTempBucket = new ProgressLogger(LOG);
-            pgTempBucket.itemsName = "read";
+            pgTempBucket.itemsName = "buckets";
             pgTempBucket.expectedUpdates = numBuckets;
             pgTempBucket.displayFreeMemory = true;
             pgTempBucket.start();
