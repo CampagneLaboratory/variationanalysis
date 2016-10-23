@@ -172,7 +172,7 @@ public class PredictMutations extends AbstractPredictMutations {
 //set up logger
         ProgressLogger pgReadWrite = new ProgressLogger(LOG);
         pgReadWrite.itemsName = prefix;
-        pgReadWrite.expectedUpdates = reader.getTotalRecords();
+        pgReadWrite.expectedUpdates = Math.min(arguments.scoreN,reader.getTotalRecords());
         pgReadWrite.displayFreeMemory = true;
         pgReadWrite.start();
 
