@@ -55,7 +55,7 @@ public class IndelFeatures extends AbstractFeatureMapper implements FeatureMappe
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES : "Only MAX_GENOTYPES*2*2 features";
+        assert featureIndex >= 0 && featureIndex < AbstractFeatureMapper.MAX_GENOTYPES : "Only MAX_GENOTYPES features";
         // germline counts written first:
         final IndelGenotypeCount genotypeCount = (IndelGenotypeCount) getAllCounts(record, false, true).get(featureIndex);
         return genotypeCount.getIsIndel() ? 1F : 0F;
