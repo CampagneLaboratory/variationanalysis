@@ -1,19 +1,12 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
-import org.campagnelab.dl.model.utils.ConfigurableFeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.EfficientFeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
-import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.parallelism.ParallelWrapper;
-
-//import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.dataset.api.iterator.CachingDataSetIterator;
@@ -25,9 +18,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+//import org.nd4j.jita.conf.CudaEnvironment;
 
 /**
  * Train a neural network to predict mutations.
