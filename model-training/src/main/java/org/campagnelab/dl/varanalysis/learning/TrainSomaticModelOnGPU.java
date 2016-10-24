@@ -125,7 +125,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
             writeProperties(this);
             writeBestScoreFile();
-            if (epoch % arguments.validateEvery == 1) {
+            if (epoch % arguments.validateEvery == 0) {
                 double auc = estimateTestSetPerf(epoch, iter);
                 performanceLogger.log("epochs", numExamplesUsed, epoch, Double.NaN, auc);
                 if (auc > bestAUC) {
