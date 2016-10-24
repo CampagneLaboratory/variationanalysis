@@ -24,7 +24,12 @@ import java.io.PrintWriter;
 public class Predict extends AbstractTool<PredictArguments> {
 
     static private Logger LOG = LoggerFactory.getLogger(Predict.class);
+    public static void main(String[] args) {
 
+        Predict predict = new Predict();
+        predict.parseArguments(args, "Predict", predict.createArguments());
+        predict.execute();
+    }
 
 
     public PredictArguments args() {
@@ -41,8 +46,21 @@ public class Predict extends AbstractTool<PredictArguments> {
         try {
             File modelPath = new File(args().modelPath);
             String modelName = modelPath.getName();
+            PrintWriter resultWriter = null;
+            if (args().toFile) {
+                String resultPath = "tests/" + modelName + "/";
+                File dir = new File(resultPath);
+                // attempt to create the directory here
+                dir.mkdirs();
 
-            printPredictions(args().modelName, args().modelPath, args().testSet, "tests/" + modelName + "/");
+                String resultFilename = resultPath + args().modelName + "-" + args().type + ".tsv";
+                System.out.println("Writing predictions to " + resultFilename);
+                resultWriter = new PrintWriter(resultFilename, "UTF-8");
+            } else {
+                resultWriter = new PrintWriter(System.out);
+            }
+
+            printPredictions(args().modelName, args().modelPath, args().testSet, resultWriter);
         } catch (IOException e) {
             System.err.println("Error predicting in %s dataset.");
             e.printStackTrace();
@@ -52,7 +70,7 @@ public class Predict extends AbstractTool<PredictArguments> {
     }
 
     private void printPredictions(String prefix, String modelPath, String evaluationDataFilename,
-                                  String resultsPath) throws IOException {
+                                  PrintWriter resultsPath) throws IOException {
 
 
         ModelLoader modelLoader = new ModelLoader(modelPath);
@@ -69,19 +87,14 @@ public class Predict extends AbstractTool<PredictArguments> {
             System.err.println("Cannot load model with prefix: " + prefix);
             System.exit(1);
         }
-        File dir = new File(resultsPath);
 
-        // attempt to create the directory here
-        dir.mkdirs();
 
         //initialize results printer
 
-        String resultFilename = resultsPath + prefix + "-" + args().type + ".tsv";
-        PrintWriter results = new PrintWriter(resultFilename, "UTF-8");
+
+        PrintWriter results = resultsPath;
         results.append("index\ttrueLabel\tprobabilityYes\tprobabilityNo\tcorrectness").append("\n");
 
-
-        System.out.println("Writing predictions to " + resultFilename);
 
         ProgressLogger pgReadWrite = new ProgressLogger(LOG);
         pgReadWrite.itemsName = prefix;
@@ -110,7 +123,7 @@ public class Predict extends AbstractTool<PredictArguments> {
                             predictedLabelYes, correctness);
                 }
                 //convert true label to the convention used by auc calculator: negative true label=labelNo.
-                aucLossCalculator.observe(predictedLabelYes, trueLabelYes-0.5);
+                aucLossCalculator.observe(predictedLabelYes, trueLabelYes - 0.5);
                 //     writeRecordResultFast(model, results, featureMapper, pgReadWrite, record, aucLossCalculator, calculator, isTrio);
                 pgReadWrite.lightUpdate();
             }

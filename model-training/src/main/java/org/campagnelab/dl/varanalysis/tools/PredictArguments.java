@@ -43,4 +43,7 @@ public class PredictArguments implements ToolArguments {
     @Parameter(names = { "--filter-p-max"},
             description = "Only output prediction with Math.max(pLabelTrue,pLabelFalse)<= x, --filter-p-max x.")
     double pFilterMaximum =1;
+
+    @Parameter(names={"-f","--to-file"}, description = "Write output to a file. If not provided, write to stdout.")
+    public boolean toFile=false;
 }
