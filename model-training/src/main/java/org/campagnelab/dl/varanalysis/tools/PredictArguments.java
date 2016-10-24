@@ -4,7 +4,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 /**
- * Created by rct66 on 9/6/16.
+ * Arguments for the Predict Tool.
  */
 @Parameters(commandDescription = "Perform model prediction on a dataset. Dataset must be provided in the .sbi/sbip format.")
 

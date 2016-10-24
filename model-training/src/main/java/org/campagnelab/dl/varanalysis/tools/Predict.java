@@ -21,19 +21,19 @@ import java.io.PrintWriter;
  * A tool to predict with a model on a .sbi file.
  * Created by fac2003 on 10/23/16.
  */
-public class Predict extends AbstractTool {
+public class Predict extends AbstractTool<PredictArguments> {
 
     static private Logger LOG = LoggerFactory.getLogger(Predict.class);
 
-    public static void main(String[] args) {
-        PredictArguments arguments = new PredictArguments();
-        Predict predict = new Predict();
-        predict.parseArguments(args, "Predict", arguments);
-        predict.execute();
-    }
+
 
     public PredictArguments args() {
         return (PredictArguments) arguments;
+    }
+
+    @Override
+    public PredictArguments createArguments() {
+        return new PredictArguments();
     }
 
     @Override

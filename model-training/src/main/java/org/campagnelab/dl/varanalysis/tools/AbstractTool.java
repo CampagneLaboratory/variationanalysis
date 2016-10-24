@@ -6,10 +6,10 @@ import com.beust.jcommander.ParameterException;
 /**
  * Created by fac2003 on 10/23/16.
  */
-public abstract class AbstractTool {
-    ToolArguments arguments;
+public abstract class AbstractTool<T extends ToolArguments> {
+    T arguments;
 
-    protected void parseArguments(String[] args, String commandName, ToolArguments arguments) {
+    protected void parseArguments(String[] args, String commandName, T arguments) {
         this.arguments = arguments;
         JCommander commander = new JCommander(arguments);
         commander.setProgramName(commandName);
@@ -22,6 +22,10 @@ public abstract class AbstractTool {
             throw e;
         }
     }
+    public T args() {
+        return arguments;
+    }
+    public abstract T createArguments();
 
     public abstract void execute();
 }
