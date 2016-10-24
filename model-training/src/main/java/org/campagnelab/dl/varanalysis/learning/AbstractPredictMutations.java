@@ -43,6 +43,7 @@ public abstract class AbstractPredictMutations {
     }
 
     public AbstractPredictMutations(PredictionArguments arguments) {
+        this.arguments=arguments;
         Path path = Paths.get(arguments.modelPath);
         modelName = path.getFileName().toString();
         modelDir = path.getParent().toString();
@@ -81,7 +82,7 @@ public abstract class AbstractPredictMutations {
             formatted3 = "";
         }
         header = "mutatedLabel\tProbabilityMut\tProbabilityUnmut\tcorrectness\tfrequency" +
-                "\trefIdx\tposition\treferenceBase" +
+                "\trefId\tposition\treferenceBase" +
                 "\tsample1Scores\tsample2Scores" + s3Scores + "\tsumAllCounts";
 
         if (longReport){

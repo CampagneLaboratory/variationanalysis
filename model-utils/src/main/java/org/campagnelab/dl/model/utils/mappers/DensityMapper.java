@@ -32,10 +32,6 @@ public class DensityMapper implements FeatureMapper, EfficientFeatureMapper, Fea
         this.binWidh = (maxValue - minValue) / numBins;
     }
 
-    @Override
-    public void configure(SequenceBaseInformationReader reader) {
-        // configuration is done once and for all before calling the constructor to set minValue and maxValue.
-    }
 
     @Override
     public int numberOfFeatures() {
@@ -57,8 +53,10 @@ public class DensityMapper implements FeatureMapper, EfficientFeatureMapper, Fea
             }
         }
         // normalize the counts to produce a density:
-        for (int featureIndex = 0; featureIndex < numBins; featureIndex++) {
-            bins[featureIndex] /= numElements;
+        if (numElements > 0) {
+            for (int featureIndex = 0; featureIndex < numBins; featureIndex++) {
+                bins[featureIndex] /= numElements;
+            }
         }
     }
 
@@ -99,23 +97,5 @@ public class DensityMapper implements FeatureMapper, EfficientFeatureMapper, Fea
         return String.format("density_%s_%d_%d", name, binMin, binMax);
     }
 
-    /**
-     * Define a Function to reduce a record to a list of NumberWithFrequency found across all samples and counts of these samples.
-     * @param baseInformationOrBuilder
-     * @param function
-     * @return
-     */
-    public static List<BaseInformationRecords.NumberWithFrequency> forAllCounts(BaseInformationRecords.BaseInformationOrBuilder baseInformationOrBuilder,
-                                                                                Function<BaseInformationRecords.CountInfo,List<BaseInformationRecords.NumberWithFrequency>> function) {
-        List<BaseInformationRecords.NumberWithFrequency> list = new ObjectArrayList<>();
 
-        baseInformationOrBuilder.getSamplesList().forEach(
-                sampleInfo -> {
-                    sampleInfo.getCountsList().forEach(
-                          countInfo -> list.addAll(function.apply(countInfo))
-                    );
-                }
-        );
-        return list;
-    }
 }

@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.campagnelab.dl.model.utils.ConfigurableFeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
@@ -17,6 +18,7 @@ import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator
 import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.api.Layer;
@@ -117,6 +119,7 @@ public abstract class SomaticTrainer {
         NeuralNetAssembler assembler = getNeuralNetAssembler();
         assembler.setSeed(arguments.seed);
         assembler.setLearningRate(arguments.learningRate);
+        assembler.setDropoutRate(arguments.dropoutRate);
         assembler.setNumHiddenNodes(numHiddenNodes);
         assembler.setNumInputs(numInputs);
         assembler.setNumOutputs(numOutputs);
@@ -180,17 +183,15 @@ public abstract class SomaticTrainer {
         performanceLogger.write();
     }
 
-    private NeuralNetAssembler getNeuralNetAssembler()  {
+    private NeuralNetAssembler getNeuralNetAssembler() {
         try {
             return (NeuralNetAssembler) Class.forName(arguments.architectureClassname).newInstance();
         } catch (Exception e) {
-            System.err.println("Unable to instantiate net architecture "+arguments.architectureClassname);
+            System.err.println("Unable to instantiate net architecture " + arguments.architectureClassname);
             System.exit(1);
         }
         return null;
     }
-
-
 
 
     protected DataSetIterator decorateIterator(DataSetIterator iterator) {
@@ -242,15 +243,18 @@ public abstract class SomaticTrainer {
         }
         return set.size();
     }
+
     protected Precision precision = Precision.FP32;
 
     public enum Precision {
         FP16,
         FP32
     }
+
     public void appendProperties(ModelPropertiesHelper helper) {
         helper.setFeatureCalculator(featureCalculator);
         helper.setLearningRate(arguments.learningRate);
+        helper.setDropoutRate(arguments.dropoutRate);
         helper.setNumHiddenNodes(numHiddenNodes);
         helper.setMiniBatchSize(arguments.miniBatchSize);
         // mpHelper.setBestScore(bestScore);
@@ -262,5 +266,29 @@ public abstract class SomaticTrainer {
         helper.setEarlyStopCriterion(arguments.stopWhenEpochsWithoutImprovement);
         helper.setRegularization(arguments.regularizationRate);
         helper.setPrecision(precision);
+    }
+
+
+    protected static FeatureMapper configureFeatureMapper(String featureMapperClassname, boolean isTrio, String[] trainingSets) throws IOException {
+
+
+        try {
+            Class clazz = Class.forName(featureMapperClassname + (isTrio ? "Trio" : ""));
+            final FeatureMapper featureMapper = (FeatureMapper) clazz.newInstance();
+            if (featureMapper instanceof ConfigurableFeatureMapper) {
+                ConfigurableFeatureMapper cmapper = (ConfigurableFeatureMapper) featureMapper;
+                SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSets[0]);
+                cmapper.configure(reader.getProperties());
+                reader.close();
+            }
+            return featureMapper;
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

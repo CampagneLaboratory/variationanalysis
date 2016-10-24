@@ -59,9 +59,11 @@ public abstract class AbstractNeuralNetAssembler implements NeuralNetAssembler {
     }
 
     @Override
-    public void setDropoutRate(double rate) {
-        this.dropOut=true;
-        this.dropOutRate=rate;
+    public void setDropoutRate(Double rate) {
+        if (rate!=null) {
+            this.dropOut = true;
+            this.dropOutRate = rate;
+        }
     }
 
     public void setLossFunction(LossFunctions.LossFunction lossFunction) {

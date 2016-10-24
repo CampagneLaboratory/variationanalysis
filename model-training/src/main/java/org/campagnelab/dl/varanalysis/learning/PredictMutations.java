@@ -100,18 +100,20 @@ public class PredictMutations extends AbstractPredictMutations {
             s3CountsSum = IntStream.of(s3Counts).sum();
         }
         String features;
+        String refId=(pos.hasReferenceId()?pos.getReferenceId():Integer.toString(pos.getReferenceIndex()));
         if (!longReport) {
             features = (pos.hasFrequencyOfMutation() ? pos.getFrequencyOfMutation() : "") + "\t"
-                    + pos.getReferenceIndex() + "\t"
+                    + refId + "\t"
                     + pos.getPosition() + "\t"
                     + pos.getReferenceBase() + "\t"
                     + Arrays.toString(s1Scores).replaceAll(" ", "") + "\t"
                     + Arrays.toString(s2Scores).replaceAll(" ", "")
                     + s3ScoresString + "\t"
                     + Integer.toString(IntStream.of(s1Counts).sum() + IntStream.of(s2Counts).sum() + s3CountsSum);
+
         } else {
             features = (pos.hasFrequencyOfMutation() ? pos.getFrequencyOfMutation() : "") + "\t"
-                    + pos.getReferenceIndex() + "\t"
+                    + refId + "\t"
                     + pos.getPosition() + "\t"
                     + pos.getReferenceBase() + "\t"
                     + Arrays.toString(s1Scores).replaceAll(" ", "") + "\t"
@@ -132,7 +134,8 @@ public class PredictMutations extends AbstractPredictMutations {
 
 
         modelLoader = new ModelLoader(modelPath);
-        featureMapper = modelLoader.loadFeatureMapper();
+        RecordReader reader = new RecordReader(evaluationDataFilename);
+        featureMapper = modelLoader.loadFeatureMapper(reader.getProperties());
         if (featureMapper.getClass().getCanonicalName().contains("Trio")) {
             //we have a trio mapper, need to output features for a third sample
             isTrio = true;
@@ -163,14 +166,13 @@ public class PredictMutations extends AbstractPredictMutations {
         System.out.println("Writing predictions to " + resultFilename);
         //may need to adjust batch size and write outputs piecewise if test sets are very large
         //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
-        RecordReader reader = new RecordReader(evaluationDataFilename);
 
 
         //DataSet ds = baseIter.next();
 //set up logger
         ProgressLogger pgReadWrite = new ProgressLogger(LOG);
         pgReadWrite.itemsName = prefix;
-        pgReadWrite.expectedUpdates = reader.getTotalRecords();
+        pgReadWrite.expectedUpdates = Math.min(arguments.scoreN,reader.getTotalRecords());
         pgReadWrite.displayFreeMemory = true;
         pgReadWrite.start();
 

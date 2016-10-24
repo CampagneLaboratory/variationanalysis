@@ -2,12 +2,14 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.dl.varanalysis.util.HitBoundedPriorityQueue;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -72,14 +74,10 @@ public class TrainSomaticModel extends SomaticTrainer {
         TrainSomaticModel trainer = new TrainSomaticModel(arguments);
 
 
-        //for trio:
-        if (arguments.isTrio) {
-            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
-        } else {
-            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), arguments.miniBatchSize);
-        }
-        //for duo
+        FeatureMapper featureMapper = configureFeatureMapper(arguments.featureMapperClassname, arguments.isTrio, arguments.getTrainingSets());
+        trainer.execute(featureMapper, arguments.getTrainingSets(), arguments.miniBatchSize);
     }
+
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {

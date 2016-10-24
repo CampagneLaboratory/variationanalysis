@@ -1,15 +1,12 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
-import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.parallelism.ParallelWrapper;
-
-//import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.dataset.api.iterator.CachingDataSetIterator;
@@ -23,6 +20,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+//import org.nd4j.jita.conf.CudaEnvironment;
 
 /**
  * Train a neural network to predict mutations.
@@ -66,12 +65,10 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
             trainer.precision = Precision.FP16;
             System.out.println("Parameter precision set to FP16.");
         }
-        if (arguments.isTrio) {
-            trainer.execute(new FeatureMapperV18Trio(), arguments.getTrainingSets(), arguments.miniBatchSize);
-        } else {
-            trainer.execute(new FeatureMapperV18(), arguments.getTrainingSets(), arguments.miniBatchSize);
-        }
+        final FeatureMapper featureMapper = configureFeatureMapper(arguments.featureMapperClassname, arguments.isTrio, arguments.getTrainingSets());
+        trainer.execute(featureMapper, arguments.getTrainingSets(), arguments.miniBatchSize);
     }
+
 
     @Override
     protected DataSetIterator decorateIterator(DataSetIterator iterator) {
@@ -128,22 +125,25 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
             writeProperties(this);
             writeBestScoreFile();
-            double auc = estimateTestSetPerf(epoch, iter);
-            performanceLogger.log("epochs", numExamplesUsed, epoch, Double.NaN, auc);
-            if (auc > bestAUC) {
-                saver.saveModel(net, "bestAUC", auc);
-                bestAUC = auc;
-                writeBestAUC(bestAUC);
-                performanceLogger.log("bestAUC", numExamplesUsed, epoch, bestScore, bestAUC);
-                notImproved = 0;
-            } else {
-                notImproved++;
+            if (epoch % arguments.validateEvery == 0) {
+                double auc = estimateTestSetPerf(epoch, iter);
+                performanceLogger.log("epochs", numExamplesUsed, epoch, Double.NaN, auc);
+                if (auc > bestAUC) {
+                    saver.saveModel(net, "bestAUC", auc);
+                    bestAUC = auc;
+                    writeBestAUC(bestAUC);
+                    performanceLogger.log("bestAUC", numExamplesUsed, epoch, bestScore, bestAUC);
+                    notImproved = 0;
+                } else {
+                    notImproved++;
+                }
+                if (notImproved > arguments.stopWhenEpochsWithoutImprovement) {
+                    // we have not improved after earlyStopCondition epoch, time to stop.
+                    break;
+                }
+                System.out.printf("epoch %d auc=%g%n", epoch, auc);
             }
-            if (notImproved > arguments.stopWhenEpochsWithoutImprovement) {
-                // we have not improved after earlyStopCondition epoch, time to stop.
-                break;
-            }
-            System.out.printf("epoch %d auc=%g%n", epoch, auc);
+
             numExamplesUsed += async.totalExamples();
             performanceLogger.write();
         }

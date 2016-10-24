@@ -2,6 +2,7 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersForGPU;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersNarrower2;
 
@@ -40,6 +41,9 @@ public class TrainingArguments {
     @Parameter(names = {"-r", "--learning-rate"}, description = "Learning rate.")
     public double learningRate = 0.1;
 
+    @Parameter(names = { "--dropout-rate"}, description = "Dropout rate.")
+    public Double dropoutRate = null;
+
     @Parameter(names = "--regularization-rate", description = "Regularization rate. Disabled if set to NaN.")
     public double regularizationRate = Double.NaN;
 
@@ -71,4 +75,11 @@ public class TrainingArguments {
 
     @Parameter(names = "--parameter-precision", description = "Parameter precision, either FP16 or FP32. Note that models trained with FP16 cannot be used on the CPU (as of DL4J 0.6.0).")
     public String precision="FP32";
+
+    @Parameter(names = "--feature-mapper", description = "Fully qualified name of the feature mapper class.")
+    public String featureMapperClassname= FeatureMapperV18.class.getCanonicalName();
+
+    @Parameter(names = {"-e","--validate-every"}, description = "Validate only every e epochs when using early stopping. This can save time if training is much faster than evaluation.")
+    public int validateEvery= 1;
+
 }
