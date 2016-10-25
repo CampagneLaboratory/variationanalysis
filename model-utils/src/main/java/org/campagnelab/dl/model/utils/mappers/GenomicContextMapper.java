@@ -13,7 +13,7 @@ import java.util.List;
 
 
 
-public class GenomicContextMapper implements FeatureMapper {
+public class GenomicContextMapper implements FeatureMapper, EfficientFeatureMapper {
     private OneHotBaseMapper[] refContext;
     private ConcatFeatureMapper delegate;
 
@@ -40,6 +40,13 @@ public class GenomicContextMapper implements FeatureMapper {
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
         delegate.mapFeatures(record, inputs, indexOfRecord);
+    }
+
+    @Override
+    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
+        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
+            inputs[featureIndex+offset] = produceFeature(record, featureIndex);
+        }
     }
 
     @Override

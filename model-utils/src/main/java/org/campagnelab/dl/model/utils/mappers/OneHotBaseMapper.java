@@ -7,7 +7,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Maps a int indexing into a record's genomic sequence context into a one hot base feature
  * Created by rct66 on 10/25/16.
  */
-public class OneHotBaseMapper implements FeatureMapper {
+public class OneHotBaseMapper implements FeatureMapper, EfficientFeatureMapper {
 
     int baseIndex;
     public OneHotBaseMapper(int baseIndex) {
@@ -57,6 +57,13 @@ public class OneHotBaseMapper implements FeatureMapper {
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
             indices[1] = featureIndex;
             inputs.putScalar(indices, produceFeature(record, featureIndex));
+        }
+    }
+
+    @Override
+    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
+        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
+            inputs[featureIndex+offset] = produceFeature(record, featureIndex);
         }
     }
 
