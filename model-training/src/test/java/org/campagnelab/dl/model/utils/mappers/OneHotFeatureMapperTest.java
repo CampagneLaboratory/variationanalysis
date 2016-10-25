@@ -11,9 +11,9 @@ import static org.junit.Assert.assertEquals;
 public class OneHotFeatureMapperTest {
     @Test
     public void testOneHot() {
-        OneHotFeatureMapper mapper;
+        BinaryFeatureMapper mapper;
 
-        mapper=new OneHotFeatureMapper() {
+        mapper=new BinaryFeatureMapper() {
             @Override
             public int getIntegerValue(BaseInformationRecords.BaseInformationOrBuilder record) {
                 return 0;
@@ -23,7 +23,7 @@ public class OneHotFeatureMapperTest {
             assertEquals(0f,mapper.produceFeature(null,i),0.1);
         }
 
-        mapper=new OneHotFeatureMapper() {
+        mapper=new BinaryFeatureMapper() {
             @Override
             public int getIntegerValue(BaseInformationRecords.BaseInformationOrBuilder record) {
                 return 1;
@@ -36,7 +36,7 @@ public class OneHotFeatureMapperTest {
         }
         assertEquals(1f, mapper.produceFeature(null, 0), 0.1);
 
-        mapper=new OneHotFeatureMapper() {
+        mapper=new BinaryFeatureMapper() {
             @Override
             public int getIntegerValue(BaseInformationRecords.BaseInformationOrBuilder record) {
                 return 0xFFFFFFFF;

@@ -1,20 +1,46 @@
+/*
 package org.campagnelab.dl.model.utils.mappers;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import java.util.List;
+
+*/
 /**
  * Encode a genomic position. Encode both chromosome and position with one hot encoding.
  * Created by fac2003 on 7/12/16.
- */
-public class GenomicPositionMapper implements FeatureMapper {
+ *//*
+
+public class GenomicContextMapper implements FeatureMapper {
+    int contextSize;
     private static final int NUM_POSITION_BITS = 32;
     private static final int NUM_CHROMOSOMES = 100;
-    private final BinaryFeatureMapper chromosomeMapper;
-    private final BinaryFeatureMapper positionMapper;
+    private final List<BinaryFeatureMapper> refContext;
     private ConcatFeatureMapper delegate;
 
-    public GenomicPositionMapper() {
+    public GenomicContextMapper() {
+        refContext = new ObjectArrayList<BinaryFeatureMapper>(21);
+    }
+
+    @Override
+    public int numberOfFeatures() {
+        return chromosomeMapper.numberOfFeatures() + positionMapper.numberOfFeatures();
+
+    }
+
+    @Override
+    public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
+        contextSize = record.getGenomicSequenceContext().length();
+        for (int i = 0; i < contextSize; i++){
+            refContext.add(new BinaryFeatureMapper() {
+                @Override
+                public int getIntegerValue(BaseInformationRecords.BaseInformationOrBuilder record) {
+                    return record.;
+                }
+            })
+        }
         this.chromosomeMapper = new BinaryFeatureMapper() {
 
             @Override
@@ -31,17 +57,6 @@ public class GenomicPositionMapper implements FeatureMapper {
         this.delegate = new ConcatFeatureMapper(chromosomeMapper,positionMapper);
     }
 
-    @Override
-    public int numberOfFeatures() {
-        return chromosomeMapper.numberOfFeatures() + positionMapper.numberOfFeatures();
-
-    }
-
-    @Override
-    public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
-
-    }
-
     int[] indices = new int[]{0, 0};
 
     @Override
@@ -54,3 +69,4 @@ public class GenomicPositionMapper implements FeatureMapper {
         return delegate.produceFeature(record, featureIndex);
     }
 }
+*/

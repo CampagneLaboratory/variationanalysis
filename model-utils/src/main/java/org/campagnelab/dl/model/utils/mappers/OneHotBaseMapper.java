@@ -7,20 +7,43 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Maps an integer to 32 binary features, using one hot encoding.
  * Created by fac2003 on 7/12/16.
  */
-public abstract class OneHotFeatureMapper implements FeatureMapper {
+public class OneHotBaseMapper implements FeatureMapper {
 
-    public OneHotFeatureMapper() {
-
+    int baseIndex;
+    public OneHotBaseMapper(int baseIndex) {
+        this.baseIndex = baseIndex;
     }
 
     private static final int[] indices = new int[]{0, 0};
 
-    @Override
     public int numberOfFeatures() {
-        return Integer.bitCount(Integer.MAX_VALUE);
+        return 6;
     }
 
-    public abstract int getIntegerValue(BaseInformationRecords.BaseInformationOrBuilder record);
+    public int getIntegerOfBase(BaseInformationRecords.BaseInformationOrBuilder record){
+        Character base = record.getGenomicSequenceContext().charAt(baseIndex);
+        int baseInt;
+        switch (base) {
+            case 'a':
+            case 'A': baseInt = 0;
+                break;
+            case 't':
+            case 'T': baseInt = 1;
+                break;
+            case 'c':
+            case 'C': baseInt = 2;
+                break;
+            case 'g':
+            case 'G': baseInt = 3;
+                break;
+            case 'n':
+            case 'N': baseInt = 4;
+                break;
+            default: baseInt = 5;
+                break;
+        }
+        return baseInt;
+    }
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
@@ -39,7 +62,7 @@ public abstract class OneHotFeatureMapper implements FeatureMapper {
 
     @Override
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        int value = getIntegerValue(record);
-        return (value & (1 << featureIndex)) != 0?1f:0f;
+        int value = getIntegerOfBase(record);
+        return value==featureIndex ? 1F : 0F;
     }
 }
