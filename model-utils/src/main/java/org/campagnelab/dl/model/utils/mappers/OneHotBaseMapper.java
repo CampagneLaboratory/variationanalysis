@@ -4,8 +4,8 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
- * Maps an integer to 32 binary features, using one hot encoding.
- * Created by fac2003 on 7/12/16.
+ * Maps a int indexing into a record's genomic sequence context into a one hot base feature
+ * Created by rct66 on 10/25/16.
  */
 public class OneHotBaseMapper implements FeatureMapper {
 
