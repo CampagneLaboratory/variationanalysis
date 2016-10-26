@@ -7,6 +7,7 @@ import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
+import org.campagnelab.dl.varanalysis.tools.Predict;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.dl.varanalysis.util.HitBoundedPriorityQueue;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
@@ -52,36 +53,29 @@ public class TrainSomaticModel extends SomaticTrainer {
     private final boolean IGNORE_ERRORS_ON_SIMULATED_EXAMPLES = false;
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
 
-    public TrainSomaticModel(TrainingArguments arguments) {
-        super(arguments);
-    }
+
 
     @Override
     protected DataSetIterator decorateIterator(DataSetIterator iterator) {
         return new CachingDataSetIterator(iterator, new InMemoryDataSetCache());
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
-
-        TrainingArguments arguments = parseArguments(args, "TrainSomaticModel");
-
-        if (arguments.trainingSets.size() == 0) {
-            System.out.println("Please add at least one training set to the arguments.");
+        TrainSomaticModel tool = new TrainSomaticModel();
+        tool.parseArguments(args, "TrainSomaticModel", tool.createArguments());
+        if (tool.args().trainingSets.size() == 0) {
+            System.out.println("Please add at least one training set to the args().");
             return;
         }
-
-        TrainSomaticModel trainer = new TrainSomaticModel(arguments);
-
-
-        FeatureMapper featureMapper = configureFeatureMapper(arguments.featureMapperClassname, arguments.isTrio, arguments.getTrainingSets());
-        trainer.execute(featureMapper, arguments.getTrainingSets(), arguments.miniBatchSize);
+        tool.execute();
     }
+
 
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
-        validationDatasetFilename = arguments.validationSet;
+        validationDatasetFilename = args().validationSet;
         //check validation file for error
         if (!(new File(validationDatasetFilename).exists())) {
             throw new IOException("Validation file not found! " + validationDatasetFilename);
@@ -92,7 +86,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
         pgEpoch.displayLocalSpeed = true;
         pgEpoch.itemsName = "epoch";
-        pgEpoch.expectedUpdates = arguments.maxEpochs;
+        pgEpoch.expectedUpdates = args().maxEpochs;
         pgEpoch.start();
         bestScore = Double.MAX_VALUE;
         ModelSaver saver = new ModelSaver(directory);
@@ -100,15 +94,15 @@ public class TrainSomaticModel extends SomaticTrainer {
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
         System.out.println("ERROR_ENRICHMENT=" + ERROR_ENRICHMENT);
         double bestAUC = 0.5;
-        performanceLogger.setCondition(arguments.experimentalCondition);
+        performanceLogger.setCondition(args().experimentalCondition);
         int numExamplesUsed = 0;
         int notImproved = 0;
-        int miniBatchesPerEpoch = async.totalExamples() / arguments.miniBatchSize;
+        int miniBatchesPerEpoch = async.totalExamples() / args().miniBatchSize;
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
-        perf = new MeasurePerformance(arguments.numValidation, validationDatasetFilename);
+        perf = new MeasurePerformance(args().numValidation, validationDatasetFilename);
         System.out.println("Finished loading validation records.");
         System.out.flush();
-        for (int epoch = 0; epoch < arguments.maxEpochs; epoch++) {
+        for (int epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
 
@@ -175,7 +169,7 @@ public class TrainSomaticModel extends SomaticTrainer {
             } else {
                 notImproved++;
             }
-            if (notImproved > arguments.stopWhenEpochsWithoutImprovement) {
+            if (notImproved > args().stopWhenEpochsWithoutImprovement) {
                 // we have not improved after earlyStopCondition epoch, time to stop.
                 break;
             }
@@ -188,7 +182,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         pgEpoch.stop();
 
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-                "not early stopping", scoreMap, arguments.maxEpochs, bestScore, arguments.maxEpochs, net);
+                "not early stopping", scoreMap, args().maxEpochs, bestScore, args().maxEpochs, net);
     }
 
     private void writeBestAUC(double bestAUC) {
@@ -296,6 +290,12 @@ public class TrainSomaticModel extends SomaticTrainer {
             System.out.println();
         }
         return auc;
+    }
+
+
+    @Override
+    public TrainingArguments createArguments() {
+        return new TrainingArguments();
     }
 
 

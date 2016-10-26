@@ -18,6 +18,7 @@ import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator
 import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
+import org.campagnelab.dl.varanalysis.tools.AbstractTool;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
@@ -44,9 +45,8 @@ import java.util.List;
  * Abatract class to facilitate variations of training protocols.
  * Created by fac2003 on 7/12/16.
  */
-public abstract class SomaticTrainer {
+public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
-    protected TrainingArguments arguments;
 
     protected static TrainingArguments parseArguments(String[] args, String commandName) {
         TrainingArguments arguments = new TrainingArguments();
@@ -60,12 +60,20 @@ public abstract class SomaticTrainer {
             throw e;
 
         }
-        if (arguments.previousModelPath != null) {
-            System.out.println(String.format("Resuming training with %s model parameters from %s %n", arguments.previousModelName, arguments.previousModelPath));
-        }
         return arguments;
     }
+    @Override
+    public void execute() {
+        FeatureMapper featureMapper = null;
+        try {
+            featureMapper = configureFeatureMapper(args().featureMapperClassname, args().isTrio, args().getTrainingSets());
+            execute(featureMapper, args().getTrainingSets(), args().miniBatchSize);
+        } catch (IOException e) {
+            System.err.println("An exception occured. Details may be provided below");
+            e.printStackTrace();
+        }
 
+    }
 
     protected double dropoutRate = 0.5;
     protected LabelMapper labelMapper = new SimpleFeatureCalculator();
@@ -80,11 +88,11 @@ public abstract class SomaticTrainer {
     protected LossFunctions.LossFunction lossFunction;
     protected PerformanceLogger performanceLogger;
 
-    public SomaticTrainer(TrainingArguments arguments) {
-        this.arguments = arguments;
-    }
 
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
+        if (args().previousModelPath != null) {
+            System.out.println(String.format("Resuming training with %s model parameters from %s %n", args().previousModelName, args().previousModelPath));
+        }
         this.featureCalculator = featureCalculator;
         this.numTrainingFiles = trainingDataset.length;
 
@@ -92,10 +100,10 @@ public abstract class SomaticTrainer {
 
         time = new Date().getTime();
         System.out.println("time: " + time);
-        System.out.println("epochs: " + arguments.maxEpochs);
+        System.out.println("epochs: " + args().maxEpochs);
         System.out.println(featureCalculator.getClass().getTypeName());
         directory = "models/" + Long.toString(time);
-        attempt = "batch=" + miniBatchSize + "-learningRate=" + arguments.learningRate + "-time=" + time;
+        attempt = "batch=" + miniBatchSize + "-learningRate=" + args().learningRate + "-time=" + time;
         int generateSamplesEveryNMinibatches = 10;
         FileUtils.forceMkdir(new File(directory));
 
@@ -107,8 +115,8 @@ public abstract class SomaticTrainer {
                     featureCalculator, labelMapper));
         }
         DataSetIterator async = new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper);
-        if (arguments.numTraining != Integer.MAX_VALUE) {
-            async = new FirstNIterator(async, arguments.numTraining);
+        if (args().numTraining != Integer.MAX_VALUE) {
+            async = new FirstNIterator(async, args().numTraining);
         }
         async = decorateIterator(async);
         System.out.println("Estimating scaling parameters:");
@@ -117,9 +125,9 @@ public abstract class SomaticTrainer {
         int numOutputs = async.totalOutcomes();
         numHiddenNodes = numInputs * 5;
         NeuralNetAssembler assembler = getNeuralNetAssembler();
-        assembler.setSeed(arguments.seed);
-        assembler.setLearningRate(arguments.learningRate);
-        assembler.setDropoutRate(arguments.dropoutRate);
+        assembler.setSeed(args().seed);
+        assembler.setLearningRate(args().learningRate);
+        assembler.setDropoutRate(args().dropoutRate);
         assembler.setNumHiddenNodes(numHiddenNodes);
         assembler.setNumInputs(numInputs);
         assembler.setNumOutputs(numOutputs);
@@ -127,9 +135,9 @@ public abstract class SomaticTrainer {
         lossFunction = LossFunctions.LossFunction.MCXENT;
 
         assembler.setLossFunction(lossFunction);
-        if (arguments.regularizationRate != Double.NaN) {
+        if (args().regularizationRate != Double.NaN) {
             assembler.setRegularization(true);
-            assembler.setRegularizationRate(arguments.regularizationRate);
+            assembler.setRegularizationRate(args().regularizationRate);
         }
         //   assembler.setDropoutRate(dropoutRate);
 
@@ -140,14 +148,14 @@ public abstract class SomaticTrainer {
         MultiLayerConfiguration conf = assembler.createNetwork();
         net = new MultiLayerNetwork(conf);
         net.init();
-        if (arguments.previousModelPath != null) {
+        if (args().previousModelPath != null) {
             // Load the parameters of a previously trained model and set them on the new model to continue
             // training where we left it off. Note that models must have the same architecture or setting
             // parameters will fail.
-            ModelLoader loader = new ModelLoader(arguments.previousModelPath);
-            MultiLayerNetwork savedNetwork = loader.loadModel(arguments.previousModelName);
+            ModelLoader loader = new ModelLoader(args().previousModelPath);
+            MultiLayerNetwork savedNetwork = loader.loadModel(args().previousModelName);
             if (savedNetwork == null || savedNetwork.getUpdater() == null || savedNetwork.params() == null) {
-                System.err.println("Unable to load model or updater from " + arguments.previousModelPath);
+                System.err.println("Unable to load model or updater from " + args().previousModelPath);
             } else {
                 net.setUpdater(savedNetwork.getUpdater());
                 net.setParams(savedNetwork.params());
@@ -185,9 +193,9 @@ public abstract class SomaticTrainer {
 
     private NeuralNetAssembler getNeuralNetAssembler() {
         try {
-            return (NeuralNetAssembler) Class.forName(arguments.architectureClassname).newInstance();
+            return (NeuralNetAssembler) Class.forName(args().architectureClassname).newInstance();
         } catch (Exception e) {
-            System.err.println("Unable to instantiate net architecture " + arguments.architectureClassname);
+            System.err.println("Unable to instantiate net architecture " + args().architectureClassname);
             System.exit(1);
         }
         return null;
@@ -253,18 +261,18 @@ public abstract class SomaticTrainer {
 
     public void appendProperties(ModelPropertiesHelper helper) {
         helper.setFeatureCalculator(featureCalculator);
-        helper.setLearningRate(arguments.learningRate);
-        helper.setDropoutRate(arguments.dropoutRate);
+        helper.setLearningRate(args().learningRate);
+        helper.setDropoutRate(args().dropoutRate);
         helper.setNumHiddenNodes(numHiddenNodes);
-        helper.setMiniBatchSize(arguments.miniBatchSize);
+        helper.setMiniBatchSize(args().miniBatchSize);
         // mpHelper.setBestScore(bestScore);
-        helper.setNumEpochs(arguments.maxEpochs);
+        helper.setNumEpochs(args().maxEpochs);
         helper.setNumTrainingSets(numTrainingFiles);
         helper.setTime(time);
-        helper.setSeed(arguments.seed);
+        helper.setSeed(args().seed);
         helper.setLossFunction(lossFunction.name());
-        helper.setEarlyStopCriterion(arguments.stopWhenEpochsWithoutImprovement);
-        helper.setRegularization(arguments.regularizationRate);
+        helper.setEarlyStopCriterion(args().stopWhenEpochsWithoutImprovement);
+        helper.setRegularization(args().regularizationRate);
         helper.setPrecision(precision);
     }
 

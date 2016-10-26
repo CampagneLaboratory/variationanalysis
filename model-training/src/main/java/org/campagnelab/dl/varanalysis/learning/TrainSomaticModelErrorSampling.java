@@ -38,10 +38,6 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModelErrorSampling.class);
     private String validationDatasetFilename = null;
 
-    public TrainSomaticModelErrorSampling(TrainingArguments arguments) {
-        super(arguments);
-        this.validationDatasetFilename=arguments.validationSet;
-    }
 
     /**
      * Error enrichment support.
@@ -49,25 +45,29 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
     private final boolean ERROR_SAMPLING = true;
 
-    public static void main(String[] args) throws IOException {
-        TrainingArguments arguments= parseArguments(args,"TrainSomaticModelErrorSampling");
-        final FeatureMapper featureMapper = configureFeatureMapper(arguments.featureMapperClassname,arguments.isTrio, arguments.getTrainingSets());
-        TrainSomaticModelErrorSampling trainer = new TrainSomaticModelErrorSampling(arguments);
-        trainer.execute(featureMapper, arguments.getTrainingSets(), arguments.miniBatchSize);
+    public static void main(String[] args) {
+
+        TrainSomaticModelErrorSampling tool = new TrainSomaticModelErrorSampling();
+        tool.parseArguments(args, "TrainSomaticModelErrorSampling", tool.createArguments());
+        if (tool.args().trainingSets.size() == 0) {
+            System.out.println("Please add at least one training set to the args().");
+            return;
+        }
+        tool.execute();
     }
 
     SamplingIterator samplingIterator = null;
 
     @Override
     protected DataSetIterator decorateIterator(DataSetIterator iterator) {
-        samplingIterator = new SamplingIterator(iterator, arguments.seed);
+        samplingIterator = new SamplingIterator(iterator, args().seed);
         return samplingIterator;
     }
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
 
-        validationDatasetFilename = arguments.validationSet;
+        validationDatasetFilename = args().validationSet;
         //check validation file for error
 
         if (!(new File(validationDatasetFilename).exists())){
@@ -79,7 +79,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         performanceLogger.setCondition(EXPERIMENTAL_CONDITION);
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
         pgEpoch.itemsName = "epoch";
-        pgEpoch.expectedUpdates = arguments.maxEpochs;
+        pgEpoch.expectedUpdates = args().maxEpochs;
         pgEpoch.displayLocalSpeed = true;
         pgEpoch.start();
         bestScore = Double.MAX_VALUE;
@@ -91,13 +91,13 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         double bestAUC = 0.5;
         double finalAUC = 0.5;
         long numExamplesUsed = 0;
-        perf=new MeasurePerformance(arguments.numValidation,arguments.aucClipMaxObservations,validationDatasetFilename);
+        perf=new MeasurePerformance(args().numValidation,args().aucClipMaxObservations,validationDatasetFilename);
 
-        for (int epoch = 0; epoch < arguments.maxEpochs; epoch++) {
+        for (int epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
             pg.displayLocalSpeed = true;
-            pg.expectedUpdates = async.totalExamples() / arguments.miniBatchSize; // one iteration processes miniBatchIterator elements.
+            pg.expectedUpdates = async.totalExamples() / args().miniBatchSize; // one iteration processes miniBatchIterator elements.
             pg.start();
             int maxProcessPerEpoch = Integer.MAX_VALUE;
             while (async.hasNext()) {
@@ -137,9 +137,9 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
                 performanceLogger.log("bestAUC", numExamplesUsed, epoch, Double.NaN, bestAUC);
             } else {
                 numEpochSinceImprovement++;
-                if (numEpochSinceImprovement > arguments.stopWhenEpochsWithoutImprovement) {
+                if (numEpochSinceImprovement > args().stopWhenEpochsWithoutImprovement) {
                     System.out.printf("AUC did not improve after %d epoch. Early stop.",
-                            arguments.stopWhenEpochsWithoutImprovement);
+                            args().stopWhenEpochsWithoutImprovement);
                     finalAUC = auc;
                     break;
                 }
@@ -154,7 +154,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         pgEpoch.stop();
         saver.saveModel(net, "final", finalAUC);
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-                "not early stopping", scoreMap, arguments.maxEpochs, bestScore, arguments.maxEpochs, net);
+                "not early stopping", scoreMap, args().maxEpochs, bestScore, args().maxEpochs, net);
     }
 
     /**
@@ -209,4 +209,11 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
 
         return auc;
     }
+
+    @Override
+    public TrainingArguments createArguments() {
+        return new TrainingArguments();
+    }
+
+
 }

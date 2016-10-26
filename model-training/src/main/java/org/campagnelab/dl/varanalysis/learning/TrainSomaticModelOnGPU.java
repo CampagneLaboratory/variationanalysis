@@ -34,22 +34,16 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
     public static final int MIN_ITERATION_BETWEEN_BEST_MODEL = 1000;
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModelOnGPU.class);
 
-    public TrainSomaticModelOnGPU(TrainingArguments arguments) {
-        super(arguments);
-    }
-
     private String validationDatasetFilename = null;
 
 
-    public static void main(String[] args) throws IOException {
-
-
-        System.err.println("Allow Multi-GPU");
-        TrainingArguments arguments = parseArguments(args, "TrainSomaticModelOnGPU");
-        if ("FP16".equals(arguments.precision)) {
-            DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+    @Override
+    public void execute() {
+        if (args().trainingSets.size() == 0) {
+            System.out.println("Please add at least one training set to the args().");
+            return;
         }
-      /*  CudaEnvironment.getInstance().getConfiguration()
+  /*  CudaEnvironment.getInstance().getConfiguration()
                 .enableDebug(false)
                 .allowMultiGPU(true)
                 .setMaximumGridSize(512)
@@ -60,13 +54,26 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
                 .setMaximumHostCache(8L * 1024 * 1024 * 1024L)
                 // cross-device access is used for faster model averaging over pcie
                 .allowCrossDeviceAccess(true);*/
-        TrainSomaticModelOnGPU trainer = new TrainSomaticModelOnGPU(arguments);
-        if ("FP16".equals(arguments.precision)) {
-            trainer.precision = Precision.FP16;
+        if ("FP16".equals(args().precision)) {
+            precision = Precision.FP16;
             System.out.println("Parameter precision set to FP16.");
         }
-        final FeatureMapper featureMapper = configureFeatureMapper(arguments.featureMapperClassname, arguments.isTrio, arguments.getTrainingSets());
-        trainer.execute(featureMapper, arguments.getTrainingSets(), arguments.miniBatchSize);
+        super.execute();
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        TrainSomaticModelOnGPU tool = new TrainSomaticModelOnGPU();
+        tool.parseArguments(args, "TrainSomaticModelOnGPU", tool.createArguments());
+
+        if ("FP16".equals(tool.args().precision)) {
+            DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+        }
+
+        tool.execute();
+        System.err.println("Allow Multi-GPU");
+
+
     }
 
 
@@ -77,15 +84,15 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
     @Override
     protected EarlyStoppingResult<MultiLayerNetwork> train(MultiLayerConfiguration conf, DataSetIterator async) throws IOException {
-        validationDatasetFilename = arguments.validationSet;
+        validationDatasetFilename = args().validationSet;
         //check validation file for error
         if (!(new File(validationDatasetFilename).exists())) {
             throw new IOException("Validation file not found! " + validationDatasetFilename);
         }
-        perf = new MeasurePerformance(arguments.numValidation, validationDatasetFilename);
+        perf = new MeasurePerformance(args().numValidation, validationDatasetFilename);
 
         ParallelWrapper wrapper = new ParallelWrapper.Builder(net)
-                .prefetchBuffer(arguments.miniBatchSize)
+                .prefetchBuffer(args().miniBatchSize)
                 .workers(4)
                 .averagingFrequency(1)
                 .reportScoreAfterAveraging(false)
@@ -98,7 +105,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
         pgEpoch.displayLocalSpeed = true;
         pgEpoch.itemsName = "epoch";
-        pgEpoch.expectedUpdates = arguments.maxEpochs;
+        pgEpoch.expectedUpdates = args().maxEpochs;
         pgEpoch.start();
         bestScore = Double.MAX_VALUE;
         ModelSaver saver = new ModelSaver(directory);
@@ -108,7 +115,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         double bestAUC = 0;
         int notImproved = 0;
         int iter = 0;
-        for (int epoch = 0; epoch < arguments.maxEpochs; epoch++) {
+        for (int epoch = 0; epoch < args().maxEpochs; epoch++) {
 
             wrapper.fit(async);
             pgEpoch.update();
@@ -125,7 +132,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
             writeProperties(this);
             writeBestScoreFile();
-            if (epoch % arguments.validateEvery == 0) {
+            if (epoch % args().validateEvery == 0) {
                 double auc = estimateTestSetPerf(epoch, iter);
                 performanceLogger.log("epochs", numExamplesUsed, epoch, Double.NaN, auc);
                 if (auc > bestAUC) {
@@ -137,7 +144,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
                 } else {
                     notImproved++;
                 }
-                if (notImproved > arguments.stopWhenEpochsWithoutImprovement) {
+                if (notImproved > args().stopWhenEpochsWithoutImprovement) {
                     // we have not improved after earlyStopCondition epoch, time to stop.
                     break;
                 }
@@ -149,10 +156,10 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         }
 
         pgEpoch.stop();
-   //TODO enable with 0.6.0+
+        //TODO enable with 0.6.0+
         //     wrapper.shutdown();
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-                "not early stopping", scoreMap, arguments.maxEpochs, bestScore, arguments.maxEpochs, net);
+                "not early stopping", scoreMap, args().maxEpochs, bestScore, args().maxEpochs, net);
     }
 
     private void writeBestAUC(double bestAUC) {
@@ -175,5 +182,10 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         System.out.printf("Epoch %d Iteration %d AUC=%f %n", epoch, iter, auc);
 
         return auc;
+    }
+
+    @Override
+    public TrainingArguments createArguments() {
+        return new TrainingArguments();
     }
 }
