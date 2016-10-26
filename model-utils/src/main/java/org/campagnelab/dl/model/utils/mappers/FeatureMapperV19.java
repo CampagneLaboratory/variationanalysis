@@ -28,13 +28,13 @@ public class FeatureMapperV19 extends NamingConcatFeatureMapper implements Confi
                 new MagnitudeFeatures2(),
                 new DensityMapper("numVariationsInRead", 10, sbiProperties, baseInformationOrBuilder ->
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getNumVariationsInReadsList)),
-                new DensityMapper("mappingQualityForward", 25, sbiProperties, baseInformationOrBuilder ->
+                new DensityMapper("readMappingQuality.forward", 25, sbiProperties, baseInformationOrBuilder ->
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getReadMappingQualityForwardStrandList)),
-                new DensityMapper("mappingQualityReverse", 25, sbiProperties, baseInformationOrBuilder ->
+                new DensityMapper("readMappingQuality.reverse", 25, sbiProperties, baseInformationOrBuilder ->
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getReadMappingQualityReverseStrandList)),
-                new DensityMapper("baseQualityForward", 10, sbiProperties, baseInformationOrBuilder ->
+                new DensityMapper("baseQuality.forward", 10, sbiProperties, baseInformationOrBuilder ->
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresForwardStrandList)),
-                new DensityMapper("baseQualityReverse", 10, sbiProperties, baseInformationOrBuilder ->
+                new DensityMapper("baseQuality.reverse", 10, sbiProperties, baseInformationOrBuilder ->
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresReverseStrandList)));
 
     }
