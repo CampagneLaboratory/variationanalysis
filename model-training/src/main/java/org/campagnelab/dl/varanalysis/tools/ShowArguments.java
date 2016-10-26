@@ -13,10 +13,17 @@ public class ShowArguments implements ToolArguments {
     @Parameter(required = true, names = {"-i", "--dataset"}, description = "Path to the dataset to show.")
     public String datasetFilename;
 
+    @Parameter(required = false, names = {"-r", "--report"}, description = "Type of report, one of POSITIONS, PROTOBUFF")
+    ShowReportTypes reportType;
+
     @Parameter(names = {"-n", "--num-examples"}, description = "Number of examples to show.")
     public int showN = Integer.MAX_VALUE;
 
     @Parameter(names = {"-p", "--predictions"}, description = "Prediction file with indices to show. Set to - to read from standard input.")
-    public String predictionFilter=null;
+    public String predictionFilter = null;
 
+    public enum ShowReportTypes {
+        PROTOBUFF,
+        POSITIONS
+    }
 }
