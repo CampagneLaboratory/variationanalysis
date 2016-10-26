@@ -28,8 +28,8 @@ public class DensityMapper implements FeatureMapper, EfficientFeatureMapper, Fea
         if (!propertiesPresent(sbiProperties, "stats." + name)) {
             throw new UnsupportedOperationException("The sbip file does not contain the statistics for " +name+  " (stats."+name+"+.min and stats."+name+".max)");
         }
-        this.minValue = getMin(sbiProperties, "stats.numVariationsInRead");
-        this.maxValue = getMax(sbiProperties, "stats.numVariationsInRead");
+        this.minValue = getMin(sbiProperties, "stats." + name);
+        this.maxValue = getMax(sbiProperties, "stats." + name);
 
 
         this.name = name;
