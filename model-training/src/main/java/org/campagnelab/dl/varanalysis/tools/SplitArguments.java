@@ -1,7 +1,8 @@
-package org.campagnelab.dl.varanalysis.intermediaries;
+package org.campagnelab.dl.varanalysis.tools;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import org.campagnelab.dl.varanalysis.tools.ToolArguments;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  */
 @Parameters(commandDescription = "Split a file into several components.")
 
-public class SplitFileArguments {
+public class SplitArguments implements ToolArguments {
     @Parameter(required = true, names = {"-i", "--input-file"}, description = "Input file in .bsi/.bsip format.")
     public String inputFile;
 
