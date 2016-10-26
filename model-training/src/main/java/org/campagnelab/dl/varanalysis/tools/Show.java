@@ -59,12 +59,22 @@ public class Show extends AbstractTool<ShowArguments> {
         int index = 0;
         int selectedIndex = -1;
 
-        Function<BaseInformationRecords.BaseInformation, String> converter = showPositions;
+        Function<BaseInformationRecords.BaseInformation, String> converter;
+        switch (args().reportType) {
+            case PROTOBUFF:
+                converter = showProtobuff;
+                break;
+            case POSITIONS:
+            default:
+                converter = showPositions;
+                break;
+
+        }
         while (reader.hasNext()) {
             selectedIndex = getNextIndex(predictionLine, selectedIndex, index);
             BaseInformationRecords.BaseInformation next = reader.next();
             if (selectedIndex == index) {
-                System.out.println(Integer.toString(index)+"\t"+converter.apply(next));
+                System.out.println(Integer.toString(index) + "\t" + converter.apply(next));
             }
             index += 1;
             if (index > args().showN) {
