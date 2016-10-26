@@ -14,7 +14,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Fabien Campagne
  */
 
-public class FractionDifferences4 extends AbstractFeatureMapper implements FeatureMapper {
+public class FractionDifferences4 extends AbstractFeatureMapper implements FeatureMapper, EfficientFeatureMapper {
 
 
     //only implemented for records with 2 samples exactly
@@ -56,6 +56,13 @@ public class FractionDifferences4 extends AbstractFeatureMapper implements Featu
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         float producedFeat = produceFeatureInternal(record, featureIndex);
         return normalize(producedFeat, FRACTION_NORM);
+    }
+
+    @Override
+    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
+        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
+            inputs[featureIndex+offset] = produceFeature(record, featureIndex);
+        }
     }
 
     @Override

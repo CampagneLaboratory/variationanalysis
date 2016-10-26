@@ -11,7 +11,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Remi Torracinta, rct66
  */
 
-public class IndelFeatures extends AbstractFeatureMapper implements FeatureMapper {
+public class IndelFeatures extends AbstractFeatureMapper implements FeatureMapper, EfficientFeatureMapper {
 
     public int numberOfFeatures() {
         // we need features for the normal sample and for the tumor sample:
@@ -35,6 +35,13 @@ public class IndelFeatures extends AbstractFeatureMapper implements FeatureMappe
 
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         return produceFeatureInternal(record, featureIndex);
+    }
+
+    @Override
+    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
+        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
+            inputs[featureIndex+offset] = produceFeature(record, featureIndex);
+        }
     }
 
     @Override
