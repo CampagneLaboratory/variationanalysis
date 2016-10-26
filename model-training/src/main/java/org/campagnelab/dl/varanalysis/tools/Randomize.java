@@ -24,13 +24,13 @@ import java.util.Random;
  *
  * @author rct66
  */
-public class Randomizer extends AbstractTool<RandomizerArguments> {
+public class Randomize extends AbstractTool<RandomizerArguments> {
 
-    static private Logger LOG = LoggerFactory.getLogger(Randomizer.class);
+    static private Logger LOG = LoggerFactory.getLogger(Randomize.class);
 
     public static void main(String[] args) {
 
-        Randomizer tool = new Randomizer();
+        Randomize tool = new Randomize();
         tool.parseArguments(args, "Randomizer2", tool.createArguments());
         tool.execute();
     }
