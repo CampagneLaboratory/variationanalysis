@@ -26,7 +26,7 @@ public class DensityMapper implements FeatureMapper, EfficientFeatureMapper, Fea
                          Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues) {
 
         if (!propertiesPresent(sbiProperties, "stats." + name)) {
-            throw new UnsupportedOperationException("The sbip file does not contain the statistics for " +name+  " (stats."+name+"+.min and stats."+name+".max)");
+            throw new UnsupportedOperationException("The sbip file does not contain the statistics for " +name+  " (stats."+name+".min and stats."+name+".max)");
         }
         this.minValue = getMin(sbiProperties, "stats." + name);
         this.maxValue = getMax(sbiProperties, "stats." + name);
@@ -106,7 +106,7 @@ public class DensityMapper implements FeatureMapper, EfficientFeatureMapper, Fea
 
 
     private boolean propertiesPresent(Properties sbiProperties, String s) {
-        return sbiProperties.containsKey(s + ".min") || !sbiProperties.containsKey(s + ".max");
+        return !sbiProperties.containsKey(s + ".min") || !sbiProperties.containsKey(s + ".max");
     }
 
     private float getMin(Properties sbiProperties, String propertyName) {
