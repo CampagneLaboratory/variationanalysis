@@ -1,8 +1,6 @@
-package org.campagnelab.dl.varanalysis.intermediaries;
+package org.campagnelab.dl.varanalysis.tools;
 
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterException;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
@@ -26,46 +24,27 @@ import java.util.Random;
  *
  * @author rct66
  */
-public class Randomizer2 extends Intermediary {
+public class Randomize extends AbstractTool<RandomizerArguments> {
 
-    static private Logger LOG = LoggerFactory.getLogger(Randomizer2.class);
-    private List<RecordReader> sources = new ObjectArrayList<RecordReader>();
-    private Randomizer2Arguments arguments;
+    static private Logger LOG = LoggerFactory.getLogger(Randomize.class);
 
-    public static void main(String[] args) throws IOException {
-        Randomizer2Arguments arguments = parseArguments(args, "Randomizer2");
+    public static void main(String[] args) {
 
-        //randomize
-        Randomizer2 r = new Randomizer2();
-        r.arguments = arguments;
-        r.setSourceFiles(arguments.inputFiles.toArray(new String[0]));
-        r.executeOver(null, arguments.outputFile);
-
+        Randomize tool = new Randomize();
+        tool.parseArguments(args, "Randomizer2", tool.createArguments());
+        tool.execute();
     }
 
-    protected static Randomizer2Arguments parseArguments(String[] args, String commandName) {
-        Randomizer2Arguments arguments = new Randomizer2Arguments();
-        JCommander commander = new JCommander(arguments);
-        commander.setProgramName(commandName);
-        try {
-            commander.parse(args);
-        } catch (ParameterException e) {
 
-            commander.usage();
-            throw e;
-
-        }
-        return arguments;
-    }
-
-    public void execute(String inPath, String outPath, int blockSize, int pageSize) throws IOException {
-        String workingDir = new File(outPath).getParent();
+    @Override
+    public void execute() {
+        String workingDir = new File(args().outputFile).getParent();
         if (workingDir == null) {
             workingDir = ".";
         }
         try {
             long totalRecords = 0;
-            for (String filename : sourceFilenames) {
+            for (String filename : args().inputFiles) {
                 RecordReader source = new RecordReader(filename);
                 totalRecords += source.getTotalRecords();
                 source.close();
@@ -77,7 +56,7 @@ public class Randomizer2 extends Intermediary {
             for (int i = 0; i < numBuckets; i++) {
                 bucketWriters.add(new RecordWriter(workingDir + "/tmp/bucket" + i, arguments.chunkSizePerWriter));
             }
-            RecordWriter allWriter = new RecordWriter(outPath);
+            RecordWriter allWriter = new RecordWriter(args().outputFile);
             Random rand = new XoRoShiRo128PlusRandom();
 
             //set up logger
@@ -89,7 +68,7 @@ public class Randomizer2 extends Intermediary {
 
             //fill buckets randomly
             System.out.println("Filling " + numBuckets + " temp buckets randomly");
-            for (String filename : sourceFilenames) {
+            for (String filename : args().inputFiles) {
                 RecordReader source = new RecordReader(filename);
                 for (BaseInformationRecords.BaseInformation rec : source) {
                     int bucket = rand.nextInt(numBuckets);
@@ -143,10 +122,13 @@ public class Randomizer2 extends Intermediary {
         }
     }
 
-    String[] sourceFilenames;
 
-    void setSourceFiles(String[] args) throws IOException {
-        this.sourceFilenames = args;
+
+    @Override
+    public RandomizerArguments createArguments() {
+        return new RandomizerArguments();
     }
+
+
 
 }
