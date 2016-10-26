@@ -1,12 +1,11 @@
 package org.campagnelab.dl.model.utils.mappers;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.function.Function;
 
 /**
@@ -16,20 +15,28 @@ import java.util.function.Function;
 public class DensityMapper implements FeatureMapper, EfficientFeatureMapper, FeatureNameMapper {
     private final Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues;
     private final float minValue;
-    private final float binWidh;
+    private final float maxValue;
+    private final float binWidth;
     private final String name;
     int numBins = 10;
     float[] bins;
     private int[] indices;
 
-    public DensityMapper(String name, int numBins, float minValue, float maxValue,
+    public DensityMapper(String name, int numBins, Properties sbiProperties,
                          Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues) {
+
+        if (!propertiesPresent(sbiProperties, "stats." + name)) {
+            throw new UnsupportedOperationException("The sbip file does not contain the statistics for " +name+  " (stats."+name+"+.min and stats."+name+".max)");
+        }
+        this.minValue = getMin(sbiProperties, "stats.numVariationsInRead");
+        this.maxValue = getMax(sbiProperties, "stats.numVariationsInRead");
+
+
         this.name = name;
         this.numBins = numBins;
         bins = new float[numBins];
         this.recordToValues = recordToValues;
-        this.minValue = minValue;
-        this.binWidh = (maxValue - minValue) / numBins;
+        this.binWidth = (maxValue - minValue) / numBins;
     }
 
 
@@ -44,7 +51,7 @@ public class DensityMapper implements FeatureMapper, EfficientFeatureMapper, Fea
         List<BaseInformationRecords.NumberWithFrequency> listOfValues = recordToValues.apply(record);
         float numElements = 0;
         for (BaseInformationRecords.NumberWithFrequency n : listOfValues) {
-            int featureIndex = (int) ((n.getNumber() - minValue) / binWidh);
+            int featureIndex = (int) ((n.getNumber() - minValue) / binWidth);
             if (featureIndex < 0 || featureIndex >= numBins) {
                 //ignore points outside of min-max
             } else {
@@ -88,14 +95,26 @@ public class DensityMapper implements FeatureMapper, EfficientFeatureMapper, Fea
         float binMax = 0;
         for (int i = 0; i < numBins; i++) {
             if (i < featureIndex) {
-                binMin += binWidh;
+                binMin += binWidth;
             }
             if (i <= featureIndex) {
-                binMax += binWidh;
+                binMax += binWidth;
             }
         }
         return String.format("density_%s_%d_%d", name, binMin, binMax);
     }
 
+
+    private boolean propertiesPresent(Properties sbiProperties, String s) {
+        return sbiProperties.containsKey(s + ".min") || !sbiProperties.containsKey(s + ".max");
+    }
+
+    private float getMin(Properties sbiProperties, String propertyName) {
+        return Float.parseFloat(sbiProperties.getProperty(propertyName + ".min"));
+    }
+
+    private float getMax(Properties sbiProperties, String propertyName) {
+        return Float.parseFloat(sbiProperties.getProperty(propertyName + ".max"));
+    }
 
 }
