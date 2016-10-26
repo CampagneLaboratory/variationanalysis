@@ -1,7 +1,8 @@
-package org.campagnelab.dl.varanalysis.intermediaries;
+package org.campagnelab.dl.varanalysis.tools;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import org.campagnelab.dl.varanalysis.tools.ToolArguments;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
  */
 @Parameters(commandDescription = "Randomize one or several sbi/sbip files.")
 
-public class Randomizer2Arguments {
+public class RandomizerArguments implements ToolArguments {
     @Parameter(required = true, variableArity = true, names = {"-i", "--input-files"}, description = "Input files in .bsi/.bsip format.")
     public List<String> inputFiles = new ArrayList<>();
 
