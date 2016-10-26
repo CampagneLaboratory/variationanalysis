@@ -61,7 +61,7 @@ java -cp model-training-1.0.2-bin.jar org.campagnelab.dl.varanalysis.intermediar
 ```
 * Split the .sbi file into training (80% of training examples), validation (10%), and test (10%) datasets:
 ```sh
-java -cp model-training-1.0.2-bin.jar org.campagnelab.dl.varanalysis.intermediaries.SplitFile \
+java -cp model-training-1.0.2-bin.jar org.campagnelab.dl.varanalysis.tools.Split \
     -i mutset.sbi -o "set_" -s train -f 0.8   -s val -f 0.1  -s test -f 0.1
 ```
 The command produces three datasets, called set_train.sbi, set_val.sbi and set_test.sbi.
