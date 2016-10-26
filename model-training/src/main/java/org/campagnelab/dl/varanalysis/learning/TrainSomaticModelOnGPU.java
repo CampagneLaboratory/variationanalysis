@@ -149,7 +149,8 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         }
 
         pgEpoch.stop();
-        wrapper.shutdown();
+   //TODO enable with 0.6.0+
+        //     wrapper.shutdown();
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, arguments.maxEpochs, bestScore, arguments.maxEpochs, net);
     }

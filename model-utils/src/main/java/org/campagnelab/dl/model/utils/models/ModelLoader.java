@@ -121,7 +121,7 @@ public class ModelLoader {
     }
 
     private MultiLayerNetwork loadNativeModel(String path) throws IOException {
-        MultiLayerNetwork net = ModelSerializer.restoreMultiLayerNetwork(path,false);
+        MultiLayerNetwork net = ModelSerializer.restoreMultiLayerNetwork(path);
         return net;
     }
 

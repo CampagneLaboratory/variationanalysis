@@ -217,7 +217,7 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
         return true;
     }
 
-    @Override
+
     public boolean asyncSupported() {
         return false;
     }
