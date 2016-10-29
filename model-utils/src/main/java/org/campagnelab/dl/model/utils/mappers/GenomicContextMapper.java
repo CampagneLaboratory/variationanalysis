@@ -14,11 +14,11 @@ import java.util.List;
 
 
 public class GenomicContextMapper implements FeatureMapper, EfficientFeatureMapper {
-    private OneHotBaseMapper[] refContext;
+
     private ConcatFeatureMapper delegate;
 
     public GenomicContextMapper(int contextSize) {
-        refContext = new OneHotBaseMapper[contextSize];
+        OneHotBaseMapper[] refContext = new OneHotBaseMapper[contextSize];
         for (int i = 0; i < contextSize; i++){
             refContext[i] = new OneHotBaseMapper(i);
         }
@@ -33,6 +33,7 @@ public class GenomicContextMapper implements FeatureMapper, EfficientFeatureMapp
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
+        delegate.prepareToNormalize(record,indexOfRecord);
     }
 
     int[] indices = new int[]{0, 0};

@@ -1,15 +1,9 @@
 package org.campagnelab.dl.model.utils.mappers;
 
-import org.bytedeco.javacpp.FloatPointer;
-import org.bytedeco.javacpp.Pointer;
-import org.bytedeco.javacpp.indexer.FloatIndexer;
 import org.campagnelab.dl.model.utils.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.model.utils.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
-
-import java.util.Arrays;
 
 /**
  * This is a simple feature mapper. It is designed using information currently available in the Parquet file.
@@ -37,7 +31,7 @@ import java.util.Arrays;
  * @author Fabien Campagne
  */
 
-public class SimpleFeatureCalculator extends AbstractFeatureMapper implements FeatureCalculator,EfficientFeatureMapper , EfficientLabelMapper{
+public class SimpleFeatureCalculator extends AbstractFeatureMapper implements FeatureCalculator, EfficientFeatureMapper, EfficientLabelMapper {
 
 
     public SimpleFeatureCalculator(boolean sort) {
@@ -48,7 +42,7 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
         this.sort = true;
     }
 
-
+    boolean normalized = false;
 
 
     @Override
@@ -68,6 +62,7 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
             sumCounts += produceFeatureInternal(record, featureIndex);
         }
+        normalized=true;
     }
 
     @Override
@@ -76,13 +71,13 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
     }
 
 
-
     int[] indices = new int[]{0, 0};
 
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
+        assert normalized:"prepareToNormalize must be called before mapFeatures.";
         indices[0] = indexOfRecord;
-        prepareToNormalize(record, indexOfRecord);
+
         final float[] buffer = getBuffer();
         mapFeatures(record, buffer, 0, indexOfRecord);
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
@@ -93,10 +88,9 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
 
 
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
-        prepareToNormalize(record, indexOfRecord);
+        assert normalized:"prepareToNormalize must be called before mapFeatures.";
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
-
-            inputs[featureIndex+offset] = produceFeature(record, featureIndex);
+            inputs[featureIndex + offset] = produceFeature(record, featureIndex);
         }
     }
 
@@ -136,13 +130,15 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper implements Fe
             labels.putScalar(indices, produceLabel(record, labelIndex));
         }
     }
+
     @Override
     public void mapLabels(BaseInformationRecords.BaseInformationOrBuilder record, float[] labels, int offset, int indexOfRecord) {
 
         for (int labelIndex = 0; labelIndex < numberOfLabels(); labelIndex++) {
-            labels[labelIndex+offset]= produceLabel(record, labelIndex);
+            labels[labelIndex + offset] = produceLabel(record, labelIndex);
         }
     }
+
     private float normalize(float value, int normalizationFactor) {
         if (normalizationFactor == 0) {
             return 0;

@@ -32,7 +32,8 @@ public class Features {
         int[] indices = {dimension, 0};
         for (int i = 0; i < size; i++) {
             indices[1] = i;
-            setFeatureValue(inputs.getFloat(indices), i);
+            float value = inputs.getFloat(indices);
+            setFeatureValue(value, i);
         }
     }
 

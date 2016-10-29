@@ -1,6 +1,9 @@
 package org.campagnelab.dl.varanalysis.learning.mappers;
 
+import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV2;
+import org.campagnelab.dl.model.utils.mappers.FractionDifferences4;
+import org.campagnelab.dl.model.utils.mappers.IndelFeatures;
 import org.campagnelab.dl.varanalysis.learning.features.Features;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
@@ -28,6 +31,7 @@ public class FeatureCalculatorTest {
             features.setFeatureValue(v2.produceFeature(record, i), i);
         }
         INDArray inputs = Nd4j.zeros(1, v2.numberOfFeatures());
+        v2.prepareToNormalize(record,0);
         v2.mapFeatures(record, inputs, 0);
         Features featuresFromArray=new Features(inputs,1);
         assertEquals(features, featuresFromArray);

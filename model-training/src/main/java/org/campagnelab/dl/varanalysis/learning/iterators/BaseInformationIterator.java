@@ -100,6 +100,7 @@ public class BaseInformationIterator implements DataSetIterator {
 
             // fill in features and labels for a given record i:
             BaseInformationRecords.BaseInformationOrBuilder record = nextRecord();
+            featureMapper.prepareToNormalize(record, i);
             featureMapper.mapFeatures(record, inputs, i);
             labelMapper.mapLabels(record, labels, i);
 

@@ -37,6 +37,7 @@ public class FeatureMapperV19 extends NamingConcatFeatureMapper implements Confi
                 new DensityMapper("baseQuality.reverse", 10, sbiProperties, baseInformationOrBuilder ->
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresReverseStrandList)));
 
+
     }
 
 

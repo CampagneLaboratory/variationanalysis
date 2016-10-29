@@ -107,6 +107,7 @@ public abstract class AbstractPredictMutations {
 
     protected void writeRecordResult(MultiLayerNetwork model, MultiLayerNetwork calibrationModel, PrintWriter results, FeatureMapper featureMapper, ProgressLogger pgReadWrite, BaseInformationRecords.BaseInformation record, AreaUnderTheROCCurve aucLossCalculator, CalcCalibrator calc, boolean isTrio) {
         INDArray testFeatures = Nd4j.zeros(1, featureMapper.numberOfFeatures());
+        featureMapper.prepareToNormalize(record,0);
         featureMapper.mapFeatures(record, testFeatures, 0);
         String features = featuresToString(record,longReport);
         //boolean
