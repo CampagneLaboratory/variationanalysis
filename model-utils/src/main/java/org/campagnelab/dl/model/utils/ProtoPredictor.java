@@ -66,6 +66,7 @@ public class ProtoPredictor {
 
     public Prediction mutPrediction(BaseInformationRecords.BaseInformation record) {
         INDArray testFeatures = Nd4j.zeros(1, mapper.numberOfFeatures());
+        mapper.prepareToNormalize(record,0);
         mapper.mapFeatures(record, testFeatures, 0);
         INDArray testPredicted = model.output(testFeatures, false);
         float[] probabilities = testPredicted.getRow(0).data().asFloat();

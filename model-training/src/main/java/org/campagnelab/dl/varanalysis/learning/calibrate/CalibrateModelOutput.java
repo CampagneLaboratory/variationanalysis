@@ -218,6 +218,7 @@ public class CalibrateModelOutput {
 
     private FloatArrayList getModelInternalActivations(MultiLayerNetwork model, FeatureMapper modelFeatureMapper, BaseInformationRecords.BaseInformation record, int indexOfNewRecordInMinibatch) {
         INDArray inputFeatures = Nd4j.zeros(1, modelFeatureMapper.numberOfFeatures());
+        modelFeatureMapper.prepareToNormalize(record,0);
         modelFeatureMapper.mapFeatures(record, inputFeatures, 0);
 
         FloatArrayList floats = new FloatArrayList();

@@ -124,6 +124,7 @@ public class ConcatFeatureMapperTest {
         };
         ConcatFeatureMapper concat = new ConcatFeatureMapper(mapper1, mapper2);
         INDArray inputs = Nd4j.zeros(1, concat.numberOfFeatures());
+        concat.prepareToNormalize(null,0);
         concat.mapFeatures(null, inputs, 0);
 
         assertEquals(5 + 4, concat.numberOfFeatures());

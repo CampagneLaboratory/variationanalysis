@@ -1,8 +1,6 @@
 package org.campagnelab.dl.model.utils.mappers;
 
-import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Arrays;
@@ -15,7 +13,7 @@ public class ConcatFeatureMapper implements FeatureMapper, EfficientFeatureMappe
     FeatureMapper mappers[];
     int numFeatures = 0;
     int[] offsets;
-
+    boolean normalizedCalled;
 
     public ConcatFeatureMapper(FeatureMapper... featureMappers) {
         this.mappers = featureMappers;
@@ -33,8 +31,6 @@ public class ConcatFeatureMapper implements FeatureMapper, EfficientFeatureMappe
     }
 
 
-
-
     @Override
     public int numberOfFeatures() {
 
@@ -46,17 +42,18 @@ public class ConcatFeatureMapper implements FeatureMapper, EfficientFeatureMappe
         for (FeatureMapper calculator : mappers) {
             calculator.prepareToNormalize(record, indexOfRecord);
         }
+        normalizedCalled=true;
     }
 
 
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
+        assert normalizedCalled :"prepareToNormalize must be called before mapFeatures.";
         int offset = 0;
         int[] indicesOuter = {0, 0};
         for (FeatureMapper delegate : mappers) {
 
             final int delNumFeatures = delegate.numberOfFeatures();
-            delegate.prepareToNormalize(record, indexOfRecord);
             for (int j = 0; j < delNumFeatures; j++) {
                 indicesOuter[0] = indexOfRecord;
                 indicesOuter[1] = j + offset;
@@ -77,12 +74,12 @@ public class ConcatFeatureMapper implements FeatureMapper, EfficientFeatureMappe
 
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
+        assert normalizedCalled :"prepareToNormalize must be called before mapFeatures.";
 
         for (FeatureMapper delegate : mappers) {
 
             final int delNumFeatures = delegate.numberOfFeatures();
-            delegate.prepareToNormalize(record, indexOfRecord);
-            for (int j = 0; j < delNumFeatures; j++) {
+             for (int j = 0; j < delNumFeatures; j++) {
 
                 inputs[j + offset] = delegate.produceFeature(record, j);
             }
