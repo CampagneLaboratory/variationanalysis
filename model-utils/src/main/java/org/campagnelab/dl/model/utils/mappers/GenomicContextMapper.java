@@ -1,6 +1,9 @@
 package org.campagnelab.dl.model.utils.mappers;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.campagnelab.dl.model.utils.ProtoPredictor;
+import org.campagnelab.dl.model.utils.genotypes.BaseGenotypeCountFactory;
+import org.campagnelab.dl.model.utils.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -13,7 +16,7 @@ import java.util.List;
 
 
 
-public class GenomicContextMapper implements FeatureMapper, EfficientFeatureMapper {
+public class GenomicContextMapper extends AbstractFeatureMapper implements FeatureMapper, EfficientFeatureMapper {
     private OneHotBaseMapper[] refContext;
     private ConcatFeatureMapper delegate;
 
@@ -53,4 +56,23 @@ public class GenomicContextMapper implements FeatureMapper, EfficientFeatureMapp
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         return delegate.produceFeature(record, featureIndex);
     }
+
+    @Override
+    protected void initializeCount(BaseInformationRecords.CountInfo sampleCounts, GenotypeCount count) {
+        ReadIndexWithCounts myCounts = (ReadIndexWithCounts) count;
+        myCounts.set(ProtoPredictor.expandFreq(sampleCounts.getReadIndicesForwardStrandList()),
+                ProtoPredictor.expandFreq(sampleCounts.getReadIndicesReverseStrandList()));
+    }
+
+    @Override
+    protected GenotypeCountFactory getGenotypeCountFactory() {
+
+        return new BaseGenotypeCountFactory() {
+            @Override
+            public GenotypeCount create() {
+                return new ReadIndexWithCounts();
+            }
+        };
+    }
+
 }

@@ -23,6 +23,7 @@ public class FeatureMapperV19 extends NamingConcatFeatureMapper implements Confi
 
         delegate = new NamingConcatFeatureMapper(new SimpleFeatureCalculator(true),
                 new IndelFeatures(),
+                new GenomicContextMapper(21),
                 new ReadIndexFeaturesFix(),
                 new FractionDifferences4(),
                 new MagnitudeFeatures2(),
