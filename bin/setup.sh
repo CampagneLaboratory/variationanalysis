@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -x
+#!/usr/bin/env bash
 memory_requirement=$1
 shift
 other_parameters=$*
