@@ -1,17 +1,23 @@
 package org.campagnelab.dl.model.utils.mappers;
 
+import com.sun.org.apache.xpath.internal.operations.String;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
+
+import java.util.List;
+import java.util.Properties;
+import java.util.function.Function;
 
 /**
  * Maps a int indexing into a record's genomic sequence context into a one hot base feature
  * Created by rct66 on 10/25/16.
  */
 public class OneHotBaseMapper implements FeatureMapper, EfficientFeatureMapper {
-
+    Function<BaseInformationRecords.BaseInformationOrBuilder, java.lang.String> recordToString;
     int baseIndex;
-    public OneHotBaseMapper(int baseIndex) {
+    public OneHotBaseMapper(int baseIndex, Function<BaseInformationRecords.BaseInformationOrBuilder, java.lang.String> recordToString) {
         this.baseIndex = baseIndex;
+        this.recordToString = recordToString;
     }
 
     private static final int[] indices = new int[]{0, 0};
@@ -21,7 +27,7 @@ public class OneHotBaseMapper implements FeatureMapper, EfficientFeatureMapper {
     }
 
     public int getIntegerOfBase(BaseInformationRecords.BaseInformationOrBuilder record){
-        Character base = record.getGenomicSequenceContext().charAt(baseIndex);
+        Character base = recordToString.apply(record).charAt(baseIndex);
         int baseInt;
         switch (base) {
             case 'a':

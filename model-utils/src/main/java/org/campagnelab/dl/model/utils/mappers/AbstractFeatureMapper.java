@@ -12,7 +12,7 @@ import java.util.Collections;
  *
  * @author Fabien Campagne
  */
-public abstract class AbstractFeatureMapper implements FeatureNameMapper {
+public abstract class AbstractFeatureMapper extends SBIPropertiesUser implements FeatureNameMapper {
     public static final int MAX_GENOTYPES = 5;
     public static final int N_GENOTYPE_INDEX = 6;
     private float[] buffer;
