@@ -20,7 +20,7 @@ public class OneHotBaseMapperTest {
         int index=0;
 
         for (String record : records) {
-           FeatureMapper calculator=new OneHotBaseMapper(0);
+           FeatureMapper calculator=new OneHotBaseMapper(0, BaseInformationRecords.BaseInformationOrBuilder::getGenomicSequenceContext);
 
             INDArray inputs = Nd4j.zeros(1, calculator.numberOfFeatures());
 

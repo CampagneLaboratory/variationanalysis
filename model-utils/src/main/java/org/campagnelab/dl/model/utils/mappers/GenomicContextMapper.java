@@ -34,6 +34,18 @@ public class GenomicContextMapper extends AbstractFeatureMapper implements Featu
         delegate = new ConcatFeatureMapper(refContext);
     }
 
+    //use only for testing the mapper
+    @Deprecated
+    public GenomicContextMapper(int contextSize) {
+        this.contextSize = contextSize;
+        OneHotBaseMapper[] refContext = new OneHotBaseMapper[contextSize];
+
+        for (int i = 0; i < contextSize; i++){
+            refContext[i] = new OneHotBaseMapper(i, BaseInformationRecords.BaseInformationOrBuilder::getGenomicSequenceContext);
+        }
+        delegate = new ConcatFeatureMapper(refContext);
+    }
+
     @Override
     public int numberOfFeatures() {
         return delegate.numberOfFeatures();

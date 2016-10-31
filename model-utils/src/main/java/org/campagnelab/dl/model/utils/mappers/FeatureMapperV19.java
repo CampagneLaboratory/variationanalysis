@@ -42,9 +42,6 @@ public class FeatureMapperV19 extends NamingConcatFeatureMapper implements Confi
     }
 
 
-
-
-
     @Override
     public String getFeatureName(int i) {
         return delegate.getFeatureName(i);
