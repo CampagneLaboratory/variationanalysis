@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.model.utils.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.model.utils.genotypes.GenotypeCountFactory;
-import org.campagnelab.dl.model.utils.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -20,26 +19,15 @@ import java.util.Properties;
 
 public class GenomicContextMapper extends AbstractFeatureMapper implements FeatureMapper, EfficientFeatureMapper {
     private ConcatFeatureMapper delegate;
-    private int contextSize;
     public GenomicContextMapper(Properties sbiProperties) {
-        if (!sbiProperties.containsKey("contextSize")) {
-            throw new UnsupportedOperationException("The sbip file does not contain context size information (attempted to access field 'contextSize')");
-        }
-        this.contextSize = Integer.parseInt(sbiProperties.getProperty("contextSize"));
-        OneHotBaseMapper[] refContext = new OneHotBaseMapper[contextSize];
 
-        for (int i = 0; i < contextSize; i++){
-            refContext[i] = new OneHotBaseMapper(i, BaseInformationRecords.BaseInformationOrBuilder::getGenomicSequenceContext);
-        }
-        delegate = new ConcatFeatureMapper(refContext);
+       this((int)Float.parseFloat(sbiProperties.getProperty("stats.genomicContextSize.min","0.0")));
+       if (sbiProperties.getProperty("genomicContextSize.min")==null) {
+           throw new RuntimeException("Unable to obtain genomicContextSize.min from properties.");
+       }
     }
-
-    //use only for testing the mapper
-    @Deprecated
     public GenomicContextMapper(int contextSize) {
-        this.contextSize = contextSize;
         OneHotBaseMapper[] refContext = new OneHotBaseMapper[contextSize];
-
         for (int i = 0; i < contextSize; i++){
             refContext[i] = new OneHotBaseMapper(i, BaseInformationRecords.BaseInformationOrBuilder::getGenomicSequenceContext);
         }
