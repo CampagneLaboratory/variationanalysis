@@ -27,16 +27,18 @@ public class FeatureMapperV19 extends NamingConcatFeatureMapper implements Confi
                 new ReadIndexFeaturesFix(),
                 new FractionDifferences4(),
                 new MagnitudeFeatures2(),
+                new QualityFeatures(),
                 new DensityMapper("numVariationsInRead", 10, sbiProperties, baseInformationOrBuilder ->
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getNumVariationsInReadsList)),
-                new DensityMapper("readMappingQuality.forward", 25, sbiProperties, baseInformationOrBuilder ->
+                new DensityMapper("readMappingQuality.forward", 10, sbiProperties, baseInformationOrBuilder ->
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getReadMappingQualityForwardStrandList)),
-                new DensityMapper("readMappingQuality.reverse", 25, sbiProperties, baseInformationOrBuilder ->
-                        TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getReadMappingQualityReverseStrandList)),
-                new DensityMapper("baseQuality.forward", 10, sbiProperties, baseInformationOrBuilder ->
-                        TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresForwardStrandList)),
-                new DensityMapper("baseQuality.reverse", 10, sbiProperties, baseInformationOrBuilder ->
-                        TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresReverseStrandList)));
+                new DensityMapper("readMappingQuality.reverse", 10, sbiProperties, baseInformationOrBuilder ->
+                        TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getReadMappingQualityReverseStrandList))
+           //     new DensityMapper("baseQuality.forward", 10, sbiProperties, baseInformationOrBuilder ->
+           //             TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresForwardStrandList)),
+           //     new DensityMapper("baseQuality.reverse", 10, sbiProperties, baseInformationOrBuilder ->
+           //             TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresReverseStrandList))
+                );
 
 
     }
