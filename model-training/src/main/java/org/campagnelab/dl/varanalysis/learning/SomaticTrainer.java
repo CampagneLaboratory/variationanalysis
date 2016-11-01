@@ -40,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Abatract class to facilitate variations of training protocols.
@@ -62,8 +63,12 @@ public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
         }
         return arguments;
     }
+
     @Override
     public void execute() {
+        if (args().getTrainingSets().length == 0) {
+            System.err.println("You must provide training datasets.");
+        }
         FeatureMapper featureMapper = null;
         try {
             featureMapper = configureFeatureMapper(args().featureMapperClassname, args().isTrio, args().getTrainingSets());
@@ -215,6 +220,7 @@ public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
 
     protected void writeProperties(SomaticTrainer trainer) throws IOException {
         ModelPropertiesHelper mpHelper = new ModelPropertiesHelper(this);
+        mpHelper.addProperties(getReaderProperties(trainer.args().trainingSets.get(0)));
         mpHelper.writeProperties(directory);
     }
 
@@ -285,9 +291,11 @@ public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
             final FeatureMapper featureMapper = (FeatureMapper) clazz.newInstance();
             if (featureMapper instanceof ConfigurableFeatureMapper) {
                 ConfigurableFeatureMapper cmapper = (ConfigurableFeatureMapper) featureMapper;
-                SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSets[0]);
-                cmapper.configure(reader.getProperties());
-                reader.close();
+                if (trainingSets.length > 1) {
+                    LOG.warn("sbip properties are only read from the first training set. Concat the files before training if you need to use properties across all inputs.");
+                }
+                final Properties properties = getReaderProperties(trainingSets[0]);
+                cmapper.configure(properties);
             }
             return featureMapper;
         } catch (IllegalAccessException e) {
@@ -298,5 +306,12 @@ public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private static Properties getReaderProperties(String trainingSet) throws IOException {
+        SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSet);
+        final Properties properties = reader.getProperties();
+        reader.close();
+        return properties;
     }
 }

@@ -112,4 +112,7 @@ public class ModelPropertiesHelper {
     }
 
 
+    public void addProperties(Properties readerProperties) {
+        this.modelProp.putAll(readerProperties);
+    }
 }
