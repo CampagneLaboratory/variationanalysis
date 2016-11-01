@@ -106,7 +106,9 @@ public class DensityMapper implements FeatureMapper, EfficientFeatureMapper, Fea
 
 
     private boolean propertiesPresent(Properties sbiProperties, String s) {
-        return !sbiProperties.containsKey(s + ".min") || !sbiProperties.containsKey(s + ".max");
+        final boolean minPresent = sbiProperties.containsKey(s + ".min");
+        final boolean maxPresent = sbiProperties.containsKey(s + ".max");
+        return (minPresent && maxPresent);
     }
 
     private float getMin(Properties sbiProperties, String propertyName) {

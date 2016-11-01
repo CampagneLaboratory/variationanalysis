@@ -23,10 +23,10 @@ public class FeatureMapperV19 extends NamingConcatFeatureMapper implements Confi
 
         delegate = new NamingConcatFeatureMapper(new SimpleFeatureCalculator(true),
                 new IndelFeatures(),
+                new GenomicContextMapper(sbiProperties),
                 new ReadIndexFeaturesFix(),
                 new FractionDifferences4(),
                 new MagnitudeFeatures2(),
-                new GenomicContextMapper(sbiProperties),
                 new DensityMapper("numVariationsInRead", 10, sbiProperties, baseInformationOrBuilder ->
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getNumVariationsInReadsList)),
                 new DensityMapper("readMappingQuality.forward", 25, sbiProperties, baseInformationOrBuilder ->
@@ -40,6 +40,9 @@ public class FeatureMapperV19 extends NamingConcatFeatureMapper implements Confi
 
 
     }
+
+
+
 
 
     @Override
