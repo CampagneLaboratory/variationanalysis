@@ -27,7 +27,13 @@ public class OneHotBaseMapper implements FeatureMapper, EfficientFeatureMapper {
     }
 
     public int getIntegerOfBase(BaseInformationRecords.BaseInformationOrBuilder record){
-        Character base = recordToString.apply(record).charAt(baseIndex);
+        java.lang.String context = recordToString.apply(record);
+
+        if (baseIndex < 0 || baseIndex >= context.length()){
+            System.err.println("incompatible character index:"+ baseIndex + " for context:" + context);
+            throw new RuntimeException();
+        }
+        Character base = context.charAt(baseIndex);
         int baseInt;
         switch (base) {
             case 'a':

@@ -20,7 +20,7 @@ public class GenomicContextMapperTest {
         int index=0;
 
         for (String record : records) {
-           FeatureMapper calculator=new GenomicContextMapper(21);
+            FeatureMapper calculator=new GenomicContextMapper(21);
 
             INDArray inputs = Nd4j.zeros(1, calculator.numberOfFeatures());
 
