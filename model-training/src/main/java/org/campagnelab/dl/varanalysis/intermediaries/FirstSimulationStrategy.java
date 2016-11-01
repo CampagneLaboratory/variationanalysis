@@ -292,9 +292,11 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
 
     private void mutateIntegerListsVarAdd(int fMutCount, List<Integer> source, List<Integer> dest, boolean sourceIsRef, boolean destIsRef) {
+        //compute increment (-1,0,or 1)
         int increment = 0;
         if (sourceIsRef) increment++;
         if (destIsRef) increment--;
+
         int newDestIndex = dest.size();
         Collections.shuffle(source, rand);
         dest.addAll(source.subList(0, fMutCount));
