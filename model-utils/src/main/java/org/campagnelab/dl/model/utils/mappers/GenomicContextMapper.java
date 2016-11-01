@@ -22,8 +22,8 @@ public class GenomicContextMapper extends AbstractFeatureMapper implements Featu
     public GenomicContextMapper(Properties sbiProperties) {
 
        this((int)Float.parseFloat(sbiProperties.getProperty("stats.genomicContextSize.min","0.0")));
-       if (sbiProperties.getProperty("genomicContextSize.min")==null) {
-           throw new RuntimeException("Unable to obtain genomicContextSize.min from properties.");
+       if (sbiProperties.getProperty("stats.genomicContextSize.min")==null) {
+           throw new RuntimeException("Unable to obtain stats.genomicContextSize.min from properties.");
        }
     }
     public GenomicContextMapper(int contextSize) {
