@@ -102,7 +102,6 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         //generate mutation rate
         double delta = deltaSmall + ((deltaBig - deltaSmall) * rand.nextDouble());
         double deltaOrig = delta;
-
         int newBase;
         int oldBase;
 
@@ -147,6 +146,31 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         }
         //write to respective builders and return rebuild
         BaseInformationRecords.SampleInfo.Builder somaticBuild = somatic.toBuilder();
+
+
+
+        //generate mutated numVariationsLists score lists (some boilerplate here...)
+        //will add 1 to mutated variant counts using mutateIntegerListsVarAdd
+        List<Integer> fromVC = new ObjectArrayList<Integer>();
+        List<Integer> toVC = new ObjectArrayList<Integer>();
+        if (somaticBuild.getCounts(oldBase).getNumVariationsInReadsCount() > 0) {
+
+            //forward strand
+            fromVC.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(oldBase).getNumVariationsInReadsList()));
+            toVC.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(newBase).getNumVariationsInReadsList()));
+            mutateIntegerListsVarAdd(fMutCount, fromVC, toVC,somaticBuild.getCounts(oldBase).getMatchesReference(),somaticBuild.getCounts(newBase).getMatchesReference());
+        }
+
+        //generate mutated insert sizes lists (some boilerplate here...)
+        List<Integer> fromIS = new ObjectArrayList<Integer>();
+        List<Integer> toIS = new ObjectArrayList<Integer>();
+        if (somaticBuild.getCounts(oldBase).getNumVariationsInReadsCount() > 0) {
+
+            //forward strand
+            fromIS.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(oldBase).getInsertSizesList()));
+            toIS.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(newBase).getInsertSizesList()));
+            mutateIntegerLists(fMutCount, fromIS, toIS);
+        }
 
 
         //generate mutated quality score lists (some boilerplate here...)
@@ -208,6 +232,15 @@ public class FirstSimulationStrategy implements SimulationStrategy {
                 countBuild.addAllReadIndicesForwardStrand(ProtoPredictor.compressFreq(fromForwardR));
                 countBuild.addAllReadIndicesReverseStrand(ProtoPredictor.compressFreq(fromBackwardR));
 
+                //replace numVars
+                countBuild.clearNumVariationsInReads();
+                countBuild.addAllNumVariationsInReads(ProtoPredictor.compressFreq(fromVC));
+
+                //replace insert sizes
+                countBuild.clearInsertSizes();
+                countBuild.addAllInsertSizes(ProtoPredictor.compressFreq(fromIS));
+
+
             } else if (i == newBase) {
                 //replace quality scores
                 countBuild.clearQualityScoresForwardStrand();
@@ -221,6 +254,16 @@ public class FirstSimulationStrategy implements SimulationStrategy {
                 countBuild.addAllReadIndicesForwardStrand(ProtoPredictor.compressFreq(toForwardR));
                 countBuild.addAllReadIndicesReverseStrand(ProtoPredictor.compressFreq(toBackwardR));
                 baseBuild.setMutatedBase(count.getToSequence());
+
+                //replace numVars
+                countBuild.clearNumVariationsInReads();
+                countBuild.addAllNumVariationsInReads(ProtoPredictor.compressFreq(toVC));
+
+                //replace insert sizes
+                countBuild.clearInsertSizes();
+                countBuild.addAllInsertSizes(ProtoPredictor.compressFreq(toIS));
+
+
             }
             somaticBuild.setCounts(i, countBuild);
             i++;
@@ -241,6 +284,23 @@ public class FirstSimulationStrategy implements SimulationStrategy {
     private void mutateIntegerLists(int fMutCount, List<Integer> source, List<Integer> dest) {
         Collections.shuffle(source, rand);
         dest.addAll(source.subList(0, fMutCount));
+        List<Integer> tmp = new IntArrayList(source.subList(fMutCount, source.size()));
+        source.clear();
+        source.addAll(tmp);
+
+    }
+
+
+    private void mutateIntegerListsVarAdd(int fMutCount, List<Integer> source, List<Integer> dest, boolean sourceIsRef, boolean destIsRef) {
+        int increment = 0;
+        if (sourceIsRef) increment++;
+        if (destIsRef) increment--;
+        int newDestIndex = dest.size();
+        Collections.shuffle(source, rand);
+        dest.addAll(source.subList(0, fMutCount));
+        for (int i = newDestIndex; i < dest.size(); i++){
+            dest.set(i,dest.get(i)+increment);
+        }
         List<Integer> tmp = new IntArrayList(source.subList(fMutCount, source.size()));
         source.clear();
         source.addAll(tmp);
