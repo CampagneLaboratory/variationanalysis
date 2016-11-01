@@ -94,15 +94,16 @@ public class BaseInformationIterator implements DataSetIterator {
         INDArray inputs = Nd4j.zeros(size, featureMapper.numberOfFeatures());
         INDArray labels = Nd4j.zeros(size, labelMapper.numberOfLabels());
         for (int i = 0; i < size; i++) {
-            // we are going to call nextRecord directly, without checking hasNextRecord, because we have
-            // determined how many times we can call (in size). We should get the exception if we were
-            // wrong in our estimate of size.
 
-            // fill in features and labels for a given record i:
-            BaseInformationRecords.BaseInformationOrBuilder record = nextRecord();
-            featureMapper.prepareToNormalize(record, i);
-            featureMapper.mapFeatures(record, inputs, i);
-            labelMapper.mapLabels(record, labels, i);
+            if (hasNextRecord()) {
+                // fill in features and labels for a given record i:
+                BaseInformationRecords.BaseInformationOrBuilder record = nextRecord();
+                featureMapper.prepareToNormalize(record, i);
+                featureMapper.mapFeatures(record, inputs, i);
+                labelMapper.mapLabels(record, labels, i);
+            } else {
+                // some records may be empty in the very last minibatch at the end of the iterator.
+            }
 
         }
         return new DataSet(inputs, labels);
