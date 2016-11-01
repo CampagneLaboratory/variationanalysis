@@ -31,7 +31,7 @@ public class Randomize extends AbstractTool<RandomizerArguments> {
     public static void main(String[] args) {
 
         Randomize tool = new Randomize();
-        tool.parseArguments(args, "Randomizer2", tool.createArguments());
+        tool.parseArguments(args, "Randomize", tool.createArguments());
         tool.execute();
     }
 
