@@ -2,6 +2,8 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
+import org.campagnelab.dl.varanalysis.learning.iterators.NamedCachingDataSetIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -78,8 +80,8 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
 
     @Override
-    protected DataSetIterator decorateIterator(DataSetIterator iterator) {
-        return new CachingDataSetIterator(iterator, new InMemoryDataSetCache());
+    protected NamedDataSetIterator decorateIterator(NamedDataSetIterator iterator) {
+        return new NamedCachingDataSetIterator(new CachingDataSetIterator(iterator, new InMemoryDataSetCache()), "<no basename defined>");
     }
 
     @Override

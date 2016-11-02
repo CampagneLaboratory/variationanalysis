@@ -5,6 +5,9 @@ import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
+import org.campagnelab.dl.varanalysis.learning.iterators.CachedConcatIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.MappedFeaturesIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.tools.Predict;
@@ -54,10 +57,10 @@ public class TrainSomaticModel extends SomaticTrainer {
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
 
 
-
     @Override
-    protected DataSetIterator decorateIterator(DataSetIterator iterator) {
-        return new CachingDataSetIterator(iterator, new InMemoryDataSetCache());
+    protected NamedDataSetIterator decorateIterator(NamedDataSetIterator iterator) {
+        //  return new CachingDataSetIterator(iterator, new InMemoryDataSetCache());
+        return new CachedConcatIterator(iterator, args().miniBatchSize, featureCalculator, labelMapper);
     }
 
     public static void main(String[] args) {
@@ -70,7 +73,6 @@ public class TrainSomaticModel extends SomaticTrainer {
         }
         tool.execute();
     }
-
 
 
     @Override

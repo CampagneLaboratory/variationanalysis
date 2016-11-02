@@ -5,29 +5,20 @@ import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
- * Created by fac2003 on 7/14/16.
+ * An adapter to provide a basename for a CachingDatasetIterator.
+ * Created by fac2003 on 11/2/16.
  */
-public class FirstNIterator implements NamedDataSetIterator {
-    private final int N;
-    NamedDataSetIterator delegate;
-    int index;
-
+public class NamedCachingDataSetIterator implements NamedDataSetIterator {
     @Override
-    public DataSet next(int num) {
-        if (index >= N) {
-            throw new NoSuchElementException();
-        }
-        final DataSet next = delegate.next(num);
-        index += next.numExamples();
-        return next;
+    public DataSet next(int i) {
+        return delegate.next(i);
     }
 
     @Override
     public int totalExamples() {
-        return Math.min(N, delegate.totalExamples());
+        return delegate.totalExamples();
     }
 
     @Override
@@ -37,22 +28,16 @@ public class FirstNIterator implements NamedDataSetIterator {
 
     @Override
     public int totalOutcomes() {
-        return Math.min(N, delegate.totalOutcomes());
+        return delegate.totalOutcomes();
     }
 
     @Override
     public boolean resetSupported() {
-        return true;
-    }
-
-
-    public boolean asyncSupported() {
-        return false;
+        return delegate.resetSupported();
     }
 
     @Override
     public void reset() {
-        index = 0;
         delegate.reset();
     }
 
@@ -68,13 +53,12 @@ public class FirstNIterator implements NamedDataSetIterator {
 
     @Override
     public int numExamples() {
-
-        return Math.min(N, delegate.numExamples());
+        return delegate.numExamples();
     }
 
     @Override
-    public void setPreProcessor(DataSetPreProcessor preProcessor) {
-        delegate.setPreProcessor(preProcessor);
+    public void setPreProcessor(DataSetPreProcessor dataSetPreProcessor) {
+        delegate.setPreProcessor(dataSetPreProcessor);
     }
 
     @Override
@@ -89,30 +73,23 @@ public class FirstNIterator implements NamedDataSetIterator {
 
     @Override
     public boolean hasNext() {
-        if (index >= N) {
-            return false;
-        }
         return delegate.hasNext();
     }
 
     @Override
     public DataSet next() {
-        if (index >= N) {
-            throw new NoSuchElementException();
-        }
-
-        DataSet next = delegate.next();
-        index += next.numExamples();
-        return next;
+        return delegate.next();
     }
 
-    public FirstNIterator(NamedDataSetIterator delegate, int n) {
+    private DataSetIterator delegate;
+    private String basename;
+
+    public NamedCachingDataSetIterator(DataSetIterator delegate, String basename) {
         this.delegate = delegate;
-        this.N = n;
     }
 
     @Override
     public String getBasename() {
-        return delegate.getBasename();
+        return basename;
     }
 }

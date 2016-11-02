@@ -16,6 +16,7 @@ import org.campagnelab.dl.varanalysis.learning.architecture.NeuralNetAssembler;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
 import org.campagnelab.dl.varanalysis.tools.AbstractTool;
@@ -119,7 +120,7 @@ public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
             trainIterList.add(new BaseInformationIterator(trainingDataset[i], miniBatchSize,
                     featureCalculator, labelMapper));
         }
-        DataSetIterator async = new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper);
+        NamedDataSetIterator async = new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper);
         if (args().numTraining != Integer.MAX_VALUE) {
             async = new FirstNIterator(async, args().numTraining);
         }
@@ -207,7 +208,7 @@ public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
     }
 
 
-    protected DataSetIterator decorateIterator(DataSetIterator iterator) {
+    protected NamedDataSetIterator decorateIterator(NamedDataSetIterator iterator) {
         return iterator;
     }
 
@@ -283,7 +284,7 @@ public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
     }
 
 
-    protected static FeatureMapper configureFeatureMapper(String featureMapperClassname, boolean isTrio, String[] trainingSets) throws IOException {
+    public static FeatureMapper configureFeatureMapper(String featureMapperClassname, boolean isTrio, String[] trainingSets) throws IOException {
 
 
         try {

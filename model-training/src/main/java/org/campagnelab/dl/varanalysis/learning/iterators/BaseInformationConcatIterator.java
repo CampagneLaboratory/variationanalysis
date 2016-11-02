@@ -13,28 +13,40 @@ import org.nd4j.linalg.factory.Nd4j;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 
 /**
  * Created by rct66 on 6/13/16.
  */
-public class BaseInformationConcatIterator extends BaseInformationIterator implements DataSetIterator {
+public class BaseInformationConcatIterator extends BaseInformationIterator implements NamedDataSetIterator {
 
     private List<BaseInformationIterator> baseIters;
     private int readerIndex = 0;
 
     public BaseInformationConcatIterator(List<BaseInformationIterator> iterators, int batchSize, FeatureMapper featureMapper, LabelMapper labelMapper) throws IOException {
-        super(featureMapper,labelMapper);
+        super(featureMapper, labelMapper);
         this.batchSize = batchSize;
         this.baseIters = iterators;
         for (BaseInformationIterator iter : iterators) {
-            this.totalExamples+=iter.totalExamples();
+            this.totalExamples += iter.totalExamples();
         }
 
     }
 
-
-
-
+    @Override
+    public String getBasename() {
+        if (baseIters.size() == 1) {
+            return baseIters.get(0).getBasename();
+        } else {
+            String basename = null;
+            long hashcode = 8723872838723L;
+            for (NamedDataSetIterator it : baseIters) {
+                hashcode ^= it.getBasename().hashCode();
+            }
+            basename = "multiset-" + Long.toString(hashcode);
+            return basename;
+        }
+    }
 
     @Override
     public boolean resetSupported() {
@@ -78,12 +90,12 @@ public class BaseInformationConcatIterator extends BaseInformationIterator imple
         if (nextPosRecord != null) {
             return true;
         }
-        if (readerIndex >= baseIters.size()){
+        if (readerIndex >= baseIters.size()) {
             return false;
         }
         try {
             this.nextPosRecord = baseIters.get(readerIndex).nextRecord();
-        } catch ( NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             readerIndex++;
             return hasNext();
 
@@ -108,20 +120,18 @@ public class BaseInformationConcatIterator extends BaseInformationIterator imple
         if (nextPosRecord != null) {
             return true;
         }
-        if (readerIndex >= baseIters.size()){
+        if (readerIndex >= baseIters.size()) {
             return false;
         }
         try {
             this.nextPosRecord = baseIters.get(readerIndex).nextRecord();
-        } catch ( NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             readerIndex++;
             return hasNext();
 
         }
         return nextPosRecord != null;
     }
-
-
 
     @Override
     public void remove() {
