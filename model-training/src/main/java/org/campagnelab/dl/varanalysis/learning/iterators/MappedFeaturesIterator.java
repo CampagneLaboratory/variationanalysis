@@ -77,6 +77,11 @@ public class MappedFeaturesIterator implements DataSetIterator {
         return true;
     }
 
+
+    public boolean asyncSupported() {
+        return false;
+    }
+
     @Override
     public void reset() {
         index = 0;

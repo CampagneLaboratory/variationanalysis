@@ -81,6 +81,10 @@ public class CachedConcatIterator implements NamedDataSetIterator {
         return delegate.resetSupported();
     }
 
+    public boolean asyncSupported() {
+        return false;
+    }
+
     @Override
     public void reset() {
         delegate.reset();
