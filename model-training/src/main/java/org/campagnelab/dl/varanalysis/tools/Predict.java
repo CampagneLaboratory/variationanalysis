@@ -5,11 +5,10 @@ import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
+import org.campagnelab.dl.varanalysis.stats.AUCHelper;
 import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +23,7 @@ import java.io.PrintWriter;
 public class Predict extends AbstractTool<PredictArguments> {
 
     static private Logger LOG = LoggerFactory.getLogger(Predict.class);
+
     public static void main(String[] args) {
 
         Predict predict = new Predict();
@@ -102,37 +102,34 @@ public class Predict extends AbstractTool<PredictArguments> {
         pgReadWrite.displayFreeMemory = true;
         pgReadWrite.start();
 
+
+
+
         AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve(args().numRecordsForAUC);
         int index = 0;
         SimpleFeatureCalculator labelMapper = new SimpleFeatureCalculator();
         BaseInformationIterator iterator = new BaseInformationIterator(evaluationDataFilename, args().miniBatchSize, featureMapper, labelMapper);
-        int nProcessed = 0;
-        while (iterator.hasNext()) {
-            DataSet next = iterator.next();
-            INDArray outputs = model.output(next.getFeatures());
-            for (int predictionIndex = 0; predictionIndex < next.numExamples(); predictionIndex++) {
-                INDArray trueLabels = next.getLabels();
+        AUCHelper helper=new AUCHelper();
 
-                double trueLabelYes = trueLabels.getDouble(predictionIndex, 1);
-                double predictedLabelNo = outputs.getDouble(predictionIndex, 0);
-                double predictedLabelYes = outputs.getDouble(predictionIndex, 1);
-                String correctness = (predictedLabelYes > predictedLabelNo && trueLabelYes == 1f ||
-                        predictedLabelNo > predictedLabelYes && trueLabelYes == 0) ? "correct" : "wrong";
-                if (doOuptut(correctness, args(), Math.max(predictedLabelNo, predictedLabelYes))) {
-                    results.printf("%d\t%f\t%f\t%f\t%s%n", index++, trueLabelYes, predictedLabelNo,
-                            predictedLabelYes, correctness);
-                }
-                //convert true label to the convention used by auc calculator: negative true label=labelNo.
-                aucLossCalculator.observe(predictedLabelYes, trueLabelYes - 0.5);
-                //     writeRecordResultFast(model, results, featureMapper, pgReadWrite, record, aucLossCalculator, calculator, isTrio);
-                pgReadWrite.lightUpdate();
-            }
-            nProcessed += next.numExamples();
-            if (nProcessed > args().scoreN) {
-                break;
-            }
+        helper.estimate(iterator, model,
+                args().numRecordsForAUC,
+                prediction -> {
+                    String correctness = (prediction.predictedLabelYes > prediction.predictedLabelNo && prediction.trueLabelYes == 1f ||
+                            prediction.predictedLabelNo > prediction.predictedLabelYes && prediction.trueLabelYes == 0) ? "correct" : "wrong";
 
-        }
+                    if (doOuptut(correctness, args(), Math.max(prediction.predictedLabelNo, prediction.predictedLabelYes))) {
+                        results.printf("%d\t%f\t%f\t%f\t%s%n", prediction.index, prediction.trueLabelYes, prediction.predictedLabelNo,
+                                prediction.predictedLabelYes, correctness);
+                    }
+                    //convert true label to the convention used by auc calculator: negative true label=labelNo.
+                    pgReadWrite.lightUpdate();
+
+                },
+                /* stop if */ nProcessed -> nProcessed > args().scoreN
+
+                );
+
+
 
         System.out.println("AUC on " + prefix + "=" + aucLossCalculator.evaluateStatistic());
         results.close();

@@ -7,6 +7,7 @@ import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.varanalysis.tools.MapFeatures;
 import org.campagnelab.dl.varanalysis.tools.MapFeaturesArguments;
+import org.deeplearning4j.datasets.iterator.BaseDatasetIterator;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -19,19 +20,19 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * A concat iterator that transparently creates a disk cache of the content of the input iterators.
+ * A concat iterator that transparently creates a disk cache of the content of the input iterators. Note that
  */
 public class CachedConcatIterator implements NamedDataSetIterator {
 
-    private final List<NamedDataSetIterator> iterators;
-    MappedFeaturesIterator delegate;
 
-    public CachedConcatIterator(NamedDataSetIterator iterator,int minbatchSize, FeatureMapper featureMapper, LabelMapper labelMapper) {
-        this(Collections.singletonList(iterator), minbatchSize,featureMapper,labelMapper);
+    MappedFeaturesIterator delegate;
+    private List<NamedDataSetIterator> iterators;
+
+    public CachedConcatIterator(NamedDataSetIterator iterator, int minbatchSize, FeatureMapper featureMapper, long cacheN) {
+        this(Collections.singletonList(iterator), minbatchSize, featureMapper, cacheN);
     }
 
-    public CachedConcatIterator(List<NamedDataSetIterator> iterators,int minbatchSize, FeatureMapper featureMapper, LabelMapper labelMapper) {
-
+    public CachedConcatIterator(List<NamedDataSetIterator> iterators, int minbatchSize, FeatureMapper featureMapper, long cacheN) {
         this.iterators = iterators;
         // determine if cache exists. If it does, use it.
         String cacheName = buildCacheName(iterators);
@@ -39,12 +40,14 @@ public class CachedConcatIterator implements NamedDataSetIterator {
             // Cache does not exist, we first build it:
             MapFeatures tool = new MapFeatures();
             MapFeaturesArguments arguments = new MapFeaturesArguments();
+
             for (NamedDataSetIterator it : iterators) {
                 arguments.trainingSets.add(it.getBasename());
             }
             arguments.miniBatchSize = minbatchSize;
             arguments.featureMapperClassname = featureMapper.getClass().getCanonicalName();
             arguments.outputBasename = cacheName;
+            arguments.cacheN = cacheN;
             tool.setArguments(arguments);
             tool.execute();
         }

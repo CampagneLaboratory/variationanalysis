@@ -1,7 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.varanalysis.learning.iterators.NamedCachingDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
@@ -91,7 +90,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         if (!(new File(validationDatasetFilename).exists())) {
             throw new IOException("Validation file not found! " + validationDatasetFilename);
         }
-        perf = new MeasurePerformance(args().numValidation, validationDatasetFilename);
+        perf = new MeasurePerformance(args().numValidation, validationDatasetFilename, args().miniBatchSize, featureCalculator, labelMapper);
 
         ParallelWrapper wrapper = new ParallelWrapper.Builder(net)
                 .prefetchBuffer(args().miniBatchSize)
@@ -179,7 +178,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
 
     protected double estimateTestSetPerf(int epoch, int iter) throws IOException {
         if (validationDatasetFilename == null) return 0;
-        double auc = perf.estimateAUC(featureCalculator, net);
+        double auc = perf.estimateAUC(net);
 
         System.out.printf("Epoch %d Iteration %d AUC=%f %n", epoch, iter, auc);
 

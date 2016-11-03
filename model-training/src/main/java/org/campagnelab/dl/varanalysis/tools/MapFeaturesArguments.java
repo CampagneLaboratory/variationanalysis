@@ -2,6 +2,9 @@ package org.campagnelab.dl.varanalysis.tools;
 
 import com.beust.jcommander.Parameter;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
+import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +25,15 @@ public class MapFeaturesArguments implements ToolArguments {
     public int miniBatchSize = 32;
 
     @Parameter(names = "--trio", description = "Use to train trio models. The training and validation datasets must have three samples, parents first, patient last.")
-    public boolean isTrio = false;
+    public boolean   isTrio = false;
+    /**
+     * Iterators can also be provided programmatically. In this case, they are used rather than creating new ones with
+     * the training filenames.
+     */
+    public List<BaseInformationIterator> iterators=null;
+
+    @Parameter(names = {"n","--cache-n"}, description = "Cache at most n records.")
+    public long cacheN;
 
     public String[] getTrainingSets() {
         return this.trainingSets.toArray(new String[this.trainingSets.size()]);

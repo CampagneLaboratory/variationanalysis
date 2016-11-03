@@ -1,16 +1,18 @@
 package org.campagnelab.dl.varanalysis.learning;
 
-import org.apache.commons.collections.FastArrayList;
-import org.apache.commons.compress.utils.IOUtils;
-import org.campagnelab.dl.model.utils.ProtoPredictor;
+import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
-import org.campagnelab.dl.varanalysis.storage.RecordReader;
+import org.campagnelab.dl.model.utils.mappers.LabelMapper;
+import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
+import org.campagnelab.dl.varanalysis.stats.AUCHelper;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.nd4j.linalg.dataset.api.iterator.CachingDataSetIterator;
+import org.nd4j.linalg.dataset.api.iterator.cache.InMemoryDataSetCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Helper class to estimate performance on a test set, or part of it.
@@ -19,58 +21,44 @@ import java.util.List;
 public class MeasurePerformance {
     private int aucClipMaxObservations;
     private int scoreN = Integer.MAX_VALUE;
+    private AUCHelper helper;
+    static private Logger LOG = LoggerFactory.getLogger(MeasurePerformance.class);
 
-    public MeasurePerformance(int scoreN, String datafilePath) throws IOException {
-        this.scoreN = scoreN;
+    public MeasurePerformance(int scoreN, String datafilePath, int miniBatchSize, FeatureMapper featureMapper, LabelMapper labelMapper) throws IOException {
+
         this.aucClipMaxObservations = Integer.MAX_VALUE;
-        readValidation(datafilePath);
+        this.scoreN = scoreN;
+        ProgressLogger pg = new ProgressLogger(LOG);
+        cachedIterator = new CachingDataSetIterator(
+                new FirstNIterator(new BaseInformationIterator(datafilePath, miniBatchSize, featureMapper, labelMapper), scoreN),
+                new InMemoryDataSetCache());
+        pg.expectedUpdates = cachedIterator.numExamples()/miniBatchSize;
+        pg.itemsName = "validation records";
+        pg.start();
+        while (cachedIterator.hasNext()) {
+            cachedIterator.next();
+            pg.lightUpdate();
+        }
+        pg.stop();
+        cachedIterator.reset();
+        helper = new AUCHelper();
     }
 
-    public MeasurePerformance(int scoreN, int aucClipMaxObservations, String datafilePath) throws IOException {
-        this(scoreN, datafilePath);
+    public MeasurePerformance(int scoreN, int aucClipMaxObservations, String datafilePath, int miniBatchSize, FeatureMapper featureMapper, LabelMapper labelMapper) throws IOException {
+        this(scoreN, datafilePath, miniBatchSize, featureMapper, labelMapper);
         this.aucClipMaxObservations = aucClipMaxObservations;
     }
 
-    List<BaseInformationRecords.BaseInformation> records = new FastArrayList(100000);
-
-    private void readValidation(String datafilePath) throws IOException {
-        int index = 0;
-        RecordReader reader = new RecordReader(datafilePath);
-        try {
-            for (BaseInformationRecords.BaseInformation record : reader) {
-                records.add(record);
-                if (index > scoreN) break;
-                index++;
-            }
-        } finally {
-            IOUtils.closeQuietly(reader);
-        }
-    }
+    CachingDataSetIterator cachedIterator;
 
 
-    public double estimateAUC(FeatureMapper featureMapper, MultiLayerNetwork model) throws IOException {
+    public double estimateAUC(MultiLayerNetwork model) throws IOException {
 
-
-        //may need to adjust batch size and write outputs piecewise if test sets are very large
-        //BaseInformationIterator baseIter = new BaseInformationIterator(testsetPath, Integer.MAX_VALUE, new FeatureMapperV2(), new SimpleFeatureCalculator());
-
-        //DataSet ds = baseIter.next();
-//set up logger
-
-        AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve(aucClipMaxObservations);
-        int index = 0;
-        for (BaseInformationRecords.BaseInformation record : records) {
-            boolean mutated = record.getMutated();
-            ProtoPredictor predictor = new ProtoPredictor(model, featureMapper);
-            ProtoPredictor.Prediction prediction = predictor.mutPrediction(record);
-            aucLossCalculator.observe(prediction.posProb, mutated ? 1 : -1);
-
-            index++;
-            if (index > scoreN) break;
-        }
-        return aucLossCalculator.evaluateStatistic();
-
-
+        cachedIterator.reset();
+        return helper.estimate(cachedIterator, model, this.aucClipMaxObservations,
+                prediction -> {
+                },
+                numScored -> numScored > scoreN);
     }
 
 

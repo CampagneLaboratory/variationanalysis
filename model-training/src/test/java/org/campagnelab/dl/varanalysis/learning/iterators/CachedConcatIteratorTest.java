@@ -23,7 +23,7 @@ public class CachedConcatIteratorTest {
         // write a mapped features file:
         List<NamedDataSetIterator> iterators = new ArrayList<>();
         iterators.add(new BaseInformationIterator("sample_data/protobuf/genotypes_proto_mutated_randomized.sbi", 32, new IndelFeatures(), new SimpleFeatureCalculator()));
-        CachedConcatIterator it = new CachedConcatIterator(iterators, 32, new IndelFeatures(), new SimpleFeatureCalculator());
+        CachedConcatIterator it = new CachedConcatIterator(iterators, 32, new IndelFeatures(), Long.MAX_VALUE);
         long numRecords = 0;
         while (it.hasNext()) {
             DataSet ds = it.next();

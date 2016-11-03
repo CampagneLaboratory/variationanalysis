@@ -8,8 +8,10 @@ import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.varanalysis.learning.TrainSomaticModel;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.NamedCachingDataSetIterator;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,11 +57,14 @@ public class MapFeatures extends AbstractTool<MapFeaturesArguments> {
             String[] trainingDataset = args().getTrainingSets();
             FeatureMapper featureMapper =
                     TrainSomaticModel.configureFeatureMapper(args().featureMapperClassname, args().isTrio, trainingDataset);
+            if (args().iterators == null) {
+                for (int i = 0; i < trainingDataset.length; i++) {
 
-            for (int i = 0; i < trainingDataset.length; i++) {
-
-                trainIterList.add(new BaseInformationIterator(trainingDataset[i], miniBatchSize,
-                        featureMapper, labelMapper));
+                    trainIterList.add(new BaseInformationIterator(trainingDataset[i], miniBatchSize,
+                            featureMapper, labelMapper));
+                }
+            } else {
+                trainIterList.addAll(args().iterators);
             }
             inputs = new BaseInformationConcatIterator(trainIterList, args().miniBatchSize, featureMapper, labelMapper);
         } catch (IOException e) {
@@ -77,6 +82,7 @@ public class MapFeatures extends AbstractTool<MapFeaturesArguments> {
             long numDatasets = 0;
             long writeAtMostN = args().writeAtMostN;
             numRecordsWritten = 0;
+
             while (inputs.hasNext()) {
                 DataSet ds = inputs.next();
                 baos.reset();
@@ -96,6 +102,9 @@ public class MapFeatures extends AbstractTool<MapFeaturesArguments> {
                 }
                 numDatasets += 1;
                 numRecordsWritten += ds.numExamples();
+                if (numRecordsWritten>args().cacheN) {
+                    break;
+                }
             }
             outputStream.close();
             pg.stop();
