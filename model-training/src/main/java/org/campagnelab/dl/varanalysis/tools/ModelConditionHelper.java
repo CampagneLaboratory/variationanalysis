@@ -19,6 +19,7 @@ public class ModelConditionHelper {
      * @return String representation of this map
      */
     public static String fieldMapToString(Map<String, Object> fieldMap) {
+       assert fieldMap!=null: "fieldMap must not be null";
         List<String> fieldMapStrings = new LinkedList<>();
         for (Map.Entry<String, Object> fieldValue: fieldMap.entrySet()) {
             fieldMapStrings.add(fieldValue.getKey() + " " + fieldValue.getValue());

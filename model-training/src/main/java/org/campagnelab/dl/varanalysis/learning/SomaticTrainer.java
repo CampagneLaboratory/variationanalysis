@@ -197,6 +197,9 @@ public abstract class SomaticTrainer extends ConditionRecordingTool<TrainingArgu
         writeBestScoreFile();
         System.out.println("Model completed, saved at time: " + attempt);
         performanceLogger.write();
+        resultValues().put("AUC",performanceLogger.getBestAUC());
+        resultValues().put("score",performanceLogger.getBestScore());
+        resultValues().put("bestModelEpoch",result.getBestModelEpoch());
     }
 
     private NeuralNetAssembler getNeuralNetAssembler() {

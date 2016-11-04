@@ -64,6 +64,7 @@ public class TrainSomaticModel extends SomaticTrainer {
             return;
         }
         tool.execute();
+        tool.writeModelingConditions(tool.getRecordingArguments());
     }
 
 
@@ -96,6 +97,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         perf = new MeasurePerformance(args().numValidation, validationDatasetFilename, args().miniBatchSize, featureCalculator, labelMapper);
         System.out.println("Finished loading validation records.");
         System.out.flush();
+        double score=-1;
         for (int epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -125,7 +127,7 @@ public class TrainSomaticModel extends SomaticTrainer {
                     // compare to the other records.
                     queue.updateWrongness(net);
                 }
-                double score = net.score();
+                score = net.score();
                 if (Double.isNaN(score)) {
                     //   System.out.println(net.params());
                     System.out.println("nan at " + iter);
@@ -153,7 +155,7 @@ public class TrainSomaticModel extends SomaticTrainer {
             writeProperties(this);
             writeBestScoreFile();
             double auc = estimateTestSetPerf(epoch, iter);
-            performanceLogger.log("epochs", numExamplesUsed, epoch, Double.NaN, auc);
+            performanceLogger.log("epochs", numExamplesUsed, epoch, score, auc);
             if (auc > bestAUC) {
                 saver.saveModel(net, "bestAUC", auc);
                 bestAUC = auc;
