@@ -19,6 +19,23 @@ public class PerformanceLogger {
     private static final String perfFilenameFormat = "%s-perf-log.tsv";
     private String directory;
     private String conditionId;
+    private double bestScore = Float.MAX_VALUE;
+    private double bestAUC = -1;
+
+    /**
+     * Return the best score seen so far. Smaller score is best.
+     * @return
+     */
+    public double getBestScore() {
+        return bestScore;
+    }
+    /**
+     * Return the best AUC seen so far. Larger  AUC is best.
+     * @return
+     */
+    public double getBestAUC() {
+        return bestAUC;
+    }
 
     /**
      * @param directory Directory to save model performance logs to.
@@ -49,6 +66,8 @@ public class PerformanceLogger {
      */
     public void log(String prefix, long numExamplesUsed, int epoch, double score, double auc) {
         ObjectArrayList<Performance> defaultValue = new ObjectArrayList<>();
+        bestScore=Math.min(bestScore,score);
+        bestAUC=Math.max(bestAUC,score);
         log.getOrDefault(prefix, defaultValue).add(new Performance(numExamplesUsed, epoch, score, auc));
         if (defaultValue.size() > 0) {
             log.put(prefix, defaultValue);
@@ -68,7 +87,7 @@ public class PerformanceLogger {
      * @param score           The  score obtained at numExamplesUsed and epoch for the model.
      */
     public void log(String prefix, long numExamplesUsed, int epoch, double score) {
-        log.getOrDefault(prefix, new ObjectArrayList<>()).add(new Performance(numExamplesUsed, epoch, score, Float.NaN));
+        log.getOrDefault(prefix, new ObjectArrayList<>()).add(new Performance(numExamplesUsed, epoch, score, -1));
     }
 
     /**

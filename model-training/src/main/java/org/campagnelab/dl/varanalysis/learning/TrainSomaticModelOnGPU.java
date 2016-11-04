@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nd4j.jita.conf.CudaEnvironment;
+//import org.nd4j.jita.conf.CudaEnvironment;
 
 /**
  * Train a neural network to predict mutations.
@@ -44,7 +44,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
             System.out.println("Please add at least one training set to the args().");
             return;
         }
-    CudaEnvironment.getInstance().getConfiguration()
+  /*  CudaEnvironment.getInstance().getConfiguration()
                 .enableDebug(false)
                 .allowMultiGPU(true)
                 .setMaximumGridSize(512)
@@ -54,7 +54,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
                 .setMaximumHostCacheableLength(1024 * 1024 * 1024L)
                 .setMaximumHostCache(8L * 1024 * 1024 * 1024L)
                 // cross-device access is used for faster model averaging over pcie
-                .allowCrossDeviceAccess(true);
+                .allowCrossDeviceAccess(true);*/
         if ("FP16".equals(args().precision)) {
             precision = Precision.FP16;
             System.out.println("Parameter precision set to FP16.");
@@ -135,7 +135,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
             writeBestScoreFile();
             if (epoch % args().validateEvery == 0) {
                 double auc = estimateTestSetPerf(epoch, iter);
-                performanceLogger.log("epochs", numExamplesUsed, epoch, Double.NaN, auc);
+                performanceLogger.log("epochs", numExamplesUsed, epoch, score, auc);
                 if (auc > bestAUC) {
                     saver.saveModel(net, "bestAUC", auc);
                     bestAUC = auc;

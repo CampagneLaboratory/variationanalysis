@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Abatract class to facilitate variations of training protocols.
+ * Abstract class to facilitate variations of training protocols.
  * Created by fac2003 on 7/12/16.
  */
 public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
@@ -189,7 +189,8 @@ public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
         System.out.println("Termination details: " + result.getTerminationDetails());
         System.out.println("Total epochs: " + result.getTotalEpochs());
         System.out.println("Best epoch number: " + result.getBestModelEpoch());
-        System.out.println("Score at best epoch: " + result.getBestModelScore());
+        System.out.println("Score at best epoch: " + performanceLogger.getBestScore());
+        System.out.println("AUC at best epoch: " + performanceLogger.getBestAUC());
 
         writeProperties(this);
         writeBestScoreFile();
