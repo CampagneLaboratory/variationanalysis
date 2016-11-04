@@ -2,23 +2,18 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
-import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
+import org.campagnelab.dl.varanalysis.learning.iterators.CachedConcatIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
-import org.campagnelab.dl.varanalysis.tools.Predict;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.dl.varanalysis.util.HitBoundedPriorityQueue;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.api.iterator.CachingDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.dataset.api.iterator.cache.InMemoryDataSetCache;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.PointIndex;
 import org.slf4j.Logger;
@@ -54,10 +49,10 @@ public class TrainSomaticModel extends SomaticTrainer {
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
 
 
-
     @Override
-    protected DataSetIterator decorateIterator(DataSetIterator iterator) {
-        return new CachingDataSetIterator(iterator, new InMemoryDataSetCache());
+    protected NamedDataSetIterator decorateIterator(NamedDataSetIterator iterator) {
+        //  return new CachingDataSetIterator(iterator, new InMemoryDataSetCache());
+        return new CachedConcatIterator(iterator, args().miniBatchSize, featureCalculator, args().numTraining);
     }
 
     public static void main(String[] args) {
@@ -69,8 +64,8 @@ public class TrainSomaticModel extends SomaticTrainer {
             return;
         }
         tool.execute();
+        tool.writeModelingConditions(tool.getRecordingArguments());
     }
-
 
 
     @Override
@@ -99,9 +94,10 @@ public class TrainSomaticModel extends SomaticTrainer {
         int notImproved = 0;
         int miniBatchesPerEpoch = async.totalExamples() / args().miniBatchSize;
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
-        perf = new MeasurePerformance(args().numValidation, validationDatasetFilename);
+        perf = new MeasurePerformance(args().numValidation, validationDatasetFilename, args().miniBatchSize, featureCalculator, labelMapper);
         System.out.println("Finished loading validation records.");
         System.out.flush();
+        double score=-1;
         for (int epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -131,7 +127,7 @@ public class TrainSomaticModel extends SomaticTrainer {
                     // compare to the other records.
                     queue.updateWrongness(net);
                 }
-                double score = net.score();
+                score = net.score();
                 if (Double.isNaN(score)) {
                     //   System.out.println(net.params());
                     System.out.println("nan at " + iter);
@@ -159,7 +155,7 @@ public class TrainSomaticModel extends SomaticTrainer {
             writeProperties(this);
             writeBestScoreFile();
             double auc = estimateTestSetPerf(epoch, iter);
-            performanceLogger.log("epochs", numExamplesUsed, epoch, Double.NaN, auc);
+            performanceLogger.log("epochs", numExamplesUsed, epoch, score, auc);
             if (auc > bestAUC) {
                 saver.saveModel(net, "bestAUC", auc);
                 bestAUC = auc;
@@ -276,7 +272,7 @@ public class TrainSomaticModel extends SomaticTrainer {
 
     protected double estimateTestSetPerf(int epoch, int iter) throws IOException {
         if (validationDatasetFilename == null) return 0;
-        double auc = perf.estimateAUC(featureCalculator, net);
+        double auc = perf.estimateAUC(net);
         float minWrongness = queue.getMinWrongness();
         float maxWrongness = queue.getMaxWrongness();
         float meanWrongness = queue.getMeanWrongness();

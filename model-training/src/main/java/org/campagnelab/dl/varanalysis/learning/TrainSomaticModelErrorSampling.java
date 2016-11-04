@@ -4,6 +4,7 @@ import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
+import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.SamplingIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
@@ -59,7 +60,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
     SamplingIterator samplingIterator = null;
 
     @Override
-    protected DataSetIterator decorateIterator(DataSetIterator iterator) {
+    protected NamedDataSetIterator decorateIterator(NamedDataSetIterator iterator) {
         samplingIterator = new SamplingIterator(iterator, args().seed);
         return samplingIterator;
     }
@@ -91,7 +92,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         double bestAUC = 0.5;
         double finalAUC = 0.5;
         long numExamplesUsed = 0;
-        perf=new MeasurePerformance(args().numValidation,args().aucClipMaxObservations,validationDatasetFilename);
+        perf= new MeasurePerformance(args().numValidation, validationDatasetFilename, miniBatchNumber, featureCalculator, labelMapper);
 
         for (int epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
@@ -201,7 +202,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
     private double estimateTestSetPerf(int epoch, int iter) throws IOException {
        // validationDatasetFilename = "/data/no-threshold/validation-2/m-r-MHFC-63-CTL_B_NK_VN.parquet";
         if (validationDatasetFilename == null) return 0;
-        double auc = perf.estimateAUC(featureCalculator, net);
+        double auc = perf.estimateAUC( net);
         //   System.out.printf("Average sampling P=%f%n", samplingIterator.getAverageSamplingP());
 
         System.out.printf("Epoch %d Iteration %d AUC=%f Average sampling P=%f %%skipped=%f %n ", epoch, iter, auc, samplingIterator.getAverageSamplingP(),

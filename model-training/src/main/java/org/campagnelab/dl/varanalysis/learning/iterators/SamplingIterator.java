@@ -19,11 +19,11 @@ import java.util.function.Consumer;
  * An iterator that samples input records according to some probability.
  * Created by fac2003 on 7/21/16.
  */
-public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.dataset.api.iterator.DataSetIterator, Serializable {
+public class SamplingIterator implements Iterator<DataSet>, NamedDataSetIterator, Serializable {
     private final float[] samplingProbabilities;
     private int miniBatchSize;
     private float averageProbability;
-    private org.nd4j.linalg.dataset.api.iterator.DataSetIterator delegate;
+    private NamedDataSetIterator delegate;
     /**
      * Number of examples in the delegate iterator (before sampling).
      */
@@ -41,7 +41,7 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
     private int numSkipped;
     private int currentRecordIndex;
 
-    public SamplingIterator(DataSetIterator delegate, long seed) {
+    public SamplingIterator(NamedDataSetIterator delegate, long seed) {
 
         this.delegate = delegate;
         this.randomGenerator = new XoRoShiRo128PlusRandom(seed);
@@ -269,5 +269,10 @@ public class SamplingIterator implements Iterator<DataSet>, org.nd4j.linalg.data
     public double percentSkipped() {
         final double numSkipped = this.numSkipped;
         return 100f * numSkipped / (numSkipped + numReturned);
+    }
+
+    @Override
+    public String getBasename() {
+        return delegate.getBasename();
     }
 }

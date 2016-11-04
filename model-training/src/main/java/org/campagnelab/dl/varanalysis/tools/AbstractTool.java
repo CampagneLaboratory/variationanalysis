@@ -1,7 +1,11 @@
 package org.campagnelab.dl.varanalysis.tools;
 
 import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterDescription;
 import com.beust.jcommander.ParameterException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by fac2003 on 10/23/16.
@@ -22,10 +26,14 @@ public abstract class AbstractTool<T extends ToolArguments> {
             throw e;
         }
     }
+
     public T args() {
         return arguments;
     }
+
     public abstract T createArguments();
 
     public abstract void execute();
+
+
 }

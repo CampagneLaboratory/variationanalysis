@@ -16,9 +16,11 @@ import org.campagnelab.dl.varanalysis.learning.architecture.NeuralNetAssembler;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
 import org.campagnelab.dl.varanalysis.tools.AbstractTool;
+import org.campagnelab.dl.varanalysis.tools.ConditionRecordingTool;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
@@ -43,10 +45,10 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Abatract class to facilitate variations of training protocols.
+ * Abstract class to facilitate variations of training protocols.
  * Created by fac2003 on 7/12/16.
  */
-public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
+public abstract class SomaticTrainer extends ConditionRecordingTool<TrainingArguments> {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
 
     protected static TrainingArguments parseArguments(String[] args, String commandName) {
@@ -119,7 +121,7 @@ public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
             trainIterList.add(new BaseInformationIterator(trainingDataset[i], miniBatchSize,
                     featureCalculator, labelMapper));
         }
-        DataSetIterator async = new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper);
+        NamedDataSetIterator async = new BaseInformationConcatIterator(trainIterList, miniBatchSize, featureCalculator, labelMapper);
         if (args().numTraining != Integer.MAX_VALUE) {
             async = new FirstNIterator(async, args().numTraining);
         }
@@ -188,12 +190,16 @@ public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
         System.out.println("Termination details: " + result.getTerminationDetails());
         System.out.println("Total epochs: " + result.getTotalEpochs());
         System.out.println("Best epoch number: " + result.getBestModelEpoch());
-        System.out.println("Score at best epoch: " + result.getBestModelScore());
+        System.out.println("Score at best epoch: " + performanceLogger.getBestScore());
+        System.out.println("AUC at best epoch: " + performanceLogger.getBestAUC());
 
         writeProperties(this);
         writeBestScoreFile();
         System.out.println("Model completed, saved at time: " + attempt);
         performanceLogger.write();
+        resultValues().put("AUC",performanceLogger.getBestAUC());
+        resultValues().put("score",performanceLogger.getBestScore());
+        resultValues().put("bestModelEpoch",result.getBestModelEpoch());
     }
 
     private NeuralNetAssembler getNeuralNetAssembler() {
@@ -207,7 +213,7 @@ public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
     }
 
 
-    protected DataSetIterator decorateIterator(DataSetIterator iterator) {
+    protected NamedDataSetIterator decorateIterator(NamedDataSetIterator iterator) {
         return iterator;
     }
 
@@ -283,7 +289,7 @@ public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
     }
 
 
-    protected static FeatureMapper configureFeatureMapper(String featureMapperClassname, boolean isTrio, String[] trainingSets) throws IOException {
+    public static FeatureMapper configureFeatureMapper(String featureMapperClassname, boolean isTrio, String[] trainingSets) throws IOException {
 
 
         try {
