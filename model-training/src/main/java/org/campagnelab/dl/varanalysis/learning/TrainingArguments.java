@@ -2,7 +2,7 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
+import org.campagnelab.dl.model.utils.mappers.FeatureMapperV19;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersForGPU;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersNarrower2;
 import org.campagnelab.dl.varanalysis.tools.ToolArguments;
@@ -78,7 +78,7 @@ public class TrainingArguments implements ToolArguments {
     public String precision="FP32";
 
     @Parameter(names = "--feature-mapper", description = "Fully qualified name of the feature mapper class.")
-    public String featureMapperClassname= FeatureMapperV18.class.getCanonicalName();
+    public String featureMapperClassname= FeatureMapperV19.class.getCanonicalName();
 
     @Parameter(names = {"-e","--validate-every"}, description = "Validate only every e epochs when using early stopping. This can save time if training is much faster than evaluation.")
     public int validateEvery= 1;

@@ -31,6 +31,7 @@ public class ParquetPrinter {
     private int refIndex;
     private int position;
     private boolean customPosOnly = false;
+    static int actualCount = 0;
 
     private int[] customPos = {
             67478327,
@@ -64,7 +65,7 @@ public class ParquetPrinter {
             System.out.println("Scanning for ");
         }
         parquetPrinter.print();
-
+        System.out.println("actual count: " + actualCount);
 
     }
 
@@ -90,6 +91,7 @@ public class ParquetPrinter {
                 if (!(focusPrint || customPosOnly) ||
                         (base.getReferenceIndex() == refIndex && base.getPosition() == position) || (posSet.contains(base.getPosition()))) {
                     recordPrinter(base);
+                    actualCount++;
                 }
             }
         } catch (IOException e) {
