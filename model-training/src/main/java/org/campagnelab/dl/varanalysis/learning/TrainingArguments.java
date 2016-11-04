@@ -5,6 +5,7 @@ import com.beust.jcommander.Parameters;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersForGPU;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersNarrower2;
+import org.campagnelab.dl.varanalysis.tools.RecordingToolArguments;
 import org.campagnelab.dl.varanalysis.tools.ToolArguments;
 
 import java.util.ArrayList;
@@ -12,11 +13,13 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * Arguments for tools that train models.
  * Created by fac2003 on 8/20/16.
  */
 @Parameters(commandDescription = "Train a model given training files and a validation file.")
 
-public class TrainingArguments implements ToolArguments {
+public class TrainingArguments extends RecordingToolArguments {
+
     @Parameter(required=true, names = {"-t", "--training-sets"}, variableArity=true, description = "Training sets, must be provided in .sbi/.sbip format (produced with Goby3). When more than one dataset is provided (multiple -t options), the " +
             "datasets are concatenated.")
     public List<String> trainingSets = new ArrayList<>();

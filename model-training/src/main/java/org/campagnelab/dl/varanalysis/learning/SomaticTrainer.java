@@ -20,6 +20,7 @@ import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
 import org.campagnelab.dl.varanalysis.tools.AbstractTool;
+import org.campagnelab.dl.varanalysis.tools.ConditionRecordingTool;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
@@ -47,7 +48,7 @@ import java.util.Properties;
  * Abstract class to facilitate variations of training protocols.
  * Created by fac2003 on 7/12/16.
  */
-public abstract class SomaticTrainer extends AbstractTool<TrainingArguments> {
+public abstract class SomaticTrainer extends ConditionRecordingTool<TrainingArguments> {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
 
     protected static TrainingArguments parseArguments(String[] args, String commandName) {

@@ -65,13 +65,14 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
     public static void main(String[] args) throws IOException {
 
         TrainSomaticModelOnGPU tool = new TrainSomaticModelOnGPU();
-        tool.parseArguments(args, "TrainSomaticModelOnGPU", tool.createArguments());
-
+        TrainingArguments arguments = tool.createArguments();
+        tool.parseArguments(args, "TrainSomaticModelOnGPU", arguments);
         if ("FP16".equals(tool.args().precision)) {
             DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
         }
 
         tool.execute();
+        tool.writeModelingConditions(arguments);
         System.err.println("Allow Multi-GPU");
 
 
