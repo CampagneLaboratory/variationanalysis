@@ -132,7 +132,7 @@ public class CachedConcatIterator implements NamedDataSetIterator {
 
 
     private boolean cacheExists(String cacheName) {
-        return new File(cacheName + ".cf").exists();
+        return new File(cacheName + ".cf").exists() & new File(cacheName + ".cfp").exists() ;
     }
 
     private String buildCacheName(List<NamedDataSetIterator> iterators) {
