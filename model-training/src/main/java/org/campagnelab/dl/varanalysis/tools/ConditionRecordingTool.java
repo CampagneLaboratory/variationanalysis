@@ -3,8 +3,9 @@ package org.campagnelab.dl.varanalysis.tools;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterDescription;
 import com.beust.jcommander.ParameterException;
-import org.apache.commons.collections.MultiHashMap;
 import org.apache.commons.collections.map.HashedMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -14,6 +15,8 @@ import java.util.Map;
  * A tool that records model conditions and results to a file.
  */
 public abstract class ConditionRecordingTool<T extends RecordingToolArguments> extends AbstractTool<T> {
+    static private Logger LOG = LoggerFactory.getLogger(ConditionRecordingTool.class);
+
     protected T getRecordingArguments() {
         return arguments;
     }
@@ -71,6 +74,7 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
 
     public void writeModelingConditions(RecordingToolArguments arguments)  {
      try {
+         LOG.info("Writing model-conditions to "+args().modelConditionFilename);
          String header = "Results|Specified_Arguments|Default_Arguments\n";
          ModelConditionHelper.createLogFile(arguments.modelConditionFilename, header);
          ModelConditionHelper.appendToLogFile(arguments.modelConditionFilename,

@@ -70,12 +70,9 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         if ("FP16".equals(tool.args().precision)) {
             DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
         }
-
         tool.execute();
         tool.writeModelingConditions(arguments);
         System.err.println("Allow Multi-GPU");
-
-
     }
 
 

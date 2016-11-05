@@ -38,7 +38,6 @@ public class ModelConditionHelper {
         if (!logFile.exists()) {
             String logPathParent = logPath.substring(0, logPath.lastIndexOf("/"));
             FileUtils.forceMkdir(new File(logPathParent));
-            System.out.println("Creating log file");
             Writer logFileWriter = new BufferedWriter(new FileWriter(logFile));
             logFileWriter.append(header);
             logFileWriter.close();

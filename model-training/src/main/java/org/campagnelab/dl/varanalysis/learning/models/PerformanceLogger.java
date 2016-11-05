@@ -67,7 +67,7 @@ public class PerformanceLogger {
     public void log(String prefix, long numExamplesUsed, int epoch, double score, double auc) {
         ObjectArrayList<Performance> defaultValue = new ObjectArrayList<>();
         bestScore=Math.min(bestScore,score);
-        bestAUC=Math.max(bestAUC,score);
+        bestAUC=Math.max(bestAUC,auc);
         log.getOrDefault(prefix, defaultValue).add(new Performance(numExamplesUsed, epoch, score, auc));
         if (defaultValue.size() > 0) {
             log.put(prefix, defaultValue);
