@@ -111,16 +111,18 @@ public class Predict extends AbstractTool<PredictArguments> {
         BaseInformationIterator iterator = new BaseInformationIterator(evaluationDataFilename, args().miniBatchSize, featureMapper, labelMapper);
         AUCHelper helper=new AUCHelper();
 
-        helper.estimate(iterator, model,
+        double auc=
+                helper.estimate(iterator, model,
                 args().numRecordsForAUC,
                 prediction -> {
                     String correctness = (prediction.predictedLabelYes > prediction.predictedLabelNo && prediction.trueLabelYes == 1f ||
-                            prediction.predictedLabelNo > prediction.predictedLabelYes && prediction.trueLabelYes == 0) ? "correct" : "wrong";
+                            prediction.predictedLabelNo > prediction.predictedLabelYes && prediction.trueLabelYes == 0f) ? "correct" : "wrong";
 
                     if (doOuptut(correctness, args(), Math.max(prediction.predictedLabelNo, prediction.predictedLabelYes))) {
                         results.printf("%d\t%f\t%f\t%f\t%s%n", prediction.index, prediction.trueLabelYes, prediction.predictedLabelNo,
                                 prediction.predictedLabelYes, correctness);
                     }
+
                     //convert true label to the convention used by auc calculator: negative true label=labelNo.
                     pgReadWrite.lightUpdate();
 
@@ -128,10 +130,7 @@ public class Predict extends AbstractTool<PredictArguments> {
                 /* stop if */ nProcessed -> nProcessed > args().scoreN
 
                 );
-
-
-
-        System.out.println("AUC on " + prefix + "=" + aucLossCalculator.evaluateStatistic());
+        System.out.println("AUC on " + prefix + "=" + auc);
         results.close();
         pgReadWrite.stop();
 
