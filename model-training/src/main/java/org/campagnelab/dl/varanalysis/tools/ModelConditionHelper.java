@@ -51,9 +51,11 @@ public class ModelConditionHelper {
      * @param lineArgs strings to add to the log file
      * @throws IOException
      */
-    public static void appendToLogFile(String logPath, String... lineArgs) throws IOException {
+    public static void appendToLogFile(String logPath, String tag, String... lineArgs) throws IOException {
         Writer logFileWriter = new BufferedWriter(new FileWriter(logPath, true));
-        logFileWriter.append(StringUtils.join(lineArgs, '|') + "\r\n");
+        logFileWriter.append(tag);
+        logFileWriter.append('|');
+        logFileWriter.append(StringUtils.join(lineArgs, '|') + "\n");
         logFileWriter.close();
     }
 }

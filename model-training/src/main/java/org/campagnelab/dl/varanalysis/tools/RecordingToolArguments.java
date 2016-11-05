@@ -8,5 +8,5 @@ import com.beust.jcommander.Parameter;
 
 public class RecordingToolArguments implements ToolArguments {
     @Parameter(required = false, names = {"-m", "--model-conditions"}, description = "Path to the model conditions file. The file will be appedend with a command line parameters and associated results.")
-    String modelConditionFilename="./model-conditions.txt";
+    public String modelConditionFilename = "./model-conditions.txt";
 }

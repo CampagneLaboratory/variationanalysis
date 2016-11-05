@@ -3,6 +3,7 @@ package org.campagnelab.dl.varanalysis.tools;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterDescription;
 import com.beust.jcommander.ParameterException;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
 
 /**
  * A tool that records model conditions and results to a file.
@@ -23,7 +25,7 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
     /**
      * Stores statistics produced by this tool.
      */
-    private Map<String, Object> resultValues=new HashedMap();
+    private SortedMap<String, Object> resultValues=new Object2ObjectAVLTreeMap<>();
 
     /**
      * Get the map of result names to values
@@ -33,9 +35,9 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
         return resultValues;
     }
     // Map of command-line strings for fields to their set values if they were specified on the command-line
-    private Map<String, Object> setFieldValues=new HashedMap();
+    private SortedMap<String, Object> setFieldValues=new Object2ObjectAVLTreeMap<>();
     // Map of command-line strings for fields to their default values if they weren't specified
-    private Map<String, Object> defaultFieldValues=new HashedMap();
+    private SortedMap<String, Object> defaultFieldValues=new Object2ObjectAVLTreeMap<>();
 
     /**
      * Store the command-line strings for fields with their values after argument parsing
@@ -43,8 +45,8 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
      * @param commander JCommander instance with parsed arguments
      */
     public void storeFieldValues(JCommander commander, RecordingToolArguments arguments) {
-        setFieldValues = new HashMap<>();
-        defaultFieldValues = new HashMap<>();
+        setFieldValues =new Object2ObjectAVLTreeMap<>();
+        defaultFieldValues =new Object2ObjectAVLTreeMap<>();
         for (ParameterDescription p : commander.getParameters()) {
             if (p.isAssigned()) {
                 setFieldValues.put(p.getLongestName(), p.getParameterized().get(arguments));
@@ -75,12 +77,16 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
     public void writeModelingConditions(RecordingToolArguments arguments)  {
      try {
          LOG.info("Writing model-conditions to "+args().modelConditionFilename);
-         String header = "Results|Specified_Arguments|Default_Arguments\n";
+         String header = "Tag|Results|Specified_Arguments|Default_Arguments\n";
          ModelConditionHelper.createLogFile(arguments.modelConditionFilename, header);
-         ModelConditionHelper.appendToLogFile(arguments.modelConditionFilename,
+         String allArguments = ModelConditionHelper.fieldMapToString(defaultFieldValues());
+         // construct a tag of upper case letters from the hashed arguments:
+         System.out.println(allArguments);
+         String tag=Integer.toString(allArguments.hashCode(),26+10).toUpperCase().replaceAll("-","");
+         ModelConditionHelper.appendToLogFile(arguments.modelConditionFilename, tag,
                  ModelConditionHelper.fieldMapToString(resultValues()),
                  ModelConditionHelper.fieldMapToString(setFieldValues()),
-                 ModelConditionHelper.fieldMapToString(defaultFieldValues()));
+                 allArguments);
 
      } catch (IOException e) {
          throw new RuntimeException(e);
