@@ -98,7 +98,8 @@ public class TrainSomaticModel extends SomaticTrainer {
         System.out.println("Finished loading validation records.");
         System.out.flush();
         double score=-1;
-        for (int epoch = 0; epoch < args().maxEpochs; epoch++) {
+        int epoch;
+        for (epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
 
@@ -178,7 +179,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         pgEpoch.stop();
 
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-                "not early stopping", scoreMap, args().maxEpochs, bestScore, args().maxEpochs, net);
+                "not early stopping", scoreMap, epoch, bestScore, args().maxEpochs, net);
     }
 
     private void writeBestAUC(double bestAUC) {

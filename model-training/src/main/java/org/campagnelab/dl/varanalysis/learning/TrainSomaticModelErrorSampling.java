@@ -93,8 +93,8 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         double finalAUC = 0.5;
         long numExamplesUsed = 0;
         perf= new MeasurePerformance(args().numValidation, validationDatasetFilename, miniBatchNumber, featureCalculator, labelMapper);
-
-        for (int epoch = 0; epoch < args().maxEpochs; epoch++) {
+int epoch;
+        for (epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
             pg.displayLocalSpeed = true;
@@ -155,7 +155,7 @@ public class TrainSomaticModelErrorSampling extends SomaticTrainer {
         pgEpoch.stop();
         saver.saveModel(net, "final", finalAUC);
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-                "not early stopping", scoreMap, args().maxEpochs, bestScore, args().maxEpochs, net);
+                "not early stopping", scoreMap, epoch, bestScore, args().maxEpochs, net);
     }
 
     /**

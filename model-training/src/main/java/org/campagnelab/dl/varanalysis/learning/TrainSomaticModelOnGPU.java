@@ -114,7 +114,8 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         double bestAUC = 0;
         int notImproved = 0;
         int iter = 0;
-        for (int epoch = 0; epoch < args().maxEpochs; epoch++) {
+        int epoch;
+        for ( epoch = 0; epoch < args().maxEpochs; epoch++) {
 
             wrapper.fit(async);
             pgEpoch.update();
@@ -158,7 +159,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         //TODO enable with 0.6.0+
         //     wrapper.shutdown();
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-                "not early stopping", scoreMap, args().maxEpochs, bestScore, args().maxEpochs, net);
+                "not early stopping", scoreMap, epoch, bestScore, args().maxEpochs, net);
     }
 
     private void writeBestAUC(double bestAUC) {
