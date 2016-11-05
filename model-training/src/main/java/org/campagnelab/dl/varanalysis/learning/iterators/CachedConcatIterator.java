@@ -1,23 +1,18 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
-import com.google.common.collect.Lists;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.IndelFeatures;
-import org.campagnelab.dl.model.utils.mappers.LabelMapper;
-import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.varanalysis.tools.MapFeatures;
 import org.campagnelab.dl.varanalysis.tools.MapFeaturesArguments;
-import org.deeplearning4j.datasets.iterator.BaseDatasetIterator;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Properties;
 
 /**
  * A concat iterator that transparently creates a disk cache of the content of the input iterators. Note that
@@ -36,7 +31,7 @@ public class CachedConcatIterator implements NamedDataSetIterator {
         this.iterators = iterators;
         // determine if cache exists. If it does, use it.
         String cacheName = buildCacheName(iterators);
-        if (!cacheExists(cacheName)) {
+        if (!cacheExists(cacheName, cacheN)) {
             // Cache does not exist, we first build it:
             MapFeatures tool = new MapFeatures();
             MapFeaturesArguments arguments = new MapFeaturesArguments();
@@ -51,7 +46,7 @@ public class CachedConcatIterator implements NamedDataSetIterator {
             tool.setArguments(arguments);
             tool.execute();
         }
-        assert cacheExists(cacheName) : "A cache must exist at this point.";
+        assert cacheExists(cacheName,cacheN) : "A cache must exist at this point.";
         delegate = new MappedFeaturesIterator(cacheName);
     }
 
@@ -130,9 +125,30 @@ public class CachedConcatIterator implements NamedDataSetIterator {
         return delegate.next();
     }
 
-
-    private boolean cacheExists(String cacheName) {
-        return new File(cacheName + ".cf").exists() & new File(cacheName + ".cfp").exists() ;
+    /**
+     * Check the that cache exists and has the same number of records that indicated in the parameter.
+     * @param cacheName
+     * @param cacheN
+     * @return
+     */
+    private boolean cacheExists(String cacheName, long cacheN) {
+        boolean cacheExists = new File(cacheName + ".cf").exists() & new File(cacheName + ".cfp").exists();
+        if (!cacheExists) {
+            return false;
+        }
+        try {
+            // check that the number of cached items matches the value of cacheN on the command line:
+            Properties cfp = new Properties();
+            cfp.load(new FileReader(new File(cacheName + ".cfp")));
+            Object n = cfp.getProperty("numRecords");
+            if (n == null) return false;
+            long cacheNSaved = Long.parseLong(n.toString());
+            return (cacheNSaved == cacheN);
+        } catch (FileNotFoundException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     private String buildCacheName(List<NamedDataSetIterator> iterators) {
