@@ -75,8 +75,13 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
         return defaultFieldValues;
     }
 
+    /**
+     * Add an option not exposed by command line arguments.
+     * @param optionName
+     * @param value
+     */
     public void addCustomOption(String optionName, Object value) {
-        assert defaultFieldValues.get(optionName) == null :
+        assert (defaultFieldValues.get(optionName) == null && defaultFieldValues.get("--"+optionName)==null):
                 "A custom option name cannot match the name of a command line parameter: " + optionName;
 
         defaultFieldValues.put(optionName, value);

@@ -43,8 +43,7 @@ public class TrainSomaticModel extends SomaticTrainer {
      * Error enrichment support.
      **/
     public static final int MAX_ERRORS_KEPT = 16;
-    private final boolean ERROR_ENRICHMENT = false;
-    private final int NUM_ERRORS_ADDED = 16;
+
     private final boolean IGNORE_ERRORS_ON_SIMULATED_EXAMPLES = false;
     private HitBoundedPriorityQueue queue = new HitBoundedPriorityQueue(MAX_ERRORS_KEPT);
 
@@ -63,6 +62,7 @@ public class TrainSomaticModel extends SomaticTrainer {
             System.out.println("Please add at least one training set to the args().");
             return;
         }
+        tool.args().errorEnrichment=tool.args().errorEnrichment;
         tool.execute();
         tool.writeModelingConditions(tool.getRecordingArguments());
     }
@@ -87,7 +87,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         ModelSaver saver = new ModelSaver(directory);
         int iter = 0;
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
-        System.out.println("ERROR_ENRICHMENT=" + ERROR_ENRICHMENT);
+        System.out.println("errorEnrichment=" + args().errorEnrichment);
         double bestAUC = 0.5;
         performanceLogger.setCondition(args().experimentalCondition);
         int numExamplesUsed = 0;
@@ -97,16 +97,16 @@ public class TrainSomaticModel extends SomaticTrainer {
         perf = new MeasurePerformance(args().numValidation, validationDatasetFilename, args().miniBatchSize, featureCalculator, labelMapper);
         System.out.println("Finished loading validation records.");
         System.out.flush();
-        double score=-1;
+        double score = -1;
         int epoch;
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
-
+            iter = 0;
             pg.expectedUpdates = miniBatchesPerEpoch; // one iteration processes miniBatchIterator elements.
             pg.start();
             int lastIter = 0;
-            net.fit(async);
+            //net.fit(async);
             while (async.hasNext()) {
 
                 DataSet ds = async.next();
@@ -118,24 +118,17 @@ public class TrainSomaticModel extends SomaticTrainer {
                 // fit the net:
                 net.fit(ds);
                 numExamplesUsed += ds.numExamples();
-                if (ERROR_ENRICHMENT) {
+                if (args().errorEnrichment) {
                     INDArray predictedLabels = net.output(ds.getFeatures(), false);
                     keepWorseErrors(ds, predictedLabels, ds.getLabels());
                 }
                 pg.lightUpdate();
-                if (ERROR_ENRICHMENT && iter % 5 == 1) {
+                if (args().errorEnrichment && iter % 5 == 0) {
                     // update wrongness after 5 minibatches to give training a chance to learn how worse errors
                     // compare to the other records.
                     queue.updateWrongness(net);
                 }
                 score = net.score();
-                if (Double.isNaN(score)) {
-                    //   System.out.println(net.params());
-                    System.out.println("nan at " + iter);
-                    System.out.println(ds.toString());
-                    System.err.println("Aborting because NaN was generated for score.");
-                    System.exit(1);
-                }
                 iter++;
                 if (score < bestScore * 0.95 && iter > (lastIter + MIN_ITERATION_BETWEEN_BEST_MODEL)) {
                     bestScore = score;
@@ -175,6 +168,8 @@ public class TrainSomaticModel extends SomaticTrainer {
             queue.clear();
             async.reset();    //Reset iterator for another epoch
             performanceLogger.write();
+            //addCustomOption("--error-enrichment", args().errorEnrichment);
+            //addCustomOption("--num-errors-added", args().numErrorsAdded);
         }
         pgEpoch.stop();
 
@@ -196,16 +191,16 @@ public class TrainSomaticModel extends SomaticTrainer {
     @Override
     public void appendProperties(ModelPropertiesHelper helper) {
         super.appendProperties(helper);
-        helper.put("ErrorEnrichment.active", ERROR_ENRICHMENT);
+        helper.put("ErrorEnrichment.active", args().errorEnrichment);
         helper.put("ErrorEnrichment.MAX_ERRORS_KEPT", MAX_ERRORS_KEPT);
-        helper.put("ErrorEnrichment.NUM_ERRORS_ADDED", NUM_ERRORS_ADDED);
+        helper.put("ErrorEnrichment.args().numErrorsAdded", args().numErrorsAdded);
         helper.put("ErrorEnrichment.IGNORE_ERRORS_ON_SIMULATED_EXAMPLES", IGNORE_ERRORS_ON_SIMULATED_EXAMPLES);
     }
 
     DataSet[] array = new DataSet[2];
 
     private DataSet enrichWithErrors(DataSet ds) {
-        if (!ERROR_ENRICHMENT) {
+        if (!args().errorEnrichment) {
             return ds;
         }
         if (queue.isEmpty()) {
@@ -213,7 +208,7 @@ public class TrainSomaticModel extends SomaticTrainer {
             return ds;
         }
 
-        int size = this.NUM_ERRORS_ADDED;
+        int size = this.args().numErrorsAdded;
         INDArray inputs = Nd4j.zeros(size, featureCalculator.numberOfFeatures());
         INDArray labels = Nd4j.zeros(size, labelMapper.numberOfLabels());
         int i = 0;
@@ -238,7 +233,7 @@ public class TrainSomaticModel extends SomaticTrainer {
 
 
     private void keepWorseErrors(DataSet minibatch, INDArray predictedLabels, INDArray labels) {
-        if (!ERROR_ENRICHMENT) {
+        if (!args().errorEnrichment) {
             return;
         }
         int size = minibatch.numExamples();
@@ -258,7 +253,7 @@ public class TrainSomaticModel extends SomaticTrainer {
     }
 
     private boolean isWrongPrediction(int exampleIndex, INDArray predictedLabels, INDArray labels) {
-        if (!ERROR_ENRICHMENT) {
+        if (!args().errorEnrichment) {
             return false;
         }
         if (IGNORE_ERRORS_ON_SIMULATED_EXAMPLES && labels.get(new PointIndex(exampleIndex)).getDouble(0) == 1) {
@@ -279,7 +274,7 @@ public class TrainSomaticModel extends SomaticTrainer {
         float meanWrongness = queue.getMeanWrongness();
 
         System.out.printf("Epoch %d Iteration %d AUC=%f ", epoch, iter, auc);
-        if (ERROR_ENRICHMENT) {
+        if (args().errorEnrichment) {
             System.out.printf("wrongness: %f-%f mean: %f #examples: %d %n",
                     minWrongness, maxWrongness, meanWrongness,
                     queue.size());

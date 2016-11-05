@@ -3,10 +3,8 @@ package org.campagnelab.dl.varanalysis.learning;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapperV19;
-import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersForGPU;
 import org.campagnelab.dl.varanalysis.learning.architecture.SixDenseLayersNarrower2;
 import org.campagnelab.dl.varanalysis.tools.RecordingToolArguments;
-import org.campagnelab.dl.varanalysis.tools.ToolArguments;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,7 +18,7 @@ import java.util.List;
 
 public class TrainingArguments extends RecordingToolArguments {
 
-    @Parameter(required=true, names = {"-t", "--training-sets"}, variableArity=true, description = "Training sets, must be provided in .sbi/.sbip format (produced with Goby3). When more than one dataset is provided (multiple -t options), the " +
+    @Parameter(required = true, names = {"-t", "--training-sets"}, variableArity = true, description = "Training sets, must be provided in .sbi/.sbip format (produced with Goby3). When more than one dataset is provided (multiple -t options), the " +
             "datasets are concatenated.")
     public List<String> trainingSets = new ArrayList<>();
 
@@ -45,7 +43,7 @@ public class TrainingArguments extends RecordingToolArguments {
     @Parameter(names = {"-r", "--learning-rate"}, description = "Learning rate.")
     public double learningRate = 0.1;
 
-    @Parameter(names = { "--dropout-rate"}, description = "Dropout rate.")
+    @Parameter(names = {"--dropout-rate"}, description = "Dropout rate.")
     public Double dropoutRate = null;
 
     @Parameter(names = "--regularization-rate", description = "Regularization rate. Disabled if set to NaN.")
@@ -70,7 +68,7 @@ public class TrainingArguments extends RecordingToolArguments {
     public String previousModelName = "bestAUC";
 
     @Parameter(names = "--net-architecture", description = "fully qualified classname that implements the choice of network architecture.")
-    public java.lang.String architectureClassname= SixDenseLayersNarrower2.class.getCanonicalName();
+    public java.lang.String architectureClassname = SixDenseLayersNarrower2.class.getCanonicalName();
 
 
     public String[] getTrainingSets() {
@@ -78,12 +76,17 @@ public class TrainingArguments extends RecordingToolArguments {
     }
 
     @Parameter(names = "--parameter-precision", description = "Parameter precision, either FP16 or FP32. Note that models trained with FP16 cannot be used on the CPU (as of DL4J 0.6.0).")
-    public String precision="FP32";
+    public String precision = "FP32";
 
     @Parameter(names = "--feature-mapper", description = "Fully qualified name of the feature mapper class.")
-    public String featureMapperClassname= FeatureMapperV19.class.getCanonicalName();
+    public String featureMapperClassname = FeatureMapperV19.class.getCanonicalName();
 
-    @Parameter(names = {"-e","--validate-every"}, description = "Validate only every e epochs when using early stopping. This can save time if training is much faster than evaluation.")
-    public int validateEvery= 1;
+    @Parameter(names = {"-e", "--validate-every"}, description = "Validate only every e epochs when using early stopping. This can save time if training is much faster than evaluation.")
+    public int validateEvery = 1;
+
+    @Parameter(names = {"--error-enrichment"}, description = "When set, train with error enrichment.)")
+    public boolean errorEnrichment = false;
+    @Parameter(names = {"--num-errors-added"}, description = "Number of errors added to each mini-batch (only used when training with error enrichment).)")
+    public int numErrorsAdded = 16;
 
 }
