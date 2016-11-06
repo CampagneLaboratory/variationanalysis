@@ -76,6 +76,16 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
     }
 
     /**
+     * Calculate the complete set of values, default as well as values set by the user.
+     * @return
+     */
+    public Map<String, Object> getAllFieldValues() {
+      SortedMap  map=new Object2ObjectAVLTreeMap();
+        map.putAll(defaultFieldValues());
+        map.putAll(setFieldValues());
+        return map;
+    }
+    /**
      * Add an option not exposed by command line arguments.
      * @param optionName
      * @param value
@@ -94,7 +104,7 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
             LOG.info("Writing model-conditions to " + args().modelConditionFilename);
             String header = "Tag|Results|Specified_Arguments|Default_Arguments|Classname\n";
             ModelConditionHelper.createLogFile(arguments.modelConditionFilename, header);
-            String allArguments = ModelConditionHelper.fieldMapToString(defaultFieldValues());
+            String allArguments = ModelConditionHelper.fieldMapToString(getAllFieldValues());
             // construct a tag of upper case letters from the hashed arguments:
             System.out.println(allArguments);
             String tag = Integer.toString(allArguments.hashCode(), 26 + 10).toUpperCase().replaceAll("-", "");

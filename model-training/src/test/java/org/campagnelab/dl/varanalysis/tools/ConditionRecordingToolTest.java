@@ -41,7 +41,7 @@ public class ConditionRecordingToolTest {
         tool.writeModelingConditions(args);
         assertEquals("Model condition file does not match expected.",
                 FileUtils.readFileToString(new File(args.modelConditionFilename), "utf-8"),
-                "Tag|Results|Specified_Arguments|Default_Arguments\n" +
-                        "9QV3Z7||--learning-rate 1.0 --model-conditions test-results/model-conditions/1.txt --random-seed 1478359791323 --training-sets [T] --validation-set V|--auc-clip-max-observations 10000 --dropout-rate null --early-stopping-num-epochs 10 --experimental-condition not_specified --feature-mapper org.campagnelab.dl.model.utils.mappers.FeatureMapperV19 --max-epochs 2147483647 --mini-batch-size 32 --net-architecture ABC --num-training 2147483647 --num-validation 2147483647 --parameter-precision FP32 --previous-model-name bestAUC --previous-model-path null --regularization-rate NaN --trio false --validate-every 1\n");
+                "Tag|Results|Specified_Arguments|Default_Arguments|Classname\n" +
+                        "9Y5B3J||--learning-rate 1.0 --model-conditions test-results/model-conditions/1.txt --random-seed 1478359791323 --training-sets [T] --validation-set V|--auc-clip-max-observations 10000 --dropout-rate null --early-stopping-num-epochs 10 --error-enrichment false --experimental-condition not_specified --feature-mapper org.campagnelab.dl.model.utils.mappers.FeatureMapperV19 --learning-rate 1.0 --max-epochs 2147483647 --mini-batch-size 32 --model-conditions test-results/model-conditions/1.txt --net-architecture ABC --num-errors-added 16 --num-training 2147483647 --num-validation 2147483647 --parameter-precision FP32 --previous-model-name bestAUC --previous-model-path null --random-seed 1478359791323 --regularization-rate NaN --training-sets [T] --trio false --validate-every 1 --validation-set V|\n");
     }
 }
