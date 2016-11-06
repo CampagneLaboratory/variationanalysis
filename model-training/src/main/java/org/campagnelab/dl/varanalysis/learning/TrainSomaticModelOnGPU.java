@@ -159,7 +159,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         //TODO enable with 0.6.0+
         //     wrapper.shutdown();
         return new EarlyStoppingResult<MultiLayerNetwork>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-                "not early stopping", scoreMap, epoch, bestScore, args().maxEpochs, net);
+                "not early stopping", scoreMap, performanceLogger.getBestEpoch("bestAUC"), bestScore, args().maxEpochs, net);
     }
 
     private void writeBestAUC(double bestAUC) {

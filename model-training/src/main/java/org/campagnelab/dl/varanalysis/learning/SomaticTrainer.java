@@ -199,7 +199,7 @@ public abstract class SomaticTrainer extends ConditionRecordingTool<TrainingArgu
         performanceLogger.write();
         resultValues().put("AUC",performanceLogger.getBestAUC());
         resultValues().put("score",performanceLogger.getBestScore());
-        resultValues().put("bestModelEpoch",result.getBestModelEpoch());
+        resultValues().put("bestModelEpoch",performanceLogger.getBestEpoch("bestAUC"));
         resultValues().put("model-time",time);
     }
 

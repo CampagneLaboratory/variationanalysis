@@ -24,13 +24,16 @@ public class PerformanceLogger {
 
     /**
      * Return the best score seen so far. Smaller score is best.
+     *
      * @return
      */
     public double getBestScore() {
         return bestScore;
     }
+
     /**
      * Return the best AUC seen so far. Larger  AUC is best.
+     *
      * @return
      */
     public double getBestAUC() {
@@ -66,12 +69,23 @@ public class PerformanceLogger {
      */
     public void log(String prefix, long numExamplesUsed, int epoch, double score, double auc) {
         ObjectArrayList<Performance> defaultValue = new ObjectArrayList<>();
-        bestScore=Math.min(bestScore,score);
-        bestAUC=Math.max(bestAUC,auc);
+        bestScore = Math.min(bestScore, score);
+        bestAUC = Math.max(bestAUC, auc);
         log.getOrDefault(prefix, defaultValue).add(new Performance(numExamplesUsed, epoch, score, auc));
         if (defaultValue.size() > 0) {
             log.put(prefix, defaultValue);
         }
+    }
+
+    /**
+     * Return the epoch when the best AUC was obtained.
+     */
+    public int getBestEpoch(String prefix) {
+        int epoch = -1;
+        for (Performance per : log.get(prefix)) {
+            epoch = Math.max(epoch, per.epoch);
+        }
+        return epoch;
     }
 
     /**
