@@ -115,7 +115,8 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
         int notImproved = 0;
         int iter = 0;
         int epoch;
-        for ( epoch = 0; epoch < args().maxEpochs; epoch++) {
+        assert async.resetSupported(): "Iterator must support reset.";
+        for (epoch = 0; epoch < args().maxEpochs; epoch++) {
 
             wrapper.fit(async);
             pgEpoch.update();
@@ -124,11 +125,10 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
             scoreMap.put(epoch, score);
             bestScore = Math.min(score, bestScore);
 
-            async.reset();
             writeBestScoreFile();
-            if (async.resetSupported()) {
-                async.reset();
-            }
+            async.reset();
+
+            saver.saveLatestModel(net, net.score());
 
             writeProperties(this);
             writeBestScoreFile();

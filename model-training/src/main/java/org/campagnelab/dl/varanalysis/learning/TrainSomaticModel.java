@@ -50,7 +50,7 @@ public class TrainSomaticModel extends SomaticTrainer {
 
     @Override
     protected NamedDataSetIterator decorateIterator(NamedDataSetIterator iterator) {
-        //  return new CachingDataSetIterator(iterator, new InMemoryDataSetCache());
+        // return new NamedCachingDataSetIterator(new CachingDataSetIterator(iterator, new InMemoryDataSetCache()), "<no basename defined>");
         return new CachedConcatIterator(iterator, args().miniBatchSize, featureCalculator, args().numTraining);
     }
 
@@ -62,7 +62,7 @@ public class TrainSomaticModel extends SomaticTrainer {
             System.out.println("Please add at least one training set to the args().");
             return;
         }
-        tool.args().errorEnrichment=tool.args().errorEnrichment;
+        tool.args().errorEnrichment = tool.args().errorEnrichment;
         tool.execute();
         tool.writeModelingConditions(tool.getRecordingArguments());
     }
@@ -114,7 +114,9 @@ public class TrainSomaticModel extends SomaticTrainer {
                     System.out.println("There should be two labels in the miniBatch");
                 }
 
-                ds = enrichWithErrors(ds);
+                if (args().errorEnrichment) {
+                    ds = enrichWithErrors(ds);
+                }
                 // fit the net:
                 net.fit(ds);
                 numExamplesUsed += ds.numExamples();
@@ -128,24 +130,11 @@ public class TrainSomaticModel extends SomaticTrainer {
                     // compare to the other records.
                     queue.updateWrongness(net);
                 }
-                score = net.score();
-                iter++;
-                if (score < bestScore * 0.95 && iter > (lastIter + MIN_ITERATION_BETWEEN_BEST_MODEL)) {
-                    bestScore = score;
-                    saver.saveBestModel(net, score);
-                    System.out.println("Saving best score model.. score=" + bestScore);
-                    performanceLogger.log("best", numExamplesUsed, epoch, score);
-                    lastIter = iter;
-
-                }
-                scoreMap.put(iter, bestScore);
 
             }
             //   System.err.println("Num Examples Used: "+numExamplesUsed);
             //save latest after the end of an epoch:
-            if (epoch % 10 == 1) {
-                saver.saveLatestModel(net, net.score());
-            }
+            saver.saveLatestModel(net, net.score());
             writeProperties(this);
             writeBestScoreFile();
             double auc = estimateTestSetPerf(epoch, iter);
