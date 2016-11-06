@@ -19,12 +19,12 @@ import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
-import org.campagnelab.dl.varanalysis.tools.AbstractTool;
 import org.campagnelab.dl.varanalysis.tools.ConditionRecordingTool;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.nn.api.Layer;
+import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.api.Updater;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -48,11 +48,12 @@ import java.util.Properties;
  * Abstract class to facilitate variations of training protocols.
  * Created by fac2003 on 7/12/16.
  */
-public abstract class SomaticTrainer extends ConditionRecordingTool<TrainingArguments> {
+public abstract class SomaticTrainer extends ConditionRecordingTool<SomaticTrainingArguments> {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
+    protected ParameterPrecision precision=ParameterPrecision.FP32;
 
     protected static TrainingArguments parseArguments(String[] args, String commandName) {
-        TrainingArguments arguments = new TrainingArguments();
+        SomaticTrainingArguments arguments = new SomaticTrainingArguments();
         JCommander commander = new JCommander(arguments);
         commander.setProgramName(commandName);
         try {
@@ -160,12 +161,14 @@ public abstract class SomaticTrainer extends ConditionRecordingTool<TrainingArgu
             // training where we left it off. Note that models must have the same architecture or setting
             // parameters will fail.
             ModelLoader loader = new ModelLoader(args().previousModelPath);
-            MultiLayerNetwork savedNetwork = loader.loadModel(args().previousModelName);
-            if (savedNetwork == null || savedNetwork.getUpdater() == null || savedNetwork.params() == null) {
+            Model savedModel = loader.loadModel(args().previousModelName);
+            MultiLayerNetwork savedNet = savedModel instanceof MultiLayerNetwork ?
+                    (MultiLayerNetwork) savedModel : null;
+            if (savedNet == null || savedNet.getUpdater() == null || savedNet.params() == null) {
                 System.err.println("Unable to load model or updater from " + args().previousModelPath);
             } else {
-                net.setUpdater(savedNetwork.getUpdater());
-                net.setParams(savedNetwork.params());
+                net.setUpdater(savedNet.getUpdater());
+                net.setParams(savedNet.params());
 
             }
         }
@@ -197,10 +200,10 @@ public abstract class SomaticTrainer extends ConditionRecordingTool<TrainingArgu
         writeBestScoreFile();
         System.out.println("Model completed, saved at time: " + attempt);
         performanceLogger.write();
-        resultValues().put("AUC",performanceLogger.getBestAUC());
-        resultValues().put("score",performanceLogger.getBestScore());
-        resultValues().put("bestModelEpoch",performanceLogger.getBestEpoch("bestAUC"));
-        resultValues().put("model-time",time);
+        resultValues().put("AUC", performanceLogger.getBestAUC());
+        resultValues().put("score", performanceLogger.getBestScore());
+        resultValues().put("bestModelEpoch", performanceLogger.getBestEpoch("bestAUC"));
+        resultValues().put("model-time", time);
     }
 
     private NeuralNetAssembler getNeuralNetAssembler() {
@@ -226,7 +229,8 @@ public abstract class SomaticTrainer extends ConditionRecordingTool<TrainingArgu
     }
 
     protected void writeProperties(SomaticTrainer trainer) throws IOException {
-        ModelPropertiesHelper mpHelper = new ModelPropertiesHelper(this);
+        ModelPropertiesHelper mpHelper = new ModelPropertiesHelper();
+        appendProperties(mpHelper);
         mpHelper.addProperties(getReaderProperties(trainer.args().trainingSets.get(0)));
         mpHelper.writeProperties(directory);
     }
@@ -265,12 +269,7 @@ public abstract class SomaticTrainer extends ConditionRecordingTool<TrainingArgu
         return set.size();
     }
 
-    protected Precision precision = Precision.FP32;
 
-    public enum Precision {
-        FP16,
-        FP32
-    }
 
     public void appendProperties(ModelPropertiesHelper helper) {
         helper.setFeatureCalculator(featureCalculator);

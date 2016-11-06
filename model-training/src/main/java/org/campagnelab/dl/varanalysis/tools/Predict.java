@@ -8,6 +8,7 @@ import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator
 import org.campagnelab.dl.varanalysis.stats.AUCHelper;
 import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
+import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,19 +83,15 @@ public class Predict extends AbstractTool<PredictArguments> {
             isTrio = true;
             System.out.println("setting output to trio mode");
         }
-        MultiLayerNetwork model = modelLoader.loadModel(prefix);
+        MultiLayerNetwork model = modelLoader.loadMultiLayerNetwork(prefix);
         if (model == null) {
             System.err.println("Cannot load model with prefix: " + prefix);
             System.exit(1);
         }
 
-
-        //initialize results printer
-
-
+        // initialize results printer
         PrintWriter results = resultsPath;
         results.append("index\ttrueLabel\tprobabilityYes\tprobabilityNo\tcorrectness").append("\n");
-
 
         ProgressLogger pgReadWrite = new ProgressLogger(LOG);
         pgReadWrite.itemsName = prefix;
@@ -103,30 +100,28 @@ public class Predict extends AbstractTool<PredictArguments> {
         pgReadWrite.start();
 
 
-
-
         AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve(args().numRecordsForAUC);
         int index = 0;
         SimpleFeatureCalculator labelMapper = new SimpleFeatureCalculator();
         BaseInformationIterator iterator = new BaseInformationIterator(evaluationDataFilename, args().miniBatchSize, featureMapper, labelMapper);
-        AUCHelper helper=new AUCHelper();
+        AUCHelper helper = new AUCHelper();
 
-        double auc=
+        double auc =
                 helper.estimate(iterator, model,
-                args().numRecordsForAUC,
-                prediction -> {
-                    String correctness = (prediction.predictedLabelYes > prediction.predictedLabelNo && prediction.trueLabelYes == 1f ||
-                            prediction.predictedLabelNo > prediction.predictedLabelYes && prediction.trueLabelYes == 0f) ? "correct" : "wrong";
+                        args().numRecordsForAUC,
+                        prediction -> {
+                            String correctness = (prediction.predictedLabelYes > prediction.predictedLabelNo && prediction.trueLabelYes == 1f ||
+                                    prediction.predictedLabelNo > prediction.predictedLabelYes && prediction.trueLabelYes == 0f) ? "correct" : "wrong";
 
-                    if (doOuptut(correctness, args(), Math.max(prediction.predictedLabelNo, prediction.predictedLabelYes))) {
-                        results.printf("%d\t%f\t%f\t%f\t%s%n", prediction.index, prediction.trueLabelYes, prediction.predictedLabelNo,
-                                prediction.predictedLabelYes, correctness);
-                    }
+                            if (doOuptut(correctness, args(), Math.max(prediction.predictedLabelNo, prediction.predictedLabelYes))) {
+                                results.printf("%d\t%f\t%f\t%f\t%s%n", prediction.index, prediction.trueLabelYes, prediction.predictedLabelNo,
+                                        prediction.predictedLabelYes, correctness);
+                            }
 
-                    //convert true label to the convention used by auc calculator: negative true label=labelNo.
-                    pgReadWrite.lightUpdate();
+                            //convert true label to the convention used by auc calculator: negative true label=labelNo.
+                            pgReadWrite.lightUpdate();
 
-                },
+                        },
                 /* stop if */ nProcessed -> nProcessed > args().scoreN
 
                 );

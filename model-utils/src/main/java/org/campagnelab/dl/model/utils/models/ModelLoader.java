@@ -3,6 +3,7 @@ package org.campagnelab.dl.model.utils.models;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.ConfigurableFeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
+import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
@@ -30,6 +31,7 @@ public class ModelLoader {
 
     /**
      * Write the number of records used in test set to model config.properties.
+     *
      * @param testRecordCount
      */
     public void writeTestCount(long testRecordCount) {
@@ -60,7 +62,7 @@ public class ModelLoader {
             // load a properties file
             Properties prop = new Properties();
             prop.load(input);
-            if (prop.getProperty("precision")!=null &&prop.getProperty("precision").equals("FP16")) {
+            if (prop.getProperty("precision") != null && prop.getProperty("precision").equals("FP16")) {
                 LOG.info("Model uses FP16 precision. Activating support.");
                 DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
             }
@@ -79,7 +81,7 @@ public class ModelLoader {
             Constructor constructor = loadedMyClass.getConstructor();
             FeatureMapper featureMapper = (FeatureMapper) constructor.newInstance();
             if (featureMapper instanceof ConfigurableFeatureMapper) {
-                ConfigurableFeatureMapper cfm= (ConfigurableFeatureMapper) featureMapper;
+                ConfigurableFeatureMapper cfm = (ConfigurableFeatureMapper) featureMapper;
                 cfm.configure(sbiProperties);
             }
             return featureMapper;
@@ -89,7 +91,15 @@ public class ModelLoader {
         }
     }
 
-    public MultiLayerNetwork loadModel(String modelNamePrefix) throws IOException {
+    public MultiLayerNetwork loadMultiLayerNetwork(String modelNamePrefix) throws IOException {
+        Model m = loadModel(modelNamePrefix);
+        if (m instanceof MultiLayerNetwork) {
+            return (MultiLayerNetwork) m;
+        }
+        return null;
+    }
+
+    public Model loadModel(String modelNamePrefix) throws IOException {
 
         MultiLayerNetwork model = null;
         String pathname = getPath(modelNamePrefix, "/%sModel.bin");

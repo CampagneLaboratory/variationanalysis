@@ -275,8 +275,8 @@ public class TrainSomaticModel extends SomaticTrainer {
 
 
     @Override
-    public TrainingArguments createArguments() {
-        return new TrainingArguments();
+    public SomaticTrainingArguments createArguments() {
+        return new SomaticTrainingArguments();
     }
 
 

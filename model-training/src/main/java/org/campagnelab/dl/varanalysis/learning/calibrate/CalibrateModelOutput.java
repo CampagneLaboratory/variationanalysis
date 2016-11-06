@@ -54,7 +54,7 @@ public class CalibrateModelOutput {
 
         MultiLayerNetwork model = null;
         try {
-            model = loader.loadModel(modelPrefix);
+            model = loader.loadMultiLayerNetwork(modelPrefix);
         } catch (IOException e) {
             System.err.printf("Unable to load model with modelPath=%s and prefix=%s%n", modelDirectory, modelPrefix);
             System.exit(1);

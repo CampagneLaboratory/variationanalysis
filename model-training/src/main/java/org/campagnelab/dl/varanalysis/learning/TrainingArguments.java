@@ -25,8 +25,6 @@ public class TrainingArguments extends RecordingToolArguments {
     @Parameter(names = {"-v", "--validation-set"}, description = "Validation set, must be provided in .parquet/.info format.")
     public String validationSet = null;
 
-    @Parameter(names = "--trio", description = "Use to train trio models. The training and validation datasets must have three samples, parents first, patient last.")
-    public boolean isTrio = false;
 
     @Parameter(names = {"-n", "--num-training"}, description = "The maximum number of training samples to train with. ")
     public int numTraining = Integer.MAX_VALUE;
@@ -49,8 +47,6 @@ public class TrainingArguments extends RecordingToolArguments {
     @Parameter(names = "--regularization-rate", description = "Regularization rate. Disabled if set to NaN.")
     public double regularizationRate = Double.NaN;
 
-    @Parameter(names = "--auc-clip-max-observations", description = "The maximum number of observations to sample when evaluating the AUC. ")
-    public int aucClipMaxObservations = 10000;
 
     @Parameter(names = "--experimental-condition", description = "The experimental condition label used in validation loggin each epoch. ")
     public String experimentalCondition = "not_specified";

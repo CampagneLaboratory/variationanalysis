@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
+import org.apache.commons.math3.util.Precision;
 import org.campagnelab.dl.varanalysis.learning.iterators.NamedCachingDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
@@ -56,7 +57,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
                 // cross-device access is used for faster model averaging over pcie
                 .allowCrossDeviceAccess(true);*/
         if ("FP16".equals(args().precision)) {
-            precision = Precision.FP16;
+            precision = ParameterPrecision.FP16;
             System.out.println("Parameter precision set to FP16.");
         }
         super.execute();
@@ -65,7 +66,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
     public static void main(String[] args) throws IOException {
 
         TrainSomaticModelOnGPU tool = new TrainSomaticModelOnGPU();
-        TrainingArguments arguments = tool.createArguments();
+        SomaticTrainingArguments arguments = tool.createArguments();
         tool.parseArguments(args, "TrainSomaticModelOnGPU", arguments);
         if ("FP16".equals(tool.args().precision)) {
             DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
@@ -185,7 +186,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
     }
 
     @Override
-    public TrainingArguments createArguments() {
-        return new TrainingArguments();
+    public SomaticTrainingArguments createArguments() {
+        return new SomaticTrainingArguments();
     }
 }

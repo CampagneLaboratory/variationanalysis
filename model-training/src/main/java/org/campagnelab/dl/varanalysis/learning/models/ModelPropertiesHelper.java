@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning.models;
 
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
+import org.campagnelab.dl.varanalysis.learning.ParameterPrecision;
 import org.campagnelab.dl.varanalysis.learning.SomaticTrainer;
 import org.campagnelab.dl.varanalysis.learning.TrainSomaticModel;
 
@@ -16,24 +17,15 @@ import java.util.Properties;
 public class ModelPropertiesHelper {
     Properties modelProp = new Properties();
 
-    public ModelPropertiesHelper(SomaticTrainer trainer) {
-        trainer.appendProperties(this);
+    public ModelPropertiesHelper() {
+
     }
 
-    private FeatureMapper featureCalculator;
-    private double learningRate;
-    private int miniBatchSize;
     private int numHiddenNodes;
-    private int numEpochs;
-    private int seed;
-    private long time;
-    private int numTrainingSets;
     private String lossFunction;
-    private double regularization;
 
-
-    public void setPrecision(TrainSomaticModel.Precision p) {
-        modelProp.setProperty("precicion", p.name());
+    public void setPrecision(ParameterPrecision p) {
+        modelProp.setProperty("precision", p.name());
     }
 
     public void writeProperties(String modelDirectory) throws IOException {

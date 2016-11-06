@@ -142,13 +142,13 @@ public class PredictMutations extends AbstractPredictMutations {
             System.out.println("setting output to trio mode");
         }
         calculator = new BayesCalibrator(modelPath, prefix, false);
-        MultiLayerNetwork model = modelLoader.loadModel(prefix);
+        MultiLayerNetwork model = modelLoader.loadMultiLayerNetwork(prefix);
         if (model == null) {
             System.err.println("Cannot load model with prefix: " + prefix);
             System.exit(1);
         }
 
-        MultiLayerNetwork calibratingModel = modelLoader.loadModel(prefix + "Calibrated");
+        MultiLayerNetwork calibratingModel = modelLoader.loadMultiLayerNetwork(prefix + "Calibrated");
         if (cmodel == null && calibratingModel != null) {
             cmodel = new CalibratingModel(model, featureMapper, calibratingModel);
         }

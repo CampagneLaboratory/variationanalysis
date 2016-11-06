@@ -1,6 +1,8 @@
 package org.campagnelab.dl.varanalysis.learning.architecture;
 
 import org.campagnelab.dl.varanalysis.learning.TrainingArguments;
+import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
+import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
@@ -85,4 +87,10 @@ public interface ComputationalGraphAssembler {
     String[] getComponentNames();
 
     void setLossFunction(String outputName, LossFunctions.LossFunction lossFunction);
+
+    /**
+     * Save information about the specific architecture in the model properties.
+     * @param helper
+     */
+    void saveProperties(ModelPropertiesHelper helper);
 }
