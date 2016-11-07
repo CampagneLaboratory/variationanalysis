@@ -15,7 +15,7 @@ import java.util.Collections;
  *
  * @author Fabien Campagne
  */
-public abstract class AbstractFeatureMapperTrio extends AbstractFeatureMapper {
+public abstract class AbstractFeatureMapperTrio<T extends BaseInformationRecords.BaseInformationOrBuilder> extends AbstractFeatureMapper<T> {
 
     final boolean STABLE = false;
 

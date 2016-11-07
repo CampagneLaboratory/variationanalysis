@@ -16,7 +16,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  *
  * @author Fabien Campagne
  */
-public class ReadIndexFeaturesTrio extends AbstractFeatureMapperTrio implements FeatureMapper {
+public class ReadIndexFeaturesTrio extends AbstractFeatureMapperTrio<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
     public static final int NUM_GENOTYPES = 5;
     public static final int NUM_SAMPLES = 3;

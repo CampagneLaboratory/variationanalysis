@@ -7,7 +7,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * A feature mapper that reduces an integer to a cateogy and encodes with one hot encoding.
  * Created by fac2003 on 7/12/16.
  */
-public abstract class CategoryFeatureMapper implements FeatureMapper {
+public abstract class CategoryFeatureMapper implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
     private int minCategoryIndex;
     private int maxCategoryIndex;
 

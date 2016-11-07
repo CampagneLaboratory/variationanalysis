@@ -7,7 +7,7 @@ package org.campagnelab.dl.model.utils.mappers;
  *
  * @author Fabien Campagne
  */
-public interface FeatureCalculator extends FeatureMapper, LabelMapper {
+public interface FeatureCalculator<T> extends FeatureMapper<T>, LabelMapper<T> {
 
 
 }

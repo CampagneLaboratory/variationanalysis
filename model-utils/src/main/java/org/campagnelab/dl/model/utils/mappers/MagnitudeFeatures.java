@@ -10,7 +10,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * <p>
  * Created by fac2003 on 5/24/16.
  */
-public class MagnitudeFeatures implements FeatureMapper {
+public class MagnitudeFeatures implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
     @Override
     public int numberOfFeatures() {
         return 31;

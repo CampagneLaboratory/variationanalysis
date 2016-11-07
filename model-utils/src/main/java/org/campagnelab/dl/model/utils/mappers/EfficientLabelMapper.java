@@ -6,7 +6,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 /**
  * A more efficient label mapper interface.
  */
-public interface EfficientLabelMapper {
+public interface EfficientLabelMapper<RecordType> {
     /**
      * Return the number of labels that this calculator will produce for each record.
      * The number of labels is a constant across the datasets returned by the calculator.
@@ -23,7 +23,7 @@ public interface EfficientLabelMapper {
      * @param offset        into the labels array.
      * @param indexOfRecord Index of the record in the destination dataset.
      */
-    void mapLabels(BaseInformationRecords.BaseInformationOrBuilder record, float[] labels, int offset, int indexOfRecord);
+    void mapLabels(RecordType record, float[] labels, int offset, int indexOfRecord);
 
     /**
      * Produce the value of a given label for the specified record.
@@ -32,5 +32,5 @@ public interface EfficientLabelMapper {
      * @param labelIndex The index of the label to produce/calculate
      * @return The value of the label.
      */
-    float produceLabel(BaseInformationRecords.BaseInformationOrBuilder record, int labelIndex);
+    float produceLabel(RecordType record, int labelIndex);
 }

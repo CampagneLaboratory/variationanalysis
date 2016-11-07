@@ -7,7 +7,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 /**
  * Created by fac2003 on 5/24/16.
  */
-public interface FeatureMapper {
+public interface FeatureMapper<RecordType> {
 
     /**
      * Return the number of features that this calculator will produce for each record.
@@ -23,7 +23,7 @@ public interface FeatureMapper {
      * @param record        The record to convert to features & labels.
      * @param indexOfRecord Index of the record in the destination dataset.
      */
-    public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord);
+    public void prepareToNormalize(RecordType record, int indexOfRecord);
 
     /**
      * Fill in features into the dataset, as index
@@ -32,7 +32,7 @@ public interface FeatureMapper {
      * @param inputs        The features
      * @param indexOfRecord Index of the record in the destination dataset.
      */
-    void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord);
+    void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord);
 
     /**
      * Produce the value of a given feature for the specified record. Will return a normalized feature
@@ -42,6 +42,6 @@ public interface FeatureMapper {
      * @param featureIndex The index of the feature to produce/calculate
      * @return The value of the feature.
      */
-    float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex);
+    float produceFeature(RecordType record, int featureIndex);
 
 }

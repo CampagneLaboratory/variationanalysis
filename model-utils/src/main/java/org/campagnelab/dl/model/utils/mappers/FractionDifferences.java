@@ -11,7 +11,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Remi Torracinta, rct66
  */
 
-public class FractionDifferences extends AbstractFeatureMapper implements FeatureMapper {
+public class FractionDifferences extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
 
     //only implemented for records with 2 samples exactly

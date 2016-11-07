@@ -6,7 +6,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 /**
  * Created by rct2002 on 7/4/16.
  */
-public interface FeatureNameMapper extends FeatureMapper {
+public interface FeatureNameMapper<T> extends FeatureMapper<T> {
 
     /**
      * Produce the name of a given feature.

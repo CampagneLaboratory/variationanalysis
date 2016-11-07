@@ -13,7 +13,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  *         is used, the more efficient data loading approach is used. Otherwise we fall back to the previous loading approach.
  * @since 1.0.3
  */
-public interface EfficientFeatureMapper {
+public interface EfficientFeatureMapper<RecordType> {
 
     /**
      * Return the number of features that this calculator will produce for each record.
@@ -29,7 +29,7 @@ public interface EfficientFeatureMapper {
      * @param record        The record to convert to features & labels.
      * @param indexOfRecord Index of the record in the destination dataset.
      */
-    public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord);
+    public void prepareToNormalize(RecordType record, int indexOfRecord);
 
     /**
      * Produce the value of a given feature for the specified record. Will return a normalized feature
@@ -39,7 +39,7 @@ public interface EfficientFeatureMapper {
      * @param featureIndex The index of the feature to produce/calculate
      * @return The value of the feature.
      */
-    float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex);
+    float produceFeature(RecordType record, int featureIndex);
 
     /**
      * Fill in features into the dataset, as index
@@ -49,6 +49,6 @@ public interface EfficientFeatureMapper {
      * @param offset        The offset into the inputs array where features will be written consecutively.
      * @param indexOfRecord Index of the record in the destination dataset.
      */
-    void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord);
+    void mapFeatures(RecordType record, float[] inputs, int offset, int indexOfRecord);
 
 }

@@ -17,7 +17,9 @@ import java.util.Properties;
 
 
 
-public class GenomicContextMapper extends AbstractFeatureMapper implements FeatureMapper, EfficientFeatureMapper {
+public class GenomicContextMapper extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>,
+        EfficientFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
     private ConcatFeatureMapper delegate;
     public GenomicContextMapper(Properties sbiProperties) {
 

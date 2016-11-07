@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 public class ConcatFeatureMapperTest {
     @Test
     public void produceFeature() throws Exception {
-        FeatureMapper mapper1 = new FeatureMapper() {
+        FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> mapper1 = new FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>() {
             @Override
             public int numberOfFeatures() {
                 return 4;
@@ -36,7 +36,7 @@ public class ConcatFeatureMapperTest {
                 return featureIndex;
             }
         };
-        FeatureMapper mapper2 = new FeatureMapper() {
+        FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> mapper2 = new FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>() {
             @Override
             public int numberOfFeatures() {
                 return 5;
@@ -76,7 +76,7 @@ public class ConcatFeatureMapperTest {
 
     @Test
     public void mapFeatures() throws Exception {
-        FeatureMapper mapper1 = new FeatureMapper() {
+        FeatureMapper mapper1 = new FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>() {
             @Override
             public int numberOfFeatures() {
                 return 4;
@@ -99,7 +99,7 @@ public class ConcatFeatureMapperTest {
                 return featureIndex;
             }
         };
-        FeatureMapper mapper2 = new FeatureMapper() {
+        FeatureMapper mapper2 = new FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>() {
             @Override
             public int numberOfFeatures() {
                 return 5;

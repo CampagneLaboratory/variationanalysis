@@ -2,22 +2,29 @@ package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
+import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
 import org.campagnelab.dl.varanalysis.tools.ConditionRecordingTool;
+import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.dataset.api.MultiDataSet;
+import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.PointIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,14 +32,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
-import java.util.function.Function;
 
 /**
  * An abstract tool to train computational graphs. Implements early stopping. This class defines
  * several abstract methods that must be implemented to adapt training to different problems.
  */
-public abstract class TrainModel extends ConditionRecordingTool<TrainingArguments> {
+public abstract class TrainModel<RecordType> extends ConditionRecordingTool<TrainingArguments> {
 
     static private Logger LOG = LoggerFactory.getLogger(TrainModel.class);
 
@@ -40,30 +48,14 @@ public abstract class TrainModel extends ConditionRecordingTool<TrainingArgument
     private double bestScore;
     private long time;
 
-    protected abstract FeatureMapper getFeatureMapper(String inputName);
 
-    protected abstract LabelMapper getLabelMapper(String outputName);
-
-    protected abstract Function<String[], MultiDataSetIterator> getIteratorFunction();
-
-    protected abstract ComputationalGraphAssembler getComputationalGraph();
-
-    protected abstract int[] getNumInputs(String inputName);
-
-    protected abstract int[] getNumOutputs(String outputName);
-
-    protected abstract int getNumHiddenNodes(String componentName);
-
-    protected abstract LossFunctions.LossFunction getOutputLoss(String outputName);
-
-    protected abstract EarlyStoppingResult<ComputationGraph> train(ComputationGraph graph,
-                                                                   MultiDataSetIterator async)
-            throws IOException;
+    protected DomainDescriptor<RecordType> domainDescriptor;
 
     protected PerformanceLogger performanceLogger;
 
     protected FeatureMapper featureMapper = null;
     protected LabelMapper labelMapper = null;
+    private ComputationGraph computationGraph;
 
     @Override
     public void execute() {
@@ -72,8 +64,8 @@ public abstract class TrainModel extends ConditionRecordingTool<TrainingArgument
         }
 
         try {
-            featureMapper = getFeatureMapper("input");
-            labelMapper = getLabelMapper("output");
+            featureMapper = domainDescriptor.getFeatureMapper("input");
+            labelMapper = domainDescriptor.getLabelMapper("output");
             execute(featureMapper, args().getTrainingSets(), args().miniBatchSize);
         } catch (IOException e) {
             System.err.println("An exception occured. Details may be provided below");
@@ -93,27 +85,24 @@ public abstract class TrainModel extends ConditionRecordingTool<TrainingArgument
         directory = "models/" + Long.toString(time);
         FileUtils.forceMkdir(new File(directory));
 
-        // Assemble the training iterator:
-        MultiDataSetIterator trainingIterator = getIteratorFunction().apply(trainingDataset);
-        System.out.println("Estimating scaling parameters:");
-        //Load the training data:
 
+        // Assemble the computational graph:
 
-        ComputationalGraphAssembler assembler = getComputationalGraph();
+        ComputationalGraphAssembler assembler = domainDescriptor.getComputationalGraph();
         assembler.setArguments(args());
         for (String inputName : assembler.getInputNames()) {
-            assembler.setNumInputs(inputName, getNumInputs(inputName));
+            assembler.setNumInputs(inputName, domainDescriptor.getNumInputs(inputName));
         }
         for (String outputName : assembler.getOutputNames()) {
-            assembler.setNumOutputs(outputName, getNumOutputs(outputName));
-            assembler.setLossFunction(outputName, getOutputLoss(outputName));
+            assembler.setNumOutputs(outputName, domainDescriptor.getNumOutputs(outputName));
+            assembler.setLossFunction(outputName, domainDescriptor.getOutputLoss(outputName));
         }
         for (String componentName : assembler.getOutputNames()) {
-            assembler.setNumHiddenNodes(componentName, getNumHiddenNodes(componentName));
+            assembler.setNumHiddenNodes(componentName, domainDescriptor.getNumHiddenNodes(componentName));
         }
 
-        ComputationGraph net = assembler.createComputationalGraph();
-        net.init();
+         computationGraph = assembler.createComputationalGraph();
+        computationGraph.init();
         if (args().previousModelPath != null) {
             // Load the parameters of a previously trained model and set them on the new model to continue
             // training where we left it off. Note that models must have the same architecture or setting
@@ -127,13 +116,13 @@ public abstract class TrainModel extends ConditionRecordingTool<TrainingArgument
             if (savedNetwork == null || savedGraph.getUpdater() == null || savedGraph.params() == null) {
                 System.err.println("Unable to load model or updater from " + args().previousModelPath);
             } else {
-                net.setUpdater(savedGraph.getUpdater());
-                net.setParams(savedNetwork.params());
+                computationGraph.setUpdater(savedGraph.getUpdater());
+                computationGraph.setParams(savedNetwork.params());
             }
         }
 
         //Print the  number of parameters in the graph (and for each layer)
-        Layer[] layers = net.getLayers();
+        Layer[] layers = computationGraph.getLayers();
         int totalNumParams = 0;
         for (int i = 0; i < layers.length; i++) {
             int nParams = layers[i].numParams();
@@ -142,9 +131,9 @@ public abstract class TrainModel extends ConditionRecordingTool<TrainingArgument
         }
         System.out.println("Total number of network parameters: " + totalNumParams);
 
-        writeProperties(assembler, this);
+        writeProperties();
         performanceLogger = new PerformanceLogger(directory);
-        EarlyStoppingResult<ComputationGraph> result = train(net, trainingIterator);
+        EarlyStoppingResult<ComputationGraph> result = train();
 
         //Print out the results:
         System.out.println("Termination reason: " + result.getTerminationReason());
@@ -154,7 +143,7 @@ public abstract class TrainModel extends ConditionRecordingTool<TrainingArgument
         System.out.println("Score at best epoch: " + performanceLogger.getBestScore());
         System.out.println("AUC at best epoch: " + performanceLogger.getBestAUC());
 
-        writeProperties(assembler, this);
+        writeProperties();
         writeBestScoreFile();
         System.out.println("Model completed, saved at time: " + time);
         performanceLogger.write();
@@ -172,10 +161,11 @@ public abstract class TrainModel extends ConditionRecordingTool<TrainingArgument
         scoreWriter.close();
     }
 
-    protected void writeProperties(ComputationalGraphAssembler assembler, TrainModel trainer) throws IOException {
+    protected void writeProperties() throws IOException {
         ModelPropertiesHelper mpHelper = new ModelPropertiesHelper();
+        ComputationalGraphAssembler assembler = domainDescriptor.getComputationalGraph();
         appendProperties(assembler, mpHelper);
-        mpHelper.addProperties(getReaderProperties(trainer.args().trainingSets.get(0)));
+        mpHelper.addProperties(getReaderProperties(args().trainingSets.get(0)));
         mpHelper.writeProperties(directory);
     }
 
@@ -210,7 +200,7 @@ public abstract class TrainModel extends ConditionRecordingTool<TrainingArgument
         helper.setPrecision(precision);
     }
 
-    ParameterPrecision precision=ParameterPrecision.FP32;
+    ParameterPrecision precision = ParameterPrecision.FP32;
 
     private static Properties getReaderProperties(String trainingSet) throws IOException {
         SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSet);
@@ -218,4 +208,105 @@ public abstract class TrainModel extends ConditionRecordingTool<TrainingArgument
         reader.close();
         return properties;
     }
+
+
+    protected EarlyStoppingResult<ComputationGraph> train() throws IOException {
+        String validationDatasetFilename = args().validationSet;
+        //check validation file for error
+        if (!(new File(validationDatasetFilename).exists())) {
+            throw new IOException("Validation file not found! " + validationDatasetFilename);
+        }
+        //Do training, and then generate and print samples from network
+        int miniBatchNumber = 0;
+        boolean init = true;
+        ProgressLogger pgEpoch = new ProgressLogger(LOG);
+        pgEpoch.displayLocalSpeed = true;
+        pgEpoch.itemsName = "epoch";
+        pgEpoch.expectedUpdates = args().maxEpochs;
+        pgEpoch.start();
+        bestScore = Double.MAX_VALUE;
+        ModelSaver saver = new ModelSaver(directory);
+        int iter = 0;
+        Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
+        System.out.println("errorEnrichment=" + args().errorEnrichment);
+        double bestAUC = 0.5;
+        performanceLogger.setCondition(args().experimentalCondition);
+        int numExamplesUsed = 0;
+        int notImproved = 0;
+    //    MeasurePerformance perf = new MeasurePerformance(args().numValidation, validationDatasetFilename, args().miniBatchSize, featureCalculator, labelMapper);
+        System.out.println("Finished loading validation records.");
+        System.out.flush();
+        double score = -1;
+        int epoch;
+
+        // Assemble the training iterator:
+        org.campagnelab.dl.varanalysis.learning.iterators.RecordIterator<RecordType> iterator = domainDescriptor.getIteratorFunction().apply(args().getTrainingSets());
+        int miniBatchesPerEpoch = (int) (iterator.getNumRecords() / args().miniBatchSize);
+        System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
+
+        for (epoch = 0; epoch < args().maxEpochs; epoch++) {
+            ProgressLogger pg = new ProgressLogger(LOG);
+            pg.itemsName = "mini-batch";
+            iter = 0;
+            pg.expectedUpdates = miniBatchesPerEpoch; // one iteration processes miniBatchIterator elements.
+            pg.start();
+
+            while (iterator.hasNext()) {
+
+                MultiDataSet ds = iterator.next();
+                // fit the computationGraph:
+                computationGraph.fit(ds);
+                final int numExamples = ds.getFeatures(0).size(0);
+                // TODO check numExamples calculation.
+                numExamplesUsed += numExamples;
+                pg.lightUpdate();
+            }
+            //   System.err.println("Num Examples Used: "+numExamplesUsed);
+            //save latest after the end of an epoch:
+          //  saver.saveLatestModel(computationGraph, computationGraph.score());
+            writeProperties();
+            writeBestScoreFile();
+            double auc = 0.5;//estimateTestSetPerf(epoch, iter);
+            performanceLogger.log("epochs", numExamplesUsed, epoch, score, auc);
+            if (auc > bestAUC) {
+          //      saver.saveModel(computationGraph, "bestAUC", auc);
+                bestAUC = auc;
+                writeBestAUC(bestAUC);
+                performanceLogger.log("bestAUC", numExamplesUsed, epoch, bestScore, bestAUC);
+                notImproved = 0;
+            } else {
+                notImproved++;
+            }
+            if (notImproved > args().stopWhenEpochsWithoutImprovement) {
+                // we have not improved after earlyStopCondition epoch, time to stop.
+                break;
+            }
+            pg.stop();
+            pgEpoch.update();
+
+            iterator.reset();    //Reset iterator for another epoch
+            performanceLogger.write();
+            //addCustomOption("--error-enrichment", args().errorEnrichment);
+            //addCustomOption("--num-errors-added", args().numErrorsAdded);
+        }
+        pgEpoch.stop();
+
+        return new EarlyStoppingResult<ComputationGraph>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
+                "not early stopping", scoreMap, performanceLogger.getBestEpoch("bestAUC"), bestScore, args().maxEpochs, computationGraph);
+    }
+
+    private void writeBestAUC(double bestAUC) {
+        try {
+            FileWriter scoreWriter = new FileWriter(directory + "/bestAUC");
+            scoreWriter.append(Double.toString(bestAUC));
+            scoreWriter.close();
+        } catch (IOException e) {
+
+        }
+
+    }
+
+
+
+
 }

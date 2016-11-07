@@ -11,7 +11,7 @@ import java.util.Properties;
 /**
  * Same as V18, but adds density features for numVariationsInRead. Starting to use Java8 lambdas to customize generic feature mappers.
  */
-public class FeatureMapperV19 extends NamingConcatFeatureMapper implements ConfigurableFeatureMapper {
+public class FeatureMapperV19 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> implements ConfigurableFeatureMapper {
     NamingConcatFeatureMapper delegate;
 
     /**

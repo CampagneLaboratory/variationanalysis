@@ -12,7 +12,10 @@ import java.util.function.Function;
  * Produces feature that represent a density of values for a given number of bins..
  * Created by fac2003 on 10/21/16.
  */
-public class DensityMapper implements FeatureMapper, EfficientFeatureMapper, FeatureNameMapper {
+public class DensityMapper implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>,
+        EfficientFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>,
+        FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+
     private final Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues;
     private final float minValue;
     private final float maxValue;

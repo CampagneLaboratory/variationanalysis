@@ -11,7 +11,9 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Remi Torracinta, rct66
  */
 
-public class IndelFeatures extends AbstractFeatureMapper implements FeatureMapper, EfficientFeatureMapper {
+public class IndelFeatures extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>,
+        EfficientFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
     public int numberOfFeatures() {
         // we need features for the normal sample and for the tumor sample:

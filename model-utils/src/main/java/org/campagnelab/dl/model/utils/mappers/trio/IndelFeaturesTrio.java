@@ -15,7 +15,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Remi Torracinta, rct66
  */
 
-public class IndelFeaturesTrio extends AbstractFeatureMapperTrio implements FeatureMapper {
+public class IndelFeaturesTrio extends AbstractFeatureMapperTrio<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
     public int numberOfFeatures() {
         // now including features for both parent samples

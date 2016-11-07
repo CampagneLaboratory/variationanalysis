@@ -34,7 +34,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Fabien Campagne
  */
 
-public class SimpleFeatureCalculatorTrio extends AbstractFeatureMapperTrio implements FeatureCalculator {
+public class SimpleFeatureCalculatorTrio extends AbstractFeatureMapperTrio<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureCalculator<BaseInformationRecords.BaseInformationOrBuilder> {
 
     public SimpleFeatureCalculatorTrio(boolean sort){
         this.sort = sort;

@@ -34,7 +34,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Fabien Campagne
  */
 
-public class MagnitudeFeatures2Trio extends AbstractFeatureMapperTrio implements FeatureCalculator {
+public class MagnitudeFeatures2Trio extends AbstractFeatureMapperTrio<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureCalculator<BaseInformationRecords.BaseInformationOrBuilder> {
 
 
 

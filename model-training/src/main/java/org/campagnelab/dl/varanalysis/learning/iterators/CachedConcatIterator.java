@@ -17,7 +17,7 @@ import java.util.Properties;
 /**
  * A concat iterator that transparently creates a disk cache of the content of the input iterators. Note that
  */
-public class CachedConcatIterator implements NamedDataSetIterator {
+public class CachedConcatIterator<T> implements NamedDataSetIterator {
 
 
     MappedFeaturesIterator delegate;
@@ -27,7 +27,7 @@ public class CachedConcatIterator implements NamedDataSetIterator {
         this(Collections.singletonList(iterator), minbatchSize, featureMapper, cacheN);
     }
 
-    public CachedConcatIterator(List<NamedDataSetIterator> iterators, int minbatchSize, FeatureMapper featureMapper, long cacheN) {
+    public CachedConcatIterator(List<NamedDataSetIterator> iterators, int minbatchSize, FeatureMapper<T> featureMapper, long cacheN) {
         this.iterators = iterators;
         // determine if cache exists. If it does, use it.
         String cacheName = buildCacheName(iterators);
@@ -143,7 +143,7 @@ public class CachedConcatIterator implements NamedDataSetIterator {
             Object n = cfp.getProperty("numRecords");
             if (n == null) return false;
             long cacheNSaved = Long.parseLong(n.toString());
-            return (cacheNSaved == cacheN);
+            return (cacheNSaved >= cacheN || cacheN==Long.MAX_VALUE);
         } catch (FileNotFoundException e) {
             return false;
         } catch (IOException e) {

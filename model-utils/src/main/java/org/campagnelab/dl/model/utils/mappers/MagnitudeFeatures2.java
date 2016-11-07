@@ -31,11 +31,11 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Fabien Campagne
  */
 
-public class MagnitudeFeatures2 extends AbstractFeatureMapper implements FeatureCalculator, EfficientFeatureMapper {
+public class MagnitudeFeatures2 extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureCalculator<BaseInformationRecords.BaseInformationOrBuilder>,
+        EfficientFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
-
-
-    public MagnitudeFeatures2(){
+    public MagnitudeFeatures2() {
     }
 
     @Override
@@ -67,14 +67,14 @@ public class MagnitudeFeatures2 extends AbstractFeatureMapper implements Feature
     }
 
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        return normalize(produceFeatureInternal(record, featureIndex),1);
+        return normalize(produceFeatureInternal(record, featureIndex), 1);
     }
 
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
         prepareToNormalize(record, indexOfRecord);
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
-            inputs[featureIndex+offset] = produceFeature(record, featureIndex);
+            inputs[featureIndex + offset] = produceFeature(record, featureIndex);
         }
     }
 
@@ -85,18 +85,18 @@ public class MagnitudeFeatures2 extends AbstractFeatureMapper implements Feature
             // germline counts written first:
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
-                return ("invGermlineForwardCount"+(featureIndex/2));
+                return ("invGermlineForwardCount" + (featureIndex / 2));
             } else {
-                return ("invGermlineReverseCount"+(featureIndex/2));
+                return ("invGermlineReverseCount" + (featureIndex / 2));
             }
         } else {
             // tumor counts written next:
             featureIndex -= AbstractFeatureMapper.MAX_GENOTYPES * 2;
             if ((featureIndex % 2) == 1) {
                 // odd featureIndices are forward strand:
-                return ("invSomaticForwardCount"+(featureIndex/2));
+                return ("invSomaticForwardCount" + (featureIndex / 2));
             } else {
-                return ("invSomaticReverseCount"+(featureIndex/2));
+                return ("invSomaticReverseCount" + (featureIndex / 2));
             }
         }
     }

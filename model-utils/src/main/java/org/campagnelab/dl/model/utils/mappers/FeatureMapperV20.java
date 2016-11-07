@@ -10,8 +10,9 @@ import java.util.Properties;
 /**
  * Same as V19, but more point for some density mappers (numVariationsInRead).
  */
-public class FeatureMapperV20 extends NamingConcatFeatureMapper implements ConfigurableFeatureMapper {
-    NamingConcatFeatureMapper delegate;
+public class FeatureMapperV20 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+        implements ConfigurableFeatureMapper {
+    private NamingConcatFeatureMapper delegate;
 
     /**
      * Configure the feature mapper for a specific set of sbi files. This method accesses the properties of the reader.
@@ -37,13 +38,10 @@ public class FeatureMapperV20 extends NamingConcatFeatureMapper implements Confi
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresForwardStrandList)),
                 new DensityMapper("baseQuality.reverse", 10, sbiProperties, baseInformationOrBuilder ->
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresReverseStrandList))
-                );
+        );
 
 
     }
-
-
-
 
 
     @Override

@@ -31,7 +31,10 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Fabien Campagne
  */
 
-public class SimpleFeatureCalculator extends AbstractFeatureMapper implements FeatureCalculator, EfficientFeatureMapper, EfficientLabelMapper {
+public class SimpleFeatureCalculator extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureCalculator<BaseInformationRecords.BaseInformationOrBuilder>,
+        EfficientFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>,
+        EfficientLabelMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
 
     public SimpleFeatureCalculator(boolean sort) {

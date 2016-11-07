@@ -7,7 +7,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Maps an integer to 32 binary features, using one hot encoding.
  * Created by fac2003 on 7/12/16.
  */
-public abstract class BinaryFeatureMapper implements FeatureMapper {
+public abstract class BinaryFeatureMapper implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
     public BinaryFeatureMapper() {
 

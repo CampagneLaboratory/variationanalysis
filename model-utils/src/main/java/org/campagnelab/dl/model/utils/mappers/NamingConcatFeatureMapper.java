@@ -10,7 +10,7 @@ import java.util.Arrays;
  * This class is an alternative to ConcatFeatureMapper which enables featurename extraction.
  * This was created so that deprecated mappers would not need to have feature naming implemented.
  */
-public class NamingConcatFeatureMapper extends ConcatFeatureMapper implements FeatureNameMapper {
+public class NamingConcatFeatureMapper<RecordType> extends ConcatFeatureMapper<RecordType> implements FeatureNameMapper<RecordType> {
 
 
     public NamingConcatFeatureMapper(FeatureNameMapper... featureMappers) {

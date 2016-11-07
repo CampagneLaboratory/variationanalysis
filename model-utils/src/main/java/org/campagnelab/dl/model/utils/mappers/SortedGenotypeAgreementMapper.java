@@ -17,7 +17,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * <p>
  * Created by fac2003 on 6/10/16.
  */
-public class SortedGenotypeAgreementMapper extends AbstractFeatureMapper implements FeatureMapper {
+public class SortedGenotypeAgreementMapper extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
     private static final int MAX_GENOTYPES = 5;
     private int[] indices = {0, 0};

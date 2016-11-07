@@ -14,7 +14,8 @@ import java.util.List;
  * @author Remi Torracinta, rct66
  */
 
-public class QualityFeatures extends AbstractFeatureMapper implements FeatureMapper {
+public class QualityFeatures extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
 
     public static final int QUALITY_NORM = 1;

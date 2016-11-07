@@ -9,8 +9,8 @@ import java.util.Arrays;
  * Concatenate features from different mappers.
  * Created by fac2003 on 5/24/16.
  */
-public class ConcatFeatureMapper implements FeatureMapper, EfficientFeatureMapper {
-    FeatureMapper mappers[];
+public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType>, EfficientFeatureMapper<RecordType> {
+    FeatureMapper<RecordType> mappers[];
     int numFeatures = 0;
     int[] offsets;
     boolean normalizedCalled;
@@ -38,7 +38,7 @@ public class ConcatFeatureMapper implements FeatureMapper, EfficientFeatureMappe
     }
 
     @Override
-    public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
+    public void prepareToNormalize(RecordType record, int indexOfRecord) {
         for (FeatureMapper calculator : mappers) {
             calculator.prepareToNormalize(record, indexOfRecord);
         }
@@ -47,7 +47,7 @@ public class ConcatFeatureMapper implements FeatureMapper, EfficientFeatureMappe
 
 
     @Override
-    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
+    public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
         assert normalizedCalled :"prepareToNormalize must be called before mapFeatures.";
         int offset = 0;
         int[] indicesOuter = {0, 0};
@@ -64,7 +64,7 @@ public class ConcatFeatureMapper implements FeatureMapper, EfficientFeatureMappe
     }
 
     @Override
-    public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
+    public float produceFeature(RecordType record, int featureIndex) {
         int indexOfDelegate = Arrays.binarySearch(offsets, featureIndex);
         if (indexOfDelegate < 0) {
             indexOfDelegate = -(indexOfDelegate + 1) - 1;
@@ -73,7 +73,7 @@ public class ConcatFeatureMapper implements FeatureMapper, EfficientFeatureMappe
     }
 
     @Override
-    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
+    public void mapFeatures(RecordType record, float[] inputs, int offset, int indexOfRecord) {
         assert normalizedCalled :"prepareToNormalize must be called before mapFeatures.";
 
         for (FeatureMapper delegate : mappers) {
