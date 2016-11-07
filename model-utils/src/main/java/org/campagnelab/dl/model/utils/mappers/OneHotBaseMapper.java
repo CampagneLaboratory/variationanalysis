@@ -3,6 +3,8 @@ package org.campagnelab.dl.model.utils.mappers;
 
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.Function;
 
@@ -11,8 +13,12 @@ import java.util.function.Function;
  * Created by rct66 on 10/25/16.
  */
 public class OneHotBaseMapper implements FeatureMapper, EfficientFeatureMapper {
-    Function<BaseInformationRecords.BaseInformationOrBuilder, java.lang.String> recordToString;
-    int baseIndex;
+
+    static private Logger LOG = LoggerFactory.getLogger(OneHotBaseMapper.class);
+
+    private Function<BaseInformationRecords.BaseInformationOrBuilder, java.lang.String> recordToString;
+    private int baseIndex;
+
     public OneHotBaseMapper(int baseIndex, Function<BaseInformationRecords.BaseInformationOrBuilder, java.lang.String> recordToString) {
         this.baseIndex = baseIndex;
         this.recordToString = recordToString;
@@ -24,32 +30,38 @@ public class OneHotBaseMapper implements FeatureMapper, EfficientFeatureMapper {
         return 6;
     }
 
-    public int getIntegerOfBase(BaseInformationRecords.BaseInformationOrBuilder record){
+    public int getIntegerOfBase(BaseInformationRecords.BaseInformationOrBuilder record) {
         java.lang.String context = recordToString.apply(record);
 
-        if (baseIndex < 0 || baseIndex >= context.length()){
-            System.err.println("incompatible character index:"+ baseIndex + " for context:" + context);
-            throw new RuntimeException();
+        if (baseIndex < 0 || baseIndex >= context.length()) {
+            LOG.warn("incompatible character index:" + baseIndex + " for context:" + context +" of length "+context.length());
+            return 5;
         }
         Character base = context.charAt(baseIndex);
         int baseInt;
         switch (base) {
             case 'a':
-            case 'A': baseInt = 0;
+            case 'A':
+                baseInt = 0;
                 break;
             case 't':
-            case 'T': baseInt = 1;
+            case 'T':
+                baseInt = 1;
                 break;
             case 'c':
-            case 'C': baseInt = 2;
+            case 'C':
+                baseInt = 2;
                 break;
             case 'g':
-            case 'G': baseInt = 3;
+            case 'G':
+                baseInt = 3;
                 break;
             case 'n':
-            case 'N': baseInt = 4;
+            case 'N':
+                baseInt = 4;
                 break;
-            default: baseInt = 5;
+            default:
+                baseInt = 5;
                 break;
         }
         return baseInt;
@@ -73,13 +85,13 @@ public class OneHotBaseMapper implements FeatureMapper, EfficientFeatureMapper {
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
-            inputs[featureIndex+offset] = produceFeature(record, featureIndex);
+            inputs[featureIndex + offset] = produceFeature(record, featureIndex);
         }
     }
 
     @Override
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         int value = getIntegerOfBase(record);
-        return value==featureIndex ? 1F : 0F;
+        return value == featureIndex ? 1F : 0F;
     }
 }
