@@ -1,6 +1,9 @@
 package org.campagnelab.dl.varanalysis.learning.models;
 
+import htsjdk.samtools.util.Tuple;
 import org.junit.Test;
+
+import static org.testng.AssertJUnit.assertEquals;
 
 /**
  * Created by fac2003 on 7/24/16.
@@ -34,6 +37,23 @@ public class PerformanceLoggerTest {
         logger.log("best", 10000, 10, 0.3f, 0.5f);
         logger.write("best");
     }
+
+
+    @Test
+    public void logWriteConditionIdNew() throws Exception {
+        PerformanceLogger    logger = new PerformanceLogger("test-results/models/conditionId2");
+        logger.setCondition("Condition1");
+        logger.definePerformances(new Tuple<String, Boolean>("score",false), new Tuple<String, Boolean>("AUC",true));
+        logger.logMetrics("best",1,0,0.4, 0.75);
+        logger.logMetrics("best",1,0,0.3, 0.8);
+        logger.logMetrics("best",2,1,0.3, 0.9);
+
+        assertEquals(0.9,logger.getBest("AUC"));
+        assertEquals(1,logger.getBestEpoch("best"));
+        assertEquals(0.3,logger.getBest("score"));
+        logger.write("best");
+    }
+
 
 
 }
