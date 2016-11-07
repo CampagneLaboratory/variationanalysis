@@ -46,7 +46,7 @@ public class CachedConcatIterator implements NamedDataSetIterator {
             tool.setArguments(arguments);
             tool.execute();
         }
-        assert cacheExists(cacheName,cacheN) : "A cache must exist at this point.";
+        assert cacheExists(cacheName, cacheN) : "A cache must exist at this point.";
         delegate = new MappedFeaturesIterator(cacheName);
     }
 
@@ -127,6 +127,7 @@ public class CachedConcatIterator implements NamedDataSetIterator {
 
     /**
      * Check the that cache exists and has the same number of records that indicated in the parameter.
+     *
      * @param cacheName
      * @param cacheN
      * @return
@@ -143,7 +144,7 @@ public class CachedConcatIterator implements NamedDataSetIterator {
             Object n = cfp.getProperty("numRecords");
             if (n == null) return false;
             long cacheNSaved = Long.parseLong(n.toString());
-            return (cacheNSaved == cacheN);
+            return (cacheNSaved >= cacheN || cacheN == Long.MAX_VALUE);
         } catch (FileNotFoundException e) {
             return false;
         } catch (IOException e) {
