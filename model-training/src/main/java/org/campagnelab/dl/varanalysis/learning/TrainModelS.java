@@ -65,7 +65,7 @@ public class TrainModelS extends TrainModel<BaseInformationRecords.BaseInformati
                     try {
                         return new SequenceBaseInformationReader(inputFilename);
                     } catch (IOException e) {
-                       throw new RuntimeException("Unable to read records from "+inputFilename,e);
+                        throw new RuntimeException("Unable to read records from " + inputFilename, e);
                     }
                 };
             }
@@ -102,14 +102,6 @@ public class TrainModelS extends TrainModel<BaseInformationRecords.BaseInformati
                 }
             }
         };
-    }
-
-
-    private static Properties getReaderProperties(String trainingSet) throws IOException {
-        SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSet);
-        final Properties properties = reader.getProperties();
-        reader.close();
-        return properties;
     }
 
     @Override

@@ -1,6 +1,8 @@
 package org.campagnelab.dl.varanalysis.learning.models;
 
 import htsjdk.samtools.util.Tuple;
+import org.campagnelab.dl.varanalysis.learning.performance.Metric;
+import org.campagnelab.dl.varanalysis.learning.performance.PerformanceLogger;
 import org.junit.Test;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -43,7 +45,7 @@ public class PerformanceLoggerTest {
     public void logWriteConditionIdNew() throws Exception {
         PerformanceLogger    logger = new PerformanceLogger("test-results/models/conditionId2");
         logger.setCondition("Condition1");
-        logger.definePerformances(new Tuple<String, Boolean>("score",false), new Tuple<String, Boolean>("AUC",true));
+        logger.definePerformances(new Metric("score",false), new Metric("AUC",true));
         logger.logMetrics("best",1,0,0.4, 0.75);
         logger.logMetrics("best",1,0,0.3, 0.8);
         logger.logMetrics("best",2,1,0.3, 0.9);

@@ -1,6 +1,5 @@
-package org.campagnelab.dl.varanalysis.learning.models;
+package org.campagnelab.dl.varanalysis.learning.performance;
 
-import htsjdk.samtools.util.Tuple;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -30,14 +29,14 @@ public class PerformanceLogger {
      *
      * @param metrics A set of tuples describing metrics to collect.
      */
-    public void definePerformances(Tuple<String, Boolean>... metrics) {
+    public void definePerformances(Metric ... metrics) {
         performanceLargeIsBest = new boolean[metrics.length];
         performanceNames = new String[metrics.length];
         bestPerformances = new double[metrics.length];
         int index = 0;
-        for (Tuple<String, Boolean> metric : metrics) {
-            performanceNames[index] = metric.a;
-            performanceLargeIsBest[index] = metric.b;
+        for (Metric metric : metrics) {
+            performanceNames[index] = metric.name;
+            performanceLargeIsBest[index] = metric.largerIsBetter;
             bestPerformances[index] = performanceLargeIsBest[index] ? Double.NEGATIVE_INFINITY : Double.MAX_VALUE;
             index += 1;
         }

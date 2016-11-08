@@ -18,7 +18,7 @@ import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator
 import org.campagnelab.dl.varanalysis.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
-import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
+import org.campagnelab.dl.varanalysis.learning.performance.PerformanceLogger;
 import org.campagnelab.dl.varanalysis.tools.ConditionRecordingTool;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;

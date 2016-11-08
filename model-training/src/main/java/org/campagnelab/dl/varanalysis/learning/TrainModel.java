@@ -3,7 +3,6 @@ package org.campagnelab.dl.varanalysis.learning;
 import com.google.common.collect.Iterables;
 import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
@@ -11,35 +10,26 @@ import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
 import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetIteratorAdapter;
-import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetRecordIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
-import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.varanalysis.learning.performance.Metric;
+import org.campagnelab.dl.varanalysis.learning.performance.PerformanceLogger;
 import org.campagnelab.dl.varanalysis.tools.ConditionRecordingTool;
-import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
-import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.indexing.PointIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * An abstract tool to train computational graphs. Implements early stopping. This class defines
@@ -86,12 +76,12 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             System.out.println(String.format("Resuming training with %s model parameters from %s %n", args().previousModelName, args().previousModelPath));
         }
         time = new Date().getTime();
-        System.out.println("time: " + time);
+
         System.out.println("epochs: " + args().maxEpochs);
         System.out.println(featureCalculator.getClass().getTypeName());
         directory = "models/" + Long.toString(time);
         FileUtils.forceMkdir(new File(directory));
-
+        System.out.println("model directory: " + new File(directory).getAbsolutePath());
 
         // Assemble the computational graph:
 
@@ -141,6 +131,14 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
         writeProperties();
         performanceLogger = new PerformanceLogger(directory);
+        PerformanceMetricDescriptor<RecordType> perfDescriptor = domainDescriptor.performanceDescritor();
+
+        Metric[] metrics = new Metric[perfDescriptor.performanceMetrics().length];
+        for (int i = 0; i < metrics.length; i++) {
+            String metricName = perfDescriptor.performanceMetrics()[i];
+            metrics[i] = new Metric(metricName, perfDescriptor.largerValueIsBetterPerformance(metricName));
+        }
+        performanceLogger.definePerformances(metrics);
         EarlyStoppingResult<ComputationGraph> result = train();
 
         //Print out the results:
@@ -155,9 +153,9 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         writeBestScoreFile();
         System.out.println("Model completed, saved at time: " + time);
         performanceLogger.write();
-        resultValues().put("AUC", performanceLogger.getBestAUC());
+        resultValues().put("AUC", performanceLogger.getBest("AUC"));
         resultValues().put("score", performanceLogger.getBestScore());
-        resultValues().put("bestModelEpoch", performanceLogger.getBestEpoch("bestAUC"));
+        resultValues().put("bestModelEpoch", performanceLogger.getBestEpoch("bestOnValidation"));
         resultValues().put("model-time", time);
     }
 
@@ -241,10 +239,12 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         performanceLogger.setCondition(args().experimentalCondition);
         int numExamplesUsed = 0;
         int notImproved = 0;
-        //    MeasurePerformance perf = new MeasurePerformance(args().numValidation, validationDatasetFilename, args().miniBatchSize, featureCalculator, labelMapper);
-        System.out.println("Finished loading validation records.");
+
         System.out.flush();
-        double score = -1;
+        PerformanceMetricDescriptor perfDescriptor = domainDescriptor.performanceDescritor();
+        String validationMetricName = perfDescriptor.earlyStoppingMetric();
+        double bestValue = perfDescriptor.largerValueIsBetterPerformance(validationMetricName) ?
+                Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
         int epoch;
 
         // Assemble the training iterator:
@@ -260,7 +260,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
         int miniBatchesPerEpoch = (int) (getNumRecords() / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
-
+        MultiDataSetIterator validationIterator = readValidationSet();
+        System.out.println("Finished loading validation records.");
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -282,13 +283,19 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             //  saver.saveLatestModel(computationGraph, computationGraph.score());
             writeProperties();
             writeBestScoreFile();
-            double auc = 0.5;//estimateTestSetPerf(epoch, iter);
-            performanceLogger.log("epochs", numExamplesUsed, epoch, score, auc);
-            if (auc > bestAUC) {
+
+            validationIterator.reset();
+            double validationMetricValue = perfDescriptor.estimateMetric(computationGraph,
+                    validationMetricName,
+                    validationIterator, args().numValidation);
+
+            performanceLogger.logMetrics("epochs", numExamplesUsed, epoch, validationMetricValue);
+            if ((perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
+                    (!perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue < bestValue)) {
                 //      saver.saveModel(computationGraph, "bestAUC", auc);
-                bestAUC = auc;
-                writeBestAUC(bestAUC);
-                performanceLogger.log("bestAUC", numExamplesUsed, epoch, bestScore, bestAUC);
+                bestValue = validationMetricValue;
+
+                performanceLogger.logMetrics("bestOnValidation", numExamplesUsed, epoch, bestValue);
                 notImproved = 0;
             } else {
                 notImproved++;
@@ -308,7 +315,22 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         pgEpoch.stop();
 
         return new EarlyStoppingResult<ComputationGraph>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-                "not early stopping", scoreMap, performanceLogger.getBestEpoch("bestAUC"), bestScore, args().maxEpochs, computationGraph);
+                "not early stopping", scoreMap, performanceLogger.getBestEpoch("bestOnValidation"), bestScore, args().maxEpochs, computationGraph);
+    }
+
+    private MultiDataSetIterator readValidationSet() {
+        Iterable<RecordType> validationRecords = domainDescriptor.getRecordIterable().apply(args().validationSet);
+        try {
+            return new MultiDataSetIteratorAdapter<RecordType>(validationRecords, args().miniBatchSize, domainDescriptor) {
+                @Override
+                public String getBasename() {
+                    return args().validationSet;
+                }
+            };
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to load validation records from " + args().validationSet);
+        }
+
     }
 
     protected abstract long getNumRecords();
