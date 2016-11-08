@@ -7,7 +7,10 @@ import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
 import org.campagnelab.dl.varanalysis.learning.architecture.graphs.SixDenseLayersNarrower2;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.varanalysis.stats.AUCHelper;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
+import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +74,49 @@ public class TrainModelS extends TrainModel<BaseInformationRecords.BaseInformati
             }
 
             @Override
+            public PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation> performanceDescritor() {
+                return new PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation>() {
+                    @Override
+                    public String[] performanceMetrics() {
+                        return new String[]{"AUC", "score"};
+                    }
+
+                    @Override
+                    public boolean largerValueIsBetterPerformance(String metricName) {
+                        switch (metricName) {
+                            case "AUC":
+                                return true;
+                            case "score":
+                                return false;
+                            default:
+                                throw new IllegalArgumentException("metric not recognized.");
+                        }
+                    }
+
+                    @Override
+                    public double estimateMetric(ComputationGraph graph, String metricName, MultiDataSetIterator dataSetIterator, long scoreN) {
+                        switch (metricName) {
+                            case "AUC":
+                                AUCHelper helper = new AUCHelper();
+                                return helper.estimate(dataSetIterator, graph, args().numValidation, prediction -> {
+                                        },
+                                        index -> index > scoreN,
+                                /* first output represents probability of mutation */ 0);
+                            default:
+                                return estimateScore(graph, metricName, dataSetIterator, scoreN);
+                        }
+                    }
+
+                    @Override
+                    public String earlyStoppingMetric() {
+                        return "AUC";
+                    }
+                };
+
+
+            }
+
+            @Override
             public ComputationalGraphAssembler getComputationalGraph() {
                 return new SixDenseLayersNarrower2();
             }
@@ -101,7 +147,9 @@ public class TrainModelS extends TrainModel<BaseInformationRecords.BaseInformati
                         throw new IllegalArgumentException("Output name is not recognized");
                 }
             }
-        };
+        }
+
+                ;
     }
 
     @Override

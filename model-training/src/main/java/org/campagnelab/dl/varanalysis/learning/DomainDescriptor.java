@@ -40,7 +40,7 @@ public abstract class DomainDescriptor<RecordType> {
 
     public abstract LossFunctions.LossFunction getOutputLoss(String outputName);
 
-    public  PerformanceMetricDescriptor<RecordType> performanceDescritor() {
+    public PerformanceMetricDescriptor<RecordType> performanceDescritor() {
         return new PerformanceMetricDescriptor<RecordType>() {
             @Override
             public String[] performanceMetrics() {
@@ -55,18 +55,7 @@ public abstract class DomainDescriptor<RecordType> {
 
             @Override
             public double estimateMetric(ComputationGraph graph, String metricName, MultiDataSetIterator dataSetIterator, long scoreN) {
-                double score=0;
-                long nBatch=0;
-                long nExamples=0;
-                while (dataSetIterator.hasNext()) {
-                    MultiDataSet ds = dataSetIterator.next();
-                    score+=graph.score(ds);
-                    nBatch+=1;
-                    nExamples+=ds.getFeatures()[0].size(0);
-                    if (nExamples>scoreN) break;
-                }
-                return score/nBatch;
-
+                return estimateScore(graph, metricName, dataSetIterator, scoreN);
             }
 
 
@@ -75,6 +64,26 @@ public abstract class DomainDescriptor<RecordType> {
                 return "score";
             }
         };
+    }
+
+    protected double estimateScore(ComputationGraph graph, String metricName, MultiDataSetIterator dataSetIterator, long scoreN) {
+        switch (metricName) {
+            case "score":
+
+                double score = 0;
+                long nBatch = 0;
+                long nExamples = 0;
+                while (dataSetIterator.hasNext()) {
+                    MultiDataSet ds = dataSetIterator.next();
+                    score += graph.score(ds);
+                    nBatch += 1;
+                    nExamples += ds.getFeatures()[0].size(0);
+                    if (nExamples > scoreN) break;
+                }
+                return score / nBatch;
+            default:
+                throw new IllegalArgumentException("metric name not recognized: " + metricName);
+        }
     }
 
     public int[] getInputShape(int size, String inputName) {

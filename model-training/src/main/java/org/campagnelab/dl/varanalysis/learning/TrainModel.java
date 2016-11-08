@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import com.google.common.collect.Iterables;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.logging.ProgressLogger;
@@ -235,7 +236,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         int iter = 0;
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
         System.out.println("errorEnrichment=" + args().errorEnrichment);
-        double bestAUC = 0.5;
+
         performanceLogger.setCondition(args().experimentalCondition);
         int numExamplesUsed = 0;
         int notImproved = 0;
@@ -243,8 +244,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         System.out.flush();
         PerformanceMetricDescriptor perfDescriptor = domainDescriptor.performanceDescritor();
         String validationMetricName = perfDescriptor.earlyStoppingMetric();
-        double bestValue = perfDescriptor.largerValueIsBetterPerformance(validationMetricName) ?
-                Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
+        double bestValue = initializePerformance(perfDescriptor, validationMetricName);
         int epoch;
 
         // Assemble the training iterator:
@@ -284,18 +284,27 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             writeProperties();
             writeBestScoreFile();
 
-            validationIterator.reset();
-            double validationMetricValue = perfDescriptor.estimateMetric(computationGraph,
-                    validationMetricName,
-                    validationIterator, args().numValidation);
+            // estimate all performance metrics. Note that we do a pass over the validation set for each metric:
+            // (avoid using several metrics).
+            double validationMetricValue = initializePerformance(perfDescriptor, perfDescriptor.earlyStoppingMetric());
+            DoubleArrayList metricValues = new DoubleArrayList();
 
-            performanceLogger.logMetrics("epochs", numExamplesUsed, epoch, validationMetricValue);
+            for (String metric : perfDescriptor.performanceMetrics()) {
+                validationIterator.reset();
+                final double performanceValue = perfDescriptor.estimateMetric(computationGraph, validationMetricName,
+                        validationIterator, args().numValidation);
+                metricValues.add(performanceValue);
+                if (perfDescriptor.earlyStoppingMetric().equals(metric)) {
+                    validationMetricValue = performanceValue;
+                }
+            }
+            performanceLogger.logMetrics("epochs", numExamplesUsed, epoch, metricValues.toDoubleArray());
             if ((perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
                     (!perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue < bestValue)) {
                 //      saver.saveModel(computationGraph, "bestAUC", auc);
                 bestValue = validationMetricValue;
 
-                performanceLogger.logMetrics("bestOnValidation", numExamplesUsed, epoch, bestValue);
+                performanceLogger.logMetrics("bestOnValidation", numExamplesUsed, epoch, metricValues.toDoubleArray());
                 notImproved = 0;
             } else {
                 notImproved++;
@@ -316,6 +325,11 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
         return new EarlyStoppingResult<ComputationGraph>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, performanceLogger.getBestEpoch("bestOnValidation"), bestScore, args().maxEpochs, computationGraph);
+    }
+
+    private double initializePerformance(PerformanceMetricDescriptor perfDescriptor, String validationMetricName) {
+        return perfDescriptor.largerValueIsBetterPerformance(validationMetricName) ?
+                Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
     }
 
     private MultiDataSetIterator readValidationSet() {
