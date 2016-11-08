@@ -44,14 +44,15 @@ public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
     @Override
     public ComputationGraph createComputationalGraph(DomainDescriptor domainDescriptor) {
         int numInputs = domainDescriptor.getNumInputs("input")[0];
-        int numOutputs = domainDescriptor.getNumOutputs("isMutated")[0];
+        int numOutputsIsMutated = domainDescriptor.getNumOutputs("isMutated")[0];
+        int numOutputsSomaticFrequency = domainDescriptor.getNumOutputs("somaticFrequency")[0];
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("firstDense");
 
         WeightInit WEIGHT_INIT = WeightInit.XAVIER;
         learningRatePolicy = LearningRatePolicy.Poly;
         float reduction = 0.65f;
         int minimum = (int) (numHiddenNodes * Math.pow(reduction, 4));
-        assert minimum > numOutputs : "Too much reduction, not enough outputs: ";
+        assert minimum > numOutputsIsMutated : "Too much reduction, not enough outputs: ";
         ComputationGraphConfiguration confBuilder = null;
         NeuralNetConfiguration.Builder graphBuilder = new NeuralNetConfiguration.Builder()
                 .seed(args().seed)
@@ -100,8 +101,12 @@ public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
                 .addLayer("isMutated", new OutputLayer.Builder(domainDescriptor.getOutputLoss("isMutated"))
                         .weightInit(WEIGHT_INIT)
                         .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                        .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(numOutputs).build(), "dense5")
-                .setOutputs("isMutated")
+                        .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(numOutputsIsMutated).build(), "dense5")
+                .addLayer("somaticFrequency", new OutputLayer.Builder(domainDescriptor.getOutputLoss("somaticFrequency"))
+                        .weightInit(WEIGHT_INIT)
+                        .activation("identity").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
+                        .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(numOutputsSomaticFrequency).build(), "dense5")
+                .setOutputs(getOutputNames())
                 .pretrain(false).backprop(true).build();
 
         return new ComputationGraph(conf);
@@ -130,7 +135,7 @@ public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
 
     @Override
     public String[] getOutputNames() {
-        return new String[]{"isMutated"};
+        return new String[]{"isMutated", "somaticFrequency"};
     }
 
     @Override

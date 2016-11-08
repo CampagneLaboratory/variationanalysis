@@ -1,9 +1,7 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.LabelMapper;
-import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
+import org.campagnelab.dl.model.utils.mappers.*;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
 import org.campagnelab.dl.varanalysis.learning.architecture.graphs.SixDenseLayersNarrower2;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -59,7 +57,15 @@ public class TrainModelS extends TrainModel<BaseInformationRecords.BaseInformati
 
             @Override
             public LabelMapper getLabelMapper(String outputName) {
-                return new SimpleFeatureCalculator();
+
+                switch (outputName) {
+                    case "isMutated":
+                        return new IsSomaticMutationMapper();
+                    case "somaticFrequency":
+                        return new SomaticFrequencyLabelMapper();
+                    default:
+                        throw new IllegalArgumentException("output name is not recognized: " + outputName);
+                }
             }
 
             @Override

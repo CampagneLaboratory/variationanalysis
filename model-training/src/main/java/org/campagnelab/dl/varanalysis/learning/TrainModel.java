@@ -52,7 +52,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     protected PerformanceLogger performanceLogger;
 
     protected FeatureMapper featureMapper = null;
-    protected LabelMapper labelMapper = null;
     private ComputationGraph computationGraph;
 
     @Override
@@ -63,7 +62,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         domainDescriptor = domainDescriptor();
         try {
             featureMapper = domainDescriptor().getFeatureMapper("input");
-            labelMapper = domainDescriptor.getLabelMapper("output");
+
             execute(featureMapper, args().getTrainingSets(), args().miniBatchSize);
         } catch (IOException e) {
             System.err.println("An exception occured. Details may be provided below");
@@ -147,9 +146,10 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         System.out.println("Termination details: " + result.getTerminationDetails());
         System.out.println("Total epochs: " + result.getTotalEpochs());
         System.out.println("Best epoch number: " + result.getBestModelEpoch());
-        System.out.println("Score at best epoch: " + performanceLogger.getBestScore());
-        System.out.println("AUC at best epoch: " + performanceLogger.getBestAUC());
 
+        for (String metricName : perfDescriptor.performanceMetrics()) {
+            System.out.println(metricName + " at best epoch: " + performanceLogger.getBest(metricName));
+        }
         writeProperties();
         writeBestScoreFile();
         System.out.println("Model completed, saved at time: " + time);
