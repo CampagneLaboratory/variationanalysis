@@ -15,10 +15,10 @@ public abstract class AbstractNeuralNetAssembler implements NeuralNetAssembler {
     protected int numHiddenNodes;
     protected boolean regularization = false;
     protected double regularizationRate = 0.00002;
-    protected LearningRatePolicy learningRatePolicy=LearningRatePolicy.None;
+    protected LearningRatePolicy learningRatePolicy = LearningRatePolicy.None;
     boolean dropOut;
     protected double dropOutRate;
-    protected LossFunctions.LossFunction lossFunction= LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD;
+    protected LossFunctions.LossFunction lossFunction = LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD;
 
     public void setLearningRatePolicy(LearningRatePolicy learningRatePolicy) {
         this.learningRatePolicy = learningRatePolicy;
@@ -54,13 +54,15 @@ public abstract class AbstractNeuralNetAssembler implements NeuralNetAssembler {
         this.regularization = regularization;
     }
 
-    public void setRegularizationRate(double regularizationRate) {
-        this.regularizationRate = regularizationRate;
+    public void setRegularizationRate(Double regularizationRate) {
+        if (regularizationRate != null) {
+            this.regularizationRate = regularizationRate;
+        }
     }
 
     @Override
     public void setDropoutRate(Double rate) {
-        if (rate!=null) {
+        if (rate != null) {
             this.dropOut = true;
             this.dropOutRate = rate;
         }

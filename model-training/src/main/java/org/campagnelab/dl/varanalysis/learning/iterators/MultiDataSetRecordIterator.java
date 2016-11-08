@@ -20,6 +20,7 @@ import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -32,7 +33,7 @@ import java.util.NoSuchElementException;
  *
  * @author Fabien Campagne
  */
-public abstract class RecordIterator<RecordType> implements MultiDataSetIterator {
+public abstract class MultiDataSetRecordIterator<RecordType> implements MultiDataSetIterator {
     private final DomainDescriptor domainDescriptor;
     private int[] labelStride;
     private int[] featureStride;
@@ -44,13 +45,10 @@ public abstract class RecordIterator<RecordType> implements MultiDataSetIterator
     private MultiDataSetPreProcessor preProcessor;
     private long numRecords;
 
-    public RecordIterator(String inputFilename, int batchSize, DomainDescriptor domainDescriptor) throws IOException {
+    public MultiDataSetRecordIterator(String inputFilename, int batchSize, DomainDescriptor domainDescriptor) throws IOException {
         this(domainDescriptor);
         this.inputFilename = inputFilename;
         this.batchSize = batchSize;
-
-        this.totalExamples = getNumRecords();
-
     }
 
     public String getInputFilename() {
@@ -59,7 +57,7 @@ public abstract class RecordIterator<RecordType> implements MultiDataSetIterator
 
     abstract public String getBasename();
 
-    protected RecordIterator(final DomainDescriptor domainDescriptor) {
+    protected MultiDataSetRecordIterator(final DomainDescriptor domainDescriptor) {
         this.domainDescriptor = domainDescriptor;
         this.inputFilename = null;
 
@@ -77,23 +75,30 @@ public abstract class RecordIterator<RecordType> implements MultiDataSetIterator
         // dimension 1 = number of features per record.
 
         //size changed from batchSize. huge batchSize values useful for tests
-        INDArray inputs[] = null;//= Nd4j.zeros(size, featureMapper.numberOfFeatures());
-        INDArray labels[] = null;//= Nd4j.zeros(size, labelMapper.numberOfLabels());
+        final int numInputs = domainDescriptor.getComputationalGraph().getInputNames().length;
+        final int numLabels = domainDescriptor.getComputationalGraph().getOutputNames().length;
+        int numOutputs = numLabels;
+
+        INDArray inputs[] = new INDArray[numInputs];//= Nd4j.zeros(size, featureMapper.numberOfFeatures());
+        INDArray labels[] = new INDArray[numLabels];//= Nd4j.zeros(size, labelMapper.numberOfLabels());
+        FeatureMapper[] featureMappers = new FeatureMapper[numInputs];
+        LabelMapper[] labelMappers = new LabelMapper[numOutputs];
         int index = 0;
 
         for (String input : domainDescriptor.getComputationalGraph().getInputNames()) {
 
-            inputs[index++] = Nd4j.zeros(domainDescriptor.getInputShape(size, input));
+            inputs[index] = Nd4j.zeros(domainDescriptor.getInputShape(size, input));
+            featureMappers[index]=domainDescriptor.getFeatureMapper(input);
+            index+=1;
 
         }
         index = 0;
         for (String label : domainDescriptor.getComputationalGraph().getOutputNames()) {
-            labels[index++] = Nd4j.zeros(domainDescriptor.getLabelShape(size, label));
+            labels[index] = Nd4j.zeros(domainDescriptor.getLabelShape(size, label));
+            labelMappers[index]=domainDescriptor.getLabelMapper(label);
+            index++;
         }
-        int numInputs = domainDescriptor.getComputationalGraph().getInputNames().length;
-        int numOutputs = domainDescriptor.getComputationalGraph().getOutputNames().length;
-        FeatureMapper[] featureMappers = new FeatureMapper[numInputs];
-        LabelMapper[] labelMappers = new LabelMapper[numOutputs];
+
         for (int i = 0; i < size; i++) {
 
             if (hasNextRecord()) {
@@ -112,7 +117,7 @@ public abstract class RecordIterator<RecordType> implements MultiDataSetIterator
 
         }
         final MultiDataSet result = new org.nd4j.linalg.dataset.MultiDataSet(inputs, labels);
-        preProcessor.preProcess(result);
+        if (preProcessor != null) preProcessor.preProcess(result);
         return result;
     }
 
@@ -121,9 +126,7 @@ public abstract class RecordIterator<RecordType> implements MultiDataSetIterator
         this.preProcessor = preProcessor;
     }
 
-    private long remainingExamples() {
-        return totalExamples - cursor;
-    }
+    abstract long remainingExamples();
 
     @Override
     public boolean resetSupported() {

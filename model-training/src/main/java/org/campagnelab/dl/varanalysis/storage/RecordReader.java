@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.storage;
 
 import org.apache.commons.io.IOUtils;
+import org.campagnelab.dl.varanalysis.learning.RecordReaderI;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.campagnelab.goby.exception.GobyRuntimeException;
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
  *
  * @author manuele simi
  */
-public class RecordReader implements Closeable, RecordIterable {
+public class RecordReader implements Closeable, RecordIterable, RecordReaderI<BaseInformationRecords.BaseInformation> {
 
     private SequenceBaseInformationReader reader;
 
@@ -132,4 +133,8 @@ public class RecordReader implements Closeable, RecordIterable {
     }
 
 
+    @Override
+    public long numRecords() {
+        return getTotalRecords();
+    }
 }

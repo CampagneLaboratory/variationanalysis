@@ -30,9 +30,7 @@ public interface NeuralNetAssembler {
 
     public void setNumHiddenNodes(int numHiddenNodes);
 
-    public void setRegularization(boolean regularization);
-
-    public void setRegularizationRate(double regularizationRate);
+    public void setRegularizationRate(Double regularizationRate);
     public void setDropoutRate(Double rate);
 
     void setLossFunction(LossFunctions.LossFunction lossFunction);

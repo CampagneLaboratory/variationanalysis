@@ -3,7 +3,7 @@ package org.campagnelab.dl.varanalysis.learning;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
-import org.campagnelab.dl.varanalysis.learning.iterators.RecordIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetRecordIterator;
 import org.glassfish.jersey.internal.util.Producer;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
@@ -14,7 +14,7 @@ public abstract class DomainDescriptor<RecordType> {
 
     public abstract LabelMapper getLabelMapper(String outputName);
 
-    public abstract Function<String[], RecordIterator<RecordType>> getIteratorFunction();
+    public abstract Function<String[], ? extends MultiDataSetRecordIterator<RecordType>> getIteratorFunction();
 
     public abstract ComputationalGraphAssembler getComputationalGraph();
 

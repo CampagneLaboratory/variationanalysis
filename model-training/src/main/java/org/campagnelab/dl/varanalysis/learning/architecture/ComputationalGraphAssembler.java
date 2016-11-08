@@ -1,5 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.architecture;
 
+import org.campagnelab.dl.varanalysis.learning.DomainDescriptor;
 import org.campagnelab.dl.varanalysis.learning.TrainingArguments;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
@@ -33,7 +34,7 @@ public interface ComputationalGraphAssembler {
      *
      * @return The fully configured computational graph, ready for training.
      */
-    public ComputationGraph createComputationalGraph();
+    public ComputationGraph createComputationalGraph(DomainDescriptor domainDescriptor);
 
     /**
      * Set the dimensions of the specified input. You can describe 1-d inputs with only one dimension (the number of

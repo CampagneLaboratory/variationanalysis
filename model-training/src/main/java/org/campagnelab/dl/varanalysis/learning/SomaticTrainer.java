@@ -50,7 +50,7 @@ import java.util.Properties;
  */
 public abstract class SomaticTrainer extends ConditionRecordingTool<SomaticTrainingArguments> {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
-    protected ParameterPrecision precision=ParameterPrecision.FP32;
+    protected ParameterPrecision precision = ParameterPrecision.FP32;
 
     protected static TrainingArguments parseArguments(String[] args, String commandName) {
         SomaticTrainingArguments arguments = new SomaticTrainingArguments();
@@ -143,10 +143,8 @@ public abstract class SomaticTrainer extends ConditionRecordingTool<SomaticTrain
         lossFunction = LossFunctions.LossFunction.MCXENT;
 
         assembler.setLossFunction(lossFunction);
-        if (args().regularizationRate != Double.NaN) {
-            assembler.setRegularization(true);
-            assembler.setRegularizationRate(args().regularizationRate);
-        }
+        assembler.setRegularizationRate(args().regularizationRate);
+
         //   assembler.setDropoutRate(dropoutRate);
 
 
@@ -268,7 +266,6 @@ public abstract class SomaticTrainer extends ConditionRecordingTool<SomaticTrain
         }
         return set.size();
     }
-
 
 
     public void appendProperties(ModelPropertiesHelper helper) {

@@ -1,5 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning;
 
+import com.google.common.collect.Iterables;
 import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -9,6 +10,7 @@ import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
+import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetRecordIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
@@ -51,6 +53,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
     protected DomainDescriptor<RecordType> domainDescriptor;
 
+    protected abstract DomainDescriptor<RecordType> domainDescriptor();
+
     protected PerformanceLogger performanceLogger;
 
     protected FeatureMapper featureMapper = null;
@@ -62,9 +66,9 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         if (args().getTrainingSets().length == 0) {
             System.err.println("You must provide training datasets.");
         }
-
+        domainDescriptor = domainDescriptor();
         try {
-            featureMapper = domainDescriptor.getFeatureMapper("input");
+            featureMapper = domainDescriptor().getFeatureMapper("input");
             labelMapper = domainDescriptor.getLabelMapper("output");
             execute(featureMapper, args().getTrainingSets(), args().miniBatchSize);
         } catch (IOException e) {
@@ -89,6 +93,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         // Assemble the computational graph:
 
         ComputationalGraphAssembler assembler = domainDescriptor.getComputationalGraph();
+        assert assembler != null : "Computational Graph assembler must be defined.";
         assembler.setArguments(args());
         for (String inputName : assembler.getInputNames()) {
             assembler.setNumInputs(inputName, domainDescriptor.getNumInputs(inputName));
@@ -101,7 +106,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             assembler.setNumHiddenNodes(componentName, domainDescriptor.getNumHiddenNodes(componentName));
         }
 
-         computationGraph = assembler.createComputationalGraph();
+        computationGraph = assembler.createComputationalGraph(domainDescriptor);
         computationGraph.init();
         if (args().previousModelPath != null) {
             // Load the parameters of a previously trained model and set them on the new model to continue
@@ -233,14 +238,16 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         performanceLogger.setCondition(args().experimentalCondition);
         int numExamplesUsed = 0;
         int notImproved = 0;
-    //    MeasurePerformance perf = new MeasurePerformance(args().numValidation, validationDatasetFilename, args().miniBatchSize, featureCalculator, labelMapper);
+        //    MeasurePerformance perf = new MeasurePerformance(args().numValidation, validationDatasetFilename, args().miniBatchSize, featureCalculator, labelMapper);
         System.out.println("Finished loading validation records.");
         System.out.flush();
         double score = -1;
         int epoch;
 
         // Assemble the training iterator:
-        org.campagnelab.dl.varanalysis.learning.iterators.RecordIterator<RecordType> iterator = domainDescriptor.getIteratorFunction().apply(args().getTrainingSets());
+        MultiDataSetRecordIterator<RecordType> iterator = domainDescriptor.getIteratorFunction()
+                .apply(args().getTrainingSets());
+
         int miniBatchesPerEpoch = (int) (iterator.getNumRecords() / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
 
@@ -263,13 +270,13 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             }
             //   System.err.println("Num Examples Used: "+numExamplesUsed);
             //save latest after the end of an epoch:
-          //  saver.saveLatestModel(computationGraph, computationGraph.score());
+            //  saver.saveLatestModel(computationGraph, computationGraph.score());
             writeProperties();
             writeBestScoreFile();
             double auc = 0.5;//estimateTestSetPerf(epoch, iter);
             performanceLogger.log("epochs", numExamplesUsed, epoch, score, auc);
             if (auc > bestAUC) {
-          //      saver.saveModel(computationGraph, "bestAUC", auc);
+                //      saver.saveModel(computationGraph, "bestAUC", auc);
                 bestAUC = auc;
                 writeBestAUC(bestAUC);
                 performanceLogger.log("bestAUC", numExamplesUsed, epoch, bestScore, bestAUC);
@@ -305,8 +312,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         }
 
     }
-
-
 
 
 }

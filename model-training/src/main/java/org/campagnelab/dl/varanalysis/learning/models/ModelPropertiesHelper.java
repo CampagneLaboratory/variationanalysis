@@ -54,8 +54,10 @@ public class ModelPropertiesHelper {
         }
     }
 
-    public void setRegularization(double regularization) {
-        modelProp.setProperty("learningRate", Double.toString(regularization));
+    public void setRegularization(Double regularization) {
+      if (regularization!=null) {
+          modelProp.setProperty("learningRate", Double.toString(regularization));
+      }
     }
 
     public void setNumHiddenNodes(int numHiddenNodes) {
