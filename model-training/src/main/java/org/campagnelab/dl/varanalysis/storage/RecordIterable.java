@@ -5,7 +5,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 /**
  *
- * {@link Iterable} extension for @{link {@link org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.BaseInformationOrBuilder}}.
+ * {@link Iterable} extension for @{link {@link org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.BaseInformation}}.
  *
  * @author Manuele Simi
  */

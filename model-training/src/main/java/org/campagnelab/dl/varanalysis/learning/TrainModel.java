@@ -10,10 +10,12 @@ import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
+import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetRecordIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.learning.models.PerformanceLogger;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.tools.ConditionRecordingTool;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
@@ -25,6 +27,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
+import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.PointIndex;
 import org.slf4j.Logger;
@@ -245,10 +248,17 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         int epoch;
 
         // Assemble the training iterator:
-        MultiDataSetRecordIterator<RecordType> iterator = domainDescriptor.getIteratorFunction()
-                .apply(args().getTrainingSets());
+        Iterable<RecordType> inputIterable = domainDescriptor.getRecordIterable().apply(args().getTrainingSets()[0]);
+        Iterable<RecordType> recordIterable = Iterables.limit(inputIterable, args().numTraining);
+        final int miniBatchSize = args().miniBatchSize;
+        MultiDataSetIteratorAdapter<RecordType> iterator = new MultiDataSetIteratorAdapter<RecordType>(recordIterable, miniBatchSize, domainDescriptor) {
+            @Override
+            public String getBasename() {
+                return args().trainingSets.get(0);
+            }
+        };
 
-        int miniBatchesPerEpoch = (int) (iterator.getNumRecords() / args().miniBatchSize);
+        int miniBatchesPerEpoch = (int) (getNumRecords() / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
 
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {
@@ -264,7 +274,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 // fit the computationGraph:
                 computationGraph.fit(ds);
                 final int numExamples = ds.getFeatures(0).size(0);
-                // TODO check numExamples calculation.
                 numExamplesUsed += numExamples;
                 pg.lightUpdate();
             }
@@ -301,6 +310,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         return new EarlyStoppingResult<ComputationGraph>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, performanceLogger.getBestEpoch("bestAUC"), bestScore, args().maxEpochs, computationGraph);
     }
+
+    protected abstract long getNumRecords();
 
     private void writeBestAUC(double bestAUC) {
         try {

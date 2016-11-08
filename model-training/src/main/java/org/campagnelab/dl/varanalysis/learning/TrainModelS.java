@@ -1,12 +1,11 @@
 package org.campagnelab.dl.varanalysis.learning;
 
+import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
 import org.campagnelab.dl.varanalysis.learning.architecture.graphs.SixDenseLayersNarrower2;
-import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetRecordIterator;
-import org.campagnelab.dl.varanalysis.learning.iterators.SBIRecordIterator;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -20,7 +19,7 @@ import java.util.function.Function;
 /**
  * Train Somatic implemented with the Generic TrainModel
  */
-public class TrainModelS extends TrainModel<BaseInformationRecords.BaseInformationOrBuilder> {
+public class TrainModelS extends TrainModel<BaseInformationRecords.BaseInformation> {
     static private Logger LOG = LoggerFactory.getLogger(TrainModelS.class);
 
     public static void main(String[] args) {
@@ -42,8 +41,8 @@ public class TrainModelS extends TrainModel<BaseInformationRecords.BaseInformati
     }
 
     @Override
-    protected DomainDescriptor<BaseInformationRecords.BaseInformationOrBuilder> domainDescriptor() {
-        return new DomainDescriptor<BaseInformationRecords.BaseInformationOrBuilder>() {
+    protected DomainDescriptor<BaseInformationRecords.BaseInformation> domainDescriptor() {
+        return new DomainDescriptor<BaseInformationRecords.BaseInformation>() {
             @Override
             public FeatureMapper getFeatureMapper(String inputName) {
                 try {
@@ -61,14 +60,12 @@ public class TrainModelS extends TrainModel<BaseInformationRecords.BaseInformati
             }
 
             @Override
-            public Function<String[], MultiDataSetRecordIterator<BaseInformationRecords.BaseInformationOrBuilder>> getIteratorFunction() {
-                return trainingSetFilenames -> {
-                    assert trainingSetFilenames.length == 1 : "This implementation only supports a single input file.";
+            public Function<String, ? extends Iterable<BaseInformationRecords.BaseInformation>> getRecordIterable() {
+                return inputFilename -> {
                     try {
-                        final int miniBatchSize = args().miniBatchSize;
-                        return new SBIRecordIterator(trainingSetFilenames[0], miniBatchSize, domainDescriptor);
+                        return new SequenceBaseInformationReader(inputFilename);
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                       throw new RuntimeException("Unable to read records from "+inputFilename,e);
                     }
                 };
             }
@@ -115,4 +112,17 @@ public class TrainModelS extends TrainModel<BaseInformationRecords.BaseInformati
         return properties;
     }
 
+    @Override
+    protected long getNumRecords() {
+        SequenceBaseInformationReader reader = null;
+        try {
+            reader = new SequenceBaseInformationReader(args().trainingSets.get(0));
+            return reader.getTotalRecords();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeQuietly(reader);
+        }
+        return 0;
+    }
 }

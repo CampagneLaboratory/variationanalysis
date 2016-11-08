@@ -5,17 +5,27 @@ import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
 import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetRecordIterator;
 import org.glassfish.jersey.internal.util.Producer;
+import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.util.function.Function;
 
 public abstract class DomainDescriptor<RecordType> {
+
     public abstract FeatureMapper getFeatureMapper(String inputName);
 
     public abstract LabelMapper getLabelMapper(String outputName);
 
-    public abstract Function<String[], ? extends MultiDataSetRecordIterator<RecordType>> getIteratorFunction();
+    /**
+     * Returns a function that converts an input filename to an iterable over records in the file.
+     * @return
+     */
+    public abstract Function<String, ? extends Iterable<RecordType>> getRecordIterable();
 
+    /**
+     * Return a computational graph assembler.
+     * @return
+     */
     public abstract ComputationalGraphAssembler getComputationalGraph();
 
     public abstract int[] getNumInputs(String inputName);
@@ -45,4 +55,6 @@ public abstract class DomainDescriptor<RecordType> {
                 throw new UnsupportedOperationException();
         }
     }
+
+
 }
