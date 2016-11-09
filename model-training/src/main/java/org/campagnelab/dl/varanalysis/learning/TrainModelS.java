@@ -4,6 +4,7 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.model.utils.mappers.*;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
 import org.campagnelab.dl.varanalysis.learning.architecture.graphs.SixDenseLayersNarrower2;
+import org.campagnelab.dl.varanalysis.learning.domains.SomaticMutationDomainDescriptor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.stats.AUCHelper;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
@@ -43,132 +44,9 @@ public class TrainModelS extends TrainModel<BaseInformationRecords.BaseInformati
 
     @Override
     protected DomainDescriptor<BaseInformationRecords.BaseInformation> domainDescriptor() {
-        return new DomainDescriptor<BaseInformationRecords.BaseInformation>() {
-            @Override
-            public FeatureMapper getFeatureMapper(String inputName) {
-                try {
-                    featureMapper = TrainSomaticModel.configureFeatureMapper(args().featureMapperClassname, ((SomaticTrainingArguments) args()).isTrio,
-                            args().getTrainingSets());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                return featureMapper;
-            }
-
-            @Override
-            public LabelMapper getLabelMapper(String outputName) {
-
-                switch (outputName) {
-                    case "isMutated":
-                        return new IsSomaticMutationMapper();
-                    case "somaticFrequency":
-                        return new SomaticFrequencyLabelMapper();
-                    default:
-                        throw new IllegalArgumentException("output name is not recognized: " + outputName);
-                }
-            }
-
-            @Override
-            public Function<String, ? extends Iterable<BaseInformationRecords.BaseInformation>> getRecordIterable() {
-                return inputFilename -> {
-                    try {
-                        return new SequenceBaseInformationReader(inputFilename);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Unable to read records from " + inputFilename, e);
-                    }
-                };
-            }
-
-            @Override
-            public PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation> performanceDescritor() {
-                return new PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation>() {
-                    @Override
-                    public String[] performanceMetrics() {
-                        return new String[]{"AUC", "score"};
-                    }
-
-                    @Override
-                    public boolean largerValueIsBetterPerformance(String metricName) {
-                        switch (metricName) {
-                            case "AUC":
-                                return true;
-                            case "score":
-                                return false;
-                            default:
-                                throw new IllegalArgumentException("metric not recognized.");
-                        }
-                    }
-
-                    @Override
-                    public double estimateMetric(ComputationGraph graph, String metricName, MultiDataSetIterator dataSetIterator, long scoreN) {
-                        switch (metricName) {
-                            case "AUC":
-                                AUCHelper helper = new AUCHelper();
-                                return helper.estimate(dataSetIterator, graph, args().numValidation, prediction -> {
-                                        },
-                                        index -> index > scoreN,
-                                /* first output represents probability of mutation */ 0);
-                            default:
-                                return estimateScore(graph, metricName, dataSetIterator, scoreN);
-                        }
-                    }
-
-                    @Override
-                    public String earlyStoppingMetric() {
-                        return "AUC";
-                    }
-                };
-
-
-            }
-
-            @Override
-            public ComputationalGraphAssembler getComputationalGraph() {
-                return new SixDenseLayersNarrower2();
-            }
-
-            @Override
-            public int[] getNumInputs(String inputName) {
-                return new int[]{getFeatureMapper(inputName).numberOfFeatures()};
-            }
-
-            @Override
-            public int[] getNumOutputs(String outputName) {
-                return new int[]{getLabelMapper(outputName).numberOfLabels()};
-            }
-
-            @Override
-            public int getNumHiddenNodes(String componentName) {
-                return getNumInputs("input")[0] * 4;
-            }
-
-            @Override
-            public LossFunctions.LossFunction getOutputLoss(String outputName) {
-                switch (outputName) {
-                    case "isMutated":
-                        return LossFunctions.LossFunction.MCXENT;
-                    case "somaticFrequency":
-                        return LossFunctions.LossFunction.MSE;
-                    default:
-                        throw new IllegalArgumentException("Output name is not recognized");
-                }
-            }
-        }
-
-                ;
+        return new SomaticMutationDomainDescriptor((SomaticTrainingArguments) args());
     }
 
-    @Override
-    protected long getNumRecords() {
-        SequenceBaseInformationReader reader = null;
-        try {
-            reader = new SequenceBaseInformationReader(args().trainingSets.get(0));
-            return reader.getTotalRecords();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            IOUtils.closeQuietly(reader);
-        }
-        return 0;
-    }
+
+
 }

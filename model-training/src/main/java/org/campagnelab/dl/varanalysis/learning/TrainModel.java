@@ -7,7 +7,6 @@ import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
 import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetIteratorAdapter;
@@ -30,7 +29,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * An abstract tool to train computational graphs. Implements early stopping. This class defines
@@ -43,7 +45,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     private String directory;
     private double bestScore;
     private long time;
-
 
     protected DomainDescriptor<RecordType> domainDescriptor;
 
@@ -258,7 +259,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             }
         };
 
-        int miniBatchesPerEpoch = (int) (getNumRecords() / args().miniBatchSize);
+        int miniBatchesPerEpoch = (int) (domainDescriptor.getNumRecords(args().getTrainingSets()) / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
         MultiDataSetIterator validationIterator = readValidationSet();
         System.out.println("Finished loading validation records.");
@@ -347,7 +348,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
     }
 
-    protected abstract long getNumRecords();
 
     private void writeBestAUC(double bestAUC) {
         try {
