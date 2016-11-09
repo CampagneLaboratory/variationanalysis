@@ -1,19 +1,15 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
+
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.deeplearning4j.datasets.iterator.DataSetIterator;
-import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
-import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Properties;
 
 /**
  * Created by rct66 on 6/13/16.
@@ -31,6 +27,19 @@ public class BaseInformationConcatIterator extends BaseInformationIterator imple
             this.totalExamples += iter.totalExamples();
         }
 
+    }
+
+    public BaseInformationConcatIterator(int batchSize, FeatureMapper featureMapper, LabelMapper labelMapper, String... inputFilename) throws IOException {
+        this(buildIterators(inputFilename, batchSize, featureMapper, labelMapper), batchSize, featureMapper, labelMapper);
+    }
+
+    private static List<BaseInformationIterator> buildIterators(String[] inputFilename, int batchSize, FeatureMapper featureMapper, LabelMapper labelMapper) throws IOException {
+        final ObjectArrayList list = new ObjectArrayList();
+        for (String filename : inputFilename) {
+
+            list.add(new BaseInformationIterator(filename, batchSize, featureMapper, labelMapper));
+        }
+        return list;
     }
 
     @Override
