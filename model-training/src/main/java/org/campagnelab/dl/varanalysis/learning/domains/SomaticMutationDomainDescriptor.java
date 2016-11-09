@@ -97,7 +97,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
                 switch (metricName) {
                     case "AUC":
                         AUCHelper helper = new AUCHelper();
-                        return helper.estimate(dataSetIterator, graph, args().numValidation, prediction -> {
+                        return helper.estimateWithGraph(dataSetIterator, graph, args().numValidation, prediction -> {
                                 },
                                 index -> index > scoreN,
                             /* first output represents probability of mutation */ 0);

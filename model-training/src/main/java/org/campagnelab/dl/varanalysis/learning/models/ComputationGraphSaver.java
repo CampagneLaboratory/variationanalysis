@@ -16,8 +16,8 @@ import java.nio.charset.Charset;
  */
 public class ComputationGraphSaver implements EarlyStoppingModelSaver<ComputationGraph> {
 
-    private static final String bestFileName = "bestModel.bin";
-    private static final String latestFileName = "latestModel.bin";
+    private static final String bestFileName = "best-ComputationGraph.bin";
+    private static final String latestFileName = "latest-ComputationGraph.bin";
     private String directory;
     private Charset encoding;
 
@@ -41,7 +41,7 @@ public class ComputationGraphSaver implements EarlyStoppingModelSaver<Computatio
 
 
     public void saveModel(ComputationGraph net, String prefix) throws IOException {
-        String confOut = FilenameUtils.concat(directory, prefix + "Model.bin");
+        String confOut = FilenameUtils.concat(directory, prefix + "-ComputationGraph.bin");
         save(net, confOut);
     }
 

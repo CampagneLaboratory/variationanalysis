@@ -32,7 +32,6 @@ public class Predict extends AbstractTool<PredictArguments> {
         predict.execute();
     }
 
-
     public PredictArguments args() {
         return (PredictArguments) arguments;
     }
@@ -83,7 +82,7 @@ public class Predict extends AbstractTool<PredictArguments> {
             isTrio = true;
             System.out.println("setting output to trio mode");
         }
-        MultiLayerNetwork model = modelLoader.loadMultiLayerNetwork(prefix);
+        Model model = modelLoader.loadModel(prefix);
         if (model == null) {
             System.err.println("Cannot load model with prefix: " + prefix);
             System.exit(1);
@@ -99,9 +98,6 @@ public class Predict extends AbstractTool<PredictArguments> {
         pgReadWrite.displayFreeMemory = true;
         pgReadWrite.start();
 
-
-        AreaUnderTheROCCurve aucLossCalculator = new AreaUnderTheROCCurve(args().numRecordsForAUC);
-        int index = 0;
         SimpleFeatureCalculator labelMapper = new SimpleFeatureCalculator();
         BaseInformationIterator iterator = new BaseInformationIterator(evaluationDataFilename, args().miniBatchSize, featureMapper, labelMapper);
         AUCHelper helper = new AUCHelper();

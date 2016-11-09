@@ -5,6 +5,7 @@ import org.campagnelab.dl.model.utils.ConfigurableFeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.buffer.DataBuffer;
@@ -101,38 +102,46 @@ public class ModelLoader {
 
     public Model loadModel(String modelNamePrefix) throws IOException {
 
-        MultiLayerNetwork model = null;
+        Model model = null;
+
         String pathname = getPath(modelNamePrefix, "/%sModel.bin");
         if (new File(pathname).exists()) {
-            model = loadNativeModel(pathname);
+            model = ModelSerializer.restoreMultiLayerNetwork(pathname);
+            return model;
         } else {
-            if (!(new File(pathname).exists() || new File(getPath(modelNamePrefix, "/%sModelParams.bin")).exists())) {
-                return null;
+            pathname = getPath(modelNamePrefix, "/%s-ComputationGraph.bin");
+            if (new File(pathname).exists()) {
+                model = ModelSerializer.restoreComputationGraph(pathname);
+                return model;
             }
-            //Load parameters from disk:
-            INDArray newParams;
-            DataInputStream dis = new DataInputStream(new FileInputStream(getPath(modelNamePrefix, "/%sModelParams.bin")));
-            newParams = Nd4j.read(dis);
-
-            //Load network configuration from disk:
-            MultiLayerConfiguration confFromJson =
-                    MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File(getPath(modelNamePrefix, "/%sModelConf.json"))));
-
-            //Create a MultiLayerNetwork from the saved configuration and parameters
-            model = new MultiLayerNetwork(confFromJson);
-            model.init();
-            model.setParameters(newParams);
         }
-        return model;
+
+        MultiLayerNetwork net = null;
+
+        if (!(new File(pathname).exists() || new File(getPath(modelNamePrefix, "/%sModelParams.bin")).exists())) {
+            return null;
+        }
+        //Load parameters from disk:
+        INDArray newParams;
+        DataInputStream dis = new DataInputStream(new FileInputStream(getPath(modelNamePrefix, "/%sModelParams.bin")));
+        newParams = Nd4j.read(dis);
+
+        //Load network configuration from disk:
+        MultiLayerConfiguration confFromJson =
+                MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File(getPath(modelNamePrefix, "/%sModelConf.json"))));
+
+        //Create a MultiLayerNetwork from the saved configuration and parameters
+        net = new MultiLayerNetwork(confFromJson);
+        net.init();
+        net.setParameters(newParams);
+
+        return net;
     }
+
 
     private String getPath(String modelNamePrefix, String format) {
         return modelPath + String.format(format, modelNamePrefix);
     }
 
-    private MultiLayerNetwork loadNativeModel(String path) throws IOException {
-        MultiLayerNetwork net = ModelSerializer.restoreMultiLayerNetwork(path);
-        return net;
-    }
 
 }
