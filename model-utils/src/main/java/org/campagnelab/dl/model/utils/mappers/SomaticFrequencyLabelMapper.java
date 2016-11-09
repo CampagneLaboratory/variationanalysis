@@ -4,12 +4,13 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
+ * Label: frequency of somatic mutation.
  * Created by fac2003 on 11/8/16.
  */
 public class SomaticFrequencyLabelMapper implements LabelMapper<BaseInformationRecords.BaseInformation> {
     @Override
     public int numberOfLabels() {
-        return 2;
+        return 1;
     }
 
     @Override

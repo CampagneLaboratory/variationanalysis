@@ -10,6 +10,7 @@ import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
 import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetIteratorAdapter;
+import org.campagnelab.dl.varanalysis.learning.models.ComputationGraphSaver;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.learning.performance.Metric;
@@ -47,6 +48,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     private long time;
 
     protected DomainDescriptor<RecordType> domainDescriptor;
+    private  String bestMetricName;
 
     protected abstract DomainDescriptor<RecordType> domainDescriptor();
 
@@ -85,6 +87,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         System.out.println("model directory: " + new File(directory).getAbsolutePath());
 
         // Assemble the computational graph:
+        bestMetricName = "best" + domainDescriptor.performanceDescritor().earlyStoppingMetric();
 
         ComputationalGraphAssembler assembler = domainDescriptor.getComputationalGraph();
         assert assembler != null : "Computational Graph assembler must be defined.";
@@ -157,7 +160,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         performanceLogger.write();
         resultValues().put("AUC", performanceLogger.getBest("AUC"));
         resultValues().put("score", performanceLogger.getBestScore());
-        resultValues().put("bestModelEpoch", performanceLogger.getBestEpoch("bestOnValidation"));
+        resultValues().put("bestModelEpoch", performanceLogger.getBestEpoch(bestMetricName));
         resultValues().put("model-time", time);
     }
 
@@ -233,7 +236,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         pgEpoch.expectedUpdates = args().maxEpochs;
         pgEpoch.start();
         bestScore = Double.MAX_VALUE;
-        ModelSaver saver = new ModelSaver(directory);
+        ComputationGraphSaver saver = new ComputationGraphSaver(directory);
         int iter = 0;
         Map<Integer, Double> scoreMap = new HashMap<Integer, Double>();
         System.out.println("errorEnrichment=" + args().errorEnrichment);
@@ -281,7 +284,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             }
             //   System.err.println("Num Examples Used: "+numExamplesUsed);
             //save latest after the end of an epoch:
-            //  saver.saveLatestModel(computationGraph, computationGraph.score());
+            saver.saveLatestModel(computationGraph, computationGraph.score());
             writeProperties();
             writeBestScoreFile();
 
@@ -302,10 +305,10 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             performanceLogger.logMetrics("epochs", numExamplesUsed, epoch, metricValues.toDoubleArray());
             if ((perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
                     (!perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue < bestValue)) {
-                //      saver.saveModel(computationGraph, "bestAUC", auc);
+                saver.saveModel(computationGraph, "bestAUC");
                 bestValue = validationMetricValue;
 
-                performanceLogger.logMetrics("bestOnValidation", numExamplesUsed, epoch, metricValues.toDoubleArray());
+                performanceLogger.logMetrics(bestMetricName, numExamplesUsed, epoch, metricValues.toDoubleArray());
                 notImproved = 0;
             } else {
                 notImproved++;
@@ -325,7 +328,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         pgEpoch.stop();
 
         return new EarlyStoppingResult<ComputationGraph>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
-                "not early stopping", scoreMap, performanceLogger.getBestEpoch("bestOnValidation"), bestScore, args().maxEpochs, computationGraph);
+                "not early stopping", scoreMap, performanceLogger.getBestEpoch(bestMetricName), bestScore, args().maxEpochs, computationGraph);
     }
 
     private double initializePerformance(PerformanceMetricDescriptor perfDescriptor, String validationMetricName) {
