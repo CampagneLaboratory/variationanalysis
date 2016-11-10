@@ -27,7 +27,7 @@ public class AUCHelper {
                            Consumer<Prediction> doForEachPrediction,
                            Predicate<Integer> stopIfTrue) {
         if (model instanceof MultiLayerNetwork) {
-            return estimate(iterator, (MultiLayerNetwork) model, numRecordsForAUC, doForEachPrediction, stopIfTrue);
+            return estimateWithNet(iterator, (MultiLayerNetwork) model, numRecordsForAUC, doForEachPrediction, stopIfTrue);
 
         }
         if (model instanceof ComputationGraph) {
