@@ -1,7 +1,9 @@
 package org.campagnelab.dl.model.utils.mappers;
 
+import org.apache.commons.lang.math.JVMRandom;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.rng.Random;
 
 /**
  * Label: frequency of somatic mutation.
@@ -13,20 +15,22 @@ public class SomaticFrequencyLabelMapper implements LabelMapper<BaseInformationR
         return 1;
     }
 
+    int[] indices = new int[]{0, 0};
+
     @Override
     public void mapLabels(BaseInformationRecords.BaseInformation record, INDArray labels, int indexOfRecord) {
-        labels.putScalar(indexOfRecord, record.getFrequencyOfMutation());
+        indices[0] = indexOfRecord;
+
+        for (int labelIndex = 0; labelIndex < numberOfLabels(); labelIndex++) {
+            indices[1] = labelIndex;
+            labels.putScalar(indices, produceLabel(record, labelIndex));
+        }
     }
 
     @Override
     public float produceLabel(BaseInformationRecords.BaseInformation record, int labelIndex) {
         assert labelIndex == 0 || labelIndex == 1 : "only one label.";
 
-        if (labelIndex == 0)
-            return record.getFrequencyOfMutation();
-        else {
-            return 1 - record.getFrequencyOfMutation();
-        }
-
+        return record.getFrequencyOfMutation();
     }
 }
