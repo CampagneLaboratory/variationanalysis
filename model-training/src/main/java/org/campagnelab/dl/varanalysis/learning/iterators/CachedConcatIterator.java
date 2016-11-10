@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * A concat iterator that transparently creates a disk cache of the content of the input iterators. Note that
+ * A concat iterator that transparently creates a disk cache of the content of the input iterators.
  */
 public class CachedConcatIterator<T> implements NamedDataSetIterator {
 
