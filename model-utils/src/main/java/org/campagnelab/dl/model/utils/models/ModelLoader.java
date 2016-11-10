@@ -100,6 +100,30 @@ public class ModelLoader {
         return null;
     }
 
+    /**
+     * Strip the model path from the suffix to path/modelLabel
+     *
+     * @param fullPath
+     * @return model prefix/label or null if the full path did not point to a model file.
+     */
+    public static String getModelLabel(String fullPath) {
+        String[] modelPathSplit = fullPath.split("/");
+        String modelFileName = modelPathSplit[modelPathSplit.length - 1];
+        String suffixes[] = {"-ComputationGraph.bin", "Model.bin"};
+        if (modelFileName.endsWith(".bin")) {
+            for (String suffix : suffixes) {
+                if (modelFileName.endsWith(suffix)) {
+                    return modelFileName.substring(0, modelFileName.length() - suffix.length());
+                }
+            }
+        }
+        return null;
+    }
+
+    public static String getModelPath(String fullPath) {
+        return new File(fullPath).getParent();
+    }
+
     public Model loadModel(String modelNamePrefix) throws IOException {
 
         Model model = null;
