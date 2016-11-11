@@ -46,7 +46,4 @@ public class TrainModelS extends TrainModel<BaseInformationRecords.BaseInformati
     protected DomainDescriptor<BaseInformationRecords.BaseInformation> domainDescriptor() {
         return new SomaticMutationDomainDescriptor((SomaticTrainingArguments) args());
     }
-
-
-
 }

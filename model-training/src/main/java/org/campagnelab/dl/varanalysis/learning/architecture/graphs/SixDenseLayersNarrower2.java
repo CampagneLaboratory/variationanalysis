@@ -15,10 +15,9 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
- * A network with six dense layers. This is the second neural net architecture we tried for detecting
- * somatic variations.
+ * A computational graph with six dense layers and two outputs: probability of somatic mutation and frequency of the
+ * mutation (0 when no mutation).
  * <p>
- * Created by fac2003 on 6/10/16.
  *
  * @author Fabien Campagne
  */
