@@ -29,7 +29,7 @@ public class PerformanceLogger {
      *
      * @param metrics A set of tuples describing metrics to collect.
      */
-    public void definePerformances(Metric ... metrics) {
+    public void definePerformances(Metric... metrics) {
         performanceLargeIsBest = new boolean[metrics.length];
         performanceNames = new String[metrics.length];
         bestPerformances = new double[metrics.length];
@@ -85,6 +85,11 @@ public class PerformanceLogger {
      */
     public PerformanceLogger(String directory) {
         this.directory = directory;
+
+        final File dir = new File(directory);
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new IllegalArgumentException("Unable to create log directory at " + directory + " current directory is " + new File(".").getAbsolutePath());
+        }
     }
 
     public void setCondition(String conditionId) {
@@ -150,7 +155,7 @@ public class PerformanceLogger {
     public int getBestEpoch(String prefix) {
         int epoch = -1;
         List<Performance> performances = log.get(prefix);
-        assert performances!=null: "Cannot find performance log for prefix="+prefix;
+        assert performances != null : "Cannot find performance log for prefix=" + prefix;
         for (Performance per : performances) {
             epoch = Math.max(epoch, per.epoch);
         }
@@ -190,7 +195,7 @@ public class PerformanceLogger {
      * @throws IOException
      */
     public void write(String prefix) throws IOException {
-        new File(directory).mkdirs();
+
         Writer writer = new FileWriter(directory + "/" +
                 String.format(PerformanceLogger.perfFilenameFormat, prefix));
         try {
@@ -275,7 +280,7 @@ public class PerformanceLogger {
                 String result = "";
                 int index = 0;
                 for (double value : performanceValues) {
-                    result += String.format("%f",value);
+                    result += String.format("%f", value);
                     index += 1;
                     if (index < performanceValues.length) {
                         result += "\t";
