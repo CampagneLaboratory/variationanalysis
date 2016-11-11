@@ -3,7 +3,7 @@ package org.campagnelab.dl.varanalysis.intermediaries;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
-import it.unimi.dsi.util.XorShift128PlusRandom;
+import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.storage.RecordWriter;
@@ -38,7 +38,7 @@ public class Randomizer extends Intermediary{
         try {
             RecordReader reader = new RecordReader(inPath);
             RecordWriter writer = new RecordWriter(outPath);
-            Random rand = new XorShift128PlusRandom();
+            Random rand = new XorShift1024StarRandom();
 
             //set up logger
             ProgressLogger pgRead = new ProgressLogger(LOG);

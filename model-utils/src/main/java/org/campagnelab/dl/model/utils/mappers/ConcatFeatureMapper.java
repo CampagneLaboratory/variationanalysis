@@ -10,18 +10,21 @@ import java.util.Arrays;
  * Created by fac2003 on 5/24/16.
  */
 public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType>, EfficientFeatureMapper<RecordType> {
-    FeatureMapper<RecordType> mappers[];
-    int numFeatures = 0;
-    int[] offsets;
-    boolean normalizedCalled;
 
-    public ConcatFeatureMapper(FeatureMapper... featureMappers) {
+    protected FeatureMapper<RecordType>[] mappers;
+    protected int numFeatures = 0;
+    protected int[] offsets;
+    private boolean normalizedCalled;
+
+    @SafeVarargs
+    public ConcatFeatureMapper(FeatureMapper<RecordType> ... featureMappers) {
+
         this.mappers = featureMappers;
         int offset = 0;
         int i = 1;
         offsets = new int[featureMappers.length + 1];
         offsets[0] = 0;
-        for (FeatureMapper calculator : mappers) {
+        for (FeatureMapper<RecordType> calculator : mappers) {
             numFeatures += calculator.numberOfFeatures();
             ;
             offsets[i] = numFeatures;
@@ -29,7 +32,6 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
             i++;
         }
     }
-
 
     @Override
     public int numberOfFeatures() {
@@ -39,7 +41,7 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
 
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
-        for (FeatureMapper calculator : mappers) {
+        for (FeatureMapper<RecordType>  calculator : mappers) {
             calculator.prepareToNormalize(record, indexOfRecord);
         }
         normalizedCalled=true;
@@ -50,8 +52,8 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
     public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
         assert normalizedCalled :"prepareToNormalize must be called before mapFeatures.";
         int offset = 0;
-        int[] indicesOuter = {0, 0};
-        for (FeatureMapper delegate : mappers) {
+        final int[] indicesOuter = {0, 0};
+        for (FeatureMapper<RecordType>  delegate : mappers) {
 
             final int delNumFeatures = delegate.numberOfFeatures();
             for (int j = 0; j < delNumFeatures; j++) {
@@ -76,7 +78,7 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
     public void mapFeatures(RecordType record, float[] inputs, int offset, int indexOfRecord) {
         assert normalizedCalled :"prepareToNormalize must be called before mapFeatures.";
 
-        for (FeatureMapper delegate : mappers) {
+        for (FeatureMapper<RecordType>  delegate : mappers) {
 
             final int delNumFeatures = delegate.numberOfFeatures();
              for (int j = 0; j < delNumFeatures; j++) {

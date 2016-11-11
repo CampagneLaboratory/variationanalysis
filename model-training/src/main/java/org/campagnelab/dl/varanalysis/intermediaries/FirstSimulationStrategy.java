@@ -2,7 +2,7 @@ package org.campagnelab.dl.varanalysis.intermediaries;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.util.XorShift128PlusRandom;
+import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
+ * Introduce a strategy to introduce mutations.
  * Created by fac2003 on 7/19/16.
  */
 public class FirstSimulationStrategy implements SimulationStrategy {
@@ -20,7 +21,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
     public FirstSimulationStrategy(long seed) {
         this.seed = seed;
 
-        rand = new XorShift128PlusRandom(seed);
+        rand = new XorShift1024StarRandom(seed);
     }
 
     public FirstSimulationStrategy(int deltaSmall, int deltaBig, int zygHeuristic, long seed) {
@@ -278,7 +279,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
     @Override
     public void setSeed(int seed) {
-        rand = new XorShift128PlusRandom(seed);
+        rand = new XorShift1024StarRandom(seed);
     }
 
     private void mutateIntegerLists(int fMutCount, List<Integer> source, List<Integer> dest) {

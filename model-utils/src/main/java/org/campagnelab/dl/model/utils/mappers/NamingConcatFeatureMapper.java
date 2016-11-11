@@ -13,7 +13,8 @@ import java.util.Arrays;
 public class NamingConcatFeatureMapper<RecordType> extends ConcatFeatureMapper<RecordType> implements FeatureNameMapper<RecordType> {
 
 
-    public NamingConcatFeatureMapper(FeatureNameMapper... featureMappers) {
+    @SafeVarargs
+    public NamingConcatFeatureMapper(FeatureNameMapper<RecordType>... featureMappers) {
         this.mappers = featureMappers;
         int offset = 0;
         int i = 1;

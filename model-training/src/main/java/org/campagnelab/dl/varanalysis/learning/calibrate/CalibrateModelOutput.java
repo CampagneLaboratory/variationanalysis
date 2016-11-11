@@ -85,7 +85,7 @@ public class CalibrateModelOutput {
         assembler.setNumHiddenNodes(numHiddenNodes);
         assembler.setNumInputs(numInputs);
         assembler.setNumOutputs(numOutputs);
-        assembler.setLossFunction(LossFunctions.LossFunction.RMSE_XENT); // RMSE for regression.
+        assembler.setLossFunction(LossFunctions.LossFunction.MSE); // RMSE for regression.
         assembler.setRegularizationRate(1e-6);
 
         assembler.setWeightInitialization(WeightInit.RELU);

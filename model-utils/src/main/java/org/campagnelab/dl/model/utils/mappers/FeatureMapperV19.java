@@ -21,7 +21,7 @@ public class FeatureMapperV19 extends NamingConcatFeatureMapper<BaseInformationR
      */
     public void configure(Properties sbiProperties) {
 
-        delegate = new NamingConcatFeatureMapper(new SimpleFeatureCalculator(true),
+        delegate = new NamingConcatFeatureMapper<>(new SimpleFeatureCalculator(true),
                 new IndelFeatures(),
                 new GenomicContextMapper(sbiProperties),
                 new ReadIndexFeaturesFix(),

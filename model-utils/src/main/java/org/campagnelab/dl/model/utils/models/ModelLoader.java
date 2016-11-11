@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
+import java.nio.charset.Charset;
 import java.util.Properties;
 
 /**
@@ -152,7 +153,7 @@ public class ModelLoader {
 
         //Load network configuration from disk:
         MultiLayerConfiguration confFromJson =
-                MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File(getPath(modelNamePrefix, "/%sModelConf.json"))));
+                MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File(getPath(modelNamePrefix, "/%sModelConf.json")), Charset.defaultCharset()));
 
         //Create a MultiLayerNetwork from the saved configuration and parameters
         net = new MultiLayerNetwork(confFromJson);

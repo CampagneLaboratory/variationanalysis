@@ -124,9 +124,7 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
         commander.setProgramName(commandName);
         try {
             commander.parse(args);
-            if (arguments instanceof RecordingToolArguments) {
-                storeFieldValues(commander, (RecordingToolArguments) arguments);
-            }
+            storeFieldValues(commander, arguments);
         } catch (ParameterException e) {
 
             commander.usage();
