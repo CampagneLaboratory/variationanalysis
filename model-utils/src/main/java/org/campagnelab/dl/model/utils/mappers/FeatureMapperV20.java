@@ -21,7 +21,7 @@ public class FeatureMapperV20 extends NamingConcatFeatureMapper<BaseInformationR
      */
     public void configure(Properties sbiProperties) {
 
-        delegate = new NamingConcatFeatureMapper(
+        delegate = new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                 new SimpleFeatureCalculator(true),
                 new IndelFeatures(),
                 new GenomicContextMapper(sbiProperties),
@@ -69,8 +69,4 @@ public class FeatureMapperV20 extends NamingConcatFeatureMapper<BaseInformationR
         return delegate.produceFeature(record, featureIndex);
     }
 
-    @Override
-    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
-        delegate.mapFeatures(record, inputs, offset, indexOfRecord);
-    }
 }

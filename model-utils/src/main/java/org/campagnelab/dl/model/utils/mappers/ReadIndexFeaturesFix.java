@@ -17,8 +17,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Fabien Campagne
  */
 public class ReadIndexFeaturesFix extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
-        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>,
-        EfficientFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+      {
 
     public static final int NUM_GENOTYPES = 5;
     public static final int NUM_SAMPLES = 2;
@@ -61,14 +61,6 @@ public class ReadIndexFeaturesFix extends AbstractFeatureMapper<BaseInformationR
 
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         return normalize(produceFeatureInternal(record, featureIndex), sumReadIndex);
-    }
-
-    @Override
-    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
-        prepareToNormalize(record, indexOfRecord);
-        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
-            inputs[featureIndex+offset] = produceFeature(record, featureIndex);
-        }
     }
 
     @Override

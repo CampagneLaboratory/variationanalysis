@@ -12,8 +12,8 @@ import java.util.function.Function;
  * Maps a int indexing into a record's genomic sequence context into a one hot base feature
  * Created by rct66 on 10/25/16.
  */
-public class OneHotBaseMapper implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>,
-        EfficientFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+public class OneHotBaseMapper implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+         {
 
     static private Logger LOG = LoggerFactory.getLogger(OneHotBaseMapper.class);
 
@@ -80,13 +80,6 @@ public class OneHotBaseMapper implements FeatureMapper<BaseInformationRecords.Ba
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
             indices[1] = featureIndex;
             inputs.putScalar(indices, produceFeature(record, featureIndex));
-        }
-    }
-
-    @Override
-    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
-        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
-            inputs[featureIndex + offset] = produceFeature(record, featureIndex);
         }
     }
 

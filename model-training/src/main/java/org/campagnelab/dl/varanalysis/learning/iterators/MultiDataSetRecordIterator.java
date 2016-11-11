@@ -1,27 +1,15 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
-import org.apache.commons.compress.utils.IOUtils;
-import org.campagnelab.dl.model.utils.mappers.EfficientFeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.EfficientLabelMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.varanalysis.learning.DomainDescriptor;
-import org.campagnelab.dl.varanalysis.learning.TrainModel;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.dl.varanalysis.storage.RecordReader;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 /**

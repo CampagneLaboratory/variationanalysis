@@ -9,7 +9,7 @@ import java.util.Arrays;
  * Concatenate features from different mappers.
  * Created by fac2003 on 5/24/16.
  */
-public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType>, EfficientFeatureMapper<RecordType> {
+public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
 
     protected FeatureMapper<RecordType>[] mappers;
     protected int numFeatures = 0;
@@ -74,20 +74,6 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
         return this.mappers[indexOfDelegate].produceFeature(record, featureIndex - offsets[indexOfDelegate]);
     }
 
-    @Override
-    public void mapFeatures(RecordType record, float[] inputs, int offset, int indexOfRecord) {
-        assert normalizedCalled :"prepareToNormalize must be called before mapFeatures.";
-
-        for (FeatureMapper<RecordType>  delegate : mappers) {
-
-            final int delNumFeatures = delegate.numberOfFeatures();
-             for (int j = 0; j < delNumFeatures; j++) {
-
-                inputs[j + offset] = delegate.produceFeature(record, j);
-            }
-            offset += delNumFeatures;
-        }
-    }
 
 
 }

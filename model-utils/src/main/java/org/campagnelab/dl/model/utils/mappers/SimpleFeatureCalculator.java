@@ -32,9 +32,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 
 public class SimpleFeatureCalculator extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
-        implements FeatureCalculator<BaseInformationRecords.BaseInformationOrBuilder>,
-        EfficientFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>,
-        EfficientLabelMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+        implements FeatureCalculator<BaseInformationRecords.BaseInformationOrBuilder> {
 
 
     public SimpleFeatureCalculator(boolean sort) {
@@ -65,7 +63,7 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper<BaseInformati
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
             sumCounts += produceFeatureInternal(record, featureIndex);
         }
-        normalized=true;
+        normalized = true;
     }
 
     @Override
@@ -78,7 +76,7 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper<BaseInformati
 
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
-        assert normalized:"prepareToNormalize must be called before mapFeatures.";
+        assert normalized : "prepareToNormalize must be called before mapFeatures.";
         indices[0] = indexOfRecord;
 
         final float[] buffer = getBuffer();
@@ -91,7 +89,7 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper<BaseInformati
 
 
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
-        assert normalized:"prepareToNormalize must be called before mapFeatures.";
+        assert normalized : "prepareToNormalize must be called before mapFeatures.";
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
             inputs[featureIndex + offset] = produceFeature(record, featureIndex);
         }
@@ -131,14 +129,6 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper<BaseInformati
         for (int labelIndex = 0; labelIndex < numberOfLabels(); labelIndex++) {
             indices[1] = labelIndex;
             labels.putScalar(indices, produceLabel(record, labelIndex));
-        }
-    }
-
-    @Override
-    public void mapLabels(BaseInformationRecords.BaseInformationOrBuilder record, float[] labels, int offset, int indexOfRecord) {
-
-        for (int labelIndex = 0; labelIndex < numberOfLabels(); labelIndex++) {
-            labels[labelIndex + offset] = produceLabel(record, labelIndex);
         }
     }
 

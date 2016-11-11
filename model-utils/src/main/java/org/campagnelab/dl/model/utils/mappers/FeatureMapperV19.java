@@ -37,14 +37,8 @@ public class FeatureMapperV19 extends NamingConcatFeatureMapper<BaseInformationR
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresForwardStrandList)),
                 new DensityMapper("baseQuality.reverse", 10, sbiProperties, baseInformationOrBuilder ->
                         TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresReverseStrandList))
-                );
-
-
+        );
     }
-
-
-
-
 
     @Override
     public String getFeatureName(int i) {
@@ -69,10 +63,5 @@ public class FeatureMapperV19 extends NamingConcatFeatureMapper<BaseInformationR
     @Override
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         return delegate.produceFeature(record, featureIndex);
-    }
-
-    @Override
-    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
-        delegate.mapFeatures(record, inputs, offset, indexOfRecord);
     }
 }

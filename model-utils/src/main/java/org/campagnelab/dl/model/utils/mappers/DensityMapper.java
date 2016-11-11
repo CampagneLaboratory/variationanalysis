@@ -13,7 +13,6 @@ import java.util.function.Function;
  * Created by fac2003 on 10/21/16.
  */
 public class DensityMapper implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>,
-        EfficientFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>,
         FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
     private final Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues;
@@ -84,7 +83,6 @@ public class DensityMapper implements FeatureMapper<BaseInformationRecords.BaseI
         return bins[featureIndex];
     }
 
-    @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
         // do not copy if inputs is bins (call from mapFeatures above)
         if (inputs != bins) {

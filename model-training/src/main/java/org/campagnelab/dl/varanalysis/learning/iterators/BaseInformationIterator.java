@@ -1,8 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.campagnelab.dl.model.utils.mappers.EfficientFeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.EfficientLabelMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -61,32 +59,12 @@ public class BaseInformationIterator implements NamedDataSetIterator {
         this.labelMapper = labelMapper;
         this.inputFilename = null;
 
-        if (featureMapper instanceof EfficientFeatureMapper) {
-            efficientFeatureLoading = true;
-            efm = (EfficientFeatureMapper) featureMapper;
-            featureStride = Nd4j.zeros(10, featureMapper.numberOfFeatures()).stride();
-        } else {
-            efficientFeatureLoading = false;
-            efm = null;
-        }
-        if (labelMapper instanceof EfficientLabelMapper) {
-            efficientLabelLoading = true;
-
-            elm = (EfficientLabelMapper) labelMapper;
-            labelStride = Nd4j.zeros(10, labelMapper.numberOfLabels()).stride();
-        } else {
-            efficientLabelLoading = false;
-            elm = null;
-        }
     }
 
-    final boolean efficientFeatureLoading;
-    final boolean efficientLabelLoading;
+
     // allocate features and labels for the entire dataset:
     // dimension 0 = number of examples in minibatch
     // dimension 1 = number of features per record.
-    final EfficientFeatureMapper efm;
-    final EfficientLabelMapper elm;
 
     public DataSet next(int batchSize) {
 

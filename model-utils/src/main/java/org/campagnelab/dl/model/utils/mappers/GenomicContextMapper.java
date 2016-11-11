@@ -18,8 +18,8 @@ import java.util.Properties;
 
 
 public class GenomicContextMapper extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
-        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>,
-        EfficientFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+        {
     private ConcatFeatureMapper delegate;
     public GenomicContextMapper(Properties sbiProperties) {
 
@@ -52,13 +52,6 @@ public class GenomicContextMapper extends AbstractFeatureMapper<BaseInformationR
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
         delegate.mapFeatures(record, inputs, indexOfRecord);
-    }
-
-    @Override
-    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
-        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
-            inputs[featureIndex+offset] = produceFeature(record, featureIndex);
-        }
     }
 
     @Override

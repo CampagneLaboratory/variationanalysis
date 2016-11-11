@@ -32,8 +32,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 
 public class MagnitudeFeatures2 extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
-        implements FeatureCalculator<BaseInformationRecords.BaseInformationOrBuilder>,
-        EfficientFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+        implements FeatureCalculator<BaseInformationRecords.BaseInformationOrBuilder>
+       {
 
     public MagnitudeFeatures2() {
     }
@@ -68,14 +68,6 @@ public class MagnitudeFeatures2 extends AbstractFeatureMapper<BaseInformationRec
 
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         return normalize(produceFeatureInternal(record, featureIndex), 1);
-    }
-
-    @Override
-    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, float[] inputs, int offset, int indexOfRecord) {
-        prepareToNormalize(record, indexOfRecord);
-        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
-            inputs[featureIndex + offset] = produceFeature(record, featureIndex);
-        }
     }
 
     @Override
