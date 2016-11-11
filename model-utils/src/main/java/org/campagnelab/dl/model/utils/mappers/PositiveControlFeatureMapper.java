@@ -7,7 +7,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * The FeatureMapper to test for the second iteration.
  * Created by fac2003 on 5/24/16.
  */
-public class PositiveControlFeatureMapper implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+public class PositiveControlFeatureMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
     @Override
     public int numberOfFeatures() {

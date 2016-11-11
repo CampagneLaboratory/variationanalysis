@@ -12,8 +12,8 @@ import java.util.function.Function;
  * Produces feature that represent a density of values for a given number of bins..
  * Created by fac2003 on 10/21/16.
  */
-public class DensityMapper implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>,
-        FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
     private final Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues;
     private final float minValue;
@@ -28,7 +28,7 @@ public class DensityMapper implements FeatureMapper<BaseInformationRecords.BaseI
                          Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues) {
 
         if (!propertiesPresent(sbiProperties, "stats." + name)) {
-            throw new UnsupportedOperationException("The sbip file does not contain the statistics for " +name+  " (stats."+name+".min and stats."+name+".max)");
+            throw new UnsupportedOperationException("The sbip file does not contain the statistics for " + name + " (stats." + name + ".min and stats." + name + ".max)");
         }
         this.minValue = getMin(sbiProperties, "stats." + name);
         this.maxValue = getMax(sbiProperties, "stats." + name);
