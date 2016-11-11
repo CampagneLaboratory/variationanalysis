@@ -275,7 +275,7 @@ public class MutatorTest {
             "mutated: true\n" +
             "mutatedBase: \"C\"\n" +
             "referenceBase: \"A\"\n" +
-            "frequencyOfMutation: 0.5740478\n" +
+            "frequencyOfMutation: 0.7020648\n" +
             "indexOfMutatedBase: 2\n" +
             "samples {\n" +
             "  counts {\n" +
@@ -342,8 +342,8 @@ public class MutatorTest {
             "    matchesReference: false\n" +
             "    fromSequence: \"A\"\n" +
             "    toSequence: \"C\"\n" +
-            "    genotypeCountForwardStrand: 127\n" +
-            "    genotypeCountReverseStrand: 111\n" +
+            "    genotypeCountForwardStrand: 129\n" +
+            "    genotypeCountReverseStrand: 145\n" +
             "  }\n" +
             "  counts {\n" +
             "    matchesReference: false\n" +
@@ -363,96 +363,96 @@ public class MutatorTest {
             "    matchesReference: false\n" +
             "    fromSequence: \"ABC\"\n" +
             "    toSequence: \"-\"\n" +
-            "    genotypeCountForwardStrand: 273\n" +
-            "    genotypeCountReverseStrand: 289\n" +
+            "    genotypeCountForwardStrand: 271\n" +
+            "    genotypeCountReverseStrand: 255\n" +
             "    isIndel: true\n" +
             "  }\n" +
             "  isTumor: true\n"+
             "}\n"
             ,
             "reference_index: 18\n" +
-            "position: 17214616\n" +
-            "mutated: true\n" +
-            "mutatedBase: \"T\"\n" +
-            "referenceBase: \"A\"\n" +
-            "frequencyOfMutation: 0.5740478\n" +
-            "indexOfMutatedBase: 1\n" +
-            "samples {\n" +
-            "  counts {\n" +
-            "    matchesReference: true\n" +
-            "    fromSequence: \"A\"\n" +
-            "    toSequence: \"A\"\n" +
-            "    genotypeCountForwardStrand: 11\n" +
-            "    genotypeCountReverseStrand: 14\n" +
-            "  }\n" +
-            "  counts {\n" +
-            "    matchesReference: false\n" +
-            "    fromSequence: \"A\"\n" +
-            "    toSequence: \"T\"\n" +
-            "    genotypeCountForwardStrand: 0\n" +
-            "    genotypeCountReverseStrand: 0\n" +
-            "  }\n" +
-            "  counts {\n" +
-            "    matchesReference: false\n" +
-            "    fromSequence: \"A\"\n" +
-            "    toSequence: \"C\"\n" +
-            "    genotypeCountForwardStrand: 0\n" +
-            "    genotypeCountReverseStrand: 0\n" +
-            "  }\n" +
-            "  counts {\n" +
-            "    matchesReference: false\n" +
-            "    fromSequence: \"A\"\n" +
-            "    toSequence: \"G\"\n" +
-            "    genotypeCountForwardStrand: 7\n" +
-            "    genotypeCountReverseStrand: 13\n" +
-            "  }\n" +
-            "  counts {\n" +
-            "    matchesReference: false\n" +
-            "    fromSequence: \"A\"\n" +
-            "    toSequence: \"N\"\n" +
-            "    genotypeCountForwardStrand: 0\n" +
-            "    genotypeCountReverseStrand: 0\n" +
-            "  }\n" +
-                    "  isTumor: false\n"+
-            "}\n" +
-            "samples {\n" +
-            "  counts {\n" +
-            "    matchesReference: true\n" +
-            "    fromSequence: \"A\"\n" +
-            "    toSequence: \"A\"\n" +
-            "    genotypeCountForwardStrand: 8\n" +
-            "    genotypeCountReverseStrand: 8\n" +
-            "  }\n" +
-            "  counts {\n" +
-            "    matchesReference: false\n" +
-            "    fromSequence: \"A\"\n" +
-            "    toSequence: \"T\"\n" +
-            "    genotypeCountForwardStrand: 5\n" +
-            "    genotypeCountReverseStrand: 8\n" +
-            "  }\n" +
-            "  counts {\n" +
-            "    matchesReference: false\n" +
-            "    fromSequence: \"A\"\n" +
-            "    toSequence: \"C\"\n" +
-            "    genotypeCountForwardStrand: 0\n" +
-            "    genotypeCountReverseStrand: 0\n" +
-            "  }\n" +
-            "  counts {\n" +
-            "    matchesReference: false\n" +
-            "    fromSequence: \"A\"\n" +
-            "    toSequence: \"G\"\n" +
-            "    genotypeCountForwardStrand: 1\n" +
-            "    genotypeCountReverseStrand: 2\n" +
-            "  }\n" +
-            "  counts {\n" +
-            "    matchesReference: false\n" +
-            "    fromSequence: \"A\"\n" +
-            "    toSequence: \"N\"\n" +
-            "    genotypeCountForwardStrand: 0\n" +
-            "    genotypeCountReverseStrand: 0\n" +
-            "  }\n" +
-                    "  isTumor: true\n"+
-            "}\n"
+                    "position: 17214616\n" +
+                    "mutated: true\n" +
+                    "mutatedBase: \"G\"\n" +
+                    "referenceBase: \"A\"\n" +
+                    "frequencyOfMutation: 0.7020648\n" +
+                    "indexOfMutatedBase: 3\n" +
+                    "samples {\n" +
+                    "  counts {\n" +
+                    "    matchesReference: true\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"A\"\n" +
+                    "    genotypeCountForwardStrand: 11\n" +
+                    "    genotypeCountReverseStrand: 14\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"T\"\n" +
+                    "    genotypeCountForwardStrand: 0\n" +
+                    "    genotypeCountReverseStrand: 0\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"C\"\n" +
+                    "    genotypeCountForwardStrand: 0\n" +
+                    "    genotypeCountReverseStrand: 0\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"G\"\n" +
+                    "    genotypeCountForwardStrand: 7\n" +
+                    "    genotypeCountReverseStrand: 13\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"N\"\n" +
+                    "    genotypeCountForwardStrand: 0\n" +
+                    "    genotypeCountReverseStrand: 0\n" +
+                    "  }\n" +
+                    "  isTumor: false\n" +
+                    "}\n" +
+                    "samples {\n" +
+                    "  counts {\n" +
+                    "    matchesReference: true\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"A\"\n" +
+                    "    genotypeCountForwardStrand: 7\n" +
+                    "    genotypeCountReverseStrand: 10\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"T\"\n" +
+                    "    genotypeCountForwardStrand: 0\n" +
+                    "    genotypeCountReverseStrand: 0\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"C\"\n" +
+                    "    genotypeCountForwardStrand: 0\n" +
+                    "    genotypeCountReverseStrand: 0\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"G\"\n" +
+                    "    genotypeCountForwardStrand: 7\n" +
+                    "    genotypeCountReverseStrand: 8\n" +
+                    "  }\n" +
+                    "  counts {\n" +
+                    "    matchesReference: false\n" +
+                    "    fromSequence: \"A\"\n" +
+                    "    toSequence: \"N\"\n" +
+                    "    genotypeCountForwardStrand: 0\n" +
+                    "    genotypeCountReverseStrand: 0\n" +
+                    "  }\n" +
+                    "  isTumor: true\n" +
+                    "}\n"
     };
 
 }

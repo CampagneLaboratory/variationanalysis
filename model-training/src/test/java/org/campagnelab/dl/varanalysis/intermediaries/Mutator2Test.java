@@ -276,7 +276,7 @@ public class Mutator2Test {
             "mutated: true\n" +
             "mutatedBase: \"C\"\n" +
             "referenceBase: \"A\"\n" +
-            "frequencyOfMutation: 0.5740478\n" +
+            "frequencyOfMutation: 0.7020648\n" +
             "indexOfMutatedBase: 2\n" +
             "samples {\n" +
             "  counts {\n" +
@@ -343,8 +343,8 @@ public class Mutator2Test {
             "    matchesReference: false\n" +
             "    fromSequence: \"A\"\n" +
             "    toSequence: \"C\"\n" +
-            "    genotypeCountForwardStrand: 127\n" +
-            "    genotypeCountReverseStrand: 111\n" +
+            "    genotypeCountForwardStrand: 129\n" +
+            "    genotypeCountReverseStrand: 145\n" +
             "  }\n" +
             "  counts {\n" +
             "    matchesReference: false\n" +
@@ -364,8 +364,8 @@ public class Mutator2Test {
             "    matchesReference: false\n" +
             "    fromSequence: \"ABC\"\n" +
             "    toSequence: \"-\"\n" +
-            "    genotypeCountForwardStrand: 273\n" +
-            "    genotypeCountReverseStrand: 289\n" +
+            "    genotypeCountForwardStrand: 271\n" +
+            "    genotypeCountReverseStrand: 255\n" +
             "    isIndel: true\n" +
             "  }\n" +
             "  isTumor: true\n" +
