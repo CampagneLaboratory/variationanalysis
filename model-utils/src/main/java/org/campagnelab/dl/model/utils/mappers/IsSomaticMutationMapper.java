@@ -6,7 +6,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 /**
  * Created by fac2003 on 11/8/16.
  */
-public class IsSomaticMutationMapper implements LabelMapper<BaseInformationRecords.BaseInformation> {
+public class IsSomaticMutationMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
     int[] indices = new int[]{0, 0};
 
     @Override

@@ -1,6 +1,5 @@
 package org.campagnelab.dl.model.utils.mappers;
 
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
@@ -14,14 +13,16 @@ public interface LabelMapper<RecordType> {
      * @return The number of labels.
      */
     int numberOfLabels();
+
     /**
      * Fill in features into the dataset, as index
-     *  @param record        The record to convert to features & labels.
-
+     *
+     * @param record        The record to convert to features & labels.
      * @param labels        The labels
      * @param indexOfRecord Index of the record in the destination dataset.
      */
     void mapLabels(RecordType record, INDArray labels, int indexOfRecord);
+
     /**
      * Produce the value of a given label for the specified record.
      *
@@ -30,4 +31,29 @@ public interface LabelMapper<RecordType> {
      * @return The value of the label.
      */
     float produceLabel(RecordType record, int labelIndex);
+
+    /**
+     * Return true if the mapper creates an input mask (maskFeatures is implemented).
+     *
+     * @return
+     */
+    boolean hasMask();
+
+    /**
+     * Fill in the feature mask. The method is only called if hasMask returns true.
+     *
+     * @param record        The record to convert to features & labels.
+     * @param mask          The feature mask
+     * @param indexOfRecord Index of the record in the destination dataset.
+     */
+    void maskFeatures(RecordType record, INDArray mask, int indexOfRecord);
+
+    /**
+     * Determine if a feature needs to be masked or not. The method is only called if hasMask returns true.
+     *
+     * @param record       the record for which masking may be needed.
+     * @param featureIndex index of the features that may need masking
+     * @return True if feature must be masked, false otherwise.
+     */
+    boolean isMasked(RecordType record, int featureIndex);
 }

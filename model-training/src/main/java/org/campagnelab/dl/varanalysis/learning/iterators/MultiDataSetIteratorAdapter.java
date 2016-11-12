@@ -60,24 +60,32 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
         final int numLabels = domainDescriptor.getComputationalGraph().getOutputNames().length;
         int numOutputs = numLabels;
 
-        INDArray inputs[] = new INDArray[numInputs];//= Nd4j.zeros(size, featureMapper.numberOfFeatures());
-        INDArray labels[] = new INDArray[numLabels];//= Nd4j.zeros(size, labelMapper.numberOfLabels());
+        INDArray inputs[] = new INDArray[numInputs];
+        INDArray inputMasks[] = new INDArray[numInputs];
+        INDArray labels[] = new INDArray[numLabels];
+        INDArray labelMasks[] = new INDArray[numLabels];
         FeatureMapper[] featureMappers = new FeatureMapper[numInputs];
         LabelMapper[] labelMappers = new LabelMapper[numOutputs];
         int index = 0;
-
+        boolean hasFeatureMask = false;
+        boolean hasLabelMask = false;
         for (String input : domainDescriptor.getComputationalGraph().getInputNames()) {
 
             inputs[index] = Nd4j.zeros(domainDescriptor.getInputShape(size, input));
             featureMappers[index] = domainDescriptor.getFeatureMapper(input);
+            boolean needMask = featureMappers[index].hasMask();
+            inputMasks[index] = needMask ? Nd4j.zeros(domainDescriptor.getInputShape(size, input)) : null;
             index += 1;
-
+            hasFeatureMask |= needMask;
         }
         index = 0;
         for (String label : domainDescriptor.getComputationalGraph().getOutputNames()) {
             labels[index] = Nd4j.zeros(domainDescriptor.getLabelShape(size, label));
             labelMappers[index] = domainDescriptor.getLabelMapper(label);
+            boolean needMask = labelMappers[index].hasMask();
+            labelMasks[index] = needMask ? Nd4j.zeros(domainDescriptor.getLabelShape(size, label)) : null;
             index++;
+            hasLabelMask |= needMask;
         }
         int recordIndexInBatch = 0;
         for (RecordType record : buffer) {
@@ -92,7 +100,9 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
             recordIndexInBatch += 1;
 
         }
-        final MultiDataSet result = new org.nd4j.linalg.dataset.MultiDataSet(inputs, labels);
+        final MultiDataSet result = new org.nd4j.linalg.dataset.MultiDataSet(inputs, labels,
+                hasFeatureMask ? inputMasks : null,
+                hasLabelMask ? labelMasks : null);
         if (preProcessor != null) preProcessor.preProcess(result);
         return result;
     }
@@ -102,7 +112,7 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
         this.preProcessor = preProcessor;
     }
 
-        @Override
+    @Override
     public boolean resetSupported() {
         return true;
     }

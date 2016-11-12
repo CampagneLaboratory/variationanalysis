@@ -9,7 +9,7 @@ import org.nd4j.linalg.api.rng.Random;
  * Label: frequency of somatic mutation.
  * Created by fac2003 on 11/8/16.
  */
-public class SomaticFrequencyLabelMapper implements LabelMapper<BaseInformationRecords.BaseInformation> {
+public class SomaticFrequencyLabelMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
     @Override
     public int numberOfLabels() {
         return 1;
@@ -33,4 +33,6 @@ public class SomaticFrequencyLabelMapper implements LabelMapper<BaseInformationR
 
         return record.getFrequencyOfMutation();
     }
+
+
 }
