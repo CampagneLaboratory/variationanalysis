@@ -1,13 +1,11 @@
 package org.campagnelab.dl.varanalysis.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV18;
-import org.campagnelab.dl.model.utils.mappers.trio.FeatureMapperV18Trio;
 import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.SamplingIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
+import org.campagnelab.dl.varanalysis.learning.performance.MeasurePerformance;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;

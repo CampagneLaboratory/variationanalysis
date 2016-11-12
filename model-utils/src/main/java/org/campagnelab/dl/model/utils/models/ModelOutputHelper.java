@@ -21,6 +21,11 @@ import java.util.Iterator;
 public class ModelOutputHelper<RecordType> {
     private INDArray[] resultGraph;
 
+    /**
+     *
+     * @param model
+     * @param iterator Must be of type Iterator<DataSet> or Iterator<MultiDataSet>.
+     */
     @SuppressWarnings("unchecked")
     public void predictForNext(Model model, Iterator iterator) {
         // we cannot check the casts below because we cannot test for generics with instanceof:

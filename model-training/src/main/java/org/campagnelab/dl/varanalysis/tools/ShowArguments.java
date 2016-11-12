@@ -19,7 +19,7 @@ public class ShowArguments implements ToolArguments {
     @Parameter(names = {"-n", "--num-examples"}, description = "Number of examples to show.")
     public int showN = Integer.MAX_VALUE;
 
-    @Parameter(names = {"-p", "--predictions"}, description = "Prediction file with indices to show. Set to - to read from standard input.")
+    @Parameter(names = {"-p", "--predictions"}, description = "BinaryClassPrediction file with indices to show. Set to - to read from standard input.")
     public String predictionFilter = null;
 
     public enum ShowReportTypes {

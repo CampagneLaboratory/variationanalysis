@@ -266,7 +266,7 @@ public class PerformanceLogger {
         public Performance(long numExamplesUsed, int epoch, String[] performanceNames, double... performanceValues) {
             this.numExamplesUsed = numExamplesUsed;
             this.epoch = epoch;
-            this.performanceValues = performanceValues;
+            this.performanceValues = performanceValues.clone();
             this.performanceNames = performanceNames;
         }
 

@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
  * Use a trained neural network model to predict mutations.
  * <p>
  * Created by rct2002 on 6/8/16.
- *
+ * @deprecated  Use Predict instead.
  * @author Remi Torracinta
  */
 public class PredictMutations extends AbstractPredictMutations {

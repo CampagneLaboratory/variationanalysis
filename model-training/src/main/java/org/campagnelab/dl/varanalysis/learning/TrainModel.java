@@ -9,10 +9,11 @@ import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
+import org.campagnelab.dl.varanalysis.learning.domains.DomainDescriptor;
+import org.campagnelab.dl.varanalysis.learning.domains.PerformanceMetricDescriptor;
 import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.varanalysis.learning.models.ComputationGraphSaver;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
-import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.learning.performance.Metric;
 import org.campagnelab.dl.varanalysis.learning.performance.PerformanceLogger;
 import org.campagnelab.dl.varanalysis.tools.ConditionRecordingTool;
@@ -48,7 +49,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     private long time;
 
     protected DomainDescriptor<RecordType> domainDescriptor;
-    private  String bestMetricName;
+    private String bestMetricName;
 
     protected abstract DomainDescriptor<RecordType> domainDescriptor();
 
@@ -177,7 +178,9 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         ComputationalGraphAssembler assembler = domainDescriptor.getComputationalGraph();
         appendProperties(assembler, mpHelper);
         mpHelper.addProperties(getReaderProperties(args().trainingSets.get(0)));
+        mpHelper.put("domainDescriptor",domainDescriptor.getClass().getCanonicalName());
         mpHelper.writeProperties(directory);
+        domainDescriptor.writeProperties(directory);
     }
 
 
@@ -262,7 +265,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             }
         };
 
-        final long numRecords =Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
+        final long numRecords = Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
         MultiDataSetIterator validationIterator = readValidationSet();
@@ -304,7 +307,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 }
             }
             performanceLogger.logMetrics("epochs", numExamplesUsed, epoch, metricValues.toDoubleArray());
-            if ((perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
+            if (!Double.isNaN(bestValue)&&
+                    (perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
                     (!perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue < bestValue)) {
                 saver.saveModel(computationGraph, "bestAUC");
                 bestValue = validationMetricValue;
@@ -327,7 +331,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             //addCustomOption("--num-errors-added", args().numErrorsAdded);
         }
         pgEpoch.stop();
-
         return new EarlyStoppingResult<ComputationGraph>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, performanceLogger.getBestEpoch(bestMetricName), bestScore, args().maxEpochs, computationGraph);
     }

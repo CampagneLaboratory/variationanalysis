@@ -5,7 +5,6 @@ import org.campagnelab.dl.model.utils.ConfigurableFeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
-import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.buffer.DataBuffer;
@@ -24,11 +23,18 @@ import java.util.Properties;
  * Created by fac2003 on 7/15/16.
  */
 public class ModelLoader {
+    private final Properties modelProperties;
     String modelPath;
     static private Logger LOG = LoggerFactory.getLogger(ModelLoader.class);
 
     public ModelLoader(String modelPath) {
         this.modelPath = modelPath;
+
+        try {
+            modelProperties = loadModelProperties();
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to load model properties at path " + modelPath);
+        }
     }
 
     /**
@@ -60,18 +66,9 @@ public class ModelLoader {
     public FeatureMapper loadFeatureMapper(Properties sbiProperties) {
 
         try {
-            FileInputStream input = new FileInputStream(modelPath + "/config.properties");
-            // load a properties file
-            Properties prop = new Properties();
-            prop.load(input);
-            if (prop.getProperty("precision") != null && prop.getProperty("precision").equals("FP16")) {
-                LOG.info("Model uses FP16 precision. Activating support.");
-                DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
-            }
+
             // get the property value and print it out
-            String mapperName = prop.getProperty("mapper");
-
-
+            String mapperName = modelProperties.getProperty("mapper");
             ClassLoader classLoader = this.getClass().getClassLoader();
 
             // Load the target class using its binary name
@@ -91,6 +88,18 @@ public class ModelLoader {
 
             throw new RuntimeException("Unable to load model properties and initialize feature mapper.", e);
         }
+    }
+
+    private Properties loadModelProperties() throws IOException {
+        FileInputStream input = new FileInputStream(modelPath + "/config.properties");
+        // load a properties file
+        Properties prop = new Properties();
+        prop.load(input);
+        if (prop.getProperty("precision") != null && prop.getProperty("precision").equals("FP16")) {
+            LOG.info("Model uses FP16 precision. Activating support.");
+            DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+        }
+        return prop;
     }
 
     public MultiLayerNetwork loadMultiLayerNetwork(String modelNamePrefix) throws IOException {
@@ -122,7 +131,11 @@ public class ModelLoader {
     }
 
     public static String getModelPath(String fullPath) {
-        return new File(fullPath).getParent();
+        if (fullPath.endsWith(".bin")) {
+            return new File(fullPath).getParent();
+        } else {
+            return fullPath;
+        }
     }
 
     public Model loadModel(String modelNamePrefix) throws IOException {
