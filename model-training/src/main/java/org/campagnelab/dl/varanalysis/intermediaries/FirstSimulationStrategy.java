@@ -105,23 +105,28 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         double deltaOrig = delta;
         int newBase;
         int oldBase;
-
+        int otherBase = -1;
         if (monozygotic) {
             oldBase = maxCountIdx;
             //generate from non-max bases uniformly
 
             //only one allele mutates, so halve delta when monozygotic
             delta = delta / 2;
+            newBase = rand.nextInt(numGenos - 2);
         } else {
             boolean mutatingAllele = rand.nextBoolean();
             oldBase = mutatingAllele ? maxCountIdx : scndCountIdx;
+            otherBase = !mutatingAllele ? maxCountIdx : scndCountIdx;
+            newBase = rand.nextInt(numGenos - 3);
 
         }
-        newBase = rand.nextInt(numGenos - 2);
 
         if (newBase == oldBase) {
             //replace self case
             newBase = numGenos - 2;
+        } else if (newBase == otherBase){
+            //replace
+            newBase = numGenos - 3;
         } else if (newBase == 4) {
             //replace genotype N case
             newBase = numGenos - 1;
