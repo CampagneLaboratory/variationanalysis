@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * An abstract tool to train computational graphs. Implements early stopping. This class defines
@@ -178,7 +179,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         ComputationalGraphAssembler assembler = domainDescriptor.getComputationalGraph();
         appendProperties(assembler, mpHelper);
         mpHelper.addProperties(getReaderProperties(args().trainingSets.get(0)));
-        mpHelper.put("domainDescriptor",domainDescriptor.getClass().getCanonicalName());
+        mpHelper.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
         mpHelper.writeProperties(directory);
         domainDescriptor.writeProperties(directory);
     }
@@ -254,8 +255,11 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         double bestValue = initializePerformance(perfDescriptor, validationMetricName);
         int epoch;
 
-        // Assemble the training iterator:
-        Iterable<RecordType> inputIterable = domainDescriptor.getRecordIterable().apply(args().getTrainingSets()[0]);
+        // Assemble the training iterator from the concatenation of individual training set iterators:
+        Iterable<RecordType> inputIterable = Iterables.concat(
+                args().trainingSets.stream().map(
+                        filename -> domainDescriptor.getRecordIterable().apply(filename)).collect(
+                        Collectors.toList()));
         Iterable<RecordType> recordIterable = Iterables.limit(inputIterable, args().numTraining);
         final int miniBatchSize = args().miniBatchSize;
         MultiDataSetIteratorAdapter<RecordType> iterator = new MultiDataSetIteratorAdapter<RecordType>(recordIterable, miniBatchSize, domainDescriptor) {
@@ -307,7 +311,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 }
             }
             performanceLogger.logMetrics("epochs", numExamplesUsed, epoch, metricValues.toDoubleArray());
-            if (!Double.isNaN(bestValue)&&
+            if (!Double.isNaN(bestValue) &&
                     (perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
                     (!perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue < bestValue)) {
                 saver.saveModel(computationGraph, "bestAUC");

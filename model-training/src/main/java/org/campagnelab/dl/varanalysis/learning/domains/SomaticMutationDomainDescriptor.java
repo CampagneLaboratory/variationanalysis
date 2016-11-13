@@ -12,6 +12,8 @@ import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAs
 import org.campagnelab.dl.varanalysis.learning.architecture.graphs.SixDenseLayersNarrower2;
 import org.campagnelab.dl.varanalysis.learning.domains.predictions.IsSomaticMutationInterpreter;
 import org.campagnelab.dl.varanalysis.learning.domains.predictions.PredictionInterpreter;
+import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.stats.AUCHelper;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
@@ -20,7 +22,10 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInformationRecords.BaseInformation> {
 
@@ -34,7 +39,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         this.arguments = new SomaticTrainingArguments();
         super.loadProperties(modelPath);
         // force loading the feature mappers from properties.
-        args().featureMapperClassname=null;
+        args().featureMapperClassname = null;
     }
 
     private SomaticTrainingArguments arguments;
@@ -183,14 +188,23 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
     @Override
     public long getNumRecords(String[] recordFiles) {
-        SequenceBaseInformationReader reader = null;
+        BaseInformationConcatIterator it = null;
         try {
-            reader = new SequenceBaseInformationReader(recordFiles[0]);
-            return reader.getTotalRecords();
+            List<BaseInformationIterator> list = Arrays.asList(recordFiles).stream().map(filename -> {
+                try {
+
+                    return new BaseInformationIterator(filename, 128, featureMappers()[0], getLabelMapper("isMutated"));
+                } catch (IOException e) {
+                    throw new RuntimeException("Unable to estimate number of records for filename " + filename);
+                }
+            }).collect(Collectors.toList());
+            it = new BaseInformationConcatIterator(list, 128, featureMappers()[0], getLabelMapper("isMutated"));
+            return it.totalExamples();
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeQuietly(reader);
+            IOUtils.closeQuietly(it);
         }
         return 0;
     }

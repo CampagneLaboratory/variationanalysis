@@ -2,11 +2,13 @@ package org.campagnelab.dl.varanalysis.learning.iterators;
 
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -14,7 +16,7 @@ import java.util.NoSuchElementException;
 /**
  * Created by rct66 on 6/13/16.
  */
-public class BaseInformationConcatIterator extends BaseInformationIterator implements NamedDataSetIterator {
+public class BaseInformationConcatIterator extends BaseInformationIterator implements NamedDataSetIterator, Closeable {
 
     private List<BaseInformationIterator> baseIters;
     private int readerIndex = 0;
@@ -145,5 +147,10 @@ public class BaseInformationConcatIterator extends BaseInformationIterator imple
     @Override
     public void remove() {
         throw new UnsupportedOperationException("Remove is not supported by this iterator.");
+    }
+
+    @Override
+    public void close() throws IOException {
+        baseIters.forEach(baseInformationIterator -> IOUtils.closeQuietly(baseInformationIterator));
     }
 }
