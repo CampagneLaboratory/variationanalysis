@@ -57,7 +57,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
     protected FeatureMapper featureMapper = null;
     private ComputationGraph computationGraph;
-
+    private CacheHelper<RecordType> cacheHelper = new CacheHelper<>();
     @Override
     public void execute() {
         if (args().getTrainingSets().length == 0) {
@@ -263,13 +263,14 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 return buildBaseName(args().trainingSets);
             }
         };
-        CacheHelper<RecordType> cacheHelper = new CacheHelper<>();
 
-        MultiDataSetIterator iterator = cacheHelper.cache(domainDescriptor,
+        boolean useCache = true;
+        MultiDataSetIterator iterator = useCache ? cacheHelper.cache(domainDescriptor,
                 adapter, adapter.getBasename(),
-                args().numTraining);
+                args().numTraining) :
+                adapter;
 
-       // MultiDataSetIterator iterator=adapter;
+        // MultiDataSetIterator iterator=adapter;
         final long numRecords = Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
@@ -310,6 +311,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
             for (String metric : perfDescriptor.performanceMetrics()) {
                 validationIterator.reset();
+                assert validationIterator.hasNext() :"validation iterator must have datasets. Make sure the latest release of Goby is installed in the maven repo.";
                 final double performanceValue = perfDescriptor.estimateMetric(computationGraph, validationMetricName,
                         validationIterator, args().numValidation);
                 metricValues.add(performanceValue);
@@ -372,12 +374,15 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     private MultiDataSetIterator readValidationSet() {
         Iterable<RecordType> validationRecords = domainDescriptor.getRecordIterable().apply(args().validationSet);
         try {
-            return new MultiDataSetIteratorAdapter<RecordType>(validationRecords, args().miniBatchSize, domainDescriptor) {
+            MultiDataSetIteratorAdapter<RecordType> adapter = new MultiDataSetIteratorAdapter<RecordType>(validationRecords, args().miniBatchSize, domainDescriptor) {
                 @Override
                 public String getBasename() {
                     return args().validationSet;
                 }
             };
+            return cacheHelper.cache(domainDescriptor,
+                    adapter, adapter.getBasename(),
+                    args().numTraining);
         } catch (IOException e) {
             throw new RuntimeException("Unable to load validation records from " + args().validationSet);
         }
