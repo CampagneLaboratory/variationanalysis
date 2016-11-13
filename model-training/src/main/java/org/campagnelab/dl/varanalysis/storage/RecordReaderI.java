@@ -1,4 +1,4 @@
-package org.campagnelab.dl.varanalysis.learning;
+package org.campagnelab.dl.varanalysis.storage;
 
 import java.io.Closeable;
 

@@ -9,7 +9,7 @@ import java.util.Comparator;
  * Created by fac2003 on 7/15/16.
  */
 public class ErrorRecord {
-    /* A measure of how wrong this prediction was. Larger is more wronger.
+    /* A measure of how wrong this prediction was. Larger is wronger.
          */
     public float wrongness;
     public INDArray features;
