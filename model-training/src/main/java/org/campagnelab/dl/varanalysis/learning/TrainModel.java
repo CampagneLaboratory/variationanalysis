@@ -312,7 +312,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             for (String metric : perfDescriptor.performanceMetrics()) {
                 validationIterator.reset();
                 assert validationIterator.hasNext() :"validation iterator must have datasets. Make sure the latest release of Goby is installed in the maven repo.";
-                final double performanceValue = perfDescriptor.estimateMetric(computationGraph, validationMetricName,
+                final double performanceValue = perfDescriptor.estimateMetric(computationGraph, metric,
                         validationIterator, args().numValidation);
                 metricValues.add(performanceValue);
                 if (perfDescriptor.earlyStoppingMetric().equals(metric)) {
