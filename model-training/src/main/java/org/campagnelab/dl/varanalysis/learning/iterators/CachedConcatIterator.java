@@ -1,8 +1,10 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.tools.MapFeatures;
 import org.campagnelab.dl.varanalysis.tools.MapFeaturesArguments;
+import org.campagnelab.dl.varanalysis.tools.MapFeaturesS;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 
@@ -15,7 +17,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * A concat iterator that transparently creates a disk cache of the content of the input iterators.
+ * A concat iterator that transparently creates a disk cache of the content of the input iterables.
  */
 public class CachedConcatIterator<T> implements NamedDataSetIterator {
 
@@ -31,7 +33,7 @@ public class CachedConcatIterator<T> implements NamedDataSetIterator {
         this.iterators = iterators;
         // determine if cache exists. If it does, use it.
         String cacheName = buildCacheName(iterators);
-        if (!cacheExists(cacheName, cacheN)) {
+        if (!CacheHelper.cacheExists(cacheName, cacheN,false)) {
             // Cache does not exist, we first build it:
             MapFeatures tool = new MapFeatures();
             MapFeaturesArguments arguments = new MapFeaturesArguments();
@@ -46,7 +48,7 @@ public class CachedConcatIterator<T> implements NamedDataSetIterator {
             tool.setArguments(arguments);
             tool.execute();
         }
-        assert cacheExists(cacheName, cacheN) : "A cache must exist at this point.";
+        assert CacheHelper.cacheExists(cacheName, cacheN,false) : "A cache must exist at this point.";
         delegate = new MappedFeaturesIterator(cacheName);
     }
 
@@ -125,32 +127,7 @@ public class CachedConcatIterator<T> implements NamedDataSetIterator {
         return delegate.next();
     }
 
-    /**
-     * Check the that cache exists and has the same number of records that indicated in the parameter.
-     *
-     * @param cacheName
-     * @param cacheN
-     * @return
-     */
-    private boolean cacheExists(String cacheName, long cacheN) {
-        boolean cacheExists = new File(cacheName + ".cf").exists() & new File(cacheName + ".cfp").exists();
-        if (!cacheExists) {
-            return false;
-        }
-        try {
-            // check that the number of cached items matches the value of cacheN on the command line:
-            Properties cfp = new Properties();
-            cfp.load(new FileReader(new File(cacheName + ".cfp")));
-            Object n = cfp.getProperty("numRecords");
-            if (n == null) return false;
-            long cacheNSaved = Long.parseLong(n.toString());
-            return (cacheNSaved >= cacheN || cacheN == Long.MAX_VALUE);
-        } catch (FileNotFoundException e) {
-            return false;
-        } catch (IOException e) {
-            return false;
-        }
-    }
+
 
     private String buildCacheName(List<NamedDataSetIterator> iterators) {
         String cacheName;// only one input, use its name as cache name:

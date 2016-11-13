@@ -1,5 +1,6 @@
 package org.campagnelab.dl.varanalysis.learning.domains;
 
+import com.google.common.collect.Iterables;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
@@ -14,8 +15,10 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * A domain descriptor provides information about a modelling domain. Implementations of the domain descriptor
@@ -209,7 +212,7 @@ public abstract class DomainDescriptor<RecordType> {
 
     public void loadProperties(String modelPath) {
         domainProperties = new Properties();
-        modelProperties=new Properties();
+        modelProperties = new Properties();
         String domainPropFilename = ModelLoader.getModelPath(modelPath) + "/domain.properties";
         String modelPropFilename = ModelLoader.getModelPath(modelPath) + "/config.properties";
         try {
@@ -218,6 +221,13 @@ public abstract class DomainDescriptor<RecordType> {
         } catch (IOException e) {
             throw new RuntimeException("Unable to load domain properties in model path " + modelPath, e);
         }
+    }
+
+    public void loadProperties(Properties domainProperties, Properties sbiProperties) {
+        this.domainProperties=new Properties();
+        this.modelProperties=new Properties();
+        this.domainProperties.putAll(domainProperties);
+        this.modelProperties.putAll(sbiProperties);
     }
 
     public void writeProperties(String modelPath) {
@@ -235,7 +245,16 @@ public abstract class DomainDescriptor<RecordType> {
         try {
             props.store(new FileWriter(propFilename), "Domain properties created with " + this.getClass().getCanonicalName());
         } catch (IOException e) {
-            throw new RuntimeException("Unable to write domain descriptor properties to "+propFilename,e);
+            throw new RuntimeException("Unable to write domain descriptor properties to " + propFilename, e);
         }
     }
+
+    public Iterable<RecordType> getRecordIterable(List<String> sbiFilenames, int maxRecords) {
+        Iterable<RecordType> inputIterable = Iterables.concat(
+                sbiFilenames.stream().map(
+                        filename -> getRecordIterable().apply(filename)).collect(
+                        Collectors.toList()));
+        return Iterables.limit(inputIterable, maxRecords);
+    }
+
 }

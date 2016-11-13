@@ -24,6 +24,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,10 +35,29 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         this.arguments = arguments;
     }
 
+    /**
+     * Use this method to create a domain descriptor for a trained model.
+     * @param modelPath Path where the model is stored.
+     */
     public SomaticMutationDomainDescriptor(String modelPath) {
 
         this.arguments = new SomaticTrainingArguments();
         super.loadProperties(modelPath);
+        // force loading the feature mappers from properties.
+        args().featureMapperClassname = null;
+    }
+
+    /**
+     * Use this methdo to create a domain before training. The supplied properties provide
+     * featureMapper and labelMapper information (domainProperties), and the sbiProperties
+     * provide statistic observed on the training set (or part of it).
+     * @param domainProperties Properties describing the domain. Must describe feature and label mappers.
+     * @param sbiProperties Properties describing statistics, used to configure feature mappers.
+     */
+    public SomaticMutationDomainDescriptor(Properties domainProperties, Properties sbiProperties) {
+
+        this.arguments = new SomaticTrainingArguments();
+        super.loadProperties(domainProperties,sbiProperties);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
     }

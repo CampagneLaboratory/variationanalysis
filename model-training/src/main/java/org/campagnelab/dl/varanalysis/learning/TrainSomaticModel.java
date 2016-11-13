@@ -39,7 +39,6 @@ public class TrainSomaticModel extends SomaticTrainer {
 
     private String validationDatasetFilename = null;
 
-
     /**
      * Error enrichment support.
      **/

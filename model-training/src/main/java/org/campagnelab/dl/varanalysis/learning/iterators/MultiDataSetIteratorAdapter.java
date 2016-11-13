@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
 /**
  * Make a multi dataset iterator from an iterable over records.
  */
-public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDataSetIterator {
+public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDataSetIterator, Iterable<MultiDataSet> {
 
     private final DomainDescriptor domainDescriptor;
     private final Iterable<RecordType> iterable;
@@ -37,6 +37,7 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
         this.iterable = iterable;
         this.recordIterator = iterable.iterator();
     }
+
 
     abstract public String getBasename();
 
@@ -148,4 +149,9 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
         throw new UnsupportedOperationException("Remove is not supported by this iterator.");
     }
 
+    @Override
+    public Iterator<MultiDataSet> iterator() {
+        reset();
+        return this;
+    }
 }

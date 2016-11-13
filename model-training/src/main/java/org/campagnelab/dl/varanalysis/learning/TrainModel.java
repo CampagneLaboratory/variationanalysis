@@ -6,11 +6,13 @@ import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
 import org.campagnelab.dl.varanalysis.learning.domains.DomainDescriptor;
 import org.campagnelab.dl.varanalysis.learning.domains.PerformanceMetricDescriptor;
+import org.campagnelab.dl.varanalysis.learning.iterators.CacheHelper;
 import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.varanalysis.learning.models.ComputationGraphSaver;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
@@ -31,10 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -234,11 +233,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
         boolean init = true;
-        ProgressLogger pgEpoch = new ProgressLogger(LOG);
-        pgEpoch.displayLocalSpeed = true;
-        pgEpoch.itemsName = "epoch";
-        pgEpoch.expectedUpdates = args().maxEpochs;
-        pgEpoch.start();
         bestScore = Double.MAX_VALUE;
         ComputationGraphSaver saver = new ComputationGraphSaver(directory);
         int iter = 0;
@@ -255,25 +249,39 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         double bestValue = initializePerformance(perfDescriptor, validationMetricName);
         int epoch;
 
-        // Assemble the training iterator from the concatenation of individual training set iterators:
+        // Assemble the training iterator from the concatenation of individual training set iterables:
         Iterable<RecordType> inputIterable = Iterables.concat(
                 args().trainingSets.stream().map(
                         filename -> domainDescriptor.getRecordIterable().apply(filename)).collect(
                         Collectors.toList()));
         Iterable<RecordType> recordIterable = Iterables.limit(inputIterable, args().numTraining);
         final int miniBatchSize = args().miniBatchSize;
-        MultiDataSetIteratorAdapter<RecordType> iterator = new MultiDataSetIteratorAdapter<RecordType>(recordIterable, miniBatchSize, domainDescriptor) {
+        MultiDataSetIteratorAdapter<RecordType> adapter = new MultiDataSetIteratorAdapter<RecordType>(recordIterable,
+                miniBatchSize, domainDescriptor) {
             @Override
             public String getBasename() {
-                return args().trainingSets.get(0);
+                return buildBaseName(args().trainingSets);
             }
         };
+        CacheHelper<RecordType> cacheHelper = new CacheHelper<>();
 
+        MultiDataSetIterator iterator = cacheHelper.cache(domainDescriptor,
+                adapter, adapter.getBasename(),
+                args().numTraining);
+
+       // MultiDataSetIterator iterator=adapter;
         final long numRecords = Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
         MultiDataSetIterator validationIterator = readValidationSet();
         System.out.println("Finished loading validation records.");
+
+        ProgressLogger pgEpoch = new ProgressLogger(LOG);
+        pgEpoch.displayLocalSpeed = true;
+        pgEpoch.itemsName = "epoch";
+        pgEpoch.expectedUpdates = args().maxEpochs;
+        pgEpoch.start();
+
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -290,7 +298,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 numExamplesUsed += numExamples;
                 pg.lightUpdate();
             }
-            //   System.err.println("Num Examples Used: "+numExamplesUsed);
             //save latest after the end of an epoch:
             saver.saveLatestModel(computationGraph, computationGraph.score());
             writeProperties();
@@ -338,6 +345,24 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         return new EarlyStoppingResult<ComputationGraph>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, performanceLogger.getBestEpoch(bestMetricName), bestScore, args().maxEpochs, computationGraph);
     }
+
+    private String buildBaseName(List<String> trainingSets) {
+        String cacheName;// only one input, use its name as cache name:
+        if (trainingSets.size() == 1) {
+
+            cacheName = FilenameUtils.getBaseName(trainingSets.get(0));
+            ;
+        } else {
+            long hashcode = 8723872838723L;
+            for (String name : trainingSets) {
+                hashcode ^= FilenameUtils.getBaseName(name).hashCode();
+            }
+            cacheName = "multiset-" + Long.toString(hashcode);
+
+        }
+        return cacheName;
+    }
+
 
     private double initializePerformance(PerformanceMetricDescriptor perfDescriptor, String validationMetricName) {
         return perfDescriptor.largerValueIsBetterPerformance(validationMetricName) ?
