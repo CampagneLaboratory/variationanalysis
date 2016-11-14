@@ -2,6 +2,7 @@ package org.campagnelab.dl.varanalysis.learning.mappers;
 
 import org.campagnelab.dl.model.utils.mappers.ConcatFeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
+import org.campagnelab.dl.model.utils.mappers.NoMaskFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -15,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 public class ConcatFeatureMapperTest {
     @Test
     public void produceFeature() throws Exception {
-        FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> mapper1 = new FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>() {
+        FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> mapper1 = new NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>() {
             @Override
             public int numberOfFeatures() {
                 return 4;
@@ -36,7 +37,7 @@ public class ConcatFeatureMapperTest {
                 return featureIndex;
             }
         };
-        FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> mapper2 = new FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>() {
+        FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> mapper2 = new NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>() {
             @Override
             public int numberOfFeatures() {
                 return 5;
@@ -76,7 +77,7 @@ public class ConcatFeatureMapperTest {
 
     @Test
     public void mapFeatures() throws Exception {
-        FeatureMapper mapper1 = new FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>() {
+        FeatureMapper mapper1 = new NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>() {
             @Override
             public int numberOfFeatures() {
                 return 4;
@@ -99,7 +100,7 @@ public class ConcatFeatureMapperTest {
                 return featureIndex;
             }
         };
-        FeatureMapper mapper2 = new FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>() {
+        FeatureMapper mapper2 = new NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>() {
             @Override
             public int numberOfFeatures() {
                 return 5;

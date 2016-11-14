@@ -7,7 +7,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Encode a genomic position. Encode both chromosome and position with one hot encoding.
  * Created by fac2003 on 7/12/16.
  */
-public class GenomicPositionMapper implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+public class GenomicPositionMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
     private static final int NUM_POSITION_BITS = 32;
     private static final int NUM_CHROMOSOMES = 100;
     private final BinaryFeatureMapper chromosomeMapper;

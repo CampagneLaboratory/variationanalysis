@@ -2,7 +2,7 @@ package org.campagnelab.dl.varanalysis.learning.iterators;
 
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
-import org.campagnelab.dl.varanalysis.learning.DomainDescriptor;
+import org.campagnelab.dl.varanalysis.learning.domains.DomainDescriptor;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;

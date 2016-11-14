@@ -1,39 +1,37 @@
 package org.campagnelab.dl.varanalysis.tools;
 
+import com.google.common.collect.Iterables;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
-import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
-import org.campagnelab.dl.varanalysis.stats.AUCHelper;
-import org.campagnelab.dl.varanalysis.stats.AreaUnderTheROCCurve;
+import org.campagnelab.dl.varanalysis.learning.PredictWithModel;
+import org.campagnelab.dl.varanalysis.learning.domains.DomainDescriptor;
+import org.campagnelab.dl.varanalysis.learning.domains.DomainDescriptorLoader;
+import org.campagnelab.dl.varanalysis.learning.domains.predictions.Prediction;
 import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.deeplearning4j.nn.api.Model;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.Properties;
 
 /**
- * A tool to predict with a model on a .sbi file.
+ * A generic Predict tool. Sub-class this abstract class and define a few methods in order to make predictions and
+ * evaluation on test sets. See PredictS for an example of sub-class.
+ * @author Fabien Campagne
  * Created by fac2003 on 10/23/16.
  */
-public class Predict extends AbstractTool<PredictArguments> {
+public abstract class Predict<RecordType> extends AbstractTool<PredictArguments> {
 
     static private Logger LOG = LoggerFactory.getLogger(Predict.class);
 
-    public static void main(String[] args) {
-
-        Predict predict = new Predict();
-        predict.parseArguments(args, "Predict", predict.createArguments());
-        predict.execute();
-    }
 
     public PredictArguments args() {
-        return (PredictArguments) arguments;
+        return arguments;
     }
 
     @Override
@@ -43,10 +41,11 @@ public class Predict extends AbstractTool<PredictArguments> {
 
     @Override
     public void execute() {
+        PrintWriter resultWriter = null;
         try {
             File modelPath = new File(args().modelPath);
             String modelName = modelPath.getName();
-            PrintWriter resultWriter = null;
+
             if (args().toFile) {
                 String resultPath = "tests/" + modelName + "/";
                 File dir = new File(resultPath);
@@ -59,23 +58,28 @@ public class Predict extends AbstractTool<PredictArguments> {
             } else {
                 resultWriter = new PrintWriter(System.out);
             }
-
+        }catch (IOException e) {
+            throw new RuntimeException("Unable to create result writer",e);
+        }
+        try {
             printPredictions(args().modelName, args().modelPath, args().testSet, resultWriter);
         } catch (IOException e) {
-            System.err.println("Error predicting in %s dataset.");
-            e.printStackTrace();
-            System.exit(1);
+            throw new RuntimeException("Unable to perform predictions",e);
         }
+
 
     }
 
+    protected DomainDescriptor<RecordType> domainDescriptor;
+
     private void printPredictions(String prefix, String modelPath, String evaluationDataFilename,
-                                  PrintWriter resultsPath) throws IOException {
+                                  PrintWriter resutsWriter) throws IOException {
 
 
         ModelLoader modelLoader = new ModelLoader(modelPath);
         RecordReader reader = new RecordReader(evaluationDataFilename);
-        FeatureMapper featureMapper = modelLoader.loadFeatureMapper(reader.getProperties());
+        Properties sbiProperties = reader.getProperties();
+        FeatureMapper featureMapper = modelLoader.loadFeatureMapper(sbiProperties);
         boolean isTrio;
         if (featureMapper.getClass().getCanonicalName().contains("Trio")) {
             //we have a trio mapper, need to output features for a third sample
@@ -88,67 +92,62 @@ public class Predict extends AbstractTool<PredictArguments> {
             System.exit(1);
         }
 
-        // initialize results printer
-        PrintWriter results = resultsPath;
-        results.append("index\ttrueLabel\tprobabilityYes\tprobabilityNo\tcorrectness").append("\n");
-
         ProgressLogger pgReadWrite = new ProgressLogger(LOG);
         pgReadWrite.itemsName = prefix;
         pgReadWrite.expectedUpdates = Math.min(args().scoreN, reader.getTotalRecords());
         pgReadWrite.displayFreeMemory = true;
         pgReadWrite.start();
+        domainDescriptor = DomainDescriptorLoader.load(modelPath);
+        PredictWithModel<RecordType> predictor = new PredictWithModel<>(domainDescriptor);
 
-        SimpleFeatureCalculator labelMapper = new SimpleFeatureCalculator();
-        BaseInformationIterator iterator = new BaseInformationIterator(evaluationDataFilename, args().miniBatchSize, featureMapper, labelMapper);
-        AUCHelper helper = new AUCHelper();
+        Iterable<RecordType> apply = domainDescriptor.getRecordIterable().apply(evaluationDataFilename);
+        Iterable<RecordType> it = Iterables.limit(apply, args().scoreN);
+        initializeStats(prefix);
+        writeHeader(resutsWriter);
 
-        double auc =
-                helper.estimate(iterator, model,
-                        args().numRecordsForAUC,
-                        prediction -> {
-                            String correctness = (prediction.predictedLabelYes > prediction.predictedLabelNo && prediction.trueLabelYes == 1f ||
-                                    prediction.predictedLabelNo > prediction.predictedLabelYes && prediction.trueLabelYes == 0f) ? "correct" : "wrong";
-
-                            if (doOuptut(correctness, args(), Math.max(prediction.predictedLabelNo, prediction.predictedLabelYes))) {
-                                results.printf("%d\t%f\t%f\t%f\t%s%n", prediction.index, prediction.trueLabelYes, prediction.predictedLabelNo,
-                                        prediction.predictedLabelYes, correctness);
-                            }
-
-                            //convert true label to the convention used by auc calculator: negative true label=labelNo.
-                            pgReadWrite.lightUpdate();
-
-                        },
+        predictor.makePredictions(it.iterator(),
+                model,
+                predictionList -> {
+                    processPredictions(resutsWriter, predictionList);
+                    pgReadWrite.lightUpdate();
+                },
                 /* stop if */ nProcessed -> nProcessed > args().scoreN
+        );
 
-                );
-        System.out.println("AUC on " + prefix + "=" + auc);
-        results.close();
+        resutsWriter.close();
         pgReadWrite.stop();
-
+        reportStatistics(prefix);
         modelLoader.writeTestCount(reader.getTotalRecords());
-
-
     }
 
     /**
-     * Apply filters and decide if a prediction should be written to the output.
-     *
-     * @param correctness
-     * @param args
-     * @param pMax
-     * @return
+     * This method is called after the test set has been observed and statistics evaluated. It prints statistics
+     * to the console for the operators to read.
+     * @param prefix The model prefix/label (e.g., bestAUC).
      */
-    private boolean doOuptut(String correctness, PredictArguments args, double pMax) {
-        if (args.correctnessFilter != null) {
-            if (!correctness.equals(args.correctnessFilter)) {
-                return false;
-            }
-        }
-        if (pMax < args().pFilterMinimum || pMax > args().pFilterMaximum) {
-            return false;
-        }
-        return true;
-    }
+    protected abstract void reportStatistics(String prefix);
+
+    /**
+     * This method is called for each record of the test set that has been predicted.
+
+     * @param predictionList The list of predictions made for a test record. Typically one prediction for each model output.
+     * @param resutsWriter Where predictions can be written in tab delited format.
+     */
+    protected abstract void processPredictions(PrintWriter resutsWriter, List<Prediction> predictionList);
+
+    /**
+     * This method is called when we need to write the header to the results.
+     * @param resutsWriter
+     */
+    protected abstract void writeHeader(PrintWriter resutsWriter);
+
+    /**
+     * This method must allocate any statistic caculator necessary to evaluate performance on the test set and store
+     * these instances in fields of the sub-class.
+     * @param prefix The model prefix/label (e.g., bestAUC).
+     */
+    protected abstract void initializeStats(String prefix);
+
 
 
 }

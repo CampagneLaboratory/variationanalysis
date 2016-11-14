@@ -1,4 +1,4 @@
-package org.campagnelab.dl.varanalysis.learning;
+package org.campagnelab.dl.varanalysis.learning.performance;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;

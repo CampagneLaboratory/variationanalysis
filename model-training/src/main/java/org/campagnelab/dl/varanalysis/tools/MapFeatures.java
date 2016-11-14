@@ -108,6 +108,7 @@ public class MapFeatures extends AbstractTool<MapFeaturesArguments> {
                 cfpProperties.putAll(sbiProperties);
                 numRecords += Long.parseLong(sbiProperties.get("numRecords").toString());
             }
+            cfpProperties.put("multiDataSet", "false");
             cfpProperties.put("miniBatchSize", Integer.toString(args().miniBatchSize));
             cfpProperties.put("featureMapper", args().featureMapperClassname);
             cfpProperties.put("labelMapper", labelMapper.getClass().getCanonicalName());

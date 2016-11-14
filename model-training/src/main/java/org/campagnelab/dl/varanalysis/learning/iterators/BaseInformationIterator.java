@@ -11,6 +11,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.factory.Nd4j;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,7 +25,7 @@ import java.util.NoSuchElementException;
  *
  * @author Fabien Campagne
  */
-public class BaseInformationIterator implements NamedDataSetIterator {
+public class BaseInformationIterator implements NamedDataSetIterator, Closeable {
     private int[] labelStride;
     private int[] featureStride;
     protected long totalExamples;
@@ -230,4 +231,8 @@ public class BaseInformationIterator implements NamedDataSetIterator {
     }
 
 
+    @Override
+    public void close() throws IOException {
+        reader.close();
+    }
 }

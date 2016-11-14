@@ -6,6 +6,7 @@ import org.campagnelab.dl.varanalysis.learning.iterators.CachedConcatIterator;
 import org.campagnelab.dl.varanalysis.learning.iterators.NamedDataSetIterator;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
+import org.campagnelab.dl.varanalysis.learning.performance.MeasurePerformance;
 import org.campagnelab.dl.varanalysis.util.ErrorRecord;
 import org.campagnelab.dl.varanalysis.util.HitBoundedPriorityQueue;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
@@ -37,7 +38,6 @@ public class TrainSomaticModel extends SomaticTrainer {
     static private Logger LOG = LoggerFactory.getLogger(TrainSomaticModel.class);
 
     private String validationDatasetFilename = null;
-
 
     /**
      * Error enrichment support.

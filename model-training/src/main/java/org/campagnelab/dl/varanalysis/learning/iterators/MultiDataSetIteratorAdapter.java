@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
-import org.campagnelab.dl.varanalysis.learning.DomainDescriptor;
+import org.campagnelab.dl.varanalysis.learning.domains.DomainDescriptor;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
 /**
  * Make a multi dataset iterator from an iterable over records.
  */
-public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDataSetIterator {
+public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDataSetIterator, Iterable<MultiDataSet> {
 
     private final DomainDescriptor domainDescriptor;
     private final Iterable<RecordType> iterable;
@@ -37,6 +37,7 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
         this.iterable = iterable;
         this.recordIterator = iterable.iterator();
     }
+
 
     abstract public String getBasename();
 
@@ -60,24 +61,32 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
         final int numLabels = domainDescriptor.getComputationalGraph().getOutputNames().length;
         int numOutputs = numLabels;
 
-        INDArray inputs[] = new INDArray[numInputs];//= Nd4j.zeros(size, featureMapper.numberOfFeatures());
-        INDArray labels[] = new INDArray[numLabels];//= Nd4j.zeros(size, labelMapper.numberOfLabels());
+        INDArray inputs[] = new INDArray[numInputs];
+        INDArray inputMasks[] = new INDArray[numInputs];
+        INDArray labels[] = new INDArray[numLabels];
+        INDArray labelMasks[] = new INDArray[numLabels];
         FeatureMapper[] featureMappers = new FeatureMapper[numInputs];
         LabelMapper[] labelMappers = new LabelMapper[numOutputs];
         int index = 0;
-
+        boolean hasFeatureMask = false;
+        boolean hasLabelMask = false;
         for (String input : domainDescriptor.getComputationalGraph().getInputNames()) {
 
             inputs[index] = Nd4j.zeros(domainDescriptor.getInputShape(size, input));
             featureMappers[index] = domainDescriptor.getFeatureMapper(input);
+            boolean needMask = featureMappers[index].hasMask();
+            inputMasks[index] = needMask ? Nd4j.zeros(domainDescriptor.getInputShape(size, input)) : null;
             index += 1;
-
+            hasFeatureMask |= needMask;
         }
         index = 0;
         for (String label : domainDescriptor.getComputationalGraph().getOutputNames()) {
             labels[index] = Nd4j.zeros(domainDescriptor.getLabelShape(size, label));
             labelMappers[index] = domainDescriptor.getLabelMapper(label);
+            boolean needMask = labelMappers[index].hasMask();
+            labelMasks[index] = needMask ? Nd4j.zeros(domainDescriptor.getLabelShape(size, label)) : null;
             index++;
+            hasLabelMask |= needMask;
         }
         int recordIndexInBatch = 0;
         for (RecordType record : buffer) {
@@ -92,7 +101,9 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
             recordIndexInBatch += 1;
 
         }
-        final MultiDataSet result = new org.nd4j.linalg.dataset.MultiDataSet(inputs, labels);
+        final MultiDataSet result = new org.nd4j.linalg.dataset.MultiDataSet(inputs, labels,
+                hasFeatureMask ? inputMasks : null,
+                hasLabelMask ? labelMasks : null);
         if (preProcessor != null) preProcessor.preProcess(result);
         return result;
     }
@@ -102,7 +113,7 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
         this.preProcessor = preProcessor;
     }
 
-        @Override
+    @Override
     public boolean resetSupported() {
         return true;
     }
@@ -138,4 +149,9 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
         throw new UnsupportedOperationException("Remove is not supported by this iterator.");
     }
 
+    @Override
+    public Iterator<MultiDataSet> iterator() {
+        reset();
+        return this;
+    }
 }

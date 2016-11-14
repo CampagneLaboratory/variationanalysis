@@ -1,4 +1,4 @@
-package org.campagnelab.dl.varanalysis.learning;
+package org.campagnelab.dl.varanalysis.learning.domains;
 
 import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetRecordIterator;
 import org.deeplearning4j.nn.graph.ComputationGraph;

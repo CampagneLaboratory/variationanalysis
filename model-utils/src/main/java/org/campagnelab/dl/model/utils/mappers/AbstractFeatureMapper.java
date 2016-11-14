@@ -3,6 +3,7 @@ package org.campagnelab.dl.model.utils.mappers;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.model.utils.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -121,4 +122,19 @@ public abstract class AbstractFeatureMapper<T extends BaseInformationRecords.Bas
     }
 
     protected abstract GenotypeCountFactory getGenotypeCountFactory();
+
+    @Override
+    public boolean hasMask() {
+        return false;
+    }
+
+    @Override
+    public void maskFeatures(T record, INDArray mask, int indexOfRecord) {
+        // do nothing implementation.
+    }
+
+    @Override
+    public boolean isMasked(T record, int featureIndex) {
+        return false;
+    }
 }

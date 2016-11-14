@@ -1,6 +1,7 @@
 package org.campagnelab.dl.varanalysis.tools;
 
 import org.campagnelab.dl.varanalysis.learning.iterators.MappedFeaturesIterator;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 import org.nd4j.linalg.dataset.api.DataSet;
 
@@ -13,8 +14,8 @@ public class MapFeaturesTest {
     @Test
     public void test() {
         // write a mapped features file:
-        MapFeatures tool = new MapFeatures();
-        tool.arguments=new MapFeaturesArguments();
+        MapFeaturesS tool = new MapFeaturesS();
+        tool.arguments=new MapMultiDatasetFeaturesArguments<>();
         tool.arguments.trainingSets.add("sample_data/protobuf/genotypes_proto_mutated_randomized.sbi");
         tool.arguments.miniBatchSize=32;
         tool.arguments.featureMapperClassname="org.campagnelab.dl.model.utils.mappers.IndelFeatures";

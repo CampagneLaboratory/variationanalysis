@@ -6,13 +6,16 @@ import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.models.ModelLoader;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
+import org.campagnelab.dl.varanalysis.learning.domains.DomainDescriptor;
+import org.campagnelab.dl.varanalysis.learning.domains.PerformanceMetricDescriptor;
+import org.campagnelab.dl.varanalysis.learning.iterators.CacheHelper;
 import org.campagnelab.dl.varanalysis.learning.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.varanalysis.learning.models.ComputationGraphSaver;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
-import org.campagnelab.dl.varanalysis.learning.models.ModelSaver;
 import org.campagnelab.dl.varanalysis.learning.performance.Metric;
 import org.campagnelab.dl.varanalysis.learning.performance.PerformanceLogger;
 import org.campagnelab.dl.varanalysis.tools.ConditionRecordingTool;
@@ -30,10 +33,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * An abstract tool to train computational graphs. Implements early stopping. This class defines
@@ -48,7 +49,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     private long time;
 
     protected DomainDescriptor<RecordType> domainDescriptor;
-    private  String bestMetricName;
+    private String bestMetricName;
 
     protected abstract DomainDescriptor<RecordType> domainDescriptor();
 
@@ -56,7 +57,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
     protected FeatureMapper featureMapper = null;
     private ComputationGraph computationGraph;
-
+    private CacheHelper<RecordType> cacheHelper = new CacheHelper<>();
     @Override
     public void execute() {
         if (args().getTrainingSets().length == 0) {
@@ -177,7 +178,9 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         ComputationalGraphAssembler assembler = domainDescriptor.getComputationalGraph();
         appendProperties(assembler, mpHelper);
         mpHelper.addProperties(getReaderProperties(args().trainingSets.get(0)));
+        mpHelper.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
         mpHelper.writeProperties(directory);
+        domainDescriptor.writeProperties(directory);
     }
 
 
@@ -230,11 +233,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
         boolean init = true;
-        ProgressLogger pgEpoch = new ProgressLogger(LOG);
-        pgEpoch.displayLocalSpeed = true;
-        pgEpoch.itemsName = "epoch";
-        pgEpoch.expectedUpdates = args().maxEpochs;
-        pgEpoch.start();
         bestScore = Double.MAX_VALUE;
         ComputationGraphSaver saver = new ComputationGraphSaver(directory);
         int iter = 0;
@@ -251,22 +249,40 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         double bestValue = initializePerformance(perfDescriptor, validationMetricName);
         int epoch;
 
-        // Assemble the training iterator:
-        Iterable<RecordType> inputIterable = domainDescriptor.getRecordIterable().apply(args().getTrainingSets()[0]);
+        // Assemble the training iterator from the concatenation of individual training set iterables:
+        Iterable<RecordType> inputIterable = Iterables.concat(
+                args().trainingSets.stream().map(
+                        filename -> domainDescriptor.getRecordIterable().apply(filename)).collect(
+                        Collectors.toList()));
         Iterable<RecordType> recordIterable = Iterables.limit(inputIterable, args().numTraining);
         final int miniBatchSize = args().miniBatchSize;
-        MultiDataSetIteratorAdapter<RecordType> iterator = new MultiDataSetIteratorAdapter<RecordType>(recordIterable, miniBatchSize, domainDescriptor) {
+        MultiDataSetIteratorAdapter<RecordType> adapter = new MultiDataSetIteratorAdapter<RecordType>(recordIterable,
+                miniBatchSize, domainDescriptor) {
             @Override
             public String getBasename() {
-                return args().trainingSets.get(0);
+                return buildBaseName(args().trainingSets);
             }
         };
 
-        final long numRecords =Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
+        boolean useCache = true;
+        MultiDataSetIterator iterator = useCache ? cacheHelper.cache(domainDescriptor,
+                adapter, adapter.getBasename(),
+                args().numTraining) :
+                adapter;
+
+        // MultiDataSetIterator iterator=adapter;
+        final long numRecords = Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
         MultiDataSetIterator validationIterator = readValidationSet();
         System.out.println("Finished loading validation records.");
+
+        ProgressLogger pgEpoch = new ProgressLogger(LOG);
+        pgEpoch.displayLocalSpeed = true;
+        pgEpoch.itemsName = "epoch";
+        pgEpoch.expectedUpdates = args().maxEpochs;
+        pgEpoch.start();
+
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -283,7 +299,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 numExamplesUsed += numExamples;
                 pg.lightUpdate();
             }
-            //   System.err.println("Num Examples Used: "+numExamplesUsed);
             //save latest after the end of an epoch:
             saver.saveLatestModel(computationGraph, computationGraph.score());
             writeProperties();
@@ -296,7 +311,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
             for (String metric : perfDescriptor.performanceMetrics()) {
                 validationIterator.reset();
-                final double performanceValue = perfDescriptor.estimateMetric(computationGraph, validationMetricName,
+                assert validationIterator.hasNext() :"validation iterator must have datasets. Make sure the latest release of Goby is installed in the maven repo.";
+                final double performanceValue = perfDescriptor.estimateMetric(computationGraph, metric,
                         validationIterator, args().numValidation);
                 metricValues.add(performanceValue);
                 if (perfDescriptor.earlyStoppingMetric().equals(metric)) {
@@ -304,7 +320,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 }
             }
             performanceLogger.logMetrics("epochs", numExamplesUsed, epoch, metricValues.toDoubleArray());
-            if ((perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
+            if (!Double.isNaN(bestValue) &&
+                    (perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
                     (!perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue < bestValue)) {
                 saver.saveModel(computationGraph, "bestAUC");
                 bestValue = validationMetricValue;
@@ -327,10 +344,27 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             //addCustomOption("--num-errors-added", args().numErrorsAdded);
         }
         pgEpoch.stop();
-
         return new EarlyStoppingResult<ComputationGraph>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, performanceLogger.getBestEpoch(bestMetricName), bestScore, args().maxEpochs, computationGraph);
     }
+
+    private String buildBaseName(List<String> trainingSets) {
+        String cacheName;// only one input, use its name as cache name:
+        if (trainingSets.size() == 1) {
+
+            cacheName = FilenameUtils.getBaseName(trainingSets.get(0));
+            ;
+        } else {
+            long hashcode = 8723872838723L;
+            for (String name : trainingSets) {
+                hashcode ^= FilenameUtils.getBaseName(name).hashCode();
+            }
+            cacheName = "multiset-" + Long.toString(hashcode);
+
+        }
+        return cacheName;
+    }
+
 
     private double initializePerformance(PerformanceMetricDescriptor perfDescriptor, String validationMetricName) {
         return perfDescriptor.largerValueIsBetterPerformance(validationMetricName) ?
@@ -340,12 +374,15 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     private MultiDataSetIterator readValidationSet() {
         Iterable<RecordType> validationRecords = domainDescriptor.getRecordIterable().apply(args().validationSet);
         try {
-            return new MultiDataSetIteratorAdapter<RecordType>(validationRecords, args().miniBatchSize, domainDescriptor) {
+            MultiDataSetIteratorAdapter<RecordType> adapter = new MultiDataSetIteratorAdapter<RecordType>(validationRecords, args().miniBatchSize, domainDescriptor) {
                 @Override
                 public String getBasename() {
                     return args().validationSet;
                 }
             };
+            return cacheHelper.cache(domainDescriptor,
+                    adapter, adapter.getBasename(),
+                    args().numTraining);
         } catch (IOException e) {
             throw new RuntimeException("Unable to load validation records from " + args().validationSet);
         }

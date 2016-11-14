@@ -1,13 +1,11 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.campagnelab.dl.varanalysis.learning.DomainDescriptor;
+import org.campagnelab.dl.varanalysis.learning.domains.DomainDescriptor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.dl.varanalysis.storage.RecordReader;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 /**
  * An iterator specialized for SBIRecordIterator

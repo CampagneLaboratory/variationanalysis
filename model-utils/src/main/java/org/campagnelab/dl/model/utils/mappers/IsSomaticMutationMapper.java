@@ -6,7 +6,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 /**
  * Created by fac2003 on 11/8/16.
  */
-public class IsSomaticMutationMapper implements LabelMapper<BaseInformationRecords.BaseInformation> {
+public class IsSomaticMutationMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
     int[] indices = new int[]{0, 0};
 
     @Override
@@ -29,11 +29,9 @@ public class IsSomaticMutationMapper implements LabelMapper<BaseInformationRecor
     public float produceLabel(BaseInformationRecords.BaseInformation record, int labelIndex) {
         assert labelIndex == 0 || labelIndex == 1 : "only one label.";
 
-        //return record.getMutated() ? 1.0f : 0.0f;
+        // first index is 1 when site is  mutated.
         if (labelIndex == 0) return record.getMutated() ? 1 : 0;
-        else {
-            return !record.getMutated() ? 1 : 0;
-        }
-
+        // second index is 1 when site is not mutated.
+        return record.getMutated() ? 0 : 1;
     }
 }

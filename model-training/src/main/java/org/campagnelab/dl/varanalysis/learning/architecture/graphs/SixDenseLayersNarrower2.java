@@ -1,10 +1,8 @@
 package org.campagnelab.dl.varanalysis.learning.architecture.graphs;
 
-import org.campagnelab.dl.varanalysis.learning.DomainDescriptor;
+import org.campagnelab.dl.varanalysis.learning.domains.DomainDescriptor;
 import org.campagnelab.dl.varanalysis.learning.TrainingArguments;
-import org.campagnelab.dl.varanalysis.learning.architecture.AbstractNeuralNetAssembler;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
-import org.campagnelab.dl.varanalysis.learning.architecture.NeuralNetAssembler;
 import org.campagnelab.dl.varanalysis.learning.models.ModelPropertiesHelper;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.*;

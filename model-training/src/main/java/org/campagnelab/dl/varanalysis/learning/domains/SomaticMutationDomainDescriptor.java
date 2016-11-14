@@ -1,16 +1,19 @@
 package org.campagnelab.dl.varanalysis.learning.domains;
 
 import org.apache.commons.compress.utils.IOUtils;
+import org.campagnelab.dl.model.utils.ConfigurableFeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
 import org.campagnelab.dl.model.utils.mappers.IsSomaticMutationMapper;
 import org.campagnelab.dl.model.utils.mappers.LabelMapper;
 import org.campagnelab.dl.model.utils.mappers.SomaticFrequencyLabelMapper;
-import org.campagnelab.dl.varanalysis.learning.DomainDescriptor;
-import org.campagnelab.dl.varanalysis.learning.PerformanceMetricDescriptor;
 import org.campagnelab.dl.varanalysis.learning.SomaticTrainingArguments;
 import org.campagnelab.dl.varanalysis.learning.TrainSomaticModel;
 import org.campagnelab.dl.varanalysis.learning.architecture.ComputationalGraphAssembler;
 import org.campagnelab.dl.varanalysis.learning.architecture.graphs.SixDenseLayersNarrower2;
+import org.campagnelab.dl.varanalysis.learning.domains.predictions.IsSomaticMutationInterpreter;
+import org.campagnelab.dl.varanalysis.learning.domains.predictions.PredictionInterpreter;
+import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationConcatIterator;
+import org.campagnelab.dl.varanalysis.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.stats.AUCHelper;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
@@ -19,13 +22,44 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInformationRecords.BaseInformation> {
 
 
     public SomaticMutationDomainDescriptor(SomaticTrainingArguments arguments) {
         this.arguments = arguments;
+    }
+
+    /**
+     * Use this method to create a domain descriptor for a trained model.
+     * @param modelPath Path where the model is stored.
+     */
+    public SomaticMutationDomainDescriptor(String modelPath) {
+
+        this.arguments = new SomaticTrainingArguments();
+        super.loadProperties(modelPath);
+        // force loading the feature mappers from properties.
+        args().featureMapperClassname = null;
+    }
+
+    /**
+     * Use this methdo to create a domain before training. The supplied properties provide
+     * featureMapper and labelMapper information (domainProperties), and the sbiProperties
+     * provide statistic observed on the training set (or part of it).
+     * @param domainProperties Properties describing the domain. Must describe feature and label mappers.
+     * @param sbiProperties Properties describing statistics, used to configure feature mappers.
+     */
+    public SomaticMutationDomainDescriptor(Properties domainProperties, Properties sbiProperties) {
+
+        this.arguments = new SomaticTrainingArguments();
+        super.loadProperties(domainProperties,sbiProperties);
+        // force loading the feature mappers from properties.
+        args().featureMapperClassname = null;
     }
 
     private SomaticTrainingArguments arguments;
@@ -36,15 +70,28 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
     @Override
     public FeatureMapper getFeatureMapper(String inputName) {
-        assert "input".equals(inputName) : "Only one input supported by this domain.";
-        FeatureMapper featureMapper = null;
-        try {
-            featureMapper = TrainSomaticModel.configureFeatureMapper(args().featureMapperClassname, (args()).isTrio,
-                    args().getTrainingSets());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (args().featureMapperClassname != null) {
+            assert "input".equals(inputName) : "Only one input supported by this domain.";
+
+            try {
+                return TrainSomaticModel.configureFeatureMapper(args().featureMapperClassname, (args()).isTrio,
+                        args().getTrainingSets());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try {
+                FeatureMapper fMapper = (FeatureMapper) Class.forName(domainProperties.getProperty("input.featureMapper")).newInstance();
+                if (fMapper instanceof ConfigurableFeatureMapper) {
+                    ConfigurableFeatureMapper cfmapper = (ConfigurableFeatureMapper) fMapper;
+                    cfmapper.configure(modelProperties);
+                }
+                return fMapper;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
-        return featureMapper;
+
     }
 
 
@@ -56,6 +103,18 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
                 return new IsSomaticMutationMapper();
             case "somaticFrequency":
                 return new SomaticFrequencyLabelMapper();
+            default:
+                throw new IllegalArgumentException("output name is not recognized: " + outputName);
+        }
+    }
+
+    @Override
+    public PredictionInterpreter getPredictionInterpreter(String outputName) {
+        switch (outputName) {
+            case "isMutated":
+                return new IsSomaticMutationInterpreter();
+            case "somaticFrequency":
+                return new SomaticFrequencyInterpreter();
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
@@ -147,18 +206,27 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         }
     }
 
-        @Override
-        public long getNumRecords(String[] recordFiles) {
-            SequenceBaseInformationReader reader = null;
-            try {
-                reader = new SequenceBaseInformationReader(recordFiles[0]);
-                return reader.getTotalRecords();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                IOUtils.closeQuietly(reader);
-            }
-            return 0;
+    @Override
+    public long getNumRecords(String[] recordFiles) {
+        BaseInformationConcatIterator it = null;
+        try {
+            List<BaseInformationIterator> list = Arrays.asList(recordFiles).stream().map(filename -> {
+                try {
+
+                    return new BaseInformationIterator(filename, 128, featureMappers()[0], getLabelMapper("isMutated"));
+                } catch (IOException e) {
+                    throw new RuntimeException("Unable to estimate number of records for filename " + filename);
+                }
+            }).collect(Collectors.toList());
+            it = new BaseInformationConcatIterator(list, 128, featureMappers()[0], getLabelMapper("isMutated"));
+            return it.totalExamples();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeQuietly(it);
         }
+        return 0;
+    }
 
 }
