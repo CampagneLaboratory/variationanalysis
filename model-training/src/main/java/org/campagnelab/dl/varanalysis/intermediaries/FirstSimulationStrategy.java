@@ -171,6 +171,10 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         mutationDirection dir = dirFromCounts(sums);
 
+        if (dir == null) {
+            return baseBuild.build();
+        }
+
         final int oldBase = dir.oldBase;
         final int newBase = dir.newBase;
         final double delta = dir.delta;
