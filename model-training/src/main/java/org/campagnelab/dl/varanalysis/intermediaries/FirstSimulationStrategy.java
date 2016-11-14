@@ -24,7 +24,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         rand = new XorShift1024StarRandom(seed);
     }
 
-    public FirstSimulationStrategy(int deltaSmall, int deltaBig, int zygHeuristic, long seed) {
+    public FirstSimulationStrategy(int deltaSmall, int deltaBig, double zygHeuristic, long seed) {
         this(new Date().getTime());
 
         this.deltaSmall = deltaSmall;
@@ -170,6 +170,10 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         }
 
         mutationDirection dir = dirFromCounts(sums);
+
+        if (dir == null) {
+            return baseBuild.build();
+        }
 
         final int oldBase = dir.oldBase;
         final int newBase = dir.newBase;
