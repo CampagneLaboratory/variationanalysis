@@ -14,8 +14,8 @@ public class MapFeaturesTest {
     @Test
     public void test() {
         // write a mapped features file:
-        MapFeaturesS tool = new MapFeaturesS();
-        tool.arguments=new MapMultiDatasetFeaturesArguments<>();
+        MapFeatures tool = new MapFeatures();
+        tool.arguments=new MapFeaturesArguments();
         tool.arguments.trainingSets.add("sample_data/protobuf/genotypes_proto_mutated_randomized.sbi");
         tool.arguments.miniBatchSize=32;
         tool.arguments.featureMapperClassname="org.campagnelab.dl.model.utils.mappers.IndelFeatures";
