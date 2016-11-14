@@ -24,7 +24,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         rand = new XorShift1024StarRandom(seed);
     }
 
-    public FirstSimulationStrategy(int deltaSmall, int deltaBig, int zygHeuristic, long seed) {
+    public FirstSimulationStrategy(int deltaSmall, int deltaBig, double zygHeuristic, long seed) {
         this(new Date().getTime());
 
         this.deltaSmall = deltaSmall;
