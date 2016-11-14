@@ -75,16 +75,21 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             i++;
         }
         int maxCount = 0;
+        int secondMostCount = 0;
         int maxCountIdx = -1;
-        int scndCountIdx = -1;
+        int secondMostCountIdx = -1;
         int numCounts = 0;
         //find highest count idx, second highest count idx, and record number of counts
         for (i = 0; i < numGenos; i++) {
             numCounts += sums[i];
             if (sums[i] > maxCount) {
-                scndCountIdx = maxCountIdx;
+                secondMostCountIdx = maxCountIdx;
+                secondMostCount = maxCount;
                 maxCountIdx = i;
                 maxCount = sums[i];
+            } else if (sums[i] > secondMostCount){
+                secondMostCountIdx = i;
+                secondMostCount = sums[i];
             }
         }
         //no reads whatsoever
@@ -93,43 +98,47 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         }
         boolean monozygotic;
         //all reads same base, monozygotic
-        if (scndCountIdx == -1) {
+        if (secondMostCountIdx == -1) {
             monozygotic = true;
         } else {
             //see if base with second most reads exceeds heuristic
-            monozygotic = (zygHeuristic * numCounts > sums[scndCountIdx]);
+            monozygotic = (zygHeuristic * numCounts > sums[secondMostCountIdx]);
         }
         //make rand generator and generate proportion mutating bases
         //generate mutation rate
         double delta = deltaSmall + ((deltaBig - deltaSmall) * rand.nextDouble());
         double deltaOrig = delta;
-        int newBase;
+        int newBase = -1;
         int oldBase;
-        int otherBase = -1;
+        int otherAlleleBase = -1;
+        boolean allowed = false;
         if (monozygotic) {
             oldBase = maxCountIdx;
             //generate from non-max bases uniformly
 
             //only one allele mutates, so halve delta when monozygotic
             delta = delta / 2;
-            newBase = rand.nextInt(numGenos - 2);
-        } else {
+            while (!allowed){
+                newBase = rand.nextInt(numGenos);
+                allowed = true;
+                if (newBase == oldBase || newBase == 4) {
+                    //replace self case, N case
+                    allowed = false;
+                }
+            }
+        } else { //handle heterozygous case
             boolean mutatingAllele = rand.nextBoolean();
-            oldBase = mutatingAllele ? maxCountIdx : scndCountIdx;
-            otherBase = !mutatingAllele ? maxCountIdx : scndCountIdx;
-            newBase = rand.nextInt(numGenos - 3);
+            oldBase = mutatingAllele ? maxCountIdx : secondMostCountIdx;
+            otherAlleleBase = !mutatingAllele ? maxCountIdx : secondMostCountIdx;
+            while (!allowed){
+                newBase = rand.nextInt(numGenos);
+                allowed = true;
+                if (newBase == oldBase || newBase == 4 || newBase == otherAlleleBase) {
+                    //replace self case, other allele case, N case
+                    allowed = false;
+                }
+            }
 
-        }
-
-        if (newBase == oldBase) {
-            //replace self case
-            newBase = numGenos - 2;
-        } else if (newBase == otherBase){
-            //replace
-            newBase = numGenos - 3;
-        } else if (newBase == 4) {
-            //replace genotype N case
-            newBase = numGenos - 1;
         }
         int fMutCount = 0;
         int oldCount = forward[oldBase];
