@@ -43,58 +43,52 @@ public class FirstSimulationStrategy implements SimulationStrategy {
     final String[] STRING = new String[]{"A", "T", "C", "G"};
     Random rand;
 
-    @Override
-    public BaseInformationRecords.BaseInformation mutate(boolean makeSomatic,
-                                                         BaseInformationRecords.BaseInformation record,
-                                                         BaseInformationRecords.SampleInfo germlineSample,
-                                                         BaseInformationRecords.SampleInfo otherSample,
-                                                         SimulationCharacteristics sim) {
 
-        BaseInformationRecords.BaseInformation.Builder baseBuild = record.toBuilder();
-        baseBuild.setMutated(makeSomatic);
-        int numSamples = record.getSamplesCount();
-        for (int i = 0; i < numSamples-1; i++){
-            baseBuild.setSamples(i, record.getSamples(i).toBuilder().setIsTumor(false));
+
+    class mutationDirection {
+        int oldBase;
+        int newBase;
+        double delta;
+        double frequency;
+
+        /**
+         * creates a mutationDirection object which defines where reads will be moved from,to, and how many
+         * @param oldBase index of source base
+         * @param newBase index of destination base
+         * @param delta proportion source base reads to move (0 - 1 in heterozygous case, 0 - 0.5 in homozygous case)
+         * @param frequency proportion of source allele reads to move (always 0 - 1, either delta or delta/2 in heterozygous case)
+         */
+        mutationDirection(int oldBase, int newBase, double delta,double frequency){
+            this.oldBase = oldBase;
+            this.newBase = newBase;
+            this.delta = delta;
+            this.frequency = frequency;
         }
-        baseBuild.setSamples(numSamples-1, record.getSamples(numSamples-1).toBuilder().setIsTumor(true));
-        if (!makeSomatic) {
-            // don't change counts if we are not to make the second sample somatic.
-            return baseBuild.build();
-        }
-        BaseInformationRecords.SampleInfo somatic = baseBuild.getSamples(numSamples-1);
-        int numGenos = somatic.getCountsList().size();
-        int[] forward = new int[numGenos];
-        int[] backward = new int[numGenos];
-        int[] sums = new int[numGenos];
-        //fill declared arrays
-        int i = 0;
-        for (BaseInformationRecords.CountInfo count : somatic.getCountsList()) {
-            forward[i] = count.getGenotypeCountForwardStrand();
-            backward[i] = count.getGenotypeCountReverseStrand();
-            sums[i] = forward[i] + backward[i];
-            i++;
-        }
+    }
+
+    mutationDirection dirFromCounts(int[] counts){
+        int numGenos = counts.length;
         int maxCount = 0;
         int secondMostCount = 0;
         int maxCountIdx = -1;
         int secondMostCountIdx = -1;
         int numCounts = 0;
         //find highest count idx, second highest count idx, and record number of counts
-        for (i = 0; i < numGenos; i++) {
-            numCounts += sums[i];
-            if (sums[i] > maxCount) {
+        for (int i = 0; i < numGenos; i++) {
+            numCounts += counts[i];
+            if (counts[i] > maxCount) {
                 secondMostCountIdx = maxCountIdx;
                 secondMostCount = maxCount;
                 maxCountIdx = i;
-                maxCount = sums[i];
-            } else if (sums[i] > secondMostCount){
+                maxCount = counts[i];
+            } else if (counts[i] > secondMostCount){
                 secondMostCountIdx = i;
-                secondMostCount = sums[i];
+                secondMostCount = counts[i];
             }
         }
         //no reads whatsoever
         if (maxCountIdx == -1) {
-            return baseBuild.build();
+            return null;
         }
         boolean monozygotic;
         //all reads same base, monozygotic
@@ -102,7 +96,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             monozygotic = true;
         } else {
             //see if base with second most reads exceeds heuristic
-            monozygotic = (zygHeuristic * numCounts > sums[secondMostCountIdx]);
+            monozygotic = (zygHeuristic * numCounts > counts[secondMostCountIdx]);
         }
         //make rand generator and generate proportion mutating bases
         //generate mutation rate
@@ -140,6 +134,48 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             }
 
         }
+        return new mutationDirection(oldBase,newBase,delta,deltaOrig);
+    }
+
+    @Override
+    public BaseInformationRecords.BaseInformation mutate(boolean makeSomatic,
+                                                         BaseInformationRecords.BaseInformation record,
+                                                         BaseInformationRecords.SampleInfo germlineSample,
+                                                         BaseInformationRecords.SampleInfo otherSample,
+                                                         SimulationCharacteristics sim) {
+
+        BaseInformationRecords.BaseInformation.Builder baseBuild = record.toBuilder();
+        baseBuild.setMutated(makeSomatic);
+        int numSamples = record.getSamplesCount();
+        for (int i = 0; i < numSamples-1; i++){
+            baseBuild.setSamples(i, record.getSamples(i).toBuilder().setIsTumor(false));
+        }
+        baseBuild.setSamples(numSamples-1, record.getSamples(numSamples-1).toBuilder().setIsTumor(true));
+        if (!makeSomatic) {
+            // don't change counts if we are not to make the second sample somatic.
+            return baseBuild.build();
+        }
+        BaseInformationRecords.SampleInfo somatic = baseBuild.getSamples(numSamples-1);
+        int numGenos = somatic.getCountsList().size();
+        int[] forward = new int[numGenos];
+        int[] backward = new int[numGenos];
+        int[] sums = new int[numGenos];
+        //fill declared arrays
+        int i = 0;
+        for (BaseInformationRecords.CountInfo count : somatic.getCountsList()) {
+            forward[i] = count.getGenotypeCountForwardStrand();
+            backward[i] = count.getGenotypeCountReverseStrand();
+            sums[i] = forward[i] + backward[i];
+            i++;
+        }
+
+        mutationDirection dir = dirFromCounts(sums);
+
+        final int oldBase = dir.oldBase;
+        final int newBase = dir.newBase;
+        final double delta = dir.delta;
+        final double frequency = dir.frequency;
+
         int fMutCount = 0;
         int oldCount = forward[oldBase];
         for (i = 0; i < oldCount; i++) {
@@ -161,7 +197,6 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         }
         //write to respective builders and return rebuild
         BaseInformationRecords.SampleInfo.Builder somaticBuild = somatic.toBuilder();
-
 
 
         //generate mutated numVariationsLists score lists (some boilerplate here...)
@@ -284,7 +319,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             i++;
         }
         baseBuild.setSamples(numSamples-1, somaticBuild);
-        baseBuild.setFrequencyOfMutation((float) deltaOrig);
+        baseBuild.setFrequencyOfMutation((float) frequency);
         // String newBaseString = newBase<STRING.length? STRING[newBase]:"N";
         //baseBuild.setMutatedBase(newBaseString);
         baseBuild.setIndexOfMutatedBase(newBase);
