@@ -64,7 +64,6 @@ public class DLSomaticPredictor implements SomaticPredictor {
 
     @Override
     public boolean hasSomaticFrequency() {
-        //*return prediction.hasSomaticFrequency;
-        return true;
+        return prediction.hasSomaticFrequency;
     }
 }
