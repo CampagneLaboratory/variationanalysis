@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.predictions.ProtoHelper;
 
 import java.util.Collections;
 import java.util.Date;
@@ -277,45 +278,45 @@ public class FirstSimulationStrategy implements SimulationStrategy {
                 //replace quality scores
                 countBuild.clearQualityScoresForwardStrand();
                 countBuild.clearQualityScoresReverseStrand();
-                countBuild.addAllQualityScoresForwardStrand(ProtoPredictor.compressFreq(fromForward));
-                countBuild.addAllQualityScoresReverseStrand(ProtoPredictor.compressFreq(fromBackward));
+                countBuild.addAllQualityScoresForwardStrand(ProtoHelper.compressFreq(fromForward));
+                countBuild.addAllQualityScoresReverseStrand(ProtoHelper.compressFreq(fromBackward));
 
                 //replace readIndices
                 countBuild.clearReadIndicesForwardStrand();
                 countBuild.clearReadIndicesReverseStrand();
-                countBuild.addAllReadIndicesForwardStrand(ProtoPredictor.compressFreq(fromForwardR));
-                countBuild.addAllReadIndicesReverseStrand(ProtoPredictor.compressFreq(fromBackwardR));
+                countBuild.addAllReadIndicesForwardStrand(ProtoHelper.compressFreq(fromForwardR));
+                countBuild.addAllReadIndicesReverseStrand(ProtoHelper.compressFreq(fromBackwardR));
 
                 //replace numVars
                 countBuild.clearNumVariationsInReads();
-                countBuild.addAllNumVariationsInReads(ProtoPredictor.compressFreq(fromVC));
+                countBuild.addAllNumVariationsInReads(ProtoHelper.compressFreq(fromVC));
 
                 //replace insert sizes
                 countBuild.clearInsertSizes();
-                countBuild.addAllInsertSizes(ProtoPredictor.compressFreq(fromIS));
+                countBuild.addAllInsertSizes(ProtoHelper.compressFreq(fromIS));
 
 
             } else if (i == newBase) {
                 //replace quality scores
                 countBuild.clearQualityScoresForwardStrand();
                 countBuild.clearQualityScoresReverseStrand();
-                countBuild.addAllQualityScoresForwardStrand(ProtoPredictor.compressFreq(toForward));
-                countBuild.addAllQualityScoresReverseStrand(ProtoPredictor.compressFreq(toBackward));
+                countBuild.addAllQualityScoresForwardStrand(ProtoHelper.compressFreq(toForward));
+                countBuild.addAllQualityScoresReverseStrand(ProtoHelper.compressFreq(toBackward));
 
                 //replace readIndices
                 countBuild.clearReadIndicesForwardStrand();
                 countBuild.clearReadIndicesReverseStrand();
-                countBuild.addAllReadIndicesForwardStrand(ProtoPredictor.compressFreq(toForwardR));
-                countBuild.addAllReadIndicesReverseStrand(ProtoPredictor.compressFreq(toBackwardR));
+                countBuild.addAllReadIndicesForwardStrand(ProtoHelper.compressFreq(toForwardR));
+                countBuild.addAllReadIndicesReverseStrand(ProtoHelper.compressFreq(toBackwardR));
                 baseBuild.setMutatedBase(count.getToSequence());
 
                 //replace numVars
                 countBuild.clearNumVariationsInReads();
-                countBuild.addAllNumVariationsInReads(ProtoPredictor.compressFreq(toVC));
+                countBuild.addAllNumVariationsInReads(ProtoHelper.compressFreq(toVC));
 
                 //replace insert sizes
                 countBuild.clearInsertSizes();
-                countBuild.addAllInsertSizes(ProtoPredictor.compressFreq(toIS));
+                countBuild.addAllInsertSizes(ProtoHelper.compressFreq(toIS));
 
 
             }
