@@ -5,8 +5,6 @@ import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV20;
-import org.campagnelab.dl.model.utils.mappers.IsSomaticMutationMapper;
 import org.campagnelab.dl.model.utils.models.ModelOutputHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.api.Model;
@@ -91,7 +89,7 @@ public class ProtoPredictor {
             float[] probabilities = arrayPredicted.getRow(0).data().asFloat();
             prediction.set(probabilities[POSITIVE_PROBABILITY_INDEX],
                     probabilities[NEGATIVE_PROBABILITY_INDEX]);
-            prediction.predictedSomaticFrequency=outputHelper.getOutput(1).getFloat(0);
+            prediction.setPredictedSomaticFrequency( outputHelper.getOutput(1).getFloat(0));
         }
 
 
@@ -107,6 +105,7 @@ public class ProtoPredictor {
         public float posProb;
         public float negProb;
         public float predictedSomaticFrequency;
+        public boolean hasSomaticFrequency;
 
         public boolean isMutated() {
             return posProb > negProb;
@@ -123,6 +122,11 @@ public class ProtoPredictor {
             this.posProb = posProb;
             this.negProb = negProb;
             this.clas = (posProb > 0.5);
+        }
+
+        public void setPredictedSomaticFrequency(float value) {
+            hasSomaticFrequency = true;
+            this.predictedSomaticFrequency = value;
         }
 
         public boolean isCorrect(boolean isPositiveTrueLabel) {
