@@ -352,7 +352,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         String cacheName;// only one input, use its name as cache name:
         if (trainingSets.size() == 1) {
 
-            cacheName = FilenameUtils.getBaseName(trainingSets.get(0));
+            cacheName = FilenameUtils.removeExtension(trainingSets.get(0));
             ;
         } else {
             long hashcode = 8723872838723L;

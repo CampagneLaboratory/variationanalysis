@@ -25,11 +25,13 @@ public class CachedConcatIterator<T> implements NamedDataSetIterator {
     MappedFeaturesIterator delegate;
     private List<NamedDataSetIterator> iterators;
 
-    public CachedConcatIterator(NamedDataSetIterator iterator, int minbatchSize, FeatureMapper featureMapper, long cacheN) {
+    public CachedConcatIterator(NamedDataSetIterator iterator, int minbatchSize,
+                                FeatureMapper featureMapper, int cacheN) {
         this(Collections.singletonList(iterator), minbatchSize, featureMapper, cacheN);
     }
 
-    public CachedConcatIterator(List<NamedDataSetIterator> iterators, int minbatchSize, FeatureMapper<T> featureMapper, long cacheN) {
+    public CachedConcatIterator(List<NamedDataSetIterator> iterators, int minbatchSize,
+                                FeatureMapper<T> featureMapper, int cacheN) {
         this.iterators = iterators;
         // determine if cache exists. If it does, use it.
         String cacheName = buildCacheName(iterators);

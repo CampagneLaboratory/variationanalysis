@@ -63,7 +63,7 @@ public class CacheHelper<RecordType> {
      * @param multiDataSet True when the cache must be MultiDataSet
      * @return
      */
-    public static boolean cacheExists(String cacheName, long cacheN, boolean multiDataSet) {
+    public static boolean cacheExists(String cacheName, int cacheN, boolean multiDataSet) {
         boolean cacheExists = new File(cacheName + ".cf").exists() & new File(cacheName + ".cfp").exists();
         if (!cacheExists) {
             return false;
@@ -82,7 +82,7 @@ public class CacheHelper<RecordType> {
             }
 
             long cacheNSaved = Long.parseLong(n.toString());
-            return (cacheNSaved >= cacheN || cacheN == Long.MAX_VALUE);
+            return (cacheNSaved >= cacheN || cacheN == Integer.MAX_VALUE);
         } catch (FileNotFoundException e) {
             return false;
         } catch (IOException e) {
