@@ -1,15 +1,22 @@
 package org.campagnelab.dl.varanalysis.learning.iterators;
 
+import com.google.common.collect.Iterators;
 import org.campagnelab.dl.varanalysis.learning.domains.DomainDescriptor;
 import org.campagnelab.dl.varanalysis.tools.MapMultiDatasetFeatures;
 import org.campagnelab.dl.varanalysis.tools.MapMultiDatasetFeaturesArguments;
+import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.Iterator;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A concat iterator that transparently creates a disk cache of the content of the input iterables.
@@ -50,7 +57,7 @@ public class CacheHelper<RecordType> {
             tool.execute();
         }
         assert cacheExists(cacheName, cacheN, true) : "A cache must exist at this point.";
-        return new MultiDatasetMappedFeaturesIterator(cacheName);
+        return new MultiDatasetMappedFeaturesIterator(cacheName,cacheN);
 
     }
 

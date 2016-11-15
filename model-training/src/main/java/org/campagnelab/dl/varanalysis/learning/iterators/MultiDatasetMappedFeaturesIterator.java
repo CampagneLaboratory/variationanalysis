@@ -2,17 +2,8 @@ package org.campagnelab.dl.varanalysis.learning.iterators;
 
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
-import org.apache.commons.lang.NotImplementedException;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.LabelMapper;
-import org.campagnelab.dl.varanalysis.learning.domains.DomainDescriptor;
-import org.campagnelab.dl.varanalysis.tools.MapFeatures;
-import org.campagnelab.dl.varanalysis.tools.MapFeaturesArguments;
-import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +12,6 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -37,10 +26,15 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
     private final int numExamples;
     private final int miniBatchSize;
     private final FastBufferedInputStream inputStream;
+    private final int cacheN;
     private int index;
     private MultiDataSetPreProcessor preProcessor;
 
     public MultiDatasetMappedFeaturesIterator(String basename) {
+        this(basename, Integer.MAX_VALUE);
+    }
+
+    public MultiDatasetMappedFeaturesIterator(String basename, int cacheN) {
         try {
             Properties cfProperties = new Properties();
             cfProperties.load(new FileReader(basename + ".cfp"));
@@ -48,6 +42,7 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
             miniBatchSize = Integer.parseInt(cfProperties.getProperty("miniBatchSize", "0"));
             numExamples = Integer.parseInt(cfProperties.getProperty("numRecords", "0"));
             inputStream = new FastBufferedInputStream(new FileInputStream(basename + ".cf"));
+            this.cacheN = cacheN;
         } catch (Exception e) {
             throw new RuntimeException("Unable to create MappedFeaturesIterator ", e);
         }
@@ -62,7 +57,7 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
     }
 
     @Override
-    public void setPreProcessor(MultiDataSetPreProcessor preProcessor)  {
+    public void setPreProcessor(MultiDataSetPreProcessor preProcessor) {
         this.preProcessor = preProcessor;
     }
 
@@ -87,10 +82,9 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
     }
 
 
-
     @Override
     public boolean hasNext() {
-        return index < numExamples;
+        return index < Math.min(numExamples, cacheN);
     }
 
     byte[] length = new byte[4];
@@ -103,10 +97,10 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
         } catch (IOException e) {
             LOG.error("Unable to read length from stream.", e);
         }
-        int l = (length[0] << 8 * 3 & 0xFF000000)|
+        int l = (length[0] << 8 * 3 & 0xFF000000) |
                 (length[1] << 8 * 2 & 0x00FF0000) |
-                (length[2] << 8     & 0x0000FF00) |
-                (length[3]          & 0x000000FF);
+                (length[2] << 8 & 0x0000FF00) |
+                (length[3] & 0x000000FF);
         // resize the buffer if needed:
         content.size(l);
         final byte[] elements = content.elements();
