@@ -1,12 +1,7 @@
 package org.campagnelab.dl.model.utils;
 
-import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.model.utils.mappers.FeatureMapper;
-import org.campagnelab.dl.model.utils.mappers.FeatureMapperV20;
-import org.campagnelab.dl.model.utils.mappers.IsSomaticMutationMapper;
 import org.campagnelab.dl.model.utils.models.ModelOutputHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.api.Model;
@@ -51,25 +46,6 @@ public class ProtoPredictor {
         return expanded;
     }
 
-    public static List<BaseInformationRecords.NumberWithFrequency> compressFreq(List<Integer> numList) {
-        //compress into map
-        Int2IntArrayMap freqMap = new Int2IntArrayMap(100);
-        for (int num : numList) {
-            Integer freq = freqMap.putIfAbsent(num, 1);
-            if (freq != null) {
-                freqMap.put(num, freq + 1);
-            }
-        }
-        //iterate map into freqlist
-        List<BaseInformationRecords.NumberWithFrequency> freqList = new ObjectArrayList<>(freqMap.size());
-        for (Int2IntMap.Entry entry : freqMap.int2IntEntrySet()) {
-            BaseInformationRecords.NumberWithFrequency.Builder freqBuilder = BaseInformationRecords.NumberWithFrequency.newBuilder();
-            freqBuilder.setFrequency(entry.getIntValue());
-            freqBuilder.setNumber(entry.getIntKey());
-            freqList.add(freqBuilder.build());
-        }
-        return freqList;
-    }
 
 
     public Prediction mutPrediction(BaseInformationRecords.BaseInformation record) {
