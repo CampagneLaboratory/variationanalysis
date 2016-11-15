@@ -5,6 +5,7 @@ import org.campagnelab.dl.model.utils.ProtoPredictor;
 import org.campagnelab.dl.model.utils.mappers.QualityFeatures;
 import org.campagnelab.dl.varanalysis.learning.features.Features;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.predictions.ProtoHelper;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -69,8 +70,8 @@ public class QualityFeatureCalculatorTest {
         fList.add(15);
         rList.add(10);
         rList.add(60);
-        builderInfo.addAllQualityScoresForwardStrand(ProtoPredictor.compressFreq(fList));
-        builderInfo.addAllQualityScoresReverseStrand(ProtoPredictor.compressFreq(rList));
+        builderInfo.addAllQualityScoresForwardStrand(ProtoHelper.compressFreq(fList));
+        builderInfo.addAllQualityScoresReverseStrand(ProtoHelper.compressFreq(rList));
         sampleBuilder.addCounts(builderInfo.build());
         builder.addSamples(sampleBuilder.build());
 
@@ -94,8 +95,8 @@ public class QualityFeatureCalculatorTest {
         rList.add(27);
         rList.add(0);
         rList.add(60);
-        builderInfoS.addAllQualityScoresForwardStrand(ProtoPredictor.compressFreq(fList));
-        builderInfoS.addAllQualityScoresReverseStrand(ProtoPredictor.compressFreq(rList));
+        builderInfoS.addAllQualityScoresForwardStrand(ProtoHelper.compressFreq(fList));
+        builderInfoS.addAllQualityScoresReverseStrand(ProtoHelper.compressFreq(rList));
         sampleBuilderS.addCounts(builderInfoS.build());
         builder.addSamples(sampleBuilderS.build());
 
