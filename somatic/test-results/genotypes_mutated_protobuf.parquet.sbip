@@ -1,8 +1,0 @@
-#test-results/genotypes_mutated_protobuf.parquet
-#Wed Nov 16 11:41:07 EST 2016
-stats.genomicContextSize.min=0.0
-numRecords=100
-goby.version=
-stats.numVariationsInRead.max=-Infinity
-stats.genomicContextSize.max=0.0
-stats.insertSizes.max=-Infinity
