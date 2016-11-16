@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.intermediaries;
+package org.campagnelab.dl.somatic.tools;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
