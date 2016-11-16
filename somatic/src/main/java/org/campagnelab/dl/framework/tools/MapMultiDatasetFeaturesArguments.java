@@ -1,5 +1,6 @@
 package org.campagnelab.dl.framework.tools;
 
+import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 
 /**
@@ -15,4 +16,5 @@ public class MapMultiDatasetFeaturesArguments<RecordType> extends MapFeaturesArg
     public MultiDataSetIteratorAdapter adapter =null;
 
 
+    public DomainDescriptor domainDescriptor;
 }

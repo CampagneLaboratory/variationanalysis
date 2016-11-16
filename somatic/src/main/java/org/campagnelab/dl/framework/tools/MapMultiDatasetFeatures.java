@@ -121,8 +121,11 @@ public abstract class MapMultiDatasetFeatures<RecordType> extends AbstractTool<M
             cfpProperties.put("domainDescriptor", domainDescriptor().getClass().getCanonicalName());
             cfpProperties.put("multiDataSet", "true");
             cfpProperties.put("miniBatchSize", Integer.toString(args().miniBatchSize));
-            // TODO adjust for multi-datset
-            cfpProperties.put("featureMapper", args().featureMapperClassname);
+            if (args().domainDescriptor != null) {
+                args().domainDescriptor.putProperties(cfpProperties);
+            } else {
+                cfpProperties.put("featureMapper", args().featureMapperClassname);
+            }
             //  cfpProperties.put("labelMapper", labelMapper.getClass().getCanonicalName());
             cfpProperties.put("isTrio", Boolean.toString(args().isTrio));
             cfpProperties.put("numRecords", Long.toString(numRecordsWritten));

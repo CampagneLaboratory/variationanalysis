@@ -9,5 +9,5 @@ if [[ $OSTYPE == "cygwin" ]]; then
 fi
 
 export DLVA_HOME=${WORKING_DIR}
-DLVA_JAR=${DLVA_HOME}/model-training/target/model-training-1.0.3-SNAPSHOT-bin.jar
-SLF4J_CONFIG=${DLVA_HOME}/model-training/config/logback.xml
+DLVA_JAR=${DLVA_HOME}/somatic/target/somatic-1.1-SNAPSHOT-bin.jar
+SLF4J_CONFIG=${DLVA_HOME}/config/logback.xml
