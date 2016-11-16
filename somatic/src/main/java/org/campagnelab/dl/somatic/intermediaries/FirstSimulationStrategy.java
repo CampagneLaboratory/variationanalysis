@@ -19,14 +19,10 @@ import java.util.Random;
 public class FirstSimulationStrategy implements SimulationStrategy {
     long seed;
 
-    public FirstSimulationStrategy(long seed) {
+
+    public FirstSimulationStrategy(double deltaSmall, double deltaBig, double zygHeuristic, long seed) {
         this.seed = seed;
-
         rand = new XorShift1024StarRandom(seed);
-    }
-
-    public FirstSimulationStrategy(int deltaSmall, int deltaBig, double zygHeuristic, long seed) {
-        this(new Date().getTime());
 
         this.deltaSmall = deltaSmall;
         this.deltaBig = deltaBig;
@@ -36,11 +32,11 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
     //delta will be halved in homozygous cases (to account for twice the reads at a base)
     //min fraction of bases mutated at a record (ceilinged fraction)
-    double deltaSmall = 0.0;
+    double deltaSmall;
     //max fraction of bases mutated at a record (floored fraction)
-    double deltaBig = 1;
+    double deltaBig;
     //minimum proportion of counts to presume allele
-    double zygHeuristic = 0.1;
+    double zygHeuristic;
     final String[] STRING = new String[]{"A", "T", "C", "G"};
     Random rand;
 
@@ -332,7 +328,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
     }
 
     @Override
-    public void setSeed(int seed) {
+    public void setSeed(long seed) {
         rand = new XorShift1024StarRandom(seed);
     }
 
