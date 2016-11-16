@@ -168,7 +168,12 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
         int c = sample.getCounts(2).getGenotypeCountReverseStrand() + sample.getCounts(2).getGenotypeCountForwardStrand();
         int g = sample.getCounts(3).getGenotypeCountReverseStrand() + sample.getCounts(3).getGenotypeCountForwardStrand();
         int n = sample.getCounts(4).getGenotypeCountReverseStrand() + sample.getCounts(4).getGenotypeCountForwardStrand();
-        String fb = sample.getFormattedCounts().split(" ")[8];
+        String fb;
+        try {
+            fb = sample.getFormattedCounts().split(" ")[8];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            fb = "n/a";
+        }
         int numIndels = sample.getCountsCount() - 5;
         int[] indels = new int[numIndels];
         for (int i = 5; i < numIndels + 5 ; i++) {
