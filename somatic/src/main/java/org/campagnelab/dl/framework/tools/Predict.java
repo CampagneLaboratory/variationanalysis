@@ -89,7 +89,7 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
             System.err.println("Cannot load model with prefix: " + prefix);
             System.exit(1);
         }
-
+        domainDescriptor = DomainDescriptorLoader.load(modelPath);
         ProgressLogger pgReadWrite = new ProgressLogger(LOG);
         pgReadWrite.itemsName = prefix;
         final long totalRecords = domainDescriptor.getNumRecords(new String[]{args().testSet});
@@ -97,7 +97,7 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
                 totalRecords);
         pgReadWrite.displayFreeMemory = true;
         pgReadWrite.start();
-        domainDescriptor = DomainDescriptorLoader.load(modelPath);
+
         PredictWithModel<RecordType> predictor = new PredictWithModel<>(domainDescriptor);
 
         Iterable<RecordType> apply = domainDescriptor.getRecordIterable().apply(evaluationDataFilename);
