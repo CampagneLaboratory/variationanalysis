@@ -2,6 +2,7 @@ package org.campagnelab.dl.somatic.learning.domains;
 
 import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.somatic.learning.SomaticTrainingArguments;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;

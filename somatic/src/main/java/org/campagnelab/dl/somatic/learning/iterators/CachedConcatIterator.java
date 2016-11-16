@@ -1,5 +1,6 @@
 package org.campagnelab.dl.somatic.learning.iterators;
 
+import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.somatic.tools.MapFeatures;
 import org.campagnelab.dl.somatic.tools.MapFeaturesArguments;

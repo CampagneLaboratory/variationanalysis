@@ -2,6 +2,7 @@ package org.campagnelab.dl.somatic.tools;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
+import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.storage.RecordWriter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.somatic.storage.RecordReader;
@@ -15,7 +16,7 @@ import java.util.Random;
  * Split a BSI file into several parts. Useful for creating training/validation/test splits of a large dataset.split
  * Created by fac2003 on 9/2/16.
  */
-public class Split extends AbstractTool<SplitArguments>{
+public class Split extends AbstractTool<SplitArguments> {
 
 
     static private Logger LOG = LoggerFactory.getLogger(Split.class);

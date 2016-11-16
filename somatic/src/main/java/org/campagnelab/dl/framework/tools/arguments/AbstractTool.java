@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.tools;
+package org.campagnelab.dl.framework.tools.arguments;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
@@ -7,9 +7,9 @@ import com.beust.jcommander.ParameterException;
  * Created by fac2003 on 10/23/16.
  */
 public abstract class AbstractTool<T extends ToolArguments> {
-    T arguments;
+    public T arguments;
 
-    protected void parseArguments(String[] args, String commandName, T arguments) {
+    public void parseArguments(String[] args, String commandName, T arguments) {
         this.arguments = arguments;
         JCommander commander = new JCommander(arguments);
         commander.setProgramName(commandName);

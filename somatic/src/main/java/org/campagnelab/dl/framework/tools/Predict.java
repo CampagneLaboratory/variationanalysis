@@ -1,10 +1,11 @@
-package org.campagnelab.dl.somatic.tools;
+package org.campagnelab.dl.framework.tools;
 
 import com.google.common.collect.Iterables;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
+import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.learning.PredictWithModel;
 import org.campagnelab.dl.framework.domains.DomainDescriptorLoader;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;

@@ -1,6 +1,7 @@
-package org.campagnelab.dl.somatic.tools;
+package org.campagnelab.dl.framework.tools;
 
-import org.campagnelab.dl.somatic.learning.iterators.MultiDataSetIteratorAdapter;
+import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
+import org.campagnelab.dl.somatic.tools.MapFeaturesArguments;
 
 /**
  * Arguments for MapFeatures.

@@ -1,10 +1,12 @@
-package org.campagnelab.dl.somatic.tools;
+package org.campagnelab.dl.framework.tools;
 
 import it.unimi.dsi.fastutil.io.FastBufferedOutputStream;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
-import org.campagnelab.dl.somatic.learning.iterators.MultiDataSetIteratorAdapter;
+import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
+import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
+import org.campagnelab.dl.somatic.tools.MapFeaturesArguments;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.slf4j.Logger;

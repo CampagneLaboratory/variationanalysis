@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.learning;
+package org.campagnelab.dl.framework.tools;
 
 import com.google.common.collect.Iterables;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -7,20 +7,19 @@ import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.gpu.ParameterPrecision;
-import org.campagnelab.dl.somatic.learning.domains.PerformanceMetricDescriptor;
-import org.campagnelab.dl.somatic.learning.iterators.CacheHelper;
-import org.campagnelab.dl.somatic.learning.iterators.MultiDataSetIteratorAdapter;
+import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
+import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
+import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ComputationGraphSaver;
+import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
 import org.campagnelab.dl.framework.performance.Metric;
 import org.campagnelab.dl.framework.performance.PerformanceLogger;
-import org.campagnelab.dl.framework.mappers.FeatureMapper;
-import org.campagnelab.dl.framework.models.ModelLoader;
-import org.campagnelab.dl.somatic.tools.ConditionRecordingTool;
-import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
+import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
+import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
@@ -59,6 +58,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     protected FeatureMapper featureMapper = null;
     private ComputationGraph computationGraph;
     private CacheHelper<RecordType> cacheHelper = new CacheHelper<>();
+
     @Override
     public void execute() {
         if (args().getTrainingSets().length == 0) {
@@ -217,12 +217,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
     ParameterPrecision precision = ParameterPrecision.FP32;
 
-    private static Properties getReaderProperties(String trainingSet) throws IOException {
-        SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSet);
-        final Properties properties = reader.getProperties();
-        reader.close();
-        return properties;
-    }
+    public abstract Properties getReaderProperties(String trainingSet) throws IOException;
 
 
     protected EarlyStoppingResult<ComputationGraph> train() throws IOException {
@@ -312,7 +307,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
             for (String metric : perfDescriptor.performanceMetrics()) {
                 validationIterator.reset();
-                assert validationIterator.hasNext() :"validation iterator must have datasets. Make sure the latest release of Goby is installed in the maven repo.";
+                assert validationIterator.hasNext() : "validation iterator must have datasets. Make sure the latest release of Goby is installed in the maven repo.";
                 final double performanceValue = perfDescriptor.estimateMetric(computationGraph, metric,
                         validationIterator, args().numValidation);
                 metricValues.add(performanceValue);

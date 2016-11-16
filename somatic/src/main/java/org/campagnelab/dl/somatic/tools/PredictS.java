@@ -1,6 +1,8 @@
 package org.campagnelab.dl.somatic.tools;
 
 import org.campagnelab.dl.framework.domains.prediction.BinaryClassPrediction;
+import org.campagnelab.dl.framework.tools.Predict;
+import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.somatic.learning.domains.predictions.SomaticFrequencyPrediction;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;

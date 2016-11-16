@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.tools;
+package org.campagnelab.dl.framework.tools.arguments;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;

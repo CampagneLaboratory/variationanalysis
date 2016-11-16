@@ -3,6 +3,7 @@ package org.campagnelab.dl.somatic.tools;
 import it.unimi.dsi.io.FastBufferedReader;
 import it.unimi.dsi.io.LineIterator;
 import it.unimi.dsi.lang.MutableString;
+import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 

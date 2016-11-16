@@ -1,10 +1,8 @@
-package org.campagnelab.dl.somatic.learning;
+package org.campagnelab.dl.framework.tools;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import org.campagnelab.dl.somatic.mappers.FeatureMapperV19;
-import org.campagnelab.dl.somatic.learning.architecture.SixDenseLayersNarrower2;
-import org.campagnelab.dl.somatic.tools.RecordingToolArguments;
+import org.campagnelab.dl.framework.tools.arguments.RecordingToolArguments;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,7 +14,7 @@ import java.util.List;
  */
 @Parameters(commandDescription = "Train a model given training files and a validation file.")
 
-public class TrainingArguments extends RecordingToolArguments {
+public abstract class TrainingArguments extends RecordingToolArguments {
 
     @Parameter(required = true, names = {"-t", "--training-sets"}, variableArity = true, description = "Training sets, must be provided in .sbi/.sbip format (produced with Goby3). When more than one dataset is provided (multiple -t options), the " +
             "datasets are concatenated.")
@@ -64,7 +62,9 @@ public class TrainingArguments extends RecordingToolArguments {
     public String previousModelName = "bestAUC";
 
     @Parameter(names = "--net-architecture", description = "fully qualified classname that implements the choice of network architecture.")
-    public java.lang.String architectureClassname = SixDenseLayersNarrower2.class.getCanonicalName();
+    public java.lang.String architectureClassname = defaultArchitectureClassname();
+
+    protected abstract String defaultArchitectureClassname();
 
 
     public String[] getTrainingSets() {
@@ -75,7 +75,9 @@ public class TrainingArguments extends RecordingToolArguments {
     public String precision = "FP32";
 
     @Parameter(names = "--feature-mapper", description = "Fully qualified name of the feature mapper class.")
-    public String featureMapperClassname = FeatureMapperV19.class.getCanonicalName();
+    public String featureMapperClassname = defaultFeatureMapperClassname();
+
+    protected abstract String defaultFeatureMapperClassname();
 
     @Parameter(names = {"-e", "--validate-every"}, description = "Validate only every e epochs when using early stopping. This can save time if training is much faster than evaluation.")
     public int validateEvery = 1;

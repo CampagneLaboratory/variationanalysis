@@ -1,5 +1,5 @@
-#Wed Nov 16 08:32:45 EST 2016
-#Wed Nov 16 08:32:45 EST 2016
+#Wed Nov 16 08:55:10 EST 2016
+#Wed Nov 16 08:55:10 EST 2016
 featureMapper=org.campagnelab.dl.somatic.mappers.IndelFeatures
 numRecords=32
 miniBatchSize=32

@@ -1,6 +1,7 @@
 package org.campagnelab.dl.somatic.tools;
 
 import com.beust.jcommander.Parameter;
+import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.somatic.mappers.FeatureMapperV18;
 

@@ -1,6 +1,7 @@
 package org.campagnelab.dl.somatic.tools;
 
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.dl.framework.tools.MapMultiDatasetFeatures;
 import org.campagnelab.dl.somatic.learning.domains.SomaticMutationDomainDescriptor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.somatic.storage.RecordReader;

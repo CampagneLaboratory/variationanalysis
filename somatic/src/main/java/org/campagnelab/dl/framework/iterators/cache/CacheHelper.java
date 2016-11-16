@@ -1,8 +1,10 @@
-package org.campagnelab.dl.somatic.learning.iterators;
+package org.campagnelab.dl.framework.iterators.cache;
 
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
-import org.campagnelab.dl.somatic.tools.MapMultiDatasetFeatures;
-import org.campagnelab.dl.somatic.tools.MapMultiDatasetFeaturesArguments;
+import org.campagnelab.dl.framework.tools.MapMultiDatasetFeatures;
+import org.campagnelab.dl.framework.tools.MapMultiDatasetFeaturesArguments;
+import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
+import org.campagnelab.dl.somatic.learning.iterators.MultiDatasetMappedFeaturesIterator;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
 import java.io.File;
@@ -10,9 +12,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A concat iterator that transparently creates a disk cache of the content of the input iterables.

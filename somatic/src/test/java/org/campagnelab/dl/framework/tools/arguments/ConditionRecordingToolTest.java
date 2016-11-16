@@ -1,7 +1,7 @@
-package org.campagnelab.dl.somatic.tools;
+package org.campagnelab.dl.framework.tools.arguments;
 
 import org.apache.commons.io.FileUtils;
-import org.campagnelab.dl.somatic.learning.TrainingArguments;
+import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.junit.Test;
 
 import java.io.File;
@@ -15,7 +15,17 @@ import static org.junit.Assert.assertEquals;
 public class ConditionRecordingToolTest {
     @Test
     public void tryTags() throws IOException {
-        TrainingArguments args = new TrainingArguments();
+        TrainingArguments args = new TrainingArguments() {
+            @Override
+            protected String defaultArchitectureClassname() {
+                return "defaultArchitectureClassname";
+            }
+
+            @Override
+            protected String defaultFeatureMapperClassname() {
+                return "defaultFeatureMapperClassname";
+            }
+        };
         args.architectureClassname = "ABC";
         args.modelConditionFilename = "test-results/model-conditions/1.txt";
         args.learningRate = 1.0d;
@@ -41,7 +51,7 @@ public class ConditionRecordingToolTest {
         tool.writeModelingConditions(args);
         assertEquals("Model condition file does not match expected.",
                 "Tag|Results|Specified_Arguments|Default_Arguments|Classname\n" +
-                        "6WTVL6||--learning-rate 1.0 --model-conditions test-results/model-conditions/1.txt --random-seed 1478359791323 --training-sets [T] --validation-set V|--dropout-rate null --early-stopping-num-epochs 10 --error-enrichment false --experimental-condition not_specified --feature-mapper org.campagnelab.dl.somatic.mappers.FeatureMapperV19 --learning-rate 1.0 --max-epochs 2147483647 --mini-batch-size 32 --model-conditions test-results/model-conditions/1.txt --net-architecture ABC --num-errors-added 16 --num-training 2147483647 --num-validation 2147483647 --parameter-precision FP32 --previous-model-name bestAUC --previous-model-path null --random-seed 1478359791323 --regularization-rate null --training-sets [T] --validate-every 1 --validation-set V|\n",
+                        "AS8UMF||--learning-rate 1.0 --model-conditions test-results/model-conditions/1.txt --random-seed 1478359791323 --training-sets [T] --validation-set V|--dropout-rate null --early-stopping-num-epochs 10 --error-enrichment false --experimental-condition not_specified --feature-mapper defaultFeatureMapperClassname --learning-rate 1.0 --max-epochs 2147483647 --mini-batch-size 32 --model-conditions test-results/model-conditions/1.txt --net-architecture ABC --num-errors-added 16 --num-training 2147483647 --num-validation 2147483647 --parameter-precision FP32 --previous-model-name bestAUC --previous-model-path null --random-seed 1478359791323 --regularization-rate null --training-sets [T] --validate-every 1 --validation-set V|\n",
                 FileUtils.readFileToString(new File(args.modelConditionFilename), "utf-8")
                 );
     }

@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.learning.iterators;
+package org.campagnelab.dl.framework.iterators;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;

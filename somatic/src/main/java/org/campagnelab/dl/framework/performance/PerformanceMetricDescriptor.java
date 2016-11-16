@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.learning.domains;
+package org.campagnelab.dl.framework.performance;
 
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;

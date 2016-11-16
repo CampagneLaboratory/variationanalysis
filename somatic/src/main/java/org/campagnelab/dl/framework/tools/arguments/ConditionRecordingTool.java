@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.tools;
+package org.campagnelab.dl.framework.tools.arguments;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterDescription;
@@ -118,7 +118,7 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
         }
     }
 
-    protected void parseArguments(String[] args, String commandName, T arguments) {
+    public void parseArguments(String[] args, String commandName, T arguments) {
         this.arguments = arguments;
         JCommander commander = new JCommander(arguments);
         commander.setProgramName(commandName);

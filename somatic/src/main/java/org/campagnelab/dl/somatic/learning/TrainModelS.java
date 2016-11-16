@@ -1,10 +1,16 @@
 package org.campagnelab.dl.somatic.learning;
 
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.dl.framework.tools.TrainModel;
+import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.campagnelab.dl.somatic.learning.domains.SomaticMutationDomainDescriptor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Train Somatic implemented with the Generic TrainModel
@@ -33,5 +39,15 @@ public class TrainModelS extends TrainModel<BaseInformationRecords.BaseInformati
     @Override
     protected DomainDescriptor<BaseInformationRecords.BaseInformation> domainDescriptor() {
         return new SomaticMutationDomainDescriptor((SomaticTrainingArguments) args());
+    }
+
+    @Override
+    public Properties getReaderProperties(String trainingSet) throws IOException {
+
+        SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSet);
+        final Properties properties = reader.getProperties();
+        reader.close();
+        return properties;
+
     }
 }

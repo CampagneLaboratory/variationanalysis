@@ -5,7 +5,7 @@ import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
-import org.campagnelab.dl.somatic.learning.domains.PerformanceMetricDescriptor;
+import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.glassfish.jersey.internal.util.Producer;

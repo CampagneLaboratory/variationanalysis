@@ -1,6 +1,6 @@
 package org.campagnelab.dl.framework.architecture.graphs;
 
-import org.campagnelab.dl.somatic.learning.TrainingArguments;
+import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
 import org.deeplearning4j.nn.graph.ComputationGraph;
