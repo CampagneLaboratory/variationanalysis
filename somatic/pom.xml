@@ -299,7 +299,7 @@
         <dependency>
             <groupId>org.campagnelab.dl</groupId>
             <artifactId>framework</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>
