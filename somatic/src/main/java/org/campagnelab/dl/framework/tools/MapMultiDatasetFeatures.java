@@ -4,9 +4,8 @@ import it.unimi.dsi.fastutil.io.FastBufferedOutputStream;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
-import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
+import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,14 +116,8 @@ public abstract class MapMultiDatasetFeatures<RecordType> extends AbstractTool<M
             outputStream.close();
             pg.stop();
 
+            long numRecords = domainDescriptor.getNumRecords(args().getTrainingSets());
             Properties cfpProperties = new Properties();
-            long numRecords = 0;
-            for (String inputFile : args().getTrainingSets()) {
-                SequenceBaseInformationReader reader = new SequenceBaseInformationReader(inputFile);
-                final Properties sbiProperties = reader.getProperties();
-                cfpProperties.putAll(sbiProperties);
-                numRecords += Long.parseLong(sbiProperties.get("numRecords").toString());
-            }
             cfpProperties.put("domainDescriptor", domainDescriptor().getClass().getCanonicalName());
             cfpProperties.put("multiDataSet", "true");
             cfpProperties.put("miniBatchSize", Integer.toString(args().miniBatchSize));
