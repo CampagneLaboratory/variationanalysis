@@ -4,7 +4,7 @@ import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.tools.MapMultiDatasetFeatures;
 import org.campagnelab.dl.framework.tools.MapMultiDatasetFeaturesArguments;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
-import org.campagnelab.dl.somatic.learning.iterators.MultiDatasetMappedFeaturesIterator;
+import org.campagnelab.dl.framework.iterators.MultiDatasetMappedFeaturesIterator;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
 import java.io.File;
