@@ -1,6 +1,7 @@
 package org.campagnelab.dl.somatic.tools;
 
-import org.campagnelab.dl.somatic.learning.iterators.MappedFeaturesIterator;
+import org.campagnelab.dl.framework.tools.MapFeaturesArguments;
+import org.campagnelab.dl.framework.iterators.MappedFeaturesIterator;
 import org.campagnelab.dl.somatic.mappers.IndelFeatures;
 import org.junit.Test;
 import org.nd4j.linalg.dataset.api.DataSet;
@@ -15,7 +16,7 @@ public class MapFeaturesTest {
     public void test() {
         // write a mapped features file:
         MapFeatures tool = new MapFeatures();
-        tool.arguments=new MapFeaturesArguments();
+        tool.arguments=new SomaticMapFeaturesArguments();
         tool.arguments.trainingSets.add("sample_data/protobuf/genotypes_proto_mutated_randomized.sbi");
         tool.arguments.miniBatchSize=32;
         tool.arguments.featureMapperClassname= IndelFeatures.class.getCanonicalName();

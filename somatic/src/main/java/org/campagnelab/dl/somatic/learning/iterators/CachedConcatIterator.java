@@ -1,9 +1,11 @@
 package org.campagnelab.dl.somatic.learning.iterators;
 
+import org.campagnelab.dl.framework.iterators.MappedFeaturesIterator;
 import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.somatic.tools.MapFeatures;
-import org.campagnelab.dl.somatic.tools.MapFeaturesArguments;
+import org.campagnelab.dl.framework.tools.MapFeaturesArguments;
+import org.campagnelab.dl.somatic.tools.SomaticMapFeaturesArguments;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 
@@ -19,12 +21,12 @@ public class CachedConcatIterator<T> implements NamedDataSetIterator {
     MappedFeaturesIterator delegate;
     private List<NamedDataSetIterator> iterators;
 
-    public CachedConcatIterator(NamedDataSetIterator iterator, int minbatchSize,
+    public CachedConcatIterator(NamedDataSetIterator iterator, int minibatchSize,
                                 FeatureMapper featureMapper, int cacheN) {
-        this(Collections.singletonList(iterator), minbatchSize, featureMapper, cacheN);
+        this(Collections.singletonList(iterator), minibatchSize, featureMapper, cacheN);
     }
 
-    public CachedConcatIterator(List<NamedDataSetIterator> iterators, int minbatchSize,
+    public CachedConcatIterator(List<NamedDataSetIterator> iterators, int minibatchSize,
                                 FeatureMapper<T> featureMapper, int cacheN) {
         this.iterators = iterators;
         // determine if cache exists. If it does, use it.
@@ -32,12 +34,12 @@ public class CachedConcatIterator<T> implements NamedDataSetIterator {
         if (!CacheHelper.cacheExists(cacheName, cacheN,false)) {
             // Cache does not exist, we first build it:
             MapFeatures tool = new MapFeatures();
-            MapFeaturesArguments arguments = new MapFeaturesArguments();
+            SomaticMapFeaturesArguments arguments = new SomaticMapFeaturesArguments();
 
             for (NamedDataSetIterator it : iterators) {
                 arguments.trainingSets.add(it.getBasename());
             }
-            arguments.miniBatchSize = minbatchSize;
+            arguments.miniBatchSize = minibatchSize;
             arguments.featureMapperClassname = featureMapper.getClass().getCanonicalName();
             arguments.outputBasename = cacheName;
             arguments.cacheN = cacheN;
