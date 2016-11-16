@@ -3,6 +3,7 @@ package org.campagnelab.dl.somatic.intermediaries;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift1024StarRandom;
+import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.storage.RecordWriter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.somatic.storage.RecordReader;
@@ -23,41 +24,42 @@ import java.util.Random;
  *
  * @author Fabien Campagne
  */
-public class Mutator2 extends Intermediary {
+public class Mutator2 extends AbstractTool<Mutator2Arguments> {
     private static final int CHUNK_SIZE = 10000;
     private static final int NUM_SIMULATED_RECORD_PER_DATUM = 2;
     static private Logger LOG = LoggerFactory.getLogger(Mutator2.class);
 
-    //delta will be halved in homozygous cases (to account for twice the reads at a base)
-    //min fraction of bases mutated at a record (ceilinged fraction)
-    double deltaSmall = 0.0;
-    //max fraction of bases mutated at a record (floored fraction)
-    double deltaBig = 1;
-    //minimum proportion of counts to presume allele
-    double zygHeuristic = 0.1;
     final String[] STRING = new String[]{"A", "T", "C", "G"};
     Random rand;
     final boolean MUTATE = true;
-    SimulationStrategy strategy = new SimulationStrategyImpl();
+    SimulationStrategy strategy;
     boolean trioUnchecked = true;
     int numCanonical = 0;
     int numRecordsTotal = 0;
-
+    final double deltaSmall = 0.0;
+    final double deltaBig = 1.0;
+    final int seed = 2323;
+    final int seed2 = 2348999;
     public static void main(String[] args) throws IOException {
+
+
+
         //new ParquetPrinter(args[0]).print();
         if (args.length < 2) {
             System.err.println("usage: input.sbi mutated-randomized-filename");
             System.exit(1);
         }
         Mutator2 m = new Mutator2();
-        m.executeOver(args[0], args[1]);
+        m.parseArguments(args, "Mutator2", m.createArguments());
+        m.execute();
         //  new ParquetPrinter(args[2]).print();
 
         System.out.println("Fraction of non-canonical:" + ((float)1-((float)m.numCanonical/(float)m.numRecordsTotal)));
     }
 
     public Mutator2() {
-        setSeed(2323);
+        setSeed(seed);
+        strategy = new SimulationStrategyImpl(deltaSmall,deltaBig,args().heteroHeuristic,seed2,args().canonThreshold);
     }
 
     public void setSeed(int seed) {
@@ -65,27 +67,29 @@ public class Mutator2 extends Intermediary {
         rand = new XorShift1024StarRandom(seed);
     }
 
-    public Mutator2(int deltaSmall, int deltaBig, int zygHeuristic) {
-        this.deltaSmall = deltaSmall;
-        this.deltaBig = deltaBig;
-        this.zygHeuristic = zygHeuristic;
-        setSeed(2323);
-    }
+    //deprectated method should not be used, arguments obatined from jcommander
+//    public Mutator2(int deltaSmall, int deltaBig, int zygHeuristic) {
+//        this.deltaSmall = deltaSmall;
+//        this.deltaBig = deltaBig;
+//        this.zygHeuristic = zygHeuristic;
+//        setSeed(2323);
+//    }
 
-    public void execute(String in, String out, int blockSize, int pageSize) throws IOException {
-        RecordReader reader = new RecordReader(in);
-        RecordWriter writer = new RecordWriter(out);
 
-        //set up logger
-        ProgressLogger pgReadWrite = new ProgressLogger(LOG);
-        pgReadWrite.itemsName = "mutation";
-        pgReadWrite.expectedUpdates = reader.getTotalRecords();
-        pgReadWrite.displayFreeMemory = true;
-        pgReadWrite.start();
-        SimulationCharacteristics sim = new SimulationCharacteristics();
-        int maxProcess = Integer.MAX_VALUE;
-        int iteration = 0;
+    public void execute() {
         try {
+            RecordReader reader = new RecordReader(args().inputFile);
+            RecordWriter writer = new RecordWriter(args().outputFile);
+
+            //set up logger
+            ProgressLogger pgReadWrite = new ProgressLogger(LOG);
+            pgReadWrite.itemsName = "mutation";
+            pgReadWrite.expectedUpdates = reader.getTotalRecords();
+            pgReadWrite.displayFreeMemory = true;
+            pgReadWrite.start();
+            SimulationCharacteristics sim = new SimulationCharacteristics();
+            int maxProcess = Integer.MAX_VALUE;
+            int iteration = 0;
             for (BaseInformationRecords.BaseInformation base : reader) {
                 iteration++;
                 sim.observe(base);
@@ -101,13 +105,13 @@ public class Mutator2 extends Intermediary {
                 }
             }
             processBatch(sim, writer);
-        } finally {
+
             pgReadWrite.stop();
             reader.close();
             writer.close();
-
+        } catch (IOException e) {
+            System.err.println("Unable to load or write files. Check command line arguments.");
         }
-
     }
 
     /**
@@ -122,7 +126,7 @@ public class Mutator2 extends Intermediary {
         while (iterator.hasNext()) {
             BaseInformationRecords.BaseInformation record = iterator.next();
             if (trioUnchecked && record.getSamplesCount() > 2){
-                strategy = new SimulationStrategyImplTrio();
+                strategy = new SimulationStrategyImplTrio(deltaSmall, deltaBig, args().heteroHeuristic, seed2, args().canonThreshold);
                 trioUnchecked = false;
             }
             shufflingList.add(strategy.mutate(false, record, record.getSamples(0), record.getSamples(1), sim));
@@ -149,6 +153,11 @@ public class Mutator2 extends Intermediary {
         System.out.printf("Ratio of mutated to total record (0-1): %f%n", numMutated / shufflingList.size());
         System.out.flush();
         shufflingList.clear();
+    }
+
+    @Override
+    public Mutator2Arguments createArguments() {
+        return new Mutator2Arguments();
     }
 
 

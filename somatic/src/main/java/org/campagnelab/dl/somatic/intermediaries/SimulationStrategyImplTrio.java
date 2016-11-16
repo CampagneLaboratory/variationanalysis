@@ -2,6 +2,7 @@ package org.campagnelab.dl.somatic.intermediaries;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
+import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Collections;
@@ -11,17 +12,17 @@ import java.util.Date;
  * Created by fac2003 on 7/19/16.
  */
 public class SimulationStrategyImplTrio implements SimulationStrategy {
-    private XoRoShiRo128PlusRandom randomGenerator;
-    private long seed;
+    private XorShift1024StarRandom randomGenerator;
+    private double canonThreshold;
 
     public SimulationStrategyImplTrio(long seed) {
-        this.seed = seed;
+        setSeed(seed);
     }
 
-    public SimulationStrategyImplTrio() {
-        this.seed = new Date().getTime();
-        randomGenerator = new XoRoShiRo128PlusRandom(seed);
-        firstSimulationStrategy = new FirstSimulationStrategy(seed);
+    public SimulationStrategyImplTrio(double deltaSmall, double deltaBig, double zygHeuristic, long seed, double canonThreshold) {
+        this(seed);
+        this.canonThreshold = canonThreshold;
+        firstSimulationStrategy = new FirstSimulationStrategy(deltaSmall, deltaBig, zygHeuristic, seed);
     }
 
     FirstSimulationStrategy firstSimulationStrategy;
@@ -60,33 +61,34 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
 
         //define genotypes, eg AA or AB.
         int child1 = sortingPermutationGenotypeCounts0.getInt(0);
-        int child2 = (numAlleles0>1)?sortingPermutationGenotypeCounts0.getInt(1):child1;
+        int child2 = (numAlleles0 > 1) ? sortingPermutationGenotypeCounts0.getInt(1) : child1;
         int father1 = sortingPermutationGenotypeCounts1.getInt(0);
-        int father2 = (numAlleles1>1)?sortingPermutationGenotypeCounts1.getInt(1):father1;
-        int mother1 = sortingPermutationGenotypeCounts2.getInt(0);;
-        int mother2 = (numAlleles2>1)?sortingPermutationGenotypeCounts2.getInt(1):mother1;
+        int father2 = (numAlleles1 > 1) ? sortingPermutationGenotypeCounts1.getInt(1) : father1;
+        int mother1 = sortingPermutationGenotypeCounts2.getInt(0);
+        ;
+        int mother2 = (numAlleles2 > 1) ? sortingPermutationGenotypeCounts2.getInt(1) : mother1;
 
         //first, check that germline/child doesn't have too many alleles (or is not designated for mutation). if not, then
         //determine if the child's genotype is possible, allowing either first allele from father or from mother
-        if (numAlleles0 > 2 || (!makeSomatic)){
+        if (numAlleles0 > 2 || (!makeSomatic)) {
             makeSomatic = false;
         } else {
-            makeSomatic = isMendelian(child1,child2,father1,father2,mother1,mother2);
+            makeSomatic = isMendelian(child1, child2, father1, father2, mother1, mother2);
         }
         return firstSimulationStrategy.mutate(makeSomatic, record, null, null, null);
 
     }
-    public static boolean isMendelian(int child1, int child2, int father1, int father2, int mother1, int mother2){
+
+    public static boolean isMendelian(int child1, int child2, int father1, int father2, int mother1, int mother2) {
         boolean firstFromFather = ((child1 == father1) || (child1 == father2)) && ((child2 == mother1) || (child2 == mother2));
         boolean firstFromMother = ((child1 == mother1) || (child1 == mother2)) && ((child2 == father1) || (child2 == father2));
-        return (firstFromFather ||  firstFromMother);
+        return (firstFromFather || firstFromMother);
     }
 
 
-
     @Override
-    public void setSeed(int seed) {
-        firstSimulationStrategy = new FirstSimulationStrategy(seed);
+    public void setSeed(long seed) {
+        randomGenerator = new XorShift1024StarRandom(seed);
     }
 
     private void prepareSorted(IntArrayList original, IntArrayList permutation) {
@@ -95,7 +97,7 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
         for (int i = 0; i < original.size(); i++) {
             permutation.add(i);
         }
-// sort using the counts of the original
+        // sort using the counts of the original
         Collections.sort(permutation, (o1, o2) -> original.getInt(o2) - original.getInt(o1));
 
     }
@@ -115,7 +117,7 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
             int count = getSortedCountAtIndex(i, genotypeCounts, sortingPermutationGenotypeCounts);
             cumulative += count;
             index++;
-            if (cumulative > (sumCount * 9 / 10)) return index;
+            if (cumulative > (sumCount * canonThreshold)) return index;
 
         }
         return index;

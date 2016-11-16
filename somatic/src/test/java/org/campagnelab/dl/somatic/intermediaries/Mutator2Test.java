@@ -19,7 +19,7 @@ public class Mutator2Test {
     public void mutateTest() throws Exception {
         int index = 0;
         for (String record : records) {
-            SimulationStrategy strategy = new SimulationStrategyImpl();
+            SimulationStrategy strategy = new SimulationStrategyImpl(0,1,0.1,1,0.9);
             strategy.setSeed(1);
 
             final BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
@@ -70,31 +70,6 @@ public class Mutator2Test {
 
             "} ";
 
-    // disabled, the mutation is valid.
-    public void testDontMutateAcrossHet() throws Exception {
-        int index = 0;
-        Mutator m = new Mutator();
-        m.setSeed(1);
-        final BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
-        TextFormat.getParser().merge(hetExample, builder);
-        int MAX_TRIALS = 10000;
-        for (int i = 0; i < MAX_TRIALS; i++) {
-            BaseInformationRecords.BaseInformation.Builder germline = builder.clone();
-            BaseInformationRecords.BaseInformation result = m.mutate(builder);
-            BaseInformationRecords.SampleInfo germlineSample = germline.getSamples(0);
-            int countExistingBase0 = germlineSample.getCounts(0).getGenotypeCountForwardStrand() + germlineSample.getCounts(0).getGenotypeCountReverseStrand();
-            BaseInformationRecords.SampleInfo somaticSample = result.getSamples(1);
-            int countExistingBase1 = somaticSample.getCounts(1).getGenotypeCountForwardStrand() + somaticSample.getCounts(1).getGenotypeCountReverseStrand();
-            if (countExistingBase1 > countExistingBase0) {
-                System.out.println("germline: " + germline);
-                System.out.println("somatic:  " + result);
-                fail("Do not mutate bases towards pre-existing het base ");
-            } else {
-                // OK
-            }
-        }
-
-    }
 
     String[] records = {"reference_index: 18\n" +
             "position: 17214616\n" +

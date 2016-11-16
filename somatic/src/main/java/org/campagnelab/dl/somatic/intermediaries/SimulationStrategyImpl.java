@@ -2,6 +2,7 @@ package org.campagnelab.dl.somatic.intermediaries;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
+import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Collections;
@@ -11,18 +12,8 @@ import java.util.Date;
  * Created by fac2003 on 7/19/16.
  */
 public class SimulationStrategyImpl implements SimulationStrategy {
-    private XoRoShiRo128PlusRandom randomGenerator;
-    private long seed;
-
-    public SimulationStrategyImpl(long seed) {
-        this.seed = seed;
-    }
-
-    public SimulationStrategyImpl() {
-        this.seed = new Date().getTime();
-        randomGenerator = new XoRoShiRo128PlusRandom(seed);
-        firstSimulationStrategy = new FirstSimulationStrategy(seed);
-    }
+    private XorShift1024StarRandom randomGenerator;
+    private double canonThreshold;
 
     FirstSimulationStrategy firstSimulationStrategy;
 
@@ -30,6 +21,15 @@ public class SimulationStrategyImpl implements SimulationStrategy {
     IntArrayList genotypeCounts1 = new IntArrayList();
     IntArrayList sortingPermutationGenotypeCounts0 = new IntArrayList();
     IntArrayList sortingPermutationGenotypeCounts1 = new IntArrayList();
+
+    public SimulationStrategyImpl(double deltaSmall, double deltaBig, double zygHeuristic, long seed, double canonThreshold) {
+
+        this.canonThreshold = canonThreshold;
+        firstSimulationStrategy = new FirstSimulationStrategy(deltaSmall, deltaBig, zygHeuristic, seed);
+        setSeed(seed);
+    }
+
+
 
     @Override
     public BaseInformationRecords.BaseInformation mutate(boolean makeSomatic,
@@ -60,8 +60,9 @@ public class SimulationStrategyImpl implements SimulationStrategy {
     }
 
     @Override
-    public void setSeed(int seed) {
-        firstSimulationStrategy = new FirstSimulationStrategy(seed);
+    public void setSeed(long seed) {
+        randomGenerator=new XorShift1024StarRandom(seed);
+        firstSimulationStrategy.setSeed(seed);
     }
 
     private void prepareSorted(IntArrayList original, IntArrayList permutation) {
@@ -70,7 +71,7 @@ public class SimulationStrategyImpl implements SimulationStrategy {
         for (int i = 0; i < original.size(); i++) {
             permutation.add(i);
         }
-// sort using the counts of the original
+        // sort using the counts of the original
         Collections.sort(permutation, (o1, o2) -> original.getInt(o2) - original.getInt(o1));
 
     }
@@ -80,7 +81,7 @@ public class SimulationStrategyImpl implements SimulationStrategy {
      *
      * @param sumCount
      * @param genotypeCounts                   the counts array, in genotype order
-     * @param sortingPermutationGenotypeCounts the permutation array, from cumlative order to genotype order
+     * @param sortingPermutationGenotypeCounts the permutation array, from cumulative order to genotype order
      * @return
      */
     private int sumGenotype90P(int sumCount, IntArrayList genotypeCounts, IntArrayList sortingPermutationGenotypeCounts) {
@@ -90,7 +91,7 @@ public class SimulationStrategyImpl implements SimulationStrategy {
             int count = getSortedCountAtIndex(i, genotypeCounts, sortingPermutationGenotypeCounts);
             cumulative += count;
             index++;
-            if (cumulative > (sumCount * 9 / 10)) return index;
+            if (cumulative > (sumCount * canonThreshold)) return index;
 
         }
         return index;

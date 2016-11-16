@@ -12,5 +12,5 @@ public interface SimulationStrategy {
                                                   BaseInformationRecords.SampleInfo germlineSample,
                                                   BaseInformationRecords.SampleInfo otherSample, SimulationCharacteristics sim);
 
-    void setSeed(int seed);
+    void setSeed(long seed);
 }
