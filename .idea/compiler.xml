@@ -22,6 +22,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
+        <module name="framework" />
+        <module name="genotype" />
         <module name="model-training" />
         <module name="model-utils" />
         <module name="somatic" />
@@ -29,9 +31,12 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="framework" target="1.8" />
+      <module name="genotype" target="1.8" />
       <module name="model-training" target="1.8" />
       <module name="model-utils" target="1.8" />
       <module name="somatic" target="1.8" />
+      <module name="somatic (1)" target="1.8" />
       <module name="variation-analysis" target="1.7" />
       <module name="VariationAnalysis" target="1.8" />
     </bytecodeTargetLevel>

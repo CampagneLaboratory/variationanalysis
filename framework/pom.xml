@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -9,7 +9,7 @@
         <version>1.0.3-SNAPSHOT</version>
     </parent>
 
-    <artifactId>somatic</artifactId>
+    <artifactId>framework</artifactId>
     <packaging>jar</packaging>
     <properties>
 
@@ -35,15 +35,16 @@
 
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>META-INF/**</include>
-                </includes>
-            </resource>
+        <sourceDirectory>${basedir}/../somatic/src/main/java</sourceDirectory>
+        <extensions>
+            <!-- provides os.detected.classifier (i.e. linux-x86_64, osx-x86_64) property -->
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>${os-maven-plugin.version}</version>
+            </extension>
+        </extensions>
 
-        </resources>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -53,23 +54,8 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <plugins>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${exec-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <executable>java</executable>
-                </configuration>
-            </plugin>
+        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -78,11 +64,8 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <excludes>
-                        <exclude>org/campagnelab/dl/somatic/learning/TrainSomaticModel${GPUSpecificSuffix}.java</exclude>
-                    </excludes>
                     <includes>
-                        <include>org/campagnelab/dl/somatic/**</include>
+                        <include>org/campagnelab/dl/framework/**</include>
                     </includes>
                 </configuration>
             </plugin>
@@ -93,7 +76,7 @@
                 <version>3.0.1</version>
                 <configuration>
                     <includes>
-                        <include>org/campagnelab/dl/somatic/**</include>
+                        <include>org/campagnelab/dl/framework/**</include>
                     </includes>
                 </configuration>
                 <executions>
@@ -113,7 +96,7 @@
                 <version>2.10.4</version>
                 <configuration>
                     <includes>
-                        <include>org/campagnelab/dl/somatic/**</include>
+                        <include>org/campagnelab/dl/framework/**</include>
                     </includes>
                 </configuration>
                 <executions>
@@ -128,38 +111,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <descriptors>
-                        <descriptor>src/assembly/assembly.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                        <phase>package</phase> <!-- bind to the packaging phase -->
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                    </archive>
-                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -299,12 +250,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.campagnelab.dl</groupId>
-            <artifactId>framework</artifactId>
-            <version>${version}</version>
         </dependency>
 
     </dependencies>
