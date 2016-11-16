@@ -16,13 +16,13 @@
         <protobuf.input.directory>${project.basedir}/protobuf</protobuf.input.directory>
         <protobuf.output.directory>${project.build.directory}/generated-sources</protobuf.output.directory>
 
-         <!-- library versions -->
-         <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
-         <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
-         <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
-         <os-maven-plugin.version>1.5.0.Final</os-maven-plugin.version>
-         <protobuf.version>3.0.0-beta-4</protobuf.version>
-     </properties>
+        <!-- library versions -->
+        <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
+        <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
+        <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
+        <os-maven-plugin.version>1.5.0.Final</os-maven-plugin.version>
+        <protobuf.version>3.0.0-beta-4</protobuf.version>
+    </properties>
 
 
     <build>
@@ -51,7 +51,7 @@
         </extensions>
 
         <plugins>
- <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
@@ -65,6 +65,8 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.9.1</version>
                 <configuration>
+
+
 
                 </configuration>
             </plugin>
@@ -84,6 +86,20 @@
                     </execution>
                 </executions>
 
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                    <includes><include>resources/</include></includes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
