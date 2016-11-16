@@ -45,7 +45,6 @@ public class FirstSimulationStrategy implements SimulationStrategy {
     Random rand;
 
 
-
     class mutationDirection {
         int oldBase;
         int newBase;
@@ -54,12 +53,13 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         /**
          * creates a mutationDirection object which defines where reads will be moved from,to, and how many
-         * @param oldBase index of source base
-         * @param newBase index of destination base
-         * @param delta proportion source base reads to move (0 - 1 in heterozygous case, 0 - 0.5 in homozygous case)
+         *
+         * @param oldBase   index of source base
+         * @param newBase   index of destination base
+         * @param delta     proportion source base reads to move (0 - 1 in heterozygous case, 0 - 0.5 in homozygous case)
          * @param frequency proportion of source allele reads to move (always 0 - 1, either delta or delta/2 in heterozygous case)
          */
-        mutationDirection(int oldBase, int newBase, double delta,double frequency){
+        mutationDirection(int oldBase, int newBase, double delta, double frequency) {
             this.oldBase = oldBase;
             this.newBase = newBase;
             this.delta = delta;
@@ -67,7 +67,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         }
     }
 
-    mutationDirection dirFromCounts(int[] counts){
+    mutationDirection dirFromCounts(int[] counts) {
         int numGenos = counts.length;
         int maxCount = 0;
         int secondMostCount = 0;
@@ -82,7 +82,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
                 secondMostCount = maxCount;
                 maxCountIdx = i;
                 maxCount = counts[i];
-            } else if (counts[i] > secondMostCount){
+            } else if (counts[i] > secondMostCount) {
                 secondMostCountIdx = i;
                 secondMostCount = counts[i];
             }
@@ -113,7 +113,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
             //only one allele mutates, so halve delta when monozygotic
             delta = delta / 2;
-            while (!allowed){
+            while (!allowed) {
                 newBase = rand.nextInt(numGenos);
                 allowed = true;
                 if (newBase == oldBase || newBase == 4) {
@@ -125,7 +125,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             boolean mutatingAllele = rand.nextBoolean();
             oldBase = mutatingAllele ? maxCountIdx : secondMostCountIdx;
             otherAlleleBase = !mutatingAllele ? maxCountIdx : secondMostCountIdx;
-            while (!allowed){
+            while (!allowed) {
                 newBase = rand.nextInt(numGenos);
                 allowed = true;
                 if (newBase == oldBase || newBase == 4 || newBase == otherAlleleBase) {
@@ -135,7 +135,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             }
 
         }
-        return new mutationDirection(oldBase,newBase,delta,deltaOrig);
+        return new mutationDirection(oldBase, newBase, delta, deltaOrig);
     }
 
     @Override
@@ -148,15 +148,15 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         BaseInformationRecords.BaseInformation.Builder baseBuild = record.toBuilder();
         baseBuild.setMutated(makeSomatic);
         int numSamples = record.getSamplesCount();
-        for (int i = 0; i < numSamples-1; i++){
+        for (int i = 0; i < numSamples - 1; i++) {
             baseBuild.setSamples(i, record.getSamples(i).toBuilder().setIsTumor(false));
         }
-        baseBuild.setSamples(numSamples-1, record.getSamples(numSamples-1).toBuilder().setIsTumor(true));
+        baseBuild.setSamples(numSamples - 1, record.getSamples(numSamples - 1).toBuilder().setIsTumor(true));
         if (!makeSomatic) {
             // don't change counts if we are not to make the second sample somatic.
             return baseBuild.build();
         }
-        BaseInformationRecords.SampleInfo somatic = baseBuild.getSamples(numSamples-1);
+        BaseInformationRecords.SampleInfo somatic = baseBuild.getSamples(numSamples - 1);
         int numGenos = somatic.getCountsList().size();
         int[] forward = new int[numGenos];
         int[] backward = new int[numGenos];
@@ -213,7 +213,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             //forward strand
             fromVC.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(oldBase).getNumVariationsInReadsList()));
             toVC.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(newBase).getNumVariationsInReadsList()));
-            mutateIntegerListsVarAdd(fMutCount, fromVC, toVC,somaticBuild.getCounts(oldBase).getMatchesReference(),somaticBuild.getCounts(newBase).getMatchesReference());
+            mutateIntegerListsVarAdd(fMutCount, fromVC, toVC, somaticBuild.getCounts(oldBase).getMatchesReference(), somaticBuild.getCounts(newBase).getMatchesReference());
         }
 
         //generate mutated insert sizes lists (some boilerplate here...)
@@ -267,6 +267,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
 
         }
+        String mutatedAllele = "?";
 
 
         i = 0;
@@ -297,6 +298,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
 
             } else if (i == newBase) {
+                mutatedAllele = countBuild.getToSequence();
                 //replace quality scores
                 countBuild.clearQualityScoresForwardStrand();
                 countBuild.clearQualityScoresReverseStrand();
@@ -323,7 +325,8 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             somaticBuild.setCounts(i, countBuild);
             i++;
         }
-        baseBuild.setSamples(numSamples-1, somaticBuild);
+        somaticBuild.setFormattedCounts(Mutator2.regenerateFormattedCounts(somaticBuild, mutatedAllele));
+        baseBuild.setSamples(numSamples - 1, somaticBuild);
         baseBuild.setFrequencyOfMutation((float) frequency);
         // String newBaseString = newBase<STRING.length? STRING[newBase]:"N";
         //baseBuild.setMutatedBase(newBaseString);
@@ -355,8 +358,8 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         int newDestIndex = dest.size();
         Collections.shuffle(source, rand);
         dest.addAll(source.subList(0, fMutCount));
-        for (int i = newDestIndex; i < dest.size(); i++){
-            dest.set(i,dest.get(i)+increment);
+        for (int i = newDestIndex; i < dest.size(); i++) {
+            dest.set(i, dest.get(i) + increment);
         }
         List<Integer> tmp = new IntArrayList(source.subList(fMutCount, source.size()));
         source.clear();

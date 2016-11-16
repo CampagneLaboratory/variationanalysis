@@ -141,7 +141,7 @@ public abstract class AbstractPredictMutations {
 
     }
 
-    private String genFormattedString(BaseInformationRecords.SampleInfo sample) {
+    private static String genFormattedString(BaseInformationRecords.SampleInfo sample) {
         int a = sample.getCounts(0).getGenotypeCountReverseStrand() + sample.getCounts(0).getGenotypeCountForwardStrand();
         int t = sample.getCounts(1).getGenotypeCountReverseStrand() + sample.getCounts(1).getGenotypeCountForwardStrand();
         int c = sample.getCounts(2).getGenotypeCountReverseStrand() + sample.getCounts(2).getGenotypeCountForwardStrand();

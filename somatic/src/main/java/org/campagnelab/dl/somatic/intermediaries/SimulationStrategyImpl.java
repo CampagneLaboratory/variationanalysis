@@ -1,6 +1,7 @@
 package org.campagnelab.dl.somatic.intermediaries;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
@@ -48,13 +49,16 @@ public class SimulationStrategyImpl implements SimulationStrategy {
             // by not making a somatic variant we will prevent the model learning that such sites are valid predictions.
             makeSomatic = false;
         }
-        // check that alleles are the same genotype index, or that we have a tie in counts:
-        for (int i = 0; i < numAlleles0; i++) {
-            if (sortingPermutationGenotypeCounts0.getInt(i) != sortingPermutationGenotypeCounts1.getInt(i) &&
-                    getSortedCountAtIndex(i, genotypeCounts0, sortingPermutationGenotypeCounts0) != getSortedCountAtIndex(i, genotypeCounts1, sortingPermutationGenotypeCounts1)) {
-                // same number of alleles, but not the same genotypes.
-                makeSomatic = false;
-            }
+        IntArraySet alleleIndices = new IntArraySet();
+        alleleIndices.add(sortingPermutationGenotypeCounts0.getInt(0));
+        alleleIndices.add(sortingPermutationGenotypeCounts0.getInt(1));
+
+        alleleIndices.add(sortingPermutationGenotypeCounts1.getInt(0));
+        alleleIndices.add(sortingPermutationGenotypeCounts1.getInt(1));
+        // check that major alleles are the same irrespective of count:
+        if (alleleIndices.size() > numAlleles0) {
+            // this site is not canonical.
+            makeSomatic = false;
         }
         return firstSimulationStrategy.mutate(makeSomatic, record, germlineSample, otherSample, null);
     }
