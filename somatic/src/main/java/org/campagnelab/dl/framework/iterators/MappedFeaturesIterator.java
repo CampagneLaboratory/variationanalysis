@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.learning.iterators;
+package org.campagnelab.dl.framework.iterators;
 
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.io.FastBufferedInputStream;

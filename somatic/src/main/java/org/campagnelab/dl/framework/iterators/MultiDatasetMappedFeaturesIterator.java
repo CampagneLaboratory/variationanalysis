@@ -2,7 +2,6 @@ package org.campagnelab.dl.framework.iterators;
 
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
-import org.campagnelab.dl.somatic.learning.iterators.MappedFeaturesIterator;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;

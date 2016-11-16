@@ -1,6 +1,5 @@
 package org.campagnelab.dl.framework.domains;
 
-import org.campagnelab.dl.somatic.learning.domains.SomaticMutationDomainDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +30,11 @@ public class DomainDescriptorLoader {
             modelProperties.load(input);
             // get the property value and print it out
             String domainDescriptorClassname = modelProperties.getProperty("domainDescriptor");
-            if (domainDescriptorClassname == null) {
+           /* if (domainDescriptorClassname == null) {
                 LOG.warn("domainDescriptor property was not found in " + configFilename);
                 LOG.warn("Using backward compatible descriptor instead: SomaticMutationDomainDescriptor");
                 return new SomaticMutationDomainDescriptor(modelPath);
-            }
+            }*/
             // we call the constructor that accepts a model path as single argument:
             Class<DomainDescriptor> clazz =
                     (Class<DomainDescriptor>) Class.forName(domainDescriptorClassname);

@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.io.FastBufferedOutputStream;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
+import org.campagnelab.dl.framework.tools.MapFeaturesArguments;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
@@ -22,11 +23,15 @@ import java.util.Properties;
  *
  * @author Fabien Campagne
  */
-public class MapFeatures extends AbstractTool<MapFeaturesArguments> {
+public class MapFeatures extends AbstractTool<SomaticMapFeaturesArguments> {
     static private Logger LOG = LoggerFactory.getLogger(MapFeatures.class);
 
     public void setNumRecordsWritten(int numRecordsWritten) {
         this.numRecordsWritten = numRecordsWritten;
+    }
+
+    public void setArguments(SomaticMapFeaturesArguments arguments) {
+        this.arguments = arguments;
     }
 
     private int numRecordsWritten;
@@ -39,8 +44,8 @@ public class MapFeatures extends AbstractTool<MapFeaturesArguments> {
     }
 
     @Override
-    public MapFeaturesArguments createArguments() {
-        return new MapFeaturesArguments();
+    public SomaticMapFeaturesArguments createArguments() {
+        return new SomaticMapFeaturesArguments();
     }
 
     @Override
@@ -129,7 +134,4 @@ public class MapFeatures extends AbstractTool<MapFeaturesArguments> {
         return numRecordsWritten;
     }
 
-    public void setArguments(MapFeaturesArguments arguments) {
-        this.arguments = arguments;
-    }
 }

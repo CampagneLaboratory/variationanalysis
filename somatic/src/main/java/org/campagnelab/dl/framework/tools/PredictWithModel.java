@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.learning;
+package org.campagnelab.dl.framework.tools;
 
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.models.ModelOutputHelper;

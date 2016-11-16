@@ -24,8 +24,16 @@ import java.util.Properties;
  */
 public class ModelLoader {
     private final Properties modelProperties;
-    String modelPath;
+    private String modelPath;
     static private Logger LOG = LoggerFactory.getLogger(ModelLoader.class);
+
+    /**
+     * Return the propoerties contained in model.config.
+     * @return
+     */
+    public Properties getModelProperties() {
+        return modelProperties;
+    }
 
     public ModelLoader(String modelPath) {
         this.modelPath = modelPath;

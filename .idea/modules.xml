@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/framework/framework.iml" filepath="$PROJECT_DIR$/framework/framework.iml" />
       <module fileurl="file://$PROJECT_DIR$/genotype/genotype.iml" filepath="$PROJECT_DIR$/genotype/genotype.iml" />
+      <module fileurl="file://$PROJECT_DIR$/genotype/genotype.iml" filepath="$PROJECT_DIR$/genotype/genotype.iml" />
+      <module fileurl="file://$PROJECT_DIR$/somatic/somatic.iml" filepath="$PROJECT_DIR$/somatic/somatic.iml" />
       <module fileurl="file://$PROJECT_DIR$/somatic/somatic.iml" filepath="$PROJECT_DIR$/somatic/somatic.iml" />
     </modules>
   </component>

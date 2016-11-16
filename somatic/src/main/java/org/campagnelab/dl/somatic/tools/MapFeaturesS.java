@@ -1,6 +1,7 @@
 package org.campagnelab.dl.somatic.tools;
 
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.dl.framework.tools.MapFeaturesArguments;
 import org.campagnelab.dl.framework.tools.MapMultiDatasetFeatures;
 import org.campagnelab.dl.somatic.learning.domains.SomaticMutationDomainDescriptor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -47,8 +48,8 @@ public class MapFeaturesS extends MapMultiDatasetFeatures<BaseInformationRecords
     private int numRecordsWritten;
 
     @Override
-    public MapFeaturesArguments createArguments() {
-        return new MapFeaturesArguments();
+    public SomaticMapFeaturesArguments createArguments() {
+        return new SomaticMapFeaturesArguments();
     }
 
     public void setArguments(MapFeaturesArguments arguments) {
