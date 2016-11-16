@@ -46,13 +46,14 @@ public class SomaticModel {
         FeatureMapper featureMapper = null;
         Properties prop = new Properties();
         InputStream input = null;
+        String mapperName=null;
         try {
             final String modelPropertiesFilename = modelPath + "/config.properties";
             input = new FileInputStream(modelPropertiesFilename);
             // load a properties file
             prop.load(input);
             // get the property value and print it out
-            String mapperName = prop.getProperty("mapper");
+             mapperName = prop.getProperty("mapper");
 
             ClassLoader classLoader = this.getClass().getClassLoader();
             // Load the target class using its binary name
@@ -67,7 +68,7 @@ public class SomaticModel {
                 confMapper.configure(prop);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Unable to create feature mapper",e);
+            throw new RuntimeException("Unable to create feature mapper "+mapperName,e);
         } finally {
             IOUtils.closeQuietly(input);
         }
