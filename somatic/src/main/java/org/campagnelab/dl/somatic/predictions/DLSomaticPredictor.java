@@ -1,5 +1,6 @@
 package org.campagnelab.dl.somatic.predictions;
 
+import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.somatic.utils.ProtoPredictor;
 import org.campagnelab.goby.algorithmic.dsv.DiscoverVariantPositionData;
 import org.campagnelab.goby.algorithmic.dsv.SampleCountInfo;
@@ -19,6 +20,16 @@ import java.io.IOException;
 public class DLSomaticPredictor implements SomaticPredictor {
     private SomaticModel model;
     private ProtoPredictor.Prediction prediction;
+
+    @Override
+    public String getModelPath(String fullMPath) {
+        return ModelLoader.getModelPath(fullMPath);
+    }
+
+    @Override
+    public String getModelPrefix(String fullMPath) {
+        return ModelLoader.getModelLabel(fullMPath);
+    }
 
     @Override
     public void loadModel(String modelPath, String modelPrefix) throws IOException {
