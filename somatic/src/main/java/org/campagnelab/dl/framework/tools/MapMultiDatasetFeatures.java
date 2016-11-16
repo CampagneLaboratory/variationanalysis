@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * A tool to process an .sbi file and produce features in a .cf (cached features) file.
+ * A tool to cache DL4J's multidatasets into in a .cf (cached features) file.
  *
  * @author Fabien Campagne
  */
