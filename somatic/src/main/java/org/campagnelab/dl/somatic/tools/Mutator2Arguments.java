@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.intermediaries;
+package org.campagnelab.dl.somatic.tools;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
