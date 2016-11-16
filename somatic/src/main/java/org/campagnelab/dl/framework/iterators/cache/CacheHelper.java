@@ -48,6 +48,7 @@ public class CacheHelper<RecordType> {
             arguments.adapter = adapter;
             arguments.outputBasename = cacheName;
             arguments.cacheN = cacheN;
+            arguments.domainDescriptor=domainDescriptor;
             tool.setArguments(arguments);
             tool.execute();
         }

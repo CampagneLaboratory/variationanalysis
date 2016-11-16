@@ -234,6 +234,16 @@ public abstract class DomainDescriptor<RecordType> {
     public void writeProperties(String modelPath) {
         Properties props = new Properties();
         String propFilename = ModelLoader.getModelPath(modelPath) + "/domain.properties";
+        putProperties( props);
+        try {
+            props.store(new FileWriter(propFilename), "Domain properties created with " + this.getClass().getCanonicalName());
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to write domain descriptor properties to " + propFilename, e);
+        }
+    }
+
+    public void putProperties( Properties props) {
+
         String inputNames[] = getComputationalGraph().getInputNames();
         String outputNames[] = getComputationalGraph().getOutputNames();
         for (String inputName : inputNames) {
@@ -243,11 +253,7 @@ public abstract class DomainDescriptor<RecordType> {
             props.put(outputName + ".labelMapper", getLabelMapper(outputName).getClass().getCanonicalName());
             props.put(outputName + ".predictionInterpreter", getPredictionInterpreter(outputName).getClass().getCanonicalName());
         }
-        try {
-            props.store(new FileWriter(propFilename), "Domain properties created with " + this.getClass().getCanonicalName());
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to write domain descriptor properties to " + propFilename, e);
-        }
+
     }
 
     public Iterable<RecordType> getRecordIterable(List<String> sbiFilenames, int maxRecords) {
