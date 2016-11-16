@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
@@ -147,6 +148,7 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
         Collections.shuffle(shufflingList);
         double numMutated = 0;
         for (BaseInformationRecords.BaseInformation record : shufflingList) {
+
             writer.writeRecord(record);
             numMutated += record.getMutated() ? 1 : 0;
         }
@@ -158,6 +160,21 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
     @Override
     public Mutator2Arguments createArguments() {
         return new Mutator2Arguments();
+    }
+
+    public static String regenerateFormattedCounts(BaseInformationRecords.SampleInfoOrBuilder sample, String mutatedAllele) {
+        int a = sample.getCounts(0).getGenotypeCountReverseStrand() + sample.getCounts(0).getGenotypeCountForwardStrand();
+        int t = sample.getCounts(1).getGenotypeCountReverseStrand() + sample.getCounts(1).getGenotypeCountForwardStrand();
+        int c = sample.getCounts(2).getGenotypeCountReverseStrand() + sample.getCounts(2).getGenotypeCountForwardStrand();
+        int g = sample.getCounts(3).getGenotypeCountReverseStrand() + sample.getCounts(3).getGenotypeCountForwardStrand();
+        int n = sample.getCounts(4).getGenotypeCountReverseStrand() + sample.getCounts(4).getGenotypeCountForwardStrand();
+        String fb = sample.getFormattedCounts().split(" ")[8];
+        int numIndels = sample.getCountsCount() - 5;
+        int[] indels = new int[numIndels];
+        for (int i = 5; i < numIndels + 5 ; i++) {
+            indels[i-5] = sample.getCounts(i).getGenotypeCountForwardStrand() + sample.getCounts(i).getGenotypeCountReverseStrand();
+        }
+        return String.format("mutated (%s) sample counts A=%d T=%d C=%d G=%d N=%d %s indels:%s",mutatedAllele,a,t,c,g,n,fb, Arrays.toString(indels));
     }
 
 
