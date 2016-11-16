@@ -3,8 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/VariationAnalysis.iml" filepath="$PROJECT_DIR$/VariationAnalysis.iml" />
-      <module fileurl="file://$PROJECT_DIR$/model-training/model-training.iml" filepath="$PROJECT_DIR$/model-training/model-training.iml" />
-      <module fileurl="file://$PROJECT_DIR$/model-utils/model-utils.iml" filepath="$PROJECT_DIR$/model-utils/model-utils.iml" />
+      <module fileurl="file://$PROJECT_DIR$/somatic/somatic.iml" filepath="$PROJECT_DIR$/somatic/somatic.iml" />
     </modules>
   </component>
 </project>

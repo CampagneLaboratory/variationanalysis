@@ -8,8 +8,8 @@
     <version>1.0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>model-utils</module>
-        <module>model-training</module>
+        <module>somatic</module>
+
     </modules>
     <name>Variation Analysis</name>
     <description>A project to train neural networks to recognize mutations in RNA-seq data.</description>
@@ -81,12 +81,6 @@
     </profiles>
     <build>
         <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>record.avsc</include>
-                </includes>
-            </resource>
             <resource>
                 <directory>config</directory>
                 <includes>
