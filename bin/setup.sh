@@ -10,4 +10,4 @@ fi
 
 export DLVA_HOME=${WORKING_DIR}
 DLVA_JAR=${DLVA_HOME}/somatic/target/somatic-1.1-SNAPSHOT-bin.jar
-SLF4J_CONFIG=${DLVA_HOME}/model-training/config/logback.xml
+SLF4J_CONFIG=${DLVA_HOME}/config/logback.xml
