@@ -1,11 +1,11 @@
-#Tue Nov 15 22:51:58 EST 2016
-#Tue Nov 15 22:51:58 EST 2016
-featureMapper=org.campagnelab.dl.varanalysis.mappers.IndelFeatures
+#Wed Nov 16 08:32:45 EST 2016
+#Wed Nov 16 08:32:45 EST 2016
+featureMapper=org.campagnelab.dl.somatic.mappers.IndelFeatures
 numRecords=32
 miniBatchSize=32
 numFeatures=5
 stored=[sample_data/protobuf/genotypes_proto_mutated_randomized.sbi]
-labelMapper=org.campagnelab.dl.varanalysis.mappers.SimpleFeatureCalculator
+labelMapper=org.campagnelab.dl.somatic.mappers.SimpleFeatureCalculator
 multiDataSet=false
 numDatasets=1
 isTrio=false

@@ -3,8 +3,8 @@
 numRecords=291884
 stored=[sample_data/protobuf/genotypes_proto_mutated_randomized]
 miniBatchSize=32
-labelMapper=org.campagnelab.dl.varanalysis.mappers.SimpleFeatureCalculator
-featureMapper=org.campagnelab.dl.model.utils.mappers.IndelFeatures
+labelMapper=org.campagnelab.dl.somatic.mappers.SimpleFeatureCalculator
+featureMapper=org.campagnelab.dl.somatic.mappers.IndelFeatures
 numFeatures=5
 numDatasets=9122
 isTrio=false

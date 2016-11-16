@@ -2,7 +2,7 @@ package org.campagnelab.dl.model.utils.mappers;
 
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
-import org.campagnelab.dl.varanalysis.mappers.BinaryFeatureMapper;
+import org.campagnelab.dl.somatic.mappers.BinaryFeatureMapper;
 
 import static org.junit.Assert.assertEquals;
 

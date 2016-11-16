@@ -1,6 +1,6 @@
 package org.campagnelab.dl.prediction;
 
-import org.campagnelab.dl.varanalysis.utils.BayesCalibrator;
+import org.campagnelab.dl.somatic.utils.BayesCalibrator;
 import org.junit.Test;
 
 import java.io.File;
