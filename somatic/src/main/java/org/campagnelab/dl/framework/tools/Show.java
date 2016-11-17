@@ -78,7 +78,8 @@ public abstract class Show<RecordType, Args extends ShowArguments> extends Abstr
         while (selectedIndex < currentIndex && predictionLine.hasNext()) {
 // find the next selected index in the prediction file.
             MutableString line = predictionLine.next();
-            int tabIndex = line.indexOf('\t');
+            if (line.startsWith("index")) continue;
+             int tabIndex = line.indexOf('\t');
             if (tabIndex == -1) {
                 tabIndex = line.length();
             }
