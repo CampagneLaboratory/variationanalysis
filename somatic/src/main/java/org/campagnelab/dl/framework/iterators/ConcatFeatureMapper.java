@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.mappers;
+package org.campagnelab.dl.framework.iterators;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
@@ -21,7 +21,7 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
 
     @SafeVarargs
     public ConcatFeatureMapper(FeatureMapper<RecordType>... featureMappers) {
-        ObjectArraySet<MappedDimensions> dimensions = new ObjectArraySet<>();
+        IntArraySet dimensions = new IntArraySet();
 
         this.mappers = featureMappers;
         int offset = 0;
@@ -31,7 +31,7 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
         for (FeatureMapper<RecordType> calculator : mappers) {
             numFeatures += calculator.numberOfFeatures();
             offsets[i] = numFeatures;
-            dimensions.add(calculator.dimensions());
+            dimensions.add(calculator.dimensions().numDimensions());
             i++;
         }
         assert dimensions.size()==1: "All feature mappers must have the same dimensions to be concatenated.";

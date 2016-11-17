@@ -1,5 +1,6 @@
 package org.campagnelab.dl.somatic.mappers;
 
+import org.campagnelab.dl.framework.iterators.ConcatFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 

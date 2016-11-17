@@ -1,5 +1,7 @@
 package org.campagnelab.dl.somatic.mappers;
 
+import org.campagnelab.dl.framework.iterators.ConcatFeatureMapper;
+
 /**
  * Same as V13, but with FractionDifferences4 instead of 3., to avoid division by zero when sum to counts is 0
  * in one sample.
