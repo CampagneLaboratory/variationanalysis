@@ -1,6 +1,9 @@
 package org.campagnelab.dl.somatic.mappers;
 
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
+import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Arrays;
@@ -18,6 +21,7 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
 
     @SafeVarargs
     public ConcatFeatureMapper(FeatureMapper<RecordType>... featureMappers) {
+        ObjectArraySet<MappedDimensions> dimensions = new ObjectArraySet<>();
 
         this.mappers = featureMappers;
         int offset = 0;
@@ -26,11 +30,11 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
         offsets[0] = 0;
         for (FeatureMapper<RecordType> calculator : mappers) {
             numFeatures += calculator.numberOfFeatures();
-            ;
             offsets[i] = numFeatures;
-
+            dimensions.add(calculator.dimensions());
             i++;
         }
+        assert dimensions.size()==1: "All feature mappers must have the same dimensions to be concatenated.";
     }
 
     @Override
@@ -40,13 +44,17 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
     }
 
     @Override
+    public MappedDimensions dimensions() {
+        return new MappedDimensions(numberOfFeatures());
+    }
+
+    @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
         for (FeatureMapper<RecordType> calculator : mappers) {
             calculator.prepareToNormalize(record, indexOfRecord);
         }
         normalizedCalled = true;
     }
-
 
 
     @Override
@@ -92,13 +100,14 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
             }
         }
     }
+
     @Override
     public boolean isMasked(RecordType record, int featureIndex) {
         int indexOfDelegate = Arrays.binarySearch(offsets, featureIndex);
         if (indexOfDelegate < 0) {
             indexOfDelegate = -(indexOfDelegate + 1) - 1;
         }
-        return this.mappers[indexOfDelegate].isMasked(record,featureIndex - offsets[indexOfDelegate]);
+        return this.mappers[indexOfDelegate].isMasked(record, featureIndex - offsets[indexOfDelegate]);
     }
 
     @Override

@@ -13,7 +13,12 @@ public interface LabelMapper<RecordType> {
      * @return The number of labels.
      */
     int numberOfLabels();
-
+    /**
+     * Dimensions of the label and mask tensors. These dimensions must match the input INDArray used to call
+     * mapLabels and maskLabels.
+     * @return mapped tensor dimensions.
+     */
+    MappedDimensions dimensions();
     /**
      * Fill in features into the dataset, as index
      *
@@ -33,20 +38,20 @@ public interface LabelMapper<RecordType> {
     float produceLabel(RecordType record, int labelIndex);
 
     /**
-     * Return true if the mapper creates an input mask (maskFeatures is implemented).
+     * Return true if the mapper creates an input mask (maskLabels is implemented).
      *
      * @return
      */
     boolean hasMask();
 
     /**
-     * Fill in the feature mask. The method is only called if hasMask returns true.
+     * Fill in the label mask. The method is only called if hasMask returns true.
      *
      * @param record        The record to convert to features & labels.
      * @param mask          The feature mask
      * @param indexOfRecord Index of the record in the destination dataset.
      */
-    void maskFeatures(RecordType record, INDArray mask, int indexOfRecord);
+    void maskLabels(RecordType record, INDArray mask, int indexOfRecord);
 
     /**
      * Determine if a feature needs to be masked or not. The method is only called if hasMask returns true.

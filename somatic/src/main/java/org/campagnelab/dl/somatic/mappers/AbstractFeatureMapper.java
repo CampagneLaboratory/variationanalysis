@@ -2,32 +2,35 @@ package org.campagnelab.dl.somatic.mappers;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
+import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.campagnelab.dl.somatic.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Arrays;
 import java.util.Collections;
+
 /**
  * AbstractFeatureMapper encapsulates behavior common to many feature mappers.
  * Created by fac2003 on 6/3/16.
  *
  * @author Fabien Campagne
  */
-public abstract class AbstractFeatureMapper<T extends BaseInformationRecords.BaseInformationOrBuilder > implements FeatureNameMapper<T> {
+public abstract class AbstractFeatureMapper<T extends BaseInformationRecords.BaseInformationOrBuilder> implements FeatureNameMapper<T> {
     public static final int MAX_GENOTYPES = 5;
     public static final int N_GENOTYPE_INDEX = 6;
     private float[] buffer;
 
     protected float[] getBuffer() {
 
-        if (buffer==null) {
+        if (buffer == null) {
             buffer = new float[numberOfFeatures()];
-        }else{
-            Arrays.fill(buffer,0f);
+        } else {
+            Arrays.fill(buffer, 0f);
         }
         return buffer;
     }
+
     @Override
     public String getFeatureName(int featureIndex) {
         return null;
@@ -49,13 +52,13 @@ public abstract class AbstractFeatureMapper<T extends BaseInformationRecords.Bas
         int sampleIndex = isTumor ? 1 : 0;
         ObjectArrayList<GenotypeCount> list = new ObjectArrayList<>();
         int genotypeIndex = 0;
-        for (int i = 0; i < record.getSamples(0).getCountsCount(); i++){
+        for (int i = 0; i < record.getSamples(0).getCountsCount(); i++) {
             int germCount = record.getSamples(0).getCounts(i).getGenotypeCountForwardStrand() + record.getSamples(0).getCounts(i).getGenotypeCountReverseStrand();
             BaseInformationRecords.CountInfo genoInfo = record.getSamples(sampleIndex).getCounts(i);
             int forwCount = genoInfo.getGenotypeCountForwardStrand();
             int revCount = genoInfo.getGenotypeCountReverseStrand();
             GenotypeCount count = factory.create();
-            count.set(forwCount, revCount, genoInfo.getToSequence(),i,germCount);
+            count.set(forwCount, revCount, genoInfo.getToSequence(), i, germCount);
             initializeCount(record.getSamples(sampleIndex).getCounts(i), count);
             list.add(count);
         }
@@ -64,7 +67,7 @@ public abstract class AbstractFeatureMapper<T extends BaseInformationRecords.Bas
         // pad with zero until we have 10 elements:
         while (list.size() < MAX_GENOTYPES) {
             final GenotypeCount genotypeCount = getGenotypeCountFactory().create();
-            genotypeCount.set(0, 0, "N", genotypeIndexFor_Ns,0);
+            genotypeCount.set(0, 0, "N", genotypeIndexFor_Ns, 0);
             list.add(genotypeCount);
 
         }
@@ -124,18 +127,32 @@ public abstract class AbstractFeatureMapper<T extends BaseInformationRecords.Bas
 
     protected abstract GenotypeCountFactory getGenotypeCountFactory();
 
+    /**
+     * Default implementation assumes a 1-d tensor.
+     *
+     * @return
+     */
+    @Override
+    public MappedDimensions dimensions() {
+        return new MappedDimensions(numberOfFeatures());
+    }
+
     @Override
     public boolean hasMask() {
         return false;
     }
 
-    @Override
-    public void maskFeatures(T record, INDArray mask, int indexOfRecord) {
+    public void maskLabels(T record, INDArray mask, int indexOfRecord) {
         // do nothing implementation.
     }
 
     @Override
     public boolean isMasked(T record, int featureIndex) {
         return false;
+    }
+
+    @Override
+    public void maskFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray mask, int indexOfRecord) {
+         // do nothing implementation.
     }
 }

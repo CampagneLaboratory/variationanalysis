@@ -67,7 +67,9 @@ public class MagnitudeFeatures2 extends AbstractFeatureMapper<BaseInformationRec
         }
     }
 
-    public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
+
+
+           public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         return normalize(produceFeatureInternal(record, featureIndex), 1);
     }
 
