@@ -15,24 +15,24 @@ import java.util.Properties;
  */
 
 
-
 public class GenomicContextMapper extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
-        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
-        {
-    private ConcatFeatureMapper delegate;
+        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+    private ConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
+
     public GenomicContextMapper(Properties sbiProperties) {
 
-       this((int)Float.parseFloat(sbiProperties.getProperty("stats.genomicContextSize.min","0.0")));
-       if (sbiProperties.getProperty("stats.genomicContextSize.min")==null) {
-           throw new RuntimeException("Unable to obtain stats.genomicContextSize.min from properties.");
-       }
+        this((int) Float.parseFloat(sbiProperties.getProperty("stats.genomicContextSize.min", "0.0")));
+        if (sbiProperties.getProperty("stats.genomicContextSize.min") == null) {
+            throw new RuntimeException("Unable to obtain stats.genomicContextSize.min from properties.");
+        }
     }
+
     public GenomicContextMapper(int contextSize) {
         OneHotBaseMapper[] refContext = new OneHotBaseMapper[contextSize];
-        for (int i = 0; i < contextSize; i++){
+        for (int i = 0; i < contextSize; i++) {
             refContext[i] = new OneHotBaseMapper(i, BaseInformationRecords.BaseInformationOrBuilder::getGenomicSequenceContext);
         }
-        delegate = new ConcatFeatureMapper(refContext);
+        delegate = new ConcatFeatureMapper<>(refContext);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class GenomicContextMapper extends AbstractFeatureMapper<BaseInformationR
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
-        delegate.prepareToNormalize(record,indexOfRecord);
+        delegate.prepareToNormalize(record, indexOfRecord);
     }
 
     int[] indices = new int[]{0, 0};
