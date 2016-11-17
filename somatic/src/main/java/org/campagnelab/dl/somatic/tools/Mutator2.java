@@ -1,12 +1,15 @@
 package org.campagnelab.dl.somatic.tools;
 
+import org.campagnelab.dl.somatic.intermediaries.*;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
+import org.campagnelab.dl.somatic.intermediaries.SimulationStrategy;
 import org.campagnelab.dl.somatic.storage.RecordWriter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.somatic.storage.RecordReader;
+import org.campagnelab.dl.somatic.intermediaries.SimulationStrategyImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,20 +49,20 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
 
 
         //new ParquetPrinter(args[0]).print();
-        if (args.length < 2) {
-            System.err.println("usage: input.sbi mutated-randomized-filename");
-            System.exit(1);
-        }
-        Mutator2 m = new Mutator2();
-        m.parseArguments(args, "Mutator2", m.createArguments());
+//        if (args.length < 2) {
+//            System.err.println("usage: input.sbi mutated-randomized-filename");
+//            System.exit(1);
+//        }
+        Mutator2 m = new Mutator2(args);
         m.execute();
         //  new ParquetPrinter(args[2]).print();
 
         System.out.println("Fraction of non-canonical:" + ((float)1-((float)m.numCanonical/(float)m.numRecordsTotal)));
     }
 
-    public Mutator2() {
+    public Mutator2(String [] args) {
         setSeed(seed);
+        this.parseArguments(args, "Mutator2", this.createArguments());
         strategy = new SimulationStrategyImpl(deltaSmall,deltaBig,args().heteroHeuristic,seed2,args().canonThreshold);
     }
 
