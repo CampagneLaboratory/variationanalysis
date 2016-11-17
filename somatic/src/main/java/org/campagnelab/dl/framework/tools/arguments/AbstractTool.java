@@ -19,6 +19,7 @@ public abstract class AbstractTool<T extends ToolArguments> {
 
             commander.usage();
             System.out.flush();
+            System.err.flush();
             throw e;
         }
     }
