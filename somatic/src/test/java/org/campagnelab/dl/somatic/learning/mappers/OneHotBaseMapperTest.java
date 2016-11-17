@@ -2,7 +2,7 @@ package org.campagnelab.dl.somatic.learning.mappers;
 
 import com.google.protobuf.TextFormat;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
-import org.campagnelab.dl.somatic.mappers.OneHotBaseMapper;
+import org.campagnelab.dl.framework.mappers.OneHotBaseMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -19,7 +19,7 @@ public class OneHotBaseMapperTest {
         int index=0;
 
         for (String record : records) {
-           FeatureMapper calculator=new OneHotBaseMapper(0, BaseInformationRecords.BaseInformationOrBuilder::getGenomicSequenceContext);
+           FeatureMapper<BaseInformationRecords.BaseInformation> calculator = new OneHotBaseMapper<>(0, BaseInformationRecords.BaseInformationOrBuilder::getGenomicSequenceContext);
 
             INDArray inputs = Nd4j.zeros(1, calculator.numberOfFeatures());
 
