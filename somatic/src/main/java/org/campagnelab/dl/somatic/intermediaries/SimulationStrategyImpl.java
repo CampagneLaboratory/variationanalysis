@@ -49,13 +49,16 @@ public class SimulationStrategyImpl implements SimulationStrategy {
             // by not making a somatic variant we will prevent the model learning that such sites are valid predictions.
             makeSomatic = false;
         }
+        //find unique allele indices to make sure there aren't too many
         IntArraySet alleleIndices = new IntArraySet();
         alleleIndices.add(sortingPermutationGenotypeCounts0.getInt(0));
-        alleleIndices.add(sortingPermutationGenotypeCounts0.getInt(1));
-
         alleleIndices.add(sortingPermutationGenotypeCounts1.getInt(0));
-        alleleIndices.add(sortingPermutationGenotypeCounts1.getInt(1));
-        // check that major alleles are the same irrespective of count:
+        //heterozygous case
+        if (numAlleles0 > 1){
+            alleleIndices.add(sortingPermutationGenotypeCounts0.getInt(1));
+            alleleIndices.add(sortingPermutationGenotypeCounts1.getInt(1));
+
+        }
         if (alleleIndices.size() > numAlleles0) {
             // this site is not canonical.
             makeSomatic = false;

@@ -364,6 +364,3 @@ public class FirstSimulationStrategy implements SimulationStrategy {
     }
 
 }
-
-
-

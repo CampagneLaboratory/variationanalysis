@@ -3,6 +3,10 @@ package org.campagnelab.dl.somatic.utils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelOutputHelper;
+import org.campagnelab.dl.somatic.learning.domains.SomaticFrequencyInterpreter;
+import org.campagnelab.dl.somatic.learning.domains.predictions.IsMutatedPrediction;
+import org.campagnelab.dl.somatic.learning.domains.predictions.IsSomaticMutationInterpreter;
+import org.campagnelab.dl.somatic.learning.domains.predictions.SomaticFrequencyPrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
@@ -17,10 +21,10 @@ import java.util.List;
  */
 public class ProtoPredictor {
 
-    public static final int POSITIVE_STRAND = 0;
-    public static final int NEGATIVE_STRAND = 1;
     public static final int POSITIVE_PROBABILITY_INDEX = 0;
     public static final int NEGATIVE_PROBABILITY_INDEX = 1;
+    private static final int PROBABILITY_OUTPUT_INDEX = 0;
+    private static final int SOMATIC_FREQUENCY_INDEX = 1;
     private Model model;
     private FeatureMapper mapper;
     private ModelOutputHelper outputHelper;
@@ -48,6 +52,8 @@ public class ProtoPredictor {
 
 
 
+    IsSomaticMutationInterpreter isSomatic=new IsSomaticMutationInterpreter();
+   SomaticFrequencyInterpreter somaticFrequency=new SomaticFrequencyInterpreter();
     public Prediction mutPrediction(BaseInformationRecords.BaseInformation record) {
         INDArray arrayPredicted = null;
         Prediction prediction = new Prediction();
@@ -63,11 +69,13 @@ public class ProtoPredictor {
 
         } else if (model instanceof ComputationGraph) {
             outputHelper.predictForNextRecord(model, record, mapper);
-            arrayPredicted = outputHelper.getOutput(0);
-            float[] probabilities = arrayPredicted.getRow(0).data().asFloat();
-            prediction.set(probabilities[POSITIVE_PROBABILITY_INDEX],
-                    probabilities[NEGATIVE_PROBABILITY_INDEX]);
-            prediction.setPredictedSomaticFrequency( outputHelper.getOutput(1).getFloat(0));
+
+            IsMutatedPrediction isSomaticPrediction= isSomatic.interpret(record,outputHelper.getOutput(PROBABILITY_OUTPUT_INDEX));
+            prediction.set((float) isSomaticPrediction.predictedLabelYes,
+                    (float) isSomaticPrediction.predictedLabelNo);
+            SomaticFrequencyPrediction somaticFrequencyPrediction=somaticFrequency.interpret(record,
+                    outputHelper.getOutput(SOMATIC_FREQUENCY_INDEX));
+            prediction.setPredictedSomaticFrequency( somaticFrequencyPrediction.predictedValue);
         }
 
 

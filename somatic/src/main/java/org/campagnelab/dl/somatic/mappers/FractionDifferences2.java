@@ -55,6 +55,12 @@ public class FractionDifferences2 extends AbstractFeatureMapper<BaseInformationR
         }
     }
 
+    @Override
+    public void maskFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray mask, int indexOfRecord) {
+
+    }
+
+
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         float producedFeat = produceFeatureInternal(record, featureIndex);
         return normalize(producedFeat, FRACTION_NORM);

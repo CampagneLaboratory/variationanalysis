@@ -344,6 +344,7 @@ public class Mutator2Test {
             "    isIndel: true\n" +
             "  }\n" +
             "  isTumor: true\n" +
+            "  formattedCounts: \"mutated (G) sample counts A=29 T=0 C=0 G=277 N=0 n/a indels:[526]\"\n" +
             "}\n"
             ,
             "reference_index: 18\n" +
