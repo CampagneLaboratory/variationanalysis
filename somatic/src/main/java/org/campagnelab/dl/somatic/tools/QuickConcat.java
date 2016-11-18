@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.compress.utils.IOUtils;
+import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.intermediaries.QuickConcatArguments;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
@@ -21,8 +22,7 @@ import java.util.Properties;
  * concatenates the bytes and add up the number of records.
  */
 public class QuickConcat extends AbstractTool<QuickConcatArguments> {
-    private QuickConcatArguments arguments;
-    static private Logger LOG = LoggerFactory.getLogger(QuickConcat.class);
+   static private Logger LOG = LoggerFactory.getLogger(QuickConcat.class);
 
     @Override
     public QuickConcatArguments createArguments() {
@@ -31,6 +31,7 @@ public class QuickConcat extends AbstractTool<QuickConcatArguments> {
 
     @Override
     public void execute() {
+
         performQuickConcat(arguments.inputFiles.toArray(new String[0]), arguments.outputFile);
 
     }
