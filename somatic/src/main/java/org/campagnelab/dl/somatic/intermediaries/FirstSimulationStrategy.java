@@ -3,7 +3,7 @@ package org.campagnelab.dl.somatic.intermediaries;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.util.XorShift1024StarRandom;
-import org.campagnelab.dl.somatic.tools.Mutator2;
+import org.campagnelab.dl.somatic.tools.Mutate;
 import org.campagnelab.dl.somatic.utils.ProtoPredictor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.predictions.ProtoHelper;
@@ -334,7 +334,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             somaticBuild.setCounts(i, countBuild);
             i++;
         }
-        somaticBuild.setFormattedCounts(Mutator2.regenerateFormattedCounts(somaticBuild, mutatedAllele));
+        somaticBuild.setFormattedCounts(Mutate.regenerateFormattedCounts(somaticBuild, mutatedAllele));
         baseBuild.setSamples(numSamples - 1, somaticBuild);
         baseBuild.setFrequencyOfMutation((float) frequency);
         // String newBaseString = newBase<STRING.length? STRING[newBase]:"N";

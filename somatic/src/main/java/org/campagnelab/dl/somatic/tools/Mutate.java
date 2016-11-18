@@ -27,10 +27,10 @@ import java.util.Random;
  *
  * @author Fabien Campagne
  */
-public class Mutator2 extends AbstractTool<Mutator2Arguments> {
+public class Mutate extends AbstractTool<Mutator2Arguments> {
     private static final int CHUNK_SIZE = 10000;
     private static final int NUM_SIMULATED_RECORD_PER_DATUM = 2;
-    static private Logger LOG = LoggerFactory.getLogger(Mutator2.class);
+    static private Logger LOG = LoggerFactory.getLogger(Mutate.class);
 
     final String[] STRING = new String[]{"A", "T", "C", "G"};
     Random rand;
@@ -45,13 +45,13 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
 
     public static void main(String[] args) {
 
-        Mutator2 m = new Mutator2(args);
+        Mutate m = new Mutate(args);
         m.parseArguments(args, "Mutate", m.createArguments());
         m.execute();
     }
 
 
-    public Mutator2(String[] args) {
+    public Mutate(String[] args) {
         setSeed(seed);
         this.parseArguments(args, "Mutator2", this.createArguments());
         strategy = createStrategy(args().strategyClassname);
