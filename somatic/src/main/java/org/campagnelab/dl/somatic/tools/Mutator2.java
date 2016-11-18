@@ -3,11 +3,9 @@ package org.campagnelab.dl.somatic.tools;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift1024StarRandom;
-import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.intermediaries.SimulationCharacteristics;
 import org.campagnelab.dl.somatic.intermediaries.SimulationStrategy;
-import org.campagnelab.dl.somatic.intermediaries.SimulationStrategyImpl;
 import org.campagnelab.dl.somatic.intermediaries.SimulationStrategyImplTrio;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.somatic.storage.RecordWriter;
@@ -20,8 +18,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
-
-import static java.lang.Class.forName;
 
 /**
  * The mutator object iterates over a file and creates additional copies of every record, where
