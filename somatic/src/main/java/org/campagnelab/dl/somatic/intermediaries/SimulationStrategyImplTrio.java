@@ -1,12 +1,10 @@
 package org.campagnelab.dl.somatic.intermediaries;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Collections;
-import java.util.Date;
 
 /**
  * Created by fac2003 on 7/19/16.
@@ -19,10 +17,16 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
         setSeed(seed);
     }
 
-    public SimulationStrategyImplTrio(double deltaSmall, double deltaBig, double zygHeuristic, long seed, double canonThreshold) {
-        this(seed);
+    public SimulationStrategyImplTrio() {
+
+    }
+
+    @Override
+    public void setup(double deltaSmall, double deltaBig, double zygHeuristic, long seed, double canonThreshold) {
+        setSeed(seed);
         this.canonThreshold = canonThreshold;
-        firstSimulationStrategy = new FirstSimulationStrategy(deltaSmall, deltaBig, zygHeuristic, seed);
+        firstSimulationStrategy = new FirstSimulationStrategy();
+        firstSimulationStrategy.setup(deltaSmall, deltaBig, zygHeuristic, seed,0);
     }
 
     FirstSimulationStrategy firstSimulationStrategy;
@@ -78,6 +82,7 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
         return firstSimulationStrategy.mutate(makeSomatic, record, null, null, null);
 
     }
+
 
     public static boolean isMendelian(int child1, int child2, int father1, int father2, int mother1, int mother2) {
         boolean firstFromFather = ((child1 == father1) || (child1 == father2)) && ((child2 == mother1) || (child2 == mother2));

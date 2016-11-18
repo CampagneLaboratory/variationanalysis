@@ -12,5 +12,7 @@ public interface SimulationStrategy {
                                                   BaseInformationRecords.SampleInfo germlineSample,
                                                   BaseInformationRecords.SampleInfo otherSample, SimulationCharacteristics sim);
 
+    void setup(double deltaSmall, double deltaBig, double zygHeuristic, long seed, double canonThreshold);
+
     void setSeed(long seed);
 }
