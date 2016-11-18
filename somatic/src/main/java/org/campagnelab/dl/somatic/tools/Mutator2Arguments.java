@@ -3,6 +3,7 @@ package org.campagnelab.dl.somatic.tools;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
+import org.campagnelab.dl.somatic.intermediaries.TwoSampleCanonicalSimulationStrategy;
 
 import java.util.List;
 
@@ -22,7 +23,9 @@ public class Mutator2Arguments implements ToolArguments {
     @Parameter(required = false, names = {"-f", "--zygosity-floor"}, description = "Fraction of total counts the base with the second-most counts must have for the record to be considered heterozygous")
     public Float heteroHeuristic = 0.1f;
 
-    @Parameter(required = true, names = {"-o", "--output-file"}, description = "Path to output file")
+    @Parameter(required = true, names = {"-o", "--output-file"}, description = "Path to output file.")
     public String outputFile;
 
+    @Parameter(required = true, names = {"-s", "--strategy"}, description = "Strategy classname.")
+    public String strategyClassname= TwoSampleCanonicalSimulationStrategy.class.getCanonicalName();
 }

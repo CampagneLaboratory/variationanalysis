@@ -19,14 +19,22 @@ import java.util.Random;
 public class FirstSimulationStrategy implements SimulationStrategy {
     long seed;
 
-
     public FirstSimulationStrategy(double deltaSmall, double deltaBig, double zygHeuristic, long seed) {
+        setup(deltaSmall, deltaBig, zygHeuristic, seed, 0);
+    }
+
+    @Override
+    public void setup(double deltaSmall, double deltaBig, double zygHeuristic, long seed, double canonThreshold) {
         this.seed = seed;
         rand = new XorShift1024StarRandom(seed);
 
         this.deltaSmall = deltaSmall;
         this.deltaBig = deltaBig;
         this.zygHeuristic = zygHeuristic;
+    }
+
+    public FirstSimulationStrategy() {
+
     }
 
 

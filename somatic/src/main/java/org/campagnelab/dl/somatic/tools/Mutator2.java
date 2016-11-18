@@ -3,6 +3,7 @@ package org.campagnelab.dl.somatic.tools;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift1024StarRandom;
+import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.intermediaries.SimulationCharacteristics;
 import org.campagnelab.dl.somatic.intermediaries.SimulationStrategy;
@@ -19,6 +20,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
+
+import static java.lang.Class.forName;
 
 /**
  * The mutator object iterates over a file and creates additional copies of every record, where
@@ -45,26 +48,29 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
     final double deltaBig = 1.0;
     final int seed = 2323;
     final int seed2 = 2348999;
-    public static void main(String[] args) throws IOException {
 
+    public static void main(String[] args) {
 
-
-        //new ParquetPrinter(args[0]).print();
-//        if (args.length < 2) {
-//            System.err.println("usage: input.sbi mutated-randomized-filename");
-//            System.exit(1);
-//        }
         Mutator2 m = new Mutator2(args);
+        m.parseArguments(args, "Mutate", m.createArguments());
         m.execute();
-        //  new ParquetPrinter(args[2]).print();
-
-        System.out.println("Fraction of non-canonical:" + ((float)1-((float)m.numCanonical/(float)m.numRecordsTotal)));
     }
 
-    public Mutator2(String [] args) {
+
+
+    public Mutator2(String[] args) {
         setSeed(seed);
         this.parseArguments(args, "Mutator2", this.createArguments());
-        strategy = new SimulationStrategyImpl(deltaSmall,deltaBig,args().heteroHeuristic,seed2,args().canonThreshold);
+        strategy = createStrategy(args().strategyClassname);
+        strategy.setup(deltaSmall, deltaBig, args().heteroHeuristic, seed2, args().canonThreshold);
+    }
+
+    private SimulationStrategy createStrategy(String strategyClassname) {
+       try {
+          return (SimulationStrategy) Class.forName(strategyClassname).newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to create strategy with classname: " + strategyClassname);
+        }
     }
 
     public void setSeed(int seed) {
@@ -114,6 +120,7 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
             pgReadWrite.stop();
             reader.close();
             writer.close();
+            System.out.println("Fraction of non-canonical:" + ((float) 1 - ((float) numCanonical / (float) numRecordsTotal)));
         } catch (IOException e) {
             System.err.println("Unable to load or write files. Check command line arguments.");
         }
@@ -130,8 +137,9 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
         ObjectArrayList<BaseInformationRecords.BaseInformation> shufflingList = new ObjectArrayList<>();
         while (iterator.hasNext()) {
             BaseInformationRecords.BaseInformation record = iterator.next();
-            if (trioUnchecked && record.getSamplesCount() > 2){
-                strategy = new SimulationStrategyImplTrio(deltaSmall, deltaBig, args().heteroHeuristic, seed2, args().canonThreshold);
+            if (trioUnchecked && record.getSamplesCount() > 2) {
+                strategy = new SimulationStrategyImplTrio();
+                strategy.setup(deltaSmall, deltaBig, args().heteroHeuristic, seed2, args().canonThreshold);
                 trioUnchecked = false;
             }
             shufflingList.add(strategy.mutate(false, record, record.getSamples(0), record.getSamples(1), sim));
@@ -141,7 +149,7 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
                 BaseInformationRecords.BaseInformation possiblyMutated = strategy.mutate(true, record, record.getSamples(0), record.getSamples(1), sim);
                 if (possiblyMutated.getMutated()) {
                     shufflingList.add(possiblyMutated);
-                    if (i==0){
+                    if (i == 0) {
                         numCanonical++;
                     }
                 } else {
@@ -180,10 +188,10 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
         }
         int numIndels = sample.getCountsCount() - 5;
         int[] indels = new int[numIndels];
-        for (int i = 5; i < numIndels + 5 ; i++) {
-            indels[i-5] = sample.getCounts(i).getGenotypeCountForwardStrand() + sample.getCounts(i).getGenotypeCountReverseStrand();
+        for (int i = 5; i < numIndels + 5; i++) {
+            indels[i - 5] = sample.getCounts(i).getGenotypeCountForwardStrand() + sample.getCounts(i).getGenotypeCountReverseStrand();
         }
-        return String.format("mutated (%s) sample counts A=%d T=%d C=%d G=%d N=%d %s indels:%s",mutatedAllele,a,t,c,g,n,fb, Arrays.toString(indels));
+        return String.format("mutated (%s) sample counts A=%d T=%d C=%d G=%d N=%d %s indels:%s", mutatedAllele, a, t, c, g, n, fb, Arrays.toString(indels));
     }
 
 

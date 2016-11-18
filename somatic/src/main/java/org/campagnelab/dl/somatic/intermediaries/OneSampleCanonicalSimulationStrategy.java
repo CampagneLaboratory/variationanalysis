@@ -1,18 +1,16 @@
 package org.campagnelab.dl.somatic.intermediaries;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntArraySet;
-import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Collections;
-import java.util.Date;
 
 /**
+ * A strategy that only considers the germline sample to determine if the site is canonical.
  * Created by fac2003 on 7/19/16.
  */
-public class SimulationStrategyImpl implements SimulationStrategy {
+public class OneSampleCanonicalSimulationStrategy implements SimulationStrategy {
     private XorShift1024StarRandom randomGenerator;
     private double canonThreshold;
 
@@ -23,14 +21,17 @@ public class SimulationStrategyImpl implements SimulationStrategy {
     IntArrayList sortingPermutationGenotypeCounts0 = new IntArrayList();
     IntArrayList sortingPermutationGenotypeCounts1 = new IntArrayList();
 
-    public SimulationStrategyImpl(double deltaSmall, double deltaBig, double zygHeuristic, long seed, double canonThreshold) {
+    public OneSampleCanonicalSimulationStrategy() {
 
-        this.canonThreshold = canonThreshold;
-        firstSimulationStrategy = new FirstSimulationStrategy(deltaSmall, deltaBig, zygHeuristic, seed);
-        setSeed(seed);
     }
 
-
+    @Override
+    public void setup(double deltaSmall, double deltaBig, double zygHeuristic, long seed, double canonThreshold) {
+        firstSimulationStrategy = new FirstSimulationStrategy();
+        firstSimulationStrategy.setup(deltaSmall, deltaBig, zygHeuristic, seed, 0);
+        this.canonThreshold = canonThreshold;
+        setSeed(seed);
+    }
 
     @Override
     public BaseInformationRecords.BaseInformation mutate(boolean makeSomatic,
@@ -38,37 +39,27 @@ public class SimulationStrategyImpl implements SimulationStrategy {
                                                          BaseInformationRecords.SampleInfo germlineSample,
                                                          BaseInformationRecords.SampleInfo otherSample,
                                                          SimulationCharacteristics sim) {
+
         int sumCount0 = getSumCounts(germlineSample, genotypeCounts0);
         int sumCount1 = getSumCounts(otherSample, genotypeCounts1);
         prepareSorted(genotypeCounts0, sortingPermutationGenotypeCounts0);
         prepareSorted(genotypeCounts1, sortingPermutationGenotypeCounts1);
-        int numAlleles0 = sumGenotype90P(sumCount0, genotypeCounts0, sortingPermutationGenotypeCounts0);
-        int numAlleles1 = sumGenotype90P(sumCount1, genotypeCounts1, sortingPermutationGenotypeCounts1);
-        if (numAlleles0 != numAlleles1 || numAlleles0 > 2) {
-            // we won't make this somatic because the site is not like the germline site we expect.
+        int numAllelesGermline = sumGenotype90P(sumCount0, genotypeCounts0, sortingPermutationGenotypeCounts0);
+
+        if (numAllelesGermline > 2) {
+
+            // we won't make this somatic because the the germline sample is not diploid.
             // by not making a somatic variant we will prevent the model learning that such sites are valid predictions.
             makeSomatic = false;
         }
-        //find unique allele indices to make sure there aren't too many
-        IntArraySet alleleIndices = new IntArraySet();
-        alleleIndices.add(sortingPermutationGenotypeCounts0.getInt(0));
-        alleleIndices.add(sortingPermutationGenotypeCounts1.getInt(0));
-        //heterozygous case
-        if (numAlleles0 > 1){
-            alleleIndices.add(sortingPermutationGenotypeCounts0.getInt(1));
-            alleleIndices.add(sortingPermutationGenotypeCounts1.getInt(1));
 
-        }
-        if (alleleIndices.size() > numAlleles0) {
-            // this site is not canonical.
-            makeSomatic = false;
-        }
         return firstSimulationStrategy.mutate(makeSomatic, record, germlineSample, otherSample, null);
     }
 
+
     @Override
     public void setSeed(long seed) {
-        randomGenerator=new XorShift1024StarRandom(seed);
+        randomGenerator = new XorShift1024StarRandom(seed);
         firstSimulationStrategy.setSeed(seed);
     }
 

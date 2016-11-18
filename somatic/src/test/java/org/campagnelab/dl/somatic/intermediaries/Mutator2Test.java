@@ -19,7 +19,7 @@ public class Mutator2Test {
     public void mutateTest() throws Exception {
         int index = 0;
         for (String record : records) {
-            SimulationStrategy strategy = new SimulationStrategyImpl(0,1,0.1,1,0.9);
+            SimulationStrategy strategy = new TwoSampleCanonicalSimulationStrategy(0,1,0.1,1,0.9);
             strategy.setSeed(1);
 
             final BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
