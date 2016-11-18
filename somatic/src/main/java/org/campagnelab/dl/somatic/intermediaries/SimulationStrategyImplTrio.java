@@ -39,6 +39,11 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
     IntArrayList sortingPermutationGenotypeCounts2 = new IntArrayList();
 
     @Override
+    public int numberOfSamplesSupported() {
+        return 3;
+    }
+
+    @Override
     public BaseInformationRecords.BaseInformation mutate(boolean makeSomatic,
                                                          BaseInformationRecords.BaseInformation record,
                                                          BaseInformationRecords.SampleInfo unused1,
@@ -69,7 +74,6 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
         int father1 = sortingPermutationGenotypeCounts1.getInt(0);
         int father2 = (numAlleles1 > 1) ? sortingPermutationGenotypeCounts1.getInt(1) : father1;
         int mother1 = sortingPermutationGenotypeCounts2.getInt(0);
-        ;
         int mother2 = (numAlleles2 > 1) ? sortingPermutationGenotypeCounts2.getInt(1) : mother1;
 
         //first, check that germline/child doesn't have too many alleles (or is not designated for mutation). if not, then

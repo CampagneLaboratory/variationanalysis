@@ -143,6 +143,11 @@ public class FirstSimulationStrategy implements SimulationStrategy {
     }
 
     @Override
+    public int numberOfSamplesSupported() {
+        return 2;
+    }
+
+    @Override
     public BaseInformationRecords.BaseInformation mutate(boolean makeSomatic,
                                                          BaseInformationRecords.BaseInformation record,
                                                          BaseInformationRecords.SampleInfo germlineSample,
