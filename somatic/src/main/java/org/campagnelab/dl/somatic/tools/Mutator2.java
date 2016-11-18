@@ -6,7 +6,6 @@ import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.intermediaries.SimulationCharacteristics;
 import org.campagnelab.dl.somatic.intermediaries.SimulationStrategy;
-import org.campagnelab.dl.somatic.intermediaries.SimulationStrategyImplTrio;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.somatic.storage.RecordWriter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -37,7 +36,6 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
     Random rand;
     final boolean MUTATE = true;
     SimulationStrategy strategy;
-    boolean trioUnchecked = true;
     int numCanonical = 0;
     int numRecordsTotal = 0;
     final double deltaSmall = 0.0;
@@ -53,7 +51,6 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
     }
 
 
-
     public Mutator2(String[] args) {
         setSeed(seed);
         this.parseArguments(args, "Mutator2", this.createArguments());
@@ -62,8 +59,8 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
     }
 
     private SimulationStrategy createStrategy(String strategyClassname) {
-       try {
-          return (SimulationStrategy) Class.forName(strategyClassname).newInstance();
+        try {
+            return (SimulationStrategy) Class.forName(strategyClassname).newInstance();
         } catch (Exception e) {
             throw new RuntimeException("Unable to create strategy with classname: " + strategyClassname);
         }
@@ -133,10 +130,11 @@ public class Mutator2 extends AbstractTool<Mutator2Arguments> {
         ObjectArrayList<BaseInformationRecords.BaseInformation> shufflingList = new ObjectArrayList<>();
         while (iterator.hasNext()) {
             BaseInformationRecords.BaseInformation record = iterator.next();
-            if (trioUnchecked && record.getSamplesCount() > 2) {
-                strategy = new SimulationStrategyImplTrio();
-                strategy.setup(deltaSmall, deltaBig, args().heteroHeuristic, seed2, args().canonThreshold);
-                trioUnchecked = false;
+            if (strategy.numberOfSamplesSupported() != record.getSamplesCount()) {
+                System.err.printf("The strategy selected supports %d samples but the .sbi file contains %d records.",
+                        strategy.numberOfSamplesSupported(),
+                        record.getSamplesCount());
+                System.exit(1);
             }
             shufflingList.add(strategy.mutate(false, record, record.getSamples(0), record.getSamples(1), sim));
             numRecordsTotal++;
