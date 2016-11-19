@@ -53,7 +53,16 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         int oldBase;
         int newBase;
         double delta;
-        double frequency;
+        /**
+         * The frequency of mutation for the source allele. Can be different from somaticFrequency when two alleles or
+         * more.
+         */
+        double somaticFrequency;
+
+        @Override
+        public String toString() {
+            return String.format("%d>%d delta=%f somaticFrequency=%f",oldBase,newBase,delta,somaticFrequency);
+        }
 
         /**
          * creates a mutationDirection object which defines where reads will be moved from,to, and how many
@@ -67,20 +76,25 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             this.oldBase = oldBase;
             this.newBase = newBase;
             this.delta = delta;
-            this.frequency = frequency;
+            this.somaticFrequency = frequency;
         }
     }
 
+    /**
+     *
+     * @param counts arrays of counts, in genotype order.
+     * @return
+     */
     mutationDirection dirFromCounts(int[] counts) {
         int numGenos = counts.length;
         int maxCount = 0;
         int secondMostCount = 0;
         int maxCountIdx = -1;
         int secondMostCountIdx = -1;
-        int numCounts = 0;
+        int totalNumCounts = 0;
         //find highest count idx, second highest count idx, and record number of counts
         for (int i = 0; i < numGenos; i++) {
-            numCounts += counts[i];
+            totalNumCounts += counts[i];
             if (counts[i] > maxCount) {
                 secondMostCountIdx = maxCountIdx;
                 secondMostCount = maxCount;
@@ -101,12 +115,16 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             monozygotic = true;
         } else {
             //see if base with second most reads exceeds heuristic
-            monozygotic = (zygHeuristic * numCounts > counts[secondMostCountIdx]);
+            monozygotic = (zygHeuristic * totalNumCounts > counts[secondMostCountIdx]);
         }
         //make rand generator and generate proportion mutating bases
-        //generate mutation rate
+        //generate mutation rate for the source allele.
         double delta = deltaSmall + ((deltaBig - deltaSmall) * rand.nextDouble());
-        double deltaOrig = delta;
+
+        // now determine what overall somatic frequency this represents (percentage of cells with the somatic variation)
+        // assume alleles samples from cells randomly. Somatic frequency is delta weighted by the proportion of alleles
+        // in the source sample:
+        double somaticFrequency = delta*maxCount/totalNumCounts;
         int newBase = -1;
         int oldBase;
         int otherAlleleBase = -1;
@@ -115,7 +133,8 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             oldBase = maxCountIdx;
             //generate from non-max bases uniformly
 
-            //only one allele mutates, so halve delta when monozygotic
+            // monozygotic site: somatic mutation likely to mutate only one of the two alleles, so we halve delta
+            // to simulate this:
             delta = delta / 2;
             while (!allowed) {
                 newBase = rand.nextInt(numGenos);
@@ -139,7 +158,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             }
 
         }
-        return new mutationDirection(oldBase, newBase, delta, deltaOrig);
+        return new mutationDirection(oldBase, newBase, delta, somaticFrequency);
     }
 
     @Override
@@ -188,7 +207,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         final int oldBase = dir.oldBase;
         final int newBase = dir.newBase;
         final double delta = dir.delta;
-        final double frequency = dir.frequency;
+        final double frequency = dir.somaticFrequency;
 
         int fMutCount = 0;
         int oldCount = forward[oldBase];
