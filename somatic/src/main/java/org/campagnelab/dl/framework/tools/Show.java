@@ -43,7 +43,7 @@ public abstract class Show<RecordType, Args extends ShowArguments> extends Abstr
         int index = 0;
         int selectedIndex = -1;
 
-        Function<RecordType, String> converter = getConverter(args().reportType);
+        Function<RecordType, String> converter = getConverter(args().reportType.toUpperCase());
         Iterable input = domainDescriptor().getRecordIterable().apply(args().datasetFilename);
         Iterator<RecordType> reader = input.iterator();
         while (reader.hasNext()) {

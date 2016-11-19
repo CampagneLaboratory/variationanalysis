@@ -19,7 +19,10 @@ public class SomaticShowArguments extends ShowArguments {
         switch (SomaticShowReportTypes.valueOf(reportType)) {
             case PROTOBUFF:
                 return showProtobuff;
-
+            case COUNTS:
+                return showFormattedCounts;
+            case FREQ_COUNTS:
+                return showFreqFormattedCounts;
             case POSITIONS:
             default:
                 return showPositions;
@@ -28,9 +31,31 @@ public class SomaticShowArguments extends ShowArguments {
 
     public enum SomaticShowReportTypes {
         PROTOBUFF,
-        POSITIONS
+        POSITIONS,
+        COUNTS,
+        FREQ_COUNTS
     }
 
+    Function<BaseInformationRecords.BaseInformation, String> showFormattedCounts = new Function<BaseInformationRecords.BaseInformation, String>() {
+        @Override
+        public String apply(BaseInformationRecords.BaseInformation record) {
+            StringBuffer formattedCounts=new StringBuffer();
+            for (BaseInformationRecords.SampleInfo sample: record.getSamplesList()) {
+                formattedCounts.append(sample.getFormattedCounts()+"\t");
+            }
+            return formattedCounts.toString();
+        }
+    };
+    Function<BaseInformationRecords.BaseInformation, String> showFreqFormattedCounts = new Function<BaseInformationRecords.BaseInformation, String>() {
+        @Override
+        public String apply(BaseInformationRecords.BaseInformation record) {
+            StringBuffer formattedCounts=new StringBuffer();
+            for (BaseInformationRecords.SampleInfo sample: record.getSamplesList()) {
+                formattedCounts.append(sample.getFormattedCounts()+"\t");
+            }
+            return formattedCounts.toString()+Float.toString(record.getFrequencyOfMutation());
+        }
+    };
     Function<BaseInformationRecords.BaseInformation, String> showPositions = new Function<BaseInformationRecords.BaseInformation, String>() {
         @Override
         public String apply(BaseInformationRecords.BaseInformation baseInformation) {
