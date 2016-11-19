@@ -251,7 +251,7 @@ public class Mutator2Test {
             "mutated: true\n" +
             "mutatedBase: \"G\"\n" +
             "referenceBase: \"A\"\n" +
-            "frequencyOfMutation: 0.7020648\n" +
+            "frequencyOfMutation: 0.6750623\n" +
             "indexOfMutatedBase: 3\n" +
             "samples {\n" +
             "  counts {\n" +
