@@ -61,7 +61,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         @Override
         public String toString() {
-            return String.format("%d>%d delta=%f somaticFrequency=%f",oldBase,newBase,delta,somaticFrequency);
+            return String.format("%d>%d delta=%f somaticFrequency=%f", oldBase, newBase, delta, somaticFrequency);
         }
 
         /**
@@ -81,7 +81,6 @@ public class FirstSimulationStrategy implements SimulationStrategy {
     }
 
     /**
-     *
      * @param counts arrays of counts, in genotype order.
      * @return
      */
@@ -129,9 +128,15 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             oldBase = maxCountIdx;
             //generate from non-max bases uniformly
 
-            // monozygotic site: somatic mutation likely to mutate only one of the two alleles, so we halve delta
+            // homozygote site: somatic mutation likely to mutate only one of the two alleles, so we halve delta
             // to simulate this:
-            delta = delta / 2;
+            if (rand.nextDouble() > 0.01) {
+                // Most of the time, we follow the rule. Sometimes we don't because two mutations in the same site can occur,
+                // albeit rarely (we don't know the exact frequency).
+                // If we did not allow this at all, the model could never see any examples of the rare case, likely causing odd
+                // behavior when a rare case shows up.
+                delta = delta / 2;
+            }
             while (!allowed) {
                 newBase = rand.nextInt(numGenos);
                 allowed = true;
@@ -154,10 +159,8 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             }
 
         }
-        // now determine what overall somatic frequency this represents (percentage of cells with the somatic variation)
-        // assume alleles samples from cells randomly. Somatic frequency is delta weighted by the proportion of alleles
-        // in the source sample:
-        double somaticFrequency = delta*maxCount/totalNumCounts;
+
+        double somaticFrequency = delta;
 
         return new mutationDirection(oldBase, newBase, delta, somaticFrequency);
     }
@@ -208,25 +211,35 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         final int oldBase = dir.oldBase;
         final int newBase = dir.newBase;
         final double delta = dir.delta;
-        final double frequency = dir.somaticFrequency;
+        double frequency = dir.somaticFrequency;
+        int changedCount = 0;
+        int germlineCount = 0;
+        int sumCount = 0;
 
         int fMutCount = 0;
         int oldCount = forward[oldBase];
+        sumCount += oldCount;
         for (i = 0; i < oldCount; i++) {
             if (rand.nextDouble() < delta) {
                 forward[oldBase]--;
                 forward[newBase]++;
                 fMutCount++;
-
+                changedCount++;
+            } else {
+                germlineCount++;
             }
         }
         int bMutCount = 0;
         oldCount = backward[oldBase];
+        sumCount += oldCount;
         for (i = 0; i < oldCount; i++) {
             if (rand.nextDouble() < delta) {
                 backward[oldBase]--;
                 backward[newBase]++;
                 bMutCount++;
+                changedCount++;
+            } else {
+                germlineCount++;
             }
         }
         //write to respective builders and return rebuild
@@ -357,6 +370,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         somaticBuild.setFormattedCounts(Mutate.regenerateFormattedCounts(somaticBuild, mutatedAllele));
         baseBuild.setSamples(numSamples - 1, somaticBuild);
         baseBuild.setFrequencyOfMutation((float) frequency);
+        //   System.out.printf("delta=%f somaticFreq=%f oldCount=%d%n", delta, frequency, sumCount);
         // String newBaseString = newBase<STRING.length? STRING[newBase]:"N";
         //baseBuild.setMutatedBase(newBaseString);
         baseBuild.setIndexOfMutatedBase(newBase);

@@ -52,10 +52,10 @@ public class Mutate extends AbstractTool<Mutator2Arguments> {
 
 
     public Mutate(String[] args) {
-        setSeed(seed);
+
         this.parseArguments(args, "Mutator2", this.createArguments());
         strategy = createStrategy(args().strategyClassname);
-        strategy.setup(deltaSmall, deltaBig, args().heteroHeuristic, seed2, args().canonThreshold);
+        strategy.setup(deltaSmall, deltaBig, args().heteroHeuristic, args().seed, args().canonThreshold);
     }
 
     private SimulationStrategy createStrategy(String strategyClassname) {
@@ -66,10 +66,6 @@ public class Mutate extends AbstractTool<Mutator2Arguments> {
         }
     }
 
-    public void setSeed(int seed) {
-
-        rand = new XorShift1024StarRandom(seed);
-    }
 
     //deprectated method should not be used, arguments obatined from jcommander
 //    public Mutator2(int deltaSmall, int deltaBig, int zygHeuristic) {
@@ -151,7 +147,7 @@ public class Mutate extends AbstractTool<Mutator2Arguments> {
                 }
             }
         }
-        Collections.shuffle(shufflingList);
+    //    Collections.shuffle(shufflingList);
         double numMutated = 0;
         for (BaseInformationRecords.BaseInformation record : shufflingList) {
 
