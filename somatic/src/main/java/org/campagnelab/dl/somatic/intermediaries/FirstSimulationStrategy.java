@@ -121,10 +121,6 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         //generate mutation rate for the source allele.
         double delta = deltaSmall + ((deltaBig - deltaSmall) * rand.nextDouble());
 
-        // now determine what overall somatic frequency this represents (percentage of cells with the somatic variation)
-        // assume alleles samples from cells randomly. Somatic frequency is delta weighted by the proportion of alleles
-        // in the source sample:
-        double somaticFrequency = delta*maxCount/totalNumCounts;
         int newBase = -1;
         int oldBase;
         int otherAlleleBase = -1;
@@ -158,6 +154,11 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             }
 
         }
+        // now determine what overall somatic frequency this represents (percentage of cells with the somatic variation)
+        // assume alleles samples from cells randomly. Somatic frequency is delta weighted by the proportion of alleles
+        // in the source sample:
+        double somaticFrequency = delta*maxCount/totalNumCounts;
+
         return new mutationDirection(oldBase, newBase, delta, somaticFrequency);
     }
 
