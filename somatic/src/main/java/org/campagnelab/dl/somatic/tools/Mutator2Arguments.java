@@ -3,6 +3,7 @@ package org.campagnelab.dl.somatic.tools;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
+import org.campagnelab.dl.somatic.intermediaries.OneSampleCanonicalSimulationStrategy;
 import org.campagnelab.dl.somatic.intermediaries.TwoSampleCanonicalSimulationStrategy;
 
 import java.util.List;
@@ -27,5 +28,8 @@ public class Mutator2Arguments implements ToolArguments {
     public String outputFile;
 
     @Parameter(required = true, names = {"-s", "--strategy"}, description = "Strategy classname.")
-    public String strategyClassname= TwoSampleCanonicalSimulationStrategy.class.getCanonicalName();
+    public String strategyClassname= OneSampleCanonicalSimulationStrategy.class.getCanonicalName();
+
+    @Parameter( names = { "--random-seed"}, description = "Random seed.")
+    public long seed= 2398823;
 }
