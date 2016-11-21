@@ -5,7 +5,7 @@ import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 
 /**
- * Maps base information to features for maching learning with neural nets.
+ * Maps base information to features for machine learning with neural nets.
  * Created by fac2003 on 5/21/16.
  *
  * @author Fabien Campagne
