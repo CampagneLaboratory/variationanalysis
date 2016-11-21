@@ -14,6 +14,9 @@ public class SomaticTrainingArguments extends TrainingArguments {
     @Parameter(names = "--auc-clip-max-observations", description = "The maximum number of observations to sample when evaluating the AUC. ")
     public int aucClipMaxObservations = 10000;
 
+    @Parameter(names = "--early-stopping-measure", description = "Name of the measure to monitor to stop early stopping. One of score or AUC.")
+    public String earlyStoppingMeasureName="AUC";
+
     @Override
     protected String defaultArchitectureClassname() {
         return SixDenseLayersNarrower2.class.getCanonicalName();
