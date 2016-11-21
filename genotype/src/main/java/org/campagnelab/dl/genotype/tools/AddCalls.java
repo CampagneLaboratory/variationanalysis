@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.tools;
+package org.campagnelab.dl.genotype.tools;
 
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * The randomizer object iterates over a parquet file and randomizes the order of records in batches.
+ * The addcalls object uses a map to create a new protobuf file with genotype calls.
  * <p>
  * Created by rct66 on 5/18/16.
  *

@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.tools;
+package org.campagnelab.dl.genotype.tools;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
