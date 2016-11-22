@@ -8,7 +8,6 @@ import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssemb
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.glassfish.jersey.internal.util.Producer;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -19,6 +18,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -192,8 +192,8 @@ public abstract class DomainDescriptor<RecordType> {
         return getShape(size, () -> getNumMaskOutputs(outputName));
     }
 
-    public int[] getShape(int size, Producer<int[]> p) {
-        int[] numInputs = p.call();
+    public int[] getShape(int size, Supplier<int[]> p) {
+        int[] numInputs = p.get();
         assert numInputs.length <= 2;
         switch (numInputs.length) {
             case 1:
