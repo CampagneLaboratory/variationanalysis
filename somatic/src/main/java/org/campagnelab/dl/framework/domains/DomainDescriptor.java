@@ -90,6 +90,22 @@ public abstract class DomainDescriptor<RecordType> {
     public abstract int[] getNumOutputs(String outputName);
 
     /**
+     * Return the number of inputs to a computational graph for masking.
+     *
+     * @param inputName input of the computational graph
+     * @return the number of input elements that need masking. Should be a 1D array.
+     */
+    public abstract int[] getNumMaskInputs(String inputName);
+
+    /**
+     * Return the number of outputs from a computational graph for masking.
+     *
+     * @param outputName output of the computational graph
+     * @return the number of output elements that need masking. Should be a 1D array.
+     */
+    public abstract int[] getNumMaskOutputs(String outputName);
+
+    /**
      * Return the number of hidden nodes for a component of the graph. The number will be used to configure the graph.
      * The number may vary
      *
@@ -166,6 +182,14 @@ public abstract class DomainDescriptor<RecordType> {
 
     public int[] getLabelShape(int size, String outputName) {
         return getShape(size, () -> getNumOutputs(outputName));
+    }
+
+    public int[] getInputMaskShape(int size, String inputName) {
+        return getShape(size, () -> getNumMaskInputs(inputName));
+    }
+
+    public int[] getLabelMaskShape(int size, String outputName) {
+        return getShape(size, () -> getNumMaskOutputs(outputName));
     }
 
     public int[] getShape(int size, Producer<int[]> p) {
