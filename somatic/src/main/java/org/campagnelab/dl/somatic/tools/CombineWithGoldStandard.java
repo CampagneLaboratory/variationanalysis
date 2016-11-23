@@ -34,6 +34,11 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
 
     static private Logger LOG = LoggerFactory.getLogger(CombineWithGoldStandard.class);
 
+    public static void main(String[] args) {
+        CombineWithGoldStandard tool=new CombineWithGoldStandard();
+        tool.parseArguments(args, "CombineWithGoldStandardArguments", tool.createArguments());
+        tool.execute();
+    }
     @Override
     public void execute() {
         loadAnnotations(args().annotationFilename);
