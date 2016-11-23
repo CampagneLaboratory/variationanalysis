@@ -63,11 +63,14 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
             for (BaseInformationRecords.BaseInformation record : reader) {
                 record = annotate(record);
                 double choice = rand.nextDouble();
-                if (choice < args().samplingFraction || record.hasMutatedBase()) {
+                if (choice < args().samplingFraction || record.getMutated()) {
                     outputWriters.writeRecord(record);
                     numWritten += 1;
-                    if (record.hasMutatedBase()) {
+                    if (record.getMutated()) {
                         numMutatedWritten++;
+                        System.out.printf("%s:%d\n\tnormal: %s\ttumor:  %s %n",record.getReferenceId(), record.getPosition(),
+                                record.getSamples(0).getFormattedCounts(),
+                                record.getSamples(1).getFormattedCounts());
                     }
                 }
                 pgRead.lightUpdate();
@@ -89,9 +92,12 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
             for (MutableString line : lines.allLines()) {
                 String tokens[] = line.toString().split("\t");
                 final String chromosome = tokens[0];
-                final int position = Integer.parseInt(tokens[1]);
+                int position = Integer.parseInt(tokens[1]);
+                // convert to zero-based position used by goby/variationanalysis:
+                position-=1;
                 Int2BooleanAVLTreeMap positions = annotations.getOrDefault(chromosome, new Int2BooleanAVLTreeMap());
                 positions.put(position, true);
+                annotations.put(chromosome,positions);
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Unable to find annotation filename:" + annotationFilename, e);
