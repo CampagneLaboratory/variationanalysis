@@ -2,7 +2,6 @@ package org.campagnelab.dl.somatic.tools;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
-import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.intermediaries.SimulationCharacteristics;
 import org.campagnelab.dl.somatic.intermediaries.SimulationStrategy;
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -27,7 +25,7 @@ import java.util.Random;
  *
  * @author Fabien Campagne
  */
-public class Mutate extends AbstractTool<Mutator2Arguments> {
+public class Mutate extends AbstractTool<MutateArguments> {
     private static final int CHUNK_SIZE = 10000;
     private static final int NUM_SIMULATED_RECORD_PER_DATUM = 2;
     static private Logger LOG = LoggerFactory.getLogger(Mutate.class);
@@ -132,10 +130,10 @@ public class Mutate extends AbstractTool<Mutator2Arguments> {
                         record.getSamplesCount());
                 System.exit(1);
             }
-            shufflingList.add(strategy.mutate(false, record, record.getSamples(0), record.getSamples(1), sim));
+            shufflingList.add(strategy.mutate( false, record, record.getSamples(0), record.getSamples(1), sim));
             numRecordsTotal++;
 
-            for (int i = 0; i < NUM_SIMULATED_RECORD_PER_DATUM; i++) {
+            for (int i = 0; i < args().k; i++) {
                 BaseInformationRecords.BaseInformation possiblyMutated = strategy.mutate(true, record, record.getSamples(0), record.getSamples(1), sim);
                 if (possiblyMutated.getMutated()) {
                     shufflingList.add(possiblyMutated);
@@ -160,8 +158,8 @@ public class Mutate extends AbstractTool<Mutator2Arguments> {
     }
 
     @Override
-    public Mutator2Arguments createArguments() {
-        return new Mutator2Arguments();
+    public MutateArguments createArguments() {
+        return new MutateArguments();
     }
 
     public static String regenerateFormattedCounts(BaseInformationRecords.SampleInfoOrBuilder sample, String mutatedAllele) {
