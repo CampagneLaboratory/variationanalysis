@@ -6,7 +6,7 @@ import org.campagnelab.dl.somatic.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.somatic.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.somatic.utils.ProtoPredictor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.dl.framework.mappers.OneHotBaseMapper;
+import org.campagnelab.dl.framework.mappers.OneHotBaseFeatureMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Properties;
@@ -30,9 +30,9 @@ public class GenomicContextMapper extends AbstractFeatureMapper<BaseInformationR
     }
 
     public GenomicContextMapper(int contextSize) {
-        OneHotBaseMapper<BaseInformationRecords.BaseInformationOrBuilder>[] refContext = new OneHotBaseMapper[contextSize];
+        OneHotBaseFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>[] refContext = new OneHotBaseFeatureMapper[contextSize];
         for (int i = 0; i < contextSize; i++) {
-            refContext[i] = new OneHotBaseMapper<>(i,
+            refContext[i] = new OneHotBaseFeatureMapper<>(i,
                     BaseInformationRecords.BaseInformationOrBuilder::getGenomicSequenceContext);
         }
         delegate = new ConcatFeatureMapper<>(refContext);

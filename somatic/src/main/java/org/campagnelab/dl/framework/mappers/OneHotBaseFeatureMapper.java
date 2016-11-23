@@ -11,13 +11,13 @@ import java.util.function.Function;
  * Maps a int indexing into a record's genomic sequence context into a one hot base feature
  * Created by rct66 on 10/25/16.
  */
-public class OneHotBaseMapper<RecordType> implements FeatureMapper<RecordType> {
-    static private Logger LOG = LoggerFactory.getLogger(OneHotBaseMapper.class);
+public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
+    static private Logger LOG = LoggerFactory.getLogger(OneHotBaseFeatureMapper.class);
 
     private Function<RecordType, String> recordToString;
     private int baseIndex;
 
-    public OneHotBaseMapper(int baseIndex, Function<RecordType, String> recordToString) {
+    public OneHotBaseFeatureMapper(int baseIndex, Function<RecordType, String> recordToString) {
         this.baseIndex = baseIndex;
         this.recordToString = recordToString;
     }
