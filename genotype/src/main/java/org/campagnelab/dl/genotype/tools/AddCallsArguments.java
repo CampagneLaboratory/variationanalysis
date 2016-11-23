@@ -13,8 +13,12 @@ public class AddCallsArguments implements ToolArguments {
     @Parameter(required = true, names = {"-i", "--input-files"}, description = "Input files in .bsi/.bsip format.")
     public String inputFile;
 
-    @Parameter(required = true, names = {"-g", "--genotype-map"}, description = "Genotype may should have been generated with Goby's VCFToMapMode.")
+    @Parameter(required = true, names = {"-m", "--genotype-map"}, description = "Genotype may should have been generated with Goby's VCFToMapMode.")
     public String genotypeMap;
+
+    @Parameter(required = false, names = {"-s", "--sample-index"}, description = "Add calls to an alternative sample in the sbi file (default if first sample, index 0")
+    public int sampleIndex = 0;
+
 
 }
 
