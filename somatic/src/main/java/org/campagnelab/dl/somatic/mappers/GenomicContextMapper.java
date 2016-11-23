@@ -9,6 +9,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Properties;
+import java.util.function.Function;
 
 /**
  * Maps the full genomic context using multiple onehotfeaturemapper
@@ -32,6 +33,13 @@ public class GenomicContextMapper extends AbstractFeatureMapper<BaseInformationR
         OneHotBaseMapper[] refContext = new OneHotBaseMapper[contextSize];
         for (int i = 0; i < contextSize; i++) {
             refContext[i] = new OneHotBaseMapper(i, BaseInformationRecords.BaseInformationOrBuilder::getGenomicSequenceContext);
+        }
+        delegate = new ConcatFeatureMapper<>(refContext);
+    }
+    public GenomicContextMapper(int contextSize, Function<BaseInformationRecords.BaseInformationOrBuilder, String> function) {
+        OneHotBaseMapper[] refContext = new OneHotBaseMapper[contextSize];
+        for (int i = 0; i < contextSize; i++) {
+            refContext[i] = new OneHotBaseMapper(i, function);
         }
         delegate = new ConcatFeatureMapper<>(refContext);
     }
