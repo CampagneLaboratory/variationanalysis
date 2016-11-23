@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Parameters(commandDescription = "Arguments for planting mutations in an sbi file.")
 
-public class Mutator2Arguments implements ToolArguments {
+public class MutateArguments implements ToolArguments {
     @Parameter(required = true, names = {"-i", "--input-file"}, description = "Input file in .bsi/.bsip format.")
     public String inputFile;
 
@@ -27,8 +27,12 @@ public class Mutator2Arguments implements ToolArguments {
     @Parameter(required = true, names = {"-o", "--output-file"}, description = "Path to output file.")
     public String outputFile;
 
-    @Parameter(required = true, names = {"-s", "--strategy"}, description = "Strategy classname.")
+    @Parameter(names = {"-s", "--strategy"}, description = "Strategy classname.")
     public String strategyClassname= OneSampleCanonicalSimulationStrategy.class.getCanonicalName();
+
+
+    @Parameter(names = {"-k", "--add-k-mutations"}, description = "Add k mutations per site.")
+    public int k= 2;
 
     @Parameter( names = { "--random-seed"}, description = "Random seed.")
     public long seed= 2398823;
