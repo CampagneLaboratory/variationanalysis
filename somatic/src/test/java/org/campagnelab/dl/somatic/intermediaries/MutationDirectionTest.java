@@ -15,22 +15,22 @@ public class MutationDirectionTest {
     public void somaticFrequency() {
         double delta = 0.75;
         FirstSimulationStrategy strategy = new FirstSimulationStrategy(delta, delta, 0.1, 1);
-        FirstSimulationStrategy.mutationDirection dir = null;
+        FirstSimulationStrategy.MutationDirection dir = null;
 
-        dir = strategy.dirFromCounts(new int[]{50, 0, 0, 50});
-        assertEquals(delta * 50 / (50 + 50), dir.somaticFrequency, "somaticFrequency must match");
+        dir = strategy.dirFromCounts(0, new int[]{50, 0, 0, 50});
+        assertEquals(delta, dir.somaticFrequency, "somaticFrequency must match");
 
-        dir = strategy.dirFromCounts(new int[]{80, 20, 0, 0});
-        assertEquals(delta * 80 / (80 + 20), dir.somaticFrequency, "somaticFrequency must match");
+        dir = strategy.dirFromCounts(0,new int[]{80, 20, 0, 0});
+        assertEquals(delta, dir.somaticFrequency, "somaticFrequency must match");
 
-        dir = strategy.dirFromCounts(new int[]{80, 20, 3, 1});
-        assertEquals(delta * 80 / (80 + 20 + 3 + 1), dir.somaticFrequency, "somaticFrequency must match");
+        dir = strategy.dirFromCounts(0, new int[]{80, 20, 3, 1});
+        assertEquals(delta, dir.somaticFrequency, "somaticFrequency must match");
 
-        dir = strategy.dirFromCounts(new int[]{90, 1, 1, 1});
-        assertEquals(delta * 90 / (90 + 1 + 1 + 1), dir.somaticFrequency, "somaticFrequency must match");
+        dir = strategy.dirFromCounts(0,new int[]{90, 1, 1, 1});
+        assertEquals(delta , dir.somaticFrequency, "somaticFrequency must match");
 
-        dir = strategy.dirFromCounts(new int[]{0, 3, 1, 100});
-        assertEquals(delta * 100 / (100 + 3 + 1), dir.somaticFrequency, "somaticFrequency must match");
+        dir = strategy.dirFromCounts(0,new int[]{0, 3, 1, 100});
+        assertEquals(delta , dir.somaticFrequency, "somaticFrequency must match");
     }
 
     @Test
@@ -47,7 +47,7 @@ public class MutationDirectionTest {
                 int[] counts = new int[numGenos];
                 counts[maxIndex] = mostCount;
                 for (int trial = 0; trial < 20; trial++) {
-                    FirstSimulationStrategy.mutationDirection dir = strategy.dirFromCounts(counts);
+                    FirstSimulationStrategy.MutationDirection dir = strategy.dirFromCounts(0,counts);
                     System.out.println(Arrays.toString(counts) + " " + dir.oldBase + " -> " + dir.newBase);
                     assert (dir.newBase != dir.oldBase);
                     assert (dir.newBase != maxIndex);
@@ -71,7 +71,7 @@ public class MutationDirectionTest {
                     counts[maxIndex] = mostCount;
                     counts[secondMostIndex] = secondMostCount;
                     for (int trial = 0; trial < 20; trial++) {
-                        FirstSimulationStrategy.mutationDirection dir = strategy.dirFromCounts(counts);
+                        FirstSimulationStrategy.MutationDirection dir = strategy.dirFromCounts(0,counts);
                         System.out.println(Arrays.toString(counts) + " " + dir.oldBase + " -> " + dir.newBase);
                         assert (dir.newBase != dir.oldBase);
                         assert (dir.newBase != maxIndex);

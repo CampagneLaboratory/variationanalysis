@@ -49,7 +49,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
     Random rand;
 
 
-    class mutationDirection {
+    class MutationDirection {
         int oldBase;
         int newBase;
         double delta;
@@ -72,7 +72,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
          * @param delta     proportion source base reads to move (0 - 1 in heterozygous case, 0 - 0.5 in homozygous case)
          * @param frequency proportion of source allele reads to move (always 0 - 1, either delta or delta/2 in heterozygous case)
          */
-        mutationDirection(int oldBase, int newBase, double delta, double frequency) {
+        MutationDirection(int oldBase, int newBase, double delta, double frequency) {
             this.oldBase = oldBase;
             this.newBase = newBase;
             this.delta = delta;
@@ -84,7 +84,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
      * @param counts arrays of counts, in genotype order.
      * @return
      */
-    mutationDirection dirFromCounts(int[] counts) {
+    MutationDirection dirFromCounts(int referenceBase, int[] counts) {
         int numGenos = counts.length;
         int maxCount = 0;
         int secondMostCount = 0;
@@ -119,7 +119,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         //make rand generator and generate proportion mutating bases
         //generate mutation rate for the source allele.
         double delta = deltaSmall + ((deltaBig - deltaSmall) * rand.nextDouble());
-
+        double originalDelta = delta;
         int newBase = -1;
         int oldBase;
         int otherAlleleBase = -1;
@@ -130,7 +130,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
             // homozygote site: somatic mutation likely to mutate only one of the two alleles, so we halve delta
             // to simulate this:
-            if (rand.nextDouble() > 0.01) {
+            if (rand.nextDouble() > 0.001) {
                 // Most of the time, we follow the rule. Sometimes we don't because two mutations in the same site can occur,
                 // albeit rarely (we don't know the exact frequency).
                 // If we did not allow this at all, the model could never see any examples of the rare case, likely causing odd
@@ -140,7 +140,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             while (!allowed) {
                 newBase = rand.nextInt(numGenos);
                 allowed = true;
-                if (newBase == oldBase || newBase == 4) {
+                if (newBase == oldBase || newBase == 4 || newBase == referenceBase) {
                     //replace self case, N case
                     allowed = false;
                 }
@@ -152,7 +152,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             while (!allowed) {
                 newBase = rand.nextInt(numGenos);
                 allowed = true;
-                if (newBase == oldBase || newBase == 4 || newBase == otherAlleleBase) {
+                if (newBase == oldBase || newBase == 4 || newBase == otherAlleleBase || newBase == referenceBase) {
                     //replace self case, other allele case, N case
                     allowed = false;
                 }
@@ -160,9 +160,9 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         }
 
-        double somaticFrequency = delta;
+        double somaticFrequency = originalDelta;
 
-        return new mutationDirection(oldBase, newBase, delta, somaticFrequency);
+        return new MutationDirection(oldBase, newBase, delta, somaticFrequency);
     }
 
     @Override
@@ -195,14 +195,18 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         int[] sums = new int[numGenos];
         //fill declared arrays
         int i = 0;
+        int referenceBase = -1;
         for (BaseInformationRecords.CountInfo count : somatic.getCountsList()) {
             forward[i] = count.getGenotypeCountForwardStrand();
             backward[i] = count.getGenotypeCountReverseStrand();
             sums[i] = forward[i] + backward[i];
+            if (count.getMatchesReference() == true) {
+                referenceBase = i;
+            }
             i++;
         }
-
-        mutationDirection dir = dirFromCounts(sums);
+        assert referenceBase != -1 : "A count must match the reference.";
+        MutationDirection dir = dirFromCounts(referenceBase, sums);
 
         if (dir == null) {
             return baseBuild.build();
