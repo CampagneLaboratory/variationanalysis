@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.io.StringWriter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.fail;
 
 /**
@@ -20,6 +21,7 @@ public class Mutator2Test {
         int index = 0;
         for (String record : records) {
             SimulationStrategy strategy = new TwoSampleCanonicalSimulationStrategy(0,1,0.1,1,0.9);
+
             strategy.setSeed(1);
 
             final BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
@@ -27,6 +29,7 @@ public class Mutator2Test {
             BaseInformationRecords.BaseInformation mutated = strategy.mutate(true, builder.build(), builder.getSamples(0), builder.getSamples(1), null);
             StringWriter writer = new StringWriter();
             TextFormat.print(mutated, writer);
+            assertNotEquals("mutated base and reference cannot be the same.", mutated.getMutatedBase(), mutated.getReferenceBase());
             assertEquals("failed for record " + index, expectedMutatedRecords[index], writer.getBuffer().toString());
             index++;
         }
@@ -249,10 +252,10 @@ public class Mutator2Test {
     String[] expectedMutatedRecords = {"reference_index: 18\n" +
             "position: 17214616\n" +
             "mutated: true\n" +
-            "mutatedBase: \"G\"\n" +
+            "mutatedBase: \"T\"\n" +
             "referenceBase: \"A\"\n" +
-            "frequencyOfMutation: 0.6750623\n" +
-            "indexOfMutatedBase: 3\n" +
+            "frequencyOfMutation: 0.7020648\n" +
+            "indexOfMutatedBase: 1\n" +
             "samples {\n" +
             "  counts {\n" +
             "    matchesReference: true\n" +
@@ -311,8 +314,8 @@ public class Mutator2Test {
             "    matchesReference: false\n" +
             "    fromSequence: \"A\"\n" +
             "    toSequence: \"T\"\n" +
-            "    genotypeCountForwardStrand: 0\n" +
-            "    genotypeCountReverseStrand: 0\n" +
+            "    genotypeCountForwardStrand: 130\n" +
+            "    genotypeCountReverseStrand: 145\n" +
             "  }\n" +
             "  counts {\n" +
             "    matchesReference: false\n" +
@@ -325,8 +328,8 @@ public class Mutator2Test {
             "    matchesReference: false\n" +
             "    fromSequence: \"A\"\n" +
             "    toSequence: \"G\"\n" +
-            "    genotypeCountForwardStrand: 130\n" +
-            "    genotypeCountReverseStrand: 147\n" +
+            "    genotypeCountForwardStrand: 1\n" +
+            "    genotypeCountReverseStrand: 2\n" +
             "  }\n" +
             "  counts {\n" +
             "    matchesReference: false\n" +
@@ -339,12 +342,12 @@ public class Mutator2Test {
             "    matchesReference: false\n" +
             "    fromSequence: \"ABC\"\n" +
             "    toSequence: \"-\"\n" +
-            "    genotypeCountForwardStrand: 271\n" +
+            "    genotypeCountForwardStrand: 270\n" +
             "    genotypeCountReverseStrand: 255\n" +
             "    isIndel: true\n" +
             "  }\n" +
             "  isTumor: true\n" +
-            "  formattedCounts: \"mutated (G) sample counts A=29 T=0 C=0 G=277 N=0 n/a indels:[526]\"\n" +
+            "  formattedCounts: \"mutated (T) sample counts A=29 T=275 C=0 G=3 N=0 n/a indels:[525]\"\n" +
             "}\n"
             ,
             "reference_index: 18\n" +

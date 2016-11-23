@@ -20,6 +20,15 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/../config" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-platform:0.7.0" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:0.7.0" level="project" />
