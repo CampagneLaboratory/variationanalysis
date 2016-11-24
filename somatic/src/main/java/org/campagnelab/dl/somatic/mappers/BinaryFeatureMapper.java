@@ -40,6 +40,6 @@ public abstract class BinaryFeatureMapper extends NoMaskFeatureMapper<BaseInform
     @Override
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         int value = getIntegerValue(record);
-        return (value & (1 << featureIndex)) != 0?1f:0f;
+        return (value >> featureIndex & 1);
     }
 }
