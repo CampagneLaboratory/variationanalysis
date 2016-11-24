@@ -37,7 +37,12 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
 
     @Override
     public MappedDimensions dimensions() {
-        return new MappedDimensions(featuresPerTimeStep, numberOfFeatures());
+
+        // TODO Josh, I think the next line should use delegates.length. not numberOfFeatures().
+        MappedDimensions dim = new MappedDimensions(featuresPerTimeStep, numberOfFeatures());
+        assert dim.numElements() == numberOfFeatures() : "Number of elements must match number of features.";
+        // TODO: build dim in the constructor and return the same object every time. It is a constant.
+        return dim;
     }
 
     @Override
@@ -50,10 +55,11 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
         indicesMapper[0] = indexOfRecord;
         for (int i = 0; i < delegates.length; i++) {
             indicesMapper[2] = i;
-            for (int j = 0; j < delegates[i].numberOfFeatures(); j++) {
+            final OneHotBaseFeatureMapper<RecordType> delegate = delegates[i];
+            for (int j = 0; j < delegate.numberOfFeatures(); j++) {
                 indicesMapper[1] = j;
                 if (i < recordToSequenceLength.apply(record)) {
-                    inputs.putScalar(indicesMapper, delegates[i].produceFeature(record, j));
+                    inputs.putScalar(indicesMapper, delegate.produceFeature(record, j));
                 } else {
                     inputs.putScalar(indicesMapper, 0F);
                 }
