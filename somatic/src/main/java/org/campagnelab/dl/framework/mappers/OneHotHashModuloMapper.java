@@ -19,7 +19,7 @@ public class OneHotHashModuloMapper<RecordType> extends NoMaskFeatureMapper<Reco
     // the number of elements in the output vector.
     private int vectorNumElements;
     // populated by prepareToNormalize
-    private int reducedValue;
+    private int reducedValue = -1;
 
     public OneHotHashModuloMapper(int vectorNumElements, Function<RecordType, Object> recordToString) {
         this.vectorNumElements = vectorNumElements;
@@ -55,7 +55,7 @@ public class OneHotHashModuloMapper<RecordType> extends NoMaskFeatureMapper<Reco
 
     @Override
     public float produceFeature(RecordType record, int featureIndex) {
-
+        assert reducedValue >= 0: "prepareToNormalize must be called before produceFeature.";
         return reducedValue == featureIndex ? 1F : 0F;
     }
 }
