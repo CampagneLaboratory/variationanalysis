@@ -64,6 +64,9 @@ public abstract class TrainingArguments extends RecordingToolArguments {
     @Parameter(names = "--net-architecture", description = "fully qualified classname that implements the choice of network architecture.")
     public java.lang.String architectureClassname = defaultArchitectureClassname();
 
+    @Parameter(names = "--ignore-cache", description = "Ignore the cache.")
+    public boolean ignoreCache;
+
     protected abstract String defaultArchitectureClassname();
 
 
