@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.mappers;
+package org.campagnelab.dl.framework.mappers;
 
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.MappedDimensions;
