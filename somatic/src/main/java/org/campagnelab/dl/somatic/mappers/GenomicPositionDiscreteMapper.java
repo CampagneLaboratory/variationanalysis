@@ -14,23 +14,30 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class GenomicPositionDiscreteMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
         implements FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
     private ConcatFeatureMapper delegate;
-    int numChromosomeFeatures = 50;
-    int numPositionFeatures = 25000;
+    private int numChromosomeFeatures = 50;
+    // use 1MB window.
+    private int windowSize;
+    private int numPositionFeatures;
 
     public GenomicPositionDiscreteMapper() {
+        this(1000000);
+    }
 
+    public GenomicPositionDiscreteMapper(int windowSize) {
+        numPositionFeatures = 250000000 / windowSize;
+        this.windowSize = windowSize;
         OneHotHashModuloMapper<BaseInformationRecords.BaseInformationOrBuilder> chromosomeMapper =
                 new OneHotHashModuloMapper<>(numChromosomeFeatures,
                         BaseInformationRecords.BaseInformationOrBuilder::getReferenceId);
 
         OneHotHashModuloMapper<BaseInformationRecords.BaseInformationOrBuilder> positionMapper =
                 new OneHotHashModuloMapper<BaseInformationRecords.BaseInformationOrBuilder>(
-                        // we bin position in 10,000 base windows:
+                        // we bin position in 1 mega base windows:
                         numPositionFeatures, record -> {
-                    return record.getPosition() / 10000;
+                    return record.getPosition() / windowSize;
                 }
                 );
-        this.delegate = new ConcatFeatureMapper(chromosomeMapper, positionMapper);
+        this.delegate = new ConcatFeatureMapper<>(chromosomeMapper, positionMapper);
     }
 
     @Override

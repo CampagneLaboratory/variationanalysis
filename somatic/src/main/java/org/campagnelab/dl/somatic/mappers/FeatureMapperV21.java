@@ -48,7 +48,7 @@ public class FeatureMapperV21 extends NamingConcatFeatureMapper<BaseInformationR
                 new IndelFeatures(),
                 new GenomicContextMapper(sbiProperties),
                 // we reuse the genomic context mapper to map the to field for the first four genotypes (by decreasing count):
-                new GenomicPositionMapper(),
+                new GenomicPositionDiscreteMapper(),
                 new GenomicContextMapper(2, record -> recordTo(2, record, 0)),
                 new GenomicContextMapper(2, record -> recordTo(2, record, 1)),
                 new GenomicContextMapper(2, record -> recordTo(2, record, 2)),
