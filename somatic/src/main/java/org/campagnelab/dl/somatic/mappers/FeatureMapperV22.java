@@ -14,7 +14,7 @@ import java.util.Properties;
 /**
  * Same as V20, with to information for each count, arranged as a sequence.
  */
-public class FeatureMapperV21 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+public class FeatureMapperV22 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
         implements ConfigurableFeatureMapper {
     private NamingConcatFeatureMapper delegate;
 
@@ -48,7 +48,7 @@ public class FeatureMapperV21 extends NamingConcatFeatureMapper<BaseInformationR
                 new IndelFeatures(),
                 new GenomicContextMapper(sbiProperties),
                 // we reuse the genomic context mapper to map the to field for the first four genotypes (by decreasing count):
-                new GenomicPositionMapper(),
+                new GenomicPositionMapper(30,250000000),
                 new GenomicContextMapper(1, record -> recordTo(1, record, 0)),
                 new GenomicContextMapper(1, record -> recordTo(1, record, 1)),
                 new GenomicContextMapper(1, record -> recordTo(1, record, 2)),

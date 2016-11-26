@@ -20,6 +20,7 @@ public class GenomicPositionDiscreteMapper extends NoMaskFeatureMapper<BaseInfor
     private int numPositionFeatures;
 
     public GenomicPositionDiscreteMapper() {
+        // we bin position in 1 mega base windows:
         this(1000000);
     }
 
@@ -32,7 +33,7 @@ public class GenomicPositionDiscreteMapper extends NoMaskFeatureMapper<BaseInfor
 
         OneHotHashModuloMapper<BaseInformationRecords.BaseInformationOrBuilder> positionMapper =
                 new OneHotHashModuloMapper<BaseInformationRecords.BaseInformationOrBuilder>(
-                        // we bin position in 1 mega base windows:
+
                         numPositionFeatures, record -> {
                     return record.getPosition() / windowSize;
                 }

@@ -9,16 +9,19 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Created by fac2003 on 7/12/16.
  */
 public abstract class BinaryFeatureMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+    private int maxValue;
 
-    public BinaryFeatureMapper() {
-
+    public BinaryFeatureMapper(int maxValue) {
+        this.maxValue = maxValue;
     }
-
+    public BinaryFeatureMapper() {
+       this(Integer.MAX_VALUE);
+    }
     private static final int[] indices = new int[]{0, 0};
 
     @Override
     public int numberOfFeatures() {
-        return Integer.bitCount(Integer.MAX_VALUE);
+        return Integer.bitCount(maxValue);
     }
 
     public abstract int getIntegerValue(BaseInformationRecords.BaseInformationOrBuilder record);

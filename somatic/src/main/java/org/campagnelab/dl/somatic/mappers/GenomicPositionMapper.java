@@ -17,19 +17,26 @@ implements FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder>{
     private final BinaryFeatureMapper chromosomeMapper;
     private final BinaryFeatureMapper positionMapper;
     private ConcatFeatureMapper delegate;
-
-    public GenomicPositionMapper() {
-        this.chromosomeMapper = new BinaryFeatureMapper() {
+    /**
+     * Number of bases in a window.
+     */
+    private  int windowSize = 10000;
+    public GenomicPositionMapper(){
+        this(50,250000000);
+    }
+    public GenomicPositionMapper(int numChromosomes, int maxPosition) {
+        this.chromosomeMapper = new BinaryFeatureMapper(numChromosomes) {
 
             @Override
             public int getIntegerValue(BaseInformationRecords.BaseInformationOrBuilder record) {
                 return record.getReferenceIndex();
             }
         };
-        this.positionMapper = new BinaryFeatureMapper() {
+        this.positionMapper = new BinaryFeatureMapper(maxPosition/windowSize ) {
             @Override
             public int getIntegerValue(BaseInformationRecords.BaseInformationOrBuilder record) {
-                return record.getPosition();
+
+                return record.getPosition()/ windowSize;
             }
         };
         this.delegate = new ConcatFeatureMapper(chromosomeMapper,positionMapper);
