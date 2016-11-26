@@ -10,13 +10,16 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 public abstract class BinaryFeatureMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
     private int maxValue;
+    private int value;
 
     public BinaryFeatureMapper(int maxValue) {
         this.maxValue = maxValue;
     }
+
     public BinaryFeatureMapper() {
-       this(Integer.MAX_VALUE);
+        this(Integer.MAX_VALUE);
     }
+
     private static final int[] indices = new int[]{0, 0};
 
     @Override
@@ -28,7 +31,7 @@ public abstract class BinaryFeatureMapper extends NoMaskFeatureMapper<BaseInform
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
-
+        value = getIntegerValue(record);
     }
 
     @Override
@@ -43,7 +46,7 @@ public abstract class BinaryFeatureMapper extends NoMaskFeatureMapper<BaseInform
 
     @Override
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        int value = getIntegerValue(record);
+
         return (value >> featureIndex & 1);
     }
 }

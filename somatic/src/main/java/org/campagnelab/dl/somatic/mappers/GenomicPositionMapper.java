@@ -11,7 +11,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Created by fac2003 on 7/12/16.
  */
 public class GenomicPositionMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
-implements FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder>{
+        implements FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
     private static final int NUM_POSITION_BITS = 32;
     private static final int NUM_CHROMOSOMES = 100;
     private final BinaryFeatureMapper chromosomeMapper;
@@ -20,10 +20,12 @@ implements FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder>{
     /**
      * Number of bases in a window.
      */
-    private  int windowSize = 10000;
-    public GenomicPositionMapper(){
-        this(50,250000000);
+    private int windowSize = 10000;
+
+    public GenomicPositionMapper() {
+        this(50, 250000000);
     }
+
     public GenomicPositionMapper(int numChromosomes, int maxPosition) {
         this.chromosomeMapper = new BinaryFeatureMapper(numChromosomes) {
 
@@ -32,14 +34,14 @@ implements FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder>{
                 return record.getReferenceIndex();
             }
         };
-        this.positionMapper = new BinaryFeatureMapper(maxPosition/windowSize ) {
+        this.positionMapper = new BinaryFeatureMapper(maxPosition / windowSize) {
             @Override
             public int getIntegerValue(BaseInformationRecords.BaseInformationOrBuilder record) {
 
-                return record.getPosition()/ windowSize;
+                return record.getPosition() / windowSize;
             }
         };
-        this.delegate = new ConcatFeatureMapper(chromosomeMapper,positionMapper);
+        this.delegate = new ConcatFeatureMapper(chromosomeMapper, positionMapper);
     }
 
     @Override
@@ -50,7 +52,7 @@ implements FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder>{
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
-
+        delegate.prepareToNormalize(record, indexOfRecord);
     }
 
     int[] indices = new int[]{0, 0};
@@ -67,6 +69,6 @@ implements FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder>{
 
     @Override
     public String getFeatureName(int featureIndex) {
-        return "genomicPosition"+featureIndex;
+        return "genomicPosition" + featureIndex;
     }
 }
