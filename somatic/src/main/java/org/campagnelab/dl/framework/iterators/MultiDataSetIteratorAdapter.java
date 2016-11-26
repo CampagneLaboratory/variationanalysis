@@ -117,7 +117,7 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
 
 
     public boolean asyncSupported() {
-        return false;
+        return true;
     }
 
     @Override
