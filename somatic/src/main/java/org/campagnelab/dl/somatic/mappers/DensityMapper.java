@@ -18,29 +18,37 @@ public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.Ba
         implements FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
     private final Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues;
-    private final float minValue;
-    private final float maxValue;
+    private final int minValue;
+    private final int maxValue;
     private final float binWidth;
     private final String name;
+    private final Function<Integer, Float> valueFunction;
     int numBins = 10;
     float[] bins;
     private int[] indices;
 
     public DensityMapper(String name, int numBins, Properties sbiProperties,
-                         Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues) {
+                         Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues
+    ) {
+        this(name, numBins, sbiProperties, recordToValues, Integer::floatValue);
+    }
 
+    public DensityMapper(String name, int numBins, Properties sbiProperties,
+                         Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues,
+                         Function<Integer, Float> valueFunction) {
+        this.valueFunction = valueFunction;
         if (!propertiesPresent(sbiProperties, "stats." + name)) {
             throw new UnsupportedOperationException("The sbip file does not contain the statistics for " + name + " (stats." + name + ".min and stats." + name + ".max)");
         }
-        this.minValue = getMin(sbiProperties, "stats." + name);
-        this.maxValue = getMax(sbiProperties, "stats." + name);
+        this.minValue = (int)getMin(sbiProperties, "stats." + name);
+        this.maxValue = (int)getMax(sbiProperties, "stats." + name);
 
 
         this.name = name;
         this.numBins = numBins;
         bins = new float[numBins];
         this.recordToValues = recordToValues;
-        this.binWidth = (maxValue - minValue) / numBins;
+        this.binWidth = (valueFunction.apply(maxValue) - valueFunction.apply(minValue) )/ numBins;
     }
 
 
@@ -55,7 +63,7 @@ public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.Ba
         List<BaseInformationRecords.NumberWithFrequency> listOfValues = recordToValues.apply(record);
         float numElements = 0;
         for (BaseInformationRecords.NumberWithFrequency n : listOfValues) {
-            int featureIndex = (int) ((n.getNumber() - minValue) / binWidth);
+            int featureIndex = (int) ((valueFunction.apply(n.getNumber()) - valueFunction.apply(minValue)) / binWidth);
             if (featureIndex < 0 || featureIndex >= numBins) {
                 //ignore points outside of min-max
             } else {
