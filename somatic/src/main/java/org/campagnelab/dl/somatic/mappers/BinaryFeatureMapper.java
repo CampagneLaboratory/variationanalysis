@@ -10,7 +10,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 public abstract class BinaryFeatureMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
     private int maxValue;
-    private int value;
+    private int value = -1;
 
     public BinaryFeatureMapper(int maxValue) {
         this.maxValue = maxValue;
@@ -46,7 +46,6 @@ public abstract class BinaryFeatureMapper extends NoMaskFeatureMapper<BaseInform
 
     @Override
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-
         return (value >> featureIndex & 1);
     }
 }
