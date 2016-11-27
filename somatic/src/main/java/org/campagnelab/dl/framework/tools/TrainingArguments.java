@@ -67,6 +67,9 @@ public abstract class TrainingArguments extends RecordingToolArguments {
     @Parameter(names = "--ignore-cache", description = "Ignore the cache.")
     public boolean ignoreCache;
 
+    @Parameter(names = "--gpu-device", description = "Index of the GPU to use for training (0,1, up to the number of GPUs in the server).")
+    public Integer deviceIndex=null;
+
     protected abstract String defaultArchitectureClassname();
 
 
