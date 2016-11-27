@@ -2,6 +2,7 @@ package org.campagnelab.dl.somatic.mappers;
 
 import org.campagnelab.dl.framework.iterators.ConcatFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
+import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
 import org.campagnelab.dl.framework.mappers.NoMaskFeatureMapper;
 import org.campagnelab.dl.somatic.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.somatic.genotypes.GenotypeCountFactory;
@@ -18,7 +19,7 @@ import java.util.function.Function;
 
 
 public class GenomicContextMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
-        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>, FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
     private ConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
 
     public GenomicContextMapper(Properties sbiProperties) {
@@ -68,4 +69,8 @@ public class GenomicContextMapper extends NoMaskFeatureMapper<BaseInformationRec
         return delegate.produceFeature(record, featureIndex);
     }
 
+    @Override
+    public String getFeatureName(int featureIndex) {
+        return "GenomicContextMapper"+featureIndex;
+    }
 }
