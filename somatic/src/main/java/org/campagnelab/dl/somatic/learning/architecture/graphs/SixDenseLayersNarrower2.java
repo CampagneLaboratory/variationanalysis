@@ -55,7 +55,7 @@ public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
                 .seed(args().seed)
                 .iterations(1)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(args().learningRate).regularization(args().regularizationRate != null).l2(args().regularizationRate)
+                .learningRate(args().learningRate).regularization(args().regularizationRate != null).l2(args().regularizationRate != null? args().regularizationRate:0)
                 .updater(Updater.ADAGRAD);
 
         if (args().dropoutRate != null) {
