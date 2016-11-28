@@ -25,7 +25,7 @@ public abstract class MapFeaturesArguments implements ToolArguments {
     public boolean   isTrio = false;
 
     @Parameter(names = {"n","--cache-n"}, description = "Cache at most n records.")
-    public long cacheN;
+    public int cacheN=Integer.MAX_VALUE;
 
     public String[] getTrainingSets() {
         return this.trainingSets.toArray(new String[this.trainingSets.size()]);

@@ -35,10 +35,11 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
     static private Logger LOG = LoggerFactory.getLogger(CombineWithGoldStandard.class);
 
     public static void main(String[] args) {
-        CombineWithGoldStandard tool=new CombineWithGoldStandard();
+        CombineWithGoldStandard tool = new CombineWithGoldStandard();
         tool.parseArguments(args, "CombineWithGoldStandardArguments", tool.createArguments());
         tool.execute();
     }
+
     @Override
     public void execute() {
         loadAnnotations(args().annotationFilename);
@@ -68,7 +69,7 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
                     numWritten += 1;
                     if (record.getMutated()) {
                         numMutatedWritten++;
-                        System.out.printf("%s:%d\n\tnormal: %s\ttumor:  %s %n",record.getReferenceId(), record.getPosition(),
+                        System.out.printf("%s:%d\n\tnormal: %s\ttumor:  %s %n", record.getReferenceId(), record.getPosition(),
                                 record.getSamples(0).getFormattedCounts(),
                                 record.getSamples(1).getFormattedCounts());
                     }
@@ -84,6 +85,12 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
         }
     }
 
+    class Mutation {
+        String from;
+        String to;
+        int position;
+    }
+
     Object2ObjectArrayMap<String, Int2BooleanAVLTreeMap> annotations = new Object2ObjectArrayMap<>();
 
     private void loadAnnotations(String annotationFilename) {
@@ -94,10 +101,10 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
                 final String chromosome = tokens[0];
                 int position = Integer.parseInt(tokens[1]);
                 // convert to zero-based position used by goby/variationanalysis:
-                position-=1;
+                position -= 1;
                 Int2BooleanAVLTreeMap positions = annotations.getOrDefault(chromosome, new Int2BooleanAVLTreeMap());
                 positions.put(position, true);
-                annotations.put(chromosome,positions);
+                annotations.put(chromosome, positions);
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Unable to find annotation filename:" + annotationFilename, e);

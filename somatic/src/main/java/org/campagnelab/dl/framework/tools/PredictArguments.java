@@ -47,4 +47,8 @@ public class PredictArguments implements ToolArguments {
 
     @Parameter(names = {"-f", "--to-file"}, description = "Write output to a file. If not provided, write to stdout.")
     public boolean toFile = false;
+
+    @Parameter(names = { "--filter-auc-observations"}, description = "When true, estimate AUC only from the filtered observations. ")
+    public boolean filterAucObservations;
+
 }

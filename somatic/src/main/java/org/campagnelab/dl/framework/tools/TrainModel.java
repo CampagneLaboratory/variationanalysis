@@ -27,6 +27,7 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +78,9 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     }
 
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
+       if (args().deviceIndex!=null) {
+           Nd4j.getAffinityManager().attachThreadToDevice(Thread.currentThread(), args().deviceIndex);
+       }
         if (args().previousModelPath != null) {
             System.out.println(String.format("Resuming training with %s model parameters from %s %n", args().previousModelName, args().previousModelPath));
         }
@@ -124,7 +128,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 computationGraph.setParams(savedNetwork.params());
             }
         }
-
         //Print the  number of parameters in the graph (and for each layer)
         Layer[] layers = computationGraph.getLayers();
         int totalNumParams = 0;
@@ -260,7 +263,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             }
         };
 
-        boolean useCache = true;
+        boolean useCache = !args().ignoreCache;
         MultiDataSetIterator iterator = useCache ? cacheHelper.cache(domainDescriptor,
                 adapter, adapter.getBasename(),
                 args().numTraining) :
@@ -376,7 +379,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                     return args().validationSet;
                 }
             };
-            return cacheHelper.cache(domainDescriptor,
+            return args().ignoreCache? adapter : cacheHelper.cache(domainDescriptor,
                     adapter, adapter.getBasename(),
                     args().numTraining);
         } catch (IOException e) {

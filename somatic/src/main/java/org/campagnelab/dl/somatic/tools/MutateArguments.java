@@ -32,7 +32,7 @@ public class MutateArguments implements ToolArguments {
 
 
     @Parameter(names = {"-k", "--add-k-mutations"}, description = "Add k mutations per site.")
-    public int k= 2;
+    public int k= 1;
 
     @Parameter( names = { "--random-seed"}, description = "Random seed.")
     public long seed= 2398823;

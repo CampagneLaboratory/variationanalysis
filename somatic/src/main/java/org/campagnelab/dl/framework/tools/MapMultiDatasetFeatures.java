@@ -6,7 +6,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
+import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
+import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +63,10 @@ public abstract class MapMultiDatasetFeatures<RecordType> extends AbstractTool<M
                 throw new RuntimeException("Unable to load training set ", e);
             }
         }
+        MultiDataSetIterator iterator=adapter;
+        if (adapter.asyncSupported()) {
+                iterator = new AsyncMultiDataSetIterator(adapter, 12);
+        }
        /* if ( != null) {
             inputs = Iterables.limit(Iterables.concat(args().iterables), (int) args().cacheN);
         } else {
@@ -89,8 +95,8 @@ public abstract class MapMultiDatasetFeatures<RecordType> extends AbstractTool<M
             long writeAtMostN = args().writeAtMostN;
             numRecordsWritten = 0;
 
-            while (adapter.hasNext()) {
-                MultiDataSet mds = adapter.next();
+            while (iterator.hasNext()) {
+                MultiDataSet mds = iterator.next();
                 baos.reset();
                 mds.save(baos);
 

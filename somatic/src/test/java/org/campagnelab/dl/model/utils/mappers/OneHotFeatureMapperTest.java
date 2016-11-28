@@ -20,6 +20,7 @@ public class OneHotFeatureMapperTest {
                 return 0;
             }
         };
+        mapper.prepareToNormalize(null,0);
         for (int i=0;i<32;i++) {
             assertEquals(0f,mapper.produceFeature(null,i),0.1);
         }
@@ -30,6 +31,7 @@ public class OneHotFeatureMapperTest {
                 return 1;
             }
         };
+        mapper.prepareToNormalize(null,0);
         for (int i=0;i<32;i++) {
             if (i!=0) {
                 assertEquals(0f, mapper.produceFeature(null, i), 0.1);
@@ -43,6 +45,7 @@ public class OneHotFeatureMapperTest {
                 return 0xFFFFFFFF;
             }
         };
+        mapper.prepareToNormalize(null,0);
         for (int i=0;i<32;i++) {
             assertEquals(1f,mapper.produceFeature(null,i),0.1);
         }
