@@ -106,7 +106,6 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
 
         String allArguments = ModelConditionHelper.fieldMapToString(getAllFieldValues());
         // construct a tag of upper case letters from the hashed arguments:
-        System.out.println(allArguments);
         return Integer.toString(allArguments.hashCode(), 26 + 10).toUpperCase().replaceAll("-", "");
     }
 
