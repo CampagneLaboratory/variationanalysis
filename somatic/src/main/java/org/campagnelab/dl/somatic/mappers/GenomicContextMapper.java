@@ -41,9 +41,9 @@ public class GenomicContextMapper extends NoMaskFeatureMapper<BaseInformationRec
     }
 
     public GenomicContextMapper(int contextSize, Function<BaseInformationRecords.BaseInformationOrBuilder, String> function) {
-        OneHotBaseMapper[] refContext = new OneHotBaseMapper[contextSize];
+        OneHotBaseFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>[] refContext = new OneHotBaseFeatureMapper[contextSize];
         for (int i = 0; i < contextSize; i++) {
-            refContext[i] = new OneHotBaseMapper(i, function);
+            refContext[i] = new OneHotBaseFeatureMapper<>(i, function);
         }
         delegate = new ConcatFeatureMapper<>(refContext);
     }
