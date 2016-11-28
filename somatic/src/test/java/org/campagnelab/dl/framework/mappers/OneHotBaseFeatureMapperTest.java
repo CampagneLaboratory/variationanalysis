@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.learning.mappers;
+package org.campagnelab.dl.framework.mappers;
 
 import com.google.protobuf.TextFormat;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
