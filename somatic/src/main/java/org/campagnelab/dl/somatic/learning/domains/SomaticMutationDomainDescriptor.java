@@ -193,6 +193,17 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         return new int[]{getLabelMapper(outputName).numberOfLabels()};
     }
 
+    // TODO: SomaticMutationDomainDescriptor shouldn't need these methods, but make sure
+    @Override
+    public int[] getNumMaskInputs(String inputName) {
+        return new int[]{getFeatureMapper(inputName).numberOfFeatures()};
+    }
+
+    @Override
+    public int[] getNumMaskOutputs(String outputName) {
+        return new int[]{getLabelMapper(outputName).numberOfLabels()};
+    }
+
     @Override
     public int getNumHiddenNodes(String componentName) {
         return getNumInputs("input")[0] * 4;

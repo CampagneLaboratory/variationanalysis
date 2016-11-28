@@ -1,8 +1,5 @@
-package org.campagnelab.dl.somatic.mappers;
+package org.campagnelab.dl.framework.mappers;
 
-
-import org.campagnelab.dl.framework.mappers.NoMaskFeatureMapper;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,15 +10,13 @@ import java.util.function.Function;
  * Maps a int indexing into a record's genomic sequence context into a one hot base feature
  * Created by rct66 on 10/25/16.
  */
-public class OneHotBaseMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
-         {
+public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
+    static private Logger LOG = LoggerFactory.getLogger(OneHotBaseFeatureMapper.class);
 
-    static private Logger LOG = LoggerFactory.getLogger(OneHotBaseMapper.class);
-
-    private Function<BaseInformationRecords.BaseInformationOrBuilder, java.lang.String> recordToString;
+    private Function<RecordType, String> recordToString;
     private int baseIndex;
 
-    public OneHotBaseMapper(int baseIndex, Function<BaseInformationRecords.BaseInformationOrBuilder, java.lang.String> recordToString) {
+    public OneHotBaseFeatureMapper(int baseIndex, Function<RecordType, String> recordToString) {
         this.baseIndex = baseIndex;
         this.recordToString = recordToString;
     }
@@ -32,11 +27,11 @@ public class OneHotBaseMapper extends NoMaskFeatureMapper<BaseInformationRecords
         return 6;
     }
 
-    public int getIntegerOfBase(BaseInformationRecords.BaseInformationOrBuilder record) {
-        java.lang.String context = recordToString.apply(record);
+    public int getIntegerOfBase(RecordType record) {
+        String context = recordToString.apply(record);
 
         if (baseIndex < 0 || baseIndex >= context.length()) {
-            LOG.warn("incompatible character index:" + baseIndex + " for context:" + context +" of length "+context.length());
+            LOG.warn("incompatible character index:" + baseIndex + " for context:" + context + " of length " + context.length());
             return 5;
         }
         Character base = context.charAt(baseIndex);
@@ -70,13 +65,12 @@ public class OneHotBaseMapper extends NoMaskFeatureMapper<BaseInformationRecords
     }
 
     @Override
-    public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
+    public void prepareToNormalize(RecordType record, int indexOfRecord) {
 
     }
 
     @Override
-    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
-
+    public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
         indices[0] = indexOfRecord;
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
             indices[1] = featureIndex;
@@ -85,8 +79,27 @@ public class OneHotBaseMapper extends NoMaskFeatureMapper<BaseInformationRecords
     }
 
     @Override
-    public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
+    public float produceFeature(RecordType record, int featureIndex) {
         int value = getIntegerOfBase(record);
         return value == featureIndex ? 1F : 0F;
+    }
+
+    @Override
+    public boolean hasMask() {
+        return false;
+    }
+
+    @Override
+    public MappedDimensions dimensions() {
+        return new MappedDimensions(numberOfFeatures());
+    }
+
+    @Override
+    public void maskFeatures(RecordType record, INDArray mask, int indexOfRecord) {
+    }
+
+    @Override
+    public boolean isMasked(RecordType record, int featureIndex) {
+        return false;
     }
 }

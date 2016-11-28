@@ -72,7 +72,7 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
             inputs[index] = Nd4j.zeros(domainDescriptor.getInputShape(size, input));
             featureMappers[index] = domainDescriptor.getFeatureMapper(input);
             boolean needMask = featureMappers[index].hasMask();
-            inputMasks[index] = needMask ? Nd4j.zeros(domainDescriptor.getInputShape(size, input)) : null;
+            inputMasks[index] = needMask ? Nd4j.zeros(domainDescriptor.getInputMaskShape(size, input)) : null;
             index += 1;
             hasFeatureMask |= needMask;
         }
@@ -81,7 +81,7 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
             labels[index] = Nd4j.zeros(domainDescriptor.getLabelShape(size, label));
             labelMappers[index] = domainDescriptor.getLabelMapper(label);
             boolean needMask = labelMappers[index].hasMask();
-            labelMasks[index] = needMask ? Nd4j.zeros(domainDescriptor.getLabelShape(size, label)) : null;
+            labelMasks[index] = needMask ? Nd4j.zeros(domainDescriptor.getLabelMaskShape(size, label)) : null;
             index++;
             hasLabelMask |= needMask;
         }
@@ -91,9 +91,15 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
             for (int j = 0; j < numInputs; j++) {
                 featureMappers[j].prepareToNormalize(record, recordIndexInBatch);
                 featureMappers[j].mapFeatures(record, inputs[j], recordIndexInBatch);
+                if (featureMappers[j].hasMask()) {
+                    featureMappers[j].maskFeatures(record, inputMasks[j], recordIndexInBatch);
+                }
             }
             for (int j = 0; j < numOutputs; j++) {
                 labelMappers[j].mapLabels(record, labels[j], recordIndexInBatch);
+                if (labelMappers[j].hasMask()) {
+                    labelMappers[j].maskLabels(record, labelMasks[j], recordIndexInBatch);
+                }
             }
             recordIndexInBatch += 1;
 

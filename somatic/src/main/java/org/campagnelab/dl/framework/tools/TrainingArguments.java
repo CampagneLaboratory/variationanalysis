@@ -16,11 +16,11 @@ import java.util.List;
 
 public abstract class TrainingArguments extends RecordingToolArguments {
 
-    @Parameter(required = true, names = {"-t", "--training-sets"}, variableArity = true, description = "Training sets, must be provided in .sbi/.sbip format (produced with Goby3). When more than one dataset is provided (multiple -t options), the " +
+    @Parameter(required = true, names = {"-t", "--training-sets"}, variableArity = true, description = "Training set filenames- for example, could be provided in .sbi/.sbip format (produced with Goby3). When more than one dataset is provided (multiple -t options), the " +
             "datasets are concatenated.")
     public List<String> trainingSets = new ArrayList<>();
 
-    @Parameter(names = {"-v", "--validation-set"}, description = "Validation set, must be provided in .parquet/.info format.")
+    @Parameter(names = {"-v", "--validation-set"}, description = "Validation set filename- for example, could be provided in .parquet/.info format.")
     public String validationSet = null;
 
 

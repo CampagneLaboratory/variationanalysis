@@ -1,8 +1,8 @@
-package org.campagnelab.dl.somatic.learning.mappers;
+package org.campagnelab.dl.framework.mappers;
 
 import com.google.protobuf.TextFormat;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
-import org.campagnelab.dl.somatic.mappers.OneHotBaseMapper;
+import org.campagnelab.dl.framework.mappers.OneHotBaseFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -13,13 +13,13 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by fac2003 on 5/27/16.
  */
-public class OneHotBaseMapperTest {
+public class OneHotBaseFeatureMapperTest {
     @Test
     public void mapFeatures() throws Exception {
         int index=0;
 
         for (String record : records) {
-           FeatureMapper calculator=new OneHotBaseMapper(0, BaseInformationRecords.BaseInformationOrBuilder::getGenomicSequenceContext);
+           FeatureMapper<BaseInformationRecords.BaseInformation> calculator = new OneHotBaseFeatureMapper<>(0, BaseInformationRecords.BaseInformationOrBuilder::getGenomicSequenceContext);
 
             INDArray inputs = Nd4j.zeros(1, calculator.numberOfFeatures());
 
