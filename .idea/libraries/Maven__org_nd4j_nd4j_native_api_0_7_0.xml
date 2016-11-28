@@ -8,6 +8,7 @@
     </JAVADOC>
     <SOURCES>
       <root url="jar://$MAVEN_REPOSITORY$/org/nd4j/nd4j-native-api/0.7.0/nd4j-native-api-0.7.0-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.ideaLibSources/nd4j-native-api-0.7.0-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

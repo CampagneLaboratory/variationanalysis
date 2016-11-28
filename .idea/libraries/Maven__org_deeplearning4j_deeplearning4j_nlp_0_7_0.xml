@@ -8,6 +8,7 @@
     </JAVADOC>
     <SOURCES>
       <root url="jar://$MAVEN_REPOSITORY$/org/deeplearning4j/deeplearning4j-nlp/0.7.0/deeplearning4j-nlp-0.7.0-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.ideaLibSources/deeplearning4j-nlp-0.7.0-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

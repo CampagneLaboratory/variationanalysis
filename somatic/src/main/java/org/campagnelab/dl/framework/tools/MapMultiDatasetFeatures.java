@@ -6,7 +6,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
+import org.nd4j.linalg.api.concurrency.AffinityManager;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
+import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
