@@ -41,11 +41,8 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
 
     abstract public String getBasename();
 
-
-    ObjectList<RecordType> buffer = new ObjectArrayList<RecordType>();
-
     public MultiDataSet next(int batchSize) {
-        buffer.clear();
+        ObjectList<RecordType> buffer = new ObjectArrayList<RecordType>();
         // allocate a new dataset with batchSize records and fill it with features and labels.
         while (recordIterator.hasNext() && buffer.size() < batchSize) {
             buffer.add(recordIterator.next());
@@ -120,7 +117,7 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
 
 
     public boolean asyncSupported() {
-        return false;
+        return true;
     }
 
     @Override

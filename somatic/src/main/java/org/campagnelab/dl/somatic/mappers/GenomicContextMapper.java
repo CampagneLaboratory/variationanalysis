@@ -2,9 +2,10 @@ package org.campagnelab.dl.somatic.mappers;
 
 import org.campagnelab.dl.framework.iterators.ConcatFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
+import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
+import org.campagnelab.dl.framework.mappers.NoMaskFeatureMapper;
 import org.campagnelab.dl.somatic.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.somatic.genotypes.GenotypeCountFactory;
-import org.campagnelab.dl.somatic.utils.ProtoPredictor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -17,8 +18,8 @@ import java.util.function.Function;
  */
 
 
-public class GenomicContextMapper extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
-        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+public class GenomicContextMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>, FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
     private ConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
 
     public GenomicContextMapper(Properties sbiProperties) {
@@ -36,6 +37,7 @@ public class GenomicContextMapper extends AbstractFeatureMapper<BaseInformationR
         }
         delegate = new ConcatFeatureMapper<>(refContext);
     }
+
     public GenomicContextMapper(int contextSize, Function<BaseInformationRecords.BaseInformationOrBuilder, String> function) {
         OneHotBaseMapper[] refContext = new OneHotBaseMapper[contextSize];
         for (int i = 0; i < contextSize; i++) {
@@ -68,21 +70,7 @@ public class GenomicContextMapper extends AbstractFeatureMapper<BaseInformationR
     }
 
     @Override
-    protected void initializeCount(BaseInformationRecords.CountInfo sampleCounts, GenotypeCount count) {
-        ReadIndexWithCounts myCounts = (ReadIndexWithCounts) count;
-        myCounts.set(ProtoPredictor.expandFreq(sampleCounts.getReadIndicesForwardStrandList()),
-                ProtoPredictor.expandFreq(sampleCounts.getReadIndicesReverseStrandList()));
+    public String getFeatureName(int featureIndex) {
+        return "GenomicContextMapper"+featureIndex;
     }
-
-    @Override
-    protected GenotypeCountFactory getGenotypeCountFactory() {
-
-        return new BaseGenotypeCountFactory() {
-            @Override
-            public GenotypeCount create() {
-                return new ReadIndexWithCounts();
-            }
-        };
-    }
-
 }
