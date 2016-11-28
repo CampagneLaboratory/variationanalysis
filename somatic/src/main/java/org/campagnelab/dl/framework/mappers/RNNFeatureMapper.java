@@ -15,6 +15,8 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
     private int[] indicesMapper = new int[]{0, 0, 0};
     private int[] indicesMasker = new int[]{0, 0};
 
+    private MappedDimensions dim;
+
     public RNNFeatureMapper(int featuresPerTimeStep, int maxSequenceLength, Function<RecordType, String> recordToString,
                             Function<RecordType, Integer> recordToSequenceLength) {
         this.recordToSequenceLength = recordToSequenceLength;
@@ -28,6 +30,7 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
                 throw new RuntimeException("All delegate one hot base mappers should have same number of features");
             }
         }
+        dim = new MappedDimensions(featuresPerTimeStep, delegates.length);
     }
 
     @Override
@@ -37,11 +40,7 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
 
     @Override
     public MappedDimensions dimensions() {
-
-        // TODO Josh, I think the next line should use delegates.length. not numberOfFeatures().
-        MappedDimensions dim = new MappedDimensions(featuresPerTimeStep, numberOfFeatures());
         assert dim.numElements() == numberOfFeatures() : "Number of elements must match number of features.";
-        // TODO: build dim in the constructor and return the same object every time. It is a constant.
         return dim;
     }
 

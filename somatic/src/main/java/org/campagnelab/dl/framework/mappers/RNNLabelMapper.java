@@ -15,6 +15,8 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
     private int[] indicesMapper = new int[]{0, 0, 0};
     private int[] indicesMasker = new int[]{0, 0};
 
+    private MappedDimensions dim;
+
     public RNNLabelMapper(int labelsPerTimeStep, int maxSequenceLength, Function<RecordType, int[]> recordToLabel,
                           Function<RecordType, Integer> recordToSequenceLength) {
         this.recordToSequenceLength = recordToSequenceLength;
@@ -28,6 +30,7 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
                 throw new RuntimeException("All delegate one hot base mappers should have same number of labels");
             }
         }
+        dim = new MappedDimensions(labelsPerTimeStep, delegates.length);
     }
 
     @Override
@@ -37,7 +40,8 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
 
     @Override
     public MappedDimensions dimensions() {
-        return new MappedDimensions(labelsPerTimeStep, delegates.length);
+        assert dim.numElements() == numberOfLabels() : "Number of elements must match number of labels.";
+        return dim;
     }
 
     @Override
