@@ -49,10 +49,11 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
         indicesMapper[0] = indexOfRecord;
         for (int i = 0; i < delegates.length; i++) {
             indicesMapper[2] = i;
+            final OneHotBaseLabelMapper<RecordType> delegate = delegates[i];
             for (int j = 0; j < delegates[i].numberOfLabels(); j++) {
                 indicesMapper[1] = j;
                 if (i < recordToSequenceLength.apply(record)) {
-                    labels.putScalar(indicesMapper, delegates[i].produceLabel(record, j));
+                    labels.putScalar(indicesMapper, delegate.produceLabel(record, j));
                 } else {
                     labels.putScalar(indicesMapper, 0F);
                 }
