@@ -54,17 +54,23 @@ public class AddCalls extends AbstractTool<AddCallsArguments> {
             recordloop:
             for (BaseInformationRecords.BaseInformation rec : source) {
                 //first, we skip examples where all reads match the reference
+                boolean skip = true;
                 for (BaseInformationRecords.CountInfo count : rec.getSamples(sampleIndex).getCountsList()){
                     if (!count.getMatchesReference() && (count.getGenotypeCountForwardStrand() + count.getGenotypeCountReverseStrand()) != 0) {
-                        continue recordloop;
+                        skip = false;
+                        break;
                     }
+                }
+                if (skip) {
+                    continue;
                 }
                 BaseInformationRecords.BaseInformation.Builder buildRec = rec.toBuilder();
                 int position = buildRec.getPosition();
                 String chrom = buildRec.getReferenceId();
                 String[] genotypes = new String[2];
                 try {
-                    genotypes = chMap.get(chrom).get(position).split("|");
+                    genotypes = chMap.get(chrom).get(position+1).split("|");
+                    buildRec.setMutated(true);
                 } catch (NullPointerException e) {
                     genotypes[0] = buildRec.getReferenceBase();
                     genotypes[1] = buildRec.getReferenceBase();
@@ -80,9 +86,6 @@ public class AddCalls extends AbstractTool<AddCallsArguments> {
                 dest.writeRecord(buildRec.build());
                 recordLogger.update();
                 recordsLabeled++;
-                if (recordsLabeled >= 540000){
-                    break;
-                }
             }
             recordLogger.done();
             dest.close();

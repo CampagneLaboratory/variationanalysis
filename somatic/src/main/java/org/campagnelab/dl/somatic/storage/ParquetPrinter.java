@@ -34,22 +34,9 @@ public class ParquetPrinter {
     static int actualCount = 0;
 
     private int[] customPos = {
-            67478327,
-            62361697,
-            65888432,
-            21317812,
-            51773638,
-            123075887,
-            42032422,
-            106733586,
-            96831233,
-            16295959,
-            18830766,
-            81050949,
-            6828090,
-            16899837,
-            40149296,
-            55267530,
+            9413944,
+            9413945,
+            9413946
     };
     private Set<Integer> posSet = new IntOpenHashSet(customPos);
 
