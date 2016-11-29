@@ -30,7 +30,7 @@ public class ParquetPrinter {
     boolean focusPrint = false;
     private int refIndex;
     private int position;
-    private boolean customPosOnly = false;
+    private boolean customPosOnly = true;
     static int actualCount = 0;
 
     private int[] customPos = {
