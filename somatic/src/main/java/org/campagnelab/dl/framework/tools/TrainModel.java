@@ -12,6 +12,7 @@ import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.gpu.ParameterPrecision;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
+import org.campagnelab.dl.framework.iterators.cache.FullyInMemoryCache;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ComputationGraphSaver;
 import org.campagnelab.dl.framework.models.ModelLoader;
@@ -78,9 +79,9 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     }
 
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
-       if (args().deviceIndex!=null) {
-           Nd4j.getAffinityManager().attachThreadToDevice(Thread.currentThread(), args().deviceIndex);
-       }
+        if (args().deviceIndex != null) {
+            Nd4j.getAffinityManager().attachThreadToDevice(Thread.currentThread(), args().deviceIndex);
+        }
         if (args().previousModelPath != null) {
             System.out.println(String.format("Resuming training with %s model parameters from %s %n", args().previousModelName, args().previousModelPath));
         }
@@ -183,7 +184,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         appendProperties(assembler, mpHelper);
         mpHelper.addProperties(getReaderProperties(args().trainingSets.get(0)));
         mpHelper.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
-        mpHelper.put("tag",getTag());
+        mpHelper.put("tag", getTag());
         mpHelper.writeProperties(directory);
         domainDescriptor.writeProperties(directory);
     }
@@ -269,7 +270,9 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 adapter, adapter.getBasename(),
                 args().numTraining) :
                 adapter;
-
+        if (args().memoryCache) {
+            iterator = new FullyInMemoryCache(iterator);
+        }
         // MultiDataSetIterator iterator=adapter;
         final long numRecords = Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
@@ -380,9 +383,13 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                     return args().validationSet;
                 }
             };
-            return args().ignoreCache? adapter : cacheHelper.cache(domainDescriptor,
+            MultiDataSetIterator iterator = args().ignoreCache ? adapter : cacheHelper.cache(domainDescriptor,
                     adapter, adapter.getBasename(),
                     args().numTraining);
+            if (args().memoryCache) {
+                iterator=new FullyInMemoryCache(iterator);
+            }
+            return iterator;
         } catch (IOException e) {
             throw new RuntimeException("Unable to load validation records from " + args().validationSet);
         }

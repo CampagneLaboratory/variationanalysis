@@ -54,7 +54,6 @@ public class CacheHelper<RecordType> {
         }
         assert cacheExists(cacheName, cacheN, true) : "A cache must exist at this point.";
         return new MultiDatasetMappedFeaturesIterator(cacheName,cacheN);
-
     }
 
 

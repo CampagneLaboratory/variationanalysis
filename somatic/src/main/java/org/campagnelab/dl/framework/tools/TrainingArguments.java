@@ -20,7 +20,7 @@ public abstract class TrainingArguments extends RecordingToolArguments {
             "datasets are concatenated.")
     public List<String> trainingSets = new ArrayList<>();
 
-    @Parameter(names = {"-v", "--validation-set"}, description = "Validation set filename- for example, could be provided in .parquet/.info format.")
+    @Parameter(required = true, names = {"-v", "--validation-set"}, description = "Validation set filename- for example, could be provided in .parquet/.info format.")
     public String validationSet = null;
 
 
@@ -66,6 +66,9 @@ public abstract class TrainingArguments extends RecordingToolArguments {
 
     @Parameter(names = "--ignore-cache", description = "Ignore the cache.")
     public boolean ignoreCache;
+
+    @Parameter(names = "--memory-cache", description = "Cache the entire datasets in memory. Can speed up training, but requires the training set to be small enough to fit in the GPU memory.")
+    public boolean memoryCache;
 
     @Parameter(names = "--gpu-device", description = "Index of the GPU to use for training (0,1, up to the number of GPUs in the server).")
     public Integer deviceIndex=null;
