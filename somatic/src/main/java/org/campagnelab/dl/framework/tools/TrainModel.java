@@ -270,9 +270,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 adapter, adapter.getBasename(),
                 args().numTraining, args().miniBatchSize) :
                 adapter;
-        if (args().memoryCache) {
-            iterator = new FullyInMemoryCache(iterator);
-        }
+
         // MultiDataSetIterator iterator=adapter;
         final long numRecords = Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
