@@ -14,13 +14,17 @@ import java.util.NoSuchElementException;
 public class FullyInMemoryCache implements MultiDataSetIterator {
     private MultiDataSetIterator source;
     private ArrayList<MultiDataSet> cache = new ArrayList<>();
-    private int cachedIndex = -1;
     private int index = -1;
+
+    private boolean sourceIsComplete;
 
     public FullyInMemoryCache(MultiDataSetIterator source) {
         this.source = source;
-
+        if (resetSupported()) {
+            source.reset();
+        }
         reset();
+
     }
 
     @Override
@@ -46,16 +50,28 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
     @Override
     public void reset() {
         index = -1;
+        // force traversal and caching of iterator if reset is called before a full traversal:
+        if (!sourceIsComplete) {
+            while (hasNext()) {
+                next();
+            }
+            reset();
+        }
 
     }
 
     @Override
     public boolean hasNext() {
 
-        if (index < cachedIndex) {
-            return true;
+        if (sourceIsComplete) {
+            return index + 1 < cache.size();
         } else {
-            return source.hasNext();
+
+            final boolean sourceHasNext = source.hasNext();
+            if (!sourceHasNext) {
+                sourceIsComplete = true;
+            }
+            return sourceHasNext;
         }
     }
 
@@ -63,13 +79,15 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
     public MultiDataSet next() {
         if (hasNext()) {
             index++;
-            if (index >= cachedIndex) {
+            if (sourceIsComplete) {
+                return cache.get(index);
+            } else {
 
-                MultiDataSet o = source.next();
+                MultiDataSet o = null;
+                o = source.next();
                 cache.add(o);
-                cachedIndex++;
+                return o;
             }
-            return cache.get(index);
         } else {
             throw new NoSuchElementException();
         }

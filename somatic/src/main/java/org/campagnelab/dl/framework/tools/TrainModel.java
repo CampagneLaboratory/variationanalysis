@@ -268,7 +268,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         boolean useCache = !args().ignoreCache;
         MultiDataSetIterator iterator = useCache ? cacheHelper.cache(domainDescriptor,
                 adapter, adapter.getBasename(),
-                args().numTraining) :
+                args().numTraining, args().miniBatchSize) :
                 adapter;
         if (args().memoryCache) {
             iterator = new FullyInMemoryCache(iterator);
@@ -385,7 +385,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             };
             MultiDataSetIterator iterator = args().ignoreCache ? adapter : cacheHelper.cache(domainDescriptor,
                     adapter, adapter.getBasename(),
-                    args().numTraining);
+                    args().numTraining, args().miniBatchSize);
             if (args().memoryCache) {
                 iterator=new FullyInMemoryCache(iterator);
             }
