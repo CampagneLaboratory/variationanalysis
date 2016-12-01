@@ -4,7 +4,7 @@ import org.nd4j.jita.conf.CudaEnvironment;
  * Created by fac2003 on 12/1/16.
  */
 public class InitializeCudaEnvironmentOnGPU {
-    public void InitializeCudaEnvironment() {
+    public void InitializeCudaEnvironmentOnGPU() {
         CudaEnvironment.getInstance().getConfiguration()
                 .enableDebug(false)
                 .allowMultiGPU(true)
