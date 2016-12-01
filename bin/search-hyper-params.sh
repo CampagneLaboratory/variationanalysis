@@ -42,5 +42,5 @@ echo ${memory_requirement} $* >main-command.txt
 parallel echo `cat main-command.txt` --regularization-rate :::: reg.txt :::  --random-seed :::: seed.txt ::: --dropout-rate :::: drop.txt  >commands.txt
 shuf commands.txt  |head -100 >commands-head-100
 chmod +x commands-head-100
-./commands-head-100
-
+cat ./commands-head-100 |parallel -j4
+sort -n -k 2 model-conditions.txt|tail
