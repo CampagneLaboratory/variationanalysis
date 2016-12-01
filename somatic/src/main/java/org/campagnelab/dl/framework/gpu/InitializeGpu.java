@@ -15,7 +15,10 @@ public class InitializeGpu {
                 // calling the constructor initializes the environment.
                 initializeCudaEnvironment.newInstance();
             }
-        } catch (Exception e) {
+        } catch(ClassNotFoundException e) {
+            // ignore, CUDA is not found in this installation.
+        }
+        catch (Exception e) {
             throw new RuntimeException("Unable to initialie GPU/CUDA environment.", e);
         }
     }
