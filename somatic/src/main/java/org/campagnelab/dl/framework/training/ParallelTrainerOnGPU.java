@@ -17,7 +17,7 @@ public class ParallelTrainerOnGPU   implements Trainer {
     public ParallelTrainerOnGPU(ComputationGraph graph, int miniBatchSize, int totalExamplesPerIterator) {
 
         wrapper = new ParallelWrapper.Builder(graph)
-                .prefetchBuffer(miniBatchSize)
+                .prefetchBuffer(12)
                 .workers(4)
                 .averagingFrequency(1)
                 .reportScoreAfterAveraging(false)
@@ -31,6 +31,7 @@ public class ParallelTrainerOnGPU   implements Trainer {
     public int train(ComputationGraph graph, MultiDataSetIterator iterator, ProgressLogger pg) {
 
         wrapper.fit(iterator);
+        iterator.reset();
         for (int i = 0; i < numExamplesPerIterator; i += miniBatchSize) {
             pg.lightUpdate();
         }
