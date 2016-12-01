@@ -64,7 +64,7 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
 
     @Override
     public boolean resetSupported() {
-        return false;
+        return true;
     }
 
 

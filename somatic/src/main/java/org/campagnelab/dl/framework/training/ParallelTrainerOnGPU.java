@@ -9,7 +9,7 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
  * Trainer that trains on multiple GPUs in parallel.
  * Created by fac2003 on 12/1/16.
  */
-public class ParallelTrainerOnGPU   implements Trainer {
+public class ParallelTrainerOnGPU implements Trainer {
     ParallelWrapper wrapper;
     int numExamplesPerIterator;
     int miniBatchSize;
@@ -29,12 +29,9 @@ public class ParallelTrainerOnGPU   implements Trainer {
 
     @Override
     public int train(ComputationGraph graph, MultiDataSetIterator iterator, ProgressLogger pg) {
-
+        System.out.println("Fitting one iterator with paralell wrapper");
         wrapper.fit(iterator);
-        iterator.reset();
-        for (int i = 0; i < numExamplesPerIterator; i += miniBatchSize) {
-            pg.lightUpdate();
-        }
+        pg.update(numExamplesPerIterator);
         return numExamplesPerIterator;
     }
 }
