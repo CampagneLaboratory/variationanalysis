@@ -248,6 +248,7 @@
             <artifactId>gpus</artifactId>
             <version>${version}</version>
             <optional>true</optional>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
