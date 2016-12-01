@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>variation-analysis</artifactId>
+        <groupId>org.campagnelab.dl</groupId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>gpus</artifactId>
+   <build>
+    <pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <!-- do not use another version, see http://stackoverflow.com/questions/11051620/compiling-only-selected-files-in-maven-->
+                <version>2.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <excludes>
+                        <exclude>org/campagnelab/dl/somatic/learning/TrainSomaticModel${GPUSpecificSuffix}.java
+                        </exclude>
+                    </excludes>
+                    <includes>
+                        <include>org/campagnelab/dl/somatic/**</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </pluginManagement>
+
+   </build>
+</project>

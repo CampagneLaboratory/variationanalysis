@@ -243,7 +243,12 @@
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.campagnelab.dl</groupId>
+            <artifactId>gpus</artifactId>
+            <version>${version}</version>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
 

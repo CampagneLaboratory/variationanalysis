@@ -11,6 +11,7 @@
         <module>somatic</module>
         <module>framework</module>
         <module>genotype</module>
+        <module>gpus</module>
     </modules>
     <name>Variation Analysis</name>
     <description>A project to train neural networks to recognize mutations in RNA-seq data.</description>

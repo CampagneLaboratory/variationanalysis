@@ -9,6 +9,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.dl.framework.gpu.InitializeGpu;
+import org.campagnelab.dl.framework.gpu.InitializerOnGpu;
 import org.campagnelab.dl.framework.gpu.ParameterPrecision;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
@@ -65,6 +67,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
     @Override
     public void execute() {
+        InitializeGpu.initialize();
         if (args().getTrainingSets().length == 0) {
             System.err.println("You must provide training datasets.");
         }
@@ -81,6 +84,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     }
 
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
+
         if (args().deviceIndex != null && !args().parallel) {
             Nd4j.getAffinityManager().attachThreadToDevice(Thread.currentThread(), args().deviceIndex);
         }
