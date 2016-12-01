@@ -29,7 +29,6 @@ public class ParallelTrainerOnGPU implements Trainer {
 
     @Override
     public int train(ComputationGraph graph, MultiDataSetIterator iterator, ProgressLogger pg) {
-        System.out.println("Fitting one iterator with paralell wrapper");
         wrapper.fit(iterator);
         pg.update(numExamplesPerIterator);
         return numExamplesPerIterator;
