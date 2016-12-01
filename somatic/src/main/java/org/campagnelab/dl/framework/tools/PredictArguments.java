@@ -51,4 +51,5 @@ public class PredictArguments implements ToolArguments {
     @Parameter(names = { "--filter-auc-observations"}, description = "When true, estimate AUC only from the filtered observations. ")
     public boolean filterAucObservations;
 
+    public boolean ignoreCache;
 }

@@ -73,6 +73,9 @@ public abstract class TrainingArguments extends RecordingToolArguments {
     @Parameter(names = "--gpu-device", description = "Index of the GPU to use for training (0,1, up to the number of GPUs in the server).")
     public Integer deviceIndex=null;
 
+    @Parameter(names = "--parallel", description = "When provided, trains on several GPUs in parallel.")
+    public boolean parallel;
+
     protected abstract String defaultArchitectureClassname();
 
 

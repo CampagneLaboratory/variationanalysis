@@ -21,12 +21,14 @@ import org.campagnelab.dl.framework.performance.Metric;
 import org.campagnelab.dl.framework.performance.PerformanceLogger;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
+import org.campagnelab.dl.framework.training.ParallelTrainerOnGPU;
+import org.campagnelab.dl.framework.training.SequentialTrainer;
+import org.campagnelab.dl.framework.training.Trainer;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
@@ -79,7 +81,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     }
 
     public void execute(FeatureMapper featureCalculator, String trainingDataset[], int miniBatchSize) throws IOException {
-        if (args().deviceIndex != null) {
+        if (args().deviceIndex != null && !args().parallel) {
             Nd4j.getAffinityManager().attachThreadToDevice(Thread.currentThread(), args().deviceIndex);
         }
         if (args().previousModelPath != null) {
@@ -283,6 +285,9 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         pgEpoch.itemsName = "epoch";
         pgEpoch.expectedUpdates = args().maxEpochs;
         pgEpoch.start();
+        Trainer trainer = args().parallel ? new ParallelTrainerOnGPU(computationGraph, args().miniBatchSize,
+                (int)domainDescriptor.getNumRecords(args().getTrainingSets())) :
+                new SequentialTrainer();
 
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
@@ -290,16 +295,9 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             iter = 0;
             pg.expectedUpdates = miniBatchesPerEpoch; // one iteration processes miniBatchIterator elements.
             pg.start();
+// train the graph with the content of the iterator:
+            numExamplesUsed += trainer.train(computationGraph, iterator, pg);
 
-            while (iterator.hasNext()) {
-
-                MultiDataSet ds = iterator.next();
-                // fit the computationGraph:
-                computationGraph.fit(ds);
-                final int numExamples = ds.getFeatures(0).size(0);
-                numExamplesUsed += numExamples;
-                pg.lightUpdate();
-            }
             //save latest after the end of an epoch:
             saver.saveLatestModel(computationGraph, computationGraph.score());
             writeProperties();
@@ -385,7 +383,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                     adapter, adapter.getBasename(),
                     args().numValidation, args().miniBatchSize);
             if (args().memoryCache) {
-                iterator=new FullyInMemoryCache(iterator);
+                iterator = new FullyInMemoryCache(iterator);
             }
             return iterator;
         } catch (IOException e) {
