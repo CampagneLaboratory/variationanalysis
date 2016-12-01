@@ -22,11 +22,11 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <excludes>
-                        <exclude>org/campagnelab/dl/somatic/learning/TrainSomaticModel${GPUSpecificSuffix}.java
+                        <exclude>org/campagnelab/dl/gpus/**/*${GPUSpecificSuffix}.java
                         </exclude>
                     </excludes>
                     <includes>
-                        <include>org/campagnelab/dl/somatic/**</include>
+                        <include>org/campagnelab/dl/gpus/**</include>
                     </includes>
                 </configuration>
             </plugin>

@@ -10,7 +10,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.gpu.InitializeGpu;
-import org.campagnelab.dl.framework.gpu.InitializerOnGpu;
 import org.campagnelab.dl.framework.gpu.ParameterPrecision;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
