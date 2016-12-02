@@ -60,11 +60,11 @@ public class SingleGenoTypeCountMapper extends AbstractFeatureMapperStripped<Bas
             case 2: genotypeString = "C"; break;
             case 3: genotypeString = "G"; break;
             case 4: genotypeString = "N"; break;
-            case 5: genotypeString = "Other1"; break;
-            case 6: genotypeString = "Other2"; break;
-            case 7: genotypeString = "Other3"; break;
-            case 8: genotypeString = "Other4"; break;
-            default: genotypeString = "Other5";
+            case 5: genotypeString = "Indel1"; break;
+            case 6: genotypeString = "Indel2"; break;
+            case 7: genotypeString = "Indel3"; break;
+            case 8: genotypeString = "Indel4"; break;
+            default: genotypeString = "Indel5";
         }
         return ("sample"+sampleString+"Genotype"+genotypeString+(getForwardStrand?"Forward":"Backward"));
     }
@@ -80,7 +80,7 @@ public class SingleGenoTypeCountMapper extends AbstractFeatureMapperStripped<Bas
         BaseInformationRecords.CountInfo genoInfo;
         try {
             genoInfo = record.getSamples(sample).getCounts(genotype);
-        } catch (NullPointerException e){
+        } catch (NullPointerException|IndexOutOfBoundsException e){
             return 0;
         }
         float val = getForwardStrand?genoInfo.getGenotypeCountForwardStrand():genoInfo.getGenotypeCountReverseStrand();

@@ -14,9 +14,11 @@ import java.util.Properties;
 /**
  * This m
  */
-public class GenotyperMapperV1 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+public class GenotypeMapperV1 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> implements ConfigurableFeatureMapper{
     private NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
-    private int sampleIndex;
+    //default sample is zeroth, adjustable with setter
+    private int sampleIndex = 0;
+
 
     /**
      * Configure the feature mapper to map a specific sample
@@ -56,10 +58,11 @@ public class GenotyperMapperV1 extends NamingConcatFeatureMapper<BaseInformation
                                 TraversalHelper.forSampleCounts(sampleIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresReverseStrandList))
                 )
         ;
+        numFeatures = delegate.numberOfFeatures();
 
     }
 
-    public GenotyperMapperV1(int sampleIndex) {
+    public void setSampleIndex(int sampleIndex) {
         this.sampleIndex = sampleIndex;
     }
 

@@ -86,7 +86,7 @@ public class SingleReadIndexCountMapper extends AbstractFeatureMapperStripped<Ba
         BaseInformationRecords.CountInfo genoInfo;
         try {
             genoInfo = record.getSamples(sample).getCounts(genotype);
-        } catch (NullPointerException e){
+        } catch (NullPointerException|IndexOutOfBoundsException e){
             return 0;
         }
 
