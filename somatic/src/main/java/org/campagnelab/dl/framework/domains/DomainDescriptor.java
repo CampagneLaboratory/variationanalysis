@@ -165,7 +165,11 @@ public abstract class DomainDescriptor<RecordType> {
                 long nExamples = 0;
                 while (dataSetIterator.hasNext()) {
                     MultiDataSet ds = dataSetIterator.next();
-                    score += graph.score(ds);
+                    double dsSScore = graph.score(ds);
+                    if (dsSScore == dsSScore) {
+                        // not a NaN
+                        score += dsSScore;
+                    }
                     nBatch += 1;
                     nExamples += ds.getFeatures()[0].size(0);
                     if (nExamples > scoreN) break;
@@ -249,8 +253,8 @@ public abstract class DomainDescriptor<RecordType> {
     }
 
     public void loadProperties(Properties domainProperties, Properties sbiProperties) {
-        this.domainProperties=new Properties();
-        this.modelProperties=new Properties();
+        this.domainProperties = new Properties();
+        this.modelProperties = new Properties();
         this.domainProperties.putAll(domainProperties);
         this.modelProperties.putAll(sbiProperties);
     }
@@ -258,7 +262,7 @@ public abstract class DomainDescriptor<RecordType> {
     public void writeProperties(String modelPath) {
         Properties props = new Properties();
         String propFilename = ModelLoader.getModelPath(modelPath) + "/domain.properties";
-        putProperties( props);
+        putProperties(props);
         try {
             props.store(new FileWriter(propFilename), "Domain properties created with " + this.getClass().getCanonicalName());
         } catch (IOException e) {
@@ -266,7 +270,7 @@ public abstract class DomainDescriptor<RecordType> {
         }
     }
 
-    public void putProperties( Properties props) {
+    public void putProperties(Properties props) {
 
         String inputNames[] = getComputationalGraph().getInputNames();
         String outputNames[] = getComputationalGraph().getOutputNames();
