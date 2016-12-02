@@ -74,6 +74,10 @@ public abstract class SomaticTrainer extends ConditionRecordingTool<SomaticTrain
     @Override
     public void execute() {
         if ("FP16".equals(args().precision)) {
+            precision = ParameterPrecision.FP16;
+            System.out.println("Parameter precision set to FP16.");
+        }
+        if ("FP16".equals(args().precision)) {
             DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
         }
         if (args().getTrainingSets().length == 0) {
