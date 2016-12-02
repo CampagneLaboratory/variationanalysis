@@ -42,6 +42,17 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
         aucLossCalculator = new AreaUnderTheROCCurve(args().numRecordsForAUC);
     }
 
+    //TODO: Implement these
+    @Override
+    protected void writeOutputStatistics(String prefix, PrintWriter outputWriter) {
+        outputWriter.print(aucLossCalculator.evaluateStatistic());
+    }
+
+    @Override
+    protected void writeOutputHeader(PrintWriter outputWriter) {
+        outputWriter.append("auc");
+    }
+
     @Override
     protected void reportStatistics(String prefix) {
         System.out.println("AUC on " + prefix + "=" + aucLossCalculator.evaluateStatistic());

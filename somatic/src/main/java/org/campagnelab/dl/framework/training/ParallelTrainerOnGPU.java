@@ -17,7 +17,7 @@ public class ParallelTrainerOnGPU implements Trainer {
     public ParallelTrainerOnGPU(ComputationGraph graph, int miniBatchSize, int totalExamplesPerIterator) {
 
         wrapper = new ParallelWrapper.Builder(graph)
-                .prefetchBuffer(12)
+                .prefetchBuffer(64)
                 .workers(4)
                 .averagingFrequency(1)
                 .reportScoreAfterAveraging(false)
@@ -29,7 +29,6 @@ public class ParallelTrainerOnGPU implements Trainer {
 
     @Override
     public int train(ComputationGraph graph, MultiDataSetIterator iterator, ProgressLogger pg) {
-        System.out.println("Fitting one iterator with paralell wrapper");
         wrapper.fit(iterator);
         pg.update(numExamplesPerIterator);
         return numExamplesPerIterator;

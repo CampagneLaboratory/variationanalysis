@@ -52,4 +52,7 @@ public class PredictArguments implements ToolArguments {
     public boolean filterAucObservations;
 
     public boolean ignoreCache;
+
+    @Parameter(names = {"-o", "--output-file"}, description = "Filename for output file for statistics. ")
+    public String outputFile = "./output_statistics.tsv";
 }

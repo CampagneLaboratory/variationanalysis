@@ -69,7 +69,7 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
 
 
     public boolean asyncSupported() {
-        return false;
+        return true;
     }
 
     @Override
@@ -128,3 +128,4 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
 
     }
 }
+

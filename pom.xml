@@ -20,8 +20,6 @@
         <!-- DL4J properties: -->
 
 
-        <dl4j.version>0.7.0</dl4j.version>
-        <nd4j.version>0.7.0</nd4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
         <java.version>1.8</java.version>
@@ -60,6 +58,8 @@
                 <!-- Classe names that end with the suffix are disabled. -->
                 <GPUSpecificSuffix>OnGPU</GPUSpecificSuffix>
                 <nd4j.backend>nd4j-native-platform</nd4j.backend>
+                <dl4j.version>0.7.0</dl4j.version>
+                <nd4j.version>0.7.0</nd4j.version>
             </properties>
             <dependencies>
                 <!--dependency>
