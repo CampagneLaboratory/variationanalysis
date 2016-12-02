@@ -1,11 +1,12 @@
 package org.campagnelab.dl.framework.iterators.cache;
 
+import org.nd4j.linalg.api.concurrency.AffinityManager;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
 /**
@@ -15,7 +16,6 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
     private MultiDataSetIterator source;
     private ArrayList<MultiDataSet> cache = new ArrayList<>();
     private int index = -1;
-
     private boolean sourceIsComplete;
 
     public FullyInMemoryCache(MultiDataSetIterator source) {
@@ -83,13 +83,26 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
                 return cache.get(index);
             } else {
 
-                MultiDataSet o = null;
-                o = source.next();
-                cache.add(o);
-                return o;
+                MultiDataSet multiDataSet = null;
+                multiDataSet = source.next();
+               // assignToHostMemory(multiDataSet);
+                cache.add(multiDataSet);
+                return multiDataSet;
             }
         } else {
             throw new NoSuchElementException();
+        }
+    }
+
+    private void assignToHostMemory(MultiDataSet dataSet) {
+
+        for (int i = 0; i < dataSet.numFeatureArrays(); i++) {
+            Nd4j.getAffinityManager().tagLocation(dataSet.getFeatures(i), AffinityManager.Location.HOST);
+            Nd4j.getAffinityManager().tagLocation(dataSet.getFeaturesMaskArray(i), AffinityManager.Location.HOST);
+        }
+        for (int i = 0; i < dataSet.numLabelsArrays(); i++) {
+            Nd4j.getAffinityManager().tagLocation(dataSet.getLabels(i), AffinityManager.Location.HOST);
+            Nd4j.getAffinityManager().tagLocation(dataSet.getLabelsMaskArray(i), AffinityManager.Location.HOST);
         }
     }
 }

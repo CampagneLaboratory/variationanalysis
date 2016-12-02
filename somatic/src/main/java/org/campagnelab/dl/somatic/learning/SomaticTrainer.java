@@ -32,6 +32,8 @@ import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
@@ -71,6 +73,13 @@ public abstract class SomaticTrainer extends ConditionRecordingTool<SomaticTrain
 
     @Override
     public void execute() {
+        if ("FP16".equals(args().precision)) {
+            precision = ParameterPrecision.FP16;
+            System.out.println("Parameter precision set to FP16.");
+        }
+        if ("FP16".equals(args().precision)) {
+            DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+        }
         if (args().getTrainingSets().length == 0) {
             System.err.println("You must provide training datasets.");
         }
