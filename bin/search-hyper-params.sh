@@ -2,16 +2,14 @@
 . `dirname "${BASH_SOURCE[0]}"`/setup.sh
 
 cat << EOF | cat> drop.txt
-0.05
-0.1
-0.15
-0.2
-0.25
 0.3
-0.35
 0.4
-0.45
 0.5
+0.6
+0.7
+0.8
+0.9
+1
 EOF
 
 
@@ -33,8 +31,6 @@ cat << EOF | cat>seed.txt
 2389283
 443
 732
-1
-436
 EOF
 
 echo ${memory_requirement} $* >main-command.txt
