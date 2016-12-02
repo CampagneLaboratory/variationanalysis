@@ -90,8 +90,10 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
         ModelLoader modelLoader = new ModelLoader(modelPath);
         String modelTag = modelLoader.getModelProperties().getProperty("tag");
         if (!outputFileExists) {
-            outputWriter.append("tag\t");
-            writeOutputHeader(outputWriter);
+            outputWriter.append("tag\tprefix\t");
+            for (String metricName : createOutputHeader()) {
+                outputWriter.append(String.format("%s\t", metricName));
+            }
             outputWriter.append("\n");
         }
         // we scale features using statistics observed on the training set:
@@ -133,9 +135,10 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
         );
 
         resutsWriter.close();
-        outputWriter.append(modelTag);
-        outputWriter.append("\t");
-        writeOutputStatistics(prefix, outputWriter);
+        outputWriter.append(String.format("%s\t%s\t", modelTag, prefix));
+        for (double metric : createOutputStatistics()) {
+            outputWriter.append(String.format("%d\t", metric));
+        }
         outputWriter.append("\n");
         outputWriter.close();
         pgReadWrite.stop();
@@ -145,20 +148,19 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
 
     /**
      * This method is called after the test set has been observed and statistics evaluated via processPredictions.
-     * It writes out statistics on the whole test set to a file. Should just write one line, without a newline.
+     * It sets statistics on the whole test set, which are then written tab-delimited to a file.
      *
-     * @param prefix        The model prefix/label (e.g., bestAUC).
-     * @param outputWriter  The output writer to write to in tab-delimited format
+     * @return array of statistics to set; should be in same order as outputHeader
      */
-    protected abstract void writeOutputStatistics(String prefix, PrintWriter outputWriter);
+    protected abstract double[] createOutputStatistics();
 
     /**
-     * This method is called only if an output file for statistics has not been created yet. It writes the header
-     * for the output file. Does not need to include tag or a newline at the end.
+     * This method is called only if an output file for statistics has not been created yet. It sets the fields in
+     * the header file, to then be written to the output file.
      *
-     * @param outputWriter The output writer to write to in tab-delimited format
+     * @return array of metric names to set
      */
-    protected abstract void writeOutputHeader(PrintWriter outputWriter);
+    protected abstract String[] createOutputHeader();
 
     //TODO: Figure out if still necessary, or if outputStatistics suffices
     /**

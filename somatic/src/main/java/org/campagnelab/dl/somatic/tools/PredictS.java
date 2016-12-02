@@ -44,13 +44,13 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
 
     //TODO: Implement these
     @Override
-    protected void writeOutputStatistics(String prefix, PrintWriter outputWriter) {
-        outputWriter.print(aucLossCalculator.evaluateStatistic());
+    protected double[] createOutputStatistics() {
+        return new double[]{aucLossCalculator.evaluateStatistic()};
     }
 
     @Override
-    protected void writeOutputHeader(PrintWriter outputWriter) {
-        outputWriter.append("auc");
+    protected String[] createOutputHeader() {
+        return new String[]{"auc"};
     }
 
     @Override
