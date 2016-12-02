@@ -58,8 +58,8 @@
                 <!-- Classe names that end with the suffix are disabled. -->
                 <GPUSpecificSuffix>OnGPU</GPUSpecificSuffix>
                 <nd4j.backend>nd4j-native-platform</nd4j.backend>
-                <dl4j.version>0.7.0</dl4j.version>
-                <nd4j.version>0.7.0</nd4j.version>
+                <dl4j.version>0.7.1</dl4j.version>
+                <nd4j.version>0.7.1</nd4j.version>
             </properties>
             <dependencies>
                 <!--dependency>
@@ -83,8 +83,8 @@
             <properties>
                 <!-- Classe names that end with the suffix are disabled. -->
                 <GPUSpecificSuffix>XXXXXXXXX</GPUSpecificSuffix>
-                <dl4j.version>0.7.0</dl4j.version>
-                <nd4j.version>0.7.0</nd4j.version>
+                <dl4j.version>0.7.1</dl4j.version>
+                <nd4j.version>0.7.1</nd4j.version>
                 <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend>
             </properties>
             <dependencies> <!-- enable below for CUDNN : -->
@@ -101,7 +101,7 @@
             </dependencies>
         </profile>
         <profile>
-            <id>GPU-0.7.1-SNAPSHOT</id>
+            <id>GPU-donotuse</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>

@@ -31,7 +31,6 @@
     </orderEntry>
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:0.7.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:linux-x86_64:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-pool2:2.4.2" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-api:0.7.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-buffer:0.7.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-common:0.7.1-SNAPSHOT" level="project" />
@@ -51,11 +50,6 @@
     <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-ui-resources:0.7.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-cuda-8.0:0.7.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:javacpp:1.2.7" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:8.0-1.2" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:linux-x86_64:8.0-1.2" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:macosx-x86_64:8.0-1.2" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:windows-x86_64:8.0-1.2" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:linux-ppc64le:8.0-1.2" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-platform:0.7.0" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:0.7.0" level="project" />
