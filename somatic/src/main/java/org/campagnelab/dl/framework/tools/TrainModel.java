@@ -286,6 +286,10 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 adapter;
         if (args().memoryCache) {
             iterator = new FullyInMemoryCache(iterator);
+            // force loading immediately:
+            LOG.warn("Loading training set in memory.");
+            iterator.reset();
+            LOG.warn("Done.");
         }
         // MultiDataSetIterator iterator=adapter;
         final long numRecords = Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));

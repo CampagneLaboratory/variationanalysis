@@ -85,7 +85,7 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
 
                 MultiDataSet multiDataSet = null;
                 multiDataSet = source.next();
-                assignToHostMemory(multiDataSet);
+               // assignToHostMemory(multiDataSet);
                 cache.add(multiDataSet);
                 return multiDataSet;
             }
