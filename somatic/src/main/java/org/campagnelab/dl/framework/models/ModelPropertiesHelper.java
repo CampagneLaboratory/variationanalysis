@@ -54,7 +54,7 @@ public class ModelPropertiesHelper {
 
     public void setRegularization(Double regularization) {
       if (regularization!=null) {
-          modelProp.setProperty("learningRate", Double.toString(regularization));
+          modelProp.setProperty("regularizationRate", Double.toString(regularization));
       }
     }
 
