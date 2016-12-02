@@ -29,6 +29,8 @@ import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
@@ -89,6 +91,13 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         }
         if (args().previousModelPath != null) {
             System.out.println(String.format("Resuming training with %s model parameters from %s %n", args().previousModelName, args().previousModelPath));
+        }
+        if ("FP16".equals(args().precision)) {
+            precision = ParameterPrecision.FP16;
+            System.out.println("Parameter precision set to FP16.");
+        }
+        if ("FP16".equals(args().precision)) {
+            DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
         }
         time = new Date().getTime();
 
