@@ -6,6 +6,8 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,11 +24,15 @@ public class TimeSeriesPerformanceCalculator {
     private Set<Integer> neverAppearedLabels;
     private int correctPredictions;
     private int totalPredictions;
-    private Map<Integer, Double> precision;
-    private Map<Integer, Double> recall;
+    private Map<Integer, Double> labelPrecisions;
+    private Map<Integer, Double> labelRecalls;
+    private double mcPrecision;
+    private double mcRecall;
+    private double mcAccuracy;
+    private double mcF1Score;
     private ConfusionMatrix confusionMatrix;
     private List<Integer> allLabels;
-    private Map<String, Object> stats;
+    private boolean evalCalled;
 
 
     public TimeSeriesPerformanceCalculator(List<Integer> allLabels) {
@@ -35,11 +41,10 @@ public class TimeSeriesPerformanceCalculator {
         falseNegatives = new Counter();
         neverPredictedLabels = new HashSet<>();
         neverAppearedLabels = new HashSet<>();
-        precision = new HashMap<>();
-        recall = new HashMap<>();
+        labelPrecisions = new HashMap<>();
+        labelRecalls = new HashMap<>();
         confusionMatrix = new ConfusionMatrix(allLabels);
         totalPredictions = 0;
-        stats = new HashMap<>();
         this.allLabels = allLabels;
     }
 
@@ -47,7 +52,7 @@ public class TimeSeriesPerformanceCalculator {
         this(IntStream.range(0, numLabels).boxed().collect(Collectors.toList()));
     }
 
-    public void addTimeSeries(TimeSeriesPrediction timeSeries) {
+    public TimeSeriesPerformanceCalculator addTimeSeries(TimeSeriesPrediction timeSeries) {
         for (int i = 0; i < timeSeries.trueLabels().length; i++) {
             totalPredictions++;
             confusionMatrix.increment(timeSeries.trueLabels()[i], timeSeries.predictedLabels()[i]);
@@ -59,9 +64,10 @@ public class TimeSeriesPerformanceCalculator {
                 falsePositives.increment(timeSeries.predictedLabels()[i]);
             }
         }
+        return this;
     }
 
-    public Map<String, Object> eval() {
+    public TimeSeriesPerformanceCalculator eval() {
         for (Integer label : allLabels) {
             int labelTP = truePositives.count(label);
             int labelFP = falsePositives.count(label);
@@ -69,47 +75,79 @@ public class TimeSeriesPerformanceCalculator {
             if ((labelTP + labelFP) == 0) {
                 neverPredictedLabels.add(label);
             } else {
-                precision.put(label, ((double) labelTP) / (labelTP + labelFP));
+                labelPrecisions.put(label, ((double) labelTP) / (labelTP + labelFP));
             }
             if ((labelTP + labelFN) == 0) {
                 neverAppearedLabels.add(label);
             } else {
-                recall.put(label, ((double) labelTP) / (labelTP + labelFN));
+                labelRecalls.put(label, ((double) labelTP) / (labelTP + labelFN));
             }
         }
         double totalPrecision = 0;
         double totalRecall = 0;
-        for (Double labelPrecision : precision.values()) {
+        for (Double labelPrecision : labelPrecisions.values()) {
             totalPrecision += labelPrecision;
         }
-        for (Double labelRecall : recall.values()) {
+        for (Double labelRecall : labelRecalls.values()) {
             totalRecall += labelRecall;
         }
-        final double finalPrecision = totalPrecision / precision.size();
-        final double finalRecall = totalRecall / recall.size();
-        stats.put("accuracy", (double) correctPredictions / totalPredictions);
-        stats.put("precision", finalPrecision);
-        stats.put("recall", finalRecall);
-        stats.put("f1", (2.0 * finalPrecision * finalRecall) / (finalPrecision + finalRecall));
-        stats.put("never_appeared", neverAppearedLabels.toArray());
-        stats.put("never_predicted", neverPredictedLabels.toArray());
-        stats.putAll(confusionMatrix.toMap());
-        return stats;
+        mcPrecision = totalPrecision / labelPrecisions.size();
+        mcRecall = totalRecall / labelRecalls.size();
+        mcAccuracy = (double) correctPredictions / totalPredictions;
+        mcF1Score = (2.0 * mcPrecision * mcRecall) / (mcPrecision + mcRecall);
+        evalCalled = true;
+        return this;
     }
 
+    public double getMetric(String metricName) {
+        assert evalCalled : "eval() should be called first";
+        switch (metricName) {
+            case "f1":
+                return mcF1Score;
+            case "accuracy":
+                return mcAccuracy;
+            case "precision":
+                return mcPrecision;
+            case "recall":
+                return mcRecall;
+            default:
+                throw new UnsupportedOperationException("Unknown metric name");
+        }
+    }
+
+    public Set<Integer> getNeverAppearedOrPredictedSet(String setName) {
+        assert evalCalled : "eval() should be called first";
+        switch (setName) {
+            case "never_appeared":
+                return neverAppearedLabels;
+            case "never_predicted":
+                return neverPredictedLabels;
+            default:
+                throw new UnsupportedOperationException("Unknown set name");
+        }
+    }
+
+    public Map<Pair<Integer, Integer>, Integer> getConfusionMatrix() {
+        assert evalCalled : "eval() should be called first";
+        return confusionMatrix.toMap();
+    }
+
+    public int countConfusionMatrix(int trueLabel, int predictedLabel) {
+        return confusionMatrix.count(trueLabel, predictedLabel);
+    }
+
+
     public String evalString() {
-        assert stats.size() > 0 : "eval() should be called first";
         StringBuilder statsBuilder = new StringBuilder();
-        statsBuilder.append(String.format("\t%f", (float) stats.get("accuracy")));
-        statsBuilder.append(String.format("\t%f", (float) stats.get("precision")));
-        statsBuilder.append(String.format("\t%f", (float) stats.get("recall")));
-        statsBuilder.append(String.format("\t%f", (float) stats.get("f1")));
-        statsBuilder.append(String.format("\t%s", Arrays.toString((int[]) stats.get("never_appeared"))));
-        statsBuilder.append(String.format("\t%s", Arrays.toString((int[]) stats.get("never_predicted"))));
+        statsBuilder.append(String.format("\t%f", getMetric("accuracy")));
+        statsBuilder.append(String.format("\t%f", getMetric("precision")));
+        statsBuilder.append(String.format("\t%f", getMetric("recall")));
+        statsBuilder.append(String.format("\t%f", getMetric("f1")));
+        statsBuilder.append(String.format("\t%s", getNeverAppearedOrPredictedSet("never_appeared")));
+        statsBuilder.append(String.format("\t%s", getNeverAppearedOrPredictedSet("never_predicted")));
         for (int i : allLabels) {
             for (int j : allLabels) {
-                statsBuilder.append(String.format("\t%d",
-                        (int) stats.get(String.format("%d_actual_%d_predicted", i, j))));
+                statsBuilder.append(String.format("\t%d", confusionMatrix.count(i, j)));
             }
         }
         return statsBuilder.toString();
@@ -118,11 +156,11 @@ public class TimeSeriesPerformanceCalculator {
     private class Counter {
         private Map<Integer, Integer> backingMap;
 
-        private Counter() {
+        public Counter() {
             backingMap = new HashMap<>();
         }
 
-        private void increment(int label) {
+        public void increment(int label) {
             if (backingMap.containsKey(label)) {
                 backingMap.put(label, backingMap.get(label) + 1);
             } else {
@@ -130,7 +168,7 @@ public class TimeSeriesPerformanceCalculator {
             }
         }
 
-        private int count(int label) {
+        public int count(int label) {
             Integer labelCount = backingMap.get(label);
             return labelCount != null ? labelCount : 0;
         }
@@ -140,7 +178,7 @@ public class TimeSeriesPerformanceCalculator {
         private Map<Integer, Counter> backingMap;
         private List<Integer> allLabels;
 
-        private ConfusionMatrix(List<Integer> allLabels) {
+        public ConfusionMatrix(List<Integer> allLabels) {
             backingMap = new HashMap<>();
             this.allLabels = allLabels;
             for (Integer label : allLabels) {
@@ -148,19 +186,19 @@ public class TimeSeriesPerformanceCalculator {
             }
         }
 
-        private void increment(int trueLabel, int predictedLabel) {
+        public void increment(int trueLabel, int predictedLabel) {
             backingMap.get(trueLabel).increment(predictedLabel);
         }
 
-        private int count(int trueLabel, int predictedLabel) {
+        public int count(int trueLabel, int predictedLabel) {
             return backingMap.get(trueLabel).count(predictedLabel);
         }
 
-        private Map<String, Integer> toMap() {
-            Map<String, Integer> confusionMatrixMap = new HashMap<>();
+        public Map<Pair<Integer, Integer>, Integer> toMap() {
+            Map<Pair<Integer, Integer>, Integer> confusionMatrixMap = new HashMap<>();
             for (int i : allLabels) {
                 for (int j : allLabels) {
-                    confusionMatrixMap.put(String.format("%d_actual_%d_predicted", i, j), count(i, j));
+                    confusionMatrixMap.put(new ImmutablePair<>(i, j), count(i, j));
                 }
             }
             return confusionMatrixMap;
@@ -170,6 +208,7 @@ public class TimeSeriesPerformanceCalculator {
     public static double estimateFromGraph(ComputationGraph graph, MultiDataSetIterator iterator, int numLabels,
                                            String metricName, int outputIndex, long scoreN) {
         TimeSeriesPerformanceCalculator calculator = new TimeSeriesPerformanceCalculator(numLabels);
+        TimeSeriesPrediction prediction = new TimeSeriesPrediction();
         int sequenceCount = 0;
         while (iterator.hasNext()) {
             MultiDataSet next = iterator.next();
@@ -179,9 +218,8 @@ public class TimeSeriesPerformanceCalculator {
             INDArray allTrueLabels = graph.output(next.getFeatures())[outputIndex];
             int numExamples = next.getFeatures(outputIndex).size(0);
             for (int sequenceIdx = 0; sequenceIdx < numExamples; sequenceIdx++) {
-                INDArray trueLabel = next.getLabels(outputIndex).getRow(sequenceIdx);
-                INDArray predictedLabel = allTrueLabels.getRow(sequenceIdx);
-                TimeSeriesPrediction prediction = new TimeSeriesPrediction(trueLabel, predictedLabel);
+                prediction.setTrueLabels(allTrueLabels, sequenceIdx)
+                        .setPredictedLabels(next.getLabels(outputIndex), sequenceIdx);
                 calculator.addTimeSeries(prediction);
                 sequenceCount++;
             }
@@ -189,6 +227,6 @@ public class TimeSeriesPerformanceCalculator {
                 break;
             }
         }
-        return (double) calculator.eval().get(metricName);
+        return calculator.eval().getMetric(metricName);
     }
 }
