@@ -232,6 +232,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         helper.setEarlyStopCriterion(args().stopWhenEpochsWithoutImprovement);
         helper.setRegularization(args().regularizationRate);
         helper.setPrecision(precision);
+        helper.put("allArguments",getAllCommandLineArguments());
     }
 
     ParameterPrecision precision = ParameterPrecision.FP32;

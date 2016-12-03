@@ -87,6 +87,17 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
         return map;
     }
 
+    public String getAllCommandLineArguments() {
+        StringBuffer b = new StringBuffer();
+        Map<String, Object> allFieldValues = getAllFieldValues();
+        for (String argumentName : allFieldValues.keySet()) {
+            b.append(argumentName);
+            b.append(" ");
+            b.append(allFieldValues.get(argumentName));
+        }
+        return b.toString();
+    }
+
     /**
      * Add an option not exposed by command line arguments.
      *
