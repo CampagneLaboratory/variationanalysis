@@ -137,7 +137,7 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
         resutsWriter.close();
         outputWriter.append(String.format("%s\t%s\t", modelTag, prefix));
         for (double metric : createOutputStatistics()) {
-            outputWriter.append(String.format("%d\t", metric));
+            outputWriter.append(String.format("%f\t", metric));
         }
         outputWriter.append("\n");
         outputWriter.close();
