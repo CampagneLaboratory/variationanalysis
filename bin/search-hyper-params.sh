@@ -45,8 +45,9 @@ EOF
 
 num_executions=${memory_requirement}
 
-parallel echo `cat main-command.txt` --regularization-rate :::: reg.txt :::  --random-seed :::: seed.txt ::: --dropout-rate :::: drop.txt --early-stopping-num-epochs 0   >commands.txt
+parallel echo `cat main-command.txt` --regularization-rate :::: reg.txt :::  --random-seed :::: seed.txt ::: --dropout-rate :::: drop.txt ::: --early-stopping-num-epochs ::: 0   >commands.txt
 shuf commands.txt  |head -${num_executions} >commands-head-${num_executions}
 chmod +x commands-head-${num_executions}
-cat ./commands-head-${num_executions} |parallel -j4   --gpu-device :::: gpu.txt :::
+cat ./commands-head-${num_executions} |parallel ::: echo  :::: - ::: --gpu-device :::: gpu.txt :::  >all-commands.txt
+cat all-commands.txt |parallel -j4
 sort -n -k 2 model-conditions.txt|tail

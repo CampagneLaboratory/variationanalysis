@@ -61,6 +61,7 @@ public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
         if (args().dropoutRate != null) {
             graphBuilder.dropOut(args().dropoutRate);
             graphBuilder.setUseDropConnect(true);
+            graphBuilder.setUseRegularization(true);
         }
         NeuralNetConfiguration.Builder graphConfiguration = graphBuilder.lrPolicyDecayRate(0.5)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
