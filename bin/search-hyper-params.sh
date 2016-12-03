@@ -2,6 +2,7 @@
 . `dirname "${BASH_SOURCE[0]}"`/setup.sh
 
 cat << EOF | cat> drop.txt
+0
 0.3
 0.4
 0.5
@@ -32,11 +33,11 @@ cat << EOF | cat>seed.txt
 443
 732
 EOF
-
-echo ${memory_requirement} $* >main-command.txt
+num_executions=${memory_requirement}
+echo $* >main-command.txt
 
 parallel echo `cat main-command.txt` --regularization-rate :::: reg.txt :::  --random-seed :::: seed.txt ::: --dropout-rate :::: drop.txt  >commands.txt
-shuf commands.txt  |head -100 >commands-head-100
-chmod +x commands-head-100
-cat ./commands-head-100 |parallel -j4
+shuf commands.txt  |head -${num_executions} >commands-head-${num_executions}
+chmod +x commands-head-${num_executions}
+cat ./commands-head-${num_executions} |parallel -j4
 sort -n -k 2 model-conditions.txt|tail
