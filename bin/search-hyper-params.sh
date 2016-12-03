@@ -33,11 +33,20 @@ cat << EOF | cat>seed.txt
 443
 732
 EOF
-num_executions=${memory_requirement}
-echo $* >main-command.txt
 
-parallel echo `cat main-command.txt` --regularization-rate :::: reg.txt :::  --random-seed :::: seed.txt ::: --dropout-rate :::: drop.txt  >commands.txt
+
+echo $* >main-command.txt
+cat << EOF | cat>gpu.txt
+0
+1
+2
+3
+EOF
+
+num_executions=${memory_requirement}
+
+parallel echo `cat main-command.txt` --regularization-rate :::: reg.txt :::  --random-seed :::: seed.txt ::: --dropout-rate :::: drop.txt --early-stopping-num-epochs 0   >commands.txt
 shuf commands.txt  |head -${num_executions} >commands-head-${num_executions}
 chmod +x commands-head-${num_executions}
-cat ./commands-head-${num_executions} |parallel -j4
+cat ./commands-head-${num_executions} |parallel -j4   --gpu-device :::: gpu.txt :::
 sort -n -k 2 model-conditions.txt|tail
