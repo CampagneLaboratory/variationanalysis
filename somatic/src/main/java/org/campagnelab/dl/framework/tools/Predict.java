@@ -90,9 +90,9 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
         ModelLoader modelLoader = new ModelLoader(modelPath);
         String modelTag = modelLoader.getModelProperties().getProperty("tag");
         if (!outputFileExists) {
-            outputWriter.append("tag\tprefix\t");
+            outputWriter.append("tag\tprefix");
             for (String metricName : createOutputHeader()) {
-                outputWriter.append(String.format("%s\t", metricName));
+                outputWriter.append(String.format("\t%s", metricName));
             }
             outputWriter.append("\n");
         }
@@ -135,9 +135,9 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
         );
 
         resutsWriter.close();
-        outputWriter.append(String.format("%s\t%s\t", modelTag, prefix));
+        outputWriter.append(String.format("%s\t%s", modelTag, prefix));
         for (double metric : createOutputStatistics()) {
-            outputWriter.append(String.format("%f\t", metric));
+            outputWriter.append(String.format("\t%f", metric));
         }
         outputWriter.append("\n");
         outputWriter.close();

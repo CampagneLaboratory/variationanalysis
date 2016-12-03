@@ -42,10 +42,22 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
         aucLossCalculator = new AreaUnderTheROCCurve(args().numRecordsForAUC);
     }
 
-    //TODO: Implement these
+    private boolean aucCalculated = false;
+    private double auc;
+
     @Override
     protected double[] createOutputStatistics() {
-        return new double[]{aucLossCalculator.evaluateStatistic()};
+        return new double[]{getAUC()};
+    }
+
+    private double getAUC() {
+        if (aucCalculated) {
+            return auc;
+        } else {
+            auc = aucLossCalculator.evaluateStatistic();
+            aucCalculated = true;
+            return auc;
+        }
     }
 
     @Override
@@ -55,7 +67,7 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void reportStatistics(String prefix) {
-        System.out.println("AUC on " + prefix + "=" + aucLossCalculator.evaluateStatistic());
+        System.out.println("AUC on " + prefix + "=" + getAUC());
     }
 
     @Override
