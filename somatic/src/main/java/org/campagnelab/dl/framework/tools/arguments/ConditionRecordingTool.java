@@ -94,6 +94,7 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
             b.append(argumentName);
             b.append(" ");
             b.append(allFieldValues.get(argumentName));
+            b.append(" ");
         }
         return b.toString();
     }
