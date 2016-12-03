@@ -49,5 +49,5 @@ parallel echo `cat main-command.txt` --regularization-rate :::: reg.txt :::  --r
 shuf commands.txt  |head -${num_executions} >commands-head-${num_executions}
 chmod +x commands-head-${num_executions}
 cat ./commands-head-${num_executions} |parallel --xapply ::: echo  :::: - ::: --gpu-device :::: gpu.txt  >all-commands.txt
-cat all-commands.txt |parallel -j4
+cat all-commands.txt |parallel -j8 --progress
 sort -n -k 2 model-conditions.txt|tail
