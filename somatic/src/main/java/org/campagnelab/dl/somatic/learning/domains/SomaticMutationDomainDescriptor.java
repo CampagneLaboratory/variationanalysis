@@ -48,8 +48,11 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         super.loadProperties(modelPath);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
+        initializeArchitecture();
 
     }
+
+
 
     /**
      * Use this method to create a domain before training. The supplied properties provide
@@ -65,6 +68,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         super.loadProperties(domainProperties, sbiProperties);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
+        initializeArchitecture();
     }
 
     private SomaticTrainingArguments arguments;

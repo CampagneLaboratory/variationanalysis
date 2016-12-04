@@ -34,7 +34,7 @@ public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
         return arguments;
     }
 
-    ;
+
 
     @Override
     public void setArguments(TrainingArguments arguments) {

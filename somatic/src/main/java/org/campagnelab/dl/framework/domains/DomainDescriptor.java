@@ -248,11 +248,7 @@ public abstract class DomainDescriptor<RecordType> {
         try {
             domainProperties.load(new FileReader(domainPropFilename));
             modelProperties.load(new FileReader(modelPropFilename));
-            String netArchitectureClassname = domainProperties.getProperty("net.architecture.classname");
-            if (netArchitectureClassname == null) {
-                netArchitectureClassname = SixDenseLayersNarrower2.class.getCanonicalName();
-            }
-            initializeArchitecture(netArchitectureClassname);
+
         } catch (IOException e) {
             throw new RuntimeException("Unable to load domain properties in model path " + modelPath, e);
         }
@@ -306,6 +302,17 @@ public abstract class DomainDescriptor<RecordType> {
         } catch (Exception e) {
             throw new RuntimeException("Unable to load computation graph: " + architectureClassname);
         }
+    }
+
+    /**
+     * Initialize the net architecture using the name in the domain properties.
+     */
+    protected void initializeArchitecture() {
+        String netArchitectureClassname = domainProperties.getProperty("net.architecture.classname");
+        if (netArchitectureClassname == null) {
+            netArchitectureClassname = SixDenseLayersNarrower2.class.getCanonicalName();
+        }
+        initializeArchitecture(netArchitectureClassname);
     }
 
 }
