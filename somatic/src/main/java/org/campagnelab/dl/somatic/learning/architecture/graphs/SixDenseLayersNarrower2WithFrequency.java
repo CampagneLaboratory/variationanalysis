@@ -22,7 +22,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  *
  * @author Fabien Campagne
  */
-public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
+public class SixDenseLayersNarrower2WithFrequency implements ComputationalGraphAssembler {
 
 
     private int numHiddenNodes;
@@ -58,7 +58,7 @@ public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
                 .seed(args().seed)
                 .iterations(1)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(args().learningRate).regularization(args().regularizationRate != null).l2(args().regularizationRate != null ? args().regularizationRate : 0)
+                .learningRate(args().learningRate).regularization(args().regularizationRate != null).l2(args().regularizationRate != null? args().regularizationRate:0)
                 .updater(Updater.ADAGRAD);
 
         if (args().dropoutRate != null) {
@@ -103,6 +103,10 @@ public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
                         .weightInit(WEIGHT_INIT)
                         .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(numOutputsIsMutated).build(), "dense5")
+                .addLayer("somaticFrequency", new OutputLayer.Builder(domainDescriptor.getOutputLoss("somaticFrequency"))
+                        .weightInit(WEIGHT_INIT)
+                        .activation("identity").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
+                        .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(numOutputsSomaticFrequency).build(), "dense5")
                 .setOutputs(getOutputNames())
                 .pretrain(false).backprop(true).build();
 
@@ -132,7 +136,7 @@ public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
 
     @Override
     public String[] getOutputNames() {
-        return new String[]{"isMutated"};
+        return new String[]{"isMutated", "somaticFrequency"};
     }
 
     @Override

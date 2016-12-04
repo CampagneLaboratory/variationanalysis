@@ -11,7 +11,6 @@ import org.campagnelab.dl.framework.performance.AUCHelper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.somatic.learning.SomaticTrainingArguments;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
-import org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2;
 import org.campagnelab.dl.somatic.learning.domains.predictions.IsSomaticMutationInterpreter;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
@@ -35,6 +34,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
     public SomaticMutationDomainDescriptor(SomaticTrainingArguments arguments) {
         this.arguments = arguments;
+        initializeArchitecture(arguments.architectureClassname);
     }
 
     /**
@@ -48,10 +48,11 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         super.loadProperties(modelPath);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
+
     }
 
     /**
-     * Use this methdo to create a domain before training. The supplied properties provide
+     * Use this method to create a domain before training. The supplied properties provide
      * featureMapper and labelMapper information (domainProperties), and the sbiProperties
      * provide statistic observed on the training set (or part of it).
      *
@@ -180,7 +181,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
     @Override
     public ComputationalGraphAssembler getComputationalGraph() {
-        return new SixDenseLayersNarrower2();
+        return computationGraphAssembler;
     }
 
     @Override
