@@ -7,7 +7,6 @@ import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
-import org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
@@ -309,9 +308,6 @@ public abstract class DomainDescriptor<RecordType> {
      */
     protected void initializeArchitecture() {
         String netArchitectureClassname = domainProperties.getProperty("net.architecture.classname");
-        if (netArchitectureClassname == null) {
-            netArchitectureClassname = SixDenseLayersNarrower2.class.getCanonicalName();
-        }
         initializeArchitecture(netArchitectureClassname);
     }
 

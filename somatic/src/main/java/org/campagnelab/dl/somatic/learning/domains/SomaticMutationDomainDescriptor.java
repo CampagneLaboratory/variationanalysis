@@ -11,6 +11,7 @@ import org.campagnelab.dl.framework.performance.AUCHelper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.somatic.learning.SomaticTrainingArguments;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
+import org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2;
 import org.campagnelab.dl.somatic.learning.domains.predictions.IsSomaticMutationInterpreter;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
@@ -51,7 +52,6 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         initializeArchitecture();
 
     }
-
 
 
     /**
@@ -181,6 +181,19 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         };
 
 
+    }
+
+
+    /**
+     * Initialize the net architecture using the name in the domain properties.
+     */
+    @Override
+    protected void initializeArchitecture() {
+        String netArchitectureClassname = domainProperties.getProperty("net.architecture.classname");
+        if (netArchitectureClassname == null) {
+            netArchitectureClassname = SixDenseLayersNarrower2.class.getCanonicalName();
+        }
+        initializeArchitecture(netArchitectureClassname);
     }
 
     @Override
