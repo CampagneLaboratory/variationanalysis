@@ -2,6 +2,7 @@ package org.campagnelab.dl.framework.tools;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import org.campagnelab.dl.framework.tools.arguments.RecordingToolArguments;
 import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
 
 /**
@@ -9,7 +10,7 @@ import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
  */
 @Parameters(commandDescription = "Perform model prediction on a dataset. Dataset must be provided in the .sbi/sbip format.")
 
-public class PredictArguments implements ToolArguments {
+public class PredictArguments extends RecordingToolArguments {
     @Parameter(required = true, names = {"-i", "--dataset"}, description = "Path to the dataset to where prediction will be evaluated.")
     public String testSet;
 
@@ -53,6 +54,6 @@ public class PredictArguments implements ToolArguments {
 
     public boolean ignoreCache;
 
-    @Parameter(names = {"-o", "--output-file"}, description = "Filename for output file for statistics. ")
-    public String outputFile = "./output_statistics.tsv";
+    @Parameter(names = {"--predict-statistics"}, description = "Filename where predict statistics will be written (one invocation of predict is one line). ")
+    public String outputFile = "predict-statistics.tsv";
 }

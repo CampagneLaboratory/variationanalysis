@@ -10,6 +10,7 @@ import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
+import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
 import org.deeplearning4j.nn.api.Model;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ import java.util.Properties;
  * @author Fabien Campagne
  *         Created by fac2003 on 10/23/16.
  */
-public abstract class Predict<RecordType> extends AbstractTool<PredictArguments> {
+public abstract class Predict<RecordType> extends ConditionRecordingTool<PredictArguments> {
 
     static private Logger LOG = LoggerFactory.getLogger(Predict.class);
 
@@ -94,7 +95,7 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
             for (String metricName : createOutputHeader()) {
                 outputWriter.append(String.format("\t%s", metricName));
             }
-            outputWriter.append("\n");
+            outputWriter.append("\targuments\n");
         }
         // we scale features using statistics observed on the training set:
         FeatureMapper featureMapper = modelLoader.loadFeatureMapper(modelLoader.getModelProperties());
@@ -139,6 +140,7 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
         for (double metric : createOutputStatistics()) {
             outputWriter.append(String.format("\t%f", metric));
         }
+        outputWriter.append("\t"+getAllCommandLineArguments());
         outputWriter.append("\n");
         outputWriter.close();
         pgReadWrite.stop();
