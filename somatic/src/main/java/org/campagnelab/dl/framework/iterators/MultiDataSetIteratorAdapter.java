@@ -96,6 +96,7 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
                 }
             }
             for (int j = 0; j < numOutputs; j++) {
+                labelMappers[j].prepareToNormalize(record, recordIndexInBatch);
                 labelMappers[j].mapLabels(record, labels[j], recordIndexInBatch);
                 if (labelMappers[j].hasMask()) {
                     labelMappers[j].maskLabels(record, labelMasks[j], recordIndexInBatch);

@@ -18,6 +18,7 @@ public class RNNLabelMapperTest {
         RNNLabelMapper<String> rnnFeatureMapper = new RNNLabelMapper<>(3, 6,
                 r -> Arrays.stream(r.split("")).mapToInt(this::testConvert).toArray(), String::length);
         INDArray labels = Nd4j.zeros(1, 3, 6);
+        rnnFeatureMapper.prepareToNormalize(sequence, 0);
         rnnFeatureMapper.mapLabels(sequence, labels, 0);
         assertEquals(labels.toString(), expectedLabel);
     }

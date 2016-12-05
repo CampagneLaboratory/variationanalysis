@@ -11,6 +11,16 @@ public class IsSomaticMutationInterpreter implements PredictionInterpreter<BaseI
 
 
     @Override
+    public IsMutatedPrediction interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex) {
+        IsMutatedPrediction prediction=new IsMutatedPrediction();
+        prediction.trueLabelYes = trueLabels.getDouble(predictionIndex, 1);
+        int outputIndex=0;
+        prediction.predictedLabelNo = outputs[outputIndex].getDouble(predictionIndex, 0);
+        prediction.predictedLabelYes = outputs[outputIndex].getDouble(predictionIndex, 1);
+        return  prediction;
+    }
+
+    @Override
     public IsMutatedPrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
         IsMutatedPrediction pred = new IsMutatedPrediction();
         pred.inspectRecord(record);

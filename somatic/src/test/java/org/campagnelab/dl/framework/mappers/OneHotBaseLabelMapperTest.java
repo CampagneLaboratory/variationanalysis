@@ -18,6 +18,7 @@ public class OneHotBaseLabelMapperTest {
             LabelMapper<String> calculator = new OneHotBaseLabelMapper<>(i, record.length(),
                     r -> Arrays.stream(r.split("")).mapToInt(Integer::parseInt).toArray());
             INDArray labels = Nd4j.zeros(1, calculator.numberOfLabels());
+            calculator.prepareToNormalize(record,  0);
             calculator.mapLabels(record, labels, 0);
             assertEquals(expectedLabels[i], labels.toString());
         }

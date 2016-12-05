@@ -277,10 +277,13 @@ public abstract class DomainDescriptor<RecordType> {
         String outputNames[] = getComputationalGraph().getOutputNames();
         for (String inputName : inputNames) {
             props.put(inputName + ".featureMapper", getFeatureMapper(inputName).getClass().getCanonicalName());
+            props.put(inputName + ".featureMapper.numFeatures", Integer.toString(getFeatureMapper(inputName).numberOfFeatures()));
         }
         for (String outputName : outputNames) {
             props.put(outputName + ".labelMapper", getLabelMapper(outputName).getClass().getCanonicalName());
+            props.put(outputName + ".labelMapper.numLabels", Integer.toString(getLabelMapper(outputName).numberOfLabels()));
             props.put(outputName + ".predictionInterpreter", getPredictionInterpreter(outputName).getClass().getCanonicalName());
+
         }
 
     }

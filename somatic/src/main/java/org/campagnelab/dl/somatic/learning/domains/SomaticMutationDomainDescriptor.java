@@ -15,6 +15,7 @@ import org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNar
 import org.campagnelab.dl.somatic.learning.domains.predictions.IsSomaticMutationInterpreter;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
+import org.campagnelab.dl.somatic.mappers.IsBaseMutatedMapper;
 import org.campagnelab.dl.somatic.mappers.IsSomaticMutationMapper;
 import org.campagnelab.dl.somatic.mappers.SomaticFrequencyLabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -110,6 +111,8 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         switch (outputName) {
             case "isMutated":
                 return new IsSomaticMutationMapper();
+            case "isBaseMutated":
+                return new IsBaseMutatedMapper();
             case "somaticFrequency":
                 return new SomaticFrequencyLabelMapper();
             default:
@@ -122,6 +125,8 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         switch (outputName) {
             case "isMutated":
                 return new IsSomaticMutationInterpreter();
+            case "isBaseMutated":
+                return new IsBaseMutatedInterpreter();
             case "somaticFrequency":
                 return new SomaticFrequencyInterpreter();
             default:
@@ -168,7 +173,9 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
                         return helper.estimateWithGraph(dataSetIterator, graph, args().numValidation, prediction -> {
                                 },
                                 index -> index > scoreN,
-                            /* first output represents probability of mutation */ 0);
+                            /* first output represents probability of mutation */ 0,
+                                hasOutput("isBaseMutated") ? new IsBaseMutatedInterpreter() :
+                                        new IsSomaticMutationInterpreter());
                     default:
                         return estimateScore(graph, metricName, dataSetIterator, scoreN);
                 }
@@ -231,6 +238,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
     public LossFunctions.LossFunction getOutputLoss(String outputName) {
         switch (outputName) {
             case "isMutated":
+            case "isBaseMutated":
                 return LossFunctions.LossFunction.MCXENT;
             case "somaticFrequency":
                 return LossFunctions.LossFunction.MSE;
