@@ -9,6 +9,20 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Created by fac2003 on 11/12/16.
  */
 public interface PredictionInterpreter<RecordType, PredictionType extends Prediction> {
+    /**
+     * Interpret a prediction given true labels given by a LabelMapper.
+     * @param trueLabels True labels.
+     * @param outputs    Model outputs. In the order defined by the computation graph that produced them.
+     * @param predictionIndex Index of the example being predicted, in a minibatch.
+     * @return Interpreted prediction.
+     */
     PredictionType interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex);
+
+    /**
+     * Interpret a prediction given a record and model outputs.
+     * @param record The record, which can be mapped to true labels with a labelMapper.
+     * @param output Model outputs. In the order defined by the computation graph that produced them.
+     * @return Interpreted prediction.
+     */
     PredictionType interpret(RecordType record, INDArray output);
 }

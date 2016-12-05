@@ -6,6 +6,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
+ * Interpret whether the output indicates the site is mutated. Used with IsBaseMutatedMapper.
  * Created by fac2003 on 12/5/16.
  */
 public class IsBaseMutatedInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation, IsMutatedPrediction> {
