@@ -8,6 +8,7 @@ import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.performance.AUCHelper;
+import org.campagnelab.dl.framework.performance.AccuracyHelper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.TrainGenotypeModelS;
@@ -197,12 +198,14 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         return new PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation>() {
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"AUC", "score"};
+                return new String[]{"AUC","score", "accuracy"};
             }
 
             @Override
             public boolean largerValueIsBetterPerformance(String metricName) {
                 switch (metricName) {
+                    case "accuracy":
+                        return true;
                     case "AUC":
                         return true;
                     case "score":
@@ -215,12 +218,14 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             @Override
             public double estimateMetric(ComputationGraph graph, String metricName, MultiDataSetIterator dataSetIterator, long scoreN) {
                 switch (metricName) {
-                    case "AUC":
-                        AUCHelper helper = new AUCHelper();
+                    case "accuracy":
+                        AccuracyHelper helper = new AccuracyHelper();
                         return helper.estimateWithGraph(dataSetIterator, graph, args().numValidation, prediction -> {
                                 },
                                 index -> index > scoreN,
                             /* first output represents probability of mutation */ 0);
+                    case "AUC":
+                        return -1;
                     default:
                         return estimateScore(graph, metricName, dataSetIterator, scoreN);
                 }
@@ -228,7 +233,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String earlyStoppingMetric() {
-                return "AUC";
+                return "score";
             }
         };
 
