@@ -2,7 +2,6 @@ package org.campagnelab.dl.framework.performance;
 
 import org.campagnelab.dl.framework.domains.prediction.BinaryClassPrediction;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
-import org.campagnelab.dl.somatic.learning.domains.IsBaseMutatedInterpreter;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
