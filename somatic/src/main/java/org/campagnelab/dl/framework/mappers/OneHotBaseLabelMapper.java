@@ -21,6 +21,11 @@ public class OneHotBaseLabelMapper<RecordType> implements LabelMapper<RecordType
     }
 
     @Override
+    public void prepareToNormalize(RecordType record, int indexOfRecord) {
+
+    }
+
+    @Override
     public int numberOfLabels() {
         return numLabels;
     }

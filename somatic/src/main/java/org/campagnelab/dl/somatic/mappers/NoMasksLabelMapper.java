@@ -32,4 +32,9 @@ public abstract class NoMasksLabelMapper<RecordType> implements LabelMapper<Reco
     public boolean isMasked(RecordType record, int featureIndex) {
         return false;
     }
+
+    @Override
+    public void prepareToNormalize(RecordType record, int indexOfRecord) {
+
+    }
 }

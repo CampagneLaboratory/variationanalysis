@@ -61,4 +61,6 @@ public interface LabelMapper<RecordType> {
      * @return True if feature must be masked, false otherwise.
      */
     boolean isMasked(RecordType record, int featureIndex);
+
+    void prepareToNormalize(RecordType record, int indexOfRecord);
 }
