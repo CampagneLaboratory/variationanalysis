@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.FeatureCalculator;
+import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.campagnelab.dl.somatic.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.somatic.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.somatic.mappers.AbstractFeatureMapper;

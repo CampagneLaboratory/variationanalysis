@@ -119,6 +119,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         for (String outputName : assembler.getOutputNames()) {
             assembler.setNumOutputs(outputName, domainDescriptor.getNumOutputs(outputName));
             assembler.setLossFunction(outputName, domainDescriptor.getOutputLoss(outputName));
+            System.out.println("hello");
         }
         for (String componentName : assembler.getOutputNames()) {
             assembler.setNumHiddenNodes(componentName, domainDescriptor.getNumHiddenNodes(componentName));
