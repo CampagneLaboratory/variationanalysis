@@ -1,22 +1,22 @@
 package org.campagnelab.dl.somatic.learning.domains;
 
 import org.apache.commons.compress.utils.IOUtils;
+import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
+import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
+import org.campagnelab.dl.framework.mappers.FeatureMapper;
+import org.campagnelab.dl.framework.mappers.LabelMapper;
+import org.campagnelab.dl.framework.performance.AUCHelper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.somatic.learning.SomaticTrainingArguments;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
-import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
 import org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2;
 import org.campagnelab.dl.somatic.learning.domains.predictions.IsSomaticMutationInterpreter;
-import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
-import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.somatic.mappers.IsSomaticMutationMapper;
-import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.somatic.mappers.SomaticFrequencyLabelMapper;
-import org.campagnelab.dl.framework.performance.AUCHelper;
-import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.nn.graph.ComputationGraph;
@@ -39,6 +39,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
     /**
      * Use this method to create a domain descriptor for a trained model.
+     *
      * @param modelPath Path where the model is stored.
      */
     public SomaticMutationDomainDescriptor(String modelPath) {
@@ -53,13 +54,14 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
      * Use this methdo to create a domain before training. The supplied properties provide
      * featureMapper and labelMapper information (domainProperties), and the sbiProperties
      * provide statistic observed on the training set (or part of it).
+     *
      * @param domainProperties Properties describing the domain. Must describe feature and label mappers.
-     * @param sbiProperties Properties describing statistics, used to configure feature mappers.
+     * @param sbiProperties    Properties describing statistics, used to configure feature mappers.
      */
     public SomaticMutationDomainDescriptor(Properties domainProperties, Properties sbiProperties) {
 
         this.arguments = new SomaticTrainingArguments();
-        super.loadProperties(domainProperties,sbiProperties);
+        super.loadProperties(domainProperties, sbiProperties);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
     }
@@ -169,7 +171,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
             @Override
             public String earlyStoppingMetric() {
-                return "AUC";
+                return args().earlyStoppingMeasureName;
             }
         };
 
@@ -188,6 +190,17 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
     @Override
     public int[] getNumOutputs(String outputName) {
+        return new int[]{getLabelMapper(outputName).numberOfLabels()};
+    }
+
+    // TODO: SomaticMutationDomainDescriptor shouldn't need these methods, but make sure
+    @Override
+    public int[] getNumMaskInputs(String inputName) {
+        return new int[]{getFeatureMapper(inputName).numberOfFeatures()};
+    }
+
+    @Override
+    public int[] getNumMaskOutputs(String outputName) {
         return new int[]{getLabelMapper(outputName).numberOfLabels()};
     }
 

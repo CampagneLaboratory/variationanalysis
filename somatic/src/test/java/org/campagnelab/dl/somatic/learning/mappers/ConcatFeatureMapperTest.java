@@ -1,8 +1,8 @@
 package org.campagnelab.dl.somatic.learning.mappers;
 
-import org.campagnelab.dl.somatic.mappers.ConcatFeatureMapper;
+import org.campagnelab.dl.framework.iterators.ConcatFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
-import org.campagnelab.dl.somatic.mappers.NoMaskFeatureMapper;
+import org.campagnelab.dl.framework.mappers.NoMaskFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;

@@ -3,7 +3,7 @@ package org.campagnelab.dl.somatic.intermediaries;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.util.XorShift1024StarRandom;
-import org.campagnelab.dl.somatic.tools.Mutator2;
+import org.campagnelab.dl.somatic.tools.Mutate;
 import org.campagnelab.dl.somatic.utils.ProtoPredictor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.predictions.ProtoHelper;
@@ -19,14 +19,22 @@ import java.util.Random;
 public class FirstSimulationStrategy implements SimulationStrategy {
     long seed;
 
-
     public FirstSimulationStrategy(double deltaSmall, double deltaBig, double zygHeuristic, long seed) {
+        setup(deltaSmall, deltaBig, zygHeuristic, seed, 0);
+    }
+
+    @Override
+    public void setup(double deltaSmall, double deltaBig, double zygHeuristic, long seed, double canonThreshold) {
         this.seed = seed;
         rand = new XorShift1024StarRandom(seed);
 
         this.deltaSmall = deltaSmall;
         this.deltaBig = deltaBig;
         this.zygHeuristic = zygHeuristic;
+    }
+
+    public FirstSimulationStrategy() {
+
     }
 
 
@@ -41,11 +49,20 @@ public class FirstSimulationStrategy implements SimulationStrategy {
     Random rand;
 
 
-    class mutationDirection {
+    class MutationDirection {
         int oldBase;
         int newBase;
         double delta;
-        double frequency;
+        /**
+         * The frequency of mutation for the source allele. Can be different from somaticFrequency when two alleles or
+         * more.
+         */
+        double somaticFrequency;
+
+        @Override
+        public String toString() {
+            return String.format("%d>%d delta=%f somaticFrequency=%f", oldBase, newBase, delta, somaticFrequency);
+        }
 
         /**
          * creates a mutationDirection object which defines where reads will be moved from,to, and how many
@@ -55,24 +72,28 @@ public class FirstSimulationStrategy implements SimulationStrategy {
          * @param delta     proportion source base reads to move (0 - 1 in heterozygous case, 0 - 0.5 in homozygous case)
          * @param frequency proportion of source allele reads to move (always 0 - 1, either delta or delta/2 in heterozygous case)
          */
-        mutationDirection(int oldBase, int newBase, double delta, double frequency) {
+        MutationDirection(int oldBase, int newBase, double delta, double frequency) {
             this.oldBase = oldBase;
             this.newBase = newBase;
             this.delta = delta;
-            this.frequency = frequency;
+            this.somaticFrequency = frequency;
         }
     }
 
-    mutationDirection dirFromCounts(int[] counts) {
+    /**
+     * @param counts arrays of counts, in genotype order.
+     * @return
+     */
+    MutationDirection dirFromCounts(int referenceBase, int[] counts) {
         int numGenos = counts.length;
         int maxCount = 0;
         int secondMostCount = 0;
         int maxCountIdx = -1;
         int secondMostCountIdx = -1;
-        int numCounts = 0;
+        int totalNumCounts = 0;
         //find highest count idx, second highest count idx, and record number of counts
         for (int i = 0; i < numGenos; i++) {
-            numCounts += counts[i];
+            totalNumCounts += counts[i];
             if (counts[i] > maxCount) {
                 secondMostCountIdx = maxCountIdx;
                 secondMostCount = maxCount;
@@ -93,12 +114,12 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             monozygotic = true;
         } else {
             //see if base with second most reads exceeds heuristic
-            monozygotic = (zygHeuristic * numCounts > counts[secondMostCountIdx]);
+            monozygotic = (zygHeuristic * totalNumCounts > counts[secondMostCountIdx]);
         }
         //make rand generator and generate proportion mutating bases
-        //generate mutation rate
+        //generate mutation rate for the source allele.
         double delta = deltaSmall + ((deltaBig - deltaSmall) * rand.nextDouble());
-        double deltaOrig = delta;
+        double originalDelta = delta;
         int newBase = -1;
         int oldBase;
         int otherAlleleBase = -1;
@@ -107,12 +128,19 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             oldBase = maxCountIdx;
             //generate from non-max bases uniformly
 
-            //only one allele mutates, so halve delta when monozygotic
-            delta = delta / 2;
+            // homozygote site: somatic mutation likely to mutate only one of the two alleles, so we halve delta
+            // to simulate this:
+            if (rand.nextDouble() > 0.001) {
+                // Most of the time, we follow the rule. Sometimes we don't because two mutations in the same site can occur,
+                // albeit rarely (we don't know the exact frequency).
+                // If we did not allow this at all, the model could never see any examples of the rare case, likely causing odd
+                // behavior when a rare case shows up.
+                delta = delta / 2;
+            }
             while (!allowed) {
                 newBase = rand.nextInt(numGenos);
                 allowed = true;
-                if (newBase == oldBase || newBase == 4) {
+                if (newBase == oldBase || newBase == 4 || newBase == referenceBase) {
                     //replace self case, N case
                     allowed = false;
                 }
@@ -124,14 +152,22 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             while (!allowed) {
                 newBase = rand.nextInt(numGenos);
                 allowed = true;
-                if (newBase == oldBase || newBase == 4 || newBase == otherAlleleBase) {
+                if (newBase == oldBase || newBase == 4 || newBase == otherAlleleBase || newBase == referenceBase) {
                     //replace self case, other allele case, N case
                     allowed = false;
                 }
             }
 
         }
-        return new mutationDirection(oldBase, newBase, delta, deltaOrig);
+
+        double somaticFrequency = originalDelta;
+
+        return new MutationDirection(oldBase, newBase, delta, somaticFrequency);
+    }
+
+    @Override
+    public int numberOfSamplesSupported() {
+        return 2;
     }
 
     @Override
@@ -159,14 +195,18 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         int[] sums = new int[numGenos];
         //fill declared arrays
         int i = 0;
+        int referenceBase = -1;
         for (BaseInformationRecords.CountInfo count : somatic.getCountsList()) {
             forward[i] = count.getGenotypeCountForwardStrand();
             backward[i] = count.getGenotypeCountReverseStrand();
             sums[i] = forward[i] + backward[i];
+            if (count.getMatchesReference() == true) {
+                referenceBase = i;
+            }
             i++;
         }
-
-        mutationDirection dir = dirFromCounts(sums);
+        assert referenceBase != -1 : "A count must match the reference.";
+        MutationDirection dir = dirFromCounts(referenceBase, sums);
 
         if (dir == null) {
             return baseBuild.build();
@@ -175,25 +215,35 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         final int oldBase = dir.oldBase;
         final int newBase = dir.newBase;
         final double delta = dir.delta;
-        final double frequency = dir.frequency;
+        double frequency = dir.somaticFrequency;
+        int changedCount = 0;
+        int germlineCount = 0;
+        int sumCount = 0;
 
         int fMutCount = 0;
         int oldCount = forward[oldBase];
+        sumCount += oldCount;
         for (i = 0; i < oldCount; i++) {
             if (rand.nextDouble() < delta) {
                 forward[oldBase]--;
                 forward[newBase]++;
                 fMutCount++;
-
+                changedCount++;
+            } else {
+                germlineCount++;
             }
         }
         int bMutCount = 0;
         oldCount = backward[oldBase];
+        sumCount += oldCount;
         for (i = 0; i < oldCount; i++) {
             if (rand.nextDouble() < delta) {
                 backward[oldBase]--;
                 backward[newBase]++;
                 bMutCount++;
+                changedCount++;
+            } else {
+                germlineCount++;
             }
         }
         //write to respective builders and return rebuild
@@ -321,9 +371,10 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             somaticBuild.setCounts(i, countBuild);
             i++;
         }
-        somaticBuild.setFormattedCounts(Mutator2.regenerateFormattedCounts(somaticBuild, mutatedAllele));
+        somaticBuild.setFormattedCounts(Mutate.regenerateFormattedCounts(somaticBuild, mutatedAllele));
         baseBuild.setSamples(numSamples - 1, somaticBuild);
         baseBuild.setFrequencyOfMutation((float) frequency);
+        //   System.out.printf("delta=%f somaticFreq=%f oldCount=%d%n", delta, frequency, sumCount);
         // String newBaseString = newBase<STRING.length? STRING[newBase]:"N";
         //baseBuild.setMutatedBase(newBaseString);
         baseBuild.setIndexOfMutatedBase(newBase);

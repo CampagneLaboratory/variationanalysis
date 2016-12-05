@@ -1,5 +1,6 @@
 package org.campagnelab.dl.somatic.mappers;
 
+import org.campagnelab.dl.framework.mappers.NoMaskFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -9,7 +10,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * <p>
  * Created by fac2003 on 5/24/16.
  */
-public class MagnitudeFeatures extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>{
+public class MagnitudeFeatures extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> {
     @Override
     public int numberOfFeatures() {
         return 31;

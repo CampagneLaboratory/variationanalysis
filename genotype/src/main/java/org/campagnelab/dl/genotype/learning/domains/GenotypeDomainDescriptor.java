@@ -13,7 +13,7 @@ import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.TrainGenotypeModelS;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
 import org.campagnelab.dl.genotype.learning.domains.predictions.GenotypeInterpreter;
-import org.campagnelab.dl.genotype.mappers.GenotypeLabelMapper;
+import org.campagnelab.dl.genotype.mappers.GenotypeLabelsMapper;
 import org.campagnelab.dl.somatic.learning.SomaticTrainingArguments;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2;
@@ -102,34 +102,50 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     }
 
+    // TODO: SomaticMutationDomainDescriptor shouldn't need these methods, but make sure
+    public int[] getNumMaskInputs(String inputName) {
+        return new int[]{getFeatureMapper(inputName).numberOfFeatures()};
+    }
+
+
+    @Override
+    public int[] getNumMaskOutputs(String outputName) {
+        return new int[]{getLabelMapper(outputName).numberOfLabels()};
+    }
 
     @Override
     public LabelMapper getLabelMapper(String outputName) {
 
+
         switch (outputName) {
             case "A":
-                return new GenotypeLabelMapper(0);
+                return new GenotypeLabelsMapper(0);
             case "T":
-                return new GenotypeLabelMapper(1);
+                return new GenotypeLabelsMapper(1);
             case "C":
-                return new GenotypeLabelMapper(2);
+                return new GenotypeLabelsMapper(2);
             case "G":
-                return new GenotypeLabelMapper(3);
+                return new GenotypeLabelsMapper(3);
             case "N":
-                return new GenotypeLabelMapper(4);
+                return new GenotypeLabelsMapper(4);
             case "I1":
-                return new GenotypeLabelMapper(5);
+                return new GenotypeLabelsMapper(5);
             case "I2":
-                return new GenotypeLabelMapper(6);
+                return new GenotypeLabelsMapper(6);
             case "I3":
-                return new GenotypeLabelMapper(7);
+                return new GenotypeLabelsMapper(7);
             case "I4":
-                return new GenotypeLabelMapper(8);
+                return new GenotypeLabelsMapper(8);
             case "I5":
-                return new GenotypeLabelMapper(9);
+                return new GenotypeLabelsMapper(9);
+            case "genotype":
+                //handle this case for the properties file description
+                return new GenotypeLabelsMapper(0);
+
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
+
     }
 
     @Override
@@ -156,6 +172,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new GenotypeInterpreter(8);
             case "I5":
                 return new GenotypeInterpreter(9);
+            case "genotype":
+                //handle this case for the properties file description
+                return new GenotypeInterpreter(0);
+
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
@@ -232,12 +252,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public int getNumHiddenNodes(String componentName) {
-        return getNumInputs("input")[0] * 4;
+        return getNumInputs("input")[0] * 1;
     }
 
     @Override
     public LossFunctions.LossFunction getOutputLoss(String outputName) {
-        return LossFunctions.LossFunction.MCXENT;
+        return LossFunctions.LossFunction.XENT;
     }
 
     @Override
@@ -247,12 +267,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             List<BaseInformationIterator> list = Arrays.asList(recordFiles).stream().map(filename -> {
                 try {
 
-                    return new BaseInformationIterator(filename, 128, featureMappers()[0], getLabelMapper("A"));
+                    return new BaseInformationIterator(filename, 128, featureMappers()[0], getLabelMapper("genotype"));
                 } catch (IOException e) {
                     throw new RuntimeException("Unable to estimate number of records for filename " + filename);
                 }
             }).collect(Collectors.toList());
-            it = new BaseInformationConcatIterator(list, 128, featureMappers()[0], getLabelMapper("A"));
+            it = new BaseInformationConcatIterator(list, 128, featureMappers()[0], getLabelMapper("genotype"));
             return it.totalExamples();
 
         } catch (IOException e) {

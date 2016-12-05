@@ -11,6 +11,7 @@
         <module>somatic</module>
         <module>framework</module>
         <module>genotype</module>
+        <module>gpus</module>
     </modules>
     <name>Variation Analysis</name>
     <description>A project to train neural networks to recognize mutations in RNA-seq data.</description>
@@ -19,8 +20,6 @@
         <!-- DL4J properties: -->
 
 
-        <dl4j.version>0.6.0</dl4j.version>
-        <nd4j.version>0.6.0</nd4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
         <java.version>1.8</java.version>
@@ -59,8 +58,23 @@
                 <!-- Classe names that end with the suffix are disabled. -->
                 <GPUSpecificSuffix>OnGPU</GPUSpecificSuffix>
                 <nd4j.backend>nd4j-native-platform</nd4j.backend>
+                <dl4j.version>0.7.0</dl4j.version>
+                <nd4j.version>0.7.0</nd4j.version>
             </properties>
+            <dependencies>
+                <!--dependency>
+                    <groupId>org.deeplearning4j</groupId>
+                    <artifactId>deeplearning4j-ui</artifactId>
+                    <version>${dl4j.version}</version>
+                </dependency-->
+                <dependency>
+                    <groupId>org.deeplearning4j</groupId>
+                    <artifactId>deeplearning4j-ui_2.10</artifactId>
+                    <version>${dl4j.version}</version>
+                </dependency>
+            </dependencies>
         </profile>
+
         <profile>
             <id>GPU</id>
             <activation>
@@ -69,7 +83,34 @@
             <properties>
                 <!-- Classe names that end with the suffix are disabled. -->
                 <GPUSpecificSuffix>XXXXXXXXX</GPUSpecificSuffix>
+                <dl4j.version>0.7.0</dl4j.version>
+                <nd4j.version>0.7.0</nd4j.version>
                 <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend>
+            </properties>
+            <dependencies> <!-- enable below for CUDNN : -->
+                <dependency>
+                    <groupId>org.deeplearning4j</groupId>
+                    <artifactId>deeplearning4j-cuda-8.0</artifactId>
+                    <version>${dl4j.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.deeplearning4j</groupId>
+                    <artifactId>deeplearning4j-ui_2.10</artifactId>
+                    <version>${dl4j.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>GPU-0.7.1-SNAPSHOT</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <!-- Classe names that end with the suffix are disabled. -->
+                <GPUSpecificSuffix>XXXXXXXXX</GPUSpecificSuffix>
+                <nd4j.backend>nd4j-cuda-8.0</nd4j.backend>
+                <dl4j.version>0.7.1-SNAPSHOT</dl4j.version>
+                <nd4j.version>0.7.1-SNAPSHOT</nd4j.version>
             </properties>
             <dependencies> <!-- enable below for CUDNN : -->
                 <dependency>

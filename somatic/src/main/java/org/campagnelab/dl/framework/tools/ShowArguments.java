@@ -17,7 +17,7 @@ public abstract class ShowArguments  implements ToolArguments {
     @Parameter(required = true, names = {"-i", "--dataset"}, description = "Path to the dataset to show.")
     public String datasetFilename;
 
-    @Parameter(required = false, names = {"-r", "--report"}, description = "Type of report, one of POSITIONS, PROTOBUFF")
+    @Parameter(required = false, names = {"-r", "--report"}, description = "Type of report, one of POSITIONS, PROTOBUFF, COUNTS, FREQ_COUNTS")
     public String  reportType=defaultReportType();
 
     protected abstract String defaultReportType();

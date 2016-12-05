@@ -2,6 +2,7 @@ package org.campagnelab.dl.genotype.mappers;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
+import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.campagnelab.dl.somatic.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.somatic.mappers.GenotypeCount;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -75,5 +76,14 @@ public abstract class AbstractFeatureMapperStripped<T extends BaseInformationRec
         return false;
     }
 
+    /**
+     * Default implementation assumes a 1-d tensor.
+     *
+     * @return
+     */
+    @Override
+    public MappedDimensions dimensions() {
+        return new MappedDimensions(numberOfFeatures());
+    }
 
 }

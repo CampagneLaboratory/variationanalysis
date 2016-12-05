@@ -30,7 +30,7 @@ public class CacheHelper<RecordType> {
      * @return A cached iterator.
      */
     public MultiDataSetIterator cache(final DomainDescriptor domainDescriptor,
-                                      MultiDataSetIteratorAdapter adapter, String cacheName, int cacheN) {
+                                      MultiDataSetIteratorAdapter adapter, String cacheName, int cacheN, int minibatchSize) {
 
 
         // determine if cache exists. If it does, use it.
@@ -49,12 +49,12 @@ public class CacheHelper<RecordType> {
             arguments.outputBasename = cacheName;
             arguments.cacheN = cacheN;
             arguments.domainDescriptor=domainDescriptor;
+            arguments.miniBatchSize=minibatchSize;
             tool.setArguments(arguments);
             tool.execute();
         }
         assert cacheExists(cacheName, cacheN, true) : "A cache must exist at this point.";
         return new MultiDatasetMappedFeaturesIterator(cacheName,cacheN);
-
     }
 
 

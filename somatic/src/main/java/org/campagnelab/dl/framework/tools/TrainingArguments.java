@@ -16,11 +16,11 @@ import java.util.List;
 
 public abstract class TrainingArguments extends RecordingToolArguments {
 
-    @Parameter(required = true, names = {"-t", "--training-sets"}, variableArity = true, description = "Training sets, must be provided in .sbi/.sbip format (produced with Goby3). When more than one dataset is provided (multiple -t options), the " +
+    @Parameter(required = true, names = {"-t", "--training-sets"}, variableArity = true, description = "Training set filenames- for example, could be provided in .sbi/.sbip format (produced with Goby3). When more than one dataset is provided (multiple -t options), the " +
             "datasets are concatenated.")
     public List<String> trainingSets = new ArrayList<>();
 
-    @Parameter(names = {"-v", "--validation-set"}, description = "Validation set, must be provided in .parquet/.info format.")
+    @Parameter(required = true, names = {"-v", "--validation-set"}, description = "Validation set filename- for example, could be provided in .parquet/.info format.")
     public String validationSet = null;
 
 
@@ -63,6 +63,18 @@ public abstract class TrainingArguments extends RecordingToolArguments {
 
     @Parameter(names = "--net-architecture", description = "fully qualified classname that implements the choice of network architecture.")
     public java.lang.String architectureClassname = defaultArchitectureClassname();
+
+    @Parameter(names = "--ignore-cache", description = "Ignore the cache.")
+    public boolean ignoreCache;
+
+    @Parameter(names = "--memory-cache", description = "Cache the entire datasets in memory. Can speed up training, but requires the training set to be small enough to fit in the GPU memory.")
+    public boolean memoryCache;
+
+    @Parameter(names = "--gpu-device", description = "Index of the GPU to use for training (0,1, up to the number of GPUs in the server).")
+    public Integer deviceIndex=null;
+
+    @Parameter(names = "--parallel", description = "When provided, trains on several GPUs in parallel.")
+    public boolean parallel;
 
     protected abstract String defaultArchitectureClassname();
 

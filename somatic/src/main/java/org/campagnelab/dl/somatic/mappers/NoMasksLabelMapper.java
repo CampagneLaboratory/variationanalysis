@@ -1,6 +1,7 @@
 package org.campagnelab.dl.somatic.mappers;
 
 import org.campagnelab.dl.framework.mappers.LabelMapper;
+import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
@@ -8,13 +9,22 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Created by fac2003 on 11/12/16.
  */
 public abstract class NoMasksLabelMapper<RecordType> implements LabelMapper<RecordType> {
+    /**
+     * The default implementation returns a 1 dimension.
+     * @return
+     */
+    @Override
+    public MappedDimensions dimensions() {
+        return new MappedDimensions(numberOfLabels());
+    }
+
     @Override
     public boolean hasMask() {
         return false;
     }
 
     @Override
-    public void maskFeatures(RecordType record, INDArray mask, int indexOfRecord) {
+    public void maskLabels(RecordType record, INDArray mask, int indexOfRecord) {
 
     }
 

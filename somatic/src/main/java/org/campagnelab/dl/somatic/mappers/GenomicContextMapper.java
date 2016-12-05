@@ -1,13 +1,17 @@
 package org.campagnelab.dl.somatic.mappers;
 
+import org.campagnelab.dl.framework.iterators.ConcatFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
+import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
+import org.campagnelab.dl.framework.mappers.NoMaskFeatureMapper;
 import org.campagnelab.dl.somatic.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.somatic.genotypes.GenotypeCountFactory;
-import org.campagnelab.dl.somatic.utils.ProtoPredictor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.framework.mappers.OneHotBaseFeatureMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Properties;
+import java.util.function.Function;
 
 /**
  * Maps the full genomic context using multiple onehotfeaturemapper
@@ -15,24 +19,33 @@ import java.util.Properties;
  */
 
 
+public class GenomicContextMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>, FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+    private ConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
 
-public class GenomicContextMapper extends AbstractFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
-        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
-        {
-    private ConcatFeatureMapper delegate;
     public GenomicContextMapper(Properties sbiProperties) {
 
-       this((int)Float.parseFloat(sbiProperties.getProperty("stats.genomicContextSize.min","0.0")));
-       if (sbiProperties.getProperty("stats.genomicContextSize.min")==null) {
-           throw new RuntimeException("Unable to obtain stats.genomicContextSize.min from properties.");
-       }
-    }
-    public GenomicContextMapper(int contextSize) {
-        OneHotBaseMapper[] refContext = new OneHotBaseMapper[contextSize];
-        for (int i = 0; i < contextSize; i++){
-            refContext[i] = new OneHotBaseMapper(i, BaseInformationRecords.BaseInformationOrBuilder::getGenomicSequenceContext);
+        this((int) Float.parseFloat(sbiProperties.getProperty("stats.genomicContextSize.min", "0.0")));
+        if (sbiProperties.getProperty("stats.genomicContextSize.min") == null) {
+            throw new RuntimeException("Unable to obtain stats.genomicContextSize.min from properties.");
         }
-        delegate = new ConcatFeatureMapper(refContext);
+    }
+
+    public GenomicContextMapper(int contextSize) {
+        OneHotBaseFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>[] refContext = new OneHotBaseFeatureMapper[contextSize];
+        for (int i = 0; i < contextSize; i++) {
+            refContext[i] = new OneHotBaseFeatureMapper<>(i,
+                    BaseInformationRecords.BaseInformationOrBuilder::getGenomicSequenceContext);
+        }
+        delegate = new ConcatFeatureMapper<>(refContext);
+    }
+
+    public GenomicContextMapper(int contextSize, Function<BaseInformationRecords.BaseInformationOrBuilder, String> function) {
+        OneHotBaseFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>[] refContext = new OneHotBaseFeatureMapper[contextSize];
+        for (int i = 0; i < contextSize; i++) {
+            refContext[i] = new OneHotBaseFeatureMapper<>(i, function);
+        }
+        delegate = new ConcatFeatureMapper<>(refContext);
     }
 
     @Override
@@ -43,7 +56,7 @@ public class GenomicContextMapper extends AbstractFeatureMapper<BaseInformationR
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
-        delegate.prepareToNormalize(record,indexOfRecord);
+        delegate.prepareToNormalize(record, indexOfRecord);
     }
 
     int[] indices = new int[]{0, 0};
@@ -59,21 +72,7 @@ public class GenomicContextMapper extends AbstractFeatureMapper<BaseInformationR
     }
 
     @Override
-    protected void initializeCount(BaseInformationRecords.CountInfo sampleCounts, GenotypeCount count) {
-        ReadIndexWithCounts myCounts = (ReadIndexWithCounts) count;
-        myCounts.set(ProtoPredictor.expandFreq(sampleCounts.getReadIndicesForwardStrandList()),
-                ProtoPredictor.expandFreq(sampleCounts.getReadIndicesReverseStrandList()));
+    public String getFeatureName(int featureIndex) {
+        return "GenomicContextMapper"+featureIndex;
     }
-
-    @Override
-    protected GenotypeCountFactory getGenotypeCountFactory() {
-
-        return new BaseGenotypeCountFactory() {
-            @Override
-            public GenotypeCount create() {
-                return new ReadIndexWithCounts();
-            }
-        };
-    }
-
 }

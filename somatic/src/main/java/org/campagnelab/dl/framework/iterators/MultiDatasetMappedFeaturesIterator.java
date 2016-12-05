@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 
 /**
@@ -63,12 +64,12 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
 
     @Override
     public boolean resetSupported() {
-        return false;
+        return true;
     }
 
 
     public boolean asyncSupported() {
-        return false;
+        return true;
     }
 
     @Override
@@ -84,6 +85,7 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
 
     @Override
     public boolean hasNext() {
+
         return index < Math.min(numExamples, cacheN);
     }
 
@@ -92,6 +94,9 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
 
     @Override
     public MultiDataSet next() {
+        if (!hasNext()) {
+            throw new NoSuchElementException();
+        }
         try {
             inputStream.read(length, 0, 4);
         } catch (IOException e) {
@@ -123,3 +128,4 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
 
     }
 }
+

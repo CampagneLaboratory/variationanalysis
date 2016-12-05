@@ -77,26 +77,36 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
 
     /**
      * Calculate the complete set of values, default as well as values set by the user.
+     *
      * @return
      */
     public Map<String, Object> getAllFieldValues() {
-      SortedMap  map=new Object2ObjectAVLTreeMap();
+        SortedMap map = new Object2ObjectAVLTreeMap();
         map.putAll(defaultFieldValues());
         map.putAll(setFieldValues());
         return map;
     }
+
     /**
      * Add an option not exposed by command line arguments.
+     *
      * @param optionName
      * @param value
      */
     public void addCustomOption(String optionName, Object value) {
-        assert (defaultFieldValues.get(optionName) == null && defaultFieldValues.get("--"+optionName)==null):
+        assert (defaultFieldValues.get(optionName) == null && defaultFieldValues.get("--" + optionName) == null) :
                 "A custom option name cannot match the name of a command line parameter: " + optionName;
 
         defaultFieldValues.put(optionName, value);
         setFieldValues.put(optionName, value);
 
+    }
+
+    public String getTag() {
+
+        String allArguments = ModelConditionHelper.fieldMapToString(getAllFieldValues());
+        // construct a tag of upper case letters from the hashed arguments:
+        return Integer.toString(allArguments.hashCode(), 26 + 10).toUpperCase().replaceAll("-", "");
     }
 
     public void writeModelingConditions(RecordingToolArguments arguments) {
@@ -107,7 +117,7 @@ public abstract class ConditionRecordingTool<T extends RecordingToolArguments> e
             String allArguments = ModelConditionHelper.fieldMapToString(getAllFieldValues());
             // construct a tag of upper case letters from the hashed arguments:
             System.out.println(allArguments);
-            String tag = Integer.toString(allArguments.hashCode(), 26 + 10).toUpperCase().replaceAll("-", "");
+            String tag = getTag();
             ModelConditionHelper.appendToLogFile(arguments.modelConditionFilename, tag,
                     ModelConditionHelper.fieldMapToString(resultValues()),
                     ModelConditionHelper.fieldMapToString(setFieldValues()),

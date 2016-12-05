@@ -1,6 +1,7 @@
 package org.campagnelab.dl.somatic.intermediaries;
 
 import com.beust.jcommander.Parameter;
+import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.List;
 /**
  * Created by fac2003 on 10/17/16.
  */
-public class QuickConcatArguments {
+public class QuickConcatArguments implements ToolArguments {
     @Parameter(required = true, variableArity = true, names = {"-i", "--input-files"}, description = "Input files in .bsi/.bsip format.")
     public List<String> inputFiles = new ArrayList<>();
 

@@ -16,9 +16,12 @@ public abstract class AbstractTool<T extends ToolArguments> {
         try {
             commander.parse(args);
         } catch (ParameterException e) {
+            System.out.flush();
+            System.err.flush();
 
             commander.usage();
             System.out.flush();
+            System.err.flush();
             throw e;
         }
     }

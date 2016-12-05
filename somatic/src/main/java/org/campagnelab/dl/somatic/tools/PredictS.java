@@ -1,12 +1,12 @@
 package org.campagnelab.dl.somatic.tools;
 
 import org.campagnelab.dl.framework.domains.prediction.BinaryClassPrediction;
+import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.somatic.learning.domains.predictions.SomaticFrequencyPrediction;
-import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 
 import java.io.PrintWriter;
 import java.util.List;
@@ -28,6 +28,7 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
     }
 
     private AreaUnderTheROCCurve aucLossCalculator;
+
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
         boolean hasSomaticFrequency = domainDescriptor.hasOutput("somaticFrequency");
@@ -35,9 +36,21 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
         resutsWriter.append("index\ttrueLabel\tprobabilityYes\tprobabilityNo\tcorrectness" + somaticFrequencyColumns).append("\n");
 
     }
+
     @Override
     protected void initializeStats(String prefix) {
         aucLossCalculator = new AreaUnderTheROCCurve(args().numRecordsForAUC);
+    }
+
+    //TODO: Implement these
+    @Override
+    protected void writeOutputStatistics(String prefix, PrintWriter outputWriter) {
+        outputWriter.print(aucLossCalculator.evaluateStatistic());
+    }
+
+    @Override
+    protected void writeOutputHeader(PrintWriter outputWriter) {
+        outputWriter.append("auc");
     }
 
     @Override
@@ -63,9 +76,14 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
         if (doOuptut(correctness, args(), Math.max(isSomaticMutation.predictedLabelNo, isSomaticMutation.predictedLabelYes))) {
             resultWriter.printf("%d\t%f\t%f\t%f\t%s%s%n", isSomaticMutation.index, isSomaticMutation.trueLabelYes, isSomaticMutation.predictedLabelYes,
                     isSomaticMutation.predictedLabelNo, correctness, somaticFrequencyText);
+            if (args().filterAucObservations) {
+                aucLossCalculator.observe(isSomaticMutation.predictedLabelYes, isSomaticMutation.trueLabelYes - 0.5);
+            }
         }
         //convert true label to the convention used by auc calculator: negative true label=labelNo.
-        aucLossCalculator.observe(isSomaticMutation.predictedLabelYes, isSomaticMutation.trueLabelYes - 0.5);
+        if (!args().filterAucObservations) {
+            aucLossCalculator.observe(isSomaticMutation.predictedLabelYes, isSomaticMutation.trueLabelYes - 0.5);
+        }
     }
 
     /**
@@ -87,7 +105,6 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
         }
         return true;
     }
-
 
 
 }

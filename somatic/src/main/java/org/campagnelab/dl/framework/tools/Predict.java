@@ -5,17 +5,22 @@ import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.DomainDescriptorLoader;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
+import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.deeplearning4j.nn.api.Model;
+import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * A generic Predict tool. Sub-class this abstract class and define a few methods in order to make predictions and
@@ -40,11 +45,13 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
 
     @Override
     public void execute() {
-        PrintWriter resultWriter = null;
+        PrintWriter resultWriter;
+        PrintWriter outputWriter;
+        boolean outputFileExists;
         try {
             File modelPath = new File(args().modelPath);
             String modelName = modelPath.getName();
-
+            outputFileExists = new File(args().outputFile).exists();
             if (args().toFile) {
                 String resultPath = "tests/" + modelName + "/";
                 File dir = new File(resultPath);
@@ -54,14 +61,18 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
                 String resultFilename = resultPath + args().modelName + "-" + args().type + ".tsv";
                 System.out.println("Writing predictions to " + resultFilename);
                 resultWriter = new PrintWriter(resultFilename, "UTF-8");
+                outputWriter = new PrintWriter(new FileWriter(args().outputFile, true));
             } else {
                 resultWriter = new PrintWriter(System.out);
+                outputWriter = new PrintWriter(System.out);
+                outputFileExists = false;
             }
         } catch (IOException e) {
             throw new RuntimeException("Unable to create result writer", e);
         }
         try {
-            printPredictions(args().modelName, args().modelPath, args().testSet, resultWriter);
+            printPredictions(args().modelName, args().modelPath, args().testSet, resultWriter, outputWriter,
+                    outputFileExists);
         } catch (IOException e) {
             throw new RuntimeException("Unable to perform predictions", e);
         }
@@ -72,10 +83,17 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
     protected DomainDescriptor<RecordType> domainDescriptor;
 
     private void printPredictions(String prefix, String modelPath, String evaluationDataFilename,
-                                  PrintWriter resutsWriter) throws IOException {
+                                  PrintWriter resutsWriter, PrintWriter outputWriter,
+                                  boolean outputFileExists) throws IOException {
 
 
         ModelLoader modelLoader = new ModelLoader(modelPath);
+        String modelTag = modelLoader.getModelProperties().getProperty("tag");
+        if (!outputFileExists) {
+            outputWriter.append("tag\t");
+            writeOutputHeader(outputWriter);
+            outputWriter.append("\n");
+        }
         // we scale features using statistics observed on the training set:
         FeatureMapper featureMapper = modelLoader.loadFeatureMapper(modelLoader.getModelProperties());
         boolean isTrio;
@@ -115,11 +133,34 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
         );
 
         resutsWriter.close();
+        outputWriter.append(modelTag);
+        outputWriter.append("\t");
+        writeOutputStatistics(prefix, outputWriter);
+        outputWriter.append("\n");
+        outputWriter.close();
         pgReadWrite.stop();
         reportStatistics(prefix);
         modelLoader.writeTestCount(totalRecords);
     }
 
+    /**
+     * This method is called after the test set has been observed and statistics evaluated via processPredictions.
+     * It writes out statistics on the whole test set to a file. Should just write one line, without a newline.
+     *
+     * @param prefix        The model prefix/label (e.g., bestAUC).
+     * @param outputWriter  The output writer to write to in tab-delimited format
+     */
+    protected abstract void writeOutputStatistics(String prefix, PrintWriter outputWriter);
+
+    /**
+     * This method is called only if an output file for statistics has not been created yet. It writes the header
+     * for the output file. Does not need to include tag or a newline at the end.
+     *
+     * @param outputWriter The output writer to write to in tab-delimited format
+     */
+    protected abstract void writeOutputHeader(PrintWriter outputWriter);
+
+    //TODO: Figure out if still necessary, or if outputStatistics suffices
     /**
      * This method is called after the test set has been observed and statistics evaluated. It prints statistics
      * to the console for the operators to read.
@@ -150,6 +191,7 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
      * @param prefix The model prefix/label (e.g., bestAUC).
      */
     protected abstract void initializeStats(String prefix);
+
 
 
 }

@@ -1,12 +1,10 @@
 package org.campagnelab.dl.somatic.intermediaries;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Collections;
-import java.util.Date;
 
 /**
  * Created by fac2003 on 7/19/16.
@@ -19,10 +17,16 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
         setSeed(seed);
     }
 
-    public SimulationStrategyImplTrio(double deltaSmall, double deltaBig, double zygHeuristic, long seed, double canonThreshold) {
-        this(seed);
+    public SimulationStrategyImplTrio() {
+
+    }
+
+    @Override
+    public void setup(double deltaSmall, double deltaBig, double zygHeuristic, long seed, double canonThreshold) {
+        setSeed(seed);
         this.canonThreshold = canonThreshold;
-        firstSimulationStrategy = new FirstSimulationStrategy(deltaSmall, deltaBig, zygHeuristic, seed);
+        firstSimulationStrategy = new FirstSimulationStrategy();
+        firstSimulationStrategy.setup(deltaSmall, deltaBig, zygHeuristic, seed,0);
     }
 
     FirstSimulationStrategy firstSimulationStrategy;
@@ -33,6 +37,11 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
     IntArrayList sortingPermutationGenotypeCounts0 = new IntArrayList();
     IntArrayList sortingPermutationGenotypeCounts1 = new IntArrayList();
     IntArrayList sortingPermutationGenotypeCounts2 = new IntArrayList();
+
+    @Override
+    public int numberOfSamplesSupported() {
+        return 3;
+    }
 
     @Override
     public BaseInformationRecords.BaseInformation mutate(boolean makeSomatic,
@@ -65,7 +74,6 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
         int father1 = sortingPermutationGenotypeCounts1.getInt(0);
         int father2 = (numAlleles1 > 1) ? sortingPermutationGenotypeCounts1.getInt(1) : father1;
         int mother1 = sortingPermutationGenotypeCounts2.getInt(0);
-        ;
         int mother2 = (numAlleles2 > 1) ? sortingPermutationGenotypeCounts2.getInt(1) : mother1;
 
         //first, check that germline/child doesn't have too many alleles (or is not designated for mutation). if not, then
@@ -78,6 +86,7 @@ public class SimulationStrategyImplTrio implements SimulationStrategy {
         return firstSimulationStrategy.mutate(makeSomatic, record, null, null, null);
 
     }
+
 
     public static boolean isMendelian(int child1, int child2, int father1, int father2, int mother1, int mother2) {
         boolean firstFromFather = ((child1 == father1) || (child1 == father2)) && ((child2 == mother1) || (child2 == mother2));

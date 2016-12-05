@@ -1,5 +1,7 @@
 package org.campagnelab.dl.somatic.mappers;
 
+import org.campagnelab.dl.framework.iterators.ConcatFeatureMapper;
+
 /**
  * Another feature mapper.
  */
