@@ -11,6 +11,7 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
     private int labelsPerTimeStep;
     private OneHotBaseLabelMapper<RecordType>[] delegates;
     private Function<RecordType, Integer> recordToSequenceLength;
+    private Integer[] sequenceLengths;
 
     private int[] indicesMapper = new int[]{0, 0, 0};
     private int[] indicesMasker = new int[]{0, 0};
@@ -25,6 +26,7 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
             delegates[i] = new OneHotBaseLabelMapper<>(i, labelsPerTimeStep, recordToLabel);
         }
         this.labelsPerTimeStep = delegates[0].numberOfLabels();
+        sequenceLengths = new Integer[maxSequenceLength];
         for (OneHotBaseLabelMapper<RecordType> oneHotBaseMapper : delegates) {
             if (oneHotBaseMapper.numberOfLabels() != labelsPerTimeStep) {
                 throw new RuntimeException("All delegate one hot base mappers should have same number of labels");
@@ -46,13 +48,18 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
 
     @Override
     public void mapLabels(RecordType record, INDArray labels, int indexOfRecord) {
+        int recordSequenceLength = sequenceLengths[indexOfRecord] != null
+                ? sequenceLengths[indexOfRecord] : recordToSequenceLength.apply(record);
+        if (sequenceLengths[indexOfRecord] == null) {
+            sequenceLengths[indexOfRecord] = recordSequenceLength;
+        }
         indicesMapper[0] = indexOfRecord;
         for (int i = 0; i < delegates.length; i++) {
             indicesMapper[2] = i;
             final OneHotBaseLabelMapper<RecordType> delegate = delegates[i];
             for (int j = 0; j < delegates[i].numberOfLabels(); j++) {
                 indicesMapper[1] = j;
-                if (i < recordToSequenceLength.apply(record)) {
+                if (i < recordSequenceLength) {
                     labels.putScalar(indicesMapper, delegate.produceLabel(record, j));
                 } else {
                     labels.putScalar(indicesMapper, 0F);
@@ -69,9 +76,14 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
     @Override
     public void maskLabels(RecordType record, INDArray mask, int indexOfRecord) {
         indicesMasker[0] = indexOfRecord;
+        int recordSequenceLength = sequenceLengths[indexOfRecord] != null
+                ? sequenceLengths[indexOfRecord] : recordToSequenceLength.apply(record);
+        if (sequenceLengths[indexOfRecord] == null) {
+            sequenceLengths[indexOfRecord] = recordSequenceLength;
+        }
         for (int i = 0; i < delegates.length; i++) {
             indicesMasker[1] = i;
-            mask.putScalar(indicesMasker, i < recordToSequenceLength.apply(record) ? 1F : 0F);
+            mask.putScalar(indicesMasker, i < recordSequenceLength ? 1F : 0F);
         }
     }
 
