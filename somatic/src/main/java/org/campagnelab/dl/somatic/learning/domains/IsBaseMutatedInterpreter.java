@@ -2,6 +2,7 @@ package org.campagnelab.dl.somatic.learning.domains;
 
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.somatic.learning.domains.predictions.IsMutatedPrediction;
+import org.campagnelab.dl.somatic.learning.domains.predictions.IsSomaticMutationInterpreter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -9,8 +10,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Interpret whether the output indicates the site is mutated. Used with IsBaseMutatedMapper.
  * Created by fac2003 on 12/5/16.
  */
-public class IsBaseMutatedInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation, IsMutatedPrediction> {
-
+public class IsBaseMutatedInterpreter extends IsSomaticMutationInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation, IsMutatedPrediction> {
 
     @Override
     public IsMutatedPrediction interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex) {
