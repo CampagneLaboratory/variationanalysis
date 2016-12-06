@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 . `dirname "${BASH_SOURCE[0]}"`/setup.sh
 
+cat << EOF | cat> learn.txt
+5
+.5
+.01
+EOF
+
 cat << EOF | cat> drop.txt
-0
-0.3
-0.4
 0.5
 0.6
 0.7
@@ -31,7 +34,6 @@ EOF
 cat << EOF | cat>seed.txt
 2389283
 443
-732
 EOF
 
 
@@ -45,7 +47,7 @@ EOF
 
 num_executions=${memory_requirement}
 
-parallel echo `cat main-command.txt` --regularization-rate :::: reg.txt :::  --random-seed :::: seed.txt ::: --dropout-rate :::: drop.txt ::: --early-stopping-num-epochs ::: 0   >commands.txt
+parallel echo `cat main-command.txt` --regularization-rate :::: reg.txt :::  --random-seed :::: seed.txt ::: --learning-rate :::: learn.txt::: --dropout-rate :::: drop.txt ::: --early-stopping-num-epochs ::: 0   >commands.txt
 shuf commands.txt  |head -${num_executions} >commands-head-${num_executions}
 chmod +x commands-head-${num_executions}
 cat ./commands-head-${num_executions} |parallel --xapply ::: echo  :::: - ::: --gpu-device :::: gpu.txt  >all-commands.txt
