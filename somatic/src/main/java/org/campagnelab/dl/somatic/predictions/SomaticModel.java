@@ -1,6 +1,8 @@
 package org.campagnelab.dl.somatic.predictions;
 
 import org.apache.commons.io.IOUtils;
+import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.dl.framework.domains.DomainDescriptorLoader;
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.somatic.utils.ProtoPredictor;
@@ -29,15 +31,12 @@ public class SomaticModel {
 
 
     static private Logger LOG = LoggerFactory.getLogger(SomaticModel.class);
+    private  DomainDescriptor domainDescriptor;
 
     private ProtoPredictor predictor;
     private boolean isTrio;
 
-    public SomaticModel(Model model, FeatureMapper mapper) {
-        this.predictor = new ProtoPredictor(model, mapper);
-        this.isTrio = mapper.getClass().getCanonicalName().contains("Trio");
 
-    }
 
     //prefix specifies whether to use best or latest model in directory
     public SomaticModel(String modelPath, String prefix) throws IOException {
@@ -81,7 +80,8 @@ public class SomaticModel {
 
         ModelLoader modelLoader = new ModelLoader(modelPath);
         Model model = modelLoader.loadModel(prefix);
-        this.predictor = new ProtoPredictor(model, featureMapper);
+        domainDescriptor = DomainDescriptorLoader.load(modelPath);
+        this.predictor = new ProtoPredictor(domainDescriptor, model, featureMapper);
         this.isTrio = featureMapper.getClass().getCanonicalName().contains("Trio");
     }
 

@@ -112,7 +112,7 @@ public abstract class AbstractPredictMutations {
         String features = featuresToString(record,longReport);
         //boolean
         boolean mutated = record.getMutated();
-        ProtoPredictor predictor = new ProtoPredictor(model, featureMapper);
+        ProtoPredictor predictor = new ProtoPredictor(null,model, featureMapper);
         ProtoPredictor.Prediction prediction = predictor.mutPrediction(record);
         String formatted0 = longReport?"\t"+genFormattedString(record.getSamples(0)):"";
         String formatted1 = longReport?"\t"+genFormattedString(record.getSamples(1)):"";
