@@ -32,6 +32,7 @@ public class IsBaseMutatedMapper extends NoMasksLabelMapper<BaseInformationRecor
         sortedCounts = sorted;
         Arrays.fill(labels, 0f);
         labels[0] = record.getMutated() ? 0 : 1;
+        // mutated = label[0] && not mutated = 1-label[0]
         if (record.getMutated()) {
             for (int i = 1; i < numLabels; i++) {
                 labels[i] = sorted.get(i - 1).getToSequence().equals(record.getMutatedBase()) ? 1 : 0;

@@ -13,10 +13,10 @@ public class IsSomaticMutationInterpreter implements PredictionInterpreter<BaseI
     @Override
     public IsMutatedPrediction interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex) {
         IsMutatedPrediction prediction=new IsMutatedPrediction();
-        prediction.trueLabelYes = trueLabels.getDouble(predictionIndex, 1);
+        prediction.trueLabelYes = trueLabels.getDouble(predictionIndex, 0);
         int outputIndex=0;
-        prediction.predictedLabelNo = outputs[outputIndex].getDouble(predictionIndex, 0);
-        prediction.predictedLabelYes = outputs[outputIndex].getDouble(predictionIndex, 1);
+        prediction.predictedLabelNo = outputs[outputIndex].getDouble(predictionIndex, 1);
+        prediction.predictedLabelYes = outputs[outputIndex].getDouble(predictionIndex, 0);
         return  prediction;
     }
 
@@ -24,8 +24,8 @@ public class IsSomaticMutationInterpreter implements PredictionInterpreter<BaseI
     public IsMutatedPrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
         IsMutatedPrediction pred = new IsMutatedPrediction();
         pred.inspectRecord(record);
-        pred.predictedLabelYes = (float) output.getDouble(0, 0);
         pred. predictedLabelNo= (float) output.getDouble(0, 1);
+        pred.predictedLabelYes = (float) output.getDouble(0, 0);
         return pred;
     }
 }

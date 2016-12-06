@@ -15,10 +15,10 @@ public class IsBaseMutatedInterpreter implements PredictionInterpreter<BaseInfor
     @Override
     public IsMutatedPrediction interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex) {
         IsMutatedPrediction prediction = new IsMutatedPrediction();
-        prediction.trueLabelYes = trueLabels.getDouble(predictionIndex, 0);
         int outputIndex = 0; // first output is IsBaseMutated
-        prediction.predictedLabelNo = 1 - outputs[outputIndex].getDouble(predictionIndex, 0);
-        prediction.predictedLabelYes = outputs[outputIndex].getDouble(predictionIndex, 0);
+        prediction.predictedLabelNo = outputs[outputIndex].getDouble(predictionIndex, 0);
+        prediction.predictedLabelYes = 1f -outputs[outputIndex].getDouble(predictionIndex, 0);
+        prediction.trueLabelYes = 1-trueLabels.getDouble(predictionIndex, 0);
         return prediction;
     }
 
@@ -27,8 +27,8 @@ public class IsBaseMutatedInterpreter implements PredictionInterpreter<BaseInfor
         IsMutatedPrediction prediction = new IsMutatedPrediction();
         prediction.inspectRecord(record);
         int predictionIndex=0;
-        prediction.predictedLabelNo = 1 - output.getDouble(predictionIndex, 0);
-        prediction.predictedLabelYes = output.getDouble(predictionIndex, 0);
+        prediction.predictedLabelNo = output.getDouble(predictionIndex, 0);
+        prediction.predictedLabelYes = 1f- output.getDouble(predictionIndex, 0);
         // TODO extract information about the sorted genotype called using the next 5 floats in the output.
         return prediction;
     }
