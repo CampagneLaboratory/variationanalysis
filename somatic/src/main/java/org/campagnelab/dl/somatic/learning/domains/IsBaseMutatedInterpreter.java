@@ -24,11 +24,12 @@ public class IsBaseMutatedInterpreter implements PredictionInterpreter<BaseInfor
 
     @Override
     public IsMutatedPrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
-        IsMutatedPrediction pred = new IsMutatedPrediction();
-        pred.inspectRecord(record);
-        pred.predictedLabelYes = 1f - (float) (output.getDouble(0, 0));
-        pred.predictedLabelNo = (float) (output.getDouble(0, 1));
+        IsMutatedPrediction prediction = new IsMutatedPrediction();
+        prediction.inspectRecord(record);
+        int predictionIndex=0;
+        prediction.predictedLabelNo = 1 - output.getDouble(predictionIndex, 0);
+        prediction.predictedLabelYes = output.getDouble(predictionIndex, 0);
         // TODO extract information about the sorted genotype called using the next 5 floats in the output.
-        return pred;
+        return prediction;
     }
 }

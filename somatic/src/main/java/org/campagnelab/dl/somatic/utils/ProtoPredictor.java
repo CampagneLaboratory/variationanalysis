@@ -33,6 +33,7 @@ public class ProtoPredictor {
         this.model = model;
         this.mapper = mapper;
         this.outputHelper = new ModelOutputHelper();
+
     }
 
     public static List<Integer> expandFreq(List<BaseInformationRecords.NumberWithFrequency> freqList) {
@@ -50,10 +51,10 @@ public class ProtoPredictor {
         return expanded;
     }
 
+// TODO This must be updated to depend on domain interpreters.
+    IsSomaticMutationInterpreter isSomatic = new IsSomaticMutationInterpreter();
+    SomaticFrequencyInterpreter somaticFrequency = new SomaticFrequencyInterpreter();
 
-
-    IsSomaticMutationInterpreter isSomatic=new IsSomaticMutationInterpreter();
-   SomaticFrequencyInterpreter somaticFrequency=new SomaticFrequencyInterpreter();
     public Prediction mutPrediction(BaseInformationRecords.BaseInformation record) {
         INDArray arrayPredicted = null;
         Prediction prediction = new Prediction();
@@ -70,16 +71,17 @@ public class ProtoPredictor {
         } else if (model instanceof ComputationGraph) {
             outputHelper.predictForNextRecord(model, record, mapper);
 
-            IsMutatedPrediction isSomaticPrediction= isSomatic.interpret(record,outputHelper.getOutput(PROBABILITY_OUTPUT_INDEX));
+            IsMutatedPrediction isSomaticPrediction = isSomatic.interpret(record, outputHelper.getOutput(PROBABILITY_OUTPUT_INDEX));
             prediction.set((float) isSomaticPrediction.predictedLabelYes,
                     (float) isSomaticPrediction.predictedLabelNo);
-            SomaticFrequencyPrediction somaticFrequencyPrediction=somaticFrequency.interpret(record,
+            SomaticFrequencyPrediction somaticFrequencyPrediction = somaticFrequency.interpret(record,
                     outputHelper.getOutput(SOMATIC_FREQUENCY_INDEX));
-            prediction.setPredictedSomaticFrequency( somaticFrequencyPrediction.predictedValue);
+            prediction.setPredictedSomaticFrequency(somaticFrequencyPrediction.predictedValue);
         }
 
+        throw new RuntimeException("Update this code to work with domain interpreters!");
 
-        return prediction;
+        //return prediction;
     }
 
     public Prediction getNullPrediction() {
