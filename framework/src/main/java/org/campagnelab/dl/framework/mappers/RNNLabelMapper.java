@@ -103,6 +103,8 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
 
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
-
+        if (sequenceLengths[indexOfRecord] == null) {
+            sequenceLengths[indexOfRecord] = recordToSequenceLength.apply(record);
+        }
     }
 }
