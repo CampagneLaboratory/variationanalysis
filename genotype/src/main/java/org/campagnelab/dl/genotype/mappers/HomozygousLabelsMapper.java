@@ -17,9 +17,6 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
 
     int[] indices = new int[]{0, 0};
 
-
-    private Boolean isHomozygous;
-
     @Override
     public void mapLabels(BaseInformationRecords.BaseInformation record, INDArray labels, int indexOfRecord) {
         indices[0] = indexOfRecord;
@@ -31,6 +28,8 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
 
     @Override
     public float produceLabel(BaseInformationRecords.BaseInformation record, int labelIndex) {
+
+
 
         if (!getHomozygous(record)) {
             return (labelIndex == 10) ? 1 : 0;
@@ -44,9 +43,6 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
 
 
     private boolean getHomozygous(BaseInformationRecords.BaseInformation record) {
-        if (isHomozygous != null) {
-            return isHomozygous;
-        }
         //count number of called alleles
         int numAlleles = 0;
         for (int i = 0; i < record.getSamples(0).getCountsCount(); i++){
@@ -54,8 +50,7 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
                 numAlleles++;
             }
         }
-        isHomozygous = (numAlleles == 1);
-        return isHomozygous;
+        return (numAlleles == 1);
     }
 
 
