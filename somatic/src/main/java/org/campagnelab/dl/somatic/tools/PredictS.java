@@ -47,7 +47,7 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected double[] createOutputStatistics() {
-        return new double[]{getAUC()};
+        return new double[]{getAUC(),getAucCiMin(), getAucCiMax()};
     }
 
     private double getAUC() {
@@ -62,7 +62,7 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected String[] createOutputHeader() {
-        return new String[]{"auc"};
+        return new String[]{"auc","[auc95","auc95]"};
     }
 
     @Override
@@ -119,4 +119,11 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
     }
 
 
+    public double getAucCiMin() {
+        return aucLossCalculator.confidenceInterval95()[0];
+    }
+
+    public double getAucCiMax() {
+        return aucLossCalculator.confidenceInterval95()[1];
+    }
 }

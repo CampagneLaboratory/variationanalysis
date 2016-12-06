@@ -22,6 +22,9 @@ public class AreaUnderTheROCCurve {
     private boolean clipObservations;
     private DoubleArrayList positiveDecisions;
     private DoubleArrayList negativeDecisions;
+    private double estimatedAUC;
+    private int numPositive;
+    private int numNegative;
 
     public AreaUnderTheROCCurve() {
         positiveDecisions = new DoubleArrayList();
@@ -59,8 +62,8 @@ public class AreaUnderTheROCCurve {
 
     public double evaluateStatistic() {
         double sum = 0;
-        double numPositive = 0;
-        double numNegative = 0;
+        numPositive = 0;
+        numNegative = 0;
         if (clipObservations) {
             clipObservations();
         }
@@ -75,7 +78,32 @@ public class AreaUnderTheROCCurve {
         numNegative = negativeDecisions.size();
 
         final double auc = sum / numPositive / numNegative;
+        this.estimatedAUC = auc;
         return auc;
+    }
+
+    /**
+     * You may call this method after evaluateStatistic() to obtain the 95% confidence interval of the AUC.
+     * The confidence interval is estimated using the method of https://ncss-wpengine.netdna-ssl.com/wp-content/themes/ncss/pdf/Procedures/PASS/Confidence_Intervals_for_the_Area_Under_an_ROC_Curve.pdf
+     *
+     * @return The 95% confidence interval.
+     */
+    public double[] confidenceInterval95() {
+        double[] ci = new double[2];
+        double z = 1.96f;
+        double AUC = estimatedAUC;
+        double standardError;
+        double Q1 = AUC / (2 - AUC);
+        double AUC_square = AUC * AUC;
+        double Q2 = 2 * AUC_square / (1 + AUC);
+        double N1 = numPositive;
+        double N2 = numNegative;
+
+        standardError = Math.sqrt((AUC * (1 - AUC) + (N1 - 1) * (Q1 - AUC_square) + (N2 - 1) * (Q2 - AUC_square))
+                / N1 / N2);
+        ci[0] = AUC - z * standardError;
+        ci[1] = AUC + z * standardError;
+        return ci;
     }
 
     /**
