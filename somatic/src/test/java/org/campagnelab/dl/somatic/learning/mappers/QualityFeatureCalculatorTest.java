@@ -42,8 +42,9 @@ public class QualityFeatureCalculatorTest {
         features.setFeatureValue(sr, 10);
         features.setFeatureValue(sf, 11);
         INDArray inputs = Nd4j.zeros(1, calc.numberOfFeatures());
+        calc.prepareToNormalize(record, 0);
         calc.mapFeatures(record, inputs, 0);
-        Features featuresFromArray=new Features(inputs,1);
+        Features featuresFromArray = new Features(inputs, 1);
         assertEquals(features, featuresFromArray);
         System.out.println(features);
     }
@@ -74,8 +75,8 @@ public class QualityFeatureCalculatorTest {
         sampleBuilder.addCounts(builderInfo.build());
         builder.addSamples(sampleBuilder.build());
 
-        gf = (float)((getError(5)+getError(15))/2);
-        gr = (float)((getError(10)+getError(60))/2);
+        gf = (float) ((getError(5) + getError(15)) / 2);
+        gr = (float) ((getError(10) + getError(60)) / 2);
 
         //somatic counts
         BaseInformationRecords.SampleInfo.Builder sampleBuilderS = BaseInformationRecords.SampleInfo.newBuilder();
@@ -100,15 +101,15 @@ public class QualityFeatureCalculatorTest {
         builder.addSamples(sampleBuilderS.build());
 
 
-        sf = (float)((getError(20)+getError(1)+getError(25))/(double)3);
-        sr = (float)((getError(27)+getError(0)+getError(60))/(double)3);
+        sf = (float) ((getError(20) + getError(1) + getError(25)) / (double) 3);
+        sr = (float) ((getError(27) + getError(0) + getError(60)) / (double) 3);
 
 
         return builder.build();
 
     }
 
-    double getError (int p) {
-        return Math.pow((double)10,-((double)p/(double)10));
+    double getError(int p) {
+        return Math.pow((double) 10, -((double) p / (double) 10));
     }
 }

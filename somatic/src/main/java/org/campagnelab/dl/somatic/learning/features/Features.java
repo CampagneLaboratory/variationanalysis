@@ -29,7 +29,7 @@ public class Features {
         final int size = inputs.size(dimension);
         values=new FloatArrayList(size);
         values.size(size);
-        int[] indices = {dimension, 0};
+        int[] indices = {0, 0};
         for (int i = 0; i < size; i++) {
             indices[1] = i;
             float value = inputs.getFloat(indices);
