@@ -7,7 +7,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
  * Label: frequency of somatic mutation.
- * Created by fac2003 on 11/8/16.
+ * Created by rct66 on 12/6/16.
  */
 public class GenotypeLabelsMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
     @Override

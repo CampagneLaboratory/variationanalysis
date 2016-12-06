@@ -6,7 +6,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
- * Created by fac2003 on 11/12/16.
+ * Created by rct66 on 11/12/16.
  */
 public class GenotypeInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation, GenotypePrediction> {
 

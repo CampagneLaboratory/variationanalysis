@@ -14,7 +14,9 @@ import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.TrainGenotypeModelS;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
 import org.campagnelab.dl.genotype.learning.domains.predictions.GenotypeInterpreter;
+import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
 import org.campagnelab.dl.genotype.mappers.GenotypeLabelsMapper;
+import org.campagnelab.dl.genotype.mappers.HomozygousLabelsMapper;
 import org.campagnelab.dl.somatic.learning.SomaticTrainingArguments;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2;
@@ -139,6 +141,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new GenotypeLabelsMapper(8);
             case "I5":
                 return new GenotypeLabelsMapper(9);
+            case "homozygous":
+                return new HomozygousLabelsMapper();
             case "genotype":
                 //handle this case for the properties file description
                 return new GenotypeLabelsMapper(0);
@@ -173,6 +177,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new GenotypeInterpreter(8);
             case "I5":
                 return new GenotypeInterpreter(9);
+            case "homozygous":
+                return new HomozygousInterpreter();
             case "genotype":
                 //handle this case for the properties file description
                 return new GenotypeInterpreter(0);
@@ -220,10 +226,9 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 switch (metricName) {
                     case "accuracy":
                         AccuracyHelper helper = new AccuracyHelper();
-                        return helper.estimateWithGraph(dataSetIterator, graph, args().numValidation, prediction -> {
-                                },
-                                index -> index > scoreN,
-                            /* first output represents probability of mutation */ 0);
+                        return helper.estimateWithGraph(dataSetIterator, graph,
+                                index -> index > scoreN
+                            /* first output represents probability of mutation */ );
                     case "AUC":
                         return -1;
                     default:

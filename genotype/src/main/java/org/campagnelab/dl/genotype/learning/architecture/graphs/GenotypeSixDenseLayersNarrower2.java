@@ -33,7 +33,7 @@ public class GenotypeSixDenseLayersNarrower2 implements ComputationalGraphAssemb
     private LearningRatePolicy learningRatePolicy;
     private TrainingArguments arguments;
     private int numInputs;
-    private String[] outputNames = new String[]{"A","T","C","G","N","I1","I2","I3","I4","I5"};
+    private String[] outputNames = new String[]{"homozygous","A","T","C","G","N","I1","I2","I3","I4","I5"};
     private String outputName = "genotype";
     private TrainingArguments args() {
         return arguments;
@@ -101,7 +101,12 @@ public class GenotypeSixDenseLayersNarrower2 implements ComputationalGraphAssemb
                         .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build(), "dense4");
-       for (int i = 0; i < outputNames.length; i++){
+        build.addLayer("homozygous", new OutputLayer.Builder(
+                domainDescriptor.getOutputLoss(outputName))
+                .weightInit(WEIGHT_INIT)
+                .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
+                .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(11).build(), "dense5");
+        for (int i = 1; i < outputNames.length; i++){
             build.addLayer(outputNames[i], new OutputLayer.Builder(
                     domainDescriptor.getOutputLoss(outputName))
                     .weightInit(WEIGHT_INIT)

@@ -4,7 +4,7 @@ import org.campagnelab.dl.framework.domains.prediction.BinaryClassPrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 /**
- * Created by fac2003 on 11/12/16.
+ * Created by rct66 on 11/12/16.
  */
 public class GenotypePrediction extends BinaryClassPrediction {
 
