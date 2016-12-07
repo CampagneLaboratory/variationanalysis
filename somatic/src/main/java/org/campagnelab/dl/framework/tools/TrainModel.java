@@ -178,8 +178,10 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         writeBestScoreFile();
         System.out.println("Model completed, saved at time: " + time);
         performanceLogger.write();
-        resultValues().put("AUC", performanceLogger.getBest("AUC"));
-        resultValues().put("score", performanceLogger.getBestScore());
+        for (String metric : domainDescriptor.performanceDescritor().performanceMetrics()){
+            resultValues().put(metric, performanceLogger.getBest(metric));
+
+        }
         resultValues().put("bestModelEpoch", performanceLogger.getBestEpoch(bestMetricName));
         resultValues().put("model-time", time);
     }
