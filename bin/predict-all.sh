@@ -10,9 +10,9 @@ cat << EOF | cat>gpu.txt
 3
 EOF
 
-NUM_GPUS=`wc -l gpus.txt`
+NUM_GPUS=`wc -l gpus.txt|cut -d " " -f 1`
 INPUT=${memory_requirement}
 MODELS=models/*
 MODEL_TIMES=`grep -v Tag model-conditions.txt | cut -d" " -f 6|awk '{print "models/"$1}' `
 
-parallel --progress -j${NUM_GPUS} --xapply  predict.sh 10g -l bestAUC -f -i ${INPUT} -m ::: ${MODEL_TIMES} ::: --gpu-device :::: gpus.txt :::
+parallel --progress -j${NUM_GPUS} --xapply  predict.sh 10g -l bestAUC -f -i ${INPUT} -m ::: ${MODEL_TIMES} ::: --gpu-device :::: gpus.txt
