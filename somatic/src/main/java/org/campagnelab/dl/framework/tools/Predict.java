@@ -2,17 +2,14 @@ package org.campagnelab.dl.framework.tools;
 
 import com.google.common.collect.Iterables;
 import it.unimi.dsi.logging.ProgressLogger;
+import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.DomainDescriptorLoader;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
-import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
-import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
-import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
 import org.deeplearning4j.nn.api.Model;
-import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +18,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * A generic Predict tool. Sub-class this abstract class and define a few methods in order to make predictions and
@@ -54,12 +50,13 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
             String modelName = modelPath.getName();
             outputFileExists = new File(args().outputFile).exists();
             if (args().toFile) {
-                String resultPath = "tests/" + modelName + "/";
+                String resultPath = "predictions/" + modelName;
                 File dir = new File(resultPath);
                 // attempt to create the directory here
                 dir.mkdirs();
-
-                String resultFilename = resultPath + args().modelName + "-" + args().type + ".tsv";
+                String testSetName = FilenameUtils.getBaseName(args().testSet);
+                String resultFilename = String.format("%s/%s-%s-%s.tsv", resultPath, args().modelName,
+                        args().type, testSetName);
                 System.out.println("Writing predictions to " + resultFilename);
                 resultWriter = new PrintWriter(resultFilename, "UTF-8");
                 outputWriter = new PrintWriter(new FileWriter(args().outputFile, true));
@@ -140,7 +137,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         for (double metric : createOutputStatistics()) {
             outputWriter.append(String.format("\t%f", metric));
         }
-        outputWriter.append("\t"+getAllCommandLineArguments());
+        outputWriter.append("\t" + getAllCommandLineArguments());
         outputWriter.append("\n");
         outputWriter.close();
         pgReadWrite.stop();
@@ -165,6 +162,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
     protected abstract String[] createOutputHeader();
 
     //TODO: Figure out if still necessary, or if outputStatistics suffices
+
     /**
      * This method is called after the test set has been observed and statistics evaluated. It prints statistics
      * to the console for the operators to read.
@@ -195,7 +193,6 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
      * @param prefix The model prefix/label (e.g., bestAUC).
      */
     protected abstract void initializeStats(String prefix);
-
 
 
 }

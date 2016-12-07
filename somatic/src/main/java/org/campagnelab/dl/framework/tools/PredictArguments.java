@@ -39,20 +39,20 @@ public class PredictArguments extends RecordingToolArguments {
     @Parameter(names = {"--correctness-filter"},
             description = "When provided, filter output by correctness. For instance --correctness-filter wrong will only print wrong predictions. Alternatively --correctness-filter correct prings only correct predictions. ")
     public String correctnessFilter = null;
+
     @Parameter(names = {"--filter-p-min"},
             description = "Only output prediction with Math.max(pLabelTrue,pLabelFalse)>= x, --filter-p-min x.")
     public double pFilterMinimum = 0;
+
     @Parameter(names = {"--filter-p-max"},
             description = "Only output prediction with Math.max(pLabelTrue,pLabelFalse)<= x, --filter-p-max x.")
     public double pFilterMaximum = 1;
 
-    @Parameter(names = {"-f", "--to-file"}, description = "Write output to a file. If not provided, write to stdout.")
+    @Parameter(names = {"-f", "--to-file"}, description = "Write output to a file (file created under predictions/modelTime). If not provided, write to stdout.")
     public boolean toFile = false;
 
     @Parameter(names = { "--filter-auc-observations"}, description = "When true, estimate AUC only from the filtered observations. ")
     public boolean filterAucObservations;
-
-    public boolean ignoreCache;
 
     @Parameter(names = {"--predict-statistics"}, description = "Filename where predict statistics will be written (one invocation of predict is one line). ")
     public String outputFile = "predict-statistics.tsv";
