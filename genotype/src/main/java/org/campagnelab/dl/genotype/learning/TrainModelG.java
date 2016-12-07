@@ -4,8 +4,6 @@ import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.tools.TrainModel;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.campagnelab.dl.genotype.learning.domains.GenotypeDomainDescriptor;
-import org.campagnelab.dl.somatic.learning.SomaticTrainingArguments;
-import org.campagnelab.dl.somatic.learning.domains.SomaticMutationDomainDescriptor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.slf4j.Logger;
@@ -17,12 +15,12 @@ import java.util.Properties;
 /**
  * Train Somatic implemented with the Generic TrainModel
  */
-public class TrainGenotypeModelS extends TrainModel<BaseInformationRecords.BaseInformation> {
-    static private Logger LOG = LoggerFactory.getLogger(TrainGenotypeModelS.class);
+public class TrainModelG extends TrainModel<BaseInformationRecords.BaseInformation> {
+    static private Logger LOG = LoggerFactory.getLogger(TrainModelG.class);
 
     public static void main(String[] args) {
 
-        TrainGenotypeModelS tool = new TrainGenotypeModelS();
+        TrainModelG tool = new TrainModelG();
         tool.parseArguments(args, "TrainModelS", tool.createArguments());
         if (tool.args().trainingSets.size() == 0) {
             System.out.println("Please add exactly one training set to the args().");

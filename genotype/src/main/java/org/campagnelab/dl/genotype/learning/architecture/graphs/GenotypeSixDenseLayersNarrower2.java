@@ -51,7 +51,7 @@ public class GenotypeSixDenseLayersNarrower2 implements ComputationalGraphAssemb
 
         WeightInit WEIGHT_INIT = WeightInit.XAVIER;
         learningRatePolicy = LearningRatePolicy.Poly;
-        float reduction = 0.65f;
+        float reduction = 1f;
         int minimum = (int) (numHiddenNodes * Math.pow(reduction, 4));
         assert minimum > 2 : "Too much reduction, not enough outputs: ";
         ComputationGraphConfiguration confBuilder = null;

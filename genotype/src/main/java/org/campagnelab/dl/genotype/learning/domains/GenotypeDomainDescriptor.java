@@ -7,25 +7,18 @@ import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
-import org.campagnelab.dl.framework.performance.AUCHelper;
 import org.campagnelab.dl.framework.performance.AccuracyHelper;
+import org.campagnelab.dl.framework.performance.AlleleAccuracyHelper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
-import org.campagnelab.dl.genotype.learning.TrainGenotypeModelS;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
 import org.campagnelab.dl.genotype.learning.domains.predictions.GenotypeInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
 import org.campagnelab.dl.genotype.mappers.GenotypeLabelsMapper;
 import org.campagnelab.dl.genotype.mappers.HomozygousLabelsMapper;
-import org.campagnelab.dl.somatic.learning.SomaticTrainingArguments;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
-import org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2;
-import org.campagnelab.dl.somatic.learning.domains.SomaticFrequencyInterpreter;
-import org.campagnelab.dl.somatic.learning.domains.predictions.IsSomaticMutationInterpreter;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
-import org.campagnelab.dl.somatic.mappers.IsSomaticMutationMapper;
-import org.campagnelab.dl.somatic.mappers.SomaticFrequencyLabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.nn.graph.ComputationGraph;
@@ -204,7 +197,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         return new PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation>() {
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"AUC","score", "accuracy"};
+                return new String[]{"accuracy", "alleleAccuracy","score"};
             }
 
             @Override
@@ -212,7 +205,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 switch (metricName) {
                     case "accuracy":
                         return true;
-                    case "AUC":
+                    case "alleleAccuracy":
                         return true;
                     case "score":
                         return false;
@@ -229,8 +222,11 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                         return helper.estimateWithGraph(dataSetIterator, graph,
                                 index -> index > scoreN
                             /* first output represents probability of mutation */ );
-                    case "AUC":
-                        return -1;
+                    case "alleleAccuracy":
+                        AlleleAccuracyHelper alleleHelper = new AlleleAccuracyHelper();
+                        return alleleHelper.estimateWithGraph(dataSetIterator, graph,
+                                index -> index > scoreN
+                            /* first output represents probability of mutation */ );
                     default:
                         return estimateScore(graph, metricName, dataSetIterator, scoreN);
                 }
