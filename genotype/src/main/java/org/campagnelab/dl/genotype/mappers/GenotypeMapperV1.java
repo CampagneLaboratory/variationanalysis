@@ -1,20 +1,20 @@
 package org.campagnelab.dl.genotype.mappers;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
-import org.campagnelab.dl.somatic.mappers.*;
+import org.campagnelab.dl.somatic.mappers.DensityMapper;
+import org.campagnelab.dl.somatic.mappers.GenomicContextMapper;
+import org.campagnelab.dl.somatic.mappers.NamingConcatFeatureMapper;
 import org.campagnelab.dl.somatic.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.util.List;
 import java.util.Properties;
 
 /**
  * This m
  */
-public class GenotypeMapperV1 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> implements ConfigurableFeatureMapper{
+public class GenotypeMapperV1 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> implements ConfigurableFeatureMapper {
     private NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sample is zeroth, adjustable with setter
     private int sampleIndex = 0;
@@ -27,13 +27,19 @@ public class GenotypeMapperV1 extends NamingConcatFeatureMapper<BaseInformationR
 
         FeatureNameMapper[] countMappers = new FeatureNameMapper[20];
         FeatureNameMapper[] readIndexMappers = new FeatureNameMapper[20];
-        for (int i = 0; i < 10; i++){
-            countMappers[i] = (new SingleGenoTypeCountMapper(sampleIndex,i,true));
-            readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex,i,true));
+        //TODO Remi please review change, see if you agree.
+        int genotypeIndex = 0;
+        for (int i = 0; i < 10; i++) {
+            countMappers[i] = (new SingleGenoTypeCountMapper(sampleIndex, i, true));
+            readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex, i, true));
+            genotypeIndex++;
         }
-        for (int i = 10; i < 20; i++){
-            countMappers[i] = (new SingleGenoTypeCountMapper(sampleIndex,i,false));
-            readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex,i,false));
+        genotypeIndex = 0;
+        for (int i = 10; i < 20; i++) {
+
+            countMappers[i] = (new SingleGenoTypeCountMapper(sampleIndex, genotypeIndex, false));
+            readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex, genotypeIndex, false));
+            genotypeIndex++;
         }
         delegate =
                 new NamingConcatFeatureMapper<>(
