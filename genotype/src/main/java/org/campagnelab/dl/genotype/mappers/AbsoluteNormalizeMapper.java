@@ -18,7 +18,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class AbsoluteNormalizeMapper extends AbstractFeatureMapperStripped<BaseInformationRecords.BaseInformationOrBuilder> {
 
     FeatureNameMapper delegate;
-    float absMax;
+    float absMax=Float.NEGATIVE_INFINITY;
 
     public AbsoluteNormalizeMapper(FeatureNameMapper delegate) {
         this.delegate = delegate;
