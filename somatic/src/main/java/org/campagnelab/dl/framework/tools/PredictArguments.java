@@ -56,4 +56,8 @@ public class PredictArguments extends RecordingToolArguments {
 
     @Parameter(names = {"--predict-statistics"}, description = "Filename where predict statistics will be written (one invocation of predict is one line). ")
     public String outputFile = "predict-statistics.tsv";
+
+    @Parameter(names = "--gpu-device", description = "Index of the GPU to use for training (0,1, up to the number of GPUs in the server).")
+    public Integer deviceIndex=null;
+
 }

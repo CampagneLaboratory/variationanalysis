@@ -10,6 +10,7 @@ import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
 import org.deeplearning4j.nn.api.Model;
+import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,9 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
 
     @Override
     public void execute() {
+        if (args().deviceIndex != null) {
+            Nd4j.getAffinityManager().attachThreadToDevice(Thread.currentThread(), args().deviceIndex);
+        }
         PrintWriter resultWriter;
         PrintWriter outputWriter;
         boolean outputFileExists;
