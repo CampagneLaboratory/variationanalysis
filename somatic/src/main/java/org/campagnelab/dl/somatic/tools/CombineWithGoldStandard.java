@@ -1,6 +1,7 @@
 package org.campagnelab.dl.somatic.tools;
 
 import it.unimi.dsi.fastutil.ints.Int2BooleanAVLTreeMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.io.FastBufferedReader;
@@ -23,7 +24,8 @@ import java.io.IOException;
 import java.util.Random;
 
 /**
- * Combine a raw SBI with gold standard annotations to set isMutated flag.
+ * Combine a raw SBI with gold standard annotations to set isMutated flag. TSV format is chromosome\tposition\t[toBases]
+ * where toBases is optional and contain the mutated bases (SNP or indel genotype of the mutation).
  * Created by fac2003 on 11/22/16.
  */
 public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandardArguments> {
@@ -69,9 +71,9 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
                     numWritten += 1;
                     if (record.getMutated()) {
                         numMutatedWritten++;
-                        System.out.printf("%s:%d\n\tnormal: %s\ttumor:  %s %n", record.getReferenceId(), record.getPosition(),
+                       /* System.out.printf("%s:%d\n\tnormal: %s\ttumor:  %s %n", record.getReferenceId(), record.getPosition(),
                                 record.getSamples(0).getFormattedCounts(),
-                                record.getSamples(1).getFormattedCounts());
+                                record.getSamples(1).getFormattedCounts());*/
                     }
                 }
                 pgRead.lightUpdate();
@@ -91,20 +93,28 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
         int position;
     }
 
-    Object2ObjectArrayMap<String, Int2BooleanAVLTreeMap> annotations = new Object2ObjectArrayMap<>();
+    Object2ObjectArrayMap<String, Int2ObjectAVLTreeMap<Annotation>> annotations = new Object2ObjectArrayMap<>();
+
+    class Annotation {
+        int position;
+        String toBase;
+    }
 
     private void loadAnnotations(String annotationFilename) {
         try {
             LineIterator lines = new LineIterator(new FastBufferedReader(new FileReader(annotationFilename)));
             for (MutableString line : lines.allLines()) {
+               if (line.startsWith("#")) continue;
                 String tokens[] = line.toString().split("\t");
                 final String chromosome = tokens[0];
                 int position = Integer.parseInt(tokens[1]);
                 // convert to zero-based position used by goby/variationanalysis:
                 position -= 1;
-                Int2BooleanAVLTreeMap positions = annotations.getOrDefault(chromosome, new Int2BooleanAVLTreeMap());
-                positions.put(position, true);
-                annotations.put(chromosome, positions);
+                Int2ObjectAVLTreeMap<Annotation> perPositionMap = annotations.getOrDefault(chromosome, new Int2ObjectAVLTreeMap<>());                Annotation a = new Annotation();
+                a.position = position;
+                a.toBase = tokens.length >= 3 ? tokens[2] : null;
+                perPositionMap.put(position, a);
+                annotations.put(chromosome, perPositionMap);
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Unable to find annotation filename:" + annotationFilename, e);
@@ -116,10 +126,18 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
         if (!isAnnotated(record.getReferenceId(), record.getPosition())) {
             return record;
         }
-        return record.toBuilder().setMutated(true).build();
+        final BaseInformationRecords.BaseInformation.Builder builder = record.toBuilder();
+        Annotation a=getAnnotation(record.getReferenceId(), record.getPosition());
+        if (a.toBase!=null) {
+            builder.setMutatedBase(a.toBase);
+        }
+        return builder.setMutated(true).build();
     }
 
     private boolean isAnnotated(String referenceId, int position) {
-        return annotations.getOrDefault(referenceId, new Int2BooleanAVLTreeMap()).getOrDefault(position, new Boolean(false));
+        return annotations.getOrDefault(referenceId, new Int2ObjectAVLTreeMap<Annotation>()).getOrDefault(position, null)!=null;
+    }
+    private Annotation getAnnotation(String referenceId, int position) {
+        return annotations.getOrDefault(referenceId, new Int2ObjectAVLTreeMap<Annotation>()).get(position);
     }
 }
