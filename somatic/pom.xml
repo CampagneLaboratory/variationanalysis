@@ -35,7 +35,7 @@
 
     <profiles>
         <profile>
-            <id>GPU</id>
+            <id>CPU</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
