@@ -15,6 +15,40 @@
     </modules>
     <name>Variation Analysis</name>
     <description>A project to train neural networks to recognize mutations in RNA-seq data.</description>
+
+    <organization>
+        <name>Campagne Laboratory</name>
+        <url>http://campagnelab.org</url>
+    </organization>
+    <developers>
+        <developer>
+            <name>Fabien Campagne</name>
+            <email>fac2003@campagnelab.org</email>
+            <organization>Campagne Laboratory</organization>
+            <organizationUrl>http://campagnelab.org</organizationUrl>
+        </developer>
+        <developer>
+            <name>Remi Torracinta</name>
+            <email>remi.torracinta@campagnelab.org</email>
+            <organization>Campagne Laboratory</organization>
+            <organizationUrl>http://campagnelab.org</organizationUrl>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git@github.com:CampagneLaboratory/variationanalysis.git</connection>
+        <developerConnection>scm:git:git@github.com:CampagneLaboratory/variationanalysis.git</developerConnection>
+        <url>git@github.com:CampagneLaboratory/variationanalysis.git</url>
+        <tag>r1.1</tag>
+    </scm>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- DL4J properties: -->
@@ -179,11 +213,34 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
-                <configuration>
-
-                </configuration>
+                <version>2.10.4</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
@@ -233,12 +290,12 @@
 
     <distributionManagement>
         <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
+            <id>ossrh</id>
             <name>Sonatype Nexus snapshot repository</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
         <repository>
-            <id>nexus-releases</id>
+            <id>ossrh</id>
             <name>Nexus Release Repository</name>
             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>

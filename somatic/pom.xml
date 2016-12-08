@@ -33,7 +33,22 @@
 
     </properties>
 
-
+    <profiles>
+        <profile>
+            <id>GPU</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.campagnelab.dl</groupId>
+                    <artifactId>framework</artifactId>
+                    <version>${project.version}</version>
+                    <classifier>native</classifier>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
     <build>
         <resources>
             <resource>
@@ -288,11 +303,7 @@
             <version>3.6.1</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.campagnelab.dl</groupId>
-            <artifactId>framework</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
 
     </dependencies>
 
