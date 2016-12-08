@@ -61,6 +61,18 @@
                 <dl4j.version>0.7.1</dl4j.version>
                 <nd4j.version>0.7.1</nd4j.version>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>3.0.2</version>
+                        <configuration>
+                            <classifier>native</classifier>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
             <dependencies>
                 <!--dependency>
                     <groupId>org.deeplearning4j</groupId>
