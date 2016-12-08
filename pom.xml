@@ -33,6 +33,12 @@
             <organization>Campagne Laboratory</organization>
             <organizationUrl>http://campagnelab.org</organizationUrl>
         </developer>
+        <developer>
+            <name>Joshua Cohen</name>
+            <email>joshua.cohen@campagnelab.org</email>
+            <organization>Campagne Laboratory</organization>
+            <organizationUrl>http://campagnelab.org</organizationUrl>
+        </developer>
     </developers>
     <licenses>
         <license>
