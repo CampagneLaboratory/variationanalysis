@@ -8,8 +8,8 @@
     <version>1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>somatic</module>
         <module>framework</module>
+        <module>somatic</module>
         <module>genotype</module>
         <module>gpus</module>
     </modules>
