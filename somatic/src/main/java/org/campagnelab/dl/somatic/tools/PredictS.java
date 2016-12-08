@@ -76,12 +76,12 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
         if (doOuptut(correctness, args(), Math.max(isSomaticMutation.predictedLabelNo, isSomaticMutation.predictedLabelYes))) {
             resultWriter.printf("%d\t%f\t%f\t%f\t%s%s%n", isSomaticMutation.index, isSomaticMutation.trueLabelYes, isSomaticMutation.predictedLabelYes,
                     isSomaticMutation.predictedLabelNo, correctness, somaticFrequencyText);
-            if (args().filterAucObservations) {
+            if (args().filterMetricObservations) {
                 aucLossCalculator.observe(isSomaticMutation.predictedLabelYes, isSomaticMutation.trueLabelYes - 0.5);
             }
         }
         //convert true label to the convention used by auc calculator: negative true label=labelNo.
-        if (!args().filterAucObservations) {
+        if (!args().filterMetricObservations) {
             aucLossCalculator.observe(isSomaticMutation.predictedLabelYes, isSomaticMutation.trueLabelYes - 0.5);
         }
     }

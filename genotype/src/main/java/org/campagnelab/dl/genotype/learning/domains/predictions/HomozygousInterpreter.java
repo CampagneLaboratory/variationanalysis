@@ -9,17 +9,35 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 public class HomozygousInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation, HomozygousPrediction> {
 
+    double maxProbability;
 
     public HomozygousInterpreter(){}
+
 
     @Override
     public HomozygousPrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
         HomozygousPrediction pred = new HomozygousPrediction();
         pred.inspectRecord(record);
-        pred.predictedProbabilities = new double[output.length()];
-        for (int i = 0; i < pred.predictedProbabilities.length; i++){
-            pred.predictedProbabilities[i] = output.getDouble(0,i);
-        }
+        pred.predictedHomozygousGenotype = getHomozygousPrediction(record,output);
+        pred.probability = maxProbability;
         return pred;
+    }
+
+    public String getHomozygousPrediction(BaseInformationRecords.BaseInformation currentRecord, INDArray output){
+        StringBuffer genotype = new StringBuffer();
+        maxProbability = -1;
+        int maxIndex = -1;
+        for (int i = 0; i < output.length(); i++) {
+            if (maxProbability < output.getDouble(0,i)){
+                maxIndex = i;
+                maxProbability = output.getDouble(0,i);
+            }
+        }
+        try {
+            return currentRecord.getSamples(0).getCounts(maxIndex).getToSequence();
+        } catch (NullPointerException e){
+            //handle non-homozygous case
+            return "";
+        }
     }
 }

@@ -12,8 +12,8 @@ import org.campagnelab.dl.framework.performance.AlleleAccuracyHelper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
-import org.campagnelab.dl.genotype.learning.domains.predictions.GenotypeInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
+import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypeInterpreter;
 import org.campagnelab.dl.genotype.mappers.GenotypeLabelsMapper;
 import org.campagnelab.dl.genotype.mappers.HomozygousLabelsMapper;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
@@ -151,31 +151,31 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
         switch (outputName) {
             case "A":
-                return new GenotypeInterpreter(0);
+                return new SingleGenotypeInterpreter(0);
             case "T":
-                return new GenotypeInterpreter(1);
+                return new SingleGenotypeInterpreter(1);
             case "C":
-                return new GenotypeInterpreter(2);
+                return new SingleGenotypeInterpreter(2);
             case "G":
-                return new GenotypeInterpreter(3);
+                return new SingleGenotypeInterpreter(3);
             case "N":
-                return new GenotypeInterpreter(4);
+                return new SingleGenotypeInterpreter(4);
             case "I1":
-                return new GenotypeInterpreter(5);
+                return new SingleGenotypeInterpreter(5);
             case "I2":
-                return new GenotypeInterpreter(6);
+                return new SingleGenotypeInterpreter(6);
             case "I3":
-                return new GenotypeInterpreter(7);
+                return new SingleGenotypeInterpreter(7);
             case "I4":
-                return new GenotypeInterpreter(8);
+                return new SingleGenotypeInterpreter(8);
             case "I5":
-                return new GenotypeInterpreter(9);
+                return new SingleGenotypeInterpreter(9);
+            //only need one interpreter for each record, it will collect entire genotype into a prediction
             case "homozygous":
                 return new HomozygousInterpreter();
             case "genotype":
                 //handle this case for the properties file description
-                return new GenotypeInterpreter(0);
-
+                return new HomozygousInterpreter();
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }

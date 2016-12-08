@@ -1,19 +1,11 @@
 package org.campagnelab.dl.framework.performance;
 
 import org.campagnelab.dl.framework.domains.prediction.BinaryClassPrediction;
-import org.campagnelab.dl.framework.domains.prediction.MultiClassPrediction;
-import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPrediction;
-import org.campagnelab.dl.genotype.mappers.HomozygousLabelsMapper;
-import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -30,6 +22,7 @@ public class AccuracyHelper {
         int nCorrect = 0;
         BinaryClassPrediction prediction = new BinaryClassPrediction();
         while (iterator.hasNext()) {
+            System.out.println(nCorrect/(double)nProcessed);
             MultiDataSet next = iterator.next();
             INDArray[] outputs = graph.output(next.getFeatures());
             INDArray[] labels = next.getLabels();
@@ -49,6 +42,8 @@ public class AccuracyHelper {
                 if (homoPredIndex != 10) {
                     if (labels[0].getDouble(recordIndex,homoPredIndex) != 0) {
                         nCorrect++;
+                    } else {
+                        System.out.print("w");
                     }
                     continue;
                 }
