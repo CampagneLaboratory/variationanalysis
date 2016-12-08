@@ -30,7 +30,7 @@
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-context:0.7.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:0.7.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:linux-x86_64:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="module" module-name="framework" />
+    <orderEntry type="library" name="Maven: org.campagnelab.dl:framework:1.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-core:0.7.1" level="project" />
     <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-nn:0.7.1" level="project" />
