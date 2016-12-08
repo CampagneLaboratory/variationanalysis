@@ -33,7 +33,23 @@
 
     </properties>
 
-
+    <profiles>
+        <profile>
+            <id>GPU</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.campagnelab.dl</groupId>
+                    <artifactId>gpus</artifactId>
+                    <version>${version}</version>
+                    <optional>true</optional>
+                    <scope>runtime</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
     <build>
         <sourceDirectory>${basedir}/../somatic/src/main/java</sourceDirectory>
         <extensions>
@@ -187,7 +203,6 @@
         <!-- deeplearning4j-ui is used for HistogramIterationListener + visualization: see http://deeplearning4j.org/visualization -->
 
 
-
         <!-- Force guava versions for using UI/HistogramIterationListener -->
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -242,13 +257,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.campagnelab.dl</groupId>
-            <artifactId>gpus</artifactId>
-            <version>${version}</version>
-            <optional>true</optional>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
