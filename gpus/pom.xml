@@ -10,28 +10,59 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>gpus</artifactId>
-   <build>
-    <pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <!-- do not use another version, see http://stackoverflow.com/questions/11051620/compiling-only-selected-files-in-maven-->
-                <version>2.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <excludes>
-                        <exclude>org/campagnelab/dl/gpus/**/*${GPUSpecificSuffix}.java
-                        </exclude>
-                    </excludes>
-                    <includes>
-                        <include>org/campagnelab/dl/gpus/**</include>
-                    </includes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </pluginManagement>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <!-- do not use another version, see http://stackoverflow.com/questions/11051620/compiling-only-selected-files-in-maven-->
+                    <version>2.1</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <excludes>
+                            <exclude>org/campagnelab/dl/gpus/**/*${GPUSpecificSuffix}.java
+                            </exclude>
+                        </excludes>
+                        <includes>
+                            <include>org/campagnelab/dl/gpus/**</include>
+                        </includes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.10.4</version>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                            <configuration>
+                                <additionalparam>-Xdoclint:none</additionalparam>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
-   </build>
+    </build>
 </project>

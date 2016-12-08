@@ -15,7 +15,7 @@
     </modules>
     <name>Variation Analysis</name>
     <description>A project to train neural networks to recognize mutations in RNA-seq data.</description>
-
+    <url>https://github.com/CampagneLaboratory/variationanalysis</url>
     <organization>
         <name>Campagne Laboratory</name>
         <url>http://campagnelab.org</url>
