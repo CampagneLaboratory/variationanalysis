@@ -51,15 +51,15 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         boolean outputFileExists;
         try {
             File modelPath = new File(args().modelPath);
-            String modelName = modelPath.getName();
+            String modelTime = modelPath.getName();
             outputFileExists = new File(args().outputFile).exists();
             if (args().toFile) {
-                String resultPath = "predictions/" + modelName;
+                String resultPath = "predictions";
                 File dir = new File(resultPath);
                 // attempt to create the directory here
                 dir.mkdirs();
                 String testSetName = FilenameUtils.getBaseName(args().testSet);
-                String resultFilename = String.format("%s/%s-%s-%s.tsv", resultPath, args().modelName,
+                String resultFilename = String.format("%s/%s-%s-%s-%s.tsv", resultPath, modelTime, args().modelName,
                         args().type, testSetName);
                 System.out.println("Writing predictions to " + resultFilename);
                 resultWriter = new PrintWriter(resultFilename, "UTF-8");
