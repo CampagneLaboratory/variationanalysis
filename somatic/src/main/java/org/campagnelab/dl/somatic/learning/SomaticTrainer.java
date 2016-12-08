@@ -233,7 +233,7 @@ public abstract class SomaticTrainer extends ConditionRecordingTool<SomaticTrain
     protected void writeBestScoreFile() throws IOException {
 
         FileWriter scoreWriter = new FileWriter(directory + "/bestScore");
-        scoreWriter.append(Double.toString(bestScore));
+        scoreWriter.append(Double.toString(performanceLogger.getBestScore()));
         scoreWriter.close();
     }
 
