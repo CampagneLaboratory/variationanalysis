@@ -20,9 +20,9 @@ and publicly available from GEO accession  [GSE19480](http://www.ncbi.nlm.nih.go
 mkdir ~/variations
 cd ~/variations
 ```
-* Download Goby, and data (here we use wget):
+* Download Goby, DL-Variation, and data (here we use wget):
 ```sh
-wget http://gobyweb.apps.campagnelab.org/data/DLSV/model-training-1.0.2-bin.jar
+wget http://gobyweb.apps.campagnelab.org/data/DLSV/release-dlvariation_1.1.1.zip
 wget http://gobyweb.apps.campagnelab.org/data/DLSV/goby.jar
 wget http://gobyweb.apps.campagnelab.org/data/DLSV/goby
 wget http://gobyweb.apps.campagnelab.org/data/DLSV/config.zip
@@ -33,6 +33,7 @@ _Note that you can use a more recent version of Goby 3 if available. The version
 * Unzip the alignments and goby config folders:
 ```sh
 unzip NA19239-all-files.zip
+unzip release-dlvariation_1.1.1.zip
 unzip config.zip
 chmod +x goby
 ```
@@ -56,12 +57,11 @@ This command should take a few minutes (there are ~15M aligned reads) and produc
 ## Step 3: generate the model
 * Plant mutations into the set:
 ```sh
-java -cp model-training-1.0.2-bin.jar org.campagnelab.dl.varanalysis.intermediaries.Mutator2 fullset.sbi \
-    mutset.sbi
+release-dlvariation_1.1.1/bin/mutate.sh 4g -i fullset.sbi -o mutset.sbi
 ```
 * Split the .sbi file into training (80% of training examples), validation (10%), and test (10%) datasets:
 ```sh
-java -cp model-training-1.0.2-bin.jar org.campagnelab.dl.varanalysis.tools.Split \
+release-dlvariation_1.1.1/bin/split.sh \
     -i mutset.sbi -o "set_" -s train -f 0.8   -s val -f 0.1  -s test -f 0.1
 ```
 The command produces three datasets, called set_train.sbi, set_val.sbi and set_test.sbi.
@@ -72,7 +72,7 @@ In practice, you would leave out max-epochs and allow early stopping to interrup
 starts deteriorating. This will take longer, but produce a superior model._
 * Train the model for 10 epochs:
 ```sh
-java -cp model-training-1.0.2-bin.jar org.campagnelab.dl.varanalysis.learning.TrainSomaticModel \
+release-dlvariation_1.1.1/bin/train-somatic.sh 4g \
     -t set_train.sbi -v set_val.sbi --max-epochs 10
 ```
 This command generates the trained the model in ./models/[timestamp], where timestamp is a numeric value.
@@ -87,8 +87,8 @@ For instance, this can be done with  [MetaR](http://metaR.campagnelab.org) and t
 
 ```sh
 mkdir tests
-java -cp model-training-1.0.2-bin.jar org.campagnelab.dl.varanalysis.learning.PredictMutations \
-    -i set_test.sbi -l best \
+release-dlvariation_1.1.1/bin/predict.sh 4g \
+    -i set_test.sbi -l bestAUC \
     --long-report -m ./models/*
 ```
 The output of this test is stored in tests/[timestamp]/best-test.tsv. The AUC of the best model on the test set
