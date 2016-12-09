@@ -141,7 +141,7 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <!-- Classe names that end with the suffix are disabled. -->
+                <!-- Class names that end with the suffix are disabled. -->
                 <GPUSpecificSuffix>XXXXXXXXX</GPUSpecificSuffix>
                 <dl4j.version>0.7.1</dl4j.version>
                 <nd4j.version>0.7.1</nd4j.version>

@@ -10,6 +10,28 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>genotype</artifactId>
+    <profiles>
+        <profile>
+            <id>CPU</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.campagnelab.dl</groupId>
+                    <artifactId>framework</artifactId>
+                    <version>${project.version}</version>
+                    <classifier>native</classifier>
+                </dependency>
+                <dependency>
+                    <groupId>org.campagnelab.dl</groupId>
+                    <artifactId>somatic</artifactId>
+                    <version>${project.version}</version>
+                    <classifier>native</classifier>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
     <build>
         <plugins>
             <plugin>
@@ -46,16 +68,4 @@
         </plugins>
     </build>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.campagnelab.dl</groupId>
-            <artifactId>framework</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.campagnelab.dl</groupId>
-            <artifactId>somatic</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 </project>
