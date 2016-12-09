@@ -42,18 +42,25 @@ The command line will print out various actions, and end with the following:
 ```sh
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary:
-[INFO]
-[INFO] model-utils ........................................ SUCCESS [02:09 min]
-[INFO] model-training ..................................... SUCCESS [02:17 min]
-[INFO] Variation Analysis ................................. SUCCESS [  0.505 s]
+[INFO] 
+[INFO] Variation Analysis ................................. SUCCESS [  0.635 s]
+[INFO] framework .......................................... SUCCESS [  4.780 s]
+[INFO] somatic ............................................ SUCCESS [ 14.967 s]
+[INFO] genotype ........................................... SUCCESS [  1.473 s]
+[INFO] gpus ............................................... SUCCESS [  0.052 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time: 04:28 min
-[INFO] Finished at: 2016-09-02T11:27:16-04:00
-[INFO] Final Memory: 115M/853M
+[INFO] Total time: 22.600 s
+[INFO] Finished at: 2016-12-09T16:43:41-05:00
+[INFO] Final Memory: 363M/1223M
 [INFO] ------------------------------------------------------------------------
+```
 
+You may skip unit tests with the command 
+
+```sh
+mvn package -DskipTests
 ```
 
 ### Compile in IntelliJ Idea
