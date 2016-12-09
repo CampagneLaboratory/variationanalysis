@@ -23,9 +23,7 @@ cd ~/variations
 * Download Goby, DL-Variation, and data (here we use wget):
 ```sh
 wget http://gobyweb.apps.campagnelab.org/data/DLSV/release-dlvariation_1.1.1.zip
-wget http://gobyweb.apps.campagnelab.org/data/DLSV/goby.jar
-wget http://gobyweb.apps.campagnelab.org/data/DLSV/goby
-wget http://gobyweb.apps.campagnelab.org/data/DLSV/config.zip
+wget http://gobyweb.apps.campagnelab.org/data/DLSV/goby_3.1-goby.zip
 wget http://gobyweb.apps.campagnelab.org/data/DLSV/NA19239-all-files.zip
 ```
 _Note that you can use a more recent version of Goby 3 if available. The version bundled with this example is a preview of Goby 3.0._
@@ -34,8 +32,7 @@ _Note that you can use a more recent version of Goby 3 if available. The version
 ```sh
 unzip NA19239-all-files.zip
 unzip release-dlvariation_1.1.1.zip
-unzip config.zip
-chmod +x goby
+unzip goby_3.1-goby.zip
 ```
 _Note that we provide alignments in BAM format because most people are familiar with this format. The same commands shown below work with Goby alignment. We recommend storing and processing alignments in Goby format because this is the native format for the caller, and because alignments are much smaller when stored in Goby format than in BAM.
 To use Goby alignments, you can substitute  Goby alignments (.entries/.header/.index) in places of the tutorial where the command lines use BAM alignments (.bam/.bai)._
@@ -44,13 +41,13 @@ To use Goby alignments, you can substitute  Goby alignments (.entries/.header/.i
 ```sh
 # (can be slow, so we use a local copy instead) wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz
 wget http://gobyweb.apps.campagnelab.org/data/DLSV/human_g1k_v37.fasta.gz
-./goby 4g build-sequence-cache human_g1k_v37.fasta.gz
+goby_3.1/goby 4g build-sequence-cache human_g1k_v37.fasta.gz
 ```
 ## Step 2: generate an .sbi file with goby
 The .sbi file combines samples into a serialized version with detailed information at each genomic position, which will be used to generate training/testing examples:
 * Create the .sbi/.sbip files with the following command:
 ```sh
-./goby 4g discover-sequence-variants germline/NA19239_yale.bam somatic/NA19239_argonne.bam \
+goby_3.1/goby 4g discover-sequence-variants germline/NA19239_yale.bam somatic/NA19239_argonne.bam \
      --format SEQUENCE_BASE_INFORMATION -o ./fullset --genome human_g1k_v37
 ```
 This command should take a few minutes (there are ~15M aligned reads) and produce .sbi and .sbip file outputs. The .sbi file is binary, but the .sbip is a Java properties file with information about the number of genomic sites described.
@@ -73,7 +70,9 @@ starts deteriorating. This will take longer, but produce a superior model._
 * Train the model for 10 epochs:
 ```sh
 release-dlvariation_1.1.1/bin/train-somatic.sh 4g \
-    -t set_train.sbi -v set_val.sbi --max-epochs 10
+    -t set_train.sbi -v set_val.sbi --max-epochs 10 \
+    --net-architecture org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2 \
+    --feature-mapper org.campagnelab.dl.somatic.mappers.FeatureMapperV25
 ```
 This command generates the trained the model in ./models/[timestamp], where timestamp is a numeric value.
 
@@ -89,7 +88,7 @@ For instance, this can be done with  [MetaR](http://metaR.campagnelab.org) and t
 mkdir tests
 release-dlvariation_1.1.1/bin/predict.sh 4g \
     -i set_test.sbi -l bestAUC \
-    --long-report -m ./models/*
+    -f -m ./models/*
 ```
 The output of this test is stored in tests/[timestamp]/best-test.tsv. The AUC of the best model on the test set
 should be comparable to the AUC on the validation set.
@@ -104,7 +103,7 @@ In this tutorial, to keep things simple, we use the files we trained with:
 
 * Create a covariates file to describe how the samples are related:
 ```sh
-echo -e "sample-id\tpatient-id\tgender\ttype\tkind-of-sample\ttissue\tparents\nNA19239_yale\tP1\tMale\tPatient\tGermline\tBlood\tN/A\nNA19239_argonne.bam\tP1\tMale\tPatient\tSomatic\tBlood\tN/A" > ./practice/covariates.txt
+echo -e "sample-id\tpatient-id\tgender\ttype\tkind-of-sample\ttissue\tparents\nNA19239_yale.bam\tP1\tMale\tPatient\tGermline\tBlood\tN/A\nNA19239_argonne.bam\tP1\tMale\tPatient\tSomatic\tBlood\tN/A" > covariates.txt
 ```
 This will create the following file (columns aligned for presentation, tabs must be used):
 ````
@@ -120,11 +119,11 @@ technical replicates of a lymphoblastoid cell line. No somatic variations should
 
 ```sh
 MODEL_TIMESTAMP=`ls -1 models`
-./goby 4g discover-sequence-variants germline/NA19239_yale.bam somatic/NA19239_argonne.bam \
+goby_3.1/goby 4g discover-sequence-variants germline/NA19239_yale.bam somatic/NA19239_argonne.bam \
  --format SOMATIC_VARIATIONS -o NA18486_variants.vcf \
- --genome human_g1k_v37 --covariates practice/covariates.txt \
- -x SomaticVariationOutputFormat:model-path=`pwd`/models/${MODEL_TIMESTAMP}/bestModel.bin \
- -x SomaticVariationOutputFormat:model-p-mutated-threshold:0.4
+ --genome human_g1k_v37 --covariates covariates.txt \
+ -x SomaticVariationOutputFormat:model-path=`pwd`/models/${MODEL_TIMESTAMP} \
+ -x SomaticVariationOutputFormat:model-p-mutated-threshold:0.1
 ```
 The predictions will be written to NA18486_variants.vcf. The probability estimated
 by the model is written to the VCF field `INFO/model-probability[NA18486_argonne]`. This indicates that the probability is for a somatic mutation in sample NA18486_argonne.
