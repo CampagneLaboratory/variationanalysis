@@ -92,6 +92,19 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <!-- do not use another version, see http://stackoverflow.com/questions/11051620/compiling-only-selected-files-in-maven-->
+                <version>2.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <includes>
+                        <include>org/campagnelab/dl/framework/**</include>
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
