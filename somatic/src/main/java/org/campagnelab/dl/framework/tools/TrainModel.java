@@ -333,6 +333,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 }
             }
             performanceLogger.logMetrics("epochs", numExamplesUsed, epoch, metricValues.toDoubleArray());
+            System.out.println(metricValues);
             if (!Double.isNaN(bestValue) &&
                     (perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
                     (!perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue < bestValue)) {

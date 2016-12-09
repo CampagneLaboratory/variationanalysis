@@ -22,7 +22,6 @@ public class AccuracyHelper {
         int nCorrect = 0;
         BinaryClassPrediction prediction = new BinaryClassPrediction();
         while (iterator.hasNext()) {
-            System.out.println(nCorrect/(double)nProcessed);
             MultiDataSet next = iterator.next();
             INDArray[] outputs = graph.output(next.getFeatures());
             INDArray[] labels = next.getLabels();
@@ -43,7 +42,7 @@ public class AccuracyHelper {
                     if (labels[0].getDouble(recordIndex,homoPredIndex) != 0) {
                         nCorrect++;
                     } else {
-                        System.out.print("w");
+                        //System.out.print("w");
                     }
                     continue;
                 }
@@ -55,7 +54,7 @@ public class AccuracyHelper {
                     try {
                         prediction.trueLabelYes = labels[predictionIndex].getDouble(recordIndex, 0);
                     } catch (IndexOutOfBoundsException e) {
-                        System.out.println("me");
+                        //System.out.println("me");
                     }
                     prediction.predictedLabelYes = outputs[predictionIndex].getDouble(recordIndex, 0);
                     correct = correct && ((prediction.trueLabelYes >= 0.5)?(prediction.predictedLabelYes>=0.5):(prediction.predictedLabelYes<0.5));

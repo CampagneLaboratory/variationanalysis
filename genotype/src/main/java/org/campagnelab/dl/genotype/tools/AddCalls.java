@@ -68,13 +68,18 @@ public class AddCalls extends AbstractTool<AddCallsArguments> {
                 int position = buildRec.getPosition();
                 String chrom = buildRec.getReferenceId();
                 String[] genotypes = new String[2];
+                String trueGenotype;
                 try {
-                    genotypes = chMap.get(chrom).get(position+1).split("|");
+                    trueGenotype = chMap.get(chrom).get(position+1);
+                    genotypes = trueGenotype.split("|");
                     buildRec.setMutated(true);
                 } catch (NullPointerException e) {
-                    genotypes[0] = buildRec.getReferenceBase();
-                    genotypes[1] = buildRec.getReferenceBase();
+                    String referenceBase = buildRec.getReferenceBase();
+                    trueGenotype = referenceBase+"|"+referenceBase;
+                    genotypes[0] = referenceBase;
+                    genotypes[1] = referenceBase;
                 }
+                buildRec.setTrueGenotype(trueGenotype.replace('|','/'));
                 BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
                 for (int i = 0; i < buildSample.getCountsCount(); i++){
                     BaseInformationRecords.CountInfo.Builder count = buildSample.getCounts(i).toBuilder();

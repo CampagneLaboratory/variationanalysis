@@ -1,7 +1,10 @@
 package org.campagnelab.dl.genotype.learning.domains.predictions;
 
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+
+import java.util.Set;
 
 /**
  * Created by rct66 on 11/12/16.
@@ -9,26 +12,23 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 public class HomozygousPrediction extends Prediction {
 
 
-    public String trueGenotype;
+    public Set<String> trueGenotype;
+    public String trueGenotypeFormat;
     public String predictedHomozygousGenotype;
     public double probability;
 
     public <BaseInformation> void inspectRecord(BaseInformationRecords.BaseInformation currentRecord) {
         trueGenotype = getGenotype(currentRecord);
+        trueGenotypeFormat = currentRecord.getTrueGenotype();
         return;
     }
 
-    public String getGenotype(BaseInformationRecords.BaseInformation currentRecord){
-        StringBuffer genotype = new StringBuffer();
-        for (int i = 0; i < currentRecord.getSamples(0).getCountsCount(); i++) {
-            BaseInformationRecords.CountInfo count = currentRecord.getSamples(0).getCounts(i);
-            if (count != null) {
-                if (count.getIsCalled()){
-                    genotype.append(count.getToSequence() + ",");
-                }
-            }
+    public Set<String> getGenotype(BaseInformationRecords.BaseInformation currentRecord){
+        Set<String> alleles = new ObjectArraySet<>();
+        for (String allele : currentRecord.getTrueGenotype().split("/")){
+            alleles.add(allele);
         }
-        return genotype.substring(0,genotype.length());
+        return alleles;
     }
 }
 

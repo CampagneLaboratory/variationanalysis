@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.tools;
 
 
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
@@ -10,6 +11,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Example of Predict implementation. This class performs predictions with a model trained by TrainModelS.
@@ -32,7 +34,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
-        resutsWriter.append("index\ttrueGenotypeCall\tpredictedGenotypeCall\tcorrectness").append("\n");
+        resutsWriter.append("index\ttrueGenotypeCall\tpredictedGenotypeCall\tprobability\tcorrectness").append("\n");
     }
 
     @Override
@@ -61,12 +63,21 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     protected void processPredictions(PrintWriter resultWriter, List<Prediction> predictionList) {
         HomozygousPrediction homoPred = (HomozygousPrediction) predictionList.get(0);
         List<Prediction> genoPredList = predictionList.subList(0,11);
-        String combinedPredictedGenotype;
+
+        //use format just for stats output writing, correctness determined with string sets.
+        String predictedGenotypeFormat;
+        //this set will be compared against true genotype set to check for prediction correctness
+        Set<String> predictedGenotype = new ObjectArraySet<>();
         double predProbability;
-        combinedPredictedGenotype = homoPred.predictedHomozygousGenotype + ",";
+
+        //first try homozygous
+        predictedGenotype.add(homoPred.predictedHomozygousGenotype);
+        predictedGenotypeFormat = homoPred.predictedHomozygousGenotype + "/" + homoPred.predictedHomozygousGenotype ;
         predProbability = homoPred.probability;
+
+
         //now handle the non-homozygous case by concatentating positive single genotype predictions
-        if (combinedPredictedGenotype.equals(",")){
+        if (predictedGenotypeFormat.equals("/")){
             //need running average of single alleles to produce probability
             predProbability = 0;
             int numAlleles = 0;
@@ -76,22 +87,27 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                 if (singleGenoPred.probability >= 0.5) {
                     predProbability += singleGenoPred.probability;
                     numAlleles++;
-                    nonHomoGenotype.append(singleGenoPred.predictedSingleGenotype + ",");
+                    nonHomoGenotype.append(singleGenoPred.predictedSingleGenotype + "/");
+                    predictedGenotype.add(singleGenoPred.predictedSingleGenotype);
+
                 }
             }
-            combinedPredictedGenotype = nonHomoGenotype.toString();
+            predictedGenotypeFormat = nonHomoGenotype.toString();
+            try {
+                predictedGenotypeFormat = predictedGenotypeFormat.substring(0, predictedGenotypeFormat.length() - 1);
+            } catch ( StringIndexOutOfBoundsException e ){
+                System.out.println("example with no calls found at index" + homoPred.index);
+            }
             predProbability = predProbability/(double)numAlleles;
         }
-        boolean correct = combinedPredictedGenotype.equals(homoPred.trueGenotype);
+        boolean correct = predictedGenotype.equals(homoPred.trueGenotype);
 
 
         //remove dangling commas
         String correctness = correct ? "correct" : "wrong";
-        String trueGenotype = homoPred.trueGenotype.substring(0,homoPred.trueGenotype.length()-1);
-        String predictedGenotype = combinedPredictedGenotype.substring(0,combinedPredictedGenotype.length()-1);
 
         if (doOuptut(correctness, args(), predProbability)) {
-            resultWriter.printf("%d\t%s\t%s\t%b", homoPred.index, trueGenotype, predictedGenotype, correctness);
+            resultWriter.printf("%d\t%s\t%s\t%f\t%s\n", homoPred.index, homoPred.trueGenotypeFormat, predictedGenotypeFormat, predProbability, correctness);
             if (args().filterMetricObservations) {
                 numProcessed++;
                 if (correct) {

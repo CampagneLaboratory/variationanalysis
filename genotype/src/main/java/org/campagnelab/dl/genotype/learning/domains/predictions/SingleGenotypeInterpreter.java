@@ -20,7 +20,11 @@ public class SingleGenotypeInterpreter implements PredictionInterpreter<BaseInfo
     @Override
     public SingleGenotypePrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
         SingleGenotypePrediction pred = new SingleGenotypePrediction();
-        pred.predictedSingleGenotype = record.getSamples(0).getCounts(genotypeIndex).getToSequence();
+        try {
+            pred.predictedSingleGenotype = record.getSamples(0).getCounts(genotypeIndex).getToSequence();
+        } catch (IndexOutOfBoundsException e) {
+            pred.predictedSingleGenotype = ".";
+        }
         pred.probability = output.getDouble(0,0);
         return pred;
     }

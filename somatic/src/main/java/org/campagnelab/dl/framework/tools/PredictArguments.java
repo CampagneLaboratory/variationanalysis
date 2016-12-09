@@ -23,9 +23,6 @@ public class PredictArguments implements ToolArguments {
     @Parameter(names = {"-l", "--model-name"}, description = "keyword specifying which specific model to use for predictions (ie bestAUC, latest)")
     public String modelName = "latest";
 
-    @Parameter(names = {"-r", "--long-report"}, description = "long report: include base count and other feature data in the prediction output")
-    public boolean longReport = false;
-
     @Parameter(names = {"-n", "--num-examples"}, description = "number of examples to iterate over in the test set. useful for quickly approximating performance with fewer examples.")
     public int scoreN = Integer.MAX_VALUE;
 
@@ -50,8 +47,6 @@ public class PredictArguments implements ToolArguments {
 
     @Parameter(names = { "--filter-metric-observations"}, description = "When true, estimate metric only from the filtered observations. ")
     public boolean filterMetricObservations;
-
-    public boolean ignoreCache;
 
     @Parameter(names = {"-o", "--output-file"}, description = "Filename for output file for statistics. ")
     public String outputFile = "./output_statistics.tsv";
