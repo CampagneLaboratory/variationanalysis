@@ -71,7 +71,7 @@ starts deteriorating. This will take longer, but produce a superior model._
 ```sh
 release-dlvariation_1.1.1/bin/train-somatic.sh 4g \
     -t set_train.sbi -v set_val.sbi --max-epochs 10 \
-    --net-architecture org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2 \
+    --net-architecture org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2WithFrequencyAndBase \
     --feature-mapper org.campagnelab.dl.somatic.mappers.FeatureMapperV25
 ```
 This command generates the trained the model in ./models/[timestamp], where timestamp is a numeric value.
