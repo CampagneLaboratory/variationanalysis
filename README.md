@@ -61,7 +61,7 @@ release-dlvariation_1.1.1/bin/mutate.sh 4g -i fullset.sbi -o mutset.sbi
 ```
 * Split the .sbi file into training (80% of training examples), validation (10%), and test (10%) datasets:
 ```sh
-release-dlvariation_1.1.1/bin/split.sh \
+release-dlvariation_1.1.1/bin/split.sh 4g \
     -i mutset.sbi -o "set_" -s train -f 0.8   -s val -f 0.1  -s test -f 0.1
 ```
 The command produces three datasets, called set_train.sbi, set_val.sbi and set_test.sbi.
