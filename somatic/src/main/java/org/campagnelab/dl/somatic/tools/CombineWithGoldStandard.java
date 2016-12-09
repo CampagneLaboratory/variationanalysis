@@ -38,7 +38,7 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
 
     public static void main(String[] args) {
         CombineWithGoldStandard tool = new CombineWithGoldStandard();
-        tool.parseArguments(args, "CombineWithGoldStandardArguments", tool.createArguments());
+        tool.parseArguments(args, "CombineWithGoldStandard", tool.createArguments());
         tool.execute();
     }
 
@@ -81,7 +81,7 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
             pgRead.stop();
             System.out.printf("Wrote %d records (of which %d are mutated).", numWritten, numMutatedWritten);
         } catch (IOException e) {
-            System.err.println("Unable to load or write files. Check command line arguments.");
+            throw new RuntimeException("Unable to load or write files. Check command line arguments.",e);
         } finally {
             IOUtils.closeQuietly(outputWriters);
         }
