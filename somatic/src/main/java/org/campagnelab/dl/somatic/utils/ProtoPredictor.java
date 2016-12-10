@@ -47,10 +47,10 @@ public class ProtoPredictor {
             if (domainDescriptor.hasOutput("somaticFrequency")) {
                 somaticFrequency = (SomaticFrequencyInterpreter) domainDescriptor.getPredictionInterpreter("somaticFrequency");
             }
-        } else{
+        } else {
             // for backward compatibility with models not trained with the framework:
-            isSomatic =new IsSomaticMutationInterpreter();
-            somaticFrequency=new SomaticFrequencyInterpreter();
+            isSomatic = new IsSomaticMutationInterpreter();
+            somaticFrequency = new SomaticFrequencyInterpreter();
         }
 
     }
@@ -74,6 +74,7 @@ public class ProtoPredictor {
     SomaticFrequencyInterpreter somaticFrequency = null;
 
     public Prediction mutPrediction(BaseInformationRecords.BaseInformation record) {
+        assert model != null : "Model cannot be null";
         assert isSomatic != null : "isSomatic interpreter must not be null";
         assert somaticFrequency != null : "somaticFrequency interpreter must not be null";
         INDArray arrayPredicted = null;
