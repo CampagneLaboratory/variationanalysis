@@ -42,5 +42,5 @@ the framework:
  Scales to files with hundreds of million of examples.
 
 [![framework javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/framework.svg?label=framework%20javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/framework)
-[![somatic avadocs](http://www.javadoc.io/badge/org.campagnelab.dl/somatic.svg?label=somatic%20javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/somatic)
+[![somatic javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/somatic.svg?label=somatic%20javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/somatic)
 
