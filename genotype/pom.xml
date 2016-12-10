@@ -53,6 +53,8 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.4</version>
                 <configuration>
+                    <excludePackageNames>org.campagnelab.dl.somatic.*:org.campagnelab.dl.framework.*</excludePackageNames>
+
                     <includes>
                         <include>org/campagnelab/dl/genotype/**</include>
                     </includes>

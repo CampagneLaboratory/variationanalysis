@@ -80,6 +80,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.4</version>
                 <configuration>
+                    <excludePackageNames>org.campagnelab.dl.gpus.*:org.campagnelab.dl.somatic.*:org.campagnelab.dl.genotype.*</excludePackageNames>
                     <includes>
                         <include>org/campagnelab/dl/framework/**</include>
                     </includes>
