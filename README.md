@@ -3,7 +3,7 @@ This tutorial demonstrates how to train, test, and use an adaptive deep learning
 
 The model is trained and tested with model-training jar, which can be compiled from source at https://github.com/CampagneLaboratory/variationanalysis (see [compilation](https://github.com/CampagneLaboratory/variationanalysis/blob/master/compiling.md) instructions).
 
-Data used for training are processed with [Goby](http://goby.campagnelab.org) version 3.0 or later. 
+Data used for training are processed with [Goby](http://goby.campagnelab.org) version 3.1 or later.
 
 In this tutorial, we used RNA-Seq data described in Pickrell et al Nature. 2010 Apr 1;464(7289):768-72. doi: 10.1038/nature08872 
 and publicly available from GEO accession  [GSE19480](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE19480).
@@ -22,8 +22,8 @@ cd ~/variations
 ```
 * Download Goby, DL-Variation, and data (here we use wget):
 ```sh
-wget http://gobyweb.apps.campagnelab.org/data/DLSV/release-dlvariation_1.1.1.zip
-wget http://gobyweb.apps.campagnelab.org/data/DLSV/goby_3.1-goby.zip
+wget http://gobyweb.apps.campagnelab.org/data/DLSV/release-dlvariation_1.1.1.zip [WILL WORK AFTER FORMAL RELEASE]
+wget http://gobyweb.apps.campagnelab.org/data/DLSV/goby_3.1-goby.zip             [WILL WORK AFTER FORMAL RELEASE]
 wget http://gobyweb.apps.campagnelab.org/data/DLSV/NA19239-all-files.zip
 ```
 _Note that you can use a more recent version of Goby 3 if available. The version bundled with this example is a preview of Goby 3.0._
@@ -41,13 +41,13 @@ To use Goby alignments, you can substitute  Goby alignments (.entries/.header/.i
 ```sh
 # (can be slow, so we use a local copy instead) wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz
 wget http://gobyweb.apps.campagnelab.org/data/DLSV/human_g1k_v37.fasta.gz
-goby_3.1/goby 4g build-sequence-cache human_g1k_v37.fasta.gz
+goby-3.1/goby 4g build-sequence-cache human_g1k_v37.fasta.gz
 ```
 ## Step 2: generate an .sbi file with goby
 The .sbi file combines samples into a serialized version with detailed information at each genomic position, which will be used to generate training/testing examples:
 * Create the .sbi/.sbip files with the following command:
 ```sh
-goby_3.1/goby 4g discover-sequence-variants germline/NA19239_yale.bam somatic/NA19239_argonne.bam \
+goby-3.1/goby 4g discover-sequence-variants germline/NA19239_yale.bam somatic/NA19239_argonne.bam \
      --format SEQUENCE_BASE_INFORMATION -o ./fullset --genome human_g1k_v37
 ```
 This command should take a few minutes (there are ~15M aligned reads) and produce .sbi and .sbip file outputs. The .sbi file is binary, but the .sbip is a Java properties file with information about the number of genomic sites described.
@@ -119,7 +119,7 @@ technical replicates of a lymphoblastoid cell line. No somatic variations should
 
 ```sh
 MODEL_TIMESTAMP=`ls -1 models`
-goby_3.1/goby 4g discover-sequence-variants germline/NA19239_yale.bam somatic/NA19239_argonne.bam \
+goby-3.1/goby 4g discover-sequence-variants germline/NA19239_yale.bam somatic/NA19239_argonne.bam \
  --format SOMATIC_VARIATIONS -o NA18486_variants.vcf \
  --genome human_g1k_v37 --covariates covariates.txt \
  -x SomaticVariationOutputFormat:model-path=`pwd`/models/${MODEL_TIMESTAMP} \
