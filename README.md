@@ -41,6 +41,6 @@ the framework:
  in them. Useful to remove any order (i.e., correlation due to genomic position).
  Scales to files with hundreds of million of examples.
 
-[![Javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/framework.png?label=framework javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/framework)
-[![Javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/framework.png?label=somatic javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/framework)
+[![framework javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/framework.svg?label=framework%20javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/framework)
+[![somatic avadocs](http://www.javadoc.io/badge/org.campagnelab.dl/somatic.svg?label=somatic%20javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/somatic)
 
