@@ -44,3 +44,4 @@ the framework:
 [![framework javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/framework.svg?label=framework%20javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/framework)
 [![somatic javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/somatic.svg?label=somatic%20javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/somatic)
 
+See the project on [GitHub](https://github.com/CampagneLaboratory/variationanalysis) --- Learn more about the [Campagne Laboratory](http://campagnelab.org)

@@ -8,6 +8,7 @@ cd release-dlvariation_$DL_VERSION
 cp ../../VERSION.txt .
 cp ../../LICENSE.md .
 cp ../../README.md .
+cp ../../SOMATIC-TUTORIAL.md . 
 cp -r ../../bin .
 mkdir -p gpus/target
 cp ../../gpus/target/gpus-$DL_VERSION.jar gpus/target/
