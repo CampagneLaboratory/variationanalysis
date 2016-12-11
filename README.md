@@ -4,7 +4,7 @@ This project provides:
 - A deep learning model training and evaluation framework (codename Matcha).
 Builds on [DL4J](http://deeplearning4j.org)
 and provides abstractions and organizing principles useful when training
-and evaluating models in practice. Supports both CPU and GPU model training
+and evaluating models in practice (see [doc](/./docs/doc.md)). Supports both CPU and GPU model training
 and inference.
 We distribute the CPU version on maven, but you can build the project and choose
 the GPU maven profile to compile a CUDA version on the appropriate hardware.
