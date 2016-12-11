@@ -126,7 +126,7 @@ In practice, you will want to use the model on data with no planted mutations, i
  actual variants. You can use Goby to do this.
 In this tutorial, to keep things simple, we use the files we trained with:
 
-* Create a covariates file to describe how the samples are related:
+* We Create a [Goby covariates file](http://campagnelab.org/software/goby/tutorials/detect-somatic-variations-in-custom-patient-contigs/) to describe how the samples are related:
 ```sh
 echo -e "sample-id\tpatient-id\tgender\ttype\tkind-of-sample\ttissue\tparents\nNA19239_yale.bam\tP1\tMale\tPatient\tGermline\tBlood\tN/A\nNA19239_argonne.bam\tP1\tMale\tPatient\tSomatic\tBlood\tN/A" > covariates.txt
 ```
@@ -139,8 +139,12 @@ NA19239_argonne.bam   P1              Male    Patient Somatic         Blood   N/
 * Now produce a vcf file with all positions obtaining a model probability
  larger than 0.4.
 We  use a model threshold of 0.4 in this tutorial so that you can see some results in the output (none are expected at the default threshold of 0.99).
-This example should not produce any somatic calls at the 0.99 threshold because the samples are from the same individual and are both 
-technical replicates of a lymphoblastoid cell line. No somatic variations should be found and the model correctly does not predict any with a strong model probability (>0.99).
+This example should not produce many somatic calls at the 0.99 threshold because the samples are from the same individual and are both
+technical replicates of a lymphoblastoid cell line. No somatic
+variations should be found, but the model may predict a small number if
+they look like real mutations. (In the tutorial data, the model may find about
+25 false positive somatic variations with >99%  model probability, not a bad
+false positive rate when screening about 15 million sites.)
 
 ```sh
 MODEL_TIMESTAMP=`ls -1 models`
