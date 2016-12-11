@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
+import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.gpu.InitializeGpu;
 import org.campagnelab.dl.framework.gpu.ParameterPrecision;
@@ -110,7 +110,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         // Assemble the computational graph:
         bestMetricName = "best" + domainDescriptor.performanceDescritor().earlyStoppingMetric();
 
-        ComputationalGraphAssembler assembler = domainDescriptor.getComputationalGraph();
+        ComputationGraphAssembler assembler = domainDescriptor.getComputationalGraph();
         assert assembler != null : "Computational Graph assembler must be defined.";
         assembler.setArguments(args());
         for (String inputName : assembler.getInputNames()) {
@@ -196,7 +196,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
     protected void writeProperties() throws IOException {
         ModelPropertiesHelper mpHelper = new ModelPropertiesHelper();
-        ComputationalGraphAssembler assembler = domainDescriptor.getComputationalGraph();
+        ComputationGraphAssembler assembler = domainDescriptor.getComputationalGraph();
         appendProperties(assembler, mpHelper);
         mpHelper.addProperties(getReaderProperties(args().trainingSets.get(0)));
         mpHelper.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
@@ -215,7 +215,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     }
 
 
-    public void appendProperties(ComputationalGraphAssembler assembler, ModelPropertiesHelper helper) {
+    public void appendProperties(ComputationGraphAssembler assembler, ModelPropertiesHelper helper) {
         // give a chance to the assembler to save information to the model properties to describe the architecture
         // used for training:
         assembler.saveProperties(helper);

@@ -1,7 +1,7 @@
 package org.campagnelab.dl.framework.domains;
 
 import com.google.common.collect.Iterables;
-import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
+import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
@@ -68,9 +68,9 @@ public abstract class DomainDescriptor<RecordType> {
     /**
      * Return a computational graph assembler. The assembler can build a computational graph ready for training.
      *
-     * @return ComputationalGraphAssembler
+     * @return ComputationGraphAssembler
      */
-    public abstract ComputationalGraphAssembler getComputationalGraph();
+    public abstract ComputationGraphAssembler getComputationalGraph();
 
     /**
      * Return the dimensions of an input to the graph. If the graph has one input with 10 features, this method should return new int[]{10}.
@@ -296,11 +296,11 @@ public abstract class DomainDescriptor<RecordType> {
         return Iterables.limit(inputIterable, maxRecords);
     }
 
-    protected ComputationalGraphAssembler computationGraphAssembler;
+    protected ComputationGraphAssembler computationGraphAssembler;
 
     protected void initializeArchitecture(String architectureClassname) {
         try {
-            computationGraphAssembler = (ComputationalGraphAssembler) Class.forName(architectureClassname).newInstance();
+            computationGraphAssembler = (ComputationGraphAssembler) Class.forName(architectureClassname).newInstance();
         } catch (Exception e) {
             throw new RuntimeException("Unable to load computation graph: " + architectureClassname);
         }

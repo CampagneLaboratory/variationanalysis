@@ -7,8 +7,8 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
- * An interface for classes that assemble computational graphs with specific architectures.
- * A computational graph accepts a specific number of inputs, has a specific number of outputs,
+ * An interface for classes that assemble computation graphs with specific architectures.
+ * A computation graph accepts a specific number of inputs, has a specific number of outputs,
  * and contains specific components (e.g., LSTM components, Dense layer component, etc.).
  * The graph may have more components than exposed via getComponentNames() if the number of nodes
  * of these components is not variable (fixed by the architecture).
@@ -17,7 +17,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  *
  * @author Fabien Campagne
  */
-public interface ComputationalGraphAssembler {
+public interface ComputationGraphAssembler {
     /**
      * This method must be called before createComputationalGraph to give the assembler a chance to configure
      * the parameters described in the arguments (learning rate, dropout rate, etc.). The graph may have more

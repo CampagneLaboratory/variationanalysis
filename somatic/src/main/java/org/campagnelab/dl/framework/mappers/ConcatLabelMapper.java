@@ -1,56 +1,56 @@
-package org.campagnelab.dl.framework.iterators;
+package org.campagnelab.dl.framework.mappers;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import org.campagnelab.dl.framework.mappers.FeatureMapper;
+import org.campagnelab.dl.framework.mappers.LabelMapper;
+import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Arrays;
 
 /**
- * Concatenate features from different mappers.
- * Created by fac2003 on 5/24/16.
+ * Concatenate labels from different mappers.
+ * Created by fac2003 on 12/5/16.
  */
-public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
+public class ConcatLabelMapper<RecordType> implements LabelMapper<RecordType> {
 
-    protected FeatureMapper<RecordType>[] mappers;
+    protected LabelMapper<RecordType>[] mappers;
     protected int numFeatures = 0;
     protected int[] offsets;
     private boolean normalizedCalled;
 
     @SafeVarargs
-    public ConcatFeatureMapper(FeatureMapper<RecordType>... featureMappers) {
+    public ConcatLabelMapper(LabelMapper<RecordType>... labelMappers) {
         IntArraySet dimensions = new IntArraySet();
 
-        this.mappers = featureMappers;
+        this.mappers = labelMappers;
         int offset = 0;
         int i = 1;
-        offsets = new int[featureMappers.length + 1];
+        offsets = new int[labelMappers.length + 1];
         offsets[0] = 0;
-        for (FeatureMapper<RecordType> calculator : mappers) {
-            numFeatures += calculator.numberOfFeatures();
+        for (LabelMapper<RecordType> calculator : mappers) {
+            numFeatures += calculator.numberOfLabels();
             offsets[i] = numFeatures;
             dimensions.add(calculator.dimensions().numDimensions());
             i++;
         }
-        assert featureMappers.length==0 || dimensions.size()==1: "All feature mappers must have the same dimensions to be concatenated.";
+        assert labelMappers.length==0 || dimensions.size()==1: "All feature mappers must have the same dimensions to be concatenated.";
     }
 
     @Override
-    public int numberOfFeatures() {
+    public int numberOfLabels() {
 
         return numFeatures;
     }
 
     @Override
     public MappedDimensions dimensions() {
-        return new MappedDimensions(numberOfFeatures());
+        return new MappedDimensions(numberOfLabels());
     }
 
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
-        for (FeatureMapper<RecordType> calculator : mappers) {
+        for (LabelMapper<RecordType> calculator : mappers) {
             calculator.prepareToNormalize(record, indexOfRecord);
         }
         normalizedCalled = true;
@@ -58,17 +58,17 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
 
 
     @Override
-    public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
+    public void mapLabels(RecordType record, INDArray inputs, int indexOfRecord) {
         assert normalizedCalled : "prepareToNormalize must be called before mapFeatures.";
         int offset = 0;
         final int[] indicesOuter = {0, 0};
-        for (FeatureMapper<RecordType> delegate : mappers) {
+        for (LabelMapper<RecordType> delegate : mappers) {
 
-            final int delNumFeatures = delegate.numberOfFeatures();
+            final int delNumFeatures = delegate.numberOfLabels();
             for (int j = 0; j < delNumFeatures; j++) {
                 indicesOuter[0] = indexOfRecord;
                 indicesOuter[1] = j + offset;
-                inputs.putScalar(indicesOuter, delegate.produceFeature(record, j));
+                inputs.putScalar(indicesOuter, delegate.produceLabel(record, j));
             }
             offset += delNumFeatures;
         }
@@ -77,20 +77,20 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
     @Override
     public boolean hasMask() {
         boolean requiresMask = false;
-        for (FeatureMapper<RecordType> calculator : mappers) {
+        for (LabelMapper<RecordType> calculator : mappers) {
             requiresMask |= calculator.hasMask();
         }
         return requiresMask;
     }
 
     @Override
-    public void maskFeatures(RecordType record, INDArray mask, int indexOfRecord) {
+    public void maskLabels(RecordType record, INDArray mask, int indexOfRecord) {
         if (hasMask()) {
             int offset = 0;
             final int[] indicesOuter = {0, 0};
-            for (FeatureMapper<RecordType> delegate : mappers) {
+            for (LabelMapper<RecordType> delegate : mappers) {
 
-                final int delNumFeatures = delegate.numberOfFeatures();
+                final int delNumFeatures = delegate.numberOfLabels();
                 for (int j = 0; j < delNumFeatures; j++) {
                     indicesOuter[0] = indexOfRecord;
                     indicesOuter[1] = j + offset;
@@ -111,12 +111,12 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
     }
 
     @Override
-    public float produceFeature(RecordType record, int featureIndex) {
+    public float produceLabel(RecordType record, int featureIndex) {
         int indexOfDelegate = Arrays.binarySearch(offsets, featureIndex);
         if (indexOfDelegate < 0) {
             indexOfDelegate = -(indexOfDelegate + 1) - 1;
         }
-        return this.mappers[indexOfDelegate].produceFeature(record, featureIndex - offsets[indexOfDelegate]);
+        return this.mappers[indexOfDelegate].produceLabel(record, featureIndex - offsets[indexOfDelegate]);
     }
 
 

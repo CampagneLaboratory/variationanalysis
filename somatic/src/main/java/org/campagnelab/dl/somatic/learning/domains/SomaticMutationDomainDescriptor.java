@@ -1,7 +1,7 @@
 package org.campagnelab.dl.somatic.learning.domains;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
+import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
@@ -204,7 +204,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
     }
 
     @Override
-    public ComputationalGraphAssembler getComputationalGraph() {
+    public ComputationGraphAssembler getComputationalGraph() {
         return computationGraphAssembler;
     }
 

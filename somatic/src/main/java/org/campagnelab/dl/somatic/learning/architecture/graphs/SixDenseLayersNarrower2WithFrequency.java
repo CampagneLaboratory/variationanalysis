@@ -1,6 +1,6 @@
 package org.campagnelab.dl.somatic.learning.architecture.graphs;
 
-import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
+import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
@@ -22,7 +22,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  *
  * @author Fabien Campagne
  */
-public class SixDenseLayersNarrower2WithFrequency implements ComputationalGraphAssembler {
+public class SixDenseLayersNarrower2WithFrequency implements ComputationGraphAssembler {
 
 
     private int numHiddenNodes;
