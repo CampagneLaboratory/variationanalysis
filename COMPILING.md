@@ -60,8 +60,17 @@ The command line will print out various actions, and end with the following:
 You may skip unit tests with the command 
 
 ```sh
-mvn package -DskipTests
+mvn clean package -DskipTests
 ```
+
+### GPU support
+
+You can compile the project for CUDA GPUs by activating the GPU profile:
+```sh
+mvn clean package -PGPU
+```
+
+This will create jar files that include CUDA support for DL4J and activate some GPU specific customizations.
 
 ### Compile in IntelliJ Idea
 
