@@ -22,8 +22,8 @@ cd ~/variations
 ```
 * Download Goby, DL-Variation, and data (here we use wget):
 ```sh
-wget http://gobyweb.apps.campagnelab.org/data/DLSV/release-dlvariation_1.1.1.zip [WILL WORK AFTER FORMAL RELEASE]
-wget http://gobyweb.apps.campagnelab.org/data/DLSV/goby_3.1-goby.zip             [WILL WORK AFTER FORMAL RELEASE]
+wget http://gobyweb.apps.campagnelab.org/data/DLSV/release-dlvariation_1.1.1.zip 
+wget http://gobyweb.apps.campagnelab.org/data/DLSV/goby_3.1-bin.zip             
 wget http://gobyweb.apps.campagnelab.org/data/DLSV/NA19239-all-files.zip
 ```
 _Note that you can use a more recent version of Goby 3 if available. The version bundled with this example is a preview of Goby 3.0._
