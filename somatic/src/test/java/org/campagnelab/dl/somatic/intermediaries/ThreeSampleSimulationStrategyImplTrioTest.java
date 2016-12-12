@@ -7,7 +7,7 @@ import org.junit.Test;
  * Created by rct66 on 7/29/16.
  * This tests that mendelian logic is correct, used to avoid mutating degenerate trio examples.
  */
-public class SimulationStrategyImplTrioTest {
+public class ThreeSampleSimulationStrategyImplTrioTest {
     @Test
     public void checkMendelian() throws Exception {
 
@@ -57,7 +57,7 @@ public class SimulationStrategyImplTrioTest {
         int f2 = Character.getNumericValue(father.charAt(1));
         int m1 = Character.getNumericValue(mother.charAt(0));
         int m2 = Character.getNumericValue(mother.charAt(1));
-        return SimulationStrategyImplTrio.isMendelian(c1,c2,f1,f2,m1,m2);
+        return ThreeSampleSimulationStrategyImplTrio.isMendelian(c1,c2,f1,f2,m1,m2);
     }
 
 
