@@ -3,7 +3,7 @@ Matcha provides an abstraction over [DeepLearning4J](https://deeplearning4j.org/
 the practical development and evaluation of deep learning models.
 
 Since Matcha is a Java-based framework, it is best documented in Javadocs.
-You can find the Javadocs at [javadoc.io](www.javadoc.io/doc/org.campagnelab.dl/framework)
+You can find the Javadocs at [javadoc.io](http://www.javadoc.io/doc/org.campagnelab.dl/framework)
 
 This page provides pointers to help you understand the
  organizing principles of the framework. Use these pointers together
@@ -64,7 +64,7 @@ with Matcha is that with Matcha, switching the model architecture can be
 done by changing a command line argument when using the  train-model tool.
 
 ### DomainDescriptor
-The [````DomainDescriptor<RecordType>````](http://static.javadoc.io/org.campagnelab.dl/framework/1.1/org/campagnelab/dl/framework/domains/DomainDescriptor.html) can be implemented for new domains to configure
+The [````DomainDescriptor<RecordType>````](http://static.javadoc.io/org.campagnelab.dl/framework/1.1.1/org/campagnelab/dl/framework/domains/DomainDescriptor.html) can be implemented for new domains to configure
 which FeatureMappers, LabelMappers, ModelArchitecture and performance
 metric should be used to train and evaluate a model.
 
