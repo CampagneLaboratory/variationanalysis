@@ -72,9 +72,10 @@ starts deteriorating. This will take longer, but produce a superior model._
 release-dlvariation_1.1.1/bin/train-somatic.sh 4g \
     -t set_train.sbi -v set_val.sbi --max-epochs 10 \
     --net-architecture org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2WithFrequencyAndBase \
-    --feature-mapper org.campagnelab.dl.somatic.mappers.FeatureMapperV25
+    --feature-mapper org.campagnelab.dl.somatic.mappers.FeatureMapperV25 \
+     --mini-batch-size 512 --learning-rate 5.0
 ```
-This command generates the trained the model in ./models/[timestamp], where timestamp is a numeric value.
+This command generates the trained model in ./models/[timestamp], where timestamp is a numeric value.
 When the command terminates, take a look a at the content of the model directory,
 as well as the model-conditions.txt file written to the current directory.
 
@@ -84,12 +85,12 @@ the validation set after each epoch using the area under the roc curve (AUC).
  Another performance file records only the best AUC obtained so far:
  ./models/[timestamp]/bestAUC-perf-log.tsv so you can monitor
   this file to easily keep track of best performance. Training with 10
-  epochs should reach an AUC about 0.963.
+  epochs should reach an AUC about 0.96.
 
 The model-conditions.txt file will contain a line like this:
 ```
 Tag|Results|Specified_Arguments|Default_Arguments|Classname
-C8CU3V|AUC 0.9630678538485847 bestModelEpoch 5 model-time 1481391664720 score 0.3521915631587974|--feature-mapper org.campagnelab.dl.somatic.mappers.FeatureMapperV25 --max-epochs 10 --net-architecture org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2WithFrequencyAndBase --training-sets [set_train.sbi] --validation-set set_val.sbi|--auc-clip-max-observations 10000 --dropout-rate null --early-stopping-measure AUC --early-stopping-num-epochs 10 --error-enrichment false --experimental-condition not_specified --feature-mapper org.campagnelab.dl.somatic.mappers.FeatureMapperV25 --gpu-device null --ignore-cache false --learning-rate 0.1 --max-epochs 10 --memory-cache false --mini-batch-size 32 --model-conditions ./model-conditions.txt --net-architecture org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2WithFrequencyAndBase --num-errors-added 16 --num-training 2147483647 --num-validation 2147483647 --parallel false --parameter-precision FP32 --previous-model-name bestAUC --previous-model-path null --random-seed 1481391664585 --regularization-rate null --training-sets [set_train.sbi] --trio false --validate-every 1 --validation-set set_val.sbi|org.campagnelab.dl.somatic.learning.TrainModelS
+DRK59G|AUC 0.9613402240276634 bestModelEpoch 7 model-time 1481573450950 score 0.36288607884762375|--feature-mapper org.campagnelab.dl.somatic.mappers.FeatureMapperV25 --learning-rate 5.0 --max-epochs 10 --mini-batch-size 512 --net-architecture org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2WithFrequencyAndBase --training-sets [set_train.sbi] --validation-set set_val.sbi|--auc-clip-max-observations 10000 --dropout-rate null --early-stopping-measure AUC --early-stopping-num-epochs 10 --error-enrichment false --experimental-condition not_specified --feature-mapper org.campagnelab.dl.somatic.mappers.FeatureMapperV25 --gpu-device null --ignore-cache false --learning-rate 5.0 --max-epochs 10 --memory-cache false --mini-batch-size 512 --model-conditions ./model-conditions.txt --net-architecture org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2WithFrequencyAndBase --num-errors-added 16 --num-training 2147483647 --num-validation 2147483647 --parallel false --parameter-precision FP32 --previous-model-name bestAUC --previous-model-path null --random-seed 1481573450814 --regularization-rate null --training-sets [set_train.sbi] --trio false --validate-every 1 --validation-set set_val.sbi|org.campagnelab.dl.somatic.learning.TrainModelS
 ```
 New lines will be appended each time you train a model. This is very
 helpful for bookkeeping and reproducibility because it associates the
@@ -116,7 +117,7 @@ This makes it easy to collate  performance of models on different datasets.
 Here's the result:
 ```tsv
 tag     prefix  auc     [auc95  auc95]  arguments
-C8CU3V  bestAUC 0.961700        0.957457        0.965943        --correctness-filter null --dataset set_test.sbi --filter-auc-observations false --filter-p-max 1.0 --filter-p-min 0.0 --gpu-device null --kind test --long-report false --minibatch-size 512 --model-conditions ./model-conditions.txt --model-name bestAUC --model-path ./models/1481391664720 --num-examples 2147483647 --predict-statistics predict-statistics.tsv --records-for-auc 50000 --to-file true
+DRK59G  bestAUC 0.962369        0.958149        0.966589        --correctness-filter null --dataset set_test.sbi --filter-auc-observations false --filter-p-max 1.0 --filter-p-min 0.0 --gpu-device null --kind test --long-report false --minibatch-size 512 --model-conditions ./model-conditions.txt --model-name bestAUC --model-path ./models/1481573450950 --num-examples 2147483647 --predict-statistics predict-statistics.tsv --records-for-auc 50000 --to-file true 
 ```
 _The model label "best" is the label of the model obtained before performance starts to decrease on the validation set.
  If you need the very last model trained irrespective of validation performance, use -l latest_
