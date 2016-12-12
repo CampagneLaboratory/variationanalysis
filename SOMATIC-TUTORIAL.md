@@ -1,7 +1,7 @@
 # SOMATIC-TUTORIAL.md
 This tutorial demonstrates how to train, test, and use an adaptive deep learning model to predict somatic variations. 
 
-The model is trained and tested with model-training jar, which can be compiled from source at https://github.com/CampagneLaboratory/variationanalysis (see [compilation](https://github.com/CampagneLaboratory/variationanalysis/blob/master/compiling.md) instructions).
+The model is trained and tested with framework.jar and somatic.jar, which can be compiled from source at https://github.com/CampagneLaboratory/variationanalysis (see [compilation](https://github.com/CampagneLaboratory/variationanalysis/blob/master/compiling.md) instructions).
 
 Data used for training are processed with [Goby](http://goby.campagnelab.org) version 3.1 or later.
 
