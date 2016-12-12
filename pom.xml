@@ -147,6 +147,26 @@
                 <nd4j.version>0.7.1</nd4j.version>
                 <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>3.0.2</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <classifier>cuda</classifier>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
             <dependencies> <!-- enable below for CUDNN : -->
                 <dependency>
                     <groupId>org.deeplearning4j</groupId>

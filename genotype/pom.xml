@@ -31,6 +31,26 @@
                 </dependency>
             </dependencies>
         </profile>
+        <profile>
+            <id>GPU</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.campagnelab.dl</groupId>
+                    <artifactId>framework</artifactId>
+                    <version>${project.version}</version>
+                    <classifier>cuda</classifier>
+                </dependency>
+                <dependency>
+                    <groupId>org.campagnelab.dl</groupId>
+                    <artifactId>somatic</artifactId>
+                    <version>${project.version}</version>
+                    <classifier>cuda</classifier>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
     <build>
         <plugins>
