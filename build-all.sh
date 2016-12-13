@@ -1,2 +1,4 @@
 #!/usr/bin/env bash
-./build-cpu.sh && ./build-gpu.sh
+mvn clean
+mvn install -P CPU
+mvn install -P GPU
