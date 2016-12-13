@@ -16,7 +16,7 @@ if [ -n "${FORCE_PLATFORM+set}" ]; then
     fi
 fi
 
-if [ -n "${DLVA_JAR+set}" ]; then
+if [ ! -n "${DLVA_JAR+set}" ]; then
     export DLVA_JAR=${DLVA_HOME}/gpus/target/gpus-${VERSION}.jar:${DLVA_HOME}/somatic/target/somatic-${VERSION}-bin-native.jar
 fi
 export SLF4J_CONFIG=${DLVA_HOME}/config/logback.xml
