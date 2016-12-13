@@ -1,1 +1,1 @@
-${profile.type}
+${jar.classifier}
