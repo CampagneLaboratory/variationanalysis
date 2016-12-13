@@ -85,6 +85,20 @@
                     <exclude>**/VERSION.txt</exclude>
                 </excludes>
             </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/PROFILE.txt</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/PROFILE.txt</exclude>
+                </excludes>
+            </resource>
         </resources>
         <pluginManagement>
             <plugins>
@@ -105,6 +119,8 @@
                             <tasks>
                                 <copy file="${project.build.outputDirectory}/VERSION.txt"
                                       toFile="${project.basedir}/../VERSION.txt" overwrite="true" />
+                                <copy file="${project.build.outputDirectory}/PROFILE.txt"
+                                      toFile="${project.basedir}/../PROFILE.txt" overwrite="true" />
                             </tasks>
                         </configuration>
                         <goals>

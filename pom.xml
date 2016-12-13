@@ -101,6 +101,7 @@
                 <dl4j.version>0.7.1</dl4j.version>
                 <nd4j.version>0.7.1</nd4j.version>
                 <jar.classifier>native</jar.classifier>
+                <profile.type>CPU</profile.type>
             </properties>
 
             <dependencies>
@@ -124,6 +125,7 @@
                 <nd4j.version>0.7.1</nd4j.version>
                 <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend>
                 <jar.classifier>cuda</jar.classifier>
+                <profile.type>GPU</profile.type>
             </properties>
 
             <dependencies> <!-- enable below for CUDNN : -->
