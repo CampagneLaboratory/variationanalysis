@@ -21,7 +21,7 @@ public class TrainModelG extends TrainModel<BaseInformationRecords.BaseInformati
     public static void main(String[] args) {
 
         TrainModelG tool = new TrainModelG();
-        tool.parseArguments(args, "TrainModelS", tool.createArguments());
+        tool.parseArguments(args, "TrainModelG", tool.createArguments());
         if (tool.args().trainingSets.size() == 0) {
             System.out.println("Please add exactly one training set to the args().");
             return;
