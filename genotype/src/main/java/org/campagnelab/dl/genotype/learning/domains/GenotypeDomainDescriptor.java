@@ -37,6 +37,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     public GenotypeDomainDescriptor(GenotypeTrainingArguments arguments) {
         this.arguments = arguments;
+        initializeArchitecture(arguments.architectureClassname);
     }
 
     /**
@@ -49,6 +50,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         super.loadProperties(modelPath);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
+        initializeArchitecture();
     }
 
     /**
@@ -64,6 +66,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         super.loadProperties(domainProperties,sbiProperties);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
+        initializeArchitecture();
     }
 
     private GenotypeTrainingArguments arguments;
