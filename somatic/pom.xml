@@ -114,7 +114,7 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>process-resources</phase>
+                        <phase>prepare-package</phase>
                         <configuration>
                             <tasks>
                                 <copy file="${project.build.outputDirectory}/VERSION.txt"
