@@ -1,9 +1,7 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import com.google.protobuf.TextFormat;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang.ArrayUtils;
-import org.campagnelab.dl.somatic.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -17,7 +15,7 @@ import static org.junit.Assert.assertEquals;
  * Created by rct66 on 12/5/16.
  */
 public class GenotypeLabelMapperTest {
-    @org.junit.jupiter.api.Test
+    @Test
     public void mapFeatures() throws Exception {
         int index=0;
 

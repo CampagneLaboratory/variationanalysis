@@ -5,17 +5,14 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.io.BinIO;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.logging.ProgressLogger;
-import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.storage.RecordReader;
-import org.campagnelab.dl.somatic.storage.RecordWriter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 
 /**
  * The addcalls object uses a map to create a new protobuf file with genotype calls.
@@ -44,8 +41,7 @@ public class AddCalls extends AbstractTool<AddCallsArguments> {
         try {
             Object2ObjectMap<String,Int2ObjectMap<String>> chMap = (Object2ObjectMap<String,Int2ObjectMap<String>>)BinIO.loadObject(args().genotypeMap);
             RecordReader source = new RecordReader(args().inputFile);
-            RecordWriter dest = new RecordWriter(FilenameUtils.removeExtension(args().inputFile)+"_called.sbi");
-
+            SequenceBaseInformationWriter dest = new SequenceBaseInformationWriter(args().outputFilename);
 
             ProgressLogger recordLogger = new ProgressLogger(LOG);
             recordLogger.expectedUpdates = source.numRecords();
@@ -88,7 +84,7 @@ public class AddCalls extends AbstractTool<AddCallsArguments> {
                     buildSample.setCounts(i,count);
                 }
                 buildRec.setSamples(sampleIndex,buildSample.build());
-                dest.writeRecord(buildRec.build());
+                dest.appendEntry(buildRec.build());
                 recordLogger.update();
                 recordsLabeled++;
             }
