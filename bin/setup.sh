@@ -9,14 +9,10 @@ if [[ $OSTYPE == "cygwin" ]]; then
 fi
 export VERSION=`cat ${DISTRIBUTION_DIR}/VERSION.txt`
 export DLVA_HOME=${DISTRIBUTION_DIR}
-if [ -n "${FORCE_PLATFORM+set}" ]; then
-    LATEST_PLATFORM=`cat ${DISTRIBUTION_DIR}/PROFILE.txt`
-    if [ "$FORCE_PLATFORM" == "$LATEST_PLATFORM" ]; then
-           export DLVA_JAR=${DLVA_HOME}/gpus/target/gpus-${VERSION}.jar:${DLVA_HOME}/somatic/target/somatic-${VERSION}-bin-${FORCE_PLATFORM}.jar
-    fi
-fi
+EXECUTION_PLATFORM=`tail -1 ${DISTRIBUTION_DIR}/PROFILE.txt`
 
-if [ ! -n "${DLVA_JAR+set}" ]; then
-    export DLVA_JAR=${DLVA_HOME}/gpus/target/gpus-${VERSION}.jar:${DLVA_HOME}/somatic/target/somatic-${VERSION}-bin-native.jar
+if [ -n "${FORCE_PLATFORM+set}" ]; then
+    EXECUTION_PLATFORM="${FORCE_PLATFORM"
 fi
+export DLVA_JAR=${DLVA_HOME}/gpus/target/gpus-${VERSION}.jar:${DLVA_HOME}/somatic/target/somatic-${VERSION}-bin-${EXECUTION_PLATFORM}.jar
 export SLF4J_CONFIG=${DLVA_HOME}/config/logback.xml
