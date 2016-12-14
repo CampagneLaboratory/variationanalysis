@@ -1,4 +1,4 @@
-package org.campagnelab.dl.framework.performance;
+package org.campagnelab.dl.genotype.performance;
 
 import org.campagnelab.dl.framework.domains.prediction.BinaryClassPrediction;
 import org.deeplearning4j.nn.graph.ComputationGraph;
@@ -9,8 +9,7 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import java.util.function.Predicate;
 
 /**
- * Helper to traverse a record iterator and estimate AUC.
- * Created by fac2003 on 11/3/16.
+
  */
 public class AccuracyHelper {
 
