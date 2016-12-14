@@ -39,7 +39,7 @@ public class AddCalls extends AbstractTool<AddCallsArguments> {
         try {
             Object2ObjectMap<String,Int2ObjectMap<String>> chMap = (Object2ObjectMap<String,Int2ObjectMap<String>>)BinIO.loadObject(args().genotypeMap);
             RecordReader source = new RecordReader(args().inputFile);
-            RecordWriter dest = new RecordWriter(args().inputFile+"_called");
+            RecordWriter dest = new RecordWriter(args().outputFilename);
 
             recordloop:
             for (BaseInformationRecords.BaseInformation rec : source) {
