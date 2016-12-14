@@ -100,33 +100,10 @@
                 <nd4j.backend>nd4j-native-platform</nd4j.backend>
                 <dl4j.version>0.7.1</dl4j.version>
                 <nd4j.version>0.7.1</nd4j.version>
+                <jar.classifier>native</jar.classifier>
             </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jar-plugin</artifactId>
-                        <version>3.0.2</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                                <configuration>
-                                    <classifier>native</classifier>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
+
             <dependencies>
-                <!--dependency>
-                    <groupId>org.deeplearning4j</groupId>
-                    <artifactId>deeplearning4j-ui</artifactId>
-                    <version>${dl4j.version}</version>
-                </dependency-->
                 <dependency>
                     <groupId>org.deeplearning4j</groupId>
                     <artifactId>deeplearning4j-ui_2.10</artifactId>
@@ -146,27 +123,9 @@
                 <dl4j.version>0.7.1</dl4j.version>
                 <nd4j.version>0.7.1</nd4j.version>
                 <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend>
+                <jar.classifier>cuda</jar.classifier>
             </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jar-plugin</artifactId>
-                        <version>3.0.2</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                                <configuration>
-                                    <classifier>cuda</classifier>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
+
             <dependencies> <!-- enable below for CUDNN : -->
                 <dependency>
                     <groupId>org.deeplearning4j</groupId>
@@ -268,6 +227,22 @@
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>false</autoReleaseAfterClose>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>${jar.classifier}</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

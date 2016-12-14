@@ -6,6 +6,7 @@ rm -rf release-dlvariation_$DL_VERSION*
 mkdir -p release-dlvariation_$DL_VERSION
 cd release-dlvariation_$DL_VERSION
 cp ../../VERSION.txt .
+cp ../../PROFILE.txt .
 cp ../../LICENSE.md .
 cp ../../README.md .
 cp ../../SOMATIC-TUTORIAL.md . 
