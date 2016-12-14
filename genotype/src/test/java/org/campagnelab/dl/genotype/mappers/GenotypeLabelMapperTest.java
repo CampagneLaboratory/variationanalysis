@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
  * Created by rct66 on 12/5/16.
  */
 public class GenotypeLabelMapperTest {
-    @Test
+    @org.junit.jupiter.api.Test
     public void mapFeatures() throws Exception {
         int index=0;
 

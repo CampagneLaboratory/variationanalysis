@@ -125,5 +125,10 @@
             <version>${nd4j.version}</version>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>RELEASE</version>
+        </dependency>
     </dependencies>
 </project>
