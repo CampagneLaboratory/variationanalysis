@@ -2,16 +2,15 @@ package org.campagnelab.dl.framework.tools;
 
 import com.google.common.collect.Iterables;
 import it.unimi.dsi.logging.ProgressLogger;
+import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.DomainDescriptorLoader;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
-import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
-import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
-import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
+import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
 import org.deeplearning4j.nn.api.Model;
-import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +19,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * A generic Predict tool. Sub-class this abstract class and define a few methods in order to make predictions and
@@ -29,7 +27,7 @@ import java.util.Properties;
  * @author Fabien Campagne
  *         Created by fac2003 on 10/23/16.
  */
-public abstract class Predict<RecordType> extends AbstractTool<PredictArguments> {
+public abstract class Predict<RecordType> extends ConditionRecordingTool<PredictArguments> {
 
     static private Logger LOG = LoggerFactory.getLogger(Predict.class);
 
@@ -45,20 +43,24 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
 
     @Override
     public void execute() {
+        if (args().deviceIndex != null) {
+            Nd4j.getAffinityManager().attachThreadToDevice(Thread.currentThread(), args().deviceIndex);
+        }
         PrintWriter resultWriter;
         PrintWriter outputWriter;
         boolean outputFileExists;
         try {
             File modelPath = new File(args().modelPath);
-            String modelName = modelPath.getName();
+            String modelTime = modelPath.getName();
             outputFileExists = new File(args().outputFile).exists();
             if (args().toFile) {
-                String resultPath = "tests/" + modelName + "/";
+                String resultPath = "predictions";
                 File dir = new File(resultPath);
                 // attempt to create the directory here
                 dir.mkdirs();
-
-                String resultFilename = resultPath + args().modelName + "-" + args().type + ".tsv";
+                String testSetName = FilenameUtils.getBaseName(args().testSet);
+                String resultFilename = String.format("%s/%s-%s-%s-%s.tsv", resultPath, modelTime, args().modelName,
+                        args().type, testSetName);
                 System.out.println("Writing predictions to " + resultFilename);
                 resultWriter = new PrintWriter(resultFilename, "UTF-8");
                 outputWriter = new PrintWriter(new FileWriter(args().outputFile, true));
@@ -90,9 +92,11 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
         ModelLoader modelLoader = new ModelLoader(modelPath);
         String modelTag = modelLoader.getModelProperties().getProperty("tag");
         if (!outputFileExists) {
-            outputWriter.append("tag\t");
-            writeOutputHeader(outputWriter);
-            outputWriter.append("\n");
+            outputWriter.append("tag\tprefix");
+            for (String metricName : createOutputHeader()) {
+                outputWriter.append(String.format("\t%s", metricName));
+            }
+            outputWriter.append("\targuments\n");
         }
         // we scale features using statistics observed on the training set:
         FeatureMapper featureMapper = modelLoader.loadFeatureMapper(modelLoader.getModelProperties());
@@ -133,9 +137,11 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
         );
 
         resutsWriter.close();
-        outputWriter.append(modelTag);
-        outputWriter.append("\t");
-        writeOutputStatistics(prefix, outputWriter);
+        outputWriter.append(String.format("%s\t%s", modelTag, prefix));
+        for (double metric : createOutputStatistics()) {
+            outputWriter.append(String.format("\t%f", metric));
+        }
+        outputWriter.append("\t" + getAllCommandLineArguments());
         outputWriter.append("\n");
         outputWriter.close();
         pgReadWrite.stop();
@@ -145,22 +151,22 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
 
     /**
      * This method is called after the test set has been observed and statistics evaluated via processPredictions.
-     * It writes out statistics on the whole test set to a file. Should just write one line, without a newline.
+     * It sets statistics on the whole test set, which are then written tab-delimited to a file.
      *
-     * @param prefix        The model prefix/label (e.g., bestAUC).
-     * @param outputWriter  The output writer to write to in tab-delimited format
+     * @return array of statistics to set; should be in same order as outputHeader
      */
-    protected abstract void writeOutputStatistics(String prefix, PrintWriter outputWriter);
+    protected abstract double[] createOutputStatistics();
 
     /**
-     * This method is called only if an output file for statistics has not been created yet. It writes the header
-     * for the output file. Does not need to include tag or a newline at the end.
+     * This method is called only if an output file for statistics has not been created yet. It sets the fields in
+     * the header file, to then be written to the output file.
      *
-     * @param outputWriter The output writer to write to in tab-delimited format
+     * @return array of metric names to set
      */
-    protected abstract void writeOutputHeader(PrintWriter outputWriter);
+    protected abstract String[] createOutputHeader();
 
     //TODO: Figure out if still necessary, or if outputStatistics suffices
+
     /**
      * This method is called after the test set has been observed and statistics evaluated. It prints statistics
      * to the console for the operators to read.
@@ -191,7 +197,6 @@ public abstract class Predict<RecordType> extends AbstractTool<PredictArguments>
      * @param prefix The model prefix/label (e.g., bestAUC).
      */
     protected abstract void initializeStats(String prefix);
-
 
 
 }

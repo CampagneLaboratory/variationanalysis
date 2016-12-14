@@ -39,6 +39,7 @@ public class SimpleFeatureCalculator extends AbstractFeatureMapper<BaseInformati
 
     public SimpleFeatureCalculator(boolean sort) {
         this.sort = sort;
+
     }
 
     public SimpleFeatureCalculator() {

@@ -51,7 +51,14 @@ public class PerformanceLogger {
      * @return
      */
     public double getBestScore() {
-        return bestScore;
+       int index=0;
+       for (String metricName: performanceNames) {
+           if ("score".equals(metricName)) {
+               return bestPerformances[index];
+           }
+           index++;
+       }
+       return Double.NaN;
     }
 
     /**

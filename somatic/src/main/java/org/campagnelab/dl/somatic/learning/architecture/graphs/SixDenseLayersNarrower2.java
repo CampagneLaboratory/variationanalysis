@@ -1,11 +1,14 @@
 package org.campagnelab.dl.somatic.learning.architecture.graphs;
 
-import org.campagnelab.dl.framework.tools.TrainingArguments;
+import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
-import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
+import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.*;
+import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
+import org.deeplearning4j.nn.conf.LearningRatePolicy;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
@@ -19,7 +22,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  *
  * @author Fabien Campagne
  */
-public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
+public class SixDenseLayersNarrower2 implements ComputationGraphAssembler {
 
 
     private int numHiddenNodes;
@@ -31,7 +34,7 @@ public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
         return arguments;
     }
 
-    ;
+
 
     @Override
     public void setArguments(TrainingArguments arguments) {
@@ -55,12 +58,13 @@ public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
                 .seed(args().seed)
                 .iterations(1)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(args().learningRate).regularization(args().regularizationRate != null).l2(args().regularizationRate != null? args().regularizationRate:0)
+                .learningRate(args().learningRate).regularization(args().regularizationRate != null).l2(args().regularizationRate != null ? args().regularizationRate : 0)
                 .updater(Updater.ADAGRAD);
 
         if (args().dropoutRate != null) {
             graphBuilder.dropOut(args().dropoutRate);
             graphBuilder.setUseDropConnect(true);
+            graphBuilder.setUseRegularization(true);
         }
         NeuralNetConfiguration.Builder graphConfiguration = graphBuilder.lrPolicyDecayRate(0.5)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
@@ -99,10 +103,6 @@ public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
                         .weightInit(WEIGHT_INIT)
                         .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(numOutputsIsMutated).build(), "dense5")
-                .addLayer("somaticFrequency", new OutputLayer.Builder(domainDescriptor.getOutputLoss("somaticFrequency"))
-                        .weightInit(WEIGHT_INIT)
-                        .activation("identity").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                        .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(numOutputsSomaticFrequency).build(), "dense5")
                 .setOutputs(getOutputNames())
                 .pretrain(false).backprop(true).build();
 
@@ -132,7 +132,7 @@ public class SixDenseLayersNarrower2 implements ComputationalGraphAssembler {
 
     @Override
     public String[] getOutputNames() {
-        return new String[]{"isMutated", "somaticFrequency"};
+        return new String[]{"isMutated"};
     }
 
     @Override

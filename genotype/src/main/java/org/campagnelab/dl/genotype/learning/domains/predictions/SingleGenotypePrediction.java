@@ -10,7 +10,8 @@ public class SingleGenotypePrediction extends Prediction {
 
 
     public String predictedSingleGenotype;
-    public double probability;
+    public double probabilityIsCalled;
+    public boolean trueIsCalled;
 
 
 }

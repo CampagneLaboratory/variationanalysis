@@ -1,6 +1,6 @@
 package org.campagnelab.dl.somatic.mappers;
 
-import org.campagnelab.dl.framework.iterators.ConcatFeatureMapper;
+import org.campagnelab.dl.framework.mappers.ConcatFeatureMapper;
 
 /**
  * Another feature mapper. Based of V9, but with FractionDifferences4 fix when counts==0;

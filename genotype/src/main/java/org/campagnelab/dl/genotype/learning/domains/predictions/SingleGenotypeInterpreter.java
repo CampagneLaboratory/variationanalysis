@@ -18,6 +18,11 @@ public class SingleGenotypeInterpreter implements PredictionInterpreter<BaseInfo
 
 
     @Override
+    public SingleGenotypePrediction interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex) {
+        throw new RuntimeException("a wrong interpret method was called on the homozygous interpeter");
+    }
+
+    @Override
     public SingleGenotypePrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
         SingleGenotypePrediction pred = new SingleGenotypePrediction();
         try {
@@ -25,7 +30,7 @@ public class SingleGenotypeInterpreter implements PredictionInterpreter<BaseInfo
         } catch (IndexOutOfBoundsException e) {
             pred.predictedSingleGenotype = ".";
         }
-        pred.probability = output.getDouble(0,0);
+        pred.probabilityIsCalled = output.getDouble(0,0);
         return pred;
     }
 

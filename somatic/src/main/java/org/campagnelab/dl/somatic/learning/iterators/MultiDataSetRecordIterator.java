@@ -1,8 +1,8 @@
 package org.campagnelab.dl.somatic.learning.iterators;
 
+import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
-import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
@@ -76,14 +76,14 @@ public abstract class MultiDataSetRecordIterator<RecordType> implements MultiDat
         for (String input : domainDescriptor.getComputationalGraph().getInputNames()) {
 
             inputs[index] = Nd4j.zeros(domainDescriptor.getInputShape(size, input));
-            featureMappers[index]=domainDescriptor.getFeatureMapper(input);
-            index+=1;
+            featureMappers[index] = domainDescriptor.getFeatureMapper(input);
+            index += 1;
 
         }
         index = 0;
         for (String label : domainDescriptor.getComputationalGraph().getOutputNames()) {
             labels[index] = Nd4j.zeros(domainDescriptor.getLabelShape(size, label));
-            labelMappers[index]=domainDescriptor.getLabelMapper(label);
+            labelMappers[index] = domainDescriptor.getLabelMapper(label);
             index++;
         }
 
@@ -97,6 +97,7 @@ public abstract class MultiDataSetRecordIterator<RecordType> implements MultiDat
                     featureMappers[j].mapFeatures(record, inputs[j], i);
                 }
                 for (int j = 0; j < numOutputs; j++) {
+                    labelMappers[j].prepareToNormalize(record, i);
                     labelMappers[j].mapLabels(record, labels[j], i);
                 }
             } else {

@@ -2,7 +2,7 @@ package org.campagnelab.dl.genotype.learning.architecture.graphs;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
+import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.architecture.nets.NeuralNetAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
@@ -20,13 +20,13 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
- * A computational graph with six dense layers and two outputs: probability of somatic mutation and frequency of the
+ * A computational graph with six dense layers and two outputs: probabilityIsCalled of somatic mutation and frequency of the
  * mutation (0 when no mutation).
  * <p>
  *
  * @author Remi Torracinta
  */
-public class GenotypeSixDenseLayersNarrower2 implements ComputationalGraphAssembler {
+public class GenotypeSixDenseLayersNarrower2 implements ComputationGraphAssembler {
 
 
     private int numHiddenNodes;

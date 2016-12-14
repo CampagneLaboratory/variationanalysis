@@ -1,7 +1,7 @@
 package org.campagnelab.dl.genotype.learning.domains;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
+import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
@@ -221,12 +221,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                         AccuracyHelper helper = new AccuracyHelper();
                         return helper.estimateWithGraph(dataSetIterator, graph,
                                 index -> index > scoreN
-                            /* first output represents probability of mutation */ );
+                            /* first output represents probabilityIsCalled of mutation */ );
                     case "alleleAccuracy":
                         AlleleAccuracyHelper alleleHelper = new AlleleAccuracyHelper();
                         return alleleHelper.estimateWithGraph(dataSetIterator, graph,
                                 index -> index > scoreN
-                            /* first output represents probability of mutation */ );
+                            /* first output represents probabilityIsCalled of mutation */ );
                     default:
                         return estimateScore(graph, metricName, dataSetIterator, scoreN);
                 }
@@ -242,7 +242,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     }
 
     @Override
-    public ComputationalGraphAssembler getComputationalGraph() {
+    public ComputationGraphAssembler getComputationalGraph() {
         return new GenotypeSixDenseLayersNarrower2();
     }
 

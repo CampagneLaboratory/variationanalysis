@@ -1,6 +1,6 @@
 package org.campagnelab.dl.somatic.mappers;
 
-import org.campagnelab.dl.framework.iterators.ConcatFeatureMapper;
+import org.campagnelab.dl.framework.mappers.ConcatFeatureMapper;
 
 /**
  * The FeatureMapper to test for the fourth iteration.

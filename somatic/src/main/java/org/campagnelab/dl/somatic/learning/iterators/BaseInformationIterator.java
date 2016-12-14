@@ -87,6 +87,7 @@ public class BaseInformationIterator implements NamedDataSetIterator, Closeable 
                 BaseInformationRecords.BaseInformationOrBuilder record = nextRecord();
                 featureMapper.prepareToNormalize(record, i);
                 featureMapper.mapFeatures(record, inputs, i);
+                labelMapper.prepareToNormalize(record, i);
                 labelMapper.mapLabels(record, labels, i);
             } else {
                 // some records may be empty in the very last minibatch at the end of the iterator.

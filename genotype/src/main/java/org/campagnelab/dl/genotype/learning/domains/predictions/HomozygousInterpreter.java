@@ -15,6 +15,11 @@ public class HomozygousInterpreter implements PredictionInterpreter<BaseInformat
 
 
     @Override
+    public HomozygousPrediction interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex) {
+        throw new RuntimeException("a wrong interpret method was called on the homozygous interpeter");
+    }
+
+    @Override
     public HomozygousPrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
         HomozygousPrediction pred = new HomozygousPrediction();
         pred.inspectRecord(record);

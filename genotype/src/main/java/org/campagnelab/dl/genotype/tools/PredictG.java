@@ -34,7 +34,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
-        resutsWriter.append("index\ttrueGenotypeCall\tpredictedGenotypeCall\tprobability\tcorrectness").append("\n");
+        resutsWriter.append("index\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness").append("\n");
     }
 
     @Override
@@ -43,15 +43,16 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         numProcessed = 0;
     }
 
-    //TODO: Implement these
+
+
     @Override
-    protected void writeOutputStatistics(String prefix, PrintWriter outputWriter) {
-        outputWriter.print(numCorrect/(double)numProcessed);
+    protected double[] createOutputStatistics() {
+        return new double[]{numCorrect/(double)numProcessed};
     }
 
     @Override
-    protected void writeOutputHeader(PrintWriter outputWriter) {
-        outputWriter.append("accuracy");
+    protected String[] createOutputHeader() {
+        return new String[]{"accuracy"};
     }
 
     @Override
@@ -62,7 +63,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     @Override
     protected void processPredictions(PrintWriter resultWriter, List<Prediction> predictionList) {
         HomozygousPrediction homoPred = (HomozygousPrediction) predictionList.get(0);
-        List<Prediction> genoPredList = predictionList.subList(0,11);
+        List<Prediction> genoPredList = predictionList.subList(1,11);
 
         //use format just for stats output writing, correctness determined with string sets.
         String predictedGenotypeFormat;
@@ -78,14 +79,14 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
         //now handle the non-homozygous case by concatentating positive single genotype predictions
         if (predictedGenotypeFormat.equals("/")){
-            //need running average of single alleles to produce probability
+            //need running average of single alleles to produce probabilityIsCalled
             predProbability = 0;
             int numAlleles = 0;
             StringBuffer nonHomoGenotype = new StringBuffer();
             for (Prediction genoPred : genoPredList) {
                 SingleGenotypePrediction singleGenoPred = (SingleGenotypePrediction) genoPred;
-                if (singleGenoPred.probability >= 0.5) {
-                    predProbability += singleGenoPred.probability;
+                if (singleGenoPred.probabilityIsCalled >= 0.5) {
+                    predProbability += singleGenoPred.probabilityIsCalled;
                     numAlleles++;
                     nonHomoGenotype.append(singleGenoPred.predictedSingleGenotype + "/");
                     predictedGenotype.add(singleGenoPred.predictedSingleGenotype);

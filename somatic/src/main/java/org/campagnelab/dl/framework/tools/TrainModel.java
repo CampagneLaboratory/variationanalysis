@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
+import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.gpu.InitializeGpu;
 import org.campagnelab.dl.framework.gpu.ParameterPrecision;
@@ -110,7 +110,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         // Assemble the computational graph:
         bestMetricName = "best" + domainDescriptor.performanceDescritor().earlyStoppingMetric();
 
-        ComputationalGraphAssembler assembler = domainDescriptor.getComputationalGraph();
+        ComputationGraphAssembler assembler = domainDescriptor.getComputationalGraph();
         assert assembler != null : "Computational Graph assembler must be defined.";
         assembler.setArguments(args());
         for (String inputName : assembler.getInputNames()) {
@@ -190,13 +190,13 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     protected void writeBestScoreFile() throws IOException {
 
         FileWriter scoreWriter = new FileWriter(directory + "/bestScore");
-        scoreWriter.append(Double.toString(bestScore));
+        scoreWriter.append(Double.toString(performanceLogger.getBestScore()));
         scoreWriter.close();
     }
 
     protected void writeProperties() throws IOException {
         ModelPropertiesHelper mpHelper = new ModelPropertiesHelper();
-        ComputationalGraphAssembler assembler = domainDescriptor.getComputationalGraph();
+        ComputationGraphAssembler assembler = domainDescriptor.getComputationalGraph();
         appendProperties(assembler, mpHelper);
         mpHelper.addProperties(getReaderProperties(args().trainingSets.get(0)));
         mpHelper.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
@@ -215,7 +215,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     }
 
 
-    public void appendProperties(ComputationalGraphAssembler assembler, ModelPropertiesHelper helper) {
+    public void appendProperties(ComputationGraphAssembler assembler, ModelPropertiesHelper helper) {
         // give a chance to the assembler to save information to the model properties to describe the architecture
         // used for training:
         assembler.saveProperties(helper);
@@ -234,6 +234,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         helper.setEarlyStopCriterion(args().stopWhenEpochsWithoutImprovement);
         helper.setRegularization(args().regularizationRate);
         helper.setPrecision(precision);
+        helper.put("allArguments",getAllCommandLineArguments());
     }
 
     ParameterPrecision precision = ParameterPrecision.FP32;
@@ -286,7 +287,13 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 adapter, adapter.getBasename(),
                 args().numTraining, args().miniBatchSize) :
                 adapter;
-
+        if (args().memoryCache) {
+            iterator = new FullyInMemoryCache(iterator);
+            // force loading immediately:
+            LOG.warn("Loading training set in memory.");
+            iterator.reset();
+            LOG.warn("Done.");
+        }
         // MultiDataSetIterator iterator=adapter;
         final long numRecords = Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
@@ -300,7 +307,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         pgEpoch.expectedUpdates = args().maxEpochs;
         pgEpoch.start();
         Trainer trainer = args().parallel ? new ParallelTrainerOnGPU(computationGraph, args().miniBatchSize,
-                (int)domainDescriptor.getNumRecords(args().getTrainingSets())) :
+                (int) domainDescriptor.getNumRecords(args().getTrainingSets())) :
                 new SequentialTrainer();
 
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {

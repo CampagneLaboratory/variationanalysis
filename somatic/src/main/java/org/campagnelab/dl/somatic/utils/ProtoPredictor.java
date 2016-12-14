@@ -1,6 +1,8 @@
 package org.campagnelab.dl.somatic.utils;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelOutputHelper;
 import org.campagnelab.dl.somatic.learning.domains.SomaticFrequencyInterpreter;
@@ -28,11 +30,29 @@ public class ProtoPredictor {
     private Model model;
     private FeatureMapper mapper;
     private ModelOutputHelper outputHelper;
+    private DomainDescriptor domainDescriptor;
 
-    public ProtoPredictor(Model model, FeatureMapper mapper) {
+    public ProtoPredictor(DomainDescriptor domainDescriptor, Model model, FeatureMapper mapper) {
         this.model = model;
         this.mapper = mapper;
         this.outputHelper = new ModelOutputHelper();
+        this.domainDescriptor = domainDescriptor;
+        if (domainDescriptor != null) {
+            if (domainDescriptor.hasOutput("isMutated")) {
+                isSomatic = (IsSomaticMutationInterpreter) domainDescriptor.getPredictionInterpreter("isMutated");
+            }
+            if (domainDescriptor.hasOutput("isBaseMutated")) {
+                isSomatic = (IsSomaticMutationInterpreter) domainDescriptor.getPredictionInterpreter("isBaseMutated");
+            }
+            if (domainDescriptor.hasOutput("somaticFrequency")) {
+                somaticFrequency = (SomaticFrequencyInterpreter) domainDescriptor.getPredictionInterpreter("somaticFrequency");
+            }
+        } else {
+            // for backward compatibility with models not trained with the framework:
+            isSomatic = new IsSomaticMutationInterpreter();
+            somaticFrequency = new SomaticFrequencyInterpreter();
+        }
+
     }
 
     public static List<Integer> expandFreq(List<BaseInformationRecords.NumberWithFrequency> freqList) {
@@ -50,11 +70,13 @@ public class ProtoPredictor {
         return expanded;
     }
 
+    PredictionInterpreter<BaseInformationRecords.BaseInformation, IsMutatedPrediction> isSomatic = null;
+    SomaticFrequencyInterpreter somaticFrequency = null;
 
-
-    IsSomaticMutationInterpreter isSomatic=new IsSomaticMutationInterpreter();
-   SomaticFrequencyInterpreter somaticFrequency=new SomaticFrequencyInterpreter();
     public Prediction mutPrediction(BaseInformationRecords.BaseInformation record) {
+        assert model != null : "Model cannot be null";
+        assert isSomatic != null : "isSomatic interpreter must not be null";
+        assert somaticFrequency != null : "somaticFrequency interpreter must not be null";
         INDArray arrayPredicted = null;
         Prediction prediction = new Prediction();
 
@@ -70,14 +92,13 @@ public class ProtoPredictor {
         } else if (model instanceof ComputationGraph) {
             outputHelper.predictForNextRecord(model, record, mapper);
 
-            IsMutatedPrediction isSomaticPrediction= isSomatic.interpret(record,outputHelper.getOutput(PROBABILITY_OUTPUT_INDEX));
+            IsMutatedPrediction isSomaticPrediction = isSomatic.interpret(record, outputHelper.getOutput(PROBABILITY_OUTPUT_INDEX));
             prediction.set((float) isSomaticPrediction.predictedLabelYes,
                     (float) isSomaticPrediction.predictedLabelNo);
-            SomaticFrequencyPrediction somaticFrequencyPrediction=somaticFrequency.interpret(record,
+            SomaticFrequencyPrediction somaticFrequencyPrediction = somaticFrequency.interpret(record,
                     outputHelper.getOutput(SOMATIC_FREQUENCY_INDEX));
-            prediction.setPredictedSomaticFrequency( somaticFrequencyPrediction.predictedValue);
+            prediction.setPredictedSomaticFrequency(somaticFrequencyPrediction.predictedValue);
         }
-
 
         return prediction;
     }

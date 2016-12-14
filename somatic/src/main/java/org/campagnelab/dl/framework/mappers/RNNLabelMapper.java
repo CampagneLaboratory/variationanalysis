@@ -88,4 +88,9 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
         int labelInDelegateIdx = labelIndex % labelsPerTimeStep;
         return delegates[delegateIdx].isMasked(record, labelInDelegateIdx);
     }
+
+    @Override
+    public void prepareToNormalize(RecordType record, int indexOfRecord) {
+
+    }
 }

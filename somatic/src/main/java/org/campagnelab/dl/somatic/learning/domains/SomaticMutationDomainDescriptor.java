@@ -1,7 +1,7 @@
 package org.campagnelab.dl.somatic.learning.domains;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
+import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
@@ -15,6 +15,7 @@ import org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNar
 import org.campagnelab.dl.somatic.learning.domains.predictions.IsSomaticMutationInterpreter;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
+import org.campagnelab.dl.somatic.mappers.IsBaseMutatedMapper;
 import org.campagnelab.dl.somatic.mappers.IsSomaticMutationMapper;
 import org.campagnelab.dl.somatic.mappers.SomaticFrequencyLabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -35,6 +36,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
     public SomaticMutationDomainDescriptor(SomaticTrainingArguments arguments) {
         this.arguments = arguments;
+        initializeArchitecture(arguments.architectureClassname);
     }
 
     /**
@@ -48,10 +50,13 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         super.loadProperties(modelPath);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
+        initializeArchitecture();
+
     }
 
+
     /**
-     * Use this methdo to create a domain before training. The supplied properties provide
+     * Use this method to create a domain before training. The supplied properties provide
      * featureMapper and labelMapper information (domainProperties), and the sbiProperties
      * provide statistic observed on the training set (or part of it).
      *
@@ -64,6 +69,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         super.loadProperties(domainProperties, sbiProperties);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
+        initializeArchitecture();
     }
 
     private SomaticTrainingArguments arguments;
@@ -105,6 +111,8 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         switch (outputName) {
             case "isMutated":
                 return new IsSomaticMutationMapper();
+            case "isBaseMutated":
+                return new IsBaseMutatedMapper();
             case "somaticFrequency":
                 return new SomaticFrequencyLabelMapper();
             default:
@@ -117,6 +125,8 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         switch (outputName) {
             case "isMutated":
                 return new IsSomaticMutationInterpreter();
+            case "isBaseMutated":
+                return new IsBaseMutatedInterpreter();
             case "somaticFrequency":
                 return new SomaticFrequencyInterpreter();
             default:
@@ -163,7 +173,9 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
                         return helper.estimateWithGraph(dataSetIterator, graph, args().numValidation, prediction -> {
                                 },
                                 index -> index > scoreN,
-                            /* first output represents probability of mutation */ 0);
+                            /* first output represents probability of mutation */ 0,
+                                hasOutput("isBaseMutated") ? new IsBaseMutatedInterpreter() :
+                                        new IsSomaticMutationInterpreter());
                     default:
                         return estimateScore(graph, metricName, dataSetIterator, scoreN);
                 }
@@ -178,9 +190,22 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
     }
 
+
+    /**
+     * Initialize the net architecture using the name in the domain properties.
+     */
     @Override
-    public ComputationalGraphAssembler getComputationalGraph() {
-        return new SixDenseLayersNarrower2();
+    protected void initializeArchitecture() {
+        String netArchitectureClassname = domainProperties.getProperty("net.architecture.classname");
+        if (netArchitectureClassname == null) {
+            netArchitectureClassname = SixDenseLayersNarrower2.class.getCanonicalName();
+        }
+        initializeArchitecture(netArchitectureClassname);
+    }
+
+    @Override
+    public ComputationGraphAssembler getComputationalGraph() {
+        return computationGraphAssembler;
     }
 
     @Override
@@ -213,6 +238,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
     public LossFunctions.LossFunction getOutputLoss(String outputName) {
         switch (outputName) {
             case "isMutated":
+            case "isBaseMutated":
                 return LossFunctions.LossFunction.MCXENT;
             case "somaticFrequency":
                 return LossFunctions.LossFunction.MSE;

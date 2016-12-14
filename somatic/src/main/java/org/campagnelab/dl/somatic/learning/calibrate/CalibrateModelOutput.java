@@ -161,7 +161,7 @@ public class CalibrateModelOutput {
     private int accumulateMiniBatch(MultiLayerNetwork model, int miniBatchSize, DataSet miniBatch, int currentMiniBatchSize,
                                     FeatureMapper modelFeatureMapper, BaseInformationRecords.BaseInformation record) {
         int indexOfNewRecordInMinibatch = currentMiniBatchSize;
-        ProtoPredictor predictor = new ProtoPredictor(model, modelFeatureMapper);
+        ProtoPredictor predictor = new ProtoPredictor(null,model, modelFeatureMapper);
         boolean isTumor = record.getSamplesList().get(1).getIsTumor();
         ProtoPredictor.Prediction prediction = predictor.mutPrediction(record);
         boolean isCorrect = prediction.isCorrect(isTumor);

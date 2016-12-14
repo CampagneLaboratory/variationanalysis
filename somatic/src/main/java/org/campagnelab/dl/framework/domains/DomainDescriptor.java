@@ -1,12 +1,12 @@
 package org.campagnelab.dl.framework.domains;
 
 import com.google.common.collect.Iterables;
+import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
+import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
-import org.campagnelab.dl.framework.architecture.graphs.ComputationalGraphAssembler;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
-import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
@@ -68,9 +68,9 @@ public abstract class DomainDescriptor<RecordType> {
     /**
      * Return a computational graph assembler. The assembler can build a computational graph ready for training.
      *
-     * @return ComputationalGraphAssembler
+     * @return ComputationGraphAssembler
      */
-    public abstract ComputationalGraphAssembler getComputationalGraph();
+    public abstract ComputationGraphAssembler getComputationalGraph();
 
     /**
      * Return the dimensions of an input to the graph. If the graph has one input with 10 features, this method should return new int[]{10}.
@@ -165,7 +165,11 @@ public abstract class DomainDescriptor<RecordType> {
                 long nExamples = 0;
                 while (dataSetIterator.hasNext()) {
                     MultiDataSet ds = dataSetIterator.next();
-                    score += graph.score(ds);
+                    double dsSScore = graph.score(ds);
+                    if (dsSScore == dsSScore) {
+                        // not a NaN
+                        score += dsSScore;
+                    }
                     nBatch += 1;
                     nExamples += ds.getFeatures()[0].size(0);
                     if (nExamples > scoreN) break;
@@ -243,14 +247,15 @@ public abstract class DomainDescriptor<RecordType> {
         try {
             domainProperties.load(new FileReader(domainPropFilename));
             modelProperties.load(new FileReader(modelPropFilename));
+
         } catch (IOException e) {
             throw new RuntimeException("Unable to load domain properties in model path " + modelPath, e);
         }
     }
 
     public void loadProperties(Properties domainProperties, Properties sbiProperties) {
-        this.domainProperties=new Properties();
-        this.modelProperties=new Properties();
+        this.domainProperties = new Properties();
+        this.modelProperties = new Properties();
         this.domainProperties.putAll(domainProperties);
         this.modelProperties.putAll(sbiProperties);
     }
@@ -258,7 +263,7 @@ public abstract class DomainDescriptor<RecordType> {
     public void writeProperties(String modelPath) {
         Properties props = new Properties();
         String propFilename = ModelLoader.getModelPath(modelPath) + "/domain.properties";
-        putProperties( props);
+        putProperties(props);
         try {
             props.store(new FileWriter(propFilename), "Domain properties created with " + this.getClass().getCanonicalName());
         } catch (IOException e) {
@@ -266,16 +271,19 @@ public abstract class DomainDescriptor<RecordType> {
         }
     }
 
-    public void putProperties( Properties props) {
-
+    public void putProperties(Properties props) {
+        props.put("net.architecture.classname", computationGraphAssembler.getClass().getCanonicalName());
         String inputNames[] = getComputationalGraph().getInputNames();
         String outputNames[] = getComputationalGraph().getOutputNames();
         for (String inputName : inputNames) {
             props.put(inputName + ".featureMapper", getFeatureMapper(inputName).getClass().getCanonicalName());
+            props.put(inputName + ".featureMapper.numFeatures", Integer.toString(getFeatureMapper(inputName).numberOfFeatures()));
         }
         for (String outputName : outputNames) {
             props.put(outputName + ".labelMapper", getLabelMapper(outputName).getClass().getCanonicalName());
+            props.put(outputName + ".labelMapper.numLabels", Integer.toString(getLabelMapper(outputName).numberOfLabels()));
             props.put(outputName + ".predictionInterpreter", getPredictionInterpreter(outputName).getClass().getCanonicalName());
+
         }
 
     }
@@ -286,6 +294,24 @@ public abstract class DomainDescriptor<RecordType> {
                         filename -> getRecordIterable().apply(filename)).collect(
                         Collectors.toList()));
         return Iterables.limit(inputIterable, maxRecords);
+    }
+
+    protected ComputationGraphAssembler computationGraphAssembler;
+
+    protected void initializeArchitecture(String architectureClassname) {
+        try {
+            computationGraphAssembler = (ComputationGraphAssembler) Class.forName(architectureClassname).newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to load computation graph: " + architectureClassname);
+        }
+    }
+
+    /**
+     * Initialize the net architecture using the name in the domain properties.
+     */
+    protected void initializeArchitecture() {
+        String netArchitectureClassname = domainProperties.getProperty("net.architecture.classname");
+        initializeArchitecture(netArchitectureClassname);
     }
 
 }

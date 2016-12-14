@@ -1,6 +1,6 @@
 package org.campagnelab.dl.somatic.mappers;
 
-import org.campagnelab.dl.framework.iterators.ConcatFeatureMapper;
+import org.campagnelab.dl.framework.mappers.ConcatFeatureMapper;
 
 /**
  * Same as V13, but with FractionDifferences4 instead of 3., to avoid division by zero when sum to counts is 0

@@ -1,6 +1,7 @@
 package org.campagnelab.dl.somatic.learning.performance;
 
 import it.unimi.dsi.logging.ProgressLogger;
+import org.campagnelab.dl.somatic.learning.domains.predictions.IsSomaticMutationInterpreter;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.somatic.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
@@ -58,7 +59,8 @@ public class MeasurePerformance {
         return helper.estimate(cachedIterator, model, this.aucClipMaxObservations,
                 prediction -> {
                 },
-                numScored -> numScored > scoreN);
+                numScored -> numScored > scoreN,
+                new IsSomaticMutationInterpreter());
     }
 
 

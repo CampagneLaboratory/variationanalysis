@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 . `dirname "${BASH_SOURCE[0]}"`/setup.sh
 
+cat << EOF | cat> learn.txt
+5
+.5
+.01
+EOF
+
 cat << EOF | cat> drop.txt
-0.05
-0.1
-0.15
-0.2
-0.25
-0.3
-0.35
-0.4
-0.45
 0.5
+0.6
+0.7
+0.8
+0.9
+1
 EOF
 
 
@@ -32,15 +34,24 @@ EOF
 cat << EOF | cat>seed.txt
 2389283
 443
-732
-1
-436
 EOF
 
-echo ${memory_requirement} $* >main-command.txt
 
-parallel echo `cat main-command.txt` --regularization-rate :::: reg.txt :::  --random-seed :::: seed.txt ::: --dropout-rate :::: drop.txt  >commands.txt
-shuf commands.txt  |head -100 >commands-head-100
-chmod +x commands-head-100
-cat ./commands-head-100 |parallel -j4
+echo $* >main-command.txt
+cat << EOF | cat>gpu.txt
+0
+1
+2
+3
+EOF
+
+NUM_GPUS=`wc -l gpus.txt|cut -d " " -f 1`
+
+num_executions=${memory_requirement}
+
+parallel echo `cat main-command.txt` --regularization-rate :::: reg.txt :::  --random-seed :::: seed.txt ::: --learning-rate :::: learn.txt ::: --dropout-rate :::: drop.txt ::: --early-stopping-num-epochs ::: 1   >commands.txt
+shuf commands.txt  |head -${num_executions} >commands-head-${num_executions}
+chmod +x commands-head-${num_executions}
+cat ./commands-head-${num_executions} |parallel --xapply ::: echo  :::: - ::: --gpu-device :::: gpu.txt  >all-commands.txt
+cat all-commands.txt |parallel -j${GPU_NUM} --progress
 sort -n -k 2 model-conditions.txt|tail
