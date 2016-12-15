@@ -6,7 +6,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
- * Label: frequency of somatic mutation.
+ * A label that informs if the site is homozygote (label index 11), or indicates the genotype called
  * Created by rct66 on 12/6/16.
  */
 public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
@@ -30,14 +30,16 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
     public float produceLabel(BaseInformationRecords.BaseInformation record, int labelIndex) {
 
 
-
         if (!getHomozygous(record)) {
+            // this site is heterozygous. The Allele will only be encoded in the other outputs.
             return (labelIndex == 10) ? 1 : 0;
-        }
-        if (labelIndex >= record.getSamples(0).getCountsCount()){
-            return 0;
-        } else {
-            return record.getSamples(0).getCounts(labelIndex).getIsCalled()?1:0;
+        }else {
+         // the site is homozygous. The allele is encoded here:
+            if (labelIndex >= record.getSamples(0).getCountsCount()) {
+                return 0;
+            } else {
+                return record.getSamples(0).getCounts(labelIndex).getIsCalled() ? 1 : 0;
+            }
         }
     }
 
@@ -45,8 +47,8 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
     private boolean getHomozygous(BaseInformationRecords.BaseInformation record) {
         //count number of called alleles
         int numAlleles = 0;
-        for (int i = 0; i < record.getSamples(0).getCountsCount(); i++){
-            if (record.getSamples(0).getCounts(i).getIsCalled()){
+        for (int i = 0; i < record.getSamples(0).getCountsCount(); i++) {
+            if (record.getSamples(0).getCounts(i).getIsCalled()) {
                 numAlleles++;
             }
         }
@@ -54,10 +56,9 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
     }
 
 
-
     @Override
     public MappedDimensions dimensions() {
-        return new MappedDimensions(new int[]{11});
+        return new MappedDimensions(numberOfLabels());
     }
 
 

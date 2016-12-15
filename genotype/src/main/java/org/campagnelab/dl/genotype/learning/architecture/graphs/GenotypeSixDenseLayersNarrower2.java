@@ -102,13 +102,13 @@ public class GenotypeSixDenseLayersNarrower2 implements ComputationGraphAssemble
                         .activation("relu")
                         .build(), "dense4");
         build.addLayer("homozygous", new OutputLayer.Builder(
-                domainDescriptor.getOutputLoss(outputName))
+                domainDescriptor.getOutputLoss("homozygous"))
                 .weightInit(WEIGHT_INIT)
                 .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                 .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(11).build(), "dense5");
         for (int i = 1; i < outputNames.length; i++){
             build.addLayer(outputNames[i], new OutputLayer.Builder(
-                    domainDescriptor.getOutputLoss(outputName))
+                    domainDescriptor.getOutputLoss(outputNames[i]))
                     .weightInit(WEIGHT_INIT)
                     .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                     .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(2).build(), "dense5");

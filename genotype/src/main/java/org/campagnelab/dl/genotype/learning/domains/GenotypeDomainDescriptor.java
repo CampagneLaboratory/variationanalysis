@@ -42,6 +42,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     /**
      * Use this method to create a domain descriptor for a trained model.
+     *
      * @param modelPath Path where the model is stored.
      */
     public GenotypeDomainDescriptor(String modelPath) {
@@ -57,13 +58,14 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
      * Use this methdo to create a domain before training. The supplied properties provide
      * featureMapper and labelMapper information (domainProperties), and the sbiProperties
      * provide statistic observed on the training set (or part of it).
+     *
      * @param domainProperties Properties describing the domain. Must describe feature and label mappers.
-     * @param sbiProperties Properties describing statistics, used to configure feature mappers.
+     * @param sbiProperties    Properties describing statistics, used to configure feature mappers.
      */
     public GenotypeDomainDescriptor(Properties domainProperties, Properties sbiProperties) {
 
         this.arguments = new GenotypeTrainingArguments();
-        super.loadProperties(domainProperties,sbiProperties);
+        super.loadProperties(domainProperties, sbiProperties);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
         initializeArchitecture();
@@ -200,7 +202,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         return new PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation>() {
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"accuracy", "alleleAccuracy","score"};
+                return new String[]{"accuracy", "alleleAccuracy", "score"};
             }
 
             @Override
@@ -224,12 +226,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                         AccuracyHelper helper = new AccuracyHelper();
                         return helper.estimateWithGraph(dataSetIterator, graph,
                                 index -> index > scoreN
-                            /* first output represents probabilityIsCalled of mutation */ );
+                            /* first output represents probabilityIsCalled of mutation */);
                     case "alleleAccuracy":
                         AlleleAccuracyHelper alleleHelper = new AlleleAccuracyHelper();
                         return alleleHelper.estimateWithGraph(dataSetIterator, graph,
                                 index -> index > scoreN
-                            /* first output represents probabilityIsCalled of mutation */ );
+                            /* first output represents probabilityIsCalled of mutation */);
                     default:
                         return estimateScore(graph, metricName, dataSetIterator, scoreN);
                 }
@@ -266,7 +268,13 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public LossFunctions.LossFunction getOutputLoss(String outputName) {
-        return LossFunctions.LossFunction.XENT;
+        switch (outputName) {
+            case "homozygous":
+                return LossFunctions.LossFunction.MCXENT;
+            default:
+                // any other is an individual genotype output:
+                return LossFunctions.LossFunction.XENT;
+             }
     }
 
     @Override

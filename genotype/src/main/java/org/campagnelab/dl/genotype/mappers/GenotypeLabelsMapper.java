@@ -6,7 +6,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
- * Label: frequency of somatic mutation.
+ * Label: whether a genotype index is called or not.
  * Created by rct66 on 12/6/16.
  */
 public class GenotypeLabelsMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
@@ -44,10 +44,10 @@ public class GenotypeLabelsMapper extends NoMasksLabelMapper<BaseInformationReco
             isCalled = record.getSamples(0).getCounts(genotypeIndex).getIsCalled();
         }
         if (labelIndex == 0) {
-            // first index is 1 when site is  mutated.
+            // first index is 1 when site is  called.
             return isCalled?1:0;
         } else {
-            // second index is 1 when site is not mutated.
+            // second index is 1 when site is not called.
             return !isCalled?1:0;
         }
     }
@@ -55,7 +55,7 @@ public class GenotypeLabelsMapper extends NoMasksLabelMapper<BaseInformationReco
 
     @Override
     public MappedDimensions dimensions() {
-        return new MappedDimensions(new int[]{2});
+        return new MappedDimensions(2);
     }
 
 
