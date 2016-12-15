@@ -1,2 +1,2 @@
 #!/bin/bash
-mvn clean install -P GPU
+mvn clean install -P GPU $*

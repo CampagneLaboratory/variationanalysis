@@ -1,2 +1,2 @@
 #!/bin/bash
-mvn clean install -P CPU
+mvn clean install -P CPU $*
