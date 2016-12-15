@@ -1,23 +1,20 @@
 package org.campagnelab.dl.genotype.mappers;
 
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import org.campagnelab.dl.somatic.genotypes.GenotypeCountFactory;
-import org.campagnelab.dl.somatic.mappers.AbstractFeatureMapper;
-import org.campagnelab.dl.somatic.mappers.GenotypeCount;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import org.campagnelab.dl.framework.mappers.AbstractFeatureMapper1D;
 import org.campagnelab.dl.somatic.utils.ProtoPredictor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * This is a simple feature mapper.
- * Each sample has the following information:
+ * Each sampleIndex has the following information:
  * <pre> 69033640	11	false
  * position=14521   referenceIndex=0       isMutated=false
- * sample 0 counts=[10, 0, 0, 63, 0, 4, 0, 1, 62, 0]
- * <p>
+ * sampleIndex 0 counts=[10, 0, 0, 63, 0, 4, 0, 1, 62, 0]
+ *
  * Using these data, we can normalize counts and map them
  *
  * Created by rct66 on 11/16/16.
@@ -25,17 +22,17 @@ import java.util.Set;
  * @author Remi Torracinta
  */
 
-public class SingleReadIndexCountMapper extends AbstractFeatureMapperStripped<BaseInformationRecords.BaseInformationOrBuilder> {
+public class SingleReadIndexCountMapper extends AbstractFeatureMapper1D<BaseInformationRecords.BaseInformationOrBuilder> {
 
 
-    int sample;
-    int genotype;
+    int sampleIndex;
+    int genotypeIndex;
     boolean getForwardStrand;
 
 
-    public SingleReadIndexCountMapper(int sample, int genotype, boolean getForwardStrand) {
-        this.sample = sample;
-        this.genotype = genotype;
+    public SingleReadIndexCountMapper(int sampleIndex, int genotypeIndex, boolean getForwardStrand) {
+        this.sampleIndex = sampleIndex;
+        this.genotypeIndex = genotypeIndex;
         this.getForwardStrand = getForwardStrand;
     }
 
@@ -51,28 +48,46 @@ public class SingleReadIndexCountMapper extends AbstractFeatureMapperStripped<Ba
 
 
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        return produceFeatureInternal(record,featureIndex);
+        return produceFeatureInternal(record, featureIndex);
     }
 
     @Override
     public String getFeatureName(int featureIndex) {
-        String sampleString = Integer.toString(sample)+"Sample";
+        String sampleString = Integer.toString(sampleIndex) + "Sample";
         String genotypeString;
-        switch (genotype) {
-            case 0: genotypeString = "A"; break;
-            case 1: genotypeString = "T"; break;
-            case 2: genotypeString = "C"; break;
-            case 3: genotypeString = "G"; break;
-            case 4: genotypeString = "N"; break;
-            case 5: genotypeString = "Other1"; break;
-            case 6: genotypeString = "Other2"; break;
-            case 7: genotypeString = "Other3"; break;
-            case 8: genotypeString = "Other4"; break;
-            default: genotypeString = "Other5";
+        switch (genotypeIndex) {
+            case 0:
+                genotypeString = "A";
+                break;
+            case 1:
+                genotypeString = "T";
+                break;
+            case 2:
+                genotypeString = "C";
+                break;
+            case 3:
+                genotypeString = "G";
+                break;
+            case 4:
+                genotypeString = "N";
+                break;
+            case 5:
+                genotypeString = "Other1";
+                break;
+            case 6:
+                genotypeString = "Other2";
+                break;
+            case 7:
+                genotypeString = "Other3";
+                break;
+            case 8:
+                genotypeString = "Other4";
+                break;
+            default:
+                genotypeString = "Other5";
         }
-        return ("sample"+sampleString+"Genotype"+genotypeString+(getForwardStrand?"Forward":"Backward"));
+        return ("sampleIndex" + sampleString + "Genotype" + genotypeString + (getForwardStrand ? "Forward" : "Backward"));
     }
-
 
 
     private float normalize(float value, int normalizationFactor) {
@@ -84,15 +99,16 @@ public class SingleReadIndexCountMapper extends AbstractFeatureMapperStripped<Ba
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
         assert (featureIndex >= 0 && featureIndex < 1) : "This mapper only outputs 1 feature corresponding to one base count";
         BaseInformationRecords.CountInfo genoInfo;
-        try {
-            genoInfo = record.getSamples(sample).getCounts(genotype);
-        } catch (NullPointerException|IndexOutOfBoundsException e){
-            return 0;
+        if (sampleIndex < record.getSamplesCount()) {
+            final BaseInformationRecords.SampleInfo sample = record.getSamples(sampleIndex);
+            if (genotypeIndex < sample.getCountsCount()) {
+                genoInfo = sample.getCounts(genotypeIndex);
+                List<Integer> readIndicesList = ProtoPredictor.expandFreq(getForwardStrand ? genoInfo.getReadIndicesForwardStrandList() : genoInfo.getReadIndicesForwardStrandList());
+                IntSet readIndicesSet = new IntArraySet(readIndicesList);
+                return readIndicesSet.size();
+            }
         }
-
-        List<Integer> readIndicesList = ProtoPredictor.expandFreq(getForwardStrand?genoInfo.getReadIndicesForwardStrandList():genoInfo.getReadIndicesForwardStrandList());
-        Set<Integer> readIndicesSet = new IntOpenHashSet(readIndicesList);
-        return readIndicesSet.size();
+        return -1;
     }
 
 }

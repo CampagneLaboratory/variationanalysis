@@ -2,7 +2,7 @@ package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
-import org.campagnelab.dl.framework.mappers.MaxValueNormalizingMapper;
+import org.campagnelab.dl.framework.mappers.MeanNormalizationMapper;
 import org.campagnelab.dl.somatic.mappers.DensityMapper;
 import org.campagnelab.dl.somatic.mappers.GenomicContextMapper;
 import org.campagnelab.dl.somatic.mappers.NamingConcatFeatureMapper;
@@ -15,7 +15,7 @@ import java.util.Properties;
 /**
  * This m
  */
-public class GenotypeMapperV1 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> implements ConfigurableFeatureMapper {
+public class GenotypeMapperV2 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> implements ConfigurableFeatureMapper {
     private NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;
@@ -43,13 +43,9 @@ public class GenotypeMapperV1 extends NamingConcatFeatureMapper<BaseInformationR
         }
         delegate =
                 new NamingConcatFeatureMapper<>(
-                        new MaxValueNormalizingMapper(
+                        new MeanNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),
-                        new InverseNormalizeMapper(
-                                new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),
-                        new MaxValueNormalizingMapper(
-                                new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readIndexMappers)),
-                        new InverseNormalizeMapper(
+                        new MeanNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readIndexMappers)),
                         new GenomicContextMapper(sbiProperties),
                         new DensityMapper("numVariationsInRead", 20, sbiProperties, baseInformationOrBuilder ->

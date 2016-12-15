@@ -1,5 +1,6 @@
 package org.campagnelab.dl.genotype.mappers;
 
+import org.campagnelab.dl.framework.mappers.AbstractFeatureMapper1D;
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
@@ -9,7 +10,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
  * @author Remi Torracinta
  */
 
-public class InverseNormalizeMapper extends AbstractFeatureMapperStripped<BaseInformationRecords.BaseInformationOrBuilder> {
+public class InverseNormalizeMapper extends AbstractFeatureMapper1D<BaseInformationRecords.BaseInformationOrBuilder> {
 
     FeatureNameMapper delegate;
 

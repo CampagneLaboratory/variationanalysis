@@ -40,7 +40,7 @@ public class GenotypeShowArguments extends ShowArguments {
             for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()) {
                 formattedCounts.append(sample.getFormattedCounts() + "\t");
             }
-            return formattedCounts.toString();
+            return formattedCounts.toString()+ "\t"+record.getTrueGenotype();
         }
     };
 
@@ -49,7 +49,7 @@ public class GenotypeShowArguments extends ShowArguments {
         public String apply(BaseInformationRecords.BaseInformation baseInformation) {
             String refId = baseInformation.hasReferenceId() ? baseInformation.getReferenceId() :
                     Integer.toString(baseInformation.getReferenceIndex());
-            return String.format("%s\t%d", refId, baseInformation.getPosition());
+            return String.format("%s\t%d\t%s", refId, baseInformation.getPosition(),baseInformation.getTrueGenotype());
         }
     };
 
