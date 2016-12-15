@@ -37,4 +37,6 @@ public abstract class NoMasksLabelMapper<RecordType> implements LabelMapper<Reco
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
 
     }
+
+
 }

@@ -29,15 +29,17 @@ public class GenotypeLabelsMapper extends NoMasksLabelMapper<BaseInformationReco
         indices[0] = indexOfRecord;
         for (int labelIndex = 0; labelIndex < 2; labelIndex++) {
             indices[1] = labelIndex;
-            labels.putScalar(indices, produceLabel(record, labelIndex));
+            labels.putScalar(indices, produceLabel(sortedCountRecord, labelIndex));
         }
     }
+    private BaseInformationRecords.BaseInformation sortedCountRecord;
+    private RecordCountSortHelper sortHelper = new RecordCountSortHelper();
 
     @Override
     public float produceLabel(BaseInformationRecords.BaseInformation record, int labelIndex) {
         assert labelIndex == 0 || labelIndex == 1 : "only one label.";
         boolean isCalled;
-
+        record=sortedCountRecord;
         if (genotypeIndex >= record.getSamples(0).getCountsCount()){
             isCalled = false;
         } else {
@@ -50,6 +52,10 @@ public class GenotypeLabelsMapper extends NoMasksLabelMapper<BaseInformationReco
             // second index is 1 when site is not called.
             return !isCalled?1:0;
         }
+    }
+    @Override
+    public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
+        sortedCountRecord = sortHelper.sort(record);
     }
 
 

@@ -20,21 +20,30 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
     @Override
     public void mapLabels(BaseInformationRecords.BaseInformation record, INDArray labels, int indexOfRecord) {
         indices[0] = indexOfRecord;
+
         for (int labelIndex = 0; labelIndex < 11; labelIndex++) {
             indices[1] = labelIndex;
-            labels.putScalar(indices, produceLabel(record, labelIndex));
+            labels.putScalar(indices, produceLabel(sortedCountRecord, labelIndex));
         }
     }
 
     @Override
+    public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
+        sortedCountRecord = sortHelper.sort(record);
+    }
+
+    private BaseInformationRecords.BaseInformation sortedCountRecord;
+    private RecordCountSortHelper sortHelper = new RecordCountSortHelper();
+
+    @Override
     public float produceLabel(BaseInformationRecords.BaseInformation record, int labelIndex) {
 
-
+        record = sortedCountRecord;
         if (!getHomozygous(record)) {
             // this site is heterozygous. The Allele will only be encoded in the other outputs.
             return (labelIndex == 10) ? 1 : 0;
-        }else {
-         // the site is homozygous. The allele is encoded here:
+        } else {
+            // the site is homozygous. The allele is encoded here:
             if (labelIndex >= record.getSamples(0).getCountsCount()) {
                 return 0;
             } else {
@@ -45,6 +54,7 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
 
 
     private boolean getHomozygous(BaseInformationRecords.BaseInformation record) {
+        record = sortedCountRecord;
         //count number of called alleles
         int numAlleles = 0;
         for (int i = 0; i < record.getSamples(0).getCountsCount(); i++) {
