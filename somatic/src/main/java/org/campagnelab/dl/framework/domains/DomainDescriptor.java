@@ -169,12 +169,16 @@ public abstract class DomainDescriptor<RecordType> {
                     if (dsSScore == dsSScore) {
                         // not a NaN
                         score += dsSScore;
+                        nBatch += 1;
                     }
-                    nBatch += 1;
                     nExamples += ds.getFeatures()[0].size(0);
                     if (nExamples > scoreN) break;
                 }
-                return score / nBatch;
+                if (nBatch > 0) {
+                    return score / nBatch;
+                } else {
+                    return Double.NaN;
+                }
             default:
                 throw new IllegalArgumentException("metric name not recognized: " + metricName);
         }
