@@ -1,15 +1,6 @@
 package org.campagnelab.dl.framework.mappers;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
-import org.campagnelab.dl.framework.mappers.MappedDimensions;
-import org.campagnelab.dl.somatic.genotypes.GenotypeCountFactory;
-import org.campagnelab.dl.somatic.mappers.GenotypeCount;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 /**
  * Stripped down version of AbstractFeatureMapper that implements some basic functions, should only be extended by intermediary mappers
