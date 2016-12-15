@@ -901,7 +901,7 @@ public class GenotypeLabelMapperTest {
                     "    isCalled: false\n" +
                     "  }\n" +
                     "  isTumor: true\n" +
-                    "  formattedCounts: \"sample: 0 counts A=0 T=9 C=67 G=5 N=0 FB=0 indels={ [] }\\n\"\n" +
+                    "  formattedCounts: \"sampleIndex: 0 counts A=0 T=9 C=67 G=5 N=0 FB=0 indels={ [] }\\n\"\n" +
                     "}"
     };
     String[][] expectedLabels = {{

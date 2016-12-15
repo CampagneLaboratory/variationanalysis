@@ -66,7 +66,8 @@ public class AddCalls extends AbstractTool<AddCallsArguments> {
                 String[] genotypes = new String[2];
                 String trueGenotype;
                 try {
-                    trueGenotype = chMap.get(chrom).get(position+1);
+                    // The map contains Goby positions (zero-based).
+                    trueGenotype = chMap.get(chrom).get(position);
                     genotypes = trueGenotype.split("|");
                     buildRec.setMutated(true);
                 } catch (NullPointerException e) {
