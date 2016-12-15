@@ -40,7 +40,7 @@ public class HomozygousInterpreter implements PredictionInterpreter<BaseInformat
         }
         try {
             return currentRecord.getSamples(0).getCounts(maxIndex).getToSequence();
-        } catch (NullPointerException e){
+        } catch (IndexOutOfBoundsException e){
             //handle non-homozygous case
             return "";
         }
