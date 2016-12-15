@@ -258,7 +258,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         System.out.println("errorEnrichment=" + args().errorEnrichment);
 
         performanceLogger.setCondition(args().experimentalCondition);
-        int numExamplesUsed = 0;
+        long numExamplesUsed = 0;
         int notImproved = 0;
 
         System.out.flush();
