@@ -32,17 +32,21 @@ public class HomozygousInterpreter implements PredictionInterpreter<BaseInformat
         StringBuffer genotype = new StringBuffer();
         maxProbability = -1;
         int maxIndex = -1;
-        for (int i = 0; i < output.length(); i++) {
-            if (maxProbability < output.getDouble(0,i)){
+        int predictionIndex=0;
+        for (int i = 0; i < 11; i++) {
+            if (maxProbability < output.getDouble(predictionIndex,i)){
                 maxIndex = i;
-                maxProbability = output.getDouble(0,i);
+                maxProbability = output.getDouble(predictionIndex,i);
             }
+        }
+        if (maxIndex>10 ||maxIndex==-1) {
+            return "";
         }
         try {
             return currentRecord.getSamples(0).getCounts(maxIndex).getToSequence();
         } catch (IndexOutOfBoundsException e){
-            //handle non-homozygous case
-            return "";
+            // predicted, but not present in the input features?
+            return "?";
         }
     }
 }
