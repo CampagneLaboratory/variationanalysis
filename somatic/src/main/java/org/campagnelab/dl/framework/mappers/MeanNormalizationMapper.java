@@ -30,6 +30,7 @@ public class MeanNormalizationMapper<RecordType> extends AbstractFeatureMapper1D
         mean=0;
         int count=0;
         for (int i = 0; i < numberOfFeatures(); i++) {
+            delegate.prepareToNormalize(record, i);
             mean+=delegate.produceFeature(record, i);
             count+=1;
         }
