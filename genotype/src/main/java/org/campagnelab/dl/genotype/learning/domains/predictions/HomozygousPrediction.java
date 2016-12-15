@@ -11,7 +11,6 @@ import java.util.Set;
  */
 public class HomozygousPrediction extends Prediction {
 
-
     public Set<String> trueGenotype;
     public String trueGenotypeFormat;
     public String predictedHomozygousGenotype;
@@ -19,7 +18,7 @@ public class HomozygousPrediction extends Prediction {
 
     public <BaseInformation> void inspectRecord(BaseInformationRecords.BaseInformation currentRecord) {
         trueGenotype = getGenotype(currentRecord);
-        trueGenotypeFormat = currentRecord.getTrueGenotype();
+        trueGenotypeFormat = (trueGenotype.size()==0)?"./.":currentRecord.getTrueGenotype();
         return;
     }
 
@@ -28,7 +27,9 @@ public class HomozygousPrediction extends Prediction {
         for (String allele : currentRecord.getTrueGenotype().split("/")){
             alleles.add(allele);
         }
+        alleles.remove("");
+        alleles.remove("?");
+        alleles.remove(".");
         return alleles;
     }
 }
-

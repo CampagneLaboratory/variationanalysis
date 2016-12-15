@@ -93,6 +93,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
                 }
             }
+
             predictedGenotypeFormat = nonHomoGenotype.toString();
             try {
                 predictedGenotypeFormat = predictedGenotypeFormat.substring(0, predictedGenotypeFormat.length() - 1);
@@ -101,8 +102,10 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             }
             predProbability = predProbability/(double)numAlleles;
         }
+        predictedGenotype.remove("");
+        predictedGenotype.remove("?");
+        predictedGenotype.remove(".");
         boolean correct = predictedGenotype.equals(homoPred.trueGenotype);
-
 
         //remove dangling commas
         String correctness = correct ? "correct" : "wrong";

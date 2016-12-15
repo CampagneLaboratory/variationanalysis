@@ -46,7 +46,7 @@ public class HomozygousInterpreter implements PredictionInterpreter<BaseInformat
             return currentRecord.getSamples(0).getCounts(maxIndex).getToSequence();
         } catch (IndexOutOfBoundsException e){
             // predicted, but not present in the input features?
-            return "?";
+            return ".";
         }
     }
 }
