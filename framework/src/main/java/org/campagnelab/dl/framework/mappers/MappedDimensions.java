@@ -29,9 +29,23 @@ public class MappedDimensions {
     public boolean equals(Object obj) {
         if (obj instanceof MappedDimensions) {
             MappedDimensions other = (MappedDimensions) obj;
-            return Arrays.equals(other.dimensions, ((MappedDimensions) obj).dimensions);
+            return Arrays.equals(other.dimensions, dimensions);
         }
         return false;
+    }
+
+    /**
+     * Compare dimension at dimIdx to same dimension in other MappedDimensions
+     *
+     * @param other the other MappedDimensions instance to compare against
+     * @param dimIdx the index of the dimension (1 for first dimension, 2 for 2nd, etc)
+     * @return true if the dimension at dimIdx equals the same dimension in other
+     */
+    public boolean equalsDimension(MappedDimensions other, int dimIdx) {
+        if (dimIdx < 1 || dimIdx > dimensions.length) {
+            throw new IllegalArgumentException("Invalid dimension provided");
+        }
+        return other.dimensions[dimIdx - 1] == dimensions[dimIdx - 1];
     }
 
     /**
@@ -47,6 +61,19 @@ public class MappedDimensions {
             num *= dim;
         }
         return num;
+    }
+
+    /**
+     * Return the number of elements in a tensor with these dimensions, at the dimension specified
+     *
+     * @param dimIdx the index of the dimension (1 for first dimension, 2 for 2nd, etc)
+     * @return Number of elements at dimIdx
+     */
+    public int numElements(int dimIdx) {
+        if (dimIdx < 1 || dimIdx > dimensions.length) {
+            throw new IllegalArgumentException("Invalid dimension provided");
+        }
+        return dimensions[dimIdx - 1];
     }
 
     /**

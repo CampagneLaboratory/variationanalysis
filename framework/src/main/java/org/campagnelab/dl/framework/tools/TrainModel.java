@@ -120,7 +120,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             assembler.setNumOutputs(outputName, domainDescriptor.getNumOutputs(outputName));
             assembler.setLossFunction(outputName, domainDescriptor.getOutputLoss(outputName));
         }
-        for (String componentName : assembler.getOutputNames()) {
+        for (String componentName : assembler.getComponentNames()) {
             assembler.setNumHiddenNodes(componentName, domainDescriptor.getNumHiddenNodes(componentName));
         }
 
@@ -136,11 +136,31 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             ComputationGraph savedGraph = savedNetwork instanceof ComputationGraph ?
                     (ComputationGraph) savedNetwork :
                     null;
-            if (savedNetwork == null || savedGraph.getUpdater() == null || savedGraph.params() == null) {
+            if (savedNetwork == null || savedGraph == null || savedGraph.getUpdater() == null || savedGraph.params() == null) {
                 System.err.println("Unable to load model or updater from " + args().previousModelPath);
             } else {
                 computationGraph.setUpdater(savedGraph.getUpdater());
                 computationGraph.setParams(savedNetwork.params());
+            }
+        } else if (args().pretrainingModelPath != null) {
+            ModelLoader pretrainingLoader = new ModelLoader(args().pretrainingModelPath);
+            Model savedPretrainingNetwork = pretrainingLoader.loadModel(args().pretrainingModelName);
+            ComputationGraph savedPretrainingGraph = savedPretrainingNetwork instanceof ComputationGraph ?
+                    (ComputationGraph) savedPretrainingNetwork :
+                    null;
+            if (savedPretrainingNetwork == null || savedPretrainingGraph == null
+                    || savedPretrainingGraph.getUpdater() == null || savedPretrainingGraph.getLayers() == null) {
+                LOG.warn("Unable to load model for pretraining from {}", args().pretrainingModelPath);
+            } else {
+                computationGraph.setUpdater(savedPretrainingGraph.getUpdater());
+                for (String inputLayer : assembler.getInputNames()) {
+                    computationGraph.getLayer(inputLayer).setParams(
+                            savedPretrainingGraph.getLayer(inputLayer).params());
+                }
+                for (String componentLayer : assembler.getComponentNames()) {
+                    computationGraph.getLayer(componentLayer).setParams(
+                            savedPretrainingGraph.getLayer(componentLayer).params());
+                }
             }
         }
         //Print the  number of parameters in the graph (and for each layer)

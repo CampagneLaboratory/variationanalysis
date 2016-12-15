@@ -101,6 +101,7 @@ public abstract class TrainingArguments extends RecordingToolArguments {
     @Parameter(names = {"--num-errors-added"}, description = "Number of errors added to each mini-batch (only used when training with error enrichment).)")
     public int numErrorsAdded = 16;
 
+
     @Parameter(names = {"--track"}, description = "Track either speed (SPEED) or performance (PERFS). Defaults to tracking performance metrics. Speed is useful to " +
             "optimize mini-batch-size and other factors influencing speed.")
 
@@ -111,6 +112,11 @@ public abstract class TrainingArguments extends RecordingToolArguments {
         PERFS // show performance metric values in console
     }
 
-    ;
+    @Parameter(names = "--pretraining-model-path", description = "If provided, use the pretraining model at pretrainedModelPath to initialize parameters. ")
+    public String pretrainingModelPath = null;
+    @Parameter(names = "--pretraining-model-name", description = "The name of the pretrained model to load to initialize parameters. ")
+    public String pretrainingModelName = "best";
+    @Parameter(names = "--eos-character", description = "If provided, use as EOS character index for alignment. If not, adds EOS to the input vocab. Must be specified if specified during pretraining, and likewise if not. " )
+    public Integer eosIndex = null;
 }
 
