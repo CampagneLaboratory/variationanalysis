@@ -7,7 +7,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Remi Torracinta
  */
 public abstract class AbstractFeatureMapper1D<RecordType > implements FeatureNameMapper<RecordType> {
-    int[] indices=new int[]{0};
+    protected int[] indices=new int[]{0};
     /**
      * This is a slow implementation for intermerdiary mappers to fulfill the requirements of the interface,
      * expecting that produceFeature will be used directly with these mappers.
@@ -16,8 +16,7 @@ public abstract class AbstractFeatureMapper1D<RecordType > implements FeatureNam
      * @param inputs        The features
      * @param indexOfRecord Index of the record in the destination dataset.
      */
-    @Deprecated
-    public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
+     public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
         indices[0] = indexOfRecord;
         inputs.putScalar(indices,produceFeature(record,0));
     }
