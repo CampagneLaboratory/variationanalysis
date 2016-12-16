@@ -7,6 +7,7 @@ import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
+import org.campagnelab.dl.genotype.mappers.GenotypeFeatureMapper;
 import org.campagnelab.dl.genotype.performance.AccuracyHelper;
 import org.campagnelab.dl.genotype.performance.AlleleAccuracyHelper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
@@ -116,39 +117,43 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public LabelMapper getLabelMapper(String outputName) {
-
+        boolean sortCounts=needSortCounts();
 
         switch (outputName) {
             case "A":
-                return new GenotypeLabelsMapper(0);
+                return new GenotypeLabelsMapper(0,sortCounts);
             case "T":
-                return new GenotypeLabelsMapper(1);
+                return new GenotypeLabelsMapper(1,sortCounts);
             case "C":
-                return new GenotypeLabelsMapper(2);
+                return new GenotypeLabelsMapper(2,sortCounts);
             case "G":
-                return new GenotypeLabelsMapper(3);
+                return new GenotypeLabelsMapper(3,sortCounts);
             case "N":
-                return new GenotypeLabelsMapper(4);
+                return new GenotypeLabelsMapper(4,sortCounts);
             case "I1":
-                return new GenotypeLabelsMapper(5);
+                return new GenotypeLabelsMapper(5,sortCounts);
             case "I2":
-                return new GenotypeLabelsMapper(6);
+                return new GenotypeLabelsMapper(6,sortCounts);
             case "I3":
-                return new GenotypeLabelsMapper(7);
+                return new GenotypeLabelsMapper(7,sortCounts);
             case "I4":
-                return new GenotypeLabelsMapper(8);
+                return new GenotypeLabelsMapper(8,sortCounts);
             case "I5":
-                return new GenotypeLabelsMapper(9);
+                return new GenotypeLabelsMapper(9,sortCounts);
             case "homozygous":
-                return new HomozygousLabelsMapper();
+                return new HomozygousLabelsMapper(sortCounts);
             case "genotype":
                 //handle this case for the properties file description
-                return new GenotypeLabelsMapper(0);
+                return new GenotypeLabelsMapper(0,sortCounts);
 
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
 
+    }
+
+    private boolean needSortCounts() {
+        return ((GenotypeFeatureMapper)getFeatureMapper("input")).sortCounts;
     }
 
     @Override

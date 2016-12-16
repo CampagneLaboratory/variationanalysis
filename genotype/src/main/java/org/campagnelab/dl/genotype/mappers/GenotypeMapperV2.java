@@ -15,11 +15,10 @@ import java.util.Properties;
 /**
  * This m
  */
-public class GenotypeMapperV2 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> implements ConfigurableFeatureMapper {
+public class GenotypeMapperV2  extends GenotypeFeatureMapper {
     private NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;
-
 
     /**
      * Configure the feature mapper to map a specific sampleIndex

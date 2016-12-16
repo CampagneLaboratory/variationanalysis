@@ -10,9 +10,15 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Created by rct66 on 12/6/16.
  */
 public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
+    private final boolean sortCounts;
+
     @Override
     public int numberOfLabels() {
         return 11;
+    }
+
+    public HomozygousLabelsMapper(boolean sortCounts) {
+        this.sortCounts=sortCounts;
     }
 
     int[] indices = new int[]{0, 0};
@@ -29,7 +35,11 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
-        sortedCountRecord = sortHelper.sort(record);
+      if (sortCounts) {
+          sortedCountRecord = sortHelper.sort(record);
+      }else {
+          sortedCountRecord=record;
+      }
     }
 
     private BaseInformationRecords.BaseInformation sortedCountRecord;

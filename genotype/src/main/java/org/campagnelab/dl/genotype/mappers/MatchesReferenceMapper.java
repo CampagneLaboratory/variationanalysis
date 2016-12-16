@@ -46,7 +46,7 @@ public class MatchesReferenceMapper extends AbstractFeatureMapper1D<BaseInformat
 
 
     public float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        assert (featureIndex >= 0 && featureIndex < 1) : "This mapper only outputs 1 feature corresponding to one base count";
+        assert (featureIndex >= 0 && featureIndex <= 1) : "This mapper only outputs 1 feature corresponding to one base count";
         BaseInformationRecords.CountInfo genoInfo;
         if (sampleIndex < record.getSamplesCount()) {
             final BaseInformationRecords.SampleInfo sample = record.getSamples(sampleIndex);
