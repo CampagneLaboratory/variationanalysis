@@ -15,7 +15,7 @@ import java.util.Properties;
 /**
  * This m
  */
-public class GenotypeMapperV3 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> implements ConfigurableFeatureMapper {
+public class GenotypeMapperV3 extends GenotypeFeatureMapper  {
     private NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;

@@ -13,13 +13,16 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.Properties;
 
 /**
- * This m
+ * This mapper sorts counts.
  */
-public class GenotypeMapperV4 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> implements ConfigurableFeatureMapper {
+public class GenotypeMapperV4 extends GenotypeFeatureMapper {
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;
 
+    public GenotypeMapperV4() {
+        sortCounts = true;
+    }
 
     /**
      * Configure the feature mapper to map a specific sampleIndex
@@ -27,9 +30,9 @@ public class GenotypeMapperV4 extends NamingConcatFeatureMapper<BaseInformationR
     public void configure(Properties sbiProperties) {
 
         int MAX_GENOTYPES = 3;
-        FeatureNameMapper[] countMappers = new FeatureNameMapper[   MAX_GENOTYPES*2];
-        FeatureNameMapper[] readIndexMappers = new FeatureNameMapper[ MAX_GENOTYPES*2];
-        FeatureNameMapper[] matchesRefMappers = new FeatureNameMapper[ MAX_GENOTYPES];
+        FeatureNameMapper[] countMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
+        FeatureNameMapper[] readIndexMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
+        FeatureNameMapper[] matchesRefMappers = new FeatureNameMapper[MAX_GENOTYPES];
         int genotypeIndex = 0;
 
         for (int i = 0; i < MAX_GENOTYPES; i++) {
