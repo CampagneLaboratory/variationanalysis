@@ -47,7 +47,7 @@ public class AddCalls extends AbstractTool<AddCallsArguments> {
             recordLogger.expectedUpdates = source.numRecords();
             System.out.println(source.numRecords() + " records to label");
             int recordsLabeled = 0;
-            recordloop:
+            recordLogger.start();
             for (BaseInformationRecords.BaseInformation rec : source) {
                 //first, we skip examples where all reads match the reference
                 boolean skip = true;
