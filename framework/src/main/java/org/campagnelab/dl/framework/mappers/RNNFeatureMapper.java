@@ -164,6 +164,12 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
             return 0F;
         }
         int featureInDelegateIdx = featureIndex % featuresPerTimeStep;
+        float feature;
+        try {
+            feature = delegates[delegateIdx].produceFeature(record, featureInDelegateIdx);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            int foo = 1;
+        }
         return delegates[delegateIdx].produceFeature(record, featureInDelegateIdx);
     }
 

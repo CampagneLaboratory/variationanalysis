@@ -4,6 +4,7 @@ import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
@@ -39,11 +40,13 @@ public class TwoDimensionalConcatFeatureMapper<RecordType> implements FeatureMap
     private FeatureMapper<RecordType>[] delegates;
     private int featuresPerTimeStep;
     private int numFeatures;
+    private int[] timeStepOffsets;
     private int[] numFeaturesOffsets;
     private MappedDimensions dim;
     private int[] mapperIndices = new int[]{0, 0, 0};
     private int[] maskerIndices = new int[]{0, 0};
     private int zeroPaddingWidth;
+    private int totalTimeSteps;
 
     /**
      * Creates a concatenating feature mapper from a set of delegate mappers with padding zeros ended
@@ -55,7 +58,9 @@ public class TwoDimensionalConcatFeatureMapper<RecordType> implements FeatureMap
     public TwoDimensionalConcatFeatureMapper(int zeroPaddingWidth, FeatureMapper<RecordType>... delegates) {
         this.zeroPaddingWidth = zeroPaddingWidth;
         MappedDimensions dimensions = delegates[0].dimensions();
+        timeStepOffsets = new int[delegates.length + 1];
         numFeaturesOffsets = new int[delegates.length + 1];
+        timeStepOffsets[0] = 0;
         numFeaturesOffsets[0] = 0;
         int totalTimeSteps = 0;
         numFeatures = 0;
@@ -69,11 +74,13 @@ public class TwoDimensionalConcatFeatureMapper<RecordType> implements FeatureMap
                 throw new RuntimeException("Delegate mappers must have same number of features");
             }
             int delegateTimeSteps = delegate.dimensions().numElements(2);
-            numFeatures += delegate.numberOfFeatures() + delegateTimeSteps * zeroPaddingWidth;
+            numFeatures += delegate.numberOfFeatures();
             totalTimeSteps += delegateTimeSteps;
+            timeStepOffsets[i] = delegateTimeSteps;
             numFeaturesOffsets[i] = numFeatures;
             i++;
         }
+        this.totalTimeSteps = totalTimeSteps;
         featuresPerTimeStep = dimensions.numElements(1);
         this.delegates = delegates;
         dim = new MappedDimensions(featuresPerTimeStep + zeroPaddingWidth, totalTimeSteps);
@@ -90,7 +97,7 @@ public class TwoDimensionalConcatFeatureMapper<RecordType> implements FeatureMap
 
     @Override
     public int numberOfFeatures() {
-        return numFeatures;
+        return numFeatures + (totalTimeSteps * zeroPaddingWidth);
     }
 
     @Override
@@ -114,7 +121,7 @@ public class TwoDimensionalConcatFeatureMapper<RecordType> implements FeatureMap
                 for (int j = 0; j < featuresPerTimeStep + zeroPaddingWidth; j++) {
                     mapperIndices[1] = j;
                     int featureIndex = i * featuresPerTimeStep + j;
-                    float feature = j <= featuresPerTimeStep ? delegate.produceFeature(record, featureIndex) : 0F;
+                    float feature = j < featuresPerTimeStep ? delegate.produceFeature(record, featureIndex) : 0F;
                     inputs.putScalar(mapperIndices, feature);
                 }
                 offset++;
@@ -135,7 +142,7 @@ public class TwoDimensionalConcatFeatureMapper<RecordType> implements FeatureMap
             int numTimeSteps = delegate.dimensions().numElements(2);
             for (int i = 0; i < numTimeSteps; i++) {
                 maskerIndices[1] = offset;
-                mask.putScalar(maskerIndices, delegate.isMasked(record, i * (featuresPerTimeStep + zeroPaddingWidth)) ? 1F : 0F);
+                mask.putScalar(maskerIndices, delegate.isMasked(record, i * featuresPerTimeStep) ? 1F : 0F);
                 offset++;
             }
         }
@@ -143,23 +150,34 @@ public class TwoDimensionalConcatFeatureMapper<RecordType> implements FeatureMap
 
     @Override
     public boolean isMasked(RecordType record, int featureIndex) {
-        int indexOfDelegate = Arrays.binarySearch(numFeaturesOffsets, featureIndex);
+        int timeStepIndex = featureIndex / (featuresPerTimeStep + zeroPaddingWidth);
+        int featureInTimeStepIndex = featureIndex % (featuresPerTimeStep + zeroPaddingWidth);
+        int newFeatureIndex = timeStepIndex * featuresPerTimeStep + featureInTimeStepIndex;
+        int indexOfDelegate = Arrays.binarySearch(timeStepOffsets, timeStepIndex);
         if (indexOfDelegate < 0) {
             indexOfDelegate = -(indexOfDelegate + 1) - 1;
         }
         return delegates[indexOfDelegate].isMasked(record,
-                featureIndex - numFeaturesOffsets[indexOfDelegate]);
+                newFeatureIndex - numFeaturesOffsets[indexOfDelegate]);
     }
 
     @Override
     public float produceFeature(RecordType record, int featureIndex) {
-        int indexOfDelegate = Arrays.binarySearch(numFeaturesOffsets, featureIndex);
+        int timeStepIndex = featureIndex / (featuresPerTimeStep + zeroPaddingWidth);
+        int featureInTimeStepIndex = featureIndex % (featuresPerTimeStep + zeroPaddingWidth);
+        int newFeatureIndex = timeStepIndex * featuresPerTimeStep + featureInTimeStepIndex;
+        int indexOfDelegate = Arrays.binarySearch(timeStepOffsets, newFeatureIndex);
         if (indexOfDelegate < 0) {
             indexOfDelegate = -(indexOfDelegate + 1) - 1;
         }
-        float feature = delegates[indexOfDelegate].produceFeature(record,
-                featureIndex - numFeaturesOffsets[indexOfDelegate]);
-        boolean validFeature = featureIndex % (featuresPerTimeStep + zeroPaddingWidth) <= featuresPerTimeStep;
-        return validFeature ? feature : 0F;
+        boolean validFeature = featureInTimeStepIndex < featuresPerTimeStep;
+        try {
+            Object a = delegates[indexOfDelegate];
+            int b = timeStepOffsets[indexOfDelegate];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            int c = 1;
+        }
+        return validFeature ? delegates[indexOfDelegate].produceFeature(record,
+                newFeatureIndex - numFeaturesOffsets[indexOfDelegate]) : 0F;
     }
 }

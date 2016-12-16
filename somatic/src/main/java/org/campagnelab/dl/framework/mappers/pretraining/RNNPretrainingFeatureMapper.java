@@ -41,24 +41,19 @@ public class RNNPretrainingFeatureMapper<RecordType> implements FeatureMapper<Re
         if (domainDimensions.numDimensions() != 2) {
             throw new IllegalArgumentException("Mapper must map two dimensional features");
         }
-        int numTimeSteps = domainDimensions.numElements(2);
         int featuresPerTimeStep = domainDimensions.numElements(1);
         if (eosIndex != null && eosIndex > featuresPerTimeStep) {
             throw new IllegalArgumentException(String.format("Invalid EOS index %d greater than number of features %d",
                     eosIndex, featuresPerTimeStep));
         }
         int sequenceMapperPadding = (eosIndex != null && eosIndex == featuresPerTimeStep) || eosIndex == null ? 1 : 0;
-//        FeatureMapper<RecordType> sequenceMapper = new TwoDimensionalConcatFeatureMapper<>(sequenceMapperPadding,
-//                domainMapper);
-        FeatureMapper<RecordType> sequenceMapper = new TwoDimensionalConcatFeatureMapper<>(1,
+        FeatureMapper<RecordType> sequenceMapper = new TwoDimensionalConcatFeatureMapper<>(sequenceMapperPadding,
                 domainMapper);
         FeatureMapper<RecordType> eosMapper = createEosMapper(eosIndex,
                 featuresPerTimeStep, recordToSequenceLength, LOG);
-//        delegate = new TwoDimensionalRemoveMaskFeatureMapper<>(
-//                new TwoDimensionalConcatFeatureMapper<>(sequenceMapper, eosMapper, sequenceMapper));
-//        delegate = new TwoDimensionalRemoveMaskFeatureMapper<>(
-//                new TwoDimensionalConcatFeatureMapper<>(sequenceMapper, sequenceMapper));
-        delegate = sequenceMapper;
+        delegate = new TwoDimensionalRemoveMaskFeatureMapper<>(new TwoDimensionalConcatFeatureMapper<>(sequenceMapper, sequenceMapper));
+//        delegate = new TwoDimensionalConcatFeatureMapper<>(sequenceMapper, sequenceMapper);
+//        delegate = new TwoDimensionalConcatFeatureMapper<>(sequenceMapper, eosMapper, sequenceMapper);
     }
 
     @Override
