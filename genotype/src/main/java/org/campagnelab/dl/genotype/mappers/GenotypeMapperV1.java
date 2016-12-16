@@ -21,6 +21,9 @@ public class GenotypeMapperV1  extends GenotypeFeatureMapper{
     private int sampleIndex = 0;
 
 
+    public GenotypeMapperV1() {
+        sortCounts = false;
+    }
 
     /**
      * Configure the feature mapper to map a specific sampleIndex

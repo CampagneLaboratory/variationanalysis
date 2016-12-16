@@ -31,6 +31,10 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     int numCorrect;
     int numProcessed;
+    int numTruePositive;
+    int numTrueNegative;
+    int numFalsePositive;
+    int numFalseNegative;
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
@@ -41,23 +45,32 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     protected void initializeStats(String prefix) {
         numCorrect = 0;
         numProcessed = 0;
+        numTruePositive = 0;
+        numTrueNegative = 0;
+        numFalsePositive = 0;
+        numFalseNegative = 0;
     }
 
 
 
     @Override
     protected double[] createOutputStatistics() {
-        return new double[]{numCorrect/(double)numProcessed};
+        double accuracy = numCorrect/(double)numProcessed;
+        double recall = numTruePositive/((double)(numTruePositive+numFalseNegative));
+        double precision = numTruePositive/((double)(numTruePositive+numFalsePositive));
+        double F1 = precision*recall/(precision+recall);
+        return new double[]{accuracy,recall,precision,F1};
     }
 
     @Override
     protected String[] createOutputHeader() {
-        return new String[]{"accuracy"};
+        return new String[]{"accuracy","sensitivity(recall)","PPV(precision)","F1"};
     }
 
     @Override
     protected void reportStatistics(String prefix) {
         System.out.println("Accuracy on " + prefix + "=" + numCorrect/(double)numProcessed);
+        //TODO: print other statistics
     }
 
     @Override
@@ -116,7 +129,18 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                 numProcessed++;
                 if (correct) {
                     numCorrect++;
-                };
+                    if (homoPred.isVariant) {
+                        numTruePositive++;
+                    } else {
+                        numTrueNegative++;
+                    }
+                } else {
+                    if (homoPred.isVariant) {
+                        numFalseNegative++;
+                    } else {
+                        numFalsePositive++;
+                    }
+                }
             }
         }
         //convert true label to the convention used by auc calculator: negative true label=labelNo.

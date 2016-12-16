@@ -8,9 +8,14 @@ import java.util.Set;
 
 /**
  * Created by rct66 on 11/12/16.
+ * Although this is called the homozygous prediction, the trueGenotypeFormat sting may be heterozygous
+ * Homozygous refers only prediction, not the true label.
  */
 public class HomozygousPrediction extends Prediction {
 
+    //todo: fill these bools, they will be used for statistics like sensitivity.
+    public boolean isVariant;
+    public boolean isIndel;
     public Set<String> trueGenotype;
     public String trueGenotypeFormat;
     public String predictedHomozygousGenotype;
@@ -19,6 +24,8 @@ public class HomozygousPrediction extends Prediction {
     public <BaseInformation> void inspectRecord(BaseInformationRecords.BaseInformation currentRecord) {
         trueGenotype = getGenotype(currentRecord);
         trueGenotypeFormat = (trueGenotype.size()==0)?"./.":currentRecord.getTrueGenotype();
+        isVariant = currentRecord.getSamples(0).hasIsVariant()?currentRecord.getSamples(0).getIsVariant():false;
+        isIndel = trueGenotype.contains("-");
         return;
     }
 

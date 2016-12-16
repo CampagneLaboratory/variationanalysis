@@ -65,13 +65,13 @@ public class AddCalls extends AbstractTool<AddCallsArguments> {
                 String chrom = buildRec.getReferenceId();
                 String[] genotypes = new String[2];
                 String trueGenotype;
+                boolean isVariant = false;
                 try {
                     // The map contains Goby positions (zero-based).
                     trueGenotype = chMap.get(chrom).get(position);
                     genotypes = trueGenotype.split("|");
                     //todo don't use ismutated
-
-                    buildRec.setMutated(true);
+                    isVariant = true;
                 } catch (NullPointerException e) {
                     String referenceBase = buildRec.getReferenceBase();
                     trueGenotype = referenceBase+"|"+referenceBase;
@@ -86,6 +86,7 @@ public class AddCalls extends AbstractTool<AddCallsArguments> {
                     count.setIsCalled(isCalled);
                     buildSample.setCounts(i,count);
                 }
+                buildSample.setIsVariant(isVariant);
                 buildRec.setSamples(sampleIndex,buildSample.build());
                 dest.appendEntry(buildRec.build());
                 recordLogger.update();
