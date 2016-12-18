@@ -62,7 +62,7 @@ public class Randomize extends AbstractTool<RandomizerArguments> {
 
             //set up logger
             ProgressLogger pgRead = new ProgressLogger(LOG);
-            pgRead.itemsName = "read";
+            pgRead.itemsName = "sites";
             pgRead.expectedUpdates = totalRecords;
             pgRead.displayFreeMemory = true;
             pgRead.start();
