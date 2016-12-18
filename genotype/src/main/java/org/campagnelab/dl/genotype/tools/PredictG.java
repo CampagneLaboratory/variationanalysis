@@ -24,7 +24,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     public static void main(String[] args) {
 
         Predict predict = new PredictG();
-        predict.parseArguments(args, "PredictS", predict.createArguments());
+        predict.parseArguments(args, "PredictG", predict.createArguments());
         predict.execute();
     }
 
