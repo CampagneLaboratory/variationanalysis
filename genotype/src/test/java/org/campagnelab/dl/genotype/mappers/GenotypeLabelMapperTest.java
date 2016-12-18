@@ -27,10 +27,9 @@ public class GenotypeLabelMapperTest {
             for (int i = 0; i < 10; i++){
                 GenotypeLabelsMapper calculator = new GenotypeLabelsMapper(i,false);
                 INDArray inputs = Nd4j.zeros(ArrayUtils.addAll(new int[]{1}, calculator.dimensions().dimensions));
+                calculator.prepareToNormalize(builder.build(),0);
                 calculator.mapLabels(builder.build(),inputs,0);
                 assertEquals(expectedLabels[index][i], inputs.toString());
-
-
             }
             index++;
 
