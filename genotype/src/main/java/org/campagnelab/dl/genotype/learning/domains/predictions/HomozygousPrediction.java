@@ -25,10 +25,10 @@ public class HomozygousPrediction extends Prediction {
      */
     public boolean isHomozygous;
 
-    public <BaseInformation> void inspectRecord(BaseInformationRecords.BaseInformation currentRecord) {
+    public void inspectRecord(BaseInformationRecords.BaseInformation currentRecord) {
         trueGenotype = getGenotype(currentRecord);
         trueGenotypeFormat = (trueGenotype.size()==0)?"./.":currentRecord.getTrueGenotype();
-        isVariant = currentRecord.getSamples(0).hasIsVariant()?currentRecord.getSamples(0).getIsVariant():false;
+        isVariant = currentRecord.getSamples(0).hasIsVariant() && currentRecord.getSamples(0).getIsVariant();
         isIndel = trueGenotype.contains("-");
         return;
     }
