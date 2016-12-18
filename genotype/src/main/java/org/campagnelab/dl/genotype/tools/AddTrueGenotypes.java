@@ -21,15 +21,15 @@ import java.io.IOException;
  *
  * @author rct66
  */
-public class AddCalls extends AbstractTool<AddCallsArguments> {
+public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
 
 
-    static private Logger LOG = LoggerFactory.getLogger(AddCalls.class);
+    static private Logger LOG = LoggerFactory.getLogger(AddTrueGenotypes.class);
 
     public static void main(String[] args) {
 
-        AddCalls tool = new AddCalls();
-        tool.parseArguments(args, "AddCalls", tool.createArguments());
+        AddTrueGenotypes tool = new AddTrueGenotypes();
+        tool.parseArguments(args, "AddTrueGenotypes", tool.createArguments());
         tool.execute();
     }
 
@@ -102,8 +102,8 @@ public class AddCalls extends AbstractTool<AddCallsArguments> {
 
 
     @Override
-    public AddCallsArguments createArguments() {
-        return new AddCallsArguments();
+    public AddTrueGenotypesArguments createArguments() {
+        return new AddTrueGenotypesArguments();
     }
 
 

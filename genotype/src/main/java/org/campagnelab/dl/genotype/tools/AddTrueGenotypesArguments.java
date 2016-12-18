@@ -5,11 +5,11 @@ import com.beust.jcommander.Parameters;
 import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
 
 /**
- * Arguments for AddCalls.
+ * Arguments for AddTrueGenotypes.
  */
 @Parameters(commandDescription = "Add calls from mapped vcf to sbi/sbip files.")
 
-public class AddCallsArguments implements ToolArguments {
+public class AddTrueGenotypesArguments implements ToolArguments {
     @Parameter(required = true, names = {"-i", "--input-filename"}, description = "Input files in .bsi/.bsip format.")
     public String inputFile;
 
