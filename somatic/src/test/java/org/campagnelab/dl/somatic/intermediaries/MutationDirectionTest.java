@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static org.testng.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test the mutator on some specific examples.
@@ -18,19 +18,19 @@ public class MutationDirectionTest {
         FirstSimulationStrategy.MutationDirection dir = null;
 
         dir = strategy.dirFromCounts(0, new int[]{50, 0, 0, 50});
-        assertEquals(delta, dir.somaticFrequency, "somaticFrequency must match");
+        assertEquals("somaticFrequency must match",delta, dir.somaticFrequency, 0.1);
 
         dir = strategy.dirFromCounts(0,new int[]{80, 20, 0, 0});
-        assertEquals(delta, dir.somaticFrequency, "somaticFrequency must match");
+        assertEquals("somaticFrequency must match",delta, dir.somaticFrequency,0.1 );
 
         dir = strategy.dirFromCounts(0, new int[]{80, 20, 3, 1});
-        assertEquals(delta, dir.somaticFrequency, "somaticFrequency must match");
+        assertEquals("somaticFrequency must match",delta, dir.somaticFrequency,0.1);
 
         dir = strategy.dirFromCounts(0,new int[]{90, 1, 1, 1});
-        assertEquals(delta , dir.somaticFrequency, "somaticFrequency must match");
+        assertEquals("somaticFrequency must match",delta , dir.somaticFrequency, 0.1);
 
         dir = strategy.dirFromCounts(0,new int[]{0, 3, 1, 100});
-        assertEquals(delta , dir.somaticFrequency, "somaticFrequency must match");
+        assertEquals("somaticFrequency must match", delta , dir.somaticFrequency, 0.1);
     }
 
     @Test
