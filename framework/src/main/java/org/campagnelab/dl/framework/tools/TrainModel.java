@@ -344,7 +344,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             if (!Double.isNaN(bestValue) &&
                     (perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
                     (!perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue < bestValue)) {
-                saver.saveModel(computationGraph, "bestAUC");
+                saver.saveModel(computationGraph, "best"+validationMetricName);
                 bestValue = validationMetricValue;
 
                 performanceLogger.logMetrics(bestMetricName, numExamplesUsed, epoch, metricValues.toDoubleArray());
@@ -414,17 +414,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
     }
 
-
-    private void writeBestAUC(double bestAUC) {
-        try {
-            FileWriter scoreWriter = new FileWriter(directory + "/bestAUC");
-            scoreWriter.append(Double.toString(bestAUC));
-            scoreWriter.close();
-        } catch (IOException e) {
-
-        }
-
-    }
 
 
 }
