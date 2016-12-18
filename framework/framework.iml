@@ -43,10 +43,6 @@
     <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:macosx-x86_64:8.0-1.2" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:windows-x86_64:8.0-1.2" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:linux-ppc64le:8.0-1.2" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.ant:ant:1.9.4" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.ant:ant-launcher:1.9.4" level="project" />
-    <orderEntry type="library" name="Maven: com.github.samtools:htsjdk:2.8.1" level="project" />
-    <orderEntry type="library" name="Maven: gov.nih.nlm.ncbi:ngs-java:1.2.4" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-platform:0.7.1" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:0.7.1" level="project" />
