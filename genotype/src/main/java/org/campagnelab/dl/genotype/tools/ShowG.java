@@ -3,7 +3,6 @@ package org.campagnelab.dl.genotype.tools;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.tools.Show;
 import org.campagnelab.dl.genotype.learning.domains.GenotypeDomainDescriptor;
-import org.campagnelab.dl.somatic.tools.SomaticShowArguments;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.function.Function;

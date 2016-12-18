@@ -2,10 +2,7 @@ package org.campagnelab.dl.somatic.tools;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
-
-import java.util.List;
 
 /**
  * Created by fac2003 on 11/22/16.

@@ -4,9 +4,6 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
 import org.campagnelab.dl.somatic.intermediaries.OneSampleCanonicalSimulationStrategy;
-import org.campagnelab.dl.somatic.intermediaries.TwoSampleCanonicalSimulationStrategy;
-
-import java.util.List;
 
 /**
  * Created by rct66 on 11/14/16.

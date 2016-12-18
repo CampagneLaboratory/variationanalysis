@@ -4,7 +4,6 @@ import org.campagnelab.dl.framework.iterators.MappedFeaturesIterator;
 import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.somatic.tools.MapFeatures;
-import org.campagnelab.dl.framework.tools.MapFeaturesArguments;
 import org.campagnelab.dl.somatic.tools.SomaticMapFeaturesArguments;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;

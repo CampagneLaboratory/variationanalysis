@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.compress.utils.IOUtils;
-import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.intermediaries.QuickConcatArguments;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;

@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.io.FastBufferedOutputStream;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
-import org.campagnelab.dl.framework.tools.MapFeaturesArguments;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;

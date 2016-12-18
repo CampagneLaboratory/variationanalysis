@@ -1,6 +1,5 @@
 package org.campagnelab.dl.genotype.mappers;
 
-import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
 import org.campagnelab.dl.framework.mappers.MeanNormalizationMapper;
 import org.campagnelab.dl.somatic.mappers.DensityMapper;

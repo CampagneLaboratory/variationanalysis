@@ -11,11 +11,14 @@ the GPU maven profile to compile a CUDA version on the appropriate hardware.
 - A tool to train DL models for calling somatic variations. An example
 of using the framework for a specific domain.
 
-We provided a [tutorial](./SOMATIC-TUTORIAL.md) for the somatic calling models.
+We provide a [tutorial](./SOMATIC-TUTORIAL.md) for the somatic calling models.
 It is strongly recommended that you read the tutorial at this time. It
 demonstrates an end-to-end application where we collect data, train a model,
 and use it in an application. The domain is genomics, but you will get an idea
 how the framework can help with deep learning projects.
+
+A [second tutorial](./GENOTYPE-TUTORIAL.md) describes how to train genotype models. Note that this feature
+is an early preview.
 
 Two of the tools demonstrated in the tutorial have been developed with
 the framework:

@@ -1,6 +1,5 @@
 package org.campagnelab.dl.somatic.tools;
 
-import org.campagnelab.dl.framework.tools.MapFeaturesArguments;
 import org.campagnelab.dl.framework.iterators.MappedFeaturesIterator;
 import org.campagnelab.dl.somatic.mappers.IndelFeatures;
 import org.junit.Test;
