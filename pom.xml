@@ -282,7 +282,7 @@
         <dependency>
             <groupId>org.campagnelab.goby</groupId>
             <artifactId>goby-io</artifactId>
-            <version>3.1</version>
+            <version>3.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
