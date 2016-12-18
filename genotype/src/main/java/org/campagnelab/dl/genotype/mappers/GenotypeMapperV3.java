@@ -13,7 +13,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.Properties;
 
 /**
- * This m
+ * Third feature mapper. Adds features about whether a genotype matches the reference.
  */
 public class GenotypeMapperV3 extends GenotypeFeatureMapper  {
     private NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
