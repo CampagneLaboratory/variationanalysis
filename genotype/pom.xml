@@ -53,6 +53,14 @@
         </profile>
     </profiles>
     <build>
+        <resources>
+        <resource>
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>META-INF/**</include>
+            </includes>
+        </resource>
+        </resources>
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -115,6 +123,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.0.2</version>
+
                 <configuration>
                     <archive>
                         <manifest>

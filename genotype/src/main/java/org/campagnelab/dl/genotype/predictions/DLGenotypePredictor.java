@@ -6,7 +6,6 @@ import org.campagnelab.goby.algorithmic.dsv.SampleCountInfo;
 import org.campagnelab.goby.predictions.GenotypePredictor;
 import org.campagnelab.goby.predictions.Predictor;
 import org.campagnelab.goby.reads.RandomAccessSequenceInterface;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 
@@ -57,12 +56,12 @@ public class DLGenotypePredictor implements GenotypePredictor, Predictor {
 
     @Override
     public double probabilityGenotypeIsCalled(int genotypeIndex) {
-        throw new NotImplementedException();
+        throw new NoSuchMethodError();
     }
 
     @Override
     public double probabilityGenotypeIsNotCalled(int genotypeIndex) {
-        throw new NotImplementedException();
+        throw new NoSuchMethodError();
     }
 
     @Override
