@@ -8,9 +8,17 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
  */
 public class SingleGenotypePrediction extends Prediction {
 
-
+    /**
+     * The allele called/predicted to be present in the sample. e.g., "A" or "A--"
+     */
     public String predictedSingleGenotype;
+    /**
+     * The probability the allele is present, given the model and the data.
+     */
     public double probabilityIsCalled;
+    /**
+     * Whether the allele is present in the ground-truth data.
+     */
     public boolean trueIsCalled;
 
 

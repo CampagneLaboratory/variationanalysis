@@ -20,6 +20,10 @@ public class HomozygousPrediction extends Prediction {
     public String trueGenotypeFormat;
     public String predictedHomozygousGenotype;
     public double probability;
+    /**
+     * True when the model predicts the site to be homozygous. False when the model predicts het.
+     */
+    public boolean isHomozygous;
 
     public <BaseInformation> void inspectRecord(BaseInformationRecords.BaseInformation currentRecord) {
         trueGenotype = getGenotype(currentRecord);

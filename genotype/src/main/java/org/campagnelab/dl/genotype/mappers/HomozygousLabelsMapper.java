@@ -6,7 +6,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
- * A label that informs if the site is homozygote (label index 11), or indicates the genotype called
+ * A label that informs if the site is heterozygote (label index 10), or indicates the homozygous genotype called (indices 0-9).
  * Created by rct66 on 12/6/16.
  */
 public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
@@ -51,7 +51,7 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
         record = sortedCountRecord;
         if (!getHomozygous(record)) {
             // this site is heterozygous. The Allele will only be encoded in the other outputs.
-            return (labelIndex == 10) ? 1 : 0;
+            return (labelIndex == 10/**last index */) ? 1 : 0;
         } else {
             // the site is homozygous. The allele is encoded here:
             if (labelIndex >= record.getSamples(0).getCountsCount()) {
