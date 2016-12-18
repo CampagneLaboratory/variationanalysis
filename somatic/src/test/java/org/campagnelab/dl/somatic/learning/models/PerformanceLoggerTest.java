@@ -4,7 +4,8 @@ import org.campagnelab.dl.framework.performance.Metric;
 import org.campagnelab.dl.framework.performance.PerformanceLogger;
 import org.junit.Test;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * Created by fac2003 on 7/24/16.
@@ -49,9 +50,9 @@ public class PerformanceLoggerTest {
         logger.logMetrics("best",1,0,0.3, 0.8);
         logger.logMetrics("best",2,1,0.3, 0.9);
 
-        assertEquals(0.9,logger.getBest("AUC"));
-        assertEquals(1,logger.getBestEpoch("best"));
-        assertEquals(0.3,logger.getBest("score"));
+        assertEquals(0.9,logger.getBest("AUC"),0.001);
+        assertEquals(1,logger.getBestEpoch("best"),0.001);
+        assertEquals(0.3,logger.getBest("score"),0.001);
         logger.write("best");
     }
 
