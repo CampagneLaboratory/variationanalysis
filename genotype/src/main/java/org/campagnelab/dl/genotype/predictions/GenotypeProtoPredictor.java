@@ -16,12 +16,12 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 public class GenotypeProtoPredictor {
 
-    private static int  HOMOZYGOUS_OUTPUT_INDEX;
+    private static int HOMOZYGOUS_OUTPUT_INDEX;
     private final DomainDescriptor domainDescriptor;
     private final Model model;
     private final FeatureMapper mapper;
     private HomozygousInterpreter isHomozygous;
-    private SingleGenotypeInterpreter[] singleGenotypeInterpreters  ;
+    private SingleGenotypeInterpreter[] singleGenotypeInterpreters;
     private int[] singleGenotypeOutputIndices;
     private ModelOutputHelper outputHelper;
 
@@ -32,17 +32,20 @@ public class GenotypeProtoPredictor {
         this.outputHelper = new ModelOutputHelper();
         String[] outputNames = domainDescriptor.getComputationalGraph().getOutputNames();
 
-        singleGenotypeOutputIndices=new int[outputNames.length-1];
+        singleGenotypeOutputIndices = new int[outputNames.length - 1];
+        singleGenotypeInterpreters = new SingleGenotypeInterpreter[outputNames.length - 1];
         int outputIndex = 0;
         int singleGenotypeOutputIndex = 0;
         for (String outputName : outputNames) {
             switch (outputName) {
                 case "homozygous":
                     isHomozygous = (HomozygousInterpreter) domainDescriptor.getPredictionInterpreter("homozygous");
-                    HOMOZYGOUS_OUTPUT_INDEX=outputIndex++;
+                    HOMOZYGOUS_OUTPUT_INDEX = outputIndex++;
+                    break;
                 default:
-                    singleGenotypeOutputIndices[singleGenotypeOutputIndex]=outputIndex;
+                    singleGenotypeOutputIndices[singleGenotypeOutputIndex] = outputIndex;
                     singleGenotypeInterpreters[singleGenotypeOutputIndex++] = (SingleGenotypeInterpreter) domainDescriptor.getPredictionInterpreter(outputName);
+                    break;
             }
         }
     }
@@ -55,10 +58,10 @@ public class GenotypeProtoPredictor {
         outputHelper.predictForNextRecord(model, record, mapper);
 
         HomozygousPrediction homozygousPrediction = isHomozygous.interpret(record, outputHelper.getOutput(HOMOZYGOUS_OUTPUT_INDEX));
-        SingleGenotypePrediction[] singleGenotypePredictions=new SingleGenotypePrediction[singleGenotypeOutputIndices.length];
-        int i=0;
-        for (int singleGenotypeIndex: singleGenotypeOutputIndices){
-            singleGenotypePredictions[i]=singleGenotypeInterpreters[i].interpret(record, outputHelper.getOutput(singleGenotypeIndex));
+        SingleGenotypePrediction[] singleGenotypePredictions = new SingleGenotypePrediction[singleGenotypeOutputIndices.length];
+        int i = 0;
+        for (int singleGenotypeIndex : singleGenotypeOutputIndices) {
+            singleGenotypePredictions[i] = singleGenotypeInterpreters[i].interpret(record, outputHelper.getOutput(singleGenotypeIndex));
             i++;
         }
         prediction.set(homozygousPrediction, singleGenotypePredictions);
