@@ -39,6 +39,8 @@ public class GenotypePrediction {
             int genotypeIndex = 0;
             double predProbability = 0;
             StringBuffer hetGenotype = new StringBuffer();
+            probabilityGenotypeCalled=new double[singleGenotypePredictions.length];
+            probabilityGenotypeNotCalled=new double[singleGenotypePredictions.length];
             for (SingleGenotypePrediction singleGenotypePrediction : singleGenotypePredictions) {
                 probabilityGenotypeCalled[genotypeIndex] = singleGenotypePrediction.probabilityIsCalled;
                 probabilityGenotypeNotCalled[genotypeIndex] = 1 - singleGenotypePrediction.probabilityIsCalled;
