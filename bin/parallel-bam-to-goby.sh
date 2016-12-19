@@ -2,6 +2,7 @@
 . `dirname "${BASH_SOURCE[0]}"`/setup.sh
 
 assertGobyInstalled
+assertParallelInstalled
 
 ALIGNMENTS="$*"
 if [ "$#" -eq 1 ]; then
