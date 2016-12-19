@@ -36,4 +36,4 @@ echo " discover-sequence-variants -n 1 -t 1 --genome  ${SBI_GENOME} --format  SE
 cut -f3,6 slices  | awk 'BEGIN{count=1} {print "-s "$1" -e " $2" -o out-part-"(count++)}' >boundaries
 parallel -j2 --plus  --progress goby ${memory_requirement}  `cat command.txt`  :::: boundaries
 
-concat.sh ${memory_requirement} -i out-part-*.sbi -o out-concat.sbi
+concat.sh ${memory_requirement} -i out-part-*.sbi -o ${OUTPUT_BASENAME}.sbi
