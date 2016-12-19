@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.learning.domains.predictions;
 
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
+import org.campagnelab.dl.genotype.mappers.HomozygousLabelsMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -29,23 +30,23 @@ public class HomozygousInterpreter implements PredictionInterpreter<BaseInformat
         pred.inspectRecord(record);
         pred.predictedHomozygousGenotype = getHomozygousPrediction(record, output);
         pred.probability = maxProbability;
-        pred.isHomozygous =(maxIndex!=10); // max probability on an isHomozygous site.
+        pred.isHomozygous = (maxIndex != HomozygousLabelsMapper.IS_HETEROZYGOUS_INDEX); // max probability on an isHomozygous site.
         return pred;
     }
 
     public String getHomozygousPrediction(BaseInformationRecords.BaseInformation currentRecord, INDArray output) {
-        StringBuffer genotype = new StringBuffer();
         maxProbability = -1;
         maxIndex = -1;
         int predictionIndex = 0;
-        for (int i = 0; i < 11; i++) {
+        for (int i = 0; i < HomozygousLabelsMapper.NUM_LABELS; i++) {
             double outputDouble = output.getDouble(predictionIndex, i);
             if (maxProbability < outputDouble) {
                 maxIndex = i;
                 maxProbability = outputDouble;
             }
         }
-        if (maxIndex > 10 || maxIndex == -1) {
+        if (maxIndex >= HomozygousLabelsMapper.IS_HETEROZYGOUS_INDEX || maxIndex == -1) {
+            // site predicted heterozygous, or probabilities negative.
             return "";
         }
         try {
