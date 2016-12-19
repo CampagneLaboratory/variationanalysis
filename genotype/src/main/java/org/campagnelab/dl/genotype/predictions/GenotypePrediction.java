@@ -64,8 +64,14 @@ public class GenotypePrediction {
     }
 
     public boolean isCorrect(){
-        Set<String> predictedAlleles = new ObjectArraySet<String>(calledGenotype.split("/"));
-        Set<String> trueAlleles = new ObjectArraySet<String>(trueGenotype.split("/"));
+        Set<String> predictedAlleles = new ObjectArraySet<>();
+        for (String s : calledGenotype.split("/")){
+            predictedAlleles.add(s);
+        }
+        Set<String> trueAlleles = new ObjectArraySet<>();
+        for (String s : trueGenotype.split("/")){
+            trueAlleles.add(s);
+        }
         Set<String> toIgnore = new ObjectArraySet<String>(new String[]{"?",".",""});
         predictedAlleles.removeAll(toIgnore);
         trueAlleles.removeAll(toIgnore);

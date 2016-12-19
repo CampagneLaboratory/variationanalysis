@@ -37,6 +37,11 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     int numFalsePositive;
     int numFalseNegative;
 
+    double accuracy;
+    double recall;
+    double precision;
+    double F1;
+
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
         resutsWriter.append("index\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness").append("\n");
@@ -56,10 +61,10 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected double[] createOutputStatistics() {
-        double accuracy = numCorrect/(double)numProcessed;
-        double recall = numTruePositive/((double)(numTruePositive+numFalseNegative));
-        double precision = numTruePositive/((double)(numTruePositive+numFalsePositive));
-        double F1 = precision*recall/(precision+recall);
+        accuracy = numCorrect/(double)numProcessed;
+        recall = numTruePositive/((double)(numTruePositive+numFalseNegative));
+        precision = numTruePositive/((double)(numTruePositive+numFalsePositive));
+        F1 = precision*recall/(precision+recall);
         return new double[]{accuracy,recall,precision,F1};
     }
 
@@ -70,8 +75,10 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void reportStatistics(String prefix) {
-        System.out.println("Accuracy on " + prefix + "=" + numCorrect/(double)numProcessed);
-        //TODO: print other statistics
+        System.out.println("Accuracy on " + prefix + "=" + accuracy);
+        System.out.println("Recall on " + prefix + "=" + recall);
+        System.out.println("Precision on " + prefix + "=" + precision);
+        System.out.println("F1 on " + prefix + "=" + F1);
     }
 
     @Override
@@ -111,7 +118,18 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             numProcessed++;
             if (correct) {
                 numCorrect++;
-            };
+                if (homoPred.isVariant) {
+                    numTruePositive++;
+                } else {
+                    numTrueNegative++;
+                }
+            } else {
+                if (homoPred.isVariant) {
+                    numFalseNegative++;
+                } else {
+                    numFalsePositive++;
+                }
+            }
         }
     }
 
