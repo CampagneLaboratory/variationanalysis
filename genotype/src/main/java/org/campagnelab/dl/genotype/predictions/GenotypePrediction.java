@@ -37,7 +37,7 @@ public class GenotypePrediction {
         this.singleGenotypePredictions = singleGenotypePredictions;
         this.trueGenotype = homozygousPrediction.trueGenotypeFormat;
         if (homozygousPrediction.isHomozygous) {
-            calledGenotype = homozygousPrediction.predictedHomozygousGenotype;
+            calledGenotype = homozygousPrediction.predictedHomozygousGenotype + "/" + homozygousPrediction.predictedHomozygousGenotype;
             overallProbability = homozygousPrediction.probability;
         } else {
             int genotypeIndex = 0;
