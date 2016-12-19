@@ -1,7 +1,5 @@
 package org.campagnelab.dl.framework.mappers;
 
-import org.campagnelab.dl.framework.mappers.LabelMapper;
-import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Arrays;
@@ -39,12 +37,13 @@ public class TwoDimensionalConcatLabelMapper<RecordType> implements LabelMapper<
     private LabelMapper<RecordType>[] delegates;
     private int labelsPerTimeStep;
     private int numLabels;
+    private int[] timeStepOffsets;
     private int[] numLabelsOffsets;
     private MappedDimensions dim;
     private int[] mapperIndices = new int[]{0, 0, 0};
     private int[] maskerIndices = new int[]{0, 0};
     private int zeroPaddingWidth;
-
+    private int totalTimeSteps;
 
     /**
      * Creates a concatenating label mapper from a set of delegate mappers with padding zeros added
@@ -56,9 +55,11 @@ public class TwoDimensionalConcatLabelMapper<RecordType> implements LabelMapper<
     public TwoDimensionalConcatLabelMapper(int zeroPaddingWidth, LabelMapper<RecordType>... delegates) {
         this.zeroPaddingWidth = zeroPaddingWidth;
         MappedDimensions dimensions = delegates[0].dimensions();
+        timeStepOffsets = new int[delegates.length + 1];
         numLabelsOffsets = new int[delegates.length + 1];
+        timeStepOffsets[0] = 0;
         numLabelsOffsets[0] = 0;
-        int totalTimeSteps = 0;
+        totalTimeSteps = 0;
         numLabels = 0;
         int i = 1;
         for (LabelMapper<RecordType> delegate : delegates) {
@@ -70,8 +71,9 @@ public class TwoDimensionalConcatLabelMapper<RecordType> implements LabelMapper<
                 throw new RuntimeException("Delegate mappers must have same number of labels");
             }
             int delegateTimeSteps = delegate.dimensions().numElements(2);
-            numLabels += delegate.numberOfLabels() + delegateTimeSteps * zeroPaddingWidth;
+            numLabels += delegate.numberOfLabels();
             totalTimeSteps += delegateTimeSteps;
+            timeStepOffsets[i] = totalTimeSteps;
             numLabelsOffsets[i] = numLabels;
             i++;
         }
@@ -91,7 +93,7 @@ public class TwoDimensionalConcatLabelMapper<RecordType> implements LabelMapper<
 
     @Override
     public int numberOfLabels() {
-        return numLabels;
+        return numLabels + (totalTimeSteps * zeroPaddingWidth);
     }
 
     @Override
@@ -110,7 +112,7 @@ public class TwoDimensionalConcatLabelMapper<RecordType> implements LabelMapper<
                 for (int j = 0; j < labelsPerTimeStep + zeroPaddingWidth; j++) {
                     mapperIndices[1] = j;
                     int featureIdx = i * labelsPerTimeStep + j;
-                    float label = j <= labelsPerTimeStep ? delegate.produceLabel(record, featureIdx) : 0F;
+                    float label = j < labelsPerTimeStep ? delegate.produceLabel(record, featureIdx) : 0F;
                     labels.putScalar(mapperIndices, label);
                 }
                 offset++;
@@ -120,14 +122,16 @@ public class TwoDimensionalConcatLabelMapper<RecordType> implements LabelMapper<
 
     @Override
     public float produceLabel(RecordType record, int labelIndex) {
-        int indexOfDelegate = Arrays.binarySearch(numLabelsOffsets, labelIndex);
+        int timeStepIndex = labelIndex / (labelsPerTimeStep + zeroPaddingWidth);
+        int labelInTimeStepIndex = labelIndex % (labelsPerTimeStep + zeroPaddingWidth);
+        int newLabelIndex = timeStepIndex * labelsPerTimeStep + labelInTimeStepIndex;
+        int indexOfDelegate = Arrays.binarySearch(timeStepOffsets, timeStepIndex);
         if (indexOfDelegate < 0) {
             indexOfDelegate = -(indexOfDelegate + 1) - 1;
         }
-        float label = delegates[indexOfDelegate].produceLabel(record,
-                labelIndex - numLabelsOffsets[indexOfDelegate]);
-        boolean labelValid = labelIndex % (labelsPerTimeStep + zeroPaddingWidth) <= labelsPerTimeStep;
-        return labelValid ? label : 0F;
+        boolean validLabel = labelInTimeStepIndex < labelsPerTimeStep;
+        return validLabel ? delegates[indexOfDelegate].produceLabel(record,
+                newLabelIndex - numLabelsOffsets[indexOfDelegate]) : 0F;
     }
 
     @Override
@@ -150,13 +154,16 @@ public class TwoDimensionalConcatLabelMapper<RecordType> implements LabelMapper<
     }
 
     @Override
-    public boolean isMasked(RecordType record, int featureIndex) {
-        int indexOfDelegate = Arrays.binarySearch(numLabelsOffsets, featureIndex);
+    public boolean isMasked(RecordType record, int labelIndex) {
+        int timeStepIndex = labelIndex / (labelsPerTimeStep + zeroPaddingWidth);
+        int labelInTimeStepIndex = labelIndex % (labelsPerTimeStep + zeroPaddingWidth);
+        int newLabelIndex = timeStepIndex * labelsPerTimeStep + labelInTimeStepIndex;
+        int indexOfDelegate = Arrays.binarySearch(timeStepOffsets, timeStepIndex);
         if (indexOfDelegate < 0) {
             indexOfDelegate = -(indexOfDelegate + 1) - 1;
         }
         return delegates[indexOfDelegate].isMasked(record,
-                featureIndex - numLabelsOffsets[indexOfDelegate]);
+                newLabelIndex - numLabelsOffsets[indexOfDelegate]);
     }
 
     @Override

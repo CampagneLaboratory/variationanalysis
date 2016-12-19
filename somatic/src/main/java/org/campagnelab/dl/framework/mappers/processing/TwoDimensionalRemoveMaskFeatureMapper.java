@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.function.Function;
 
 /**
  * Feature mapper that takes in a feature mapper that maps two-dimensional features, and removes masked elements in
@@ -33,11 +34,11 @@ public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements Featur
     private int featuresPerTimeStep;
     private int numTimeSteps;
     private int startIndex;
+    private Function<RecordType, Integer> recordToPaddingLength;
 
 
     private int[] mapperIndices = new int[]{0, 0, 0};
     private int[] maskerIndices = new int[]{0, 0};
-
 
     /**
      * Creates a new feature mapper from an existing 2D feature mapper, where masked elements are removed
@@ -55,6 +56,11 @@ public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements Featur
      * @param startIndex starting position of where to start removing masked elements
      */
     public TwoDimensionalRemoveMaskFeatureMapper(FeatureMapper<RecordType> delegate, int startIndex) {
+        this(delegate, record -> startIndex);
+    }
+
+    public TwoDimensionalRemoveMaskFeatureMapper(FeatureMapper<RecordType> delegate,
+                                                 Function<RecordType, Integer> recordToPaddingLength) {
         dim = delegate.dimensions();
         if (dim.numDimensions() != 2) {
             throw new RuntimeException("Delegate mapper must be two dimensional");
@@ -62,10 +68,12 @@ public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements Featur
         featuresPerTimeStep = dim.numElements(1);
         numTimeSteps = dim.numElements(2);
         this.delegate = delegate;
-        this.startIndex = startIndex;
+        this.recordToPaddingLength = recordToPaddingLength;
         boundsMap = new HashMap<>();
         normalizedCalled = new HashSet<>();
     }
+
+
 
     @Override
     public int numberOfFeatures() {
@@ -87,7 +95,7 @@ public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements Featur
             Bounds currBounds = new Bounds();
             ArrayList<Bounds> boundsList = new ArrayList<>();
             int prevBoundsIndex = -1;
-            for (int i = startIndex; i < dim.numElements(2); i++) {
+            for (int i = recordToPaddingLength.apply(record); i < dim.numElements(2); i++) {
                 int featureIndex = i * featuresPerTimeStep;
                 if (delegate.isMasked(record, featureIndex)) {
                     if (!prevMasked) {
@@ -115,8 +123,8 @@ public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements Featur
     @Override
     public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
         mapperIndices[0] = indexOfRecord;
-        for (int i = 0; i < dim.numElements(2); i++) {
-            for (int j = 0; j < dim.numElements(1); j++) {
+        for (int i = 0; i < numTimeSteps; i++) {
+            for (int j = 0; j < featuresPerTimeStep; j++) {
                 int featureIndex = i * featuresPerTimeStep + j;
                 mapperIndices[1] = j;
                 mapperIndices[2] = i;
@@ -133,7 +141,7 @@ public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements Featur
     @Override
     public void maskFeatures(RecordType record, INDArray mask, int indexOfRecord) {
         maskerIndices[0] = indexOfRecord;
-        for (int i = 0; i < dim.numElements(2); i++) {
+        for (int i = 0; i < numTimeSteps; i++) {
             int featureIndex = i * featuresPerTimeStep;
             maskerIndices[1] = i;
             mask.putScalar(maskerIndices, isMasked(record, featureIndex) ? 1F : 0F);

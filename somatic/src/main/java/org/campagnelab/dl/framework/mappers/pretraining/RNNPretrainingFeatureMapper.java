@@ -51,9 +51,8 @@ public class RNNPretrainingFeatureMapper<RecordType> implements FeatureMapper<Re
                 domainMapper);
         FeatureMapper<RecordType> eosMapper = createEosMapper(eosIndex,
                 featuresPerTimeStep, recordToSequenceLength, LOG);
-        delegate = new TwoDimensionalRemoveMaskFeatureMapper<>(new TwoDimensionalConcatFeatureMapper<>(sequenceMapper, sequenceMapper));
-//        delegate = new TwoDimensionalConcatFeatureMapper<>(sequenceMapper, sequenceMapper);
-//        delegate = new TwoDimensionalConcatFeatureMapper<>(sequenceMapper, eosMapper, sequenceMapper);
+        delegate = new TwoDimensionalRemoveMaskFeatureMapper<>(new TwoDimensionalConcatFeatureMapper<>(sequenceMapper,
+                eosMapper, sequenceMapper));
     }
 
     @Override

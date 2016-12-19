@@ -49,11 +49,14 @@ public class RNNPretrainingLabelMapper<RecordType> implements LabelMapper<Record
             zeroMapperDelegates[i] = new NAryFeatureMapper<>(labelsPerTimeStep + sequenceMapperPadding,
                     true, true, false);
         }
+        FeatureMapper<RecordType> sequenceMapper = new TwoDimensionalConcatFeatureMapper<>(sequenceMapperPadding,
+                domainMapper);
         FeatureMapper<RecordType> zeroMapper = new RNNFeatureMapper<>(recordToSequenceLength, zeroMapperDelegates);
         FeatureMapper<RecordType> eosMapper = RNNPretrainingFeatureMapper.createEosMapper(eosIndex,
                 labelsPerTimeStep, recordToSequenceLength, LOG);
         delegate = new LabelFromFeatureMapper<>(new TwoDimensionalRemoveMaskFeatureMapper<>(
-                new TwoDimensionalConcatFeatureMapper<>(zeroMapper, domainMapper, eosMapper)));
+                new TwoDimensionalConcatFeatureMapper<>(zeroMapper, sequenceMapper, eosMapper),
+                recordToSequenceLength));
     }
 
     @Override

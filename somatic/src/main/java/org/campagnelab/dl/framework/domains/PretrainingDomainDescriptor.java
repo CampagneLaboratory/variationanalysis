@@ -10,6 +10,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 /**
@@ -44,6 +45,8 @@ public class PretrainingDomainDescriptor<RecordType> extends DomainDescriptor<Re
         this.recordToSequenceLength = recordToSequenceLength;
         this.args = args;
         ComputationGraphAssembler delegateAssembler = delegate.getComputationalGraph();
+        this.computationGraphAssembler = delegateAssembler;
+        delegate.computationGraphAssembler = delegateAssembler;
         String[] delegateGraphInputs = delegateAssembler.getInputNames();
         if (delegateGraphInputs.length != 1) {
             LOG.warn("Graph should only have one input");
@@ -94,12 +97,21 @@ public class PretrainingDomainDescriptor<RecordType> extends DomainDescriptor<Re
         if (!inputName.equals(this.inputName)) {
             LOG.warn("Invalid input name; given {} but should be {}", inputName, this.inputName);
         }
-        return delegate.getNumInputs(inputName);
+        int[] delegateNumInputsOriginal = delegate.getNumInputs(inputName);
+        int[] delegateNumInputs = Arrays.copyOf(delegateNumInputsOriginal, delegateNumInputsOriginal.length);
+        if (delegateNumInputs.length != 2) {
+            throw new IllegalArgumentException("Delegate number of inputs should be two dimensional");
+        }
+        boolean addEosIndex = (args.eosIndex != null && args.eosIndex == delegateNumInputs[0]) || args.eosIndex == null;
+        if (addEosIndex) delegateNumInputs[0]++;
+        delegateNumInputs[1] *= 2;
+        delegateNumInputs[1]++;
+        return delegateNumInputs;
     }
 
     @Override
     public int[] getNumOutputs(String outputName) {
-        return delegate.getNumInputs(inputName);
+        return getNumInputs(inputName);
     }
 
     @Override
@@ -107,12 +119,20 @@ public class PretrainingDomainDescriptor<RecordType> extends DomainDescriptor<Re
         if (!inputName.equals(this.inputName)) {
             LOG.warn("Invalid input name; given {} but should be {}", inputName, this.inputName);
         }
-        return delegate.getNumMaskInputs(inputName);
+        int[] delegateNumMaskInputsOriginal = delegate.getNumMaskInputs(inputName);
+        int[] delegateNumMaskInputs = Arrays.copyOf(delegateNumMaskInputsOriginal,
+                delegateNumMaskInputsOriginal.length);
+        if (delegateNumMaskInputs.length != 1) {
+            throw new IllegalArgumentException("Delegate mask should be one dimensional");
+        }
+        delegateNumMaskInputs[0] *= 2;
+        delegateNumMaskInputs[0]++;
+        return delegateNumMaskInputs;
     }
 
     @Override
     public int[] getNumMaskOutputs(String outputName) {
-        return delegate.getNumMaskInputs(inputName);
+        return getNumMaskInputs(inputName);
     }
 
     @Override

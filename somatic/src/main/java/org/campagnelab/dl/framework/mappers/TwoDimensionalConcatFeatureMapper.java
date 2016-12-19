@@ -1,10 +1,7 @@
 package org.campagnelab.dl.framework.mappers;
 
-import org.campagnelab.dl.framework.mappers.FeatureMapper;
-import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
@@ -62,7 +59,7 @@ public class TwoDimensionalConcatFeatureMapper<RecordType> implements FeatureMap
         numFeaturesOffsets = new int[delegates.length + 1];
         timeStepOffsets[0] = 0;
         numFeaturesOffsets[0] = 0;
-        int totalTimeSteps = 0;
+        totalTimeSteps = 0;
         numFeatures = 0;
         int i = 1;
         for (FeatureMapper<RecordType> delegate : delegates) {
@@ -76,11 +73,10 @@ public class TwoDimensionalConcatFeatureMapper<RecordType> implements FeatureMap
             int delegateTimeSteps = delegate.dimensions().numElements(2);
             numFeatures += delegate.numberOfFeatures();
             totalTimeSteps += delegateTimeSteps;
-            timeStepOffsets[i] = delegateTimeSteps;
+            timeStepOffsets[i] = totalTimeSteps;
             numFeaturesOffsets[i] = numFeatures;
             i++;
         }
-        this.totalTimeSteps = totalTimeSteps;
         featuresPerTimeStep = dimensions.numElements(1);
         this.delegates = delegates;
         dim = new MappedDimensions(featuresPerTimeStep + zeroPaddingWidth, totalTimeSteps);
@@ -166,17 +162,11 @@ public class TwoDimensionalConcatFeatureMapper<RecordType> implements FeatureMap
         int timeStepIndex = featureIndex / (featuresPerTimeStep + zeroPaddingWidth);
         int featureInTimeStepIndex = featureIndex % (featuresPerTimeStep + zeroPaddingWidth);
         int newFeatureIndex = timeStepIndex * featuresPerTimeStep + featureInTimeStepIndex;
-        int indexOfDelegate = Arrays.binarySearch(timeStepOffsets, newFeatureIndex);
+        int indexOfDelegate = Arrays.binarySearch(timeStepOffsets, timeStepIndex);
         if (indexOfDelegate < 0) {
             indexOfDelegate = -(indexOfDelegate + 1) - 1;
         }
         boolean validFeature = featureInTimeStepIndex < featuresPerTimeStep;
-        try {
-            Object a = delegates[indexOfDelegate];
-            int b = timeStepOffsets[indexOfDelegate];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            int c = 1;
-        }
         return validFeature ? delegates[indexOfDelegate].produceFeature(record,
                 newFeatureIndex - numFeaturesOffsets[indexOfDelegate]) : 0F;
     }
