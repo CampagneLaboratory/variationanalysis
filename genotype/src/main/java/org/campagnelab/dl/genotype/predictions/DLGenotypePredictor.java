@@ -8,6 +8,7 @@ import org.campagnelab.goby.predictions.Predictor;
 import org.campagnelab.goby.reads.RandomAccessSequenceInterface;
 
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * This class implements the genotype prediction model expected by Goby 3.2+.  Make sure to move
@@ -19,7 +20,6 @@ import java.io.IOException;
 public class DLGenotypePredictor implements GenotypePredictor, Predictor {
     private GenotypeModel model;
     private GenotypePrediction prediction;
-
 
 
     @Override
@@ -68,6 +68,7 @@ public class DLGenotypePredictor implements GenotypePredictor, Predictor {
     public String getCalledGenotype() {
         return prediction.calledGenotype;
     }
+
     /**
      * The probability of the called genotype, as estimaed by the model.
      *
@@ -76,8 +77,15 @@ public class DLGenotypePredictor implements GenotypePredictor, Predictor {
     public double getProbabilityOfCalledGenotype() {
         return prediction.overallProbability;
     }
+
     @Override
     public boolean trainedForIndels() {
         return false;
     }
+
+    @Override
+    public Properties getModelProperties() {
+        return model.getProperties();
+    }
+
 }
