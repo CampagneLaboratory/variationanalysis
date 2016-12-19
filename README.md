@@ -10,6 +10,11 @@ We distribute the CPU version on maven, but you can build the project and choose
 the GPU maven profile to compile a CUDA version on the appropriate hardware.
 - A tool to train DL models for calling somatic variations. An example
 of using the framework for a specific domain.
+- A preview of a tool to train DL models for calling genotypes.
+This is a straightforward application
+of the Matcha framework and takes advantage of ground-truth genotypes
+established for specific quality control samples.
+
 
 We provided a [tutorial](./SOMATIC-TUTORIAL.md) for the somatic calling models.
 It is strongly recommended that you read the tutorial at this time. It
@@ -40,6 +45,9 @@ the framework:
  - randomize.sh. This tool takes a number of training sets and shuffles the records
  in them. Useful to remove any order (i.e., correlation due to genomic position).
  Scales to files with hundreds of million of examples.
+
+Interested in genotype calling with deep learning models? Have a look at the preview
+ of the genotype module ([tutorial](./GENOTYPE-TUTORIAL.md) and [doc](./docs/genotype/genotype.md)).
 
 [![framework javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/framework.svg?label=framework_javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/framework)
 [![somatic javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/somatic.svg?label=somatic_javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/somatic)
