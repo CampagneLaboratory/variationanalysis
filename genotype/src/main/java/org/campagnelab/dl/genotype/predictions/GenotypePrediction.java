@@ -1,9 +1,11 @@
 package org.campagnelab.dl.genotype.predictions;
 
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPrediction;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -43,8 +45,8 @@ public class GenotypePrediction {
             int genotypeIndex = 0;
             double predProbability = 0;
             StringBuffer hetGenotype = new StringBuffer();
-            probabilityGenotypeCalled=new double[singleGenotypePredictions.length];
-            probabilityGenotypeNotCalled=new double[singleGenotypePredictions.length];
+            probabilityGenotypeCalled = new double[singleGenotypePredictions.length];
+            probabilityGenotypeNotCalled = new double[singleGenotypePredictions.length];
             for (SingleGenotypePrediction singleGenotypePrediction : singleGenotypePredictions) {
                 probabilityGenotypeCalled[genotypeIndex] = singleGenotypePrediction.probabilityIsCalled;
                 probabilityGenotypeNotCalled[genotypeIndex] = 1 - singleGenotypePrediction.probabilityIsCalled;
@@ -63,16 +65,22 @@ public class GenotypePrediction {
         }
     }
 
-    public boolean isCorrect(){
+    public Set<String> alleles() {
+        ObjectSet<String> result = new ObjectArraySet<>();
+        Collections.addAll(result, calledGenotype.split("[|/]"));
+        return result;
+    }
+
+    public boolean isCorrect() {
         Set<String> predictedAlleles = new ObjectArraySet<>();
-        for (String s : calledGenotype.split("/")){
+        for (String s : calledGenotype.split("/")) {
             predictedAlleles.add(s);
         }
         Set<String> trueAlleles = new ObjectArraySet<>();
-        for (String s : trueGenotype.split("/")){
+        for (String s : trueGenotype.split("/")) {
             trueAlleles.add(s);
         }
-        Set<String> toIgnore = new ObjectArraySet<String>(new String[]{"?",".",""});
+        Set<String> toIgnore = new ObjectArraySet<String>(new String[]{"?", ".", ""});
         predictedAlleles.removeAll(toIgnore);
         trueAlleles.removeAll(toIgnore);
         return predictedAlleles.equals(trueAlleles);
