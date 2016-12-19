@@ -11,14 +11,16 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
     private final boolean sortCounts;
+    public static final int IS_HETEROZYGOUS_INDEX = 10;
+    public static final int NUM_LABELS = IS_HETEROZYGOUS_INDEX+1;
 
     @Override
     public int numberOfLabels() {
-        return 11;
+        return NUM_LABELS;
     }
 
     public HomozygousLabelsMapper(boolean sortCounts) {
-        this.sortCounts=sortCounts;
+        this.sortCounts = sortCounts;
     }
 
     int[] indices = new int[]{0, 0};
@@ -27,7 +29,7 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
     public void mapLabels(BaseInformationRecords.BaseInformation record, INDArray labels, int indexOfRecord) {
         indices[0] = indexOfRecord;
 
-        for (int labelIndex = 0; labelIndex < 11; labelIndex++) {
+        for (int labelIndex = 0; labelIndex < numberOfLabels(); labelIndex++) {
             indices[1] = labelIndex;
             labels.putScalar(indices, produceLabel(sortedCountRecord, labelIndex));
         }
@@ -35,11 +37,11 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
-      if (sortCounts) {
-          sortedCountRecord = sortHelper.sort(record);
-      }else {
-          sortedCountRecord=record;
-      }
+        if (sortCounts) {
+            sortedCountRecord = sortHelper.sort(record);
+        } else {
+            sortedCountRecord = record;
+        }
     }
 
     private BaseInformationRecords.BaseInformation sortedCountRecord;
@@ -51,12 +53,14 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
         record = sortedCountRecord;
         if (!getHomozygous(record)) {
             // this site is heterozygous. The Allele will only be encoded in the other outputs.
-            return (labelIndex == 10/**last index */) ? 1 : 0;
+            return (labelIndex == IS_HETEROZYGOUS_INDEX/**last index */) ? 1 : 0;
         } else {
-            // the site is homozygous. The allele is encoded here:
+            // the site is homozygous.
             if (labelIndex >= record.getSamples(0).getCountsCount()) {
+                // the labelIndex is outside the range of counts in the protobuff.
                 return 0;
             } else {
+                // The allele is encoded here:
                 return record.getSamples(0).getCounts(labelIndex).getIsCalled() ? 1 : 0;
             }
         }
