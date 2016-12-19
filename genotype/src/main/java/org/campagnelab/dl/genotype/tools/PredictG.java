@@ -22,6 +22,11 @@ import java.util.Set;
  */
 public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
+    @Override
+    public PredictArguments createArguments() {
+        return new PredictGArguments();
+    }
+
     public static void main(String[] args) {
 
         Predict predict = new PredictG();
@@ -87,13 +92,13 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         List<Prediction> genoPredList = predictionList.subList(1,11);
 
         GenotypePrediction fullPred = new GenotypePrediction();
-        fullPred.set(homoPred,genoPredList.toArray(new SingleGenotypePrediction[0]));
+        fullPred.set(homoPred,genoPredList.toArray(new SingleGenotypePrediction[genoPredList.size()]));
 
         boolean correct = fullPred.isCorrect();
         //remove dangling commas
         String correctness = correct ? "correct" : "wrong";
 
-        if (doOuptut(correctness, args(), fullPred.overallProbability)) {
+        if (filterHet((PredictGArguments) args(),fullPred) && doOuptut(correctness, args(), fullPred.overallProbability)) {
             resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\n",
                     homoPred.index, (correct?1:0), fullPred.trueGenotype, fullPred.calledGenotype, fullPred.overallProbability, correctness);
             if (args().filterMetricObservations) {
@@ -131,6 +136,18 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                     numFalsePositive++;
                 }
             }
+        }
+    }
+
+    private boolean filterHet(PredictGArguments args, GenotypePrediction fullPred) {
+        Set<String> alleles = fullPred.alleles();
+        switch (args.showFilter) {
+            case HET:
+                return (alleles.size()==2);
+            case HOM:
+                return alleles.size()==1;
+            default:
+                return true;
         }
     }
 
