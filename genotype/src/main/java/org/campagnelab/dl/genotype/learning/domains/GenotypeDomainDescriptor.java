@@ -142,10 +142,6 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new GenotypeLabelsMapper(9,sortCounts);
             case "homozygous":
                 return new HomozygousLabelsMapper(sortCounts);
-            case "genotype":
-                //handle this case for the properties file description
-                return new GenotypeLabelsMapper(0,sortCounts);
-
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
@@ -182,9 +178,6 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new SingleGenotypeInterpreter(9);
             //only need one interpreter for each record, it will collect entire genotype into a prediction
             case "homozygous":
-                return new HomozygousInterpreter();
-            case "genotype":
-                //handle this case for the properties file description
                 return new HomozygousInterpreter();
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
@@ -289,12 +282,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             List<BaseInformationIterator> list = Arrays.asList(recordFiles).stream().map(filename -> {
                 try {
 
-                    return new BaseInformationIterator(filename, 128, featureMappers()[0], getLabelMapper("genotype"));
+                    return new BaseInformationIterator(filename, 128, featureMappers()[0], getLabelMapper("A"));
                 } catch (IOException e) {
                     throw new RuntimeException("Unable to estimate number of records for filename " + filename);
                 }
             }).collect(Collectors.toList());
-            it = new BaseInformationConcatIterator(list, 128, featureMappers()[0], getLabelMapper("genotype"));
+            it = new BaseInformationConcatIterator(list, 128, featureMappers()[0], getLabelMapper("A"));
             return it.totalExamples();
 
         } catch (IOException e) {
