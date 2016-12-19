@@ -39,7 +39,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
-        resutsWriter.append("index\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness").append("\n");
+        resutsWriter.append("index\tpredictionCorrect01\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness").append("\n");
     }
 
     @Override
@@ -87,7 +87,8 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         String correctness = correct ? "correct" : "wrong";
 
         if (doOuptut(correctness, args(), fullPred.overallProbability)) {
-            resultWriter.printf("%d\t%s\t%s\t%f\t%s\n", homoPred.index, fullPred.trueGenotype, fullPred.calledGenotype, fullPred.overallProbability, correctness);
+            resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\n",
+                    homoPred.index, (correct?1:0), fullPred.trueGenotype, fullPred.calledGenotype, fullPred.overallProbability, correctness);
             if (args().filterMetricObservations) {
                 numProcessed++;
                 if (correct) {
