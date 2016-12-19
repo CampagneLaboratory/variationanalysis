@@ -1,7 +1,10 @@
 package org.campagnelab.dl.genotype.predictions;
 
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPrediction;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction;
+
+import java.util.Set;
 
 /**
  * Describes a genotype prediction. Helper method set aggregates individual model predictions.
@@ -32,6 +35,7 @@ public class GenotypePrediction {
     public void set(HomozygousPrediction homozygousPrediction, SingleGenotypePrediction[] singleGenotypePredictions) {
         this.homozygousPrediction = homozygousPrediction;
         this.singleGenotypePredictions = singleGenotypePredictions;
+        this.trueGenotype = homozygousPrediction.trueGenotypeFormat;
         if (homozygousPrediction.isHomozygous) {
             calledGenotype = homozygousPrediction.predictedHomozygousGenotype;
             overallProbability = homozygousPrediction.probability;
@@ -46,7 +50,7 @@ public class GenotypePrediction {
                 probabilityGenotypeNotCalled[genotypeIndex] = 1 - singleGenotypePrediction.probabilityIsCalled;
 
                 if (singleGenotypePrediction.probabilityIsCalled >= 0.5) {
-                    predProbability = singleGenotypePrediction.probabilityIsCalled;
+                    predProbability += singleGenotypePrediction.probabilityIsCalled;
                     numAlleles++;
                     if (hetGenotype.length() > 0) {
                         hetGenotype.append("/");
@@ -57,5 +61,14 @@ public class GenotypePrediction {
             overallProbability = predProbability / (double) numAlleles;
             calledGenotype = hetGenotype.toString();
         }
+    }
+
+    public boolean isCorrect(){
+        Set<String> predictedAlleles = new ObjectArraySet<String>(calledGenotype.split("/"));
+        Set<String> trueAlleles = new ObjectArraySet<String>(trueGenotype.split("/"));
+        Set<String> toIgnore = new ObjectArraySet<String>(new String[]{"?",".",""});
+        predictedAlleles.removeAll(toIgnore);
+        trueAlleles.removeAll(toIgnore);
+        return predictedAlleles.equals(trueAlleles);
     }
 }
