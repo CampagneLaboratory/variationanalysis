@@ -15,14 +15,14 @@ wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz
 Note that the build is hg19. The tools demonstrated here can be used with any build corresponding to the alignment. The only requirement is that alignment and genomes must match.
 
 - Download true genotypes from the [Platinum genome project](http://www.illumina.com/platinumgenomes/):
-Click [on this link](ftp://platgene_ro@ussd-ftp.illumina.com/2016-1.0/hg19/small_variants/NA12878/NA12878.vcf.gz) to download with a browse, then copy the downloaded file (NA12878.vcf.gz) to the project
+Click [on this link](ftp://platgene_ro@ussd-ftp.illumina.com/2016-1.0/hg19/small_variants/NA12878/NA12878.vcf.gz) to download with a browser, then copy the downloaded file (NA12878.vcf.gz) to the project
 directory.
 Download
 
 
 Sort the BAM file and index it with samtools:
 ```
-samtools sort GM_12878_No1_110407_8_sorted.bam NA12878-sorted.bam
+samtools sort GM_12878_No1_110407_8_sorted.bam NA12878-sorted
 samtools index NA12878-sorted.bam
 ```
 
@@ -43,9 +43,9 @@ export PATH=${PATH}:~/IdeaProjects/git/goby3
 ```
 
 2. Download and install variationanalysis
-Add Variation analysis to the PATH:
+Add Variation analysis to the PATH (we assumed you downloaded version 1.2, adjust as needed):
 ```sh
-export PATH=${PATH}:~/IdeaProjects/git/variationanalysis
+export PATH=${PATH}:release-dlvariation_1.2/
 ```
 
 ### Prepare the training set
@@ -66,7 +66,12 @@ Convert the alignment file to a sequence base information (.sbi) file:
     --processor realign_near_indels    \
     --call-indels true
 ```
-
+(alternatively, with GNU parallel, do 
+```
+export SBI_GENOME=ucsc_hg19
+parallel-genotype-sbi.sh 10g NA12878-sorted.bam
+```
+)
 
 Randomize sites in the sbi file:
 
@@ -80,11 +85,7 @@ Add true labels from the ground-truth VCF:
  1. Create a genotype map (a binary file that holds the true labels).
 ```sh
 gzip -c -d  NA12878.vcf.gz|grep -v Child >NA12878-ok.vcf
-goby 4g vcf-to-genotype-map NA12878-ok.vcf -o  NA12878-labels.map
-```
-
-```sh
-goby 4g vcf-to-genotype-map  NA12878-true-genotypes.vcf -o true-genotypes.map
+goby 4g vcf-to-genotype-map NA12878-ok.vcf -o  NA12878-true-genotypes.map
 ```
 
  2. Add true genotypes to the site information:
@@ -100,7 +101,10 @@ split.sh 4g -i NA12878-random-labeled -f 0.9 -s training -f 0.05 -s validation -
 
 Train the model:
 ```sh
-train-genotype.sh 10g -t NA12878-random-labeled-training.sbi -v NA12878-random-labeled-validation.sbi -r 5 --mini-batch-size 512
+ train-genotype.sh 10g -t NA12878-random-labeled-training.sbi \
+                       -v NA12878-random-labeled-validation.sbi \
+                       -r 5 --mini-batch-size 512 \
+                       --feature-mapper org.campagnelab.dl.genotype.mappers.GenotypeMapperV3
 ```
 
 You can monitor the performance of the model being trained in the models/[timestamp] director:
