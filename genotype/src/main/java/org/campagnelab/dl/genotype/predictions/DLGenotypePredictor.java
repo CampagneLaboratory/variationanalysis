@@ -22,6 +22,7 @@ public class DLGenotypePredictor implements GenotypePredictor, Predictor {
     private GenotypePrediction prediction;
 
 
+
     @Override
     public String getModelPath(String fullMPath) {
         return ModelLoader.getModelPath(fullMPath);
@@ -68,7 +69,6 @@ public class DLGenotypePredictor implements GenotypePredictor, Predictor {
     public String getCalledGenotype() {
         return prediction.calledGenotype;
     }
-
     /**
      * The probability of the called genotype, as estimaed by the model.
      *
@@ -77,7 +77,6 @@ public class DLGenotypePredictor implements GenotypePredictor, Predictor {
     public double getProbabilityOfCalledGenotype() {
         return prediction.overallProbability;
     }
-
     @Override
     public boolean trainedForIndels() {
         return false;
@@ -85,7 +84,6 @@ public class DLGenotypePredictor implements GenotypePredictor, Predictor {
 
     @Override
     public Properties getModelProperties() {
-
         assert modelIsLoaded() : "You must load a model before you can access model properties.";
         return model.getProperties();
     }
