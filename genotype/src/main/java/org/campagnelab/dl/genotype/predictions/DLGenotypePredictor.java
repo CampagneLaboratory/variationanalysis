@@ -22,6 +22,7 @@ public class DLGenotypePredictor implements GenotypePredictor, Predictor {
     private GenotypePrediction prediction;
 
 
+
     @Override
     public String getModelPath(String fullMPath) {
         return ModelLoader.getModelPath(fullMPath);
@@ -85,6 +86,8 @@ public class DLGenotypePredictor implements GenotypePredictor, Predictor {
 
     @Override
     public Properties getModelProperties() {
+
+        assert modelIsLoaded() : "You must load a model before you can access model properties.";
         return model.getProperties();
     }
 
