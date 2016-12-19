@@ -70,7 +70,6 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                     // The map contains Goby positions (zero-based).
                     trueGenotype = chMap.get(chrom).get(position);
                     genotypes = trueGenotype.split("|");
-                    //todo don't use ismutated
                     isVariant = true;
                 } catch (NullPointerException e) {
                     String referenceBase = buildRec.getReferenceBase();
