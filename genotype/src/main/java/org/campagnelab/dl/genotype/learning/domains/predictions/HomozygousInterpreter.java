@@ -29,7 +29,7 @@ public class HomozygousInterpreter implements PredictionInterpreter<BaseInformat
         pred.inspectRecord(record);
         pred.predictedHomozygousGenotype = getHomozygousPrediction(record, output);
         pred.probability = maxProbability;
-        pred.isHomozygous =(maxIndex!=10); // max probability on the isHomozygous site.
+        pred.isHomozygous =(maxIndex!=10); // max probability on an isHomozygous site.
         return pred;
     }
 
@@ -39,9 +39,10 @@ public class HomozygousInterpreter implements PredictionInterpreter<BaseInformat
         maxIndex = -1;
         int predictionIndex = 0;
         for (int i = 0; i < 11; i++) {
-            if (maxProbability < output.getDouble(predictionIndex, i)) {
+            double outputDouble = output.getDouble(predictionIndex, i);
+            if (maxProbability < outputDouble) {
                 maxIndex = i;
-                maxProbability = output.getDouble(predictionIndex, i);
+                maxProbability = outputDouble;
             }
         }
         if (maxIndex > 10 || maxIndex == -1) {
