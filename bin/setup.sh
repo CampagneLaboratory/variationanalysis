@@ -18,3 +18,7 @@ export DLVA_JAR=${DLVA_HOME}/gpus/target/gpus-${VERSION}.jar:${DLVA_HOME}/somati
 export GDLVA_JAR=${DLVA_HOME}/gpus/target/gpus-${VERSION}.jar:${DLVA_HOME}/genotype/target/genotype-${VERSION}-bin-${EXECUTION_PLATFORM}.jar
 
 export SLF4J_CONFIG=${DLVA_HOME}/config/logback.xml
+
+function assertGobyInstalled {
+    goby 1g version >/dev/null 2>&1 || { echo >&2 "This script requires goby but it's not installed. Aborting. Install Goby and add the distribution folder to your path, then try again."; exit 1; }
+}
