@@ -1,4 +1,6 @@
 # VariationAnalysis
+
+[![Join the chat at https://gitter.im/CampagneLaboratory/variationanalysis](https://badges.gitter.im/CampagneLaboratory/variationanalysis.svg)](https://gitter.im/CampagneLaboratory/variationanalysis?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 This project provides:
 
 - A deep learning model training and evaluation framework (codename Matcha).
