@@ -96,12 +96,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.4</version>
-                <configuration>
-                    <excludePackageNames>org.campagnelab.dl.gpus.*:org.campagnelab.dl.somatic.*:org.campagnelab.dl.genotype.*</excludePackageNames>
-                    <includes>
-                        <include>org/campagnelab/dl/framework/**</include>
-                    </includes>
-                </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -123,9 +117,6 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <includes>
-                        <include>org/campagnelab/dl/framework/**</include>
-                    </includes>
                 </configuration>
             </plugin>
         </plugins>
