@@ -35,17 +35,8 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     }
 
 
-    int numCorrect;
-    int numProcessed;
-    int numTruePositive;
-    int numTrueNegative;
-    int numFalsePositive;
-    int numFalseNegative;
 
-    double accuracy;
-    double recall;
-    double precision;
-    double F1;
+    StatsAccumulator stats = new StatsAccumulator();;
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
@@ -54,36 +45,24 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void initializeStats(String prefix) {
-        numCorrect = 0;
-        numProcessed = 0;
-        numTruePositive = 0;
-        numTrueNegative = 0;
-        numFalsePositive = 0;
-        numFalseNegative = 0;
+        stats.initializeStats();
     }
 
 
 
     @Override
     protected double[] createOutputStatistics() {
-        accuracy = numCorrect/(double)numProcessed;
-        recall = numTruePositive/((double)(numTruePositive+numFalseNegative));
-        precision = numTruePositive/((double)(numTruePositive+numFalsePositive));
-        F1 = precision*recall/(precision+recall);
-        return new double[]{accuracy,recall,precision,F1};
+        return stats.createOutputStatistics();
     }
 
     @Override
     protected String[] createOutputHeader() {
-        return new String[]{"accuracy","sensitivity(recall)","PPV(precision)","F1"};
+        return stats.createOutputHeader();
     }
 
     @Override
     protected void reportStatistics(String prefix) {
-        System.out.println("Accuracy on " + prefix + "=" + accuracy);
-        System.out.println("Recall on " + prefix + "=" + recall);
-        System.out.println("Precision on " + prefix + "=" + precision);
-        System.out.println("F1 on " + prefix + "=" + F1);
+        stats.reportStatistics(prefix);
     }
 
     @Override
@@ -102,40 +81,12 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\n",
                     homoPred.index, (correct?1:0), fullPred.trueGenotype, fullPred.calledGenotype, fullPred.overallProbability, correctness);
             if (args().filterMetricObservations) {
-                numProcessed++;
-                if (correct) {
-                    numCorrect++;
-                    if (homoPred.isVariant) {
-                        numTruePositive++;
-                    } else {
-                        numTrueNegative++;
-                    }
-                } else {
-                    if (homoPred.isVariant) {
-                        numFalseNegative++;
-                    } else {
-                        numFalsePositive++;
-                    }
-                }
+                stats.observe(fullPred, homoPred.isVariant);
             }
         }
         //convert true label to the convention used by auc calculator: negative true label=labelNo.
         if (!args().filterMetricObservations) {
-            numProcessed++;
-            if (correct) {
-                numCorrect++;
-                if (homoPred.isVariant) {
-                    numTruePositive++;
-                } else {
-                    numTrueNegative++;
-                }
-            } else {
-                if (homoPred.isVariant) {
-                    numFalseNegative++;
-                } else {
-                    numFalsePositive++;
-                }
-            }
+            stats.observe(fullPred,homoPred.isVariant);
         }
     }
 
