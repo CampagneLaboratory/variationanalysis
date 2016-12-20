@@ -17,17 +17,7 @@ public class NamingConcatFeatureMapper<RecordType> extends ConcatFeatureMapper<R
 
     @SafeVarargs
     public NamingConcatFeatureMapper(FeatureNameMapper<RecordType>... featureMappers) {
-        this.mappers = featureMappers;
-        int offset = 0;
-        int i = 1;
-        offsets = new int[featureMappers.length + 1];
-        offsets[0] = 0;
-        for (FeatureMapper calculator : mappers) {
-            numFeatures += calculator.numberOfFeatures();;
-            offsets[i] = numFeatures;
-
-            i++;
-        }
+        super(featureMappers);
     }
 
     public String getFeatureName(int i) {

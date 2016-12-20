@@ -35,13 +35,14 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
         tool.execute();
     }
 
+
     @Override
     //only supports genotypes encoded with a bar (|) delimiter
     public void execute() {
         int sampleIndex = args().sampleIndex;
         Random random = new XorShift1024StarRandom();
         try {
-            Object2ObjectMap<String, Int2ObjectMap<String>> chMap = (Object2ObjectMap<String, Int2ObjectMap<String>>) BinIO.loadObject(args().genotypeMap);
+            Object2ObjectMap<String,Int2ObjectMap<String>> chMap = (Object2ObjectMap<String,Int2ObjectMap<String>>)BinIO.loadObject(args().genotypeMap);
             RecordReader source = new RecordReader(args().inputFile);
             SequenceBaseInformationWriter dest = new SequenceBaseInformationWriter(args().outputFilename);
 
@@ -100,10 +101,12 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
     }
 
 
+
     @Override
     public AddTrueGenotypesArguments createArguments() {
         return new AddTrueGenotypesArguments();
     }
+
 
 
 }

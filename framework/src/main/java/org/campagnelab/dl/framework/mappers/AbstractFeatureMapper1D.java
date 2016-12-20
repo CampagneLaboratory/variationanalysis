@@ -4,21 +4,28 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
  * Stripped down version of AbstractFeatureMapper that implements some basic functions, should only be extended by intermediary mappers
+ *
  * @author Remi Torracinta
  */
-public abstract class AbstractFeatureMapper1D<RecordType > implements FeatureNameMapper<RecordType> {
-    protected int[] indices=new int[]{0};
+public abstract class AbstractFeatureMapper1D<RecordType> implements FeatureNameMapper<RecordType> {
+    protected int[] indices = new int[]{0,0};
+
     /**
      * This is a slow implementation for intermerdiary mappers to fulfill the requirements of the interface,
      * expecting that produceFeature will be used directly with these mappers.
      * Shoul not be used for a final mappers, which should override with a faster implementation.
+     *
      * @param record        The record to convert to features & labels.
      * @param inputs        The features
      * @param indexOfRecord Index of the record in the destination dataset.
      */
-     public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
+    public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
         indices[0] = indexOfRecord;
-        inputs.putScalar(indices,produceFeature(record,0));
+
+        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
+            indices[1] = featureIndex;
+            inputs.putScalar(indices, produceFeature(record, featureIndex));
+        }
     }
 
     public boolean hasMask() {

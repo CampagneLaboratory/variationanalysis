@@ -94,6 +94,8 @@ public class GenotypeMapperV4 extends GenotypeFeatureMapper {
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
         delegate.mapFeatures(record, inputs, indexOfRecord);
+      //  System.out.println(inputs);
+      //  System.out.println("*****&***");
     }
 
     @Override
