@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 . `dirname "${BASH_SOURCE[0]}"`/setup.sh
+assertParallelInstalled
 
 cat << EOF | cat> learn.txt
 5

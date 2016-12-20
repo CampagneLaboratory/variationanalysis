@@ -7,6 +7,7 @@ import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPrediction;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction;
+import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.PrintWriter;
@@ -21,6 +22,11 @@ import java.util.Set;
  */
 public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
+    @Override
+    public PredictArguments createArguments() {
+        return new PredictGArguments();
+    }
+
     public static void main(String[] args) {
 
         Predict predict = new PredictG();
@@ -29,48 +35,34 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     }
 
 
-    int numCorrect;
-    int numProcessed;
-    int numTruePositive;
-    int numTrueNegative;
-    int numFalsePositive;
-    int numFalseNegative;
+
+    StatsAccumulator stats = new StatsAccumulator();;
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
-        resutsWriter.append("index\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness").append("\n");
+        resutsWriter.append("index\tpredictionCorrect01\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness").append("\n");
     }
 
     @Override
     protected void initializeStats(String prefix) {
-        numCorrect = 0;
-        numProcessed = 0;
-        numTruePositive = 0;
-        numTrueNegative = 0;
-        numFalsePositive = 0;
-        numFalseNegative = 0;
+        stats.initializeStats();
     }
 
 
 
     @Override
     protected double[] createOutputStatistics() {
-        double accuracy = numCorrect/(double)numProcessed;
-        double recall = numTruePositive/((double)(numTruePositive+numFalseNegative));
-        double precision = numTruePositive/((double)(numTruePositive+numFalsePositive));
-        double F1 = precision*recall/(precision+recall);
-        return new double[]{accuracy,recall,precision,F1};
+        return stats.createOutputStatistics();
     }
 
     @Override
     protected String[] createOutputHeader() {
-        return new String[]{"accuracy","sensitivity(recall)","PPV(precision)","F1"};
+        return stats.createOutputHeader();
     }
 
     @Override
     protected void reportStatistics(String prefix) {
-        System.out.println("Accuracy on " + prefix + "=" + numCorrect/(double)numProcessed);
-        //TODO: print other statistics
+        stats.reportStatistics(prefix);
     }
 
     @Override
@@ -78,77 +70,35 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         HomozygousPrediction homoPred = (HomozygousPrediction) predictionList.get(0);
         List<Prediction> genoPredList = predictionList.subList(1,11);
 
-        //use format just for stats output writing, correctness determined with string sets.
-        String predictedGenotypeFormat;
-        //this set will be compared against true genotype set to check for prediction correctness
-        Set<String> predictedGenotype = new ObjectArraySet<>();
-        double predProbability;
+        GenotypePrediction fullPred = new GenotypePrediction();
+        fullPred.set(homoPred,genoPredList.toArray(new SingleGenotypePrediction[genoPredList.size()]));
 
-        //first try homozygous
-        predictedGenotype.add(homoPred.predictedHomozygousGenotype);
-        predictedGenotypeFormat = homoPred.predictedHomozygousGenotype + "/" + homoPred.predictedHomozygousGenotype ;
-        predProbability = homoPred.probability;
-
-
-        //now handle the non-homozygous case by concatentating positive single genotype predictions
-        if (predictedGenotypeFormat.equals("/")){
-            //need running average of single alleles to produce probabilityIsCalled
-            predProbability = 0;
-            int numAlleles = 0;
-            StringBuffer nonHomoGenotype = new StringBuffer();
-            for (Prediction genoPred : genoPredList) {
-                SingleGenotypePrediction singleGenoPred = (SingleGenotypePrediction) genoPred;
-                if (singleGenoPred.probabilityIsCalled >= 0.5) {
-                    predProbability += singleGenoPred.probabilityIsCalled;
-                    numAlleles++;
-                    nonHomoGenotype.append(singleGenoPred.predictedSingleGenotype + "/");
-                    predictedGenotype.add(singleGenoPred.predictedSingleGenotype);
-
-                }
-            }
-
-            predictedGenotypeFormat = nonHomoGenotype.toString();
-            try {
-                predictedGenotypeFormat = predictedGenotypeFormat.substring(0, predictedGenotypeFormat.length() - 1);
-            } catch ( StringIndexOutOfBoundsException e ){
-                System.out.println("example with no calls found at index" + homoPred.index);
-            }
-            predProbability = predProbability/(double)numAlleles;
-        }
-        predictedGenotype.remove("");
-        predictedGenotype.remove("?");
-        predictedGenotype.remove(".");
-        boolean correct = predictedGenotype.equals(homoPred.trueGenotype);
-
+        boolean correct = fullPred.isCorrect();
         //remove dangling commas
         String correctness = correct ? "correct" : "wrong";
 
-        if (doOuptut(correctness, args(), predProbability)) {
-            resultWriter.printf("%d\t%s\t%s\t%f\t%s\n", homoPred.index, homoPred.trueGenotypeFormat, predictedGenotypeFormat, predProbability, correctness);
+        if (filterHet((PredictGArguments) args(),fullPred) && doOuptut(correctness, args(), fullPred.overallProbability)) {
+            resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\n",
+                    homoPred.index, (correct?1:0), fullPred.trueGenotype, fullPred.calledGenotype, fullPred.overallProbability, correctness);
             if (args().filterMetricObservations) {
-                numProcessed++;
-                if (correct) {
-                    numCorrect++;
-                    if (homoPred.isVariant) {
-                        numTruePositive++;
-                    } else {
-                        numTrueNegative++;
-                    }
-                } else {
-                    if (homoPred.isVariant) {
-                        numFalseNegative++;
-                    } else {
-                        numFalsePositive++;
-                    }
-                }
+                stats.observe(fullPred, homoPred.isVariant);
             }
         }
         //convert true label to the convention used by auc calculator: negative true label=labelNo.
         if (!args().filterMetricObservations) {
-            numProcessed++;
-            if (correct) {
-                numCorrect++;
-            };
+            stats.observe(fullPred,homoPred.isVariant);
+        }
+    }
+
+    private boolean filterHet(PredictGArguments args, GenotypePrediction fullPred) {
+        Set<String> alleles = fullPred.alleles();
+        switch (args.showFilter) {
+            case HET:
+                return (alleles.size()==2);
+            case HOM:
+                return alleles.size()==1;
+            default:
+                return true;
         }
     }
 

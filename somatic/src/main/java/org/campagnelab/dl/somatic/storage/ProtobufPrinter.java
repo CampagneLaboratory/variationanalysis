@@ -24,17 +24,17 @@ import java.util.Set;
  *
  * @author rct66
  */
-public class ParquetPrinter {
+public class ProtobufPrinter {
 
     String path;
     boolean focusPrint = false;
     private int refIndex;
     private int position;
-    private boolean customPosOnly = false;
+    private boolean customPosOnly = true;
     static int actualCount = 0;
 
     private int[] customPos = {
-            9440676
+            9965295
     };
     private Set<Integer> posSet = new IntOpenHashSet(customPos);
 
@@ -43,13 +43,13 @@ public class ParquetPrinter {
             System.err.println("usage: printer <parquet-file> [focus-ref-index focus-position]");
             System.exit(1);
         }
-        ParquetPrinter parquetPrinter = new ParquetPrinter(args[0]);
+        ProtobufPrinter protobufPrinter = new ProtobufPrinter(args[0]);
         if (args.length >= 3) {
             // will only print the record(s) matching a specific position:
-            parquetPrinter.setFocusOnPosition(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+            protobufPrinter.setFocusOnPosition(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
             System.out.println("Scanning for ");
         }
-        parquetPrinter.print();
+        protobufPrinter.print();
         System.out.println("actual count: " + actualCount);
 
     }
@@ -61,7 +61,7 @@ public class ParquetPrinter {
     }
 
 
-    public ParquetPrinter(String path) {
+    public ProtobufPrinter(String path) {
         this.path = path;
     }
 
