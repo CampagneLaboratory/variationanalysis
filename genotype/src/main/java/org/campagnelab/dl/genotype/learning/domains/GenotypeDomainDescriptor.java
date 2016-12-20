@@ -154,31 +154,32 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public PredictionInterpreter getPredictionInterpreter(String outputName) {
+        boolean sortCounts=needSortCounts();
 
         switch (outputName) {
             case "A":
-                return new SingleGenotypeInterpreter(0);
+                return new SingleGenotypeInterpreter(0, sortCounts);
             case "T":
-                return new SingleGenotypeInterpreter(1);
+                return new SingleGenotypeInterpreter(1, sortCounts);
             case "C":
-                return new SingleGenotypeInterpreter(2);
+                return new SingleGenotypeInterpreter(2, sortCounts);
             case "G":
-                return new SingleGenotypeInterpreter(3);
+                return new SingleGenotypeInterpreter(3, sortCounts);
             case "N":
-                return new SingleGenotypeInterpreter(4);
+                return new SingleGenotypeInterpreter(4, sortCounts);
             case "I1":
-                return new SingleGenotypeInterpreter(5);
+                return new SingleGenotypeInterpreter(5, sortCounts);
             case "I2":
-                return new SingleGenotypeInterpreter(6);
+                return new SingleGenotypeInterpreter(6, sortCounts);
             case "I3":
-                return new SingleGenotypeInterpreter(7);
+                return new SingleGenotypeInterpreter(7, sortCounts);
             case "I4":
-                return new SingleGenotypeInterpreter(8);
+                return new SingleGenotypeInterpreter(8, sortCounts);
             case "I5":
-                return new SingleGenotypeInterpreter(9);
+                return new SingleGenotypeInterpreter(9, sortCounts);
             //only need one interpreter for each record, it will collect entire genotype into a prediction
             case "homozygous":
-                return new HomozygousInterpreter();
+                return new HomozygousInterpreter(sortCounts);
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }

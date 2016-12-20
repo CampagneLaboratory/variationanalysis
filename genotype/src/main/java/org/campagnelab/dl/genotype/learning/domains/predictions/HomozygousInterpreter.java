@@ -2,6 +2,7 @@ package org.campagnelab.dl.genotype.learning.domains.predictions;
 
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.genotype.mappers.HomozygousLabelsMapper;
+import org.campagnelab.dl.genotype.mappers.RecordCountSortHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -14,8 +15,12 @@ public class HomozygousInterpreter implements PredictionInterpreter<BaseInformat
     double maxProbability;
     boolean isHomozygous;
     private int maxIndex;
+    RecordCountSortHelper sortHelper = new RecordCountSortHelper();
+    boolean sortCounts;
 
-    public HomozygousInterpreter() {
+
+    public HomozygousInterpreter(boolean sortCounts) {
+        this.sortCounts = sortCounts;
     }
 
 
@@ -35,6 +40,9 @@ public class HomozygousInterpreter implements PredictionInterpreter<BaseInformat
     }
 
     public String getHomozygousPrediction(BaseInformationRecords.BaseInformation currentRecord, INDArray output) {
+        if (sortCounts) {
+            currentRecord = sortHelper.sort(currentRecord);
+        }
         maxProbability = -1;
         maxIndex = -1;
         int predictionIndex = 0;
