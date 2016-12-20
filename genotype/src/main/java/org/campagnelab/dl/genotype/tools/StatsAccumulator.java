@@ -2,6 +2,8 @@ package org.campagnelab.dl.genotype.tools;
 
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 
+import java.util.Arrays;
+
 /**
  * Created by rct66 on 12/19/16.
  */
@@ -60,6 +62,7 @@ public class StatsAccumulator {
         System.out.println("Recall =" + statsArray[1]);
         System.out.println("Precision =" + statsArray[2]);
         System.out.println("F1 =" + statsArray[3]);
+        System.out.println("Printable: "+ Arrays.toString(statsArray));
     }
 
 }
