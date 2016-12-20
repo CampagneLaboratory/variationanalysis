@@ -38,6 +38,10 @@ public abstract class PretrainModel<RecordType> extends TrainModel<RecordType> {
 
     @Override
     public Properties getReaderProperties(String trainingSet) throws IOException {
+        Properties delegateProperties = delegate.getReaderProperties(trainingSet);
+        delegateProperties.setProperty("delegate.trainModel", delegate.getClass().getCanonicalName());
+        delegateProperties.setProperty("delegate.domainDescriptor",
+                delegate.domainDescriptor().getClass().getCanonicalName());
         return delegate.getReaderProperties(trainingSet);
     }
 

@@ -97,8 +97,7 @@ public class PretrainingDomainDescriptor<RecordType> extends DomainDescriptor<Re
         if (!inputName.equals(this.inputName)) {
             LOG.warn("Invalid input name; given {} but should be {}", inputName, this.inputName);
         }
-        int[] delegateNumInputsOriginal = delegate.getNumInputs(inputName);
-        int[] delegateNumInputs = Arrays.copyOf(delegateNumInputsOriginal, delegateNumInputsOriginal.length);
+        int[] delegateNumInputs = delegate.getNumInputs(inputName).clone();
         if (delegateNumInputs.length != 2) {
             throw new IllegalArgumentException("Delegate number of inputs should be two dimensional");
         }
@@ -119,9 +118,7 @@ public class PretrainingDomainDescriptor<RecordType> extends DomainDescriptor<Re
         if (!inputName.equals(this.inputName)) {
             LOG.warn("Invalid input name; given {} but should be {}", inputName, this.inputName);
         }
-        int[] delegateNumMaskInputsOriginal = delegate.getNumMaskInputs(inputName);
-        int[] delegateNumMaskInputs = Arrays.copyOf(delegateNumMaskInputsOriginal,
-                delegateNumMaskInputsOriginal.length);
+        int[] delegateNumMaskInputs = delegate.getNumMaskInputs(inputName).clone();
         if (delegateNumMaskInputs.length != 1) {
             throw new IllegalArgumentException("Delegate mask should be one dimensional");
         }

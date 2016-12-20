@@ -114,7 +114,12 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         assert assembler != null : "Computational Graph assembler must be defined.";
         assembler.setArguments(args());
         for (String inputName : assembler.getInputNames()) {
-            assembler.setNumInputs(inputName, domainDescriptor.getNumInputs(inputName));
+            int[] domainDescriptorNumInputs = domainDescriptor.getNumInputs(inputName).clone();
+            boolean padEos = (args().previousModelPretraining) &&
+                    ((args().eosIndex != null && args().eosIndex == domainDescriptorNumInputs[0])
+                            || args().eosIndex == null);
+            if (padEos) domainDescriptorNumInputs[0]++;
+            assembler.setNumInputs(inputName, domainDescriptorNumInputs);
         }
         for (String outputName : assembler.getOutputNames()) {
             assembler.setNumOutputs(outputName, domainDescriptor.getNumOutputs(outputName));
@@ -141,26 +146,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             } else {
                 computationGraph.setUpdater(savedGraph.getUpdater());
                 computationGraph.setParams(savedNetwork.params());
-            }
-        } else if (args().pretrainingModelPath != null) {
-            ModelLoader pretrainingLoader = new ModelLoader(args().pretrainingModelPath);
-            Model savedPretrainingNetwork = pretrainingLoader.loadModel(args().pretrainingModelName);
-            ComputationGraph savedPretrainingGraph = savedPretrainingNetwork instanceof ComputationGraph ?
-                    (ComputationGraph) savedPretrainingNetwork :
-                    null;
-            if (savedPretrainingNetwork == null || savedPretrainingGraph == null
-                    || savedPretrainingGraph.getUpdater() == null || savedPretrainingGraph.getLayers() == null) {
-                LOG.warn("Unable to load model for pretraining from {}", args().pretrainingModelPath);
-            } else {
-                computationGraph.setUpdater(savedPretrainingGraph.getUpdater());
-                for (String inputLayer : assembler.getInputNames()) {
-                    computationGraph.getLayer(inputLayer).setParams(
-                            savedPretrainingGraph.getLayer(inputLayer).params());
-                }
-                for (String componentLayer : assembler.getComponentNames()) {
-                    computationGraph.getLayer(componentLayer).setParams(
-                            savedPretrainingGraph.getLayer(componentLayer).params());
-                }
             }
         }
         //Print the  number of parameters in the graph (and for each layer)
