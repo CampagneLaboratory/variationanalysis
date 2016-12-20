@@ -1,7 +1,6 @@
 package org.campagnelab.dl.genotype.tools;
 
 
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
@@ -35,8 +34,8 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     }
 
 
-
-    StatsAccumulator stats = new StatsAccumulator();;
+    StatsAccumulator stats = new StatsAccumulator();
+    ;
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
@@ -47,7 +46,6 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     protected void initializeStats(String prefix) {
         stats.initializeStats();
     }
-
 
 
     @Override
@@ -68,35 +66,35 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     @Override
     protected void processPredictions(PrintWriter resultWriter, List<Prediction> predictionList) {
         HomozygousPrediction homoPred = (HomozygousPrediction) predictionList.get(0);
-        List<Prediction> genoPredList = predictionList.subList(1,11);
+        List<Prediction> genoPredList = predictionList.subList(1, 11);
 
         GenotypePrediction fullPred = new GenotypePrediction();
-        fullPred.set(homoPred,genoPredList.toArray(new SingleGenotypePrediction[genoPredList.size()]));
+        fullPred.set(homoPred, genoPredList.toArray(new SingleGenotypePrediction[genoPredList.size()]));
 
         boolean correct = fullPred.isCorrect();
         //remove dangling commas
         String correctness = correct ? "correct" : "wrong";
 
-        if (filterHet((PredictGArguments) args(),fullPred) && doOuptut(correctness, args(), fullPred.overallProbability)) {
+        if (filterHet((PredictGArguments) args(), fullPred) && doOuptut(correctness, args(), fullPred.overallProbability)) {
             resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\n",
-                    homoPred.index, (correct?1:0), fullPred.trueGenotype, fullPred.calledGenotype, fullPred.overallProbability, correctness);
+                    homoPred.index, (correct ? 1 : 0), fullPred.trueGenotype, fullPred.calledGenotype, fullPred.overallProbability, correctness);
             if (args().filterMetricObservations) {
                 stats.observe(fullPred, homoPred.isVariant);
             }
         }
-        //convert true label to the convention used by auc calculator: negative true label=labelNo.
         if (!args().filterMetricObservations) {
-            stats.observe(fullPred,homoPred.isVariant);
+            stats.observe(fullPred, homoPred.isVariant);
         }
+
     }
 
     private boolean filterHet(PredictGArguments args, GenotypePrediction fullPred) {
         Set<String> alleles = fullPred.alleles();
         switch (args.showFilter) {
             case HET:
-                return (alleles.size()==2);
+                return (alleles.size() == 2);
             case HOM:
-                return alleles.size()==1;
+                return alleles.size() == 1;
             default:
                 return true;
         }

@@ -50,7 +50,7 @@ public class PredictArguments extends RecordingToolArguments {
     @Parameter(names = {"-f", "--to-file"}, description = "Write output to a file (file created under predictions/modelTime). If not provided, write to stdout.")
     public boolean toFile = false;
 
-    @Parameter(names = { "--filter-metric-observations"}, description = "When true, estimate AUC only from the filtered observations. ")
+    @Parameter(names = { "--filter-metric-observations"}, description = "When true, estimate performance measure(S) only with the filtered observations. ")
     public boolean filterMetricObservations;
 
     @Parameter(names = {"--predict-statistics"}, description = "Filename where predict statistics will be written (one invocation of predict is one line). ")
