@@ -21,10 +21,7 @@ public class MeanNormalizationMapper<RecordType> extends AbstractFeatureMapper1D
         return delegate.numberOfFeatures();
     }
 
-    @Override
-    public MappedDimensions dimensions() {
-        return null;
-    }
+
 
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
         mean=0;
@@ -38,21 +35,6 @@ public class MeanNormalizationMapper<RecordType> extends AbstractFeatureMapper1D
         mean/=count;
     }
 
-
-    @Override
-    public boolean hasMask() {
-        return false;
-    }
-
-    @Override
-    public void maskFeatures(RecordType record, INDArray mask, int indexOfRecord) {
-
-    }
-
-    @Override
-    public boolean isMasked(RecordType record, int featureIndex) {
-        return false;
-    }
 
     public float produceFeature(RecordType record, int featureIndex) {
         return normalize(produceFeatureInternal(record, featureIndex), mean);

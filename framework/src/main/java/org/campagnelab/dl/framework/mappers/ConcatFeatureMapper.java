@@ -28,7 +28,8 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
         for (FeatureMapper<RecordType> calculator : mappers) {
             numFeatures += calculator.numberOfFeatures();
             offsets[i] = numFeatures;
-            dimensions.add(calculator.dimensions().numDimensions());
+            final MappedDimensions dims = calculator.dimensions();
+            dimensions.add(dims.numDimensions());
             i++;
         }
         assert featureMappers.length==0 || dimensions.size()==1: "All feature mappers must have the same dimensions to be concatenated.";
