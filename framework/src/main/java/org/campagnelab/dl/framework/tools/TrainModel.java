@@ -316,7 +316,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             iter = 0;
             pg.expectedUpdates = miniBatchesPerEpoch; // one iteration processes miniBatchIterator elements.
             pg.start();
-// train the graph with the content of the iterator:
+            // train the graph with the content of the iterator:
             numExamplesUsed += trainer.train(computationGraph, iterator, pg);
 
             //save latest after the end of an epoch:

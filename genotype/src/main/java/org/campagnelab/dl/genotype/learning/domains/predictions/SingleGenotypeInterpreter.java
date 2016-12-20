@@ -27,6 +27,7 @@ public class SingleGenotypeInterpreter extends  SortingCountInterpreter<SingleGe
     @Override
     public SingleGenotypePrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
         SingleGenotypePrediction pred = new SingleGenotypePrediction();
+        record = sort(record);
         try {
             pred.predictedSingleGenotype = sort(record).getSamples(0).getCounts(genotypeIndex).getToSequence();
         } catch (IndexOutOfBoundsException e) {

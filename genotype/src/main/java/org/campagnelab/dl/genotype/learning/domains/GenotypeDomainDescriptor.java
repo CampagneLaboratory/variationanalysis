@@ -181,7 +181,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new SingleGenotypeInterpreter(9,sortCounts);
             //only need one interpreter for each record, it will collect entire genotype into a prediction
             case "homozygous":
-                return new HomozygousInterpreter();
+                return new HomozygousInterpreter(sortCounts);
             case "NumDistinctAlleles":
                 return new NumDistinctAllelesInterpreter();
             default:

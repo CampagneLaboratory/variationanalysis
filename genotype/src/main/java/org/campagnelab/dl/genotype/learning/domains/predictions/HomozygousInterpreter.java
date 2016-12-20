@@ -10,17 +10,16 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Interpret model output to determine if a site is homozygous/het and what hte homosygous genotype is.
  * Created by rct66 on 11/12/16.
  */
-public class HomozygousInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation, HomozygousPrediction> {
+public class HomozygousInterpreter extends  SortingCountInterpreter<HomozygousPrediction>
+        implements PredictionInterpreter<BaseInformationRecords.BaseInformation, HomozygousPrediction> {
 
     double maxProbability;
     boolean isHomozygous;
     private int maxIndex;
-    RecordCountSortHelper sortHelper = new RecordCountSortHelper();
-    boolean sortCounts;
 
 
-    public HomozygousInterpreter(boolean sortCounts) {
-        this.sortCounts = sortCounts;
+    public HomozygousInterpreter(boolean sort) {
+        super(sort);
     }
 
 
@@ -40,9 +39,7 @@ public class HomozygousInterpreter implements PredictionInterpreter<BaseInformat
     }
 
     public String getHomozygousPrediction(BaseInformationRecords.BaseInformation currentRecord, INDArray output) {
-        if (sortCounts) {
-            currentRecord = sortHelper.sort(currentRecord);
-        }
+        currentRecord = sort(currentRecord);
         maxProbability = -1;
         maxIndex = -1;
         int predictionIndex = 0;
