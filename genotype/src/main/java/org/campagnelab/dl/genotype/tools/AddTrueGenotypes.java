@@ -69,11 +69,13 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                 try {
                     // The map contains Goby positions (zero-based).
                     trueGenotype = chMap.get(chrom).get(position);
+                    trueGenotype = trueGenotype.toUpperCase();
                     genotypes = trueGenotype.split("|");
                     isVariant = true;
                 } catch (NullPointerException e) {
                     String referenceBase = buildRec.getReferenceBase();
                     trueGenotype = referenceBase+"|"+referenceBase;
+                    referenceBase = referenceBase.toUpperCase();
                     genotypes[0] = referenceBase;
                     genotypes[1] = referenceBase;
                 }
