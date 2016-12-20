@@ -65,10 +65,14 @@ public class GenotypePrediction {
         }
     }
 
-    public Set<String> alleles() {
+    public static Set<String> alleles(String genotype) {
         ObjectSet<String> result = new ObjectArraySet<>();
-        Collections.addAll(result, calledGenotype.split("[|/]"));
+        Collections.addAll(result, genotype.split("[|/]"));
         return result;
+    }
+
+    public Set<String> alleles() {
+        return alleles(calledGenotype);
     }
 
     public boolean isCorrect() {

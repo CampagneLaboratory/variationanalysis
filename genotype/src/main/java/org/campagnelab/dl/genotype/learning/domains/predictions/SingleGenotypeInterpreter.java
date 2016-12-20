@@ -7,11 +7,13 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 /**
  * Created by rct66 on 11/12/16.
  */
-public class SingleGenotypeInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation, SingleGenotypePrediction> {
+public class SingleGenotypeInterpreter extends  SortingCountInterpreter<SingleGenotypePrediction>
+        implements PredictionInterpreter<BaseInformationRecords.BaseInformation, SingleGenotypePrediction> {
 
     int genotypeIndex;
 
-    public SingleGenotypeInterpreter(int genotypeIndex) {
+    public SingleGenotypeInterpreter(int genotypeIndex, boolean sort) {
+        super(sort);
         this.genotypeIndex = genotypeIndex;
 
     };
@@ -26,7 +28,7 @@ public class SingleGenotypeInterpreter implements PredictionInterpreter<BaseInfo
     public SingleGenotypePrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
         SingleGenotypePrediction pred = new SingleGenotypePrediction();
         try {
-            pred.predictedSingleGenotype = record.getSamples(0).getCounts(genotypeIndex).getToSequence();
+            pred.predictedSingleGenotype = sort(record).getSamples(0).getCounts(genotypeIndex).getToSequence();
         } catch (IndexOutOfBoundsException e) {
             pred.predictedSingleGenotype = ".";
         }
