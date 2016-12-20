@@ -30,7 +30,6 @@ public class GenotypeSixDenseLayersNarrower2 implements ComputationGraphAssemble
     private TrainingArguments arguments;
     private int numInputs;
     private String[] outputNames = new String[]{"homozygous","A","T","C","G","N","I1","I2","I3","I4","I5"};
-    private String outputName = "genotype";
     private TrainingArguments args() {
         return arguments;
     };

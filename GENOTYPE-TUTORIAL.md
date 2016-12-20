@@ -90,7 +90,7 @@ goby 4g vcf-to-genotype-map NA12878-ok.vcf -o  NA12878-true-genotypes.map
 
  2. Add true genotypes to the site information:
 ```sh
-add-true-genotypes.sh 1g  -m true-genotypes.map -i NA12878-random.sbi  -o NA12878-random-labeled
+add-true-genotypes.sh 1g  -m true-genotypes.map -i NA12878-random.sbi  -o NA12878-random-labeled --ref-sampling-rate 0.01
 ```
 
 Split sites into training, validation and test sets:
