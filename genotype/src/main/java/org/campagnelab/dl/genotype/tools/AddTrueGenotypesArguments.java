@@ -22,6 +22,7 @@ public class AddTrueGenotypesArguments implements ToolArguments {
     @Parameter(required = false, names = {"-s", "--sample-index"}, description = "Add calls to an alternative sample in the sbi file (default if first sample, index 0")
     public int sampleIndex = 0;
 
-
+    @Parameter( names = { "--ref-sampling-rate"}, description = "Sampling rate for positions where the true genotype matches the reference.")
+    public float referenceSamplingRate=1.0f;
 }
 
