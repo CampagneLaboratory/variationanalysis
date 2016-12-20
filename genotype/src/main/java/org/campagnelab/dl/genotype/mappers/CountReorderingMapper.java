@@ -20,15 +20,6 @@ public class CountReorderingMapper extends AbstractFeatureMapper1D<BaseInformati
         return delegate.getFeatureName(featureIndex);
     }
 
-    int[] indices = new int[]{0};
-
-    @Override
-    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
-        indices[0] = indexOfRecord;
-        inputs.putScalar(indices, produceFeature(sortedCountRecord, 0));
-    }
-
-
     @Override
     public int numberOfFeatures() {
         return delegate.numberOfFeatures();
