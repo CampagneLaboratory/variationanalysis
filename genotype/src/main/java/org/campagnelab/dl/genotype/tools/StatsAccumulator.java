@@ -50,15 +50,16 @@ public class StatsAccumulator {
     }
 
     protected String[] createOutputHeader(){
-        return new String[]{"accuracy","sensitivity(recall)","PPV(precision)","F1"};
+        return new String[]{"accuracy","sensitivity/recall","PPV/precision","F1"};
     }
 
     protected void reportStatistics(String prefix) {
         double[] statsArray = createOutputStatistics();
-        System.out.println("Accuracy on " + prefix + "=" + statsArray[0]);
-        System.out.println("Recall on " + prefix + "=" + statsArray[1]);
-        System.out.println("Precision on " + prefix + "=" + statsArray[2]);
-        System.out.println("F1 on " + prefix + "=" + statsArray[3]);
+        System.out.println("Statistics estimated for "+prefix);
+        System.out.println("Accuracy =" + statsArray[0]);
+        System.out.println("Recall =" + statsArray[1]);
+        System.out.println("Precision =" + statsArray[2]);
+        System.out.println("F1 =" + statsArray[3]);
     }
 
 }
