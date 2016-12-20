@@ -112,7 +112,7 @@ public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.Ba
                 binMax += binWidth;
             }
         }
-        return String.format("density_%s_%d_%d", name, binMin, binMax);
+        return String.format("density_%s_%s_%s", name, Float.toString(binMin),  Float.toString(binMax));
     }
 
 

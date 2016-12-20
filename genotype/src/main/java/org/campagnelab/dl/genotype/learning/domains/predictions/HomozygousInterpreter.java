@@ -39,7 +39,6 @@ public class HomozygousInterpreter extends  SortingCountInterpreter<HomozygousPr
     }
 
     public String getHomozygousPrediction(BaseInformationRecords.BaseInformation currentRecord, INDArray output) {
-        currentRecord = sort(currentRecord);
         maxProbability = -1;
         maxIndex = -1;
         int predictionIndex = 0;
@@ -55,7 +54,7 @@ public class HomozygousInterpreter extends  SortingCountInterpreter<HomozygousPr
             return "";
         }
         try {
-            return currentRecord.getSamples(0).getCounts(maxIndex).getToSequence();
+            return sort(currentRecord).getSamples(0).getCounts(maxIndex).getToSequence();
         } catch (IndexOutOfBoundsException e) {
             // predicted, but not present in the input features?
             return ".";
