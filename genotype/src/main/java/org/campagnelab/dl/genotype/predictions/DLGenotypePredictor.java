@@ -19,7 +19,7 @@ import java.util.Properties;
  */
 public class DLGenotypePredictor implements GenotypePredictor, Predictor {
     private GenotypeModel model;
-    private GenotypePrediction5Out prediction;
+    private GenotypePrediction prediction;
 
 
 

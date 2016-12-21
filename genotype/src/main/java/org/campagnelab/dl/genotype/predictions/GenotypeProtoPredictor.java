@@ -50,10 +50,10 @@ public class GenotypeProtoPredictor {
         }
     }
 
-    public GenotypePrediction5Out predictGenotype(BaseInformationRecords.BaseInformation record) {
+    public GenotypePrediction predictGenotype(BaseInformationRecords.BaseInformation record) {
         assert model != null : "Model cannot be null";
         INDArray arrayPredicted = null;
-        GenotypePrediction5Out prediction = new GenotypePrediction5Out();
+        GenotypePrediction prediction = new GenotypePrediction();
 
         outputHelper.predictForNextRecord(model, record, mapper);
 

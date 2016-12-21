@@ -82,7 +82,7 @@ public class GenotypeModel {
         this.protoPredictor = new GenotypeProtoPredictor(domainDescriptor, model, featureMapper);
     }
 
-    public GenotypePrediction5Out predictGenotype(RandomAccessSequenceInterface genome, String referenceID,
+    public GenotypePrediction predictGenotype(RandomAccessSequenceInterface genome, String referenceID,
                                                   SampleCountInfo sampleCounts[],
                                                   int referenceIndex, int position,
                                                   DiscoverVariantPositionData list,
