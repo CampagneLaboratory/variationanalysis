@@ -28,6 +28,7 @@ import java.util.Random;
 public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
 
 
+    int numVariantsAdded = 0;
     RandomAccessSequenceCache genome = new RandomAccessSequenceCache();
 
     static private Logger LOG = LoggerFactory.getLogger(AddTrueGenotypes.class);
@@ -95,6 +96,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                     trueGenotype = trueGenotype.toUpperCase();
                     genotypes = trueGenotype.split("|");
                     isVariant = true;
+                    numVariantsAdded++;
                 } else {
                     if (random.nextFloat() > args().referenceSamplingRate) {
                         skip = true;
@@ -124,6 +126,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             }
             recordLogger.done();
             dest.close();
+            System.out.println(numVariantsAdded + " number of variants in the sbi file.");
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
