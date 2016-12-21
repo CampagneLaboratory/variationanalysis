@@ -57,7 +57,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                 BaseInformationRecords.BaseInformation.Builder buildRec = rec.toBuilder();
                 int position = buildRec.getPosition();
                 String chrom = buildRec.getReferenceId();
-                String[] genotypes = new String[2];
+                String[] genotypes = new String[3];
                 String trueGenotype;
                 boolean isVariant = false;
                 if (chMap.get(chrom) != null && chMap.get(chrom).get(position) != null) {
@@ -74,7 +74,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                     trueGenotype = referenceBase+"|"+referenceBase;
                     referenceBase = referenceBase.toUpperCase();
                     genotypes[0] = referenceBase;
-                    genotypes[1] = referenceBase;
+                    genotypes[2] = referenceBase;
                 }
                 if (!skip) {
                     // write the record.
@@ -82,7 +82,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                     BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
                     for (int i = 0; i < buildSample.getCountsCount(); i++) {
                         BaseInformationRecords.CountInfo.Builder count = buildSample.getCounts(i).toBuilder();
-                        boolean isCalled = (count.getToSequence().equals(genotypes[0]) || count.getToSequence().equals(genotypes[1]));
+                        boolean isCalled = (count.getToSequence().equals(genotypes[0]) || count.getToSequence().equals(genotypes[2]));
                         count.setIsCalled(isCalled);
                         buildSample.setCounts(i, count);
                     }
