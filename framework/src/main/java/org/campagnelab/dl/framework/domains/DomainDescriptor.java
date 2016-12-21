@@ -239,6 +239,14 @@ public abstract class DomainDescriptor<RecordType> {
         return mappers;
     }
 
+    public LabelMapper[] labelMappers() {
+        LabelMapper[] mappers = new LabelMapper[getNumModelOutputs()];
+        int i = 0;
+        for (String outputName : getComputationalGraph().getOutputNames()) {
+            mappers[i++] = getLabelMapper(outputName);
+        }
+        return mappers;
+    }
     public int getNumModelInputs() {
         return getComputationalGraph().getInputNames().length;
     }
