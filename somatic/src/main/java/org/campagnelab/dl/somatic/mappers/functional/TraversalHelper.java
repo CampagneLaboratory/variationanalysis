@@ -46,4 +46,19 @@ public class TraversalHelper {
                     );
         return list;
     }
+
+    /**
+     * Define a Function to reduce a record to a list of NumberWithFrequency found across all samples and counts of these samples.
+     * @param baseInformationOrBuilder
+     * @param function
+     * @return
+     */
+    public static List<BaseInformationRecords.NumberWithFrequency> forOneSampleGenotype(int sampleIndex,
+                                                                                        int genotypeIndex,
+                                                                                        BaseInformationRecords.BaseInformationOrBuilder baseInformationOrBuilder,
+                                                                                   Function<BaseInformationRecords.CountInfo,List<BaseInformationRecords.NumberWithFrequency>> function) {
+        List<BaseInformationRecords.NumberWithFrequency> list = new ObjectArrayList<>();
+        list.addAll(function.apply(baseInformationOrBuilder.getSamples(sampleIndex).getCounts(genotypeIndex)));
+        return list;
+    }
 }
