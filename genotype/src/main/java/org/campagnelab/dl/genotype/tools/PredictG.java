@@ -6,8 +6,7 @@ import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPrediction;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction;
-import org.campagnelab.dl.genotype.predictions.AbstractGenotypePrediction;
-import org.campagnelab.dl.genotype.predictions.GenotypePrediction5Out;
+import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.PrintWriter;
@@ -36,7 +35,6 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
 
     StatsAccumulator stats = new StatsAccumulator();
-    ;
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
@@ -66,11 +64,9 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void processPredictions(PrintWriter resultWriter, List<Prediction> predictionList) {
-        HomozygousPrediction homoPred = (HomozygousPrediction) predictionList.get(0);
-        List<Prediction> genoPredList = predictionList.subList(1, 11);
 
-        GenotypePrediction5Out fullPred = new GenotypePrediction5Out();
-        fullPred.set(homoPred, genoPredList.toArray(new SingleGenotypePrediction[genoPredList.size()]));
+
+        GenotypePrediction fullPred = new GenotypePrediction(predictionList);
 
         boolean correct = fullPred.isCorrect();
         //remove dangling commas
@@ -78,13 +74,13 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
         if (filterHet((PredictGArguments) args(), fullPred) && doOuptut(correctness, args(), fullPred.overallProbability)) {
             resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\n",
-                    homoPred.index, (correct ? 1 : 0), fullPred.trueGenotype, fullPred.predictedGenotype, fullPred.overallProbability, correctness);
+                    fullPred.getPredictionIndex(), (correct ? 1 : 0), fullPred.trueGenotype, fullPred.calledGenotype, fullPred.overallProbability, correctness);
             if (args().filterMetricObservations) {
-                stats.observe(fullPred, homoPred.isVariant);
+                stats.observe(fullPred, fullPred.isVariant());
             }
         }
         if (!args().filterMetricObservations) {
-            stats.observe(fullPred, homoPred.isVariant);
+            stats.observe(fullPred, fullPred.isVariant());
         }
 
     }

@@ -16,6 +16,7 @@ public class StatsAccumulator {
     int numTrueNegative;
     int numFalsePositive;
     int numFalseNegative;
+    private int  numVariants;
 
     protected void initializeStats() {
         numCorrect = 0;
@@ -24,6 +25,7 @@ public class StatsAccumulator {
         numTrueNegative = 0;
         numFalsePositive = 0;
         numFalseNegative = 0;
+        numVariants=0;
     }
 
     protected void observe(AbstractGenotypePrediction fullPred, boolean isVariant){
@@ -42,6 +44,7 @@ public class StatsAccumulator {
                 numFalsePositive++;
             }
         }
+        numVariants+=isVariant?1:0;
     }
 
     protected double[] createOutputStatistics() {
@@ -49,11 +52,12 @@ public class StatsAccumulator {
         double recall = numTruePositive/((double)(numTruePositive+numFalseNegative));
         double precision = numTruePositive/((double)(numTruePositive+numFalsePositive));
         double F1 = precision*recall/(precision+recall);
-        return new double[]{accuracy,recall,precision,F1};
+        return new double[]{accuracy,recall,precision,F1,numVariants};
     }
 
     protected String[] createOutputHeader(){
-        return new String[]{"accuracy","sensitivity/recall","PPV/precision","F1"};
+        return new String[]{"accuracy","sensitivity/recall","PPV/precision","F1","numVariants",
+        };
     }
 
     protected void reportStatistics(String prefix) {
@@ -63,7 +67,8 @@ public class StatsAccumulator {
         System.out.println("Recall =" + statsArray[1]);
         System.out.println("Precision =" + statsArray[2]);
         System.out.println("F1 =" + statsArray[3]);
+        System.out.println("numVariants =" + statsArray[4]);
         System.out.println("Printable: "+ Arrays.toString(statsArray));
-    }
+         }
 
 }

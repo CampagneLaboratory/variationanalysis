@@ -7,12 +7,12 @@ package org.campagnelab.dl.framework.mappers;
  * @author Remi Torracinta
  */
 
-public class MaxValueNormalizingMapper<RecordType> extends AbstractFeatureMapper1D<RecordType> {
+public class MaxNormalizationMapper<RecordType> extends AbstractFeatureMapper1D<RecordType> {
 
     FeatureNameMapper delegate;
     float absMax=Float.NEGATIVE_INFINITY;
 
-    public MaxValueNormalizingMapper(FeatureNameMapper delegate) {
+    public MaxNormalizationMapper(FeatureNameMapper delegate) {
         this.delegate = delegate;
     }
 

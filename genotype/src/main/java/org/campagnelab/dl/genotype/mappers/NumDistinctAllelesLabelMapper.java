@@ -14,10 +14,13 @@ import java.util.Properties;
  * Created by fac2003 on 12/20/16.
  */
 public class NumDistinctAllelesLabelMapper extends CountSortingLabelMapper implements ConfigurableFeatureMapper {
-    protected int ploidy;
 
-    public NumDistinctAllelesLabelMapper(boolean sortCounts) {
+
+    public int ploidy;
+
+    public NumDistinctAllelesLabelMapper(boolean sortCounts, int ploidy) {
         super(sortCounts);
+        this.ploidy=ploidy;
     }
 
     @Override
@@ -35,10 +38,11 @@ public class NumDistinctAllelesLabelMapper extends CountSortingLabelMapper imple
         int numDistinctAlleles = GenotypePrediction5Out.alleles(trueGenotype).size();
         return (labelIndex == numDistinctAlleles - 1) ? 1f : 0f;
     }
-
+    public static final java.lang.String PLOIDY_PROPERTY= "genotypes.ploidy";
     @Override
     public void configure(Properties readerProperties) {
-        String value = readerProperties.getProperty("genotypes.ploidy");
+
+        String value = readerProperties.getProperty(PLOIDY_PROPERTY);
         try {
             ploidy = Integer.parseInt(value);
         } catch (NumberFormatException e) {

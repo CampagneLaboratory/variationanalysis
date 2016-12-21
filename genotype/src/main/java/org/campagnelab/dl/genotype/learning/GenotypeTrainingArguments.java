@@ -22,4 +22,7 @@ public class GenotypeTrainingArguments extends TrainingArguments {
     protected String defaultFeatureMapperClassname() {
         return GenotypeMapperV1.class.getCanonicalName();
     }
+
+    @Parameter(names = "--ploidy", description = "The organism ploidy (2 for humans, more for some plants). ")
+    public int ploidy=2;
 }

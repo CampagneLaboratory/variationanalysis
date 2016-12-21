@@ -7,6 +7,10 @@ import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
+import org.campagnelab.dl.framework.tools.TrainingArguments;
+import org.campagnelab.dl.genotype.learning.architecture.graphs.NumDistinctAlleleAssembler;
+import org.campagnelab.dl.genotype.mappers.GenotypeFeatureMapper;
+import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
 import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedInterpreter;
 import org.campagnelab.dl.genotype.mappers.*;
 import org.campagnelab.dl.genotype.performance.AccuracyHelper;
@@ -35,9 +39,12 @@ import java.util.stream.Collectors;
 public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRecords.BaseInformation> {
 
 
+    private int ploidy;
+
     public GenotypeDomainDescriptor(GenotypeTrainingArguments arguments) {
         this.arguments = arguments;
         initializeArchitecture(arguments.architectureClassname);
+        this.ploidy = arguments.ploidy;
     }
 
     /**
@@ -51,7 +58,15 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         super.loadProperties(modelPath);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
+        configure(modelProperties);
         initializeArchitecture();
+    }
+
+
+    @Override
+    public void putProperties(Properties props) {
+        super.putProperties(props);
+        props.setProperty(NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY, Integer.toString(ploidy));
     }
 
     /**
@@ -68,6 +83,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         super.loadProperties(domainProperties, sbiProperties);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
+        configure(modelProperties);
         initializeArchitecture();
     }
 
@@ -103,7 +119,6 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     }
 
-    // TODO: SomaticMutationDomainDescriptor shouldn't need these methods, but make sure
     public int[] getNumMaskInputs(String inputName) {
         return new int[]{getFeatureMapper(inputName).numberOfFeatures()};
     }
@@ -116,33 +131,33 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public LabelMapper getLabelMapper(String outputName) {
-        boolean sortCounts=needSortCounts();
+        boolean sortCounts = needSortCounts();
 
         switch (outputName) {
             case "A":
-                return new GenotypeLabelsMapper(0,sortCounts);
+                return new GenotypeLabelsMapper(0, sortCounts);
             case "T":
-                return new GenotypeLabelsMapper(1,sortCounts);
+                return new GenotypeLabelsMapper(1, sortCounts);
             case "C":
-                return new GenotypeLabelsMapper(2,sortCounts);
+                return new GenotypeLabelsMapper(2, sortCounts);
             case "G":
-                return new GenotypeLabelsMapper(3,sortCounts);
+                return new GenotypeLabelsMapper(3, sortCounts);
             case "N":
-                return new GenotypeLabelsMapper(4,sortCounts);
+                return new GenotypeLabelsMapper(4, sortCounts);
             case "I1":
-                return new GenotypeLabelsMapper(5,sortCounts);
+                return new GenotypeLabelsMapper(5, sortCounts);
             case "I2":
-                return new GenotypeLabelsMapper(6,sortCounts);
+                return new GenotypeLabelsMapper(6, sortCounts);
             case "I3":
-                return new GenotypeLabelsMapper(7,sortCounts);
+                return new GenotypeLabelsMapper(7, sortCounts);
             case "I4":
-                return new GenotypeLabelsMapper(8,sortCounts);
+                return new GenotypeLabelsMapper(8, sortCounts);
             case "I5":
-                return new GenotypeLabelsMapper(9,sortCounts);
+                return new GenotypeLabelsMapper(9, sortCounts);
             case "homozygous":
                 return new HomozygousLabelsMapper(sortCounts);
-            case "NumDistinctAlleles":
-                return new NumDistinctAllelesLabelMapper(sortCounts);
+            case "numDistinctAlleles":
+                return new NumDistinctAllelesLabelMapper(sortCounts, ploidy);
             case "combined":
                 return new CombinedLabelsMapper();
             default:
@@ -152,43 +167,61 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     }
 
     private boolean needSortCounts() {
-        return ((GenotypeFeatureMapper)getFeatureMapper("input")).sortCounts;
+        return ((GenotypeFeatureMapper) getFeatureMapper("input")).sortCounts;
+    }
+
+    private boolean withDistinctAllele() {
+        return ((GenotypeFeatureMapper) getFeatureMapper("input")).withDistinctAlleleCounts;
+    }
+
+    @Override
+    public void configure(Properties modelProperties) {
+        super.configure(modelProperties);
+        final String property = modelProperties.getProperty(NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY);
+        if (property==null) {
+            throw new RuntimeException(String.format("property %s must be found in model config.properties",
+                    NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY));
+        }
+        ploidy=Integer.parseInt(property);
     }
 
     @Override
     public PredictionInterpreter getPredictionInterpreter(String outputName) {
-        boolean sortCounts=needSortCounts();
+        boolean sortCounts = needSortCounts();
+
         switch (outputName) {
             case "A":
-                return new SingleGenotypeInterpreter(0,sortCounts);
+                return new SingleGenotypeInterpreter(0, sortCounts);
             case "T":
-                return new SingleGenotypeInterpreter(1,sortCounts);
+                return new SingleGenotypeInterpreter(1, sortCounts);
             case "C":
-                return new SingleGenotypeInterpreter(2,sortCounts);
+                return new SingleGenotypeInterpreter(2, sortCounts);
             case "G":
-                return new SingleGenotypeInterpreter(3,sortCounts);
+                return new SingleGenotypeInterpreter(3, sortCounts);
             case "N":
-                return new SingleGenotypeInterpreter(4,sortCounts);
+                return new SingleGenotypeInterpreter(4, sortCounts);
             case "I1":
-                return new SingleGenotypeInterpreter(5,sortCounts);
+                return new SingleGenotypeInterpreter(5, sortCounts);
             case "I2":
-                return new SingleGenotypeInterpreter(6,sortCounts);
+                return new SingleGenotypeInterpreter(6, sortCounts);
             case "I3":
-                return new SingleGenotypeInterpreter(7,sortCounts);
+                return new SingleGenotypeInterpreter(7, sortCounts);
             case "I4":
-                return new SingleGenotypeInterpreter(8,sortCounts);
+                return new SingleGenotypeInterpreter(8, sortCounts);
             case "I5":
-                return new SingleGenotypeInterpreter(9,sortCounts);
+                return new SingleGenotypeInterpreter(9, sortCounts);
             //only need one interpreter for each record, it will collect entire genotype into a prediction
             case "homozygous":
                 return new HomozygousInterpreter(sortCounts);
-            case "NumDistinctAlleles":
-                return new NumDistinctAllelesInterpreter();
             case "combined":
                 return new CombinedInterpreter();
+            case "numDistinctAlleles":
+                return new NumDistinctAllelesInterpreter(ploidy);
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
+
+
     }
 
     @Override
@@ -253,13 +286,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public ComputationGraphAssembler getComputationalGraph() {
-
-        try {
-            ComputationGraphAssembler assembler = (ComputationGraphAssembler) Class.forName(args().architectureClassname).newInstance();
-            return assembler;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (withDistinctAllele()) {
+            return new NumDistinctAlleleAssembler();
         }
+        return new GenotypeSixDenseLayersNarrower2();
     }
 
     @Override
@@ -281,11 +311,13 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     public LossFunctions.LossFunction getOutputLoss(String outputName) {
         switch (outputName) {
             case "homozygous":
+            case "numDistinctAlleles":
                 return LossFunctions.LossFunction.MCXENT;
+
             default:
                 // any other is an individual genotype output:
                 return LossFunctions.LossFunction.XENT;
-             }
+        }
     }
 
     @Override

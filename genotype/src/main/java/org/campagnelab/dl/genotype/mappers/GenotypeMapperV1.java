@@ -1,7 +1,7 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
-import org.campagnelab.dl.framework.mappers.MaxValueNormalizingMapper;
+import org.campagnelab.dl.framework.mappers.MaxNormalizationMapper;
 import org.campagnelab.dl.somatic.mappers.DensityMapper;
 import org.campagnelab.dl.somatic.mappers.GenomicContextMapper;
 import org.campagnelab.dl.somatic.mappers.NamingConcatFeatureMapper;
@@ -46,11 +46,11 @@ public class GenotypeMapperV1  extends GenotypeFeatureMapper{
         }
         delegate =
                 new NamingConcatFeatureMapper<>(
-                        new MaxValueNormalizingMapper(
+                        new MaxNormalizationMapper(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),
                         new InverseNormalizeMapper(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),
-                        new MaxValueNormalizingMapper(
+                        new MaxNormalizationMapper(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readIndexMappers)),
                         new InverseNormalizeMapper(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readIndexMappers)),

@@ -29,7 +29,6 @@ public class ModelPropertiesHelper {
     public void writeProperties(String modelDirectory) throws IOException {
         //write properties file to model folder
         modelProp.setProperty("hiddenNodes", Integer.toString(numHiddenNodes));
-
         if (lossFunction != null) {
             modelProp.setProperty("lossFunction", lossFunction);
         }
@@ -106,5 +105,9 @@ public class ModelPropertiesHelper {
 
     public void addProperties(Properties readerProperties) {
         this.modelProp.putAll(readerProperties);
+    }
+
+    public Properties getProperties() {
+        return modelProp;
     }
 }
