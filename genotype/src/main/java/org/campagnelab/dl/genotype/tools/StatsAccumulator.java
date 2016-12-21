@@ -1,7 +1,6 @@
 package org.campagnelab.dl.genotype.tools;
 
 import org.campagnelab.dl.genotype.predictions.AbstractGenotypePrediction;
-import org.campagnelab.dl.genotype.predictions.GenotypePrediction5Out;
 
 import java.util.Arrays;
 

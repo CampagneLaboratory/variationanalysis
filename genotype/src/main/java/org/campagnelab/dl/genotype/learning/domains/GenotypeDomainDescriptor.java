@@ -289,7 +289,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         if (withDistinctAllele()) {
             return new NumDistinctAlleleAssembler();
         }
-        return new GenotypeSixDenseLayersNarrower2();
+        try {
+            ComputationGraphAssembler assembler = (ComputationGraphAssembler) Class.forName(args().architectureClassname).newInstance();
+            return assembler;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -312,6 +317,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         switch (outputName) {
             case "homozygous":
             case "numDistinctAlleles":
+            case "combined":
                 return LossFunctions.LossFunction.MCXENT;
 
             default:

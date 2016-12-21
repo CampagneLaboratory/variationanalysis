@@ -6,6 +6,7 @@ import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPrediction;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction;
+import org.campagnelab.dl.genotype.predictions.AbstractGenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
