@@ -22,12 +22,12 @@ public class GenotypePrediction extends AbstractGenotypePrediction{
     /**
      * Genotype called by the model.
      */
-    public String calledGenotype;
+    public String calledGenotype="";
     public double overallProbability;
     /**
      * True genotype (if available). Useful for performance evaluation.
      */
-    public String trueGenotype;
+    public String trueGenotype="";
     /**
      * Probability that a genotype is present. Genotypes are indexed using the goby conventions.
      */

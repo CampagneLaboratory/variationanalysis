@@ -134,7 +134,7 @@ public abstract class DomainDescriptor<RecordType> {
 
     // The following provide default implementations suitable when training with only Loss score.
     public PerformanceMetricDescriptor<RecordType> performanceDescritor() {
-        return new PerformanceMetricDescriptor<RecordType>() {
+        return new PerformanceMetricDescriptor<RecordType>(this) {
             @Override
             public String[] performanceMetrics() {
                 return new String[]{"score"};

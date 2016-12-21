@@ -10,10 +10,10 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 public class SomaticFrequencyInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation, SomaticFrequencyPrediction> {
     @Override
-    public SomaticFrequencyPrediction interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex) {
+    public SomaticFrequencyPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
         SomaticFrequencyPrediction pred = new SomaticFrequencyPrediction();
         int outputIndex = 1;// frequency is second output.
-        pred.predictedValue = outputs[outputIndex].getFloat(0);
+        pred.predictedValue = output.getFloat(0);
         return pred;
     }
 

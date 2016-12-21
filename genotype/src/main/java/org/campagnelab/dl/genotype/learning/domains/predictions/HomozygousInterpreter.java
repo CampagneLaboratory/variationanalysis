@@ -24,8 +24,11 @@ public class HomozygousInterpreter extends  SortingCountInterpreter<HomozygousPr
 
 
     @Override
-    public HomozygousPrediction interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex) {
-        throw new RuntimeException("a wrong interpret method was called on the homozygous interpeter");
+    public HomozygousPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+        HomozygousPrediction pred = new HomozygousPrediction();
+        return pred;
+// TODO implement.
+// throw new RuntimeException("a wrong interpret method was called on the homozygous interpeter");
     }
 
     @Override

@@ -81,8 +81,9 @@ public class AUCHelper {
             int numExamples = next.getFeatures(0).size(0);
             for (int predictionIndex = 0; predictionIndex < numExamples; predictionIndex++) {
                 INDArray trueLabels = next.getLabels(outputIndex);
+                INDArray output = outputs[outputIndex];
 
-               prediction = (BinaryClassPrediction) interpreter.interpret(trueLabels, outputs,predictionIndex);
+               prediction = (BinaryClassPrediction) interpreter.interpret(trueLabels, output,predictionIndex);
              /*   prediction.trueLabelYes = trueLabels.getDouble(predictionIndex, 0);
                 prediction.predictedLabelNo = 1 - outputs[outputIndex].getDouble(predictionIndex, 0);
                 prediction.predictedLabelYes = outputs[outputIndex].getDouble(predictionIndex, 0);

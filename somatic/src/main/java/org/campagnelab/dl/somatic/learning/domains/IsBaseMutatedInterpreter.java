@@ -13,11 +13,11 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class IsBaseMutatedInterpreter extends IsSomaticMutationInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation, IsMutatedPrediction> {
 
     @Override
-    public IsMutatedPrediction interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex) {
+    public IsMutatedPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
         IsMutatedPrediction prediction = new IsMutatedPrediction();
         int outputIndex = 0; // first output is IsBaseMutated
-        prediction.predictedLabelNo = outputs[outputIndex].getDouble(predictionIndex, 0);
-        prediction.predictedLabelYes = 1f -outputs[outputIndex].getDouble(predictionIndex, 0);
+        prediction.predictedLabelNo = output.getDouble(predictionIndex, 0);
+        prediction.predictedLabelYes = 1f -output.getDouble(predictionIndex, 0);
         prediction.trueLabelYes = 1-trueLabels.getDouble(predictionIndex, 0);
         return prediction;
     }

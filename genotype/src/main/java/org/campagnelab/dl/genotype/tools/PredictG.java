@@ -4,8 +4,7 @@ package org.campagnelab.dl.genotype.tools;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
-import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPrediction;
-import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction;
+import org.campagnelab.dl.genotype.performance.StatsAccumulator;
 import org.campagnelab.dl.genotype.predictions.AbstractGenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -35,7 +34,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     }
 
 
-    StatsAccumulator stats = new StatsAccumulator();
+    protected StatsAccumulator stats = new StatsAccumulator();
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {

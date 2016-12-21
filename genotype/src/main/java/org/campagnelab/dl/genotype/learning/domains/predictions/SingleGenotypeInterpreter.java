@@ -20,8 +20,16 @@ public class SingleGenotypeInterpreter extends  SortingCountInterpreter<SingleGe
 
 
     @Override
-    public SingleGenotypePrediction interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex) {
-        throw new RuntimeException("a wrong interpret method was called on the homozygous interpeter");
+    public SingleGenotypePrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+        SingleGenotypePrediction pred = new SingleGenotypePrediction();
+        try {
+            pred.predictedSingleGenotype = Integer.toString(genotypeIndex);
+        } catch (IndexOutOfBoundsException e) {
+            pred.predictedSingleGenotype = ".";
+        }
+        pred.probabilityIsCalled = output.getDouble( predictionIndex,0);
+        pred.trueIsCalled = trueLabels.getDouble( predictionIndex,0)==1;
+        return pred;
     }
 
     @Override
@@ -32,7 +40,8 @@ public class SingleGenotypeInterpreter extends  SortingCountInterpreter<SingleGe
         } catch (IndexOutOfBoundsException e) {
             pred.predictedSingleGenotype = ".";
         }
-        pred.probabilityIsCalled = output.getDouble(0,0);
+        int predictionIndex=0;
+        pred.probabilityIsCalled = output.getDouble(predictionIndex,0);
         return pred;
     }
 

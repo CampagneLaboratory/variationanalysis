@@ -21,7 +21,7 @@ public class CombinedInterpreter extends SortingCountInterpreter<CombinedPredict
     double probability;
 
     @Override
-    public CombinedPrediction interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex) {
+    public CombinedPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
         throw new RuntimeException("a wrong interpret method was called on the homozygous interpeter");
     }
 

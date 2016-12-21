@@ -2,6 +2,7 @@ package org.campagnelab.dl.genotype.learning.domains;
 
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 
+import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPrediction;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -19,8 +20,15 @@ public class NumDistinctAllelesInterpreter implements PredictionInterpreter<Base
     }
 
     @Override
-    public NumDistinctAlleles interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex) {
-        throw new RuntimeException("Not implemented.");
+    public NumDistinctAlleles interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+        NumDistinctAlleles result = new NumDistinctAlleles();
+
+        result.predictedValue = readPredicted(output, result,predictionIndex);
+        result.trueValue = readPredicted(trueLabels, result,predictionIndex);
+        // TODO: refactor true genotype on the SingleGenotypePredictions.
+        result.trueGenotypeFormat="?/?";
+        result.trueGenotype= HomozygousPrediction.getGenotype(result.trueGenotypeFormat);
+        return result;
     }
 
     @Override
@@ -30,9 +38,14 @@ public class NumDistinctAllelesInterpreter implements PredictionInterpreter<Base
         result.trueValue = GenotypePrediction.alleles(trueGenotype).size();
         result.inspectRecord(record);
         // interpret the prediction
+        result.predictedValue = readPredicted(output, result,0);
+        return result;
+    }
+
+    private int readPredicted(INDArray output, NumDistinctAlleles result, int  predictionIndex) {
         double maxProbability = -1;
         int maxIndex = -1;
-        int predictionIndex = 0;
+
         for (int i = 0; i < ploidy; i++) {
             double outputDouble = output.getDouble(predictionIndex, i);
             if (maxProbability < outputDouble) {
@@ -40,7 +53,6 @@ public class NumDistinctAllelesInterpreter implements PredictionInterpreter<Base
                 maxProbability = outputDouble;
             }
         }
-        result.predictedValue = maxIndex + 1;
-        return result;
+       return maxIndex + 1;
     }
 }

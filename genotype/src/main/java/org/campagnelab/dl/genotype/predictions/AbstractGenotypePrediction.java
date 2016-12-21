@@ -18,7 +18,7 @@ public abstract class AbstractGenotypePrediction extends Prediction {
     /**
      * Genotype called by the model.
      */
-    public String predictedGenotype;
+    public String predictedGenotype="";
 
     /*
     returns whether or not the prediction is correct, will be used for statistics.

@@ -147,7 +147,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
     @Override
     public PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation> performanceDescritor() {
-        return new PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation>() {
+        return new PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation>(this) {
             @Override
             public String[] performanceMetrics() {
                 return new String[]{"AUC", "score"};

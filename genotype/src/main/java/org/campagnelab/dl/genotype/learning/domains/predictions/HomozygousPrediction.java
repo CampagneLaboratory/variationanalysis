@@ -26,16 +26,16 @@ public class HomozygousPrediction extends Prediction {
     public boolean isHomozygous;
 
     public void inspectRecord(BaseInformationRecords.BaseInformation currentRecord) {
-        trueGenotype = getGenotype(currentRecord);
+        trueGenotype = getGenotype( currentRecord.getTrueGenotype());
         trueGenotypeFormat = (trueGenotype.size()==0)?"./.":currentRecord.getTrueGenotype();
         isVariant = currentRecord.getSamples(0).hasIsVariant() && currentRecord.getSamples(0).getIsVariant();
         isIndel = trueGenotype.contains("-");
         return;
     }
 
-    public Set<String> getGenotype(BaseInformationRecords.BaseInformation currentRecord){
+    public static Set<String> getGenotype(String genotype){
         Set<String> alleles = new ObjectArraySet<>();
-        for (String allele : currentRecord.getTrueGenotype().split("/")){
+        for (String allele : genotype.split("/")){
             alleles.add(allele);
         }
         alleles.remove("");

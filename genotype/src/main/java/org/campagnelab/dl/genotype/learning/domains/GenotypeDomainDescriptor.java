@@ -20,6 +20,7 @@ import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypeInterpreter;
+import org.campagnelab.dl.genotype.performance.GenotypeTrainingPerformanceHelper;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
@@ -237,16 +238,20 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation> performanceDescritor() {
-        return new PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation>() {
-            @Override
+        return new PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation>(this) {
+
+
+          @Override
             public String[] performanceMetrics() {
-                return new String[]{"accuracy", "alleleAccuracy", "score"};
+                return new String[]{/*"F1"*/"accuracy", "alleleAccuracy", "score"};
             }
 
             @Override
             public boolean largerValueIsBetterPerformance(String metricName) {
                 switch (metricName) {
                     case "accuracy":
+                        return true;
+                    case "F1":
                         return true;
                     case "alleleAccuracy":
                         return true;
@@ -260,9 +265,14 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             @Override
             public double estimateMetric(ComputationGraph graph, String metricName, MultiDataSetIterator dataSetIterator, long scoreN) {
                 switch (metricName) {
-                    case "accuracy":
-                        AccuracyHelper helper = new AccuracyHelper();
+                    case "F1":
+                        GenotypeTrainingPerformanceHelper helper = new GenotypeTrainingPerformanceHelper(domainDescriptor);
                         return helper.estimateWithGraph(dataSetIterator, graph,
+                                index -> index > scoreN
+                            /* first output represents probabilityIsCalled of mutation */);
+                    case "accuracy":
+                        AccuracyHelper accuracyHelper = new AccuracyHelper();
+                        return accuracyHelper.estimateWithGraph(dataSetIterator, graph,
                                 index -> index > scoreN
                             /* first output represents probabilityIsCalled of mutation */);
                     case "alleleAccuracy":

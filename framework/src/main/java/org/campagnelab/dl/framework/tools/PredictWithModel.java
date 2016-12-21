@@ -17,9 +17,9 @@ import java.util.function.Predicate;
  * Helper class to predict with a model and obtain interpreted predictions.
  */
 public class PredictWithModel<RecordType> {
-    DomainDescriptor<RecordType> domainDescriptor;
+    protected DomainDescriptor<RecordType> domainDescriptor;
     ModelOutputHelper outputHelper;
-    private PredictionInterpreter[] interpretors;
+    protected PredictionInterpreter[] interpretors;
 
     public PredictWithModel(DomainDescriptor<RecordType> domainDescriptor) {
         this.domainDescriptor = domainDescriptor;

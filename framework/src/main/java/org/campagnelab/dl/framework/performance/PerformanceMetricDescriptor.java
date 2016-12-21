@@ -1,9 +1,16 @@
 package org.campagnelab.dl.framework.performance;
 
+import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
 public abstract class PerformanceMetricDescriptor<RecordType>{
+    protected DomainDescriptor<RecordType> domainDescriptor;
+
+    public PerformanceMetricDescriptor(DomainDescriptor<RecordType> domainDescriptor) {
+        this.domainDescriptor = domainDescriptor;
+    }
+
     /**
      * Return the names of performance metrics to evaluate for this domain.
      * @return
