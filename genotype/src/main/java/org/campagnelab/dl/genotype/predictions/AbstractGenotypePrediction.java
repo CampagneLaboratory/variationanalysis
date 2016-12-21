@@ -32,6 +32,11 @@ public abstract class AbstractGenotypePrediction extends Prediction {
     public static Set<String> alleles(String genotype) {
         ObjectSet<String> result = new ObjectArraySet<>();
         Collections.addAll(result, genotype.split("[|/]"));
+        result.remove("|");
+        result.remove("/");
+        result.remove("?");
+        result.remove(".");
+        result.remove("");
         return result;
     }
 

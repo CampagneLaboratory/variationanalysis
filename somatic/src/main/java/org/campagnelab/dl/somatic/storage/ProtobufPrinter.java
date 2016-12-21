@@ -34,7 +34,7 @@ public class ProtobufPrinter {
     static int actualCount = 0;
 
     private int[] customPos = {
-            9965295
+            15259233
     };
     private Set<Integer> posSet = new IntOpenHashSet(customPos);
 

@@ -43,6 +43,6 @@ public class CombinedPrediction extends AbstractGenotypePrediction {
     }
 
     public boolean isCorrect(){
-        return trueGenotypeFormat.equals(predictedGenotype);
+        return alleles(trueGenotypeFormat.toUpperCase()).equals(alleles(predictedGenotype.toUpperCase()));
     }
 }
