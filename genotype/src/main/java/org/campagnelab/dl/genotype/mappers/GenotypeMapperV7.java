@@ -48,7 +48,7 @@ public class GenotypeMapperV7 extends GenotypeMapperV4 {
             readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex, i, true));
             matchesRefMappers[i] = (new MatchesReferenceMapper(sampleIndex, i));
             firstBaseMappers[i] = new GenomicContextMapper(1,
-                    record -> MappingFunctions.recordTo(1, record, constantGenotypeIndex));
+                    record -> record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence().substring(0,1));
             genotypeIndex++;
         }
         genotypeIndex = 0;
