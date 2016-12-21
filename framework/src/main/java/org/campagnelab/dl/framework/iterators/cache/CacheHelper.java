@@ -1,5 +1,6 @@
 package org.campagnelab.dl.framework.iterators.cache;
 
+import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.iterators.MultiDatasetMappedFeaturesIterator;
 import org.campagnelab.dl.framework.tools.MapMultiDatasetFeatures;
@@ -34,7 +35,7 @@ public class CacheHelper<RecordType> {
 
 
         // determine if cache exists. If it does, use it.
-
+    cacheName=decorateCacheName(domainDescriptor,cacheName);
         if (!cacheExists(cacheName, cacheN, true)) {
             // Cache does not exist, we first build it:
             MapMultiDatasetFeatures tool = new MapMultiDatasetFeatures() {
@@ -48,13 +49,20 @@ public class CacheHelper<RecordType> {
             arguments.adapter = adapter;
             arguments.outputBasename = cacheName;
             arguments.cacheN = cacheN;
-            arguments.domainDescriptor=domainDescriptor;
-            arguments.miniBatchSize=minibatchSize;
+            arguments.domainDescriptor = domainDescriptor;
+            arguments.miniBatchSize = minibatchSize;
             tool.setArguments(arguments);
             tool.execute();
         }
         assert cacheExists(cacheName, cacheN, true) : "A cache must exist at this point.";
-        return new MultiDatasetMappedFeaturesIterator(cacheName,cacheN);
+        return new MultiDatasetMappedFeaturesIterator(cacheName, cacheN);
+    }
+
+    private String decorateCacheName(DomainDescriptor domainDescriptor, String cacheName) {
+        int domainHashCode = domainDescriptor.featureMappers().hashCode() ^ domainDescriptor.getComputationalGraph().hashCode() ^ domainDescriptor.labelMappers().hashCode();
+        String cacheHash = Integer.toHexString(domainHashCode);
+        cacheName = FilenameUtils.removeExtension(cacheName) + "-"+cacheHash;
+        return cacheName;
     }
 
 
@@ -79,9 +87,9 @@ public class CacheHelper<RecordType> {
             if (n == null) return false;
             Object descriptor = cfp.getProperty("domainDescriptor");
             if (multiDataSet) {
-                if ( descriptor == null) return false;
-            }else {
-                if ( descriptor != null) return false;
+                if (descriptor == null) return false;
+            } else {
+                if (descriptor != null) return false;
             }
 
             long cacheNSaved = Long.parseLong(n.toString());
