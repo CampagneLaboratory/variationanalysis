@@ -35,7 +35,6 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
     private int featuresPerTimeStep;
     private FeatureMapper<RecordType>[] delegates;
     Function<RecordType, Integer> recordToSequenceLength;
-    Integer[] sequenceLengths;
     HashMap<RecordType, Integer> sequenceLengthMap;
 
     private int[] indicesMapper = new int[]{0, 0, 0};
@@ -79,7 +78,6 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
         }
         this.featuresPerTimeStep = dimensions.numElements();
         this.delegates = delegates;
-        sequenceLengths = new Integer[delegates.length];
         sequenceLengthMap = new HashMap<>();
         dim = new MappedDimensions(featuresPerTimeStep, delegates.length);
     }
@@ -97,27 +95,22 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
 
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
-        Integer arraySequenceLength = sequenceLengths[indexOfRecord];
         Integer mapSequenceLength = sequenceLengthMap.get(record);
-        if (arraySequenceLength == null || mapSequenceLength == null) {
+        if (mapSequenceLength == null) {
             int sequenceLength = recordToSequenceLength.apply(record);
-            if (arraySequenceLength == null) {
-                sequenceLengths[indexOfRecord] = sequenceLength;
-            }
-            if (mapSequenceLength == null) {
-                sequenceLengthMap.put(record, sequenceLength);
-            }
+            sequenceLengthMap.put(record, sequenceLength);
         }
     }
 
     @Override
     public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
-        indicesMapper[0] = indexOfRecord;
-        int recordSequenceLength = sequenceLengths[indexOfRecord] != null
-                ? sequenceLengths[indexOfRecord] : recordToSequenceLength.apply(record);
-        if (sequenceLengths[indexOfRecord] == null) {
-            sequenceLengths[indexOfRecord] = recordSequenceLength;
+        Integer sequenceLength = sequenceLengthMap.get(record);
+        int recordSequenceLength = sequenceLength != null
+                ? sequenceLength : recordToSequenceLength.apply(record);
+        if (sequenceLength == null) {
+            sequenceLengthMap.put(record, recordSequenceLength);
         }
+        indicesMapper[0] = indexOfRecord;
         for (int i = 0; i < delegates.length; i++) {
             indicesMapper[2] = i;
             final FeatureMapper<RecordType> delegate = delegates[i];
@@ -139,10 +132,11 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
 
     @Override
     public void maskFeatures(RecordType record, INDArray mask, int indexOfRecord) {
-        int recordSequenceLength = sequenceLengths[indexOfRecord] != null
-                ? sequenceLengths[indexOfRecord] : recordToSequenceLength.apply(record);
-        if (sequenceLengths[indexOfRecord] == null) {
-            sequenceLengths[indexOfRecord] = recordSequenceLength;
+        Integer sequenceLength = sequenceLengthMap.get(record);
+        int recordSequenceLength = sequenceLength != null
+                ? sequenceLength : recordToSequenceLength.apply(record);
+        if (sequenceLength == null) {
+            sequenceLengthMap.put(record, recordSequenceLength);
         }
         indicesMasker[0] = indexOfRecord;
         for (int i = 0; i < delegates.length; i++) {
@@ -153,10 +147,10 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
 
     @Override
     public float produceFeature(RecordType record, int featureIndex) {
-        Integer recordSequenceLengthFromMap = sequenceLengthMap.get(record);
-        int recordSequenceLength = recordSequenceLengthFromMap != null
-                ? recordSequenceLengthFromMap : recordToSequenceLength.apply(record);
-        if (recordSequenceLengthFromMap == null) {
+        Integer sequenceLength = sequenceLengthMap.get(record);
+        int recordSequenceLength = sequenceLength != null
+                ? sequenceLength : recordToSequenceLength.apply(record);
+        if (sequenceLength == null) {
             sequenceLengthMap.put(record, recordSequenceLength);
         }
         int delegateIdx = featureIndex / featuresPerTimeStep;
@@ -175,10 +169,10 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
 
     @Override
     public boolean isMasked(RecordType record, int featureIndex) {
-        Integer recordSequenceLengthFromMap = sequenceLengthMap.get(record);
-        int recordSequenceLength = recordSequenceLengthFromMap != null
-                ? recordSequenceLengthFromMap : recordToSequenceLength.apply(record);
-        if (recordSequenceLengthFromMap == null) {
+        Integer sequenceLength = sequenceLengthMap.get(record);
+        int recordSequenceLength = sequenceLength != null
+                ? sequenceLength : recordToSequenceLength.apply(record);
+        if (sequenceLength == null) {
             sequenceLengthMap.put(record, recordSequenceLength);
         }
         int delegateIdx = featureIndex / featuresPerTimeStep;
