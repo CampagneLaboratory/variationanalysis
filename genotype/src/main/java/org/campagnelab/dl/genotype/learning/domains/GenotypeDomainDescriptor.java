@@ -177,7 +177,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     @Override
     public void configure(Properties modelProperties) {
         super.configure(modelProperties);
-        ploidy=Integer.parseInt(modelProperties.getProperty(NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY));
+        final String property = modelProperties.getProperty(NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY);
+        if (property==null) {
+            throw new RuntimeException(String.format("property %s must be found in model config.properties",
+                    NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY));
+        }
+        ploidy=Integer.parseInt(property);
     }
 
     @Override

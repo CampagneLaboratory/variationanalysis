@@ -24,6 +24,5 @@ public class GenotypeTrainingArguments extends TrainingArguments {
     }
 
     @Parameter(names = "--ploidy", description = "The organism ploidy (2 for humans, more for some plants). ")
-    public
-    int ploidy=2;
+    public int ploidy=2;
 }
