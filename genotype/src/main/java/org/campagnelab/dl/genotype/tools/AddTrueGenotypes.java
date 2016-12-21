@@ -10,6 +10,8 @@ import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
+import org.campagnelab.goby.reads.RandomAccessSequenceCache;
+import org.campagnelab.goby.reads.RandomAccessSequenceInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +28,8 @@ import java.util.Random;
 public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
 
 
+    RandomAccessSequenceCache genome = new RandomAccessSequenceCache();
+
     static private Logger LOG = LoggerFactory.getLogger(AddTrueGenotypes.class);
 
     public static void main(String[] args) {
@@ -33,12 +37,32 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
         AddTrueGenotypes tool = new AddTrueGenotypes();
         tool.parseArguments(args, "AddTrueGenotypes", tool.createArguments());
         tool.execute();
+
     }
 
 
     @Override
     //only supports genotypes encoded with a bar (|) delimiter
     public void execute() {
+
+
+        //get reference genome
+        String genomePath = args().genomeFilename;
+        try {
+            System.err.println("Loading genome cache " + genomePath);
+            genome = new RandomAccessSequenceCache();
+            genome.load(genomePath, "min", "max");
+            System.err.println("Done loading genome. ");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Could not load genome cache");
+            e.printStackTrace();
+            System.exit(1);
+        } catch (IOException e) {
+            System.err.println("Could not load genome cache");
+            e.printStackTrace();
+            System.exit(1);
+        }
+
         int sampleIndex = args().sampleIndex;
         Random random = new XorShift1024StarRandom();
         try {
@@ -53,6 +77,11 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             recordLogger.start();
             for (BaseInformationRecords.BaseInformation rec : source) {
                 boolean skip = false;
+
+
+
+
+
 
                 BaseInformationRecords.BaseInformation.Builder buildRec = rec.toBuilder();
                 int position = buildRec.getPosition();
@@ -70,7 +99,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                     if (random.nextFloat() > args().referenceSamplingRate) {
                         skip = true;
                     }
-                    String referenceBase = buildRec.getReferenceBase();
+                    String referenceBase = Character.toString(genome.get(buildRec.getReferenceIndex(),buildRec.getPosition()));
                     trueGenotype = referenceBase+"|"+referenceBase;
                     referenceBase = referenceBase.toUpperCase();
                     genotypes[0] = referenceBase;

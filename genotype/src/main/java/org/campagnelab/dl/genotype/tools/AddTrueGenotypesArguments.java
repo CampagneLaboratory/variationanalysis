@@ -19,6 +19,9 @@ public class AddTrueGenotypesArguments implements ToolArguments {
     @Parameter(required = true, names = {"-m", "--genotype-map"}, description = "Genotype may should have been generated with Goby's VCFToMapMode.")
     public String genotypeMap;
 
+    @Parameter(required = true, names = {"-g", "--genome"}, description = "Genome location to add calls with")
+    public String genomeFilename;
+
     @Parameter(required = false, names = {"-s", "--sample-index"}, description = "Add calls to an alternative sample in the sbi file (default if first sample, index 0")
     public int sampleIndex = 0;
 
