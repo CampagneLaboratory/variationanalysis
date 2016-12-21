@@ -26,7 +26,7 @@ public class PredictWithModel<RecordType> {
         outputHelper = new ModelOutputHelper();
         int outputIndex = 0;
 
-        String[] outputNames = domainDescriptor.getComputationalGraphAssemblerForPrediction().getOutputNames();
+        String[] outputNames = domainDescriptor.getComputationalGraph().getOutputNames();
         interpretors = new PredictionInterpreter[outputNames.length];
         for (String outputName : outputNames) {
             interpretors[outputIndex++] = domainDescriptor.getPredictionInterpreter(outputName);

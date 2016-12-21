@@ -73,15 +73,7 @@ public abstract class DomainDescriptor<RecordType> {
     public abstract ComputationGraphAssembler getComputationalGraph();
 
 
-    /**
-     * Return a computational graph assembler. This assembler will return a graph assembler that has already been
-     * generated from the properties file.
-     *
-     * @return ComputationGraphAssembler
-     */
-    public ComputationGraphAssembler getComputationalGraphAssemblerForPrediction(){
-        return computationGraphAssembler;
-    }
+
 
     /**
      * Return the dimensions of an input to the graph. If the graph has one input with 10 features, this method should return new int[]{10}.
@@ -226,7 +218,7 @@ public abstract class DomainDescriptor<RecordType> {
 
 
     public int getNumModelOutputs() {
-        return getComputationalGraphAssemblerForPrediction().getOutputNames().length;
+        return getComputationalGraph().getOutputNames().length;
     }
 
     public boolean hasOutput(String outputName) {
