@@ -10,6 +10,6 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 public abstract class GenotypeFeatureMapper extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> implements ConfigurableFeatureMapper {
    public boolean sortCounts;
    public boolean withDistinctAlleleCounts;
-
+   public boolean withCombinedLayer;
 
 }

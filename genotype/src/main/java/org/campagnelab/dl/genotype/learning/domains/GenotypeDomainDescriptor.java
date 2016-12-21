@@ -8,6 +8,7 @@ import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
+import org.campagnelab.dl.genotype.learning.architecture.graphs.CombinedGenotypeSixDenseLayers;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.NumDistinctAlleleAssembler;
 import org.campagnelab.dl.genotype.mappers.GenotypeFeatureMapper;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
@@ -175,6 +176,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         return ((GenotypeFeatureMapper) getFeatureMapper("input")).withDistinctAlleleCounts;
     }
 
+    private boolean withCombinedLayer() {
+        return ((GenotypeFeatureMapper) getFeatureMapper("input")).withCombinedLayer;
+    }
+
     @Override
     public void configure(Properties modelProperties) {
         super.configure(modelProperties);
@@ -298,6 +303,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     public ComputationGraphAssembler getComputationalGraph() {
         if (withDistinctAllele()) {
             return new NumDistinctAlleleAssembler();
+        } else if (withCombinedLayer()){
+            return new CombinedGenotypeSixDenseLayers();
         }
         try {
             ComputationGraphAssembler assembler = (ComputationGraphAssembler) Class.forName(args().architectureClassname).newInstance();

@@ -2,7 +2,6 @@ package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
 import org.campagnelab.dl.framework.mappers.MaxNormalizationMapper;
-import org.campagnelab.dl.framework.mappers.MeanNormalizationMapper;
 import org.campagnelab.dl.somatic.mappers.DensityMapper;
 import org.campagnelab.dl.somatic.mappers.GenomicContextMapper;
 import org.campagnelab.dl.somatic.mappers.NamingConcatFeatureMapper;
@@ -13,17 +12,23 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.Properties;
 
 /**
- * This mapper sorts counts.
+ * V7 adapted for combined layer output
+ *
  */
-public class GenotypeMapperV4 extends GenotypeFeatureMapper {
+public class GenotypeMapperV8 extends GenotypeMapperV4 {
+
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;
 
-    public GenotypeMapperV4() {
+    public GenotypeMapperV8() {
         sortCounts = true;
+        withDistinctAlleleCounts = false;
         withCombinedLayer = true;
+
     }
+
+
 
     /**
      * Configure the feature mapper to map a specific sampleIndex
@@ -34,12 +39,16 @@ public class GenotypeMapperV4 extends GenotypeFeatureMapper {
         FeatureNameMapper[] countMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
         FeatureNameMapper[] readIndexMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
         FeatureNameMapper[] matchesRefMappers = new FeatureNameMapper[MAX_GENOTYPES];
+        FeatureNameMapper[] firstBaseMappers = new FeatureNameMapper[MAX_GENOTYPES];
         int genotypeIndex = 0;
 
         for (int i = 0; i < MAX_GENOTYPES; i++) {
+            final int constantGenotypeIndex = genotypeIndex;
             countMappers[i] = (new SingleGenoTypeCountMapper(sampleIndex, i, true));
             readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex, i, true));
             matchesRefMappers[i] = (new MatchesReferenceMapper(sampleIndex, i));
+            firstBaseMappers[i] = new GenomicContextMapper(1,
+                    record -> record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence().substring(0,1));
             genotypeIndex++;
         }
         genotypeIndex = 0;
@@ -52,6 +61,7 @@ public class GenotypeMapperV4 extends GenotypeFeatureMapper {
         delegate =
                 new CountReorderingMapper(new NamingConcatFeatureMapper<>(
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),
                         new MaxNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),
                         new MaxNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
