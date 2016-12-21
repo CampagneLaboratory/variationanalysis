@@ -78,7 +78,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                 }
                 if (!skip) {
                     // write the record.
-                    buildRec.setTrueGenotype(trueGenotype.replace('|', '/'));
+                    buildRec.setTrueGenotype(trueGenotype.replace('|', '/').toUpperCase());
                     BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
                     for (int i = 0; i < buildSample.getCountsCount(); i++) {
                         BaseInformationRecords.CountInfo.Builder count = buildSample.getCounts(i).toBuilder();
