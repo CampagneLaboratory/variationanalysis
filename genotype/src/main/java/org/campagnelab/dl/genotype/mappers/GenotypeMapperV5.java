@@ -12,7 +12,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.Properties;
 
 /**
- * This mapper sorts counts.
+ * This mapper sorts counts and predicts DistinctAlleleCounts.
  */
 public class GenotypeMapperV5 extends GenotypeMapperV4 {
     public GenotypeMapperV5() {

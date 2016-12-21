@@ -19,20 +19,7 @@ public class FeatureMapperV21 extends NamingConcatFeatureMapper<BaseInformationR
     private NamingConcatFeatureMapper delegate;
 
     private String recordTo(final int contextLength, BaseInformationRecords.BaseInformationOrBuilder record, int countIndex) {
-        final List<BaseInformationRecords.CountInfo> counts = record.getSamples(record.getSamplesCount() - 1).getCountsList();
-        ArrayList<BaseInformationRecords.CountInfo> sorted = new ArrayList<>();
-        sorted.addAll(counts);
-        Collections.sort(sorted, (o1, o2) ->
-                (o2.getGenotypeCountForwardStrand() + o2.getGenotypeCountReverseStrand()) - (o1.getGenotypeCountForwardStrand() + o1.getGenotypeCountReverseStrand())
-        );
-        String to = countIndex < sorted.size() ? sorted.get(countIndex).getToSequence() : "N";
-        StringBuffer context = new StringBuffer(to);
-
-        while (context.length() < contextLength) {
-            context.append("N");
-        }
-        context.setLength(contextLength);
-        return context.toString();
+        return MappingFunctions.recordTo(contextLength,record, countIndex);
     }
 
     /**
