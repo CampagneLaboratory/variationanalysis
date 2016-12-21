@@ -47,7 +47,7 @@ public class RNNPretrainingFeatureMapper<RecordType> implements FeatureMapper<Re
     public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
         featureMapper.prepareToNormalize(record, indexOfRecord);
         mapperIndices[0] = indexOfRecord;
-        int sequenceLen = featureMapper.sequenceLengths[indexOfRecord];
+        int sequenceLen = featureMapper.sequenceLengthMap.get(record);
         for (int i = 0; i < maxSequenceLen; i++) {
             mapperIndices[2] = i;
             int indexInSequence = i % sequenceLen;
@@ -68,7 +68,7 @@ public class RNNPretrainingFeatureMapper<RecordType> implements FeatureMapper<Re
     public void maskFeatures(RecordType record, INDArray mask, int indexOfRecord) {
         featureMapper.prepareToNormalize(record, indexOfRecord);
         maskerIndices[0] = indexOfRecord;
-        int sequenceLenWithPadding = sequenceLenWithPadding(featureMapper.sequenceLengths[indexOfRecord]);
+        int sequenceLenWithPadding = sequenceLenWithPadding(featureMapper.sequenceLengthMap.get(record));
         for (int i = 0; i < maxSequenceLen; i++) {
             maskerIndices[1] = i;
             // TODO: Handling of EOS?

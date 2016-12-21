@@ -48,7 +48,7 @@ public class RNNPretrainingLabelMapper<RecordType> implements LabelMapper<Record
     public void mapLabels(RecordType record, INDArray inputs, int indexOfRecord) {
         labelMapper.prepareToNormalize(record, indexOfRecord);
         mapperIndices[0] = indexOfRecord;
-        int sequenceLen = labelMapper.sequenceLengths[indexOfRecord];
+        int sequenceLen = labelMapper.sequenceLengthMap.get(record);
         int sequenceLenWithPadding = sequenceLenWithPadding(sequenceLen);
         for (int i = 0; i < maxSequenceLen; i++) {
             mapperIndices[2] = i;
@@ -70,8 +70,8 @@ public class RNNPretrainingLabelMapper<RecordType> implements LabelMapper<Record
     public void maskLabels(RecordType record, INDArray mask, int indexOfRecord) {
         labelMapper.prepareToNormalize(record, indexOfRecord);
         maskerIndices[0] = indexOfRecord;
-        int sequenceLen = labelMapper.sequenceLengths[indexOfRecord];
-        int sequenceLenWithPadding = sequenceLenWithPadding(labelMapper.sequenceLengths[indexOfRecord]);
+        int sequenceLen = labelMapper.sequenceLengthMap.get(record);
+        int sequenceLenWithPadding = sequenceLenWithPadding(sequenceLen);
         for (int i = 0; i < maxSequenceLen; i++) {
             maskerIndices[1] = i;
             // TODO : Check offsets

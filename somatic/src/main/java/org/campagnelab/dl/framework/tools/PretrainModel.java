@@ -32,8 +32,10 @@ public abstract class PretrainModel<RecordType> extends TrainModel<RecordType> {
      */
     @Override
     protected DomainDescriptor<RecordType> domainDescriptor() {
-        return new PretrainingDomainDescriptor<>(delegate.domainDescriptor(), recordToSequenceLength(),
-                createArguments());
+        Properties pretrainingProperties = pretrainingProperties();
+        return new PretrainingDomainDescriptor<>(delegate.domainDescriptor(),
+                createArguments(), pretrainingFeatureMapperClassName(), pretrainingLabelMapperClassName(),
+                pretrainingProperties);
     }
 
     @Override
@@ -51,9 +53,22 @@ public abstract class PretrainModel<RecordType> extends TrainModel<RecordType> {
     }
 
     /**
-     * Create a function that takes in a sequence record and returns its length
-     * Should preferably be an O(1) function
-     * @return Function to convert sequence record to length
+     * Fully qualified name of default feature mapper for pretraining. Must have a zero-argument constructor
+     * and implement ConfigurableFeatureMapper
+     * @return default pretraining feature mapper
      */
-    public abstract Function<RecordType, Integer> recordToSequenceLength();
+    public abstract String pretrainingFeatureMapperClassName();
+
+    /**
+     * Fully qualified name of default label mapper for pretraining. Must have a zero-argument constructor
+     * and implement ConfigurableLabelMapper
+     * @return default pretraining label mapper
+     */
+    public abstract String pretrainingLabelMapperClassName();
+
+    /**
+     * Properties object with any relevant properties needed to create pretraining feature and label mappers
+     * @return properties object
+     */
+    public abstract Properties pretrainingProperties();
 }

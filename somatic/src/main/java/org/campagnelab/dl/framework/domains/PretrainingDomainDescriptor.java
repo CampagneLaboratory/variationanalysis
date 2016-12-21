@@ -3,14 +3,12 @@ package org.campagnelab.dl.framework.domains;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.*;
-import org.campagnelab.dl.framework.mappers.pretraining.RNNPretrainingFeatureMapper;
-import org.campagnelab.dl.framework.mappers.pretraining.RNNPretrainingLabelMapper;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
+import java.util.Properties;
 import java.util.function.Function;
 
 /**
@@ -27,59 +25,76 @@ public class PretrainingDomainDescriptor<RecordType> extends DomainDescriptor<Re
     static private final Logger LOG = LoggerFactory.getLogger(PretrainingDomainDescriptor.class);
 
     private DomainDescriptor<RecordType> delegate;
-    private Function<RecordType, Integer> recordToSequenceLength;
     private TrainingArguments args;
     private String inputName;
+    private String pretrainingFeatureMapperClassName;
+    private String pretrainingLabelMapperClassName;
+    private Properties pretrainingProperties;
 
     /**
      * Create a PretrainingDomainDescriptor from a delegate domain descriptor, recordToSequenceLength
      * function (passed into the mappers created by the PretrainingDomainDescriptor) and training arguments
      * @param delegate Delegate domain descriptor
-     * @param recordToSequenceLength Record to sequence length function
      * @param args Training arguments
+     * @param pretrainingFeatureMapperClassName Default feature class name
+     * @param pretrainingLabelMapperClassName Default label mapper class name
+     * @param pretrainingProperties pretraining properties
      */
     public PretrainingDomainDescriptor(DomainDescriptor<RecordType> delegate,
-                                       Function<RecordType, Integer> recordToSequenceLength,
-                                       TrainingArguments args) {
+                                       TrainingArguments args, String pretrainingFeatureMapperClassName,
+                                       String pretrainingLabelMapperClassName,
+                                       Properties pretrainingProperties) {
         this.delegate = delegate;
-        this.recordToSequenceLength = recordToSequenceLength;
         this.args = args;
         ComputationGraphAssembler delegateAssembler = delegate.getComputationalGraph();
         this.computationGraphAssembler = delegateAssembler;
         delegate.computationGraphAssembler = delegateAssembler;
         String[] delegateGraphInputs = delegateAssembler.getInputNames();
         if (delegateGraphInputs.length != 1) {
-            LOG.warn("Graph should only have one input");
+            throw new IllegalArgumentException("Graph should only have one input");
         }
         inputName = delegateGraphInputs[0];
+        super.loadProperties(delegate.domainProperties, delegate.modelProperties);
+        this.pretrainingFeatureMapperClassName = pretrainingFeatureMapperClassName;
+        this.pretrainingLabelMapperClassName = pretrainingLabelMapperClassName;
+        this.pretrainingProperties = pretrainingProperties;
     }
 
     /**
-     * Creates an instance of a RNNPretrainingFeatureMapper from the (required to be 2D) feature mapper
-     * from the delegate domain descriptor
-     * @param inputName The name of a graph input. Must match an input of the computational graph.
-     * @return RNNPretrainingFeatureMapper instance
+     * Creates an instance of the default pretrainingFeatureMapper class and configures it
+     * @param inputName name of graph input
+     * @return FeatureMapper instance configured with pretrainingProperties
      */
     @Override
     public FeatureMapper getFeatureMapper(String inputName) {
-        if (!inputName.equals(this.inputName)) {
-            LOG.warn("Invalid input name; given {} but should be {}", inputName, this.inputName);
+        try {
+            FeatureMapper featureMapper = (FeatureMapper) Class.forName(pretrainingFeatureMapperClassName)
+                    .newInstance();
+            ConfigurableFeatureMapper configurableFeatureMapper = (ConfigurableFeatureMapper) featureMapper;
+            configurableFeatureMapper.configure(pretrainingProperties);
+            return featureMapper;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid instance of feature mapper", e);
         }
-        FeatureMapper delegateFeatureMapper = delegate.getFeatureMapper(inputName);
-        return new RNNPretrainingFeatureMapper<>(delegateFeatureMapper, args.eosIndex, recordToSequenceLength);
+
     }
 
     /**
-     * Creates an instance of a RNNPretrainingLabelMapper from the (required to be 2D) feature mapper
-     * from the delegate domain descriptor (since the labels in pretraining correspond to the features
-     * from the regular training task)
-     * @param outputName The name of a graph output. Must match an output of the computational graph.
-     * @return RNNPretrainingLabelMapper instance
+     * Creates an instance of the default pretrainingLabelMapper class and configures it
+     * @param outputName name of graph output
+     * @return LabelMapper instance configured with pretrainingProperties
      */
     @Override
     public LabelMapper getLabelMapper(String outputName) {
-        FeatureMapper delegateLabelMapper = delegate.getFeatureMapper(inputName);
-        return new RNNPretrainingLabelMapper<>(delegateLabelMapper, args.eosIndex, recordToSequenceLength);
+        try {
+            LabelMapper labelMapper = (LabelMapper) Class.forName(pretrainingLabelMapperClassName)
+                    .newInstance();
+            ConfigurableLabelMapper configurableLabelMapper = (ConfigurableLabelMapper) labelMapper;
+            configurableLabelMapper.configure(pretrainingProperties);
+            return labelMapper;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid instance of feature mapper", e);
+        }
     }
 
     @Override
