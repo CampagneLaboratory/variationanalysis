@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
  * Created by fac2003 on 12/20/16.
  */
 public class NumDistinctAllelesLabelMapperTest {
-    NumDistinctAllelesLabelMapper mapper=new NumDistinctAllelesLabelMapper(false);
+    NumDistinctAllelesLabelMapper mapper=new NumDistinctAllelesLabelMapper(false,0);
 
     @Test
     public void testDistinctAlleles() {

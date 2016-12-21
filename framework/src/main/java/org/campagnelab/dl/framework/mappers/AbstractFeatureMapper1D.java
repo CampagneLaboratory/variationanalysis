@@ -8,7 +8,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * @author Remi Torracinta
  */
 public abstract class AbstractFeatureMapper1D<RecordType> implements FeatureNameMapper<RecordType> {
-    protected int[] indices = new int[]{0,0};
+    private int[] indices = new int[]{0,0};
 
     /**
      * This is a slow implementation for intermerdiary mappers to fulfill the requirements of the interface,
@@ -20,9 +20,10 @@ public abstract class AbstractFeatureMapper1D<RecordType> implements FeatureName
      * @param indexOfRecord Index of the record in the destination dataset.
      */
     public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
-        indices[0] = indexOfRecord;
+
 
         for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
+            indices[0] = indexOfRecord;
             indices[1] = featureIndex;
             inputs.putScalar(indices, produceFeature(record, featureIndex));
         }

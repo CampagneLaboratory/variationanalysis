@@ -1,11 +1,16 @@
 package org.campagnelab.dl.genotype.predictions;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.genotype.learning.domains.NumDistinctAlleles;
+import org.campagnelab.dl.genotype.learning.domains.NumDistinctAllelesInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPrediction;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -13,6 +18,7 @@ import java.util.Set;
  * Created by fac2003 on 12/18/16.
  */
 public class GenotypePrediction {
+    private  int predictionIndex;
     /**
      * Genotype called by the model.
      */
@@ -30,12 +36,35 @@ public class GenotypePrediction {
      * Probability that a genotype is not present. Genotypes are indexed using the goby conventions.
      */
     private double probabilityGenotypeNotCalled[];
-    private HomozygousPrediction homozygousPrediction;
+  //  private HomozygousPrediction homozygousPrediction;
     private SingleGenotypePrediction[] singleGenotypePredictions;
     private int numAlleles;
+    private boolean variant;
+    public GenotypePrediction() {
+
+    }
+    public GenotypePrediction(List<Prediction> predictionList) {
+        final Prediction firstPrediction = predictionList.get(0);
+        List<Prediction> genoPredList = predictionList.subList(1, 11);
+
+        if (firstPrediction instanceof NumDistinctAlleles) {
+            NumDistinctAlleles nda = (NumDistinctAlleles) firstPrediction;
+            predictionIndex = nda.index;
+            variant = nda.isVariant;
+            set(nda, genoPredList.toArray(new SingleGenotypePrediction[genoPredList.size()]));
+        }else {
+            if (firstPrediction instanceof HomozygousPrediction) {
+                HomozygousPrediction homoPred = (HomozygousPrediction) firstPrediction;
+                predictionIndex = homoPred.index;
+                variant = homoPred.isVariant;
+                set(homoPred, genoPredList.toArray(new SingleGenotypePrediction[genoPredList.size()]));
+            }
+        }
+    }
+
 
     public void set(HomozygousPrediction homozygousPrediction, SingleGenotypePrediction[] singleGenotypePredictions) {
-        this.homozygousPrediction = homozygousPrediction;
+     //   this.homozygousPrediction = homozygousPrediction;
         this.singleGenotypePredictions = singleGenotypePredictions;
         this.trueGenotype = homozygousPrediction.trueGenotypeFormat;
         if (homozygousPrediction.isHomozygous) {
@@ -65,6 +94,29 @@ public class GenotypePrediction {
         }
     }
 
+
+    public void set(NumDistinctAlleles numDistinctAlleles, SingleGenotypePrediction[] singleGenotypePredictions) {
+
+        this.singleGenotypePredictions = singleGenotypePredictions;
+        this.trueGenotype = numDistinctAlleles.trueGenotypeFormat;
+        numAlleles=numDistinctAlleles.predictedValue;
+
+        double predProbability = 0;
+        StringBuffer hetGenotype = new StringBuffer();
+        ObjectArrayList<SingleGenotypePrediction> list = ObjectArrayList.wrap(singleGenotypePredictions);
+
+        Collections.sort(list, (g1, g2) -> (int) Math.round(1000 * (g2.probabilityIsCalled - g1.probabilityIsCalled)));
+        for (SingleGenotypePrediction element : list.subList(0, numAlleles)) {
+            if (hetGenotype.length() > 0) {
+                hetGenotype.append("/");
+            }
+            hetGenotype.append(element.predictedSingleGenotype);
+            predProbability += element.probabilityIsCalled;
+        }
+        overallProbability = predProbability / (double) numAlleles;
+        calledGenotype = hetGenotype.toString();
+    }
+
     public static Set<String> alleles(String genotype) {
         ObjectSet<String> result = new ObjectArraySet<>();
         Collections.addAll(result, genotype.split("[|/]"));
@@ -88,5 +140,13 @@ public class GenotypePrediction {
         predictedAlleles.removeAll(toIgnore);
         trueAlleles.removeAll(toIgnore);
         return predictedAlleles.equals(trueAlleles);
+    }
+
+    public int getPredictionIndex() {
+        return predictionIndex;
+    }
+
+    public boolean isVariant() {
+        return variant;
     }
 }

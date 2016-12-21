@@ -4,6 +4,7 @@ import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SortingCountInterpreter;
 import org.campagnelab.dl.genotype.mappers.HomozygousLabelsMapper;
+import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -15,6 +16,11 @@ import org.nd4j.linalg.factory.Nd4j;
  */
 public class NumDistinctAllelesInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation, NumDistinctAlleles> {
 
+    int ploidy;
+
+    public NumDistinctAllelesInterpreter(int ploidy) {
+        this.ploidy = ploidy;
+    }
 
     @Override
     public NumDistinctAlleles interpret(INDArray trueLabels, INDArray[] outputs, int predictionIndex) {
@@ -26,12 +32,12 @@ public class NumDistinctAllelesInterpreter implements PredictionInterpreter<Base
         NumDistinctAlleles result = new NumDistinctAlleles();
         final String trueGenotype = record.getTrueGenotype();
         result.trueValue = GenotypePrediction.alleles(trueGenotype).size();
-
+        result.inspectRecord(record);
         // interpret the prediction
         double maxProbability = -1;
         int maxIndex = -1;
         int predictionIndex = 0;
-        for (int i = 0; i < HomozygousLabelsMapper.NUM_LABELS; i++) {
+        for (int i = 0; i < ploidy; i++) {
             double outputDouble = output.getDouble(predictionIndex, i);
             if (maxProbability < outputDouble) {
                 maxIndex = i;

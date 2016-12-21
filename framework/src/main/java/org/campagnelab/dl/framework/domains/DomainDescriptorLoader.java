@@ -38,7 +38,9 @@ public class DomainDescriptorLoader {
             // we call the constructor that accepts a model path as single argument:
             Class<DomainDescriptor> clazz =
                     (Class<DomainDescriptor>) Class.forName(domainDescriptorClassname);
-            return clazz.getConstructor(String.class).newInstance(modelPath);
+            final DomainDescriptor domainDescriptor = clazz.getConstructor(String.class).newInstance(modelPath);
+            domainDescriptor.configure(modelProperties);
+            return domainDescriptor;
 
         } catch (Exception e) {
             throw new RuntimeException("Unable to load domain descriptor with model path: " +modelPath,e);

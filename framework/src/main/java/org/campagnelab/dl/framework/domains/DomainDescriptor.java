@@ -318,4 +318,11 @@ public abstract class DomainDescriptor<RecordType> {
         initializeArchitecture(netArchitectureClassname);
     }
 
+    /**
+     * Override this method to configure the domain descriptor using the content of model properties.
+     * @param modelProperties
+     */
+    public void configure(Properties modelProperties) {
+
+    }
 }

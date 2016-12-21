@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
+import org.campagnelab.dl.framework.mappers.MaxNormalizationMapper;
 import org.campagnelab.dl.framework.mappers.MeanNormalizationMapper;
 import org.campagnelab.dl.somatic.mappers.DensityMapper;
 import org.campagnelab.dl.somatic.mappers.GenomicContextMapper;
@@ -45,9 +46,9 @@ public class GenotypeMapperV3 extends GenotypeFeatureMapper  {
         delegate =
                 new NamingConcatFeatureMapper<>(
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
-                        new MeanNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
+                        new MaxNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),
-                        new MeanNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
+                        new MaxNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readIndexMappers)),
                         new GenomicContextMapper(sbiProperties),
                         new DensityMapper("numVariationsInRead", 20, sbiProperties, baseInformationOrBuilder ->
@@ -88,6 +89,8 @@ public class GenotypeMapperV3 extends GenotypeFeatureMapper  {
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
         delegate.mapFeatures(record, inputs, indexOfRecord);
+
+
     }
 
     @Override
