@@ -82,11 +82,11 @@ public class GenotypeModel {
         this.protoPredictor = new GenotypeProtoPredictor(domainDescriptor, model, featureMapper);
     }
 
-    public GenotypePrediction predictGenotype(RandomAccessSequenceInterface genome, String referenceID,
-                                              SampleCountInfo sampleCounts[],
-                                              int referenceIndex, int position,
-                                              DiscoverVariantPositionData list,
-                                              int[] readerIdxs) {
+    public GenotypePrediction5Out predictGenotype(RandomAccessSequenceInterface genome, String referenceID,
+                                                  SampleCountInfo sampleCounts[],
+                                                  int referenceIndex, int position,
+                                                  DiscoverVariantPositionData list,
+                                                  int[] readerIdxs) {
         Integer[] sampleToReaderIdxs;
         // genotype models work with a single sample:
         sampleToReaderIdxs = new Integer[]{readerIdxs[0]};

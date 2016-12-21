@@ -2,16 +2,7 @@ package org.campagnelab.dl.genotype.tools;
 
 
 import com.beust.jcommander.Parameter;
-import org.campagnelab.dl.framework.domains.prediction.Prediction;
-import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
-import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPrediction;
-import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction;
-import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-
-import java.io.PrintWriter;
-import java.util.List;
 
 /**
  * Example of Predict implementation. This class performs predictions with a model trained by TrainModelS.

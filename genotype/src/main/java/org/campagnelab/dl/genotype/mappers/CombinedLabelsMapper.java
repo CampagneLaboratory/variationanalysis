@@ -45,35 +45,33 @@ public class CombinedLabelsMapper extends NoMasksLabelMapper<BaseInformationReco
     private BaseInformationRecords.BaseInformation sortedCountRecord;
     private RecordCountSortHelper sortHelper = new RecordCountSortHelper();
 
-    private Integer correctLabelIndex;
 
     @Override
     public float produceLabel(BaseInformationRecords.BaseInformation record, int labelIndex) {
-        if (correctLabelIndex == null){
-            boolean firstCalled = sortedCountRecord.getSamples(0).getCounts(0).getIsCalled();
-            boolean secondCalled = sortedCountRecord.getSamples(0).getCounts(1).getIsCalled();
-            boolean otherCalled = false;
-            for (int i = 2; i < sortedCountRecord.getSamples(0).getCountsCount(); i++){
-                otherCalled |= sortedCountRecord.getSamples(0).getCounts(i).getIsCalled();
-            }
-            if (otherCalled){
-                //other call case
-                correctLabelIndex = 3;
-            } else if (firstCalled){
-                if (secondCalled){
-                    //both case (het)
-                    correctLabelIndex = 1;
-                } else {
-                    //homozyg most counts
-                    correctLabelIndex = 0;
-                }
-            } else if (secondCalled){
-                //homozyg smaller counts
-                correctLabelIndex = 2;
+        int correctLabelIndex;
+        boolean firstCalled = sortedCountRecord.getSamples(0).getCounts(0).getIsCalled();
+        boolean secondCalled = sortedCountRecord.getSamples(0).getCounts(1).getIsCalled();
+        boolean otherCalled = false;
+        for (int i = 2; i < sortedCountRecord.getSamples(0).getCountsCount(); i++){
+            otherCalled |= sortedCountRecord.getSamples(0).getCounts(i).getIsCalled();
+        }
+        if (otherCalled){
+            //other call case
+            correctLabelIndex = 3;
+        } else if (firstCalled){
+            if (secondCalled){
+                //both case (het)
+                correctLabelIndex = 1;
             } else {
-                //no call case
-                correctLabelIndex = 3;
+                //homozyg most counts
+                correctLabelIndex = 0;
             }
+        } else if (secondCalled){
+            //homozyg smaller counts
+            correctLabelIndex = 2;
+        } else {
+            //no call case
+            correctLabelIndex = 3;
         }
         return (labelIndex == correctLabelIndex)?1f:0f;
     }

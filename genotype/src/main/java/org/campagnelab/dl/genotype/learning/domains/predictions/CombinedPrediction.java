@@ -2,6 +2,7 @@ package org.campagnelab.dl.genotype.learning.domains.predictions;
 
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.genotype.predictions.AbstractGenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Set;
@@ -10,14 +11,13 @@ import java.util.Set;
  * Created by rct66 on 11/12/16.
  * Homozygous refers only prediction, not the true label.
  */
-public class CombinedPrediction extends Prediction {
+public class CombinedPrediction extends AbstractGenotypePrediction {
 
     //todo: fill these bools, they will be used for statistics like sensitivity.
     public boolean isVariant;
     public boolean isIndel;
     public Set<String> trueGenotype;
     public String trueGenotypeFormat;
-    public String predictedGenotype;
     public double probability;
     /**
      * True when the model predicts the site to be homozygous. False when the model predicts het.
@@ -40,5 +40,9 @@ public class CombinedPrediction extends Prediction {
         alleles.remove("?");
         alleles.remove(".");
         return alleles;
+    }
+
+    public boolean isCorrect(){
+        return trueGenotypeFormat.equals(predictedGenotype);
     }
 }

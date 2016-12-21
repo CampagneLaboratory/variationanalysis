@@ -100,7 +100,7 @@ public class CombinedGenotypeSixDenseLayers implements ComputationGraphAssembler
                 domainDescriptor.getOutputLoss("combined"))
                 .weightInit(WEIGHT_INIT)
                 .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(11).build(), "dense5");
+                .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(4).build(), "dense5");
         ComputationGraphConfiguration conf = build
                 .setOutputs(outputNames)
                 .pretrain(false).backprop(true).build();

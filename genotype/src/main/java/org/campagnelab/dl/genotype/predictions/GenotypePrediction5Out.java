@@ -12,11 +12,8 @@ import java.util.Set;
  * Describes a genotype prediction. Helper method set aggregates individual model predictions.
  * Created by fac2003 on 12/18/16.
  */
-public class GenotypePrediction {
-    /**
-     * Genotype called by the model.
-     */
-    public String calledGenotype;
+public class GenotypePrediction5Out extends AbstractGenotypePrediction{
+
     public double overallProbability;
     /**
      * True genotype (if available). Useful for performance evaluation.
@@ -39,7 +36,7 @@ public class GenotypePrediction {
         this.singleGenotypePredictions = singleGenotypePredictions;
         this.trueGenotype = homozygousPrediction.trueGenotypeFormat;
         if (homozygousPrediction.isHomozygous) {
-            calledGenotype = homozygousPrediction.predictedHomozygousGenotype + "/" + homozygousPrediction.predictedHomozygousGenotype;
+            predictedGenotype = homozygousPrediction.predictedHomozygousGenotype + "/" + homozygousPrediction.predictedHomozygousGenotype;
             overallProbability = homozygousPrediction.probability;
         } else {
             int genotypeIndex = 0;
@@ -61,23 +58,14 @@ public class GenotypePrediction {
                 }
             }
             overallProbability = predProbability / (double) numAlleles;
-            calledGenotype = hetGenotype.toString();
+            predictedGenotype = hetGenotype.toString();
         }
     }
 
-    public static Set<String> alleles(String genotype) {
-        ObjectSet<String> result = new ObjectArraySet<>();
-        Collections.addAll(result, genotype.split("[|/]"));
-        return result;
-    }
-
-    public Set<String> alleles() {
-        return alleles(calledGenotype);
-    }
 
     public boolean isCorrect() {
         Set<String> predictedAlleles = new ObjectArraySet<>();
-        for (String s : calledGenotype.split("/")) {
+        for (String s : predictedGenotype.split("/")) {
             predictedAlleles.add(s);
         }
         Set<String> trueAlleles = new ObjectArraySet<>();
@@ -89,4 +77,6 @@ public class GenotypePrediction {
         trueAlleles.removeAll(toIgnore);
         return predictedAlleles.equals(trueAlleles);
     }
+
+
 }

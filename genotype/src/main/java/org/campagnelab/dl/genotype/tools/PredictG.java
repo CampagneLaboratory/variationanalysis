@@ -6,7 +6,8 @@ import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPrediction;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction;
-import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
+import org.campagnelab.dl.genotype.predictions.AbstractGenotypePrediction;
+import org.campagnelab.dl.genotype.predictions.GenotypePrediction5Out;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.PrintWriter;
@@ -68,7 +69,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         HomozygousPrediction homoPred = (HomozygousPrediction) predictionList.get(0);
         List<Prediction> genoPredList = predictionList.subList(1, 11);
 
-        GenotypePrediction fullPred = new GenotypePrediction();
+        GenotypePrediction5Out fullPred = new GenotypePrediction5Out();
         fullPred.set(homoPred, genoPredList.toArray(new SingleGenotypePrediction[genoPredList.size()]));
 
         boolean correct = fullPred.isCorrect();
@@ -77,7 +78,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
         if (filterHet((PredictGArguments) args(), fullPred) && doOuptut(correctness, args(), fullPred.overallProbability)) {
             resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\n",
-                    homoPred.index, (correct ? 1 : 0), fullPred.trueGenotype, fullPred.calledGenotype, fullPred.overallProbability, correctness);
+                    homoPred.index, (correct ? 1 : 0), fullPred.trueGenotype, fullPred.predictedGenotype, fullPred.overallProbability, correctness);
             if (args().filterMetricObservations) {
                 stats.observe(fullPred, homoPred.isVariant);
             }
@@ -88,7 +89,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     }
 
-    private boolean filterHet(PredictGArguments args, GenotypePrediction fullPred) {
+    boolean filterHet(PredictGArguments args, AbstractGenotypePrediction fullPred) {
         Set<String> alleles = fullPred.alleles();
         switch (args.showFilter) {
             case HET:

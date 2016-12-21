@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.tools;
 
-import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
+import org.campagnelab.dl.genotype.predictions.AbstractGenotypePrediction;
+import org.campagnelab.dl.genotype.predictions.GenotypePrediction5Out;
 
 import java.util.Arrays;
 
@@ -25,7 +26,7 @@ public class StatsAccumulator {
         numFalseNegative = 0;
     }
 
-    protected void observe(GenotypePrediction fullPred, boolean isVariant){
+    protected void observe(AbstractGenotypePrediction fullPred, boolean isVariant){
         numProcessed++;
         if (fullPred.isCorrect()) {
             numCorrect++;

@@ -19,7 +19,7 @@ import java.util.Properties;
  */
 public class DLGenotypePredictor implements GenotypePredictor, Predictor {
     private GenotypeModel model;
-    private GenotypePrediction prediction;
+    private GenotypePrediction5Out prediction;
 
 
 
@@ -67,7 +67,7 @@ public class DLGenotypePredictor implements GenotypePredictor, Predictor {
 
     @Override
     public String getCalledGenotype() {
-        return prediction.calledGenotype;
+        return prediction.predictedGenotype;
     }
 
     /**

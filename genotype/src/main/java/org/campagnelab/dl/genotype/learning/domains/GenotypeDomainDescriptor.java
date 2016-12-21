@@ -253,6 +253,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public ComputationGraphAssembler getComputationalGraph() {
+
         try {
             ComputationGraphAssembler assembler = (ComputationGraphAssembler) Class.forName(args().architectureClassname).newInstance();
             return assembler;

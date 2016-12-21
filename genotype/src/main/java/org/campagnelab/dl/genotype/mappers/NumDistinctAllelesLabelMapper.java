@@ -1,11 +1,8 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
-import org.campagnelab.dl.framework.mappers.LabelMapper;
-import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
-import org.campagnelab.dl.somatic.mappers.NoMasksLabelMapper;
+import org.campagnelab.dl.genotype.predictions.GenotypePrediction5Out;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Properties;
 
@@ -35,7 +32,7 @@ public class NumDistinctAllelesLabelMapper extends CountSortingLabelMapper imple
     }
 
     protected float label(int labelIndex, String trueGenotype) {
-        int numDistinctAlleles = GenotypePrediction.alleles(trueGenotype).size();
+        int numDistinctAlleles = GenotypePrediction5Out.alleles(trueGenotype).size();
         return (labelIndex == numDistinctAlleles - 1) ? 1f : 0f;
     }
 
