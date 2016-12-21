@@ -4,6 +4,8 @@ package org.campagnelab.dl.genotype.tools;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.io.BinIO;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
@@ -75,6 +77,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             System.out.println(source.numRecords() + " records to label");
             int recordsLabeled = 0;
             recordLogger.start();
+          ObjectSet<String> distinctTrueGenotypes=new ObjectArraySet<>();
             for (BaseInformationRecords.BaseInformation rec : source) {
                 boolean skip = false;
 
@@ -104,6 +107,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                     genotypes[2] = referenceBase;
                 }
                 if (!skip) {
+                    distinctTrueGenotypes.add(trueGenotype);
                     // write the record.
                     buildRec.setTrueGenotype(trueGenotype.replace('|', '/').toUpperCase());
                     BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
@@ -122,6 +126,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             }
             recordLogger.done();
             dest.close();
+            System.out.println("Found the following distinct true genotypes: "+distinctTrueGenotypes);
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
