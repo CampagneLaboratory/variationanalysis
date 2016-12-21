@@ -79,10 +79,6 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                 boolean skip = false;
 
 
-
-
-
-
                 BaseInformationRecords.BaseInformation.Builder buildRec = rec.toBuilder();
                 int position = buildRec.getPosition();
                 String chrom = buildRec.getReferenceId();
@@ -99,7 +95,9 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                     if (random.nextFloat() > args().referenceSamplingRate) {
                         skip = true;
                     }
-                    String referenceBase = Character.toString(genome.get(buildRec.getReferenceIndex(),buildRec.getPosition()));
+                    // alignment and genome do not necessarily share the same space of reference indices. Convert:
+                    int genomeTargetIndex=genome.getReferenceIndex(buildRec.getReferenceId());
+                    String referenceBase = Character.toString(genome.get(genomeTargetIndex,buildRec.getPosition()));
                     trueGenotype = referenceBase+"|"+referenceBase;
                     referenceBase = referenceBase.toUpperCase();
                     genotypes[0] = referenceBase;
