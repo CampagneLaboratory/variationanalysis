@@ -22,14 +22,14 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  *
  * @author Remi Torracinta
  */
-public class GenotypeSingleSoftmax implements ComputationGraphAssembler {
+public class CombinedGenotypeSixDenseLayers implements ComputationGraphAssembler {
 
 
     private int numHiddenNodes;
     private LearningRatePolicy learningRatePolicy;
     private TrainingArguments arguments;
     private int numInputs;
-    private String[] outputNames = new String[]{"homozygous","A","T","C","G","N","I1","I2","I3","I4","I5"};
+    private String[] outputNames = new String[]{"combined"};
     private TrainingArguments args() {
         return arguments;
     };
@@ -96,18 +96,11 @@ public class GenotypeSingleSoftmax implements ComputationGraphAssembler {
                         .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build(), "dense4");
-        build.addLayer("homozygous", new OutputLayer.Builder(
-                domainDescriptor.getOutputLoss("homozygous"))
+        build.addLayer("combined", new OutputLayer.Builder(
+                domainDescriptor.getOutputLoss("combined"))
                 .weightInit(WEIGHT_INIT)
                 .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                 .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(11).build(), "dense5");
-        for (int i = 1; i < outputNames.length; i++){
-            build.addLayer(outputNames[i], new OutputLayer.Builder(
-                    domainDescriptor.getOutputLoss(outputNames[i]))
-                    .weightInit(WEIGHT_INIT)
-                    .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                    .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(2).build(), "dense5");
-        }
         ComputationGraphConfiguration conf = build
                 .setOutputs(outputNames)
                 .pretrain(false).backprop(true).build();

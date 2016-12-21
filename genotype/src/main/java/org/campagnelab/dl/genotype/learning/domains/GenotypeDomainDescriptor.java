@@ -11,6 +11,8 @@ import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.NumDistinctAlleleAssembler;
 import org.campagnelab.dl.genotype.mappers.GenotypeFeatureMapper;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
+import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedInterpreter;
+import org.campagnelab.dl.genotype.mappers.*;
 import org.campagnelab.dl.genotype.performance.AccuracyHelper;
 import org.campagnelab.dl.genotype.performance.AlleleAccuracyHelper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
@@ -18,8 +20,6 @@ import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypeInterpreter;
-import org.campagnelab.dl.genotype.mappers.GenotypeLabelsMapper;
-import org.campagnelab.dl.genotype.mappers.HomozygousLabelsMapper;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
@@ -158,7 +158,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new HomozygousLabelsMapper(sortCounts);
             case "numDistinctAlleles":
                 return new NumDistinctAllelesLabelMapper(sortCounts, ploidy);
-
+            case "combined":
+                return new CombinedLabelsMapper();
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
@@ -207,6 +208,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             //only need one interpreter for each record, it will collect entire genotype into a prediction
             case "homozygous":
                 return new HomozygousInterpreter(sortCounts);
+            case "combined":
+                return new CombinedInterpreter();
             case "numDistinctAlleles":
                 return new NumDistinctAllelesInterpreter(ploidy);
             default:
