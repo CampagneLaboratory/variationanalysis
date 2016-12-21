@@ -3,6 +3,7 @@ package org.campagnelab.dl.framework.iterators.cache;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.iterators.MultiDatasetMappedFeaturesIterator;
+import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.tools.MapMultiDatasetFeatures;
 import org.campagnelab.dl.framework.tools.MapMultiDatasetFeaturesArguments;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
@@ -59,7 +60,16 @@ public class CacheHelper<RecordType> {
     }
 
     private String decorateCacheName(DomainDescriptor domainDescriptor, String cacheName) {
-        int domainHashCode = domainDescriptor.featureMappers().hashCode() ^ domainDescriptor.getComputationalGraph().hashCode() ^ domainDescriptor.labelMappers().hashCode();
+
+        int domainHashCode=0x72E7;
+        for (Object o : domainDescriptor.featureMappers()) {
+            domainHashCode^=o.getClass().getCanonicalName().hashCode();
+        }
+        for (Object o : domainDescriptor.labelMappers()) {
+            domainHashCode^=o.getClass().getCanonicalName().hashCode();
+        }
+        domainHashCode^=domainDescriptor.getComputationalGraph().getClass().getCanonicalName().hashCode();
+
         String cacheHash = Integer.toHexString(domainHashCode);
         cacheName = FilenameUtils.removeExtension(cacheName) + "-"+cacheHash;
         return cacheName;
