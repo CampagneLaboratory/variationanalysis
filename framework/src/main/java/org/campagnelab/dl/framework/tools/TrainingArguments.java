@@ -78,6 +78,8 @@ public abstract class TrainingArguments extends RecordingToolArguments {
 
     protected abstract String defaultArchitectureClassname();
 
+    @Parameter(names = "--build-cache-then-stop", description = "When provided, build the caches, then immediately stop.")
+    public boolean buildCacheAndStop=false;
 
     public String[] getTrainingSets() {
         return this.trainingSets.toArray(new String[this.trainingSets.size()]);

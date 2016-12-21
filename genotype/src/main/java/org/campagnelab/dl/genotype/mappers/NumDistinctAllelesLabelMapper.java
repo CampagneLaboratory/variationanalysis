@@ -30,7 +30,7 @@ public class NumDistinctAllelesLabelMapper extends CountSortingLabelMapper imple
 
     @Override
     public float produceLabel(BaseInformationRecords.BaseInformation record, int labelIndex) {
-        final String trueGenotype = record.getTrueGenotype();
+        final String trueGenotype = sortedCountRecord.getTrueGenotype();
         return label(labelIndex, trueGenotype);
     }
 
