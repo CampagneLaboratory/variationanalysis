@@ -24,7 +24,8 @@ goby ${memory_requirement} discover-sequence-variants ${ALIGNMENTS} \
   --genome ${GENOME} \
   --minimum-variation-support 1 \
   --threshold-distinct-read-indices 1 \
-  --call-indels false
+  --call-indels false \
+  --processor realign_near_indels
 
 goby ${memory_requirement} vcf-to-genotype-map ${VCF} \
   -o tmp/variants.varmap
