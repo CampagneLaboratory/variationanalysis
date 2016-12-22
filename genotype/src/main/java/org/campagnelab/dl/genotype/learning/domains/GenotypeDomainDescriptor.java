@@ -276,8 +276,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                         return true;
                     case "score":
                         return false;
+                    case "numVariants":
+                        return true;
                     default:
-                        throw new IllegalArgumentException("metric not recognized.");
+                        throw new IllegalArgumentException("metric not recognized: "+metricName);
                 }
             }
 
