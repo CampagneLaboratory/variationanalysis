@@ -318,7 +318,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String earlyStoppingMetric() {
-                return "score";
+                return "F1";
             }
         };
 
