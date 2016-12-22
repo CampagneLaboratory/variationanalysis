@@ -64,15 +64,15 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
                     }
                 }
                 GenotypePrediction gp = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictions);
-
                 accumulator.observe(gp);
+                if (stopIfTrue.test(nProcessed)) {
+                    break;
+                }
+                nProcessed += 1;
             }
 
             observedScore = score / (double) numMiniBatchesScored;
-            if (stopIfTrue.test(nProcessed)) {
-                break;
-            }
-            nProcessed += 1;
+
         }
         return accumulator.createOutputStatistics()[StatsAccumulator.F1_INDEX];
     }
