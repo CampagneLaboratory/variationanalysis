@@ -78,6 +78,7 @@ public class GenotypePrediction extends Prediction {
     }
 
     public static Set<String> alleles(String genotype) {
+        genotype = genotype.toUpperCase();
         ObjectSet<String> result = new ObjectArraySet<>();
         Collections.addAll(result, genotype.split("[|/]"));
         result.remove("|");
