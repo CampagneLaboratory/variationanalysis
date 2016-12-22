@@ -63,18 +63,18 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     }
 
     @Override
-    protected void processPredictions(PrintWriter resultWriter, List<Prediction> predictionList) {
+    protected void processPredictions(PrintWriter resultWriter, BaseInformationRecords.BaseInformation record, List<Prediction> predictionList) {
 
 
-        GenotypePrediction fullPred = new GenotypePrediction(predictionList);
-
+        GenotypePrediction fullPred = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictionList);
+        fullPred.inspectRecord(record);
         boolean correct = fullPred.isCorrect();
         //remove dangling commas
         String correctness = correct ? "correct" : "wrong";
 
         if (filterHet((PredictGArguments) args(), fullPred) && doOuptut(correctness, args(), fullPred.overallProbability)) {
             resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\n",
-                    fullPred.getPredictionIndex(), (correct ? 1 : 0), fullPred.trueGenotype, fullPred.calledGenotype, fullPred.overallProbability, correctness);
+                    fullPred.index, (correct ? 1 : 0), fullPred.trueGenotype, fullPred.predictedGenotype, fullPred.overallProbability, correctness);
             if (args().filterMetricObservations) {
                 stats.observe(fullPred, fullPred.isVariant());
             }
@@ -85,8 +85,8 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     }
 
-    boolean filterHet(PredictGArguments args, AbstractGenotypePrediction fullPred) {
-        Set<String> alleles = fullPred.alleles();
+    boolean filterHet(PredictGArguments args, GenotypePrediction fullPred) {
+        Set<String> alleles = fullPred.predictedAlleles();
         switch (args.showFilter) {
             case HET:
                 return (alleles.size() == 2);

@@ -14,7 +14,6 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
  * Created by fac2003 on 12/20/16.
@@ -24,10 +23,13 @@ public class NumDistinctAlleleAssembler implements ComputationGraphAssembler {
     private LearningRatePolicy learningRatePolicy;
     private TrainingArguments arguments;
     private int numInputs;
-    private String[] outputNames = new String[]{"numDistinctAlleles","A","T","C","G","N","I1","I2","I3","I4","I5"};
+    private String[] outputNames = new String[]{"numDistinctAlleles", "A", "T", "C", "G", "N", "I1", "I2", "I3", "I4", "I5", "metaData"};
+
     private TrainingArguments args() {
         return arguments;
-    };
+    }
+
+    ;
 
     @Override
     public void setArguments(TrainingArguments arguments) {
@@ -95,8 +97,17 @@ public class NumDistinctAlleleAssembler implements ComputationGraphAssembler {
                 domainDescriptor.getOutputLoss("numDistinctAlleles"))
                 .weightInit(WEIGHT_INIT)
                 .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(domainDescriptor.getNumOutputs("numDistinctAlleles")[0]).build(), "dense5");
-        for (int i = 1; i < outputNames.length; i++){
+                .nIn((int) (numHiddenNodes * Math.pow(reduction, 4)))
+                .nOut(domainDescriptor.getNumOutputs("numDistinctAlleles")[0]).build(), "dense5").addInputs();
+        build.addLayer("metaData", new OutputLayer.Builder(
+                domainDescriptor.getOutputLoss("metaData"))
+                .weightInit(WEIGHT_INIT)
+                .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
+                .nIn((int) (numHiddenNodes * Math.pow(reduction, 4)))
+                .nOut(
+                        domainDescriptor.getNumOutputs("metaData")[0]
+                ).build(), "dense5");
+        for (int i = 1; i < outputNames.length; i++) {
             build.addLayer(outputNames[i], new OutputLayer.Builder(
                     domainDescriptor.getOutputLoss(outputNames[i]))
                     .weightInit(WEIGHT_INIT)

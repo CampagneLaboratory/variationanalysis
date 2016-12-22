@@ -2,7 +2,8 @@ package org.campagnelab.dl.genotype.learning.domains.predictions;
 
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.genotype.mappers.CombinedLabelsMapper;
-import org.campagnelab.dl.genotype.mappers.HomozygousLabelsMapper;
+import org.campagnelab.dl.genotype.predictions.CombinedGenotypePrediction;
+import org.campagnelab.dl.genotype.predictions.CombinedOutputLayerPrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -10,27 +11,27 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Interpret model output to determine if a site is homozygous/het and what hte homosygous genotype is.
  * Created by rct66 on 11/12/16.
  */
-public class CombinedInterpreter extends SortingCountInterpreter<CombinedPrediction>
-        implements PredictionInterpreter<BaseInformationRecords.BaseInformation, CombinedPrediction> {
+public class CombinedOutputLayerInterpreter extends SortingCountInterpreter<CombinedOutputLayerPrediction>
+        implements PredictionInterpreter<BaseInformationRecords.BaseInformation, CombinedOutputLayerPrediction> {
 
 
-    public CombinedInterpreter() {
+    public CombinedOutputLayerInterpreter() {
         super(true);
     }
 
     double probability;
 
     @Override
-    public CombinedPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+    public CombinedOutputLayerPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
         throw new RuntimeException("a wrong interpret method was called on the homozygous interpeter");
     }
 
     @Override
-    public CombinedPrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
-        CombinedPrediction pred = new CombinedPrediction();
+    public CombinedOutputLayerPrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
+        CombinedOutputLayerPrediction pred = new CombinedOutputLayerPrediction();
         pred.inspectRecord(record);
         pred.predictedGenotype = getPrediction(record, output);
-        pred.probability = probability;
+        pred.overallProbability = probability;
         return pred;
     }
 

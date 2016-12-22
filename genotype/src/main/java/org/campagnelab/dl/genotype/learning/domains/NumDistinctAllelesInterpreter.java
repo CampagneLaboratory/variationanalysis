@@ -2,7 +2,6 @@ package org.campagnelab.dl.genotype.learning.domains;
 
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 
-import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPrediction;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -11,7 +10,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Interprets the outout of NumDistinctAllelesLabelMapper.
  * Created by fac2003 on 12/20/16.
  */
-public class NumDistinctAllelesInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation, NumDistinctAlleles> {
+public class NumDistinctAllelesInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation,
+        NumDistinctAllelesOutputLayerPrediction> {
 
     int ploidy;
 
@@ -20,29 +20,26 @@ public class NumDistinctAllelesInterpreter implements PredictionInterpreter<Base
     }
 
     @Override
-    public NumDistinctAlleles interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
-        NumDistinctAlleles result = new NumDistinctAlleles();
+    public NumDistinctAllelesOutputLayerPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+        NumDistinctAllelesOutputLayerPrediction result = new NumDistinctAllelesOutputLayerPrediction();
 
         result.predictedValue = readPredicted(output, result,predictionIndex);
         result.trueValue = readPredicted(trueLabels, result,predictionIndex);
-        // TODO: refactor true genotype on the SingleGenotypePredictions.
-        result.trueGenotypeFormat="?/?";
-        result.trueGenotype= HomozygousPrediction.getGenotype(result.trueGenotypeFormat);
+
         return result;
     }
 
     @Override
-    public NumDistinctAlleles interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
-        NumDistinctAlleles result = new NumDistinctAlleles();
+    public NumDistinctAllelesOutputLayerPrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
+        NumDistinctAllelesOutputLayerPrediction result = new NumDistinctAllelesOutputLayerPrediction();
         final String trueGenotype = record.getTrueGenotype();
         result.trueValue = GenotypePrediction.alleles(trueGenotype).size();
-        result.inspectRecord(record);
         // interpret the prediction
         result.predictedValue = readPredicted(output, result,0);
         return result;
     }
 
-    private int readPredicted(INDArray output, NumDistinctAlleles result, int  predictionIndex) {
+    private int readPredicted(INDArray output, NumDistinctAllelesOutputLayerPrediction result, int  predictionIndex) {
         double maxProbability = -1;
         int maxIndex = -1;
 

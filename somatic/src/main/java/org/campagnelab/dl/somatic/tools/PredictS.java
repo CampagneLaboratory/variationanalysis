@@ -71,7 +71,8 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
     }
 
     @Override
-    protected void processPredictions(PrintWriter resultWriter, List<Prediction> predictionList) {
+    protected void processPredictions(PrintWriter resultWriter, BaseInformationRecords.BaseInformation record,
+                                      List<Prediction> predictionList) {
         // List contains at least one prediction: isSomaticMutation. It may also contain the prediction of
         // somaticFrequency. In the second element, when the model is a computational graph with two outputs.
         BinaryClassPrediction isSomaticMutation = (BinaryClassPrediction) predictionList.get(0);

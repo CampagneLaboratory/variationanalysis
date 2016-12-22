@@ -1,14 +1,14 @@
 package org.campagnelab.dl.framework.tools;
 
 import com.google.common.collect.Iterables;
+import it.unimi.dsi.logging.ProgressLogger;
+import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.DomainDescriptorLoader;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
-import it.unimi.dsi.logging.ProgressLogger;
-import org.apache.commons.io.FilenameUtils;
-import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.deeplearning4j.nn.api.Model;
 import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
@@ -30,7 +30,6 @@ import java.util.List;
 public abstract class Predict<RecordType> extends ConditionRecordingTool<PredictArguments> {
 
     static private Logger LOG = LoggerFactory.getLogger(Predict.class);
-
 
     public PredictArguments args() {
         return arguments;
@@ -120,7 +119,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         pgReadWrite.displayFreeMemory = true;
         pgReadWrite.start();
 
-        PredictWithModel<RecordType> predictor = new PredictWithModel<>(domainDescriptor);
+        PredictWithModel<RecordType> predictor = new PredictWithModel<RecordType>(domainDescriptor);
 
         Iterable<RecordType> apply = domainDescriptor.getRecordIterable().apply(evaluationDataFilename);
         Iterable<RecordType> it = Iterables.limit(apply, args().scoreN);
@@ -129,10 +128,9 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
 
         predictor.makePredictions(it.iterator(),
                 model,
-                predictionList -> {
-                    processPredictions(resutsWriter, predictionList);
-                    pgReadWrite.lightUpdate();
-                },
+                recordPredictions -> {  processPredictions(resutsWriter, recordPredictions.record,
+                        recordPredictions.predictions);
+                    pgReadWrite.lightUpdate();},
                 /* stop if */ nProcessed -> nProcessed > args().scoreN
         );
 
@@ -181,7 +179,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
      * @param predictionList The list of predictions made for a test record. Typically one prediction for each model output.
      * @param resutsWriter   Where predictions can be written in tab delited format.
      */
-    protected abstract void processPredictions(PrintWriter resutsWriter, List<Prediction> predictionList);
+    protected abstract void processPredictions(PrintWriter resutsWriter, RecordType record, List<Prediction> predictionList);
 
     /**
      * This method is called when we need to write the header to the results.

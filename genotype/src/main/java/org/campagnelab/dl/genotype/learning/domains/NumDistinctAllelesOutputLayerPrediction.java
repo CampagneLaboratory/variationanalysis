@@ -7,7 +7,7 @@ import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPredic
  * Represent the number of distint alleles called at a site.
  * Created by fac2003 on 12/20/16.
  */
-public class NumDistinctAlleles extends HomozygousPrediction {
+public class NumDistinctAllelesOutputLayerPrediction extends Prediction {
     public int trueValue;
     public int predictedValue;
 }

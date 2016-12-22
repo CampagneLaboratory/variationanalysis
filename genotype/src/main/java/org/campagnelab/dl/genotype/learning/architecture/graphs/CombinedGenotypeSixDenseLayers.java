@@ -30,7 +30,7 @@ public class CombinedGenotypeSixDenseLayers implements ComputationGraphAssembler
     private LearningRatePolicy learningRatePolicy;
     private TrainingArguments arguments;
     private int numInputs;
-    private String[] outputNames = new String[]{"combined"};
+    private String[] outputNames = new String[]{"combined","metaData"};
     private TrainingArguments args() {
         return arguments;
     };
@@ -101,7 +101,16 @@ public class CombinedGenotypeSixDenseLayers implements ComputationGraphAssembler
                 domainDescriptor.getOutputLoss("combined"))
                 .weightInit(WEIGHT_INIT)
                 .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(4).build(), "dense5");
+                .nIn((int) (numHiddenNodes * Math.pow(reduction, 4)))
+                .nOut(domainDescriptor.getNumOutputs("combined")[0]).build(), "dense5");
+        build.addLayer("metaData", new OutputLayer.Builder(
+                domainDescriptor.getOutputLoss("metaData"))
+                .weightInit(WEIGHT_INIT)
+                .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
+                .nIn((int) (numHiddenNodes * Math.pow(reduction, 4)))
+                .nOut(
+                        domainDescriptor.getNumOutputs("metaData")[0]
+                ).build(), "dense5");
         ComputationGraphConfiguration conf = build
                 .setOutputs(outputNames)
                 .pretrain(false).backprop(true).build();

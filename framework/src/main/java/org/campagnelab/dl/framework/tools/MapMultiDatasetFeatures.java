@@ -1,5 +1,6 @@
 package org.campagnelab.dl.framework.tools;
 
+import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import it.unimi.dsi.fastutil.io.FastBufferedOutputStream;

@@ -3,6 +3,7 @@ package org.campagnelab.dl.genotype.learning.domains;
 import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
@@ -11,21 +12,25 @@ import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.CombinedGenotypeSixDenseLayers;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.NumDistinctAlleleAssembler;
-import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedInterpreter;
+import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerInterpreter;
+import org.campagnelab.dl.genotype.predictions.CombinedGenotypePrediction;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypeInterpreter;
 import org.campagnelab.dl.genotype.mappers.*;
 import org.campagnelab.dl.genotype.performance.AccuracyHelper;
 import org.campagnelab.dl.genotype.performance.AlleleAccuracyHelper;
 import org.campagnelab.dl.genotype.performance.GenotypeTrainingPerformanceHelper;
+import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
+import org.campagnelab.dl.genotype.predictions.MetaDataInterpreter;
+import org.campagnelab.dl.genotype.predictions.NumDistinctIndelGenotypePrediction;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.impl.LossBinaryXENT;
 import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
@@ -161,6 +166,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new NumDistinctAllelesLabelMapper(sortCounts, ploidy);
             case "combined":
                 return new CombinedLabelsMapper();
+            case "metaData":
+                return new MetaDataLabelMapper();
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
@@ -219,9 +226,11 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "homozygous":
                 return new HomozygousInterpreter(sortCounts);
             case "combined":
-                return new CombinedInterpreter();
+                return new CombinedOutputLayerInterpreter();
             case "numDistinctAlleles":
                 return new NumDistinctAllelesInterpreter(ploidy);
+            case "metaData":
+                return new MetaDataInterpreter();
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
@@ -335,11 +344,24 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "numDistinctAlleles":
             case "combined":
                 return new LossMCXENT();
-
+            case "metaData":
+                // no loss for metaData. These labels are virtual.
+                return new LossBinaryXENT(Nd4j.zeros(MetaDataLabelMapper.NUM_LABELS));
             default:
                 // any other is an individual genotype output:
                 return new LossBinaryXENT();
         }
+    }
+
+    @Override
+    public GenotypePrediction aggregatePredictions(List<Prediction> individualOutputPredictions) {
+        if (withDistinctAllele())
+            return new NumDistinctIndelGenotypePrediction(individualOutputPredictions);
+        if (withCombinedLayer()) {
+            CombinedGenotypePrediction overall=  new CombinedGenotypePrediction( individualOutputPredictions);
+            return overall;
+        }
+        throw new IllegalArgumentException("The type of aggregate prediction is not recognized.");
     }
 
     @Override

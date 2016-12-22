@@ -4,6 +4,7 @@ import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.framework.tools.PredictWithModel;
+import org.campagnelab.dl.genotype.predictions.AbstractGenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.graph.ComputationGraph;
@@ -54,7 +55,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
                         predictions.add(prediction);
                     }
                 }
-                GenotypePrediction gp = new GenotypePrediction(predictions);
+                GenotypePrediction gp = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictions);
                 accumulator.observe(gp);
             }
 

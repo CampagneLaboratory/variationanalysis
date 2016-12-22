@@ -29,10 +29,12 @@ public class StatsAccumulator {
         numFalseNegative = 0;
         numVariants = 0;
     }
+
     public void observe(GenotypePrediction fullPred) {
         observe(fullPred, fullPred.isVariant());
     }
-    public void observe(AbstractGenotypePrediction fullPred, boolean isVariant) {
+
+    public void observe(GenotypePrediction fullPred, boolean isVariant) {
         numProcessed++;
         if (fullPred.isCorrect()) {
             numCorrect++;
@@ -63,7 +65,9 @@ public class StatsAccumulator {
         return new String[]{"accuracy", "sensitivity/recall", "PPV/precision", "F1", "numVariants",
         };
     }
+
     public static final int F1_INDEX = 3;
+
     public void reportStatistics(String prefix) {
         double[] statsArray = createOutputStatistics();
         System.out.println("Statistics estimated for " + prefix);

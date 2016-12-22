@@ -1,6 +1,7 @@
 package org.campagnelab.dl.framework.tools;
 
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.framework.domains.prediction.RecordPredictions;
 import org.campagnelab.dl.framework.models.ModelOutputHelper;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
@@ -35,7 +36,7 @@ public class PredictWithModel<RecordType> {
 
     public void makePredictions(Iterator<RecordType> iterator,
                                 Model model,
-                                Consumer<List<Prediction>> doForEachPrediction,
+                                Consumer<RecordPredictions<RecordType>> doForEachPrediction,
                                 Predicate<Integer> stopIfTrue) {
         makePredictions(iterator, model,
                 recordType -> {
@@ -47,7 +48,7 @@ public class PredictWithModel<RecordType> {
     public void makePredictions(Iterator<RecordType> iterator,
                                 Model model,
                                 Consumer<RecordType> observeRecord,
-                                Consumer<List<Prediction>> doForEachPrediction,
+                                Consumer<RecordPredictions<RecordType>> doForEachPrediction,
                                 Predicate<Integer> stopIfTrue) {
         int index = 0;
         List<Prediction> predictions = new ArrayList<>();
@@ -66,7 +67,8 @@ public class PredictWithModel<RecordType> {
                     predictions.add(prediction);
                 }
             }
-            doForEachPrediction.accept(predictions);
+
+            doForEachPrediction.accept(new RecordPredictions<>(currentRecord, predictions));
             index++;
             if (stopIfTrue.test(index)) {
                 break;

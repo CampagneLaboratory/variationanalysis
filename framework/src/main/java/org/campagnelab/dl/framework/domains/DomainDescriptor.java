@@ -1,6 +1,7 @@
 package org.campagnelab.dl.framework.domains;
 
 import com.google.common.collect.Iterables;
+import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
@@ -59,6 +60,15 @@ public abstract class DomainDescriptor<RecordType> {
      */
     public abstract PredictionInterpreter getPredictionInterpreter(String outputName);
 
+    /**
+     * Return an aggregate prediction from individual predictions produced for each model output. The client of this
+     * method is responsible for casting to the appropriate implementation for this domain.
+     * @param individualOutputPredictions individual predictions produced for each model output, in the order of outputs.
+     * @return combined prediction for the model.
+     */
+    public Prediction aggregatePredictions(List<Prediction> individualOutputPredictions) {
+        return null;
+    }
     /**
      * Returns a function that converts an input filename to an iterable over records in the file.
      *
