@@ -12,6 +12,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Example of Predict implementation. This class performs predictions with a model trained by TrainModelS.
@@ -62,12 +63,22 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         stats.reportStatistics(prefix);
     }
 
+    public PredictGArguments args() {
+        return (PredictGArguments) arguments;
+    }
+
     @Override
     protected void processPredictions(PrintWriter resultWriter, BaseInformationRecords.BaseInformation record, List<Prediction> predictionList) {
 
 
         GenotypePrediction fullPred = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictionList);
         fullPred.inspectRecord(record);
+        long trueAlleleLength = fullPred.trueAlleles().stream().map(String::length).distinct().count();
+        if (!args().scoreIndels && (fullPred.isIndel ||  trueAlleleLength > 1) ) {
+            // reduce A---A/ATTTA to A/A
+            String trimmedGenotype = fullPred.trueAlleles().stream().map(s -> Character.toString(s.charAt(0))).collect(Collectors.joining("/"));
+            fullPred.trueGenotype = trimmedGenotype;
+        }
         boolean correct = fullPred.isCorrect();
         //remove dangling commas
         String correctness = correct ? "correct" : "wrong";
