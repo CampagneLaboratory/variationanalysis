@@ -56,8 +56,8 @@ public class StatsAccumulator {
         double accuracy = numCorrect / (double) numProcessed;
         double recall = numTruePositive / ((double) (numTruePositive + numFalseNegative));
         double precision = numTruePositive / ((double) (numTruePositive + numFalsePositive));
-       // important fix. Remi, see https://en.wikipedia.org/wiki/F1_score
-        double F1 = 2* precision * recall / (precision + recall);
+        // important fix. Remi, see https://en.wikipedia.org/wiki/F1_score
+        double F1 = 2 * precision * recall / (precision + recall);
         return new double[]{accuracy, recall, precision, F1, numVariants};
     }
 
@@ -80,6 +80,11 @@ public class StatsAccumulator {
                 case "F1":
                     j = 3;
                     break;
+                case "numVariants":
+                    j = 4;
+                    break;
+                default:
+                    throw new RuntimeException("performance metric not recognized: " + metricName);
             }
             values[i++] = estimates[j];
         }
