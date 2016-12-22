@@ -36,7 +36,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
         int nProcessed = 0;
         int nCorrect = 0;
         double score = 0;
-        int numMiniBatchesScored=0;
+        int numMiniBatchesScored = 0;
         List<Prediction> predictions = new ArrayList<>();
         while (iterator.hasNext()) {
             MultiDataSet next = iterator.next();
@@ -44,7 +44,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
             double dsScore = graph.score();
             if (dsScore == dsScore) {
                 score += dsScore;
-                numMiniBatchesScored+=1;
+                numMiniBatchesScored += 1;
             }
             INDArray[] trueLabels = next.getLabels();
 
@@ -67,7 +67,12 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
 
                 accumulator.observe(gp);
             }
-            observedScore=score/(double)numMiniBatchesScored;
+
+            observedScore = score / (double) numMiniBatchesScored;
+            if (stopIfTrue.test(nProcessed)) {
+                break;
+            }
+            nProcessed += 1;
         }
         return accumulator.createOutputStatistics()[StatsAccumulator.F1_INDEX];
     }
@@ -78,9 +83,9 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
         metricsNoScore.trim();
         String[] elements = metricsNoScore.toArray(new String[metricsNoScore.size()]);
         DoubleArrayList all = DoubleArrayList.wrap(accumulator.createOutputStatistics(elements));
-        for (int i=0;i<metrics.length;i++) {
+        for (int i = 0; i < metrics.length; i++) {
             if ("score".equals(metrics[i])) {
-                all.add(i,observedScore);
+                all.add(i, observedScore);
             }
         }
         return all.toDoubleArray();
