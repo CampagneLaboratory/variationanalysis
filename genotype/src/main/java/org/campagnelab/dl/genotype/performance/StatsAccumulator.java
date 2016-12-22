@@ -90,7 +90,7 @@ public class StatsAccumulator {
                 case "numVariants":
                     j = 4;
                     break;
-                case "genotypeConcordance":
+                case "Concordance":
                     j = 5;
                     break;
                 default:
@@ -102,7 +102,7 @@ public class StatsAccumulator {
     }
 
     public String[] createOutputHeader() {
-        return new String[]{"accuracy", "sensitivity/recall", "PPV/precision", "F1", "numVariants","genotypeConcordance",
+        return new String[]{"accuracy", "sensitivity/recall", "PPV/precision", "F1", "numVariants","Concordance",
         };
     }
 
