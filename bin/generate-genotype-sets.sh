@@ -43,6 +43,15 @@ split.sh ${memory_requirement} -i tmp/genotype_full_called_randomized.sbi \
   -o genotype_noIndel_ \
    -s train -s test -s validation
 
+# subset the validation sample, throwing out many reference matching sites (to speed
+# up performance evaluation for early stopping):
+mv genotype_noIndel_validation.sbi genotype_noIndel_validation-all.sbi
+mv genotype_noIndel_validation.sbip genotype_noIndel_validation-all.sbip
+
+add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
+  -i genotype_noIndel_validation-all.sbi \
+  -o genotype_noIndel_validation \
+  --genome ${GENOME} --ref-sampling-rate 0.01
 
 if [ ${DELETE_TMP} = "true" ]; then
    rm -rf tmp
