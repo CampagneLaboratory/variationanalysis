@@ -17,6 +17,7 @@ import java.util.function.Function;
  */
 public abstract class PretrainModel<RecordType> extends TrainModel<RecordType> {
     private TrainModel<RecordType> delegate;
+    private DomainDescriptor<RecordType> delegateDescriptor;
 
     /**
      * Create a pretraining model by using another TrainModel as a delegate
@@ -24,6 +25,7 @@ public abstract class PretrainModel<RecordType> extends TrainModel<RecordType> {
      */
     public PretrainModel(TrainModel<RecordType> delegate) {
         this.delegate = delegate;
+        delegateDescriptor = delegate.domainDescriptor();
     }
 
 
@@ -46,6 +48,22 @@ public abstract class PretrainModel<RecordType> extends TrainModel<RecordType> {
     @Override
     public TrainingArguments createArguments() {
         return delegate.createArguments();
+    }
+
+    /**
+     * Get the delegate TrainModel
+     * @return delegate TrainModel
+     */
+    public TrainModel<RecordType> delegateTrainModel() {
+        return delegate;
+    }
+
+    /**
+     * Get the domain of the delegate TrainModel
+     * @return domain of delegate TrainModel
+     */
+    public DomainDescriptor<RecordType> delegateDomainDescriptor() {
+        return delegateDescriptor;
     }
 
     /**
