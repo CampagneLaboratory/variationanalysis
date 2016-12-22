@@ -7,7 +7,8 @@ import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.function.Function;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * Created by joshuacohen on 12/15/16.

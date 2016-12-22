@@ -5,12 +5,10 @@ import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.function.Function;
 
-import static java.util.Arrays.asList;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * Created by joshuacohen on 12/15/16.
@@ -67,4 +65,6 @@ public class RNNPretrainingLabelMapperTest {
         rnnPretrainingLabelMapper.maskLabels(sequence3, mask, 2);
         assertEquals(mask.toString(), expectedMask);
     }
+
+
 }
