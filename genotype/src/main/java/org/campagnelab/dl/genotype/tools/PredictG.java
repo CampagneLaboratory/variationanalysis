@@ -80,7 +80,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             }
         }
         if (!args().filterMetricObservations) {
-            stats.observe(fullPred, fullPred.isVariant());
+            stats.observe(fullPred);
         }
 
     }
