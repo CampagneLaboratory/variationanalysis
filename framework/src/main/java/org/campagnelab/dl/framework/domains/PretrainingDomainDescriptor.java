@@ -4,6 +4,7 @@ import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssemble
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.*;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
+import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,8 +198,8 @@ public abstract class PretrainingDomainDescriptor<RecordType> extends DomainDesc
     }
 
     @Override
-    public LossFunctions.LossFunction getOutputLoss(String outputName) {
-        return LossFunctions.LossFunction.MCXENT;
+    public ILossFunction getOutputLoss(String outputName) {
+        return delegate.getOutputLoss(outputName);
     }
 
     /**
