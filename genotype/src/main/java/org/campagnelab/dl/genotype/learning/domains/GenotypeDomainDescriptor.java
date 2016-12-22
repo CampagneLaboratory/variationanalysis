@@ -1,5 +1,7 @@
 package org.campagnelab.dl.genotype.learning.domains;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
@@ -13,13 +15,13 @@ import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.CombinedGenotypeSixDenseLayers;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.NumDistinctAlleleAssembler;
 import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerInterpreter;
-import org.campagnelab.dl.genotype.predictions.CombinedGenotypePrediction;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypeInterpreter;
 import org.campagnelab.dl.genotype.mappers.*;
 import org.campagnelab.dl.genotype.performance.AccuracyHelper;
 import org.campagnelab.dl.genotype.performance.AlleleAccuracyHelper;
 import org.campagnelab.dl.genotype.performance.GenotypeTrainingPerformanceHelper;
+import org.campagnelab.dl.genotype.predictions.CombinedGenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.MetaDataInterpreter;
 import org.campagnelab.dl.genotype.predictions.NumDistinctIndelGenotypePrediction;
@@ -256,7 +258,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"F1","accuracy", "alleleAccuracy", "score"};
+                return new String[]{"F1", "recall", "precision","score"};
             }
 
             @Override
@@ -265,6 +267,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     case "accuracy":
                         return true;
                     case "F1":
+                        return true;
+                    case "recall":
+                        return true;
+                    case "precision":
                         return true;
                     case "alleleAccuracy":
                         return true;
@@ -296,6 +302,18 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     default:
                         return estimateScore(graph, metricName, dataSetIterator, scoreN);
                 }
+            }
+
+            @Override
+            public double[] estimateMetric(ComputationGraph graph, MultiDataSetIterator dataSetIterator, long scoreN,
+                                           String... metrics) {
+
+
+                GenotypeTrainingPerformanceHelper helper = new GenotypeTrainingPerformanceHelper(domainDescriptor);
+                helper.estimateWithGraph(dataSetIterator, graph,
+                        index -> index > scoreN
+                            /* first output represents probabilityIsCalled of mutation */);
+                return helper.getMetricValues(metrics);
             }
 
             @Override
@@ -358,7 +376,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         if (withDistinctAllele())
             return new NumDistinctIndelGenotypePrediction(individualOutputPredictions);
         if (withCombinedLayer()) {
-            CombinedGenotypePrediction overall=  new CombinedGenotypePrediction( individualOutputPredictions);
+            CombinedGenotypePrediction overall = new CombinedGenotypePrediction(individualOutputPredictions);
             return overall;
         }
         throw new IllegalArgumentException("The type of aggregate prediction is not recognized.");

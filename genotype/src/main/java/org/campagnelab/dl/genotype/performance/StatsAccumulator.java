@@ -1,6 +1,5 @@
 package org.campagnelab.dl.genotype.performance;
 
-import org.campagnelab.dl.genotype.predictions.AbstractGenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 
 import java.util.Arrays;
@@ -59,6 +58,31 @@ public class StatsAccumulator {
         double precision = numTruePositive / ((double) (numTruePositive + numFalsePositive));
         double F1 = precision * recall / (precision + recall);
         return new double[]{accuracy, recall, precision, F1, numVariants};
+    }
+
+    public double[] createOutputStatistics(String... metrics) {
+        double[] estimates = createOutputStatistics();
+        double[] values = new double[metrics.length];
+        int i = 0;
+        for (String metricName : metrics) {
+            int j = -1;
+            switch (metricName) {
+                case "accuracy":
+                    j = 0;
+                    break;
+                case "recall":
+                    j = 1;
+                    break;
+                case "precision":
+                    j = 2;
+                    break;
+                case "F1":
+                    j = 3;
+                    break;
+            }
+            values[i++] = estimates[j];
+        }
+        return values;
     }
 
     public String[] createOutputHeader() {

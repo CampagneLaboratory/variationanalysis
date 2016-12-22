@@ -158,9 +158,11 @@ public abstract class DomainDescriptor<RecordType> {
             }
 
             @Override
-            public double estimateMetric(ComputationGraph graph, String metricName, MultiDataSetIterator dataSetIterator, long scoreN) {
+            public double estimateMetric(ComputationGraph graph, String metricName,
+                                         MultiDataSetIterator dataSetIterator, long scoreN) {
                 return estimateScore(graph, metricName, dataSetIterator, scoreN);
             }
+
 
 
             @Override

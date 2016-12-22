@@ -1,12 +1,6 @@
 package org.campagnelab.dl.framework.tools;
 
 import com.google.common.collect.Iterables;
-import org.campagnelab.dl.framework.gpu.ParameterPrecision;
-import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
-import org.campagnelab.dl.framework.iterators.cache.FullyInMemoryCache;
-import org.campagnelab.dl.framework.models.ComputationGraphSaver;
-import org.campagnelab.dl.framework.models.ModelLoader;
-import org.campagnelab.dl.framework.training.ParallelTrainerOnGPU;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatSet;
@@ -16,13 +10,19 @@ import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.gpu.InitializeGpu;
+import org.campagnelab.dl.framework.gpu.ParameterPrecision;
+import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
+import org.campagnelab.dl.framework.iterators.cache.FullyInMemoryCache;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
+import org.campagnelab.dl.framework.models.ComputationGraphSaver;
+import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
 import org.campagnelab.dl.framework.performance.Metric;
 import org.campagnelab.dl.framework.performance.PerformanceLogger;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
+import org.campagnelab.dl.framework.training.ParallelTrainerOnGPU;
 import org.campagnelab.dl.framework.training.SequentialTrainer;
 import org.campagnelab.dl.framework.training.Trainer;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
@@ -178,7 +178,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         writeBestScoreFile();
         System.out.println("Model completed, saved at time: " + time);
         performanceLogger.write();
-        for (String metric : domainDescriptor.performanceDescritor().performanceMetrics()){
+        for (String metric : domainDescriptor.performanceDescritor().performanceMetrics()) {
             resultValues().put(metric, performanceLogger.getBest(metric));
 
         }
@@ -235,7 +235,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         helper.setEarlyStopCriterion(args().stopWhenEpochsWithoutImprovement);
         helper.setRegularization(args().regularizationRate);
         helper.setPrecision(precision);
-        helper.put("allArguments",getAllCommandLineArguments());
+        helper.put("allArguments", getAllCommandLineArguments());
     }
 
     ParameterPrecision precision = ParameterPrecision.FP32;
@@ -335,22 +335,23 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             double validationMetricValue = initializePerformance(perfDescriptor, perfDescriptor.earlyStoppingMetric());
             DoubleArrayList metricValues = new DoubleArrayList();
 
-            for (String metric : perfDescriptor.performanceMetrics()) {
-                validationIterator.reset();
-                assert validationIterator.hasNext() : "validation iterator must have datasets. Make sure the latest release of Goby is installed in the maven repo.";
-                final double performanceValue = perfDescriptor.estimateMetric(computationGraph, metric,
-                        validationIterator, args().numValidation);
-                metricValues.add(performanceValue);
-                if (perfDescriptor.earlyStoppingMetric().equals(metric)) {
-                    validationMetricValue = performanceValue;
-                }
-            }
+
+            validationIterator.reset();
+            assert validationIterator.hasNext() : "validation iterator must have datasets. Make sure the latest release of Goby is installed in the maven repo.";
+            final double[] performanceValues = perfDescriptor.estimateMetric(computationGraph,
+                    validationIterator, args().numValidation, perfDescriptor.performanceMetrics());
+            metricValues = DoubleArrayList.wrap(performanceValues);
+
+            validationMetricValue = findMetricValue(perfDescriptor.earlyStoppingMetric(),
+                    perfDescriptor.performanceMetrics(),
+                    performanceValues);
+
             performanceLogger.logMetrics("epochs", numExamplesUsed, epoch, metricValues.toDoubleArray());
             System.out.println(metricValues);
             if (!Double.isNaN(bestValue) &&
                     (perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
                     (!perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue < bestValue)) {
-                saver.saveModel(computationGraph, "best"+validationMetricName);
+                saver.saveModel(computationGraph, "best" + validationMetricName);
                 bestValue = validationMetricValue;
 
                 performanceLogger.logMetrics(bestMetricName, numExamplesUsed, epoch, metricValues.toDoubleArray());
@@ -373,6 +374,17 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         pgEpoch.stop();
         return new EarlyStoppingResult<ComputationGraph>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, performanceLogger.getBestEpoch(bestMetricName), bestScore, args().maxEpochs, computationGraph);
+    }
+
+    private double findMetricValue(String lookupName, String[] metricNames, double[] performanceValues) {
+        int i = 0;
+        for (String name : metricNames) {
+            if (lookupName.equals(name)) {
+                return performanceValues[i];
+            }
+            i++;
+        }
+        throw new RuntimeException("Metric name not found: " + lookupName);
     }
 
     private String buildBaseName(List<String> trainingSets) {
@@ -419,7 +431,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         }
 
     }
-
 
 
 }
