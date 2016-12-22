@@ -10,6 +10,7 @@ import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
+import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.FileReader;
@@ -123,7 +124,7 @@ public abstract class DomainDescriptor<RecordType> {
      * @param outputName
      * @return
      */
-    public abstract LossFunctions.LossFunction getOutputLoss(String outputName);
+    public abstract ILossFunction getOutputLoss(String outputName);
 
     /**
      * Return the number of records across the record files (i.e., .sbi files).

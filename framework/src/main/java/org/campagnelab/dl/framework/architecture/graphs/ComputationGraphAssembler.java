@@ -4,6 +4,7 @@ import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
@@ -86,7 +87,7 @@ public interface ComputationGraphAssembler {
      */
     String[] getComponentNames();
 
-    void setLossFunction(String outputName, LossFunctions.LossFunction lossFunction);
+    void setLossFunction(String outputName, ILossFunction lossFunction);
 
     /**
      * Save information about the specific architecture in the model properties.

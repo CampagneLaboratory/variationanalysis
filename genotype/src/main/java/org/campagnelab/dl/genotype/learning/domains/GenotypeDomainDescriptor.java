@@ -7,20 +7,16 @@ import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
-import org.campagnelab.dl.framework.tools.TrainingArguments;
+import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
+import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.CombinedGenotypeSixDenseLayers;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.NumDistinctAlleleAssembler;
-import org.campagnelab.dl.genotype.mappers.GenotypeFeatureMapper;
-import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
 import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedInterpreter;
+import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
+import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypeInterpreter;
 import org.campagnelab.dl.genotype.mappers.*;
 import org.campagnelab.dl.genotype.performance.AccuracyHelper;
 import org.campagnelab.dl.genotype.performance.AlleleAccuracyHelper;
-import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
-import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
-import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
-import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
-import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypeInterpreter;
 import org.campagnelab.dl.genotype.performance.GenotypeTrainingPerformanceHelper;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;
@@ -28,8 +24,11 @@ import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.linalg.lossfunctions.ILossFunction;
+import org.nd4j.linalg.lossfunctions.impl.LossBinaryXENT;
+import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -184,17 +183,17 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     public void configure(Properties modelProperties) {
         super.configure(modelProperties);
         final String property = modelProperties.getProperty(NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY);
-        if (property==null) {
+        if (property == null) {
             throw new RuntimeException(String.format("property %s must be found in model config.properties",
                     NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY));
         }
-        ploidy=Integer.parseInt(property);
+        ploidy = Integer.parseInt(property);
     }
 
     @Override
     public PredictionInterpreter getPredictionInterpreter(String outputName) {
         boolean sortCounts = needSortCounts();
-
+        boolean needCombine = withCombinedLayer();
         switch (outputName) {
             case "A":
                 return new SingleGenotypeInterpreter(0, sortCounts);
@@ -246,7 +245,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         return new PerformanceMetricDescriptor<BaseInformationRecords.BaseInformation>(this) {
 
 
-          @Override
+            @Override
             public String[] performanceMetrics() {
                 return new String[]{/*"F1"*/"accuracy", "alleleAccuracy", "score"};
             }
@@ -303,7 +302,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     public ComputationGraphAssembler getComputationalGraph() {
         if (withDistinctAllele()) {
             return new NumDistinctAlleleAssembler();
-        } else if (withCombinedLayer()){
+        } else if (withCombinedLayer()) {
             return new CombinedGenotypeSixDenseLayers();
         }
         try {
@@ -330,16 +329,16 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     }
 
     @Override
-    public LossFunctions.LossFunction getOutputLoss(String outputName) {
+    public ILossFunction getOutputLoss(String outputName) {
         switch (outputName) {
             case "homozygous":
             case "numDistinctAlleles":
             case "combined":
-                return LossFunctions.LossFunction.MCXENT;
+                return new LossMCXENT();
 
             default:
                 // any other is an individual genotype output:
-                return LossFunctions.LossFunction.XENT;
+                return new LossBinaryXENT();
         }
     }
 

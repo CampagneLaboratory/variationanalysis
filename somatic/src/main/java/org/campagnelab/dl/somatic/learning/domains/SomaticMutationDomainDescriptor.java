@@ -22,7 +22,10 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
+import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
+import org.nd4j.linalg.lossfunctions.impl.LossMSE;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -235,13 +238,13 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
     }
 
     @Override
-    public LossFunctions.LossFunction getOutputLoss(String outputName) {
+    public ILossFunction getOutputLoss(String outputName) {
         switch (outputName) {
             case "isMutated":
             case "isBaseMutated":
-                return LossFunctions.LossFunction.MCXENT;
+                return new LossMCXENT();
             case "somaticFrequency":
-                return LossFunctions.LossFunction.MSE;
+                return new LossMSE();
             default:
                 throw new IllegalArgumentException("Output name is not recognized");
         }

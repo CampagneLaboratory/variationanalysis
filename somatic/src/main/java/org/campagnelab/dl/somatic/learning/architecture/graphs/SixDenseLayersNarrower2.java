@@ -13,6 +13,7 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
@@ -141,7 +142,7 @@ public class SixDenseLayersNarrower2 implements ComputationGraphAssembler {
     }
 
     @Override
-    public void setLossFunction(String outputName, LossFunctions.LossFunction lossFunction) {
+    public void setLossFunction(String outputName, ILossFunction lossFunction) {
 
     }
 
