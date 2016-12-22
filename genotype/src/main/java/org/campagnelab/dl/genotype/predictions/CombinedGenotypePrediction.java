@@ -17,6 +17,7 @@ public class CombinedGenotypePrediction extends GenotypePrediction {
 
         this.isVariant = metaData.isVariant;
         this.isIndel = metaData.isIndel;
+        this.index = metaData.index;
     }
 
     public CombinedGenotypePrediction(List<Prediction> individualOutputPredictions) {
