@@ -26,25 +26,21 @@ public abstract class PretrainModel<RecordType> extends TrainModel<RecordType> {
         this.delegate = delegate;
     }
 
-    /**
-     * Creates a pretraining domain descriptor
-     * @return Pretraining domain descriptor from createpretrainingDomainDescriptor
-     */
+
     @Override
     protected DomainDescriptor<RecordType> domainDescriptor() {
-        Properties pretrainingProperties = pretrainingProperties();
-        return new PretrainingDomainDescriptor<>(delegate.domainDescriptor(),
-                createArguments(), pretrainingFeatureMapperClassName(), pretrainingLabelMapperClassName(),
-                pretrainingProperties);
+        return createPretrainingDomainDescriptor();
     }
 
     @Override
     public Properties getReaderProperties(String trainingSet) throws IOException {
         Properties delegateProperties = delegate.getReaderProperties(trainingSet);
-        delegateProperties.setProperty("delegate.trainModel", delegate.getClass().getCanonicalName());
-        delegateProperties.setProperty("delegate.domainDescriptor",
+        delegateProperties.setProperty("delegate.train_Model", delegate.getClass().getCanonicalName());
+        delegateProperties.setProperty("delegate.domain_descriptor",
                 delegate.domainDescriptor().getClass().getCanonicalName());
-        return delegate.getReaderProperties(trainingSet);
+        String eosString = args().eosIndex == null ? "null" : Integer.toString(args().eosIndex);
+        delegateProperties.setProperty("delegate.eos_index", eosString);
+        return delegateProperties;
     }
 
     @Override
@@ -53,22 +49,8 @@ public abstract class PretrainModel<RecordType> extends TrainModel<RecordType> {
     }
 
     /**
-     * Fully qualified name of default feature mapper for pretraining. Must have a zero-argument constructor
-     * and implement ConfigurableFeatureMapper
-     * @return default pretraining feature mapper
+     * Create a pretraining domain descriptor to be used as PretrainModel's domain descriptor
+     * @return Pretraining domain descriptor
      */
-    public abstract String pretrainingFeatureMapperClassName();
-
-    /**
-     * Fully qualified name of default label mapper for pretraining. Must have a zero-argument constructor
-     * and implement ConfigurableLabelMapper
-     * @return default pretraining label mapper
-     */
-    public abstract String pretrainingLabelMapperClassName();
-
-    /**
-     * Properties object with any relevant properties needed to create pretraining feature and label mappers
-     * @return properties object
-     */
-    public abstract Properties pretrainingProperties();
+    public abstract PretrainingDomainDescriptor<RecordType> createPretrainingDomainDescriptor();
 }

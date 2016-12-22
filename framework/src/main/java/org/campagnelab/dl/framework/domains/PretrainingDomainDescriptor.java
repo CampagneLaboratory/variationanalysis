@@ -21,43 +21,77 @@ import java.util.function.Function;
  *
  * Created by joshuacohen on 12/7/16.
  */
-public class PretrainingDomainDescriptor<RecordType> extends DomainDescriptor<RecordType> {
+public abstract class PretrainingDomainDescriptor<RecordType> extends DomainDescriptor<RecordType> {
     static private final Logger LOG = LoggerFactory.getLogger(PretrainingDomainDescriptor.class);
 
     private DomainDescriptor<RecordType> delegate;
-    private TrainingArguments args;
     private String inputName;
     private String pretrainingFeatureMapperClassName;
     private String pretrainingLabelMapperClassName;
-    private Properties pretrainingProperties;
+    private Integer eosIndex;
 
     /**
-     * Create a PretrainingDomainDescriptor from a delegate domain descriptor, recordToSequenceLength
-     * function (passed into the mappers created by the PretrainingDomainDescriptor) and training arguments
-     * @param delegate Delegate domain descriptor
-     * @param args Training arguments
-     * @param pretrainingFeatureMapperClassName Default feature class name
-     * @param pretrainingLabelMapperClassName Default label mapper class name
-     * @param pretrainingProperties pretraining properties
+     * Create a PretrainingDomainDescriptor from a pretrained model.
+     * Initializes an instance of the delegate.domain_descriptor config property using the same modelPath
+     * argument; thus, delegate.domain_descriptor must have a one-argument constructor with a String
+     * modelPath as its argument
+     * @param modelPath path to pretrained model
      */
-    public PretrainingDomainDescriptor(DomainDescriptor<RecordType> delegate,
-                                       TrainingArguments args, String pretrainingFeatureMapperClassName,
-                                       String pretrainingLabelMapperClassName,
-                                       Properties pretrainingProperties) {
+    public PretrainingDomainDescriptor(String modelPath) {
+        super.loadProperties(modelPath);
+        String delegateClassName = modelProperties.getProperty("delegate.domain_descriptor");
+        if (delegateClassName == null) {
+            throw new RuntimeException("Delegate domain descriptor not set. Should be set by PretrainModel run");
+        }
+        try {
+            Object delegateObj = Class.forName(delegateClassName).getConstructor(String.class).newInstance(modelPath);
+            delegate = (DomainDescriptor<RecordType>) delegateObj;
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid instance of delegate domain descriptor. Should have a constructor" +
+                    "from a model path and be parameterized on the same RecordType as the " +
+                    "PretrainingDomainDescriptor", e);
+        }
+        initialize();
+    }
+
+    /**
+     * Create a PretrainingDomainDescriptor from a delegate domain descriptor
+     * @param delegate Delegate domain descriptor
+     */
+    public PretrainingDomainDescriptor(DomainDescriptor<RecordType> delegate) {
         this.delegate = delegate;
-        this.args = args;
+        initialize();
+    }
+
+    /**
+     * Initializes fields from peroperties, abstract method calls
+     * Method called by both superclass constructors
+     */
+    private void initialize() {
+        Properties pretrainModelProps = pretrainingModelProperties();
+        if (pretrainModelProps == null) pretrainModelProps = new Properties();
+        Properties pretrainDomainProps = pretrainingDomainProperties();
+        if (pretrainDomainProps == null) pretrainDomainProps = new Properties();
+        String eosStringFromModel = delegate.modelProperties.getProperty("delegate.eos_index");
+        if (eosStringFromModel != null) modelProperties.setProperty("delegate.eos_index", eosStringFromModel);
+        String architectureFromDomain = delegate.domainProperties.getProperty("net.architecture.classname");
+        if (architectureFromDomain != null) domainProperties.setProperty("net.architecture.classname",
+                architectureFromDomain);
+        modelProperties.putAll(pretrainModelProps);
+        domainProperties.putAll(pretrainDomainProps);
+        String eosString = modelProperties.getProperty("delegate.eos_index");
+        eosIndex = eosString.equals("null") ? null : Integer.parseInt(eosString);
+        pretrainingFeatureMapperClassName = pretrainingFeatureMapperClassName();
+        pretrainingLabelMapperClassName = pretrainingLabelMapperClassName();
         ComputationGraphAssembler delegateAssembler = delegate.getComputationalGraph();
-        this.computationGraphAssembler = delegateAssembler;
-        delegate.computationGraphAssembler = delegateAssembler;
         String[] delegateGraphInputs = delegateAssembler.getInputNames();
         if (delegateGraphInputs.length != 1) {
             throw new IllegalArgumentException("Graph should only have one input");
         }
         inputName = delegateGraphInputs[0];
-        super.loadProperties(delegate.domainProperties, delegate.modelProperties);
-        this.pretrainingFeatureMapperClassName = pretrainingFeatureMapperClassName;
-        this.pretrainingLabelMapperClassName = pretrainingLabelMapperClassName;
-        this.pretrainingProperties = pretrainingProperties;
+        this.computationGraphAssembler = delegateAssembler;
+        delegate.computationGraphAssembler = delegateAssembler;
+        initializeArchitecture();
     }
 
     /**
@@ -71,7 +105,7 @@ public class PretrainingDomainDescriptor<RecordType> extends DomainDescriptor<Re
             FeatureMapper featureMapper = (FeatureMapper) Class.forName(pretrainingFeatureMapperClassName)
                     .newInstance();
             ConfigurableFeatureMapper configurableFeatureMapper = (ConfigurableFeatureMapper) featureMapper;
-            configurableFeatureMapper.configure(pretrainingProperties);
+            configurableFeatureMapper.configure(modelProperties);
             return featureMapper;
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid instance of feature mapper", e);
@@ -90,7 +124,7 @@ public class PretrainingDomainDescriptor<RecordType> extends DomainDescriptor<Re
             LabelMapper labelMapper = (LabelMapper) Class.forName(pretrainingLabelMapperClassName)
                     .newInstance();
             ConfigurableLabelMapper configurableLabelMapper = (ConfigurableLabelMapper) labelMapper;
-            configurableLabelMapper.configure(pretrainingProperties);
+            configurableLabelMapper.configure(modelProperties);
             return labelMapper;
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid instance of feature mapper", e);
@@ -116,7 +150,7 @@ public class PretrainingDomainDescriptor<RecordType> extends DomainDescriptor<Re
         if (delegateNumInputs.length != 2) {
             throw new IllegalArgumentException("Delegate number of inputs should be two dimensional");
         }
-        boolean addEosIndex = (args.eosIndex != null && args.eosIndex == delegateNumInputs[0]) || args.eosIndex == null;
+        boolean addEosIndex = (eosIndex != null && eosIndex == delegateNumInputs[0]) || eosIndex == null;
         if (addEosIndex) delegateNumInputs[0]++;
         delegateNumInputs[1] *= 2;
         delegateNumInputs[1]++;
@@ -166,4 +200,32 @@ public class PretrainingDomainDescriptor<RecordType> extends DomainDescriptor<Re
     public LossFunctions.LossFunction getOutputLoss(String outputName) {
         return LossFunctions.LossFunction.MCXENT;
     }
+
+    /**
+     * Fully qualified name of default feature mapper for pretraining. Must have a zero-argument constructor
+     * and implement ConfigurableFeatureMapper
+     * @return default pretraining feature mapper
+     */
+    public abstract String pretrainingFeatureMapperClassName();
+
+    /**
+     * Fully qualified name of default label mapper for pretraining. Must have a zero-argument constructor
+     * and implement ConfigurableLabelMapper
+     * @return default pretraining label mapper
+     */
+    public abstract String pretrainingLabelMapperClassName();
+
+    /**
+     * Properties object with any relevant model properties needed to create pretraining feature and label mappers
+     * Should contain delegate.eos_index if not defined already in domain
+     * @return properties object
+     */
+    public abstract Properties pretrainingModelProperties();
+
+    /**
+     * Properties object with any relevant properties needed to create pretraining feature and label mappers
+     * Should contain net.architecture.classname if not defined already in domain
+     * @return properties object
+     */
+    public abstract Properties pretrainingDomainProperties();
 }
