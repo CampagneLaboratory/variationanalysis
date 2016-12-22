@@ -339,6 +339,7 @@ public abstract class DomainDescriptor<RecordType> {
      */
     protected void initializeArchitecture() {
         String netArchitectureClassname = domainProperties.getProperty("net.architecture.classname");
+
         initializeArchitecture(netArchitectureClassname);
     }
 
