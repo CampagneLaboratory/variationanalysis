@@ -18,6 +18,7 @@ public class StatsAccumulator {
     int numFalsePositive;
     int numFalseNegative;
     private int numVariants;
+    private int concordantVariants;
 
     public void initializeStats() {
         numCorrect = 0;
@@ -27,6 +28,7 @@ public class StatsAccumulator {
         numFalsePositive = 0;
         numFalseNegative = 0;
         numVariants = 0;
+        concordantVariants = 0;
     }
 
     public void observe(GenotypePrediction fullPred) {
@@ -39,6 +41,7 @@ public class StatsAccumulator {
             numCorrect++;
             if (isVariant) {
                 numTruePositive++;
+
             } else {
                 numTrueNegative++;
             }
@@ -49,16 +52,20 @@ public class StatsAccumulator {
                 numFalsePositive++;
             }
         }
+        concordantVariants+=fullPred.isCorrect()&&fullPred.isVariant()?1:0;
+
         numVariants += isVariant ? 1 : 0;
+
     }
 
     public double[] createOutputStatistics() {
         double accuracy = numCorrect / (double) numProcessed;
+        double genotypeConcordance = concordantVariants / (double) numVariants;
         double recall = numTruePositive / ((double) (numTruePositive + numFalseNegative));
         double precision = numTruePositive / ((double) (numTruePositive + numFalsePositive));
         // important fix. Remi, see https://en.wikipedia.org/wiki/F1_score
         double F1 = 2 * precision * recall / (precision + recall);
-        return new double[]{accuracy, recall, precision, F1, numVariants};
+        return new double[]{accuracy, recall, precision, F1, numVariants, genotypeConcordance};
     }
 
     public double[] createOutputStatistics(String... metrics) {
@@ -83,6 +90,9 @@ public class StatsAccumulator {
                 case "numVariants":
                     j = 4;
                     break;
+                case "genotypeConcordance":
+                    j = 5;
+                    break;
                 default:
                     throw new RuntimeException("performance metric not recognized: " + metricName);
             }
@@ -92,7 +102,7 @@ public class StatsAccumulator {
     }
 
     public String[] createOutputHeader() {
-        return new String[]{"accuracy", "sensitivity/recall", "PPV/precision", "F1", "numVariants",
+        return new String[]{"accuracy", "sensitivity/recall", "PPV/precision", "F1", "numVariants","genotypeConcordance",
         };
     }
 
@@ -106,6 +116,7 @@ public class StatsAccumulator {
         System.out.println("Precision =" + statsArray[2]);
         System.out.println("F1 =" + statsArray[3]);
         System.out.println("numVariants =" + statsArray[4]);
+        System.out.println("genotype concordance =" + statsArray[5]);
         System.out.println("Printable: " + Arrays.toString(statsArray));
     }
 

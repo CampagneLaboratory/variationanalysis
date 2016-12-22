@@ -258,7 +258,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"F1", "recall", "precision","numVariants","score"};
+                return new String[]{"F1", "genotypeConcordance","recall", "precision","numVariants","score"};
             }
 
             @Override
@@ -277,6 +277,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     case "score":
                         return false;
                     case "numVariants":
+                        return true;
+                    case "genotypeConcordance":
                         return true;
                     default:
                         throw new IllegalArgumentException("metric not recognized: "+metricName);

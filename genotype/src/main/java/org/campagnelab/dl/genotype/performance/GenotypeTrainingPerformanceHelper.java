@@ -70,10 +70,8 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
                 }
                 nProcessed += 1;
             }
-
-            observedScore = score / (double) numMiniBatchesScored;
-
         }
+        observedScore = score / (double) numMiniBatchesScored;
         return accumulator.createOutputStatistics()[StatsAccumulator.F1_INDEX];
     }
 
