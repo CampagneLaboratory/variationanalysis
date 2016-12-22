@@ -5,7 +5,18 @@ if [ "$#" -ne 2 ]; then
    echo "Argument missing. You must provide a feature mapper classname to use in the iteration."
    exit 1;
 fi
-
+if [ -e configure.sh ]
+ echo "Loading configure.sh"
+ source configure.sh
+fi
+if [ -z "${LEARNING_RATE+set}" ]; then
+    LEARNING_RATE="50"
+    echo "LEARNING_RATE set to ${LEARNING_RATE}. Change the variable to switch the learning rate."
+fi
+if [ -z "${MINI_BATCH_SIZE+set}" ]; then
+    MINI_BATCH_SIZE="128"
+    echo "MINI_BATCH_SIZE set to ${MINI_BATCH_SIZE}. Change the variable to switch the mini-batch-size."
+fi
 if [ -z "${DATASET+set}" ]; then
     DATASET="NA12878-random-labeled-"
     echo "DATASET set to ${DATASET}. Change the variable to switch dataset."
@@ -33,13 +44,13 @@ fi
 echo "Iteration for FEATURE_MAPPER=${FEATURE_MAPPER}"
 
 export FORCE_PLATFORM=native
-rm ${DATASET}train*.cf ${DATASET}${VAL_SUFFIX}*cf
+#rm ${DATASET}train*.cf ${DATASET}${VAL_SUFFIX}*cf
 train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
- --mini-batch-size 2048 -r 5 --feature-mapper ${FEATURE_MAPPER} -x 10000 --build-cache-then-stop
+ --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} --feature-mapper ${FEATURE_MAPPER} -x 10000 --build-cache-then-stop
 
 export FORCE_PLATFORM=cuda
 train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
-  --mini-batch-size 2048 -r 5 --feature-mapper ${FEATURE_MAPPER} -x 10000 --early-stopping-num-epochs 1 --gpu-device ${GPU}
+  --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} --feature-mapper ${FEATURE_MAPPER} -x 10000 --early-stopping-num-epochs 1 --gpu-device ${GPU}
 
 MODEL_TIMESTAMP=`ls -1tr models|tail -1`
-predict-genotypes.sh 10g -m models/${MODEL_TIMESTAMP} -l bestF1 -f -i ${DATASET}test.sbi
+predict-genotypes.sh 10g -m models/${MODEL_TIMESTAMP} -l bestConcordance -f -i ${DATASET}test.sbi

@@ -258,7 +258,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"F1", "genotypeConcordance","recall", "precision","numVariants","score"};
+                return new String[]{"Concordance","recall", "precision","F1", "numVariants","score"};
             }
 
             @Override
@@ -278,7 +278,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                         return false;
                     case "numVariants":
                         return true;
-                    case "genotypeConcordance":
+                    case "Concordance":
                         return true;
                     default:
                         throw new IllegalArgumentException("metric not recognized: "+metricName);
@@ -322,7 +322,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String earlyStoppingMetric() {
-                return "F1";
+                return "Concordance";
             }
         };
     }

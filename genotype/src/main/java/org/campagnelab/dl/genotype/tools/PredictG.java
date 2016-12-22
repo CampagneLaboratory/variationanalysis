@@ -74,10 +74,13 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         GenotypePrediction fullPred = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictionList);
         fullPred.inspectRecord(record);
         long trueAlleleLength = fullPred.trueAlleles().stream().map(String::length).distinct().count();
-        if (!args().scoreIndels && (fullPred.isIndel ||  trueAlleleLength > 1) ) {
+        if (!args().scoreIndels && (fullPred.isIndel || trueAlleleLength > 1)) {
             // reduce A---A/ATTTA to A/A
             String trimmedGenotype = fullPred.trueAlleles().stream().map(s -> Character.toString(s.charAt(0))).collect(Collectors.joining("/"));
             fullPred.trueGenotype = trimmedGenotype;
+            // no longer an indel, and now matching reference:
+            fullPred.isIndel = false;
+            fullPred.isVariant = false;
         }
         boolean correct = fullPred.isCorrect();
         //remove dangling commas

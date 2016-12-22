@@ -30,7 +30,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
     }
 
     public double estimateWithGraph(MultiDataSetIterator iterator, ComputationGraph graph, Predicate<Integer> stopIfTrue) {
-
+        iterator.reset();
         accumulator = new StatsAccumulator();
         int index = 0;
         int nProcessed = 0;
