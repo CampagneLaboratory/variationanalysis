@@ -42,4 +42,4 @@ train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
   --mini-batch-size 2048 -r 5 --feature-mapper ${FEATURE_MAPPER} -x 10000 --early-stopping-num-epochs 1 --gpu-device ${GPU}
 
 MODEL_TIMESTAMP=`ls -1tr models|tail -1`
-predict-genotypes.sh 10g -m models/${MODEL_TIMESTAMP} -l bestscore -f -i ${DATASET}test.sbi
+predict-genotypes.sh 10g -m models/${MODEL_TIMESTAMP} -l bestF1 -f -i ${DATASET}test.sbi

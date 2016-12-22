@@ -65,7 +65,7 @@ public class StatsAccumulatorTest {
         acc.observe(pred2,pred2.isVariant);
         acc.observe(pred3,pred3.isVariant);
         acc.observe(pred4,pred4.isVariant);
-assert false;
+
 
     }
 
