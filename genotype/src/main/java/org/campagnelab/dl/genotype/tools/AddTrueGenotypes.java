@@ -31,6 +31,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
 
 
     int numVariantsAdded = 0;
+    int numIndelsIgnored = 0;
     RandomAccessSequenceCache genome = new RandomAccessSequenceCache();
 
     static private Logger LOG = LoggerFactory.getLogger(AddTrueGenotypes.class);
@@ -92,26 +93,37 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                 String chrom = buildRec.getReferenceId();
                 String[] genotypes = new String[3];
                 String trueGenotype;
+                int genomeTargetIndex=genome.getReferenceIndex(buildRec.getReferenceId());
+                String referenceBase = Character.toString(genome.get(genomeTargetIndex,buildRec.getPosition()));
                 boolean isVariant = false;
-                if (chMap.get(chrom) != null && chMap.get(chrom).get(position) != null) {
+                boolean inMap = (chMap.get(chrom) != null && chMap.get(chrom).get(position) != null);
+                //indels should not be counted as variants: simply use refbase
+                boolean isIndel = (inMap && chMap.get(chrom).get(position).length()>3);
+                if (isIndel){
+                    numIndelsIgnored++;
+                }
+                if (inMap && (!isIndel)) {
                     // The map contains Goby positions (zero-based).
                     trueGenotype = chMap.get(chrom).get(position);
                     trueGenotype = trueGenotype.toUpperCase();
                     genotypes = trueGenotype.split("|");
-                    isVariant = true;
-                    numVariantsAdded++;
+                    //handle special case where a homozygous deletion like AG->A is not caught and matches ref
+                    //such cases chould not be counted as variants.
+                    if (!(genotypes[0].equals(genotypes[2]) && genotypes[0].equals(referenceBase))){
+                        isVariant = true;
+                        numVariantsAdded++;
+                    }
                 } else {
                     if (random.nextFloat() > args().referenceSamplingRate) {
                         skip = true;
                     }
                     // alignment and genome do not necessarily share the same space of reference indices. Convert:
-                    int genomeTargetIndex=genome.getReferenceIndex(buildRec.getReferenceId());
-                    String referenceBase = Character.toString(genome.get(genomeTargetIndex,buildRec.getPosition()));
                     trueGenotype = referenceBase+"|"+referenceBase;
                     referenceBase = referenceBase.toUpperCase();
                     genotypes[0] = referenceBase;
                     genotypes[2] = referenceBase;
                 }
+
                 if (!skip) {
                     distinctTrueGenotypes.add(trueGenotype);
                     // write the record.
@@ -134,6 +146,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             dest.close();
             System.out.println("Found the following distinct true genotypes: "+distinctTrueGenotypes);
             System.out.println(numVariantsAdded + " number of variants in the sbi file.");
+            System.out.println(numIndelsIgnored + " number of indels ignored in the file.");
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
