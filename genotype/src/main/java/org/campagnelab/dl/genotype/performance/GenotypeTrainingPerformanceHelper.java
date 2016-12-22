@@ -56,6 +56,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
                     }
                 }
                 GenotypePrediction gp = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictions);
+
                 accumulator.observe(gp);
             }
 

@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.predictions;
 
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
+import org.campagnelab.dl.genotype.mappers.MetaDataLabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -14,8 +15,8 @@ public class MetaDataInterpreter implements PredictionInterpreter<BaseInformatio
     @Override
     public MetadataPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
         MetadataPrediction p = new MetadataPrediction();
-        p.isIndel = output.getDouble(predictionIndex, 0) == 1 ? true : false;
-        p.isVariant = output.getDouble(predictionIndex, 1) == 1 ? true : false;
+        p.isIndel = trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_INDEL_FEATURE_INDEX) == 1 ? true : false;
+        p.isVariant = trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_VARIANT_FEATURE_INDEX) == 1 ? true : false;
         return p;
     }
 

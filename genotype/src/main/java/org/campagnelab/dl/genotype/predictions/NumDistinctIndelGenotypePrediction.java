@@ -22,16 +22,19 @@ public class NumDistinctIndelGenotypePrediction extends GenotypePrediction {
         List<Prediction> genoPredList = predictionList.subList(1, 11);
         NumDistinctAllelesOutputLayerPrediction nda = (NumDistinctAllelesOutputLayerPrediction) firstPrediction;
         index = nda.index;
-        set(nda, genoPredList.toArray(new SingleGenotypePrediction[genoPredList.size()]));
+        set(nda, genoPredList.toArray(new SingleGenotypePrediction[genoPredList.size()]),
+                (MetadataPrediction) predictionList.get(11));
 
     }
 
-    public void set(NumDistinctAllelesOutputLayerPrediction numDistinctAlleles, SingleGenotypePrediction[] singleGenotypePredictions) {
+    public void set(NumDistinctAllelesOutputLayerPrediction numDistinctAlleles, SingleGenotypePrediction[] singleGenotypePredictions, MetadataPrediction metaData) {
 
         int numAlleles = numDistinctAlleles.predictedValue;
 
         double predProbability = 0;
+
         StringBuffer hetGenotype = new StringBuffer();
+
         ObjectArrayList<SingleGenotypePrediction> list = ObjectArrayList.wrap(singleGenotypePredictions);
 
         Collections.sort(list, (g1, g2) -> (int) Math.round(1000 * (g2.probabilityIsCalled - g1.probabilityIsCalled)));
@@ -42,8 +45,25 @@ public class NumDistinctIndelGenotypePrediction extends GenotypePrediction {
             hetGenotype.append(element.predictedSingleGenotype);
             predProbability += element.probabilityIsCalled;
         }
+        this.trueGenotype  = extractTrueGenotype(singleGenotypePredictions);
         overallProbability = predProbability / (double) numAlleles;
         predictedGenotype = hetGenotype.toString();
+        this.isIndel = metaData.isIndel;
+        this.isVariant = metaData.isVariant;
+    }
+
+    private String extractTrueGenotype(SingleGenotypePrediction[] singleGenotypePredictions) {
+        String result = "";
+        for (SingleGenotypePrediction single : singleGenotypePredictions) {
+
+            if (single.trueIsCalled) {
+                if (result.length() > 0 && !result.endsWith("/")) {
+                    result += "/";
+                }
+                result += single.predictedSingleGenotype;
+            }
+        }
+        return result;
     }
 
 

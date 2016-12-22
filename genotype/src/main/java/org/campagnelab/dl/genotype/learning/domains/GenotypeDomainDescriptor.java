@@ -256,7 +256,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String[] performanceMetrics() {
-                return new String[]{/*"F1"*/"accuracy", "alleleAccuracy", "score"};
+                return new String[]{"F1","accuracy", "alleleAccuracy", "score"};
             }
 
             @Override
