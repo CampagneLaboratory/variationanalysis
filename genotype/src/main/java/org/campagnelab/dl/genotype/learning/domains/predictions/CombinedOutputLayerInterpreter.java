@@ -14,20 +14,22 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class CombinedOutputLayerInterpreter extends SortingCountInterpreter<CombinedOutputLayerPrediction>
         implements PredictionInterpreter<BaseInformationRecords.BaseInformation, CombinedOutputLayerPrediction> {
 
-    private static final int MAX_GENOTYPES = 2;
-    String[] toSequences;
+    private static final int MAX_GENOTYPES = CombinedLabelsMapper.NUM_LABELS;
+    private String[] toSequences;
+    private double probability;
 
     public CombinedOutputLayerInterpreter() {
         super(true);
         // the default toSequences are integers, because we don't have access to exact genotypes (we have no record),
         // but integers are sufficient to calculate performance stats.
-        toSequences = new String[2];
+        toSequences = new String[MAX_GENOTYPES];
         for (int genotypeIndex = 0; genotypeIndex < MAX_GENOTYPES; genotypeIndex++) {
             toSequences[genotypeIndex] = Integer.toString(genotypeIndex);
         }
+        // the other genotype can never match:
+        toSequences[3]="-1";
     }
 
-    double probability;
 
     @Override
     public CombinedOutputLayerPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
@@ -56,7 +58,7 @@ public class CombinedOutputLayerInterpreter extends SortingCountInterpreter<Comb
 
     @NotNull
     private String reconstructGenotype(INDArray output) {
-        probability = -1;
+       probability = -1;
         int maxIndex = -1;
         for (int i = 0; i < CombinedLabelsMapper.NUM_LABELS; i++) {
             double outputDouble = output.getDouble(0, i);
