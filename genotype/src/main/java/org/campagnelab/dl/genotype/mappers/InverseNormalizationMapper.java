@@ -10,11 +10,11 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
  * @author Remi Torracinta
  */
 
-public class InverseNormalizeMapper extends AbstractFeatureMapper1D<BaseInformationRecords.BaseInformationOrBuilder> {
+public class InverseNormalizationMapper<RecordType> extends AbstractFeatureMapper1D<RecordType> {
 
-    FeatureNameMapper delegate;
+    FeatureNameMapper<RecordType> delegate;
 
-    public InverseNormalizeMapper(FeatureNameMapper delegate) {
+    public InverseNormalizationMapper(FeatureNameMapper delegate) {
         this.delegate = delegate;
     }
 
@@ -23,10 +23,10 @@ public class InverseNormalizeMapper extends AbstractFeatureMapper1D<BaseInformat
         return delegate.numberOfFeatures();
     }
 
-    public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
+    public void prepareToNormalize(RecordType record, int indexOfRecord) {
     }
 
-    public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
+    public float produceFeature(RecordType record, int featureIndex) {
         return normalize(produceFeatureInternal(record, featureIndex), 0);
     }
 
@@ -48,7 +48,7 @@ public class InverseNormalizeMapper extends AbstractFeatureMapper1D<BaseInformat
     }
 
 
-    private float produceFeatureInternal(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
+    private float produceFeatureInternal(RecordType record, int featureIndex) {
         return delegate.produceFeature(record, featureIndex);
     }
 

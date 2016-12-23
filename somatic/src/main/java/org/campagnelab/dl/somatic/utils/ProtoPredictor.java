@@ -35,7 +35,7 @@ public class ProtoPredictor {
     public ProtoPredictor(DomainDescriptor domainDescriptor, Model model, FeatureMapper mapper) {
         this.model = model;
         this.mapper = mapper;
-        this.outputHelper = new ModelOutputHelper();
+        this.outputHelper = new ModelOutputHelper(domainDescriptor);
         this.domainDescriptor = domainDescriptor;
         if (domainDescriptor != null) {
             if (domainDescriptor.hasOutput("isMutated")) {
