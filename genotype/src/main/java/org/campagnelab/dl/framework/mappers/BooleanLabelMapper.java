@@ -1,7 +1,6 @@
-package org.campagnelab.dl.genotype.learning.domains;
+package org.campagnelab.dl.framework.mappers;
 
 import org.campagnelab.dl.somatic.mappers.NoMasksLabelMapper;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.function.Predicate;
@@ -11,6 +10,8 @@ import java.util.function.Predicate;
  * Created by fac2003 on 12/23/16.
  */
 public class BooleanLabelMapper<RecordType> extends NoMasksLabelMapper<RecordType> {
+    public static final int IS_TRUE =0 ;
+    public static final int IS_FALSE =1 ;
     private Predicate<RecordType> predicate;
 
     public BooleanLabelMapper(Predicate<RecordType> predicate) {
@@ -38,13 +39,15 @@ public class BooleanLabelMapper<RecordType> extends NoMasksLabelMapper<RecordTyp
     @Override
     public float produceLabel(RecordType record, int labelIndex) {
         switch (labelIndex) {
-            case 0:
+            case IS_TRUE:
                 return predicate.test(record) ? 1 : 0;
-            case 1:
+            case IS_FALSE:
                 return !predicate.test(record) ? 1 : 0;
             default:
                 throw new RuntimeException("Label index out of range, must be 0 or 1: " + labelIndex);
         }
 
     }
+
+
 }

@@ -36,6 +36,10 @@ public class GenotypePrediction extends Prediction {
      */
     public boolean isIndel;
 
+    /**
+     * Indicates the confidence that the genotype is a variant.
+     */
+    public double isVariantProbability;
     public GenotypePrediction(String predictedGenotype, String trueGenotype) {
         this.predictedGenotype = predictedGenotype;
         this.trueGenotype = trueGenotype;

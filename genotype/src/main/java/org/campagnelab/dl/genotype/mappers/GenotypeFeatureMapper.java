@@ -11,5 +11,5 @@ public abstract class GenotypeFeatureMapper extends NamingConcatFeatureMapper<Ba
    public boolean sortCounts;
    public boolean withDistinctAlleleCounts;
    public boolean withCombinedLayer;
-
+   public boolean hasIsVariantLabelMapper;
 }

@@ -30,7 +30,7 @@ public class GenotypeTrainingPerformanceHelperWithAUC extends GenotypeTrainingPe
 
         double delegateReturnValue = delegate.estimateWithGraph(iterator, graph, stopIfTrue, genotypePrediction -> {
                     if (genotypePrediction.isVariant()) {
-                        aucCalculator.observe(genotypePrediction.overallProbability, genotypePrediction.isCorrect() ? 1 : -1);
+                        aucCalculator.observe(genotypePrediction.isVariantProbability, genotypePrediction.isCorrect()?1:-1);
                     }
                 },
                 dsScore -> {

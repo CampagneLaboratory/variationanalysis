@@ -38,7 +38,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
     public double estimateWithGraph(MultiDataSetIterator iterator,
                                     ComputationGraph graph,
                                     Predicate<Integer> stopIfTrue,
-                                    Consumer<GenotypePrediction> observer, Consumer<Double> scoreObserver) {
+                                    Consumer<GenotypePrediction > observer, Consumer<Double> scoreObserver) {
         iterator.reset();
         accumulator = new StatsAccumulator();
         int index = 0;

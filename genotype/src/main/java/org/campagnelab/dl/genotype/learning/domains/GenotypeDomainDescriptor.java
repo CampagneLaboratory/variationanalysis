@@ -5,25 +5,23 @@ import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssemble
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
+import org.campagnelab.dl.framework.mappers.BooleanLabelMapper;
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.CombinedGenotypeSixDenseLayers;
+import org.campagnelab.dl.genotype.learning.architecture.graphs.CombinedWithIsVariantGenotypeAssembler;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.NumDistinctAlleleAssembler;
 import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypeInterpreter;
 import org.campagnelab.dl.genotype.mappers.*;
-import org.campagnelab.dl.genotype.performance.AccuracyHelper;
 import org.campagnelab.dl.genotype.performance.AlleleAccuracyHelper;
 import org.campagnelab.dl.genotype.performance.GenotypeTrainingPerformanceHelper;
 import org.campagnelab.dl.genotype.performance.GenotypeTrainingPerformanceHelperWithAUC;
-import org.campagnelab.dl.genotype.predictions.CombinedGenotypePrediction;
-import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
-import org.campagnelab.dl.genotype.predictions.MetaDataInterpreter;
-import org.campagnelab.dl.genotype.predictions.NumDistinctIndelGenotypePrediction;
+import org.campagnelab.dl.genotype.predictions.*;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
@@ -190,6 +188,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         return ((GenotypeFeatureMapper) getFeatureMapper("input")).withCombinedLayer;
     }
 
+    private boolean witIsVariantLabelMapper() {
+        return ((GenotypeFeatureMapper) getFeatureMapper("input")).hasIsVariantLabelMapper;
+    }
+
     @Override
     public void configure(Properties modelProperties) {
         super.configure(modelProperties);
@@ -233,6 +235,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new CombinedOutputLayerInterpreter();
             case "numDistinctAlleles":
                 return new NumDistinctAllelesInterpreter(ploidy);
+            case "isVariant":
+                return new IsVariantInterpreter();
             case "metaData":
                 return new MetaDataInterpreter();
             default:
@@ -339,7 +343,9 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public ComputationGraphAssembler getComputationalGraph() {
-        if (withDistinctAllele()) {
+        if (witIsVariantLabelMapper()) {
+            return new CombinedWithIsVariantGenotypeAssembler();
+        } else if (withDistinctAllele()) {
             return new NumDistinctAlleleAssembler();
         } else if (withCombinedLayer()) {
             return new CombinedGenotypeSixDenseLayers();
@@ -351,6 +357,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             throw new RuntimeException(e);
         }
     }
+
 
     @Override
     public int[] getNumInputs(String inputName) {
@@ -375,9 +382,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "combined":
                 return new LossMCXENT();
             case "isVariant":
-                INDArray weights = Nd4j.zeros(2);
-              //  weights.putScalar(0, 5);
-                return new LossBinaryXENT(weights);
+               // INDArray weights = Nd4j.ones(2);
+                //      weights.putScalar(BooleanLabelMapper.IS_FALSE,1f/1000);
+                //         return new LossBinaryXENT(weights);
+                return new LossBinaryXENT();
             case "metaData":
                 // no loss for metaData. These labels are virtual.
                 INDArray zeros = Nd4j.zeros(MetaDataLabelMapper.NUM_LABELS);
@@ -390,9 +398,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public GenotypePrediction aggregatePredictions(List<Prediction> individualOutputPredictions) {
-        if (withDistinctAllele())
+        if (witIsVariantLabelMapper()) {
+            CombinedGenotypePrediction overall = new CombinedWithIsVariantGenotypePrediction(individualOutputPredictions);
+            return overall;
+        } else if (withDistinctAllele())
             return new NumDistinctIndelGenotypePrediction(individualOutputPredictions);
-        if (withCombinedLayer()) {
+        else if (withCombinedLayer()) {
             CombinedGenotypePrediction overall = new CombinedGenotypePrediction(individualOutputPredictions);
             return overall;
         }

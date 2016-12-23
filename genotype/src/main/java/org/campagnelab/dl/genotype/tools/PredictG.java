@@ -54,21 +54,22 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void initializeStats(String prefix) {
-        stats=new StatsAccumulator();
+        stats = new StatsAccumulator();
         stats.setNumVariantsExpected(args().numVariantsExpected);
         stats.initializeStats();
         aucLossCalculator = new AreaUnderTheROCCurve(args().numRecordsForAUC);
     }
 
-    String[] orderStats = { "Accuracy", "Recall", "Precision",
-            "F1", "NumVariants","Concordance"};
+    String[] orderStats = {"Accuracy", "Recall", "Precision",
+            "F1", "NumVariants", "Concordance"};
+
     @Override
     protected double[] createOutputStatistics() {
-       DoubleList values=new DoubleArrayList();
+        DoubleList values = new DoubleArrayList();
 
         values.addAll(DoubleArrayList.wrap(stats.createOutputStatistics(orderStats)));
-         auc = aucLossCalculator.evaluateStatistic();
-      confidenceInterval95 = aucLossCalculator.confidenceInterval95();
+        auc = aucLossCalculator.evaluateStatistic();
+        confidenceInterval95 = aucLossCalculator.confidenceInterval95();
 
         values.add(auc);
         values.add(confidenceInterval95[0]);
@@ -81,7 +82,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     protected String[] createOutputHeader() {
 
 
-        ObjectArrayList<String> values= new ObjectArrayList();
+        ObjectArrayList<String> values = new ObjectArrayList();
 
         values.addAll(it.unimi.dsi.fastutil.objects.ObjectArrayList.wrap(orderStats));
         values.add("AUC");
@@ -94,7 +95,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     protected void reportStatistics(String prefix) {
         stats.reportStatistics(prefix);
         System.out.printf("AUC = %f [%f-%f]%n", auc,
-                confidenceInterval95[0],confidenceInterval95[1]);
+                confidenceInterval95[0], confidenceInterval95[1]);
         System.out.println("Printable: " + Arrays.toString(createOutputStatistics()));
     }
 
@@ -127,7 +128,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\t%s:%s\n",
                     fullPred.index, (correct ? 1 : 0), fullPred.trueGenotype,
                     fullPred.predictedGenotype,
-                    fullPred.overallProbability, correctness, record.getReferenceId(),record.getPosition()+1);
+                    fullPred.isVariantProbability, correctness, record.getReferenceId(), record.getPosition() + 1);
             if (args().filterMetricObservations) {
                 stats.observe(fullPred);
                 observeForAUC(fullPred);
@@ -142,14 +143,13 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     private void observeForAUC(GenotypePrediction fullPred) {
 
-            aucLossCalculator.observe(fullPred.overallProbability,fullPred.isVariant()&& fullPred.isCorrect() ? 1 : -1);
+        aucLossCalculator.observe(fullPred.overallProbability, fullPred.isVariant() && fullPred.isCorrect() ? 1 : -1);
     }
 
     private boolean filterVariant(PredictGArguments args, GenotypePrediction fullPred) {
         if (args().onlyVariants) {
             return fullPred.isVariant();
-        }
-        else {
+        } else {
             return true;
         }
     }

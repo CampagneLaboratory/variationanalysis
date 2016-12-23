@@ -15,6 +15,7 @@ import java.util.Properties;
  */
 public class GenotypeMapperV11 extends GenotypeMapperV4 {
 
+
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;

@@ -71,7 +71,7 @@ public class DLGenotypePredictor implements GenotypePredictor, Predictor {
     }
 
     /**
-     * The probability of the called genotype, as estimaed by the model.
+     * The probability of the called genotype, as estimated by the model.
      *
      * @return a number between 0 and 1 inclusive.
      */
