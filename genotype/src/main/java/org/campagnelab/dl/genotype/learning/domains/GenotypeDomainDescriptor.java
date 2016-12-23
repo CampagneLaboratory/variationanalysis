@@ -181,14 +181,16 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     }
 
     private boolean withDistinctAllele() {
-        return ((GenotypeFeatureMapper) getFeatureMapper("input")).withDistinctAlleleCounts;
+        final GenotypeFeatureMapper featureMapper = (GenotypeFeatureMapper) getFeatureMapper("input");
+        return featureMapper.withDistinctAlleleCounts && !featureMapper.hasIsVariantLabelMapper;
     }
 
     private boolean withCombinedLayer() {
-        return ((GenotypeFeatureMapper) getFeatureMapper("input")).withCombinedLayer;
+        final GenotypeFeatureMapper featureMapper = (GenotypeFeatureMapper) getFeatureMapper("input");
+        return featureMapper.withCombinedLayer && !featureMapper.hasIsVariantLabelMapper;
     }
 
-    private boolean witIsVariantLabelMapper() {
+    private boolean withIsVariantLabelMapper() {
         return ((GenotypeFeatureMapper) getFeatureMapper("input")).hasIsVariantLabelMapper;
     }
 
@@ -343,12 +345,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public ComputationGraphAssembler getComputationalGraph() {
-        if (witIsVariantLabelMapper()) {
-            return new CombinedWithIsVariantGenotypeAssembler();
-        } else if (withDistinctAllele()) {
+        if (withDistinctAllele()) {
             return new NumDistinctAlleleAssembler();
-        } else if (withCombinedLayer()) {
+        } else if (withCombinedLayer() && !withIsVariantLabelMapper()) {
             return new CombinedGenotypeSixDenseLayers();
+        } else if (withIsVariantLabelMapper()) {
+            return new CombinedWithIsVariantGenotypeAssembler();
         }
         try {
             ComputationGraphAssembler assembler = (ComputationGraphAssembler) Class.forName(args().architectureClassname).newInstance();
@@ -382,7 +384,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "combined":
                 return new LossMCXENT();
             case "isVariant":
-               // INDArray weights = Nd4j.ones(2);
+                // INDArray weights = Nd4j.ones(2);
                 //      weights.putScalar(BooleanLabelMapper.IS_FALSE,1f/1000);
                 //         return new LossBinaryXENT(weights);
                 return new LossBinaryXENT();
@@ -398,13 +400,13 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public GenotypePrediction aggregatePredictions(List<Prediction> individualOutputPredictions) {
-        if (witIsVariantLabelMapper()) {
-            CombinedGenotypePrediction overall = new CombinedWithIsVariantGenotypePrediction(individualOutputPredictions);
-            return overall;
-        } else if (withDistinctAllele())
+        if (withDistinctAllele())
             return new NumDistinctIndelGenotypePrediction(individualOutputPredictions);
         else if (withCombinedLayer()) {
             CombinedGenotypePrediction overall = new CombinedGenotypePrediction(individualOutputPredictions);
+            return overall;
+        } else if (withIsVariantLabelMapper()) {
+            CombinedGenotypePrediction overall = new CombinedWithIsVariantGenotypePrediction(individualOutputPredictions);
             return overall;
         }
         throw new IllegalArgumentException("The type of aggregate prediction is not recognized.");

@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A prediction for models that hae a single
+ * A prediction for models that encode the number of distinct alleles.
  */
 public class NumDistinctIndelGenotypePrediction extends GenotypePrediction {
 

@@ -13,7 +13,7 @@ import java.util.Properties;
 /**
  * Based of V10,  switch from Max normalization to inverse normalization.
  */
-public class GenotypeMapperV11 extends GenotypeMapperV4 {
+public class GenotypeMapperV11 extends GenotypeMapperV10 {
 
 
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
