@@ -170,6 +170,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new CombinedLabelsMapper();
             case "metaData":
                 return new MetaDataLabelMapper();
+            case "isVariant":
+                return new BooleanLabelMapper<BaseInformationRecords.BaseInformation>(baseInformation -> baseInformation.getSamples(0).getIsVariant());
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
@@ -301,11 +303,11 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                         return helper.estimateWithGraph(dataSetIterator, graph,
                                 index -> index > scoreN
                             /* first output represents probabilityIsCalled of mutation */);
-                  //  case "accuracy":
-                 //       AccuracyHelper accuracyHelper = new AccuracyHelper();
-              //          return accuracyHelper.estimateWithGraph(dataSetIterator, graph,
-                   //             index -> index > scoreN
-                     //       /* first output represents probabilityIsCalled of mutation */);
+                    //  case "accuracy":
+                    //       AccuracyHelper accuracyHelper = new AccuracyHelper();
+                    //          return accuracyHelper.estimateWithGraph(dataSetIterator, graph,
+                    //             index -> index > scoreN
+                    //       /* first output represents probabilityIsCalled of mutation */);
                     case "alleleAccuracy":
                         AlleleAccuracyHelper alleleHelper = new AlleleAccuracyHelper();
                         return alleleHelper.estimateWithGraph(dataSetIterator, graph,
@@ -372,12 +374,14 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "numDistinctAlleles":
             case "combined":
                 return new LossMCXENT();
+            case "isVariant":
+                INDArray weights = Nd4j.zeros(2);
+              //  weights.putScalar(0, 5);
+                return new LossBinaryXENT(weights);
             case "metaData":
                 // no loss for metaData. These labels are virtual.
                 INDArray zeros = Nd4j.zeros(MetaDataLabelMapper.NUM_LABELS);
-               // We need to favor correct predictions on variants, so optimize for isVariant big time
-                zeros.putScalar(0,MetaDataLabelMapper.IS_VARIANT_FEATURE_INDEX,10);
-                return new LossBinaryXENT(  zeros);
+                return new LossBinaryXENT(zeros);
             default:
                 // any other is an individual genotype output:
                 return new LossBinaryXENT();
