@@ -1,7 +1,5 @@
 package org.campagnelab.dl.genotype.learning.domains;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
@@ -21,6 +19,7 @@ import org.campagnelab.dl.genotype.mappers.*;
 import org.campagnelab.dl.genotype.performance.AccuracyHelper;
 import org.campagnelab.dl.genotype.performance.AlleleAccuracyHelper;
 import org.campagnelab.dl.genotype.performance.GenotypeTrainingPerformanceHelper;
+import org.campagnelab.dl.genotype.performance.GenotypeTrainingPerformanceHelperWithAUC;
 import org.campagnelab.dl.genotype.predictions.CombinedGenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.MetaDataInterpreter;
@@ -258,7 +257,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"Concordance","recall", "precision","F1", "numVariants","score"};
+                return new String[]{"AUC", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score"};
             }
 
             @Override
@@ -266,38 +265,46 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 switch (metricName) {
                     case "accuracy":
                         return true;
+                    case "AUC":
+                        return true;
                     case "F1":
                         return true;
-                    case "recall":
+                    case "Recall":
                         return true;
-                    case "precision":
+                    case "Precision":
                         return true;
                     case "alleleAccuracy":
                         return true;
                     case "score":
                         return false;
-                    case "numVariants":
+                    case "NumVariants":
                         return true;
                     case "Concordance":
                         return true;
                     default:
-                        throw new IllegalArgumentException("metric not recognized: "+metricName);
+                        throw new IllegalArgumentException("metric not recognized: " + metricName);
                 }
             }
 
             @Override
             public double estimateMetric(ComputationGraph graph, String metricName, MultiDataSetIterator dataSetIterator, long scoreN) {
                 switch (metricName) {
+                    case "Accuracy":
+                    case "AUC":
                     case "F1":
+                    case "Recall":
+                    case "Precision":
+                    case "NumVariants":
+                    case "Concordance":
                         GenotypeTrainingPerformanceHelper helper = new GenotypeTrainingPerformanceHelper(domainDescriptor);
                         return helper.estimateWithGraph(dataSetIterator, graph,
                                 index -> index > scoreN
                             /* first output represents probabilityIsCalled of mutation */);
-                    case "accuracy":
-                        AccuracyHelper accuracyHelper = new AccuracyHelper();
-                        return accuracyHelper.estimateWithGraph(dataSetIterator, graph,
-                                index -> index > scoreN
-                            /* first output represents probabilityIsCalled of mutation */);
+                  //  case "accuracy":
+                 //       AccuracyHelper accuracyHelper = new AccuracyHelper();
+              //          return accuracyHelper.estimateWithGraph(dataSetIterator, graph,
+                   //             index -> index > scoreN
+                     //       /* first output represents probabilityIsCalled of mutation */);
                     case "alleleAccuracy":
                         AlleleAccuracyHelper alleleHelper = new AlleleAccuracyHelper();
                         return alleleHelper.estimateWithGraph(dataSetIterator, graph,
@@ -313,7 +320,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                                            String... metrics) {
 
 
-                GenotypeTrainingPerformanceHelper helper = new GenotypeTrainingPerformanceHelper(domainDescriptor);
+                GenotypeTrainingPerformanceHelperWithAUC helper = new GenotypeTrainingPerformanceHelperWithAUC(domainDescriptor);
                 helper.estimateWithGraph(dataSetIterator, graph,
                         index -> index > scoreN
                             /* first output represents probabilityIsCalled of mutation */);
@@ -322,7 +329,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String earlyStoppingMetric() {
-                return "score";
+                return "AUC";
             }
         };
     }

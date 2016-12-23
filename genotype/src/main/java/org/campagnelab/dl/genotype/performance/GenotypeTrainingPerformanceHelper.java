@@ -1,7 +1,5 @@
 package org.campagnelab.dl.genotype.performance;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.tools.PredictWithModel;
@@ -14,6 +12,7 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -21,30 +20,38 @@ import java.util.function.Predicate;
  */
 public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInformationRecords.BaseInformation> {
 
-    private static final int IS_HOMOZYGOUS_OUTPUT = 0;
-    private StatsAccumulator accumulator;
-    private double observedScore;
+    protected StatsAccumulator accumulator;
+
 
     public GenotypeTrainingPerformanceHelper(DomainDescriptor<BaseInformationRecords.BaseInformation> domainDescriptor) {
         super(domainDescriptor);
     }
 
-    public double estimateWithGraph(MultiDataSetIterator iterator, ComputationGraph graph, Predicate<Integer> stopIfTrue) {
+    public double estimateWithGraph(MultiDataSetIterator iterator,
+                                    ComputationGraph graph,
+                                    Predicate<Integer> stopIfTrue) {
+        return estimateWithGraph(iterator, graph, stopIfTrue, genotypePrediction -> {
+        }, score -> {
+        });
+    }
+
+    public double estimateWithGraph(MultiDataSetIterator iterator,
+                                    ComputationGraph graph,
+                                    Predicate<Integer> stopIfTrue,
+                                    Consumer<GenotypePrediction> observer, Consumer<Double> scoreObserver) {
         iterator.reset();
         accumulator = new StatsAccumulator();
         int index = 0;
         int nProcessed = 0;
         int nCorrect = 0;
-        double score = 0;
-        int numMiniBatchesScored = 0;
+
         List<Prediction> predictions = new ArrayList<>();
         while (iterator.hasNext()) {
             MultiDataSet next = iterator.next();
             INDArray[] outputs = graph.output(next.getFeatures());
             double dsScore = graph.score();
             if (dsScore == dsScore) {
-                score += dsScore;
-                numMiniBatchesScored += 1;
+                scoreObserver.accept(dsScore);
             }
             INDArray[] trueLabels = next.getLabels();
 
@@ -65,28 +72,19 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
                 }
                 GenotypePrediction gp = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictions);
                 accumulator.observe(gp);
+                observer.accept(gp);
                 if (stopIfTrue.test(nProcessed)) {
                     break;
                 }
                 nProcessed += 1;
             }
         }
-        observedScore = score / (double) numMiniBatchesScored;
+
         return accumulator.createOutputStatistics()[StatsAccumulator.F1_INDEX];
     }
 
     public double[] getMetricValues(String... metrics) {
-        ObjectArrayList<String> metricsNoScore = ObjectArrayList.wrap(metrics.clone());
-        metricsNoScore.remove("score");
-        metricsNoScore.trim();
-        String[] elements = metricsNoScore.toArray(new String[metricsNoScore.size()]);
-        DoubleArrayList all = DoubleArrayList.wrap(accumulator.createOutputStatistics(elements));
-        for (int i = 0; i < metrics.length; i++) {
-            if ("score".equals(metrics[i])) {
-                all.add(i, observedScore);
-            }
-        }
-        return all.toDoubleArray();
+        return accumulator.createOutputStatistics(metrics);
     }
 }
 
