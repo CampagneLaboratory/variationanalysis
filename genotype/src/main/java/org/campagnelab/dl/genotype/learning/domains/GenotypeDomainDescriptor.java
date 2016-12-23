@@ -30,6 +30,7 @@ import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
@@ -373,7 +374,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new LossMCXENT();
             case "metaData":
                 // no loss for metaData. These labels are virtual.
-                return new LossBinaryXENT(Nd4j.zeros(MetaDataLabelMapper.NUM_LABELS));
+                INDArray zeros = Nd4j.zeros(MetaDataLabelMapper.NUM_LABELS);
+               // We need to favor correct predictions on variants, so optimize for isVariant big time
+                zeros.putScalar(0,MetaDataLabelMapper.IS_VARIANT_FEATURE_INDEX,10);
+                return new LossBinaryXENT(  zeros);
             default:
                 // any other is an individual genotype output:
                 return new LossBinaryXENT();
