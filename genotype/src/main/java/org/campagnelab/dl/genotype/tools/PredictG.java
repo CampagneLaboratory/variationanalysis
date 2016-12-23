@@ -70,9 +70,9 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
          auc = aucLossCalculator.evaluateStatistic();
       confidenceInterval95 = aucLossCalculator.confidenceInterval95();
 
-        values.add(0,auc);
-        values.add(1,confidenceInterval95[0]);
-        values.add(2,confidenceInterval95[1]);
+        values.add(auc);
+        values.add(confidenceInterval95[0]);
+        values.add(confidenceInterval95[1]);
 
         return values.toDoubleArray();
     }
