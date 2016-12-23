@@ -25,4 +25,8 @@ public class PredictGArguments extends PredictArguments {
     @Parameter( names = { "--only-variants"}, description = "Only show sites where one allele is not reference.")
     boolean onlyVariants;
 
+    @Parameter( names = { "--num-variants-expected"}, description = "The number of variants expected in the test set, " +
+            "used to estimate the false negative rate. Can be an estimate since we use max(num-variants-expected,TP) to " +
+            "calculate TP+FN.")
+    int numVariantsExpected;
 }

@@ -19,6 +19,7 @@ public class StatsAccumulator {
     int numFalseNegative;
     private int numVariants;
     private int concordantVariants;
+    private int numVariantsExpected;
 
     public void initializeStats() {
         numCorrect = 0;
@@ -52,7 +53,7 @@ public class StatsAccumulator {
                 numFalsePositive++;
             }
         }
-        concordantVariants+=fullPred.isCorrect()&&fullPred.isVariant()?1:0;
+        concordantVariants += fullPred.isCorrect() && fullPred.isVariant() ? 1 : 0;
 
         numVariants += isVariant ? 1 : 0;
 
@@ -61,7 +62,8 @@ public class StatsAccumulator {
     public double[] createOutputStatistics() {
         double accuracy = numCorrect / (double) numProcessed;
         double genotypeConcordance = concordantVariants / (double) numVariants;
-        double recall = numTruePositive / ((double) (numTruePositive + numFalseNegative));
+        final int variantsExpected = Math.max(numTruePositive + numFalseNegative, this.numVariantsExpected);
+        double recall = numTruePositive / ((double) variantsExpected);
         double precision = numTruePositive / ((double) (numTruePositive + numFalsePositive));
         // important fix. Remi, see https://en.wikipedia.org/wiki/F1_score
         double F1 = 2 * precision * recall / (precision + recall);
@@ -102,7 +104,7 @@ public class StatsAccumulator {
     }
 
     public String[] createOutputHeader() {
-        return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants","Concordance",
+        return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance",
         };
     }
 
@@ -110,6 +112,7 @@ public class StatsAccumulator {
 
     public void reportStatistics(String prefix) {
         double[] statsArray = createOutputStatistics();
+        System.out.printf("Number of variants expected=%d%n",numVariantsExpected);
         System.out.println("Statistics estimated for " + prefix);
         System.out.println("Accuracy =" + statsArray[0]);
         System.out.println("Recall =" + statsArray[1]);
@@ -120,4 +123,7 @@ public class StatsAccumulator {
 
     }
 
+    public void setNumVariantsExpected(int numVariantsExpected) {
+        this.numVariantsExpected = numVariantsExpected;
+    }
 }
