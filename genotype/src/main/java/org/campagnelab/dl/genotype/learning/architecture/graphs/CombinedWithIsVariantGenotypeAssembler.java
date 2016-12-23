@@ -99,14 +99,6 @@ public class CombinedWithIsVariantGenotypeAssembler implements ComputationGraphA
                 .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                 .nIn((int) (numHiddenNodes * Math.pow(reduction, 4)))
                 .nOut(domainDescriptor.getNumOutputs("combined")[0]).build(), "dense5");
-        build.addLayer("isVariant", new OutputLayer.Builder(
-                domainDescriptor.getOutputLoss("isVariant"))
-                .weightInit(WEIGHT_INIT)
-                .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                .nIn((int) (numHiddenNodes * Math.pow(reduction, 4)))
-                .nOut(
-                        domainDescriptor.getNumOutputs("isVariant")[0]
-                ).build(), "dense5");
         build.addLayer("metaData", new OutputLayer.Builder(
                 domainDescriptor.getOutputLoss("metaData"))
                 .weightInit(WEIGHT_INIT)
@@ -114,6 +106,14 @@ public class CombinedWithIsVariantGenotypeAssembler implements ComputationGraphA
                 .nIn((int) (numHiddenNodes * Math.pow(reduction, 4)))
                 .nOut(
                         domainDescriptor.getNumOutputs("metaData")[0]
+                ).build(), "dense5");
+        build.addLayer("isVariant", new OutputLayer.Builder(
+                domainDescriptor.getOutputLoss("isVariant"))
+                .weightInit(WEIGHT_INIT)
+                .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
+                .nIn((int) (numHiddenNodes * Math.pow(reduction, 4)))
+                .nOut(
+                        domainDescriptor.getNumOutputs("isVariant")[0]
                 ).build(), "dense5");
         ComputationGraphConfiguration conf = build
                 .setOutputs(getOutputNames())
