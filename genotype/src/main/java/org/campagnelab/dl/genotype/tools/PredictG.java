@@ -1,6 +1,8 @@
 package org.campagnelab.dl.genotype.tools;
 
-
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.framework.tools.Predict;
@@ -10,6 +12,7 @@ import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,8 +24,13 @@ import java.util.stream.Collectors;
  *         Created by rct66 on 12/7/16.
  */
 public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
-
+    /**
+     * We estimate the AUC of a correct prediction on a variant with respect to everything else (e.g., incorrect
+     * on variant or reference).
+     */
     private AreaUnderTheROCCurve aucLossCalculator;
+    private double auc;
+    private double[] confidenceInterval95;
 
     @Override
     public PredictArguments createArguments() {
@@ -47,24 +55,45 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     @Override
     protected void initializeStats(String prefix) {
         stats.initializeStats();
-        aucLossCalculator = new AreaUnderTheROCCurve();
+        aucLossCalculator = new AreaUnderTheROCCurve(args().numRecordsForAUC);
     }
 
-
+    String[] orderStats = {"Concordance", "Accuracy", "Recall", "Precision",
+            "F1", "NumVariants"};
     @Override
     protected double[] createOutputStatistics() {
-        return stats.createOutputStatistics("Accuracy", "Recall", "Precision",
-                "F1", "NumVariants", "Concordance", "score");
+       DoubleList values=new DoubleArrayList();
+
+        values.addAll(DoubleArrayList.wrap(stats.createOutputStatistics(orderStats)));
+         auc = aucLossCalculator.evaluateStatistic();
+      confidenceInterval95 = aucLossCalculator.confidenceInterval95();
+
+        values.add(0,auc);
+        values.add(1,confidenceInterval95[0]);
+        values.add(2,confidenceInterval95[1]);
+
+        return values.toDoubleArray();
     }
 
     @Override
     protected String[] createOutputHeader() {
-        return stats.createOutputHeader();
+
+
+        ObjectArrayList<String> values= new ObjectArrayList();
+
+        values.addAll(it.unimi.dsi.fastutil.objects.ObjectArrayList.wrap(orderStats));
+        values.add(0,"AUC");
+        values.add(1,"[AUC95");
+        values.add(2,"AUC95]");
+        return values.toArray(new String[0]);
     }
 
     @Override
     protected void reportStatistics(String prefix) {
         stats.reportStatistics(prefix);
+        System.out.printf("AUC = %f [%f-%f]%n", auc,
+                confidenceInterval95[0],confidenceInterval95[1]);
+        System.out.println("Printable: " + Arrays.toString(createOutputStatistics()));
     }
 
     public PredictGArguments args() {
@@ -93,16 +122,25 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         if (filterHet(args(), fullPred) &&
                 filterVariant(args(), fullPred) &&
                 doOuptut(correctness, args(), fullPred.overallProbability)) {
-            resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\n",
-                    fullPred.index, (correct ? 1 : 0), fullPred.trueGenotype, fullPred.predictedGenotype, fullPred.overallProbability, correctness);
+            resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\t%s:%s\n",
+                    fullPred.index, (correct ? 1 : 0), fullPred.trueGenotype,
+                    fullPred.predictedGenotype,
+                    fullPred.overallProbability, correctness, record.getReferenceId(),record.getPosition()+1);
             if (args().filterMetricObservations) {
                 stats.observe(fullPred);
+                observeForAUC(fullPred);
             }
         }
         if (!args().filterMetricObservations) {
             stats.observe(fullPred);
+            observeForAUC(fullPred);
         }
 
+    }
+
+    private void observeForAUC(GenotypePrediction fullPred) {
+
+            aucLossCalculator.observe(fullPred.overallProbability,fullPred.isVariant()&& fullPred.isCorrect() ? 1 : -1);
     }
 
     private boolean filterVariant(PredictGArguments args, GenotypePrediction fullPred) {
