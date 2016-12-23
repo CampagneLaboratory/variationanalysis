@@ -36,6 +36,7 @@ public class CombinedOutputLayerInterpreter extends SortingCountInterpreter<Comb
         CombinedOutputLayerPrediction p = new CombinedOutputLayerPrediction();
         p.trueGenotype = reconstructGenotype(trueLabels,predictionIndex);
         p.predictedGenotype = reconstructGenotype(output,predictionIndex);
+        p.overallProbability=probability;
         return p;
     }
 
