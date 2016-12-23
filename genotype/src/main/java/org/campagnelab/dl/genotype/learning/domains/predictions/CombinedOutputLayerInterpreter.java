@@ -27,41 +27,42 @@ public class CombinedOutputLayerInterpreter extends SortingCountInterpreter<Comb
             toSequences[genotypeIndex] = Integer.toString(genotypeIndex);
         }
         // the other genotype can never match:
-        toSequences[3]="-1";
+        toSequences[3] = "-1";
     }
 
 
     @Override
     public CombinedOutputLayerPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
         CombinedOutputLayerPrediction p = new CombinedOutputLayerPrediction();
-        p.trueGenotype = reconstructGenotype(trueLabels);
-        p.predictedGenotype = reconstructGenotype(output);
+        p.trueGenotype = reconstructGenotype(trueLabels,predictionIndex);
+        p.predictedGenotype = reconstructGenotype(output,predictionIndex);
         return p;
     }
 
     @Override
     public CombinedOutputLayerPrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
+        sortedCountRecord = sort(record);
         CombinedOutputLayerPrediction pred = new CombinedOutputLayerPrediction();
-        pred.inspectRecord(record);
-        pred.predictedGenotype = getPrediction(record, output);
+        pred.inspectRecord(sortedCountRecord);
+        pred.predictedGenotype = getPrediction(sortedCountRecord, output);
         pred.overallProbability = probability;
         return pred;
     }
 
-    public String getPrediction(BaseInformationRecords.BaseInformation currentRecord, INDArray output) {
-        sortedCountRecord = sort(currentRecord);
+    public String getPrediction(BaseInformationRecords.BaseInformation record, INDArray output) {
+
         for (int genotypeIndex = 0; genotypeIndex < MAX_GENOTYPES; genotypeIndex++) {
-            toSequences[genotypeIndex] = sortedCountRecord.getSamples(0).getCounts(genotypeIndex).getToSequence();
+            toSequences[genotypeIndex] = record.getSamples(0).getCounts(genotypeIndex).getToSequence();
         }
-        return reconstructGenotype(output);
+        return reconstructGenotype(output, 0);
     }
 
     @NotNull
-    private String reconstructGenotype(INDArray output) {
-       probability = -1;
+    private String reconstructGenotype(INDArray output, int predictionIndex) {
+        probability = -1;
         int maxIndex = -1;
         for (int i = 0; i < CombinedLabelsMapper.NUM_LABELS; i++) {
-            double outputDouble = output.getDouble(0, i);
+            double outputDouble = output.getDouble(predictionIndex, i);
             if (probability < outputDouble) {
                 maxIndex = i;
                 probability = outputDouble;
