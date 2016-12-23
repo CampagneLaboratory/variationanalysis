@@ -1,5 +1,6 @@
 package org.campagnelab.dl.framework.tools;
 
+import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.models.ComputationGraphSaver;
@@ -10,41 +11,37 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.util.Date;
 
 /**
  * Created by joshuacohen on 12/19/16.
  */
 public abstract class TransferPretrainingModelParameters<RecordType> extends AbstractTool<TransferPretrainingModelParametersArguments> {
     static private Logger LOG = LoggerFactory.getLogger(TransferPretrainingModelParameters.class);
-    private TrainModel<RecordType> trainModel;
     private DomainDescriptor<RecordType> domainDescriptor;
     private ComputationGraphAssembler assembler;
     private ComputationGraph computationGraph;
 
     @Override
-    public TransferPretrainingModelParametersArguments createArguments() {
-        return new TransferPretrainingModelParametersArguments();
-    }
-
-    @Override
     public void execute() {
-        trainModel = createTrainModel();
-        domainDescriptor = trainModel.domainDescriptor();
-        assembler = domainDescriptor.getComputationalGraph();
-        getComputationGraph();
         try {
+            domainDescriptor = (DomainDescriptor<RecordType>) Class.forName(args().domainDescriptorName())
+                    .getConstructor(String.class)
+                    .newInstance(args().pretrainingModelPath);
+            assembler = domainDescriptor.getComputationalGraph();
+            getComputationGraph();
             transferParams();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        } catch (Exception e) {
+            throw new RuntimeException("Couldn't transfer parameters", e);
         }
     }
 
     private void getComputationGraph() {
         ComputationGraphAssembler assembler = domainDescriptor.getComputationalGraph();
         assert assembler != null : "Computational Graph assembler must be defined.";
-        assembler.setArguments(trainModel.args());
+        assembler.setArguments(args());
         for (String inputName : assembler.getInputNames()) {
             int[] domainDescriptorInputs = domainDescriptor.getNumInputs(inputName).clone();
             assert domainDescriptorInputs.length == 2 : "Invalid size for domain descriptor feature";
@@ -86,10 +83,11 @@ public abstract class TransferPretrainingModelParameters<RecordType> extends Abs
                             savedPretrainingGraph.getLayer(componentLayer).params());
                 }
             }
-            ComputationGraphSaver graphSaver = new ComputationGraphSaver(args().modelPath);
-            graphSaver.saveModel(computationGraph, args().modelPrefix);
+            String modelPath = args().modelPath != null ? args().modelPath : "models/" + Long.toString(new Date().getTime());
+            FileUtils.forceMkdir(new File(modelPath));
+            String modelPrefix = args().modelPrefix != null ? args().modelPrefix : "pretraining";
+            ComputationGraphSaver graphSaver = new ComputationGraphSaver(modelPath);
+            graphSaver.saveModel(computationGraph, modelPrefix);
         }
     }
-
-    public abstract TrainModel<RecordType> createTrainModel();
 }
