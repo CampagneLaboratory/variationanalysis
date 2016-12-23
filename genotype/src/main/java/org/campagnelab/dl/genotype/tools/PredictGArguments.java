@@ -22,4 +22,7 @@ public class PredictGArguments extends PredictArguments {
             " be a mismatch. Without it, we trim the indel to A/A and find a match.")
     boolean scoreIndels;
 
+    @Parameter( names = { "--only-variants"}, description = "Only show sites where one allele is not reference.")
+    boolean onlyVariants;
+
 }

@@ -2,10 +2,10 @@ package org.campagnelab.dl.genotype.tools;
 
 
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.genotype.performance.StatsAccumulator;
-import org.campagnelab.dl.genotype.predictions.AbstractGenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
  *         Created by rct66 on 12/7/16.
  */
 public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
+
+    private AreaUnderTheROCCurve aucLossCalculator;
 
     @Override
     public PredictArguments createArguments() {
@@ -45,12 +47,14 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     @Override
     protected void initializeStats(String prefix) {
         stats.initializeStats();
+        aucLossCalculator = new AreaUnderTheROCCurve();
     }
 
 
     @Override
     protected double[] createOutputStatistics() {
-        return stats.createOutputStatistics();
+        return stats.createOutputStatistics("Accuracy", "Recall", "Precision",
+                "F1", "NumVariants", "Concordance", "score");
     }
 
     @Override
@@ -86,17 +90,28 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         //remove dangling commas
         String correctness = correct ? "correct" : "wrong";
 
-        if (filterHet((PredictGArguments) args(), fullPred) && doOuptut(correctness, args(), fullPred.overallProbability)) {
+        if (filterHet(args(), fullPred) &&
+                filterVariant(args(), fullPred) &&
+                doOuptut(correctness, args(), fullPred.overallProbability)) {
             resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\n",
                     fullPred.index, (correct ? 1 : 0), fullPred.trueGenotype, fullPred.predictedGenotype, fullPred.overallProbability, correctness);
             if (args().filterMetricObservations) {
-                stats.observe(fullPred, fullPred.isVariant());
+                stats.observe(fullPred);
             }
         }
         if (!args().filterMetricObservations) {
             stats.observe(fullPred);
         }
 
+    }
+
+    private boolean filterVariant(PredictGArguments args, GenotypePrediction fullPred) {
+        if (args().onlyVariants) {
+            return fullPred.isVariant();
+        }
+        else {
+            return true;
+        }
     }
 
     boolean filterHet(PredictGArguments args, GenotypePrediction fullPred) {
