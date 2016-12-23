@@ -59,7 +59,12 @@ public abstract class PretrainingDomainDescriptor<RecordType> extends DomainDesc
      * Create a PretrainingDomainDescriptor from a delegate domain descriptor
      * @param delegate Delegate domain descriptor
      */
-    public PretrainingDomainDescriptor(DomainDescriptor<RecordType> delegate) {
+    public PretrainingDomainDescriptor(DomainDescriptor<RecordType> delegate, TrainingArguments args) {
+        Properties pretrainModelProps = pretrainingModelProperties(args);
+        if (pretrainModelProps == null) pretrainModelProps = new Properties();
+        Properties pretrainDomainProps = pretrainingDomainProperties(args);
+        if (pretrainDomainProps == null) pretrainDomainProps = new Properties();
+        super.loadProperties(pretrainDomainProps, pretrainModelProps);
         this.delegate = delegate;
         initialize();
     }
@@ -69,17 +74,11 @@ public abstract class PretrainingDomainDescriptor<RecordType> extends DomainDesc
      * Method called by both superclass constructors
      */
     private void initialize() {
-        Properties pretrainModelProps = pretrainingModelProperties();
-        if (pretrainModelProps == null) pretrainModelProps = new Properties();
-        Properties pretrainDomainProps = pretrainingDomainProperties();
-        if (pretrainDomainProps == null) pretrainDomainProps = new Properties();
         String eosStringFromModel = delegate.modelProperties.getProperty("delegate.eos_index");
         if (eosStringFromModel != null) modelProperties.setProperty("delegate.eos_index", eosStringFromModel);
         String architectureFromDomain = delegate.domainProperties.getProperty("net.architecture.classname");
         if (architectureFromDomain != null) domainProperties.setProperty("net.architecture.classname",
                 architectureFromDomain);
-        modelProperties.putAll(pretrainModelProps);
-        domainProperties.putAll(pretrainDomainProps);
         String eosString = modelProperties.getProperty("delegate.eos_index");
         eosIndex = eosString.equals("null") ? null : Integer.parseInt(eosString);
         pretrainingFeatureMapperClassName = pretrainingFeatureMapperClassName();
@@ -219,14 +218,16 @@ public abstract class PretrainingDomainDescriptor<RecordType> extends DomainDesc
     /**
      * Properties object with any relevant model properties needed to create pretraining feature and label mappers
      * Should contain delegate.eos_index if not defined already in domain
+     * @param args Training arguments from which extra properties can be drawn
      * @return properties object
      */
-    public abstract Properties pretrainingModelProperties();
+    public abstract Properties pretrainingModelProperties(TrainingArguments args);
 
     /**
      * Properties object with any relevant properties needed to create pretraining feature and label mappers
      * Should contain net.architecture.classname if not defined already in domain
+     * @param args Training arguments from which extra properties can be drawn
      * @return properties object
      */
-    public abstract Properties pretrainingDomainProperties();
+    public abstract Properties pretrainingDomainProperties(TrainingArguments args);
 }
