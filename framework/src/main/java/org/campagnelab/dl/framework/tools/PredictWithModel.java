@@ -24,7 +24,7 @@ public class PredictWithModel<RecordType> {
 
     public PredictWithModel(DomainDescriptor<RecordType> domainDescriptor) {
         this.domainDescriptor = domainDescriptor;
-        outputHelper = new ModelOutputHelper();
+        outputHelper = new ModelOutputHelper<RecordType>(domainDescriptor);
         int outputIndex = 0;
 
         String[] outputNames = domainDescriptor.getComputationalGraph().getOutputNames();

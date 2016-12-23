@@ -5,8 +5,6 @@ import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelOutputHelper;
-import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
-import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypeInterpreter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.api.Model;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -28,7 +26,7 @@ public class GenotypeProtoPredictor {
         this.domainDescriptor = domainDescriptor;
         this.model = model;
         this.mapper = featureMapper;
-        this.outputHelper = new ModelOutputHelper();
+        this.outputHelper = new ModelOutputHelper(domainDescriptor);
         String[] outputNames = domainDescriptor.getComputationalGraph().getOutputNames();
         int outputIndex = 0;
 

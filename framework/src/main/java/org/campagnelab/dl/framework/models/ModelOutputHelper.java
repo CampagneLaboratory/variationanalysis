@@ -1,6 +1,7 @@
 
 package org.campagnelab.dl.framework.models;
 
+import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
@@ -20,9 +21,13 @@ import java.util.Iterator;
 
 public class ModelOutputHelper<RecordType> {
     private INDArray[] resultGraph;
+    private DomainDescriptor<RecordType> domainDescriptor;
+
+    public ModelOutputHelper(DomainDescriptor<RecordType> domainDescriptor) {
+        this.domainDescriptor = domainDescriptor;
+    }
 
     /**
-     *
      * @param model
      * @param iterator Must be of type Iterator<DataSet> or Iterator<MultiDataSet>.
      */
@@ -38,9 +43,10 @@ public class ModelOutputHelper<RecordType> {
 
     public void predictForNextRecord(Model model, RecordType record, FeatureMapper... featureMappers) {
 
-          if (model instanceof MultiLayerNetwork) {
+        if (model instanceof MultiLayerNetwork) {
             MultiLayerNetwork network = (MultiLayerNetwork) model;
-            INDArray testFeatures = Nd4j.zeros(1, featureMappers[0].numberOfFeatures());
+            String inputName = domainDescriptor.getComputationalGraph().getInputNames()[0];
+            INDArray testFeatures = Nd4j.zeros(domainDescriptor.getInputShape(1, inputName));
             featureMappers[0].prepareToNormalize(record, 0);
             featureMappers[0].mapFeatures(record, testFeatures, 0);
             Arrays.fill(resultGraph, null);
@@ -49,14 +55,16 @@ public class ModelOutputHelper<RecordType> {
             ComputationGraph graph = (ComputationGraph) model;
             INDArray[] testFeatures = new INDArray[featureMappers.length];
             for (int i = 0; i < featureMappers.length; i++) {
-                testFeatures[i] = Nd4j.zeros(1, featureMappers[i].numberOfFeatures());
+                String inputName = domainDescriptor.getComputationalGraph().getInputNames()[i];
+                testFeatures[i] = Nd4j.zeros(domainDescriptor.getInputShape(1, inputName));
                 featureMappers[i].prepareToNormalize(record, 0);
                 featureMappers[i].mapFeatures(record, testFeatures[i], 0);
             }
+
             resultGraph = graph.output(false, testFeatures);
-        }else {
-              throw new IllegalArgumentException("model is not of supported type: "+model.getClass().getCanonicalName());
-          }
+        } else {
+            throw new IllegalArgumentException("model is not of supported type: " + model.getClass().getCanonicalName());
+        }
     }
 
     public void predictForNext(ComputationGraph graph, Iterator<MultiDataSet> iterator) {

@@ -48,11 +48,11 @@ public class GenotypeMapperV1  extends GenotypeFeatureMapper{
                 new NamingConcatFeatureMapper<>(
                         new MaxNormalizationMapper(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),
-                        new InverseNormalizeMapper(
+                        new InverseNormalizationMapper(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),
                         new MaxNormalizationMapper(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readIndexMappers)),
-                        new InverseNormalizeMapper(
+                        new InverseNormalizationMapper(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readIndexMappers)),
                         new GenomicContextMapper(sbiProperties),
                         new DensityMapper("numVariationsInRead", 20, sbiProperties, baseInformationOrBuilder ->
