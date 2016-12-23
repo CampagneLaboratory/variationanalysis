@@ -75,19 +75,19 @@ public class StatsAccumulator {
         for (String metricName : metrics) {
             int j = -1;
             switch (metricName) {
-                case "accuracy":
+                case "Accuracy":
                     j = 0;
                     break;
-                case "recall":
+                case "Recall":
                     j = 1;
                     break;
-                case "precision":
+                case "Precision":
                     j = 2;
                     break;
                 case "F1":
                     j = 3;
                     break;
-                case "numVariants":
+                case "NumVariants":
                     j = 4;
                     break;
                 case "Concordance":
@@ -102,7 +102,7 @@ public class StatsAccumulator {
     }
 
     public String[] createOutputHeader() {
-        return new String[]{"accuracy", "sensitivity/recall", "PPV/precision", "F1", "numVariants","Concordance",
+        return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants","Concordance",
         };
     }
 
@@ -117,7 +117,7 @@ public class StatsAccumulator {
         System.out.println("F1 =" + statsArray[3]);
         System.out.println("numVariants =" + statsArray[4]);
         System.out.println("genotype concordance =" + statsArray[5]);
-        System.out.println("Printable: " + Arrays.toString(statsArray));
+
     }
 
 }
