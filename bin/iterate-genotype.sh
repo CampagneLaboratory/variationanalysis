@@ -49,8 +49,10 @@ train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
  --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} --feature-mapper ${FEATURE_MAPPER} -x 10000 --build-cache-then-stop
 
 export FORCE_PLATFORM=cuda
-train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
-  --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} --feature-mapper ${FEATURE_MAPPER} -x 10000 --early-stopping-num-epochs 1 --gpu-device ${GPU}
+MODEL_DIR=`train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+  --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} --feature-mapper ${FEATURE_MAPPER} -x 10000 \
+  --early-stopping-num-epochs 1 --gpu-device ${GPU} \
+  | tee output-${RANDOM}.log |grep "model directory:"|cut -d " " -f 3`
 
-MODEL_TIMESTAMP=`ls -1tr models|tail -1`
-predict-genotypes.sh 10g -m models/${MODEL_TIMESTAMP} -l bestAUC -f -i ${DATASET}test.sbi
+`ls -1tr models|tail -1`
+predict-genotypes.sh 10g -m ${MODEL_DIR} -l bestAUC -f -i ${DATASET}test.sbi
