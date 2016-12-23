@@ -5,7 +5,7 @@ if [ "$#" -ne 2 ]; then
    echo "Argument missing. You must provide a feature mapper classname to use in the iteration."
    exit 1;
 fi
-if [ -e configure.sh ]
+if [ -e configure.sh ]; then
  echo "Loading configure.sh"
  source configure.sh
 fi
