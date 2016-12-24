@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 if [ "$#" -ne 4 ]; then
    echo "Argument missing. expected arguments memory_size goby_alignment vcf goby_genome"
    exit 1;

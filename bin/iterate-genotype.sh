@@ -1,5 +1,11 @@
+#!/usr/bin/env bash
 FEATURE_MAPPER=$1
 GPU=$2
+
+if [ -e configure.sh ]; then
+ echo "Loading configure.sh"
+ source configure.sh
+fi
 
 if [ "$#" -ne 2 ]; then
    echo "Argument missing. You must provide a feature mapper classname to use in the iteration."
