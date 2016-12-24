@@ -31,6 +31,11 @@ if [ -z "${VAL_SUFFIX+set}" ]; then
     VAL_SUFFIX="validation"
     echo "VAL_SUFFIX set to ${VAL_SUFFIX}. Change the variable to switch the validation suffix."
 fi
+if [ -z "${EVALUATION_METRIC_NAME}+set" ]; then
+      EVALUATION_METRIC_NAME="AUC+F1"
+      echo "EVALUATION_METRIC_NAME set to ${EVALUATION_METRIC_NAME}. Change the variable to switch the performance metric used to control early stopping."
+fi
+
 if [ ! -e "${DATASET}${VAL_SUFFIX}.sbi" ]; then
     echo "The validation set was not found: ${DATASET}${VAL_SUFFIX}.sbi  "
        exit 1;
@@ -43,6 +48,8 @@ if [ ! -e "${DATASET}test.sbi" ]; then
         echo "The test set was not found: ${DATASET}test.sbi  "
            exit 1;
 fi
+
+
 echo "Iteration for FEATURE_MAPPER=${FEATURE_MAPPER}"
 
 export FORCE_PLATFORM=native
@@ -54,8 +61,9 @@ export FORCE_PLATFORM=cuda
 MODEL_DIR=`train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
   --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} --feature-mapper ${FEATURE_MAPPER} -x 10000 \
   --random-seed 90129 \
+  --early-stopping-measure ${EVALUATION_METRIC_NAME} \
   --early-stopping-num-epochs 10 --gpu-device ${GPU} \
   | tee output-${RANDOM}.log |grep "model directory:"|cut -d " " -f 3`
 
 `ls -1tr models|tail -1`
-predict-genotypes.sh 10g -m ${MODEL_DIR} -l bestAUC+F1 -f -i ${DATASET}test.sbi --num-variants-expected 5205
+predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f -i ${DATASET}test.sbi --num-variants-expected 5205

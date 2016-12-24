@@ -329,7 +329,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String earlyStoppingMetric() {
-                return "AUC+F1";
+                return args().earlyStoppingMeasureName;
             }
         };
     }

@@ -10,6 +10,11 @@ import org.campagnelab.dl.genotype.mappers.GenotypeMapperV1;
  */
 public class GenotypeTrainingArguments extends TrainingArguments {
 
+    @Parameter(names = "--early-stopping-measure", description = "Name of the measure to monitor to stop early stopping. " +
+            "One of score, AUC+F1, F1, Concordance, Accuracy, AUC (of correct variant identification), " +
+            "Recall, Precision.")
+    public String earlyStoppingMeasureName="score";
+
     @Parameter(names = "--auc-clip-max-observations", description = "The maximum number of observations to sample when evaluating the AUC. ")
     public int aucClipMaxObservations = 10000;
 
