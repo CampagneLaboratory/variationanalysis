@@ -10,9 +10,11 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
  * Created by fac2003 on 12/1/16.
  */
 public class SequentialTrainer implements Trainer {
+    private boolean logSpeed;
+
     @Override
     public int train(ComputationGraph computationGraph, MultiDataSetIterator iterator, ProgressLogger progressLogger) {
-        int numExamplesUsed=0;
+        int numExamplesUsed = 0;
         while (iterator.hasNext()) {
 
             MultiDataSet ds = iterator.next();
@@ -20,8 +22,15 @@ public class SequentialTrainer implements Trainer {
             computationGraph.fit(ds);
             final int numExamples = ds.getFeatures(0).size(0);
             numExamplesUsed += numExamples;
-            progressLogger.lightUpdate();
+            if (logSpeed) {
+                progressLogger.lightUpdate();
+            }
         }
         return numExamplesUsed;
+    }
+
+    @Override
+    public void setLogSpeed(boolean logSpeed) {
+        this.logSpeed = logSpeed;
     }
 }

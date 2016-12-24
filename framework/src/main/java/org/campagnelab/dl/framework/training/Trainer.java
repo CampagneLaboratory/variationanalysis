@@ -10,4 +10,6 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
  */
 public interface Trainer {
     int train(ComputationGraph graph, MultiDataSetIterator iterator, ProgressLogger pg);
+
+    void setLogSpeed(boolean logSpeed);
 }

@@ -322,7 +322,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         Trainer trainer = args().parallel ? new ParallelTrainerOnGPU(computationGraph, args().miniBatchSize,
                 (int) domainDescriptor.getNumRecords(args().getTrainingSets())) :
                 new SequentialTrainer();
-
+trainer.setLogSpeed(args().trackingStyle== TrainingArguments.TrackStyle.SPEED);
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -375,9 +375,10 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 // we have not improved after earlyStopCondition epoch, time to stop.
                 break;
             }
-            pg.stop();
-            pgEpoch.lightUpdate();
-
+            if (args().trackingStyle == TrainingArguments.TrackStyle.PERFS) {
+                pg.stop();
+                pgEpoch.lightUpdate();
+            }
             iterator.reset();    //Reset iterator for another epoch
             performanceLogger.write();
             //addCustomOption("--error-enrichment", args().errorEnrichment);

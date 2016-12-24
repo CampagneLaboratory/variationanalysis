@@ -13,6 +13,7 @@ public class ParallelTrainerOnGPU implements Trainer {
     ParallelWrapper wrapper;
     int numExamplesPerIterator;
     int miniBatchSize;
+    private boolean logSpeed;
 
     public ParallelTrainerOnGPU(ComputationGraph graph, int miniBatchSize, int totalExamplesPerIterator) {
 
@@ -30,7 +31,14 @@ public class ParallelTrainerOnGPU implements Trainer {
     @Override
     public int train(ComputationGraph graph, MultiDataSetIterator iterator, ProgressLogger pg) {
         wrapper.fit(iterator);
-        pg.update(numExamplesPerIterator);
+       if (logSpeed) {
+           pg.update(numExamplesPerIterator);
+       }
         return numExamplesPerIterator;
+    }
+
+    @Override
+    public void setLogSpeed(boolean logSpeed) {
+        this.logSpeed=logSpeed;
     }
 }
