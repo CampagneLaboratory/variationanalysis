@@ -43,10 +43,11 @@ public class NumDistinctIndelGenotypePrediction extends GenotypePrediction {
                 hetGenotype.append("/");
             }
             hetGenotype.append(element.predictedSingleGenotype);
-            predProbability += element.probabilityIsCalled;
+            predProbability += Math.max(element.probabilityIsCalled,1-element.probabilityIsCalled);
         }
         this.trueGenotype  = extractTrueGenotype(singleGenotypePredictions);
         overallProbability = predProbability / (double) numAlleles;
+        this.isVariantProbability=overallProbability;
         predictedGenotype = hetGenotype.toString();
         this.isIndel = metaData.isIndel;
         this.isVariant = metaData.isVariant;

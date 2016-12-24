@@ -17,7 +17,11 @@ public class IsVariantInterpreter implements PredictionInterpreter<BaseInformati
         IsVariantPrediction p = new IsVariantPrediction();
         p.isVariantPredicted = output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE) > 0.5;
         p.isVariantTruth = trueLabels.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE) > 0.5;
-        p.probability = output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE);
+        p.probability =Math.max(
+                output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE),
+                output.getDouble(predictionIndex, BooleanLabelMapper.IS_FALSE))
+        ;
+
         return p;
     }
 
