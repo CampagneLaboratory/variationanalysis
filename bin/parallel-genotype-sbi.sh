@@ -5,13 +5,19 @@ assertGobyInstalled
 assertParallelInstalled
 
 ALIGNMENTS="$*"
-if [ "$#" -eq 1 ]; then
-   case ${ALIGNMENTS} in *.bam) OUTPUT_BASENAME=`basename ${ALIGNMENTS} .bam`;; esac
-   case ${ALIGNMENTS} in *.sam) OUTPUT_BASENAME=`basename ${ALIGNMENTS} .sam`;; esac
-   case ${ALIGNMENTS} in *.cram) OUTPUT_BASENAME=`basename ${ALIGNMENTS} .cram`;; esac
-else
-    OUTPUT_BASENAME="out-concat"
+if [ -z "${OUTPUT_BASENAME+set}" ]; then
+
+    if [ "$#" -eq 1 ]; then
+       case ${ALIGNMENTS} in *.bam) OUTPUT_BASENAME=`basename ${ALIGNMENTS} .bam`;; esac
+       case ${ALIGNMENTS} in *.sam) OUTPUT_BASENAME=`basename ${ALIGNMENTS} .sam`;; esac
+       case ${ALIGNMENTS} in *.cram) OUTPUT_BASENAME=`basename ${ALIGNMENTS} .cram`;; esac
+    else
+        OUTPUT_BASENAME="out-concat"
+    fi
+
+    echo "OUTPUT_BASENAME set to ${OUTPUT_BASENAME}. Change the variable to influence the output basename."
 fi
+
 echo "Will write Goby alignment to ${OUTPUT_BASENAME}"
 
 if [ -z "${INCLUDE_INDELS+set}" ]; then

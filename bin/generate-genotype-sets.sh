@@ -18,17 +18,14 @@ fi
 rm -rf tmp
 mkdir tmp
 
-goby ${memory_requirement} discover-sequence-variants ${ALIGNMENTS} \
-  -o tmp/genotype_full.sbi \
-  --format SEQUENCE_BASE_INFORMATION \
-  --genome ${GENOME} \
-  --minimum-variation-support 1 \
-  --threshold-distinct-read-indices 1 \
-  --call-indels false \
-  --processor realign_near_indels
-
 goby ${memory_requirement} vcf-to-genotype-map ${VCF} \
   -o tmp/variants.varmap
+
+export SBI_GENOME=${GENOME}
+export OUTPUT_BASENAME=tmp/genotype_full
+
+parallel-genotype-sbi.sh ${memory_requirement} ${ALIGNMENTS}
+
 
 add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
   -i tmp/genotype_full.sbi \
