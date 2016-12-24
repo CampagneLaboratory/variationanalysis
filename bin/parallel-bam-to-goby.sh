@@ -31,4 +31,4 @@ echo " concatenate-alignments --genome  ${SBI_GENOME}  ${ALIGNMENTS} -x HTSJDKRe
 cut -f3,6 slices  | awk 'BEGIN{count=1} {print "-s "$1" -e " $2" -o out-part-"(count++)}' >boundaries
 parallel -j${SBI_NUM_THREADS} --plus  --progress goby ${memory_requirement}  `cat command.txt`  :::: boundaries
 
-goby ${memory_requirement} concatenate-alignments out-part-*.sbi -o ${OUTPUT_BASENAME}
+goby ${memory_requirement} concatenate-alignments out-part-*.entries -o ${OUTPUT_BASENAME}
