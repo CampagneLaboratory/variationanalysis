@@ -31,7 +31,7 @@ if [ -z "${VAL_SUFFIX+set}" ]; then
     VAL_SUFFIX="validation"
     echo "VAL_SUFFIX set to ${VAL_SUFFIX}. Change the variable to switch the validation suffix."
 fi
-if [ -z "${EVALUATION_METRIC_NAME}+set" ]; then
+if [ -z "${EVALUATION_METRIC_NAME+set}" ]; then
       EVALUATION_METRIC_NAME="AUC+F1"
       echo "EVALUATION_METRIC_NAME set to ${EVALUATION_METRIC_NAME}. Change the variable to switch the performance metric used to control early stopping."
 fi
