@@ -26,6 +26,14 @@ samtools sort GM_12878_No1_110407_8_sorted.bam NA12878-sorted
 samtools index NA12878-sorted.bam
 ```
 
+(you can skip the sorting step if you know the file was sorted with an
+older version of samtools. In this case, modify the header to
+display SO:coordinate on the @HD line. You can do this with
+samtools view -H NA12877_S1.bam >sorted-header.sam
+# edit the sorted-header.sam file to add the line.
+samtools reheader sorted-header.sam NA12877_S1.bam >NA12877-sorted.bam
+)
+
 Assemble a single genome fasta file:
 ```
 gzip -c -d chromFa.tar.gz |tar -xvf -

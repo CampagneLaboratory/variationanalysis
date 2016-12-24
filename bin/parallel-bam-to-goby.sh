@@ -26,9 +26,9 @@ echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
 
 goby ${memory_requirement} suggest-position-slices ${ALIGNMENTS} --number-of-slices 60 -o slices.tsv
 grep -v targetIdStart slices.tsv >slices
-echo " concatenate-alignments --genome  ${SBI_GENOME}  ${ALIGNMENTS} " >command.txt
+echo " concatenate-alignments --genome  ${SBI_GENOME}  ${ALIGNMENTS} -x HTSJDKReaderImpl:force-sorted=true " >command.txt
 
 cut -f3,6 slices  | awk 'BEGIN{count=1} {print "-s "$1" -e " $2" -o out-part-"(count++)}' >boundaries
-parallel -j2 --plus  --progress goby ${memory_requirement}  `cat command.txt`  :::: boundaries
+parallel -j${SBI_NUM_THREADS} --plus  --progress goby ${memory_requirement}  `cat command.txt`  :::: boundaries
 
 goby ${memory_requirement} concatenate-alignments out-part-*.sbi -o ${OUTPUT_BASENAME}
