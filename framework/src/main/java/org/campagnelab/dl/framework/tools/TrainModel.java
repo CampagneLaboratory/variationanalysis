@@ -311,7 +311,14 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         pgEpoch.displayLocalSpeed = true;
         pgEpoch.itemsName = "epoch";
         pgEpoch.expectedUpdates = args().maxEpochs;
-        pgEpoch.start();
+
+        switch (args().trackingStyle) {
+            case PERFS:
+                pgEpoch.start();
+            case SPEED:
+                System.out.println(performanceLogger.getMetricHeader());
+        }
+
         Trainer trainer = args().parallel ? new ParallelTrainerOnGPU(computationGraph, args().miniBatchSize,
                 (int) domainDescriptor.getNumRecords(args().getTrainingSets())) :
                 new SequentialTrainer();
@@ -321,7 +328,9 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             pg.itemsName = "mini-batch";
             iter = 0;
             pg.expectedUpdates = miniBatchesPerEpoch; // one iteration processes miniBatchIterator elements.
-            pg.start();
+            if (args().trackingStyle == TrainingArguments.TrackStyle.SPEED) {
+                pg.start();
+            }
             // train the graph with the content of the iterator:
             numExamplesUsed += trainer.train(computationGraph, iterator, pg);
 
@@ -347,7 +356,10 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                     performanceValues);
 
             performanceLogger.logMetrics("epochs", numExamplesUsed, epoch, metricValues.toDoubleArray());
-            System.out.println(metricValues);
+            if (args().trackingStyle == TrainingArguments.TrackStyle.PERFS) {
+                performanceLogger.show("epochs");
+            }
+            //System.out.println(metricValues);
             if (!Double.isNaN(bestValue) &&
                     (perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
                     (!perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue < bestValue)) {
@@ -364,7 +376,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 break;
             }
             pg.stop();
-            pgEpoch.update();
+            pgEpoch.lightUpdate();
 
             iterator.reset();    //Reset iterator for another epoch
             performanceLogger.write();

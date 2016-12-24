@@ -43,7 +43,7 @@ public abstract class TrainingArguments extends RecordingToolArguments {
     public Double dropoutRate = null;
 
     @Parameter(names = "--regularization-rate", description = "Regularization rate. Disabled if not provided.")
-    public Double regularizationRate =null;
+    public Double regularizationRate = null;
 
 
     @Parameter(names = "--experimental-condition", description = "The experimental condition label used in validation loggin each epoch. ")
@@ -71,7 +71,7 @@ public abstract class TrainingArguments extends RecordingToolArguments {
     public boolean memoryCache;
 
     @Parameter(names = "--gpu-device", description = "Index of the GPU to use for training (0,1, up to the number of GPUs in the server).")
-    public Integer deviceIndex=null;
+    public Integer deviceIndex = null;
 
     @Parameter(names = "--parallel", description = "When provided, trains on several GPUs in parallel.")
     public boolean parallel;
@@ -79,7 +79,7 @@ public abstract class TrainingArguments extends RecordingToolArguments {
     protected abstract String defaultArchitectureClassname();
 
     @Parameter(names = "--build-cache-then-stop", description = "When provided, build the caches, then immediately stop.")
-    public boolean buildCacheAndStop=false;
+    public boolean buildCacheAndStop = false;
 
     public String[] getTrainingSets() {
         return this.trainingSets.toArray(new String[this.trainingSets.size()]);
@@ -101,4 +101,16 @@ public abstract class TrainingArguments extends RecordingToolArguments {
     @Parameter(names = {"--num-errors-added"}, description = "Number of errors added to each mini-batch (only used when training with error enrichment).)")
     public int numErrorsAdded = 16;
 
+    @Parameter(names = {"--track"}, description = "Track either speed (SPEED) or performance (PERFS). Defaults to tracking performance metrics. Speed is useful to " +
+            "optimize mini-batch-size and other factors influencing speed.")
+
+    public TrackStyle trackingStyle = TrackStyle.PERFS;
+
+    enum TrackStyle {
+        SPEED, // show speed of each epoch in console
+        PERFS // show performance metric values in console
+    }
+
+    ;
 }
+

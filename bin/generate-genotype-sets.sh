@@ -24,7 +24,7 @@ goby ${memory_requirement} vcf-to-genotype-map ${VCF} \
 export SBI_GENOME=${GENOME}
 export OUTPUT_BASENAME=tmp/genotype_full
 
-parallel-genotype-sbi.sh ${memory_requirement} ${ALIGNMENTS}
+parallel-genotype-sbi.sh 10g ${ALIGNMENTS}
 
 
 add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \

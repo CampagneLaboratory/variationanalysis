@@ -51,14 +51,14 @@ public class PerformanceLogger {
      * @return
      */
     public double getBestScore() {
-       int index=0;
-       for (String metricName: performanceNames) {
-           if ("score".equals(metricName)) {
-               return bestPerformances[index];
-           }
-           index++;
-       }
-       return Double.NaN;
+        int index = 0;
+        for (String metricName : performanceNames) {
+            if ("score".equals(metricName)) {
+                return bestPerformances[index];
+            }
+            index++;
+        }
+        return Double.NaN;
     }
 
     /**
@@ -131,6 +131,12 @@ public class PerformanceLogger {
         if (defaultValue.size() > 0) {
             log.put(prefix, defaultValue);
         }
+    }
+
+    public void show(String prefix) {
+        List<Performance>      perfs= log.get(prefix);
+        Performance perf= perfs.get(perfs.size()-1);
+        System.out.println(perf.formatValues());
     }
 
     /**
