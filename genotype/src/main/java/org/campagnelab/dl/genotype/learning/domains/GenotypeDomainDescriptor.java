@@ -266,28 +266,23 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"AUC", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score"};
+                return new String[]{"AUC", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score","AUC+F1"};
             }
 
             @Override
             public boolean largerValueIsBetterPerformance(String metricName) {
                 switch (metricName) {
-                    case "accuracy":
-                        return true;
-                    case "AUC":
-                        return true;
-                    case "F1":
-                        return true;
-                    case "Recall":
-                        return true;
-                    case "Precision":
-                        return true;
-                    case "alleleAccuracy":
-                        return true;
+
                     case "score":
                         return false;
+                    case "AUC":
+                    case "F1":
+                    case "AUC+F1":
+                    case "accuracy":
+                    case "Recall":
+                    case "Precision":
+                    case "alleleAccuracy":
                     case "NumVariants":
-                        return true;
                     case "Concordance":
                         return true;
                     default:
@@ -300,20 +295,16 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 switch (metricName) {
                     case "Accuracy":
                     case "AUC":
+
                     case "F1":
+                    case "AUC+F1":
                     case "Recall":
                     case "Precision":
                     case "NumVariants":
                     case "Concordance":
                         GenotypeTrainingPerformanceHelper helper = new GenotypeTrainingPerformanceHelper(domainDescriptor);
                         return helper.estimateWithGraph(dataSetIterator, graph,
-                                index -> index > scoreN
-                            /* first output represents probabilityIsCalled of mutation */);
-                    //  case "accuracy":
-                    //       AccuracyHelper accuracyHelper = new AccuracyHelper();
-                    //          return accuracyHelper.estimateWithGraph(dataSetIterator, graph,
-                    //             index -> index > scoreN
-                    //       /* first output represents probabilityIsCalled of mutation */);
+                                index -> index > scoreN);
                     case "alleleAccuracy":
                         AlleleAccuracyHelper alleleHelper = new AlleleAccuracyHelper();
                         return alleleHelper.estimateWithGraph(dataSetIterator, graph,
@@ -338,7 +329,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String earlyStoppingMetric() {
-                return "F1";
+                return "AUC+F1";
             }
         };
     }
@@ -384,15 +375,15 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "combined":
                 return new LossMCXENT();
             case "isVariant":
-                 INDArray weights = Nd4j.ones(2);
-                      weights.putScalar(BooleanLabelMapper.IS_TRUE,50);
-                      weights.putScalar(BooleanLabelMapper.IS_FALSE,0);
-                         return new LossBinaryXENT(weights);
-               // return new LossBinaryXENT();
+                INDArray weights = Nd4j.ones(2);
+                weights.putScalar(BooleanLabelMapper.IS_TRUE, 50);
+                weights.putScalar(BooleanLabelMapper.IS_FALSE, 0);
+                return new LossBinaryXENT(weights);
+            // return new LossBinaryXENT();
             case "metaData":
                 // no loss for metaData. These labels are virtual.
                 INDArray zeros = Nd4j.zeros(MetaDataLabelMapper.NUM_LABELS);
-                return new LossBinaryXENT(  zeros);
+                return new LossBinaryXENT(zeros);
             default:
                 // any other is an individual genotype output:
                 return new LossBinaryXENT();

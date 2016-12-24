@@ -18,6 +18,7 @@ public class GenotypeTrainingPerformanceHelperWithAUC extends GenotypeTrainingPe
     private double observedScore;
     private double observedAUC;
     AreaUnderTheROCCurve aucCalculator = new AreaUnderTheROCCurve(100000);
+    private double observedAUC_F1;
 
     public GenotypeTrainingPerformanceHelperWithAUC(DomainDescriptor<BaseInformationRecords.BaseInformation> domainDescriptor) {
         super(domainDescriptor);
@@ -30,7 +31,7 @@ public class GenotypeTrainingPerformanceHelperWithAUC extends GenotypeTrainingPe
 
         double delegateReturnValue = delegate.estimateWithGraph(iterator, graph, stopIfTrue, genotypePrediction -> {
                     if (genotypePrediction.isVariant()) {
-                        aucCalculator.observe(genotypePrediction.isVariantProbability, genotypePrediction.isCorrect()?1:-1);
+                        aucCalculator.observe(genotypePrediction.isVariantProbability, genotypePrediction.isCorrect() ? 1 : -1);
                     }
                 },
                 dsScore -> {
@@ -48,18 +49,37 @@ public class GenotypeTrainingPerformanceHelperWithAUC extends GenotypeTrainingPe
         ObjectArrayList<String> metricsNoScore = ObjectArrayList.wrap(metrics.clone());
         metricsNoScore.remove("score");
         metricsNoScore.remove("AUC");
+        metricsNoScore.remove("AUC+F1");
         metricsNoScore.trim();
         String[] elements = metricsNoScore.toArray(new String[metricsNoScore.size()]);
         DoubleArrayList all = DoubleArrayList.wrap(delegate.getMetricValues(elements));
+
+        double F1=0;
+//calculate the sum of AUC and F1:
+        for (int i = 0; i < metricsNoScore.size(); i++) {
+            String metricName = metricsNoScore.get(i);
+            if ("F1".equals(metricName)) {
+               F1 = all.getDouble(i);
+            }
+        }
+        observedAUC_F1=combine(observedAUC,F1);
         for (int i = 0; i < metrics.length; i++) {
             if ("score".equals(metrics[i])) {
                 all.add(i, observedScore);
             }
+
             if ("AUC".equals(metrics[i])) {
                 all.add(i, observedAUC);
             }
+            if ("AUC+F1".equals(metrics[i])) {
+                all.add(i, observedAUC_F1);
+            }
         }
         return all.toDoubleArray();
+    }
+
+    private double combine(double auc, double f1) {
+        return auc*0.1+f1*0.9;
     }
 }
 
