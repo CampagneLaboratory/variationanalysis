@@ -1,7 +1,7 @@
 package org.campagnelab.dl.genotype.mappers;
 
 /**
- * Created by rct66 on 12/21/16.
+ * With combined layer. Based on V9.
  */
 public class GenotypeMapperV10 extends GenotypeMapperV9 {
     public GenotypeMapperV10() {

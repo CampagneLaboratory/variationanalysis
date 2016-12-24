@@ -11,9 +11,9 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.Properties;
 
 /**
- * Based of V10,  switch from Max normalization to inverse normalization.
+ * distinct alleles+inverse
  */
-public class GenotypeMapperV11 extends GenotypeMapperV10 {
+public class GenotypeMapperV11 extends GenotypeMapperV9 {
 
 
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
@@ -24,6 +24,7 @@ public class GenotypeMapperV11 extends GenotypeMapperV10 {
         super();
         sortCounts = true;
         withDistinctAlleleCounts = true;
+        withCombinedLayer = false;
 
     }
 

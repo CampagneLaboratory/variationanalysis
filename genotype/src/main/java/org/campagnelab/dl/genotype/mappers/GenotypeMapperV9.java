@@ -24,6 +24,7 @@ public class GenotypeMapperV9 extends GenotypeMapperV4 {
         super();
         sortCounts = true;
         withDistinctAlleleCounts = true;
+        withCombinedLayer = false;
 
     }
 

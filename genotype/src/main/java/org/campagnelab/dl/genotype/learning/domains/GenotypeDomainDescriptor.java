@@ -385,14 +385,13 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new LossMCXENT();
             case "isVariant":
                  INDArray weights = Nd4j.ones(2);
-             //         weights.putScalar(BooleanLabelMapper.IS_TRUE,100);
-               //          return new LossBinaryXENT(weights);
-                return new LossBinaryXENT();
+                      weights.putScalar(BooleanLabelMapper.IS_TRUE,50);
+                      weights.putScalar(BooleanLabelMapper.IS_FALSE,0);
+                         return new LossBinaryXENT(weights);
+               // return new LossBinaryXENT();
             case "metaData":
                 // no loss for metaData. These labels are virtual.
                 INDArray zeros = Nd4j.zeros(MetaDataLabelMapper.NUM_LABELS);
-                // We need to favor correct predictions on variants, so optimize for isVariant big time
-            //    zeros.putScalar(0,MetaDataLabelMapper.IS_VARIANT_FEATURE_INDEX,10);
                 return new LossBinaryXENT(  zeros);
             default:
                 // any other is an individual genotype output:
