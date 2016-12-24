@@ -19,8 +19,7 @@ public class IsVariantInterpreter implements PredictionInterpreter<BaseInformati
         p.isVariantTruth = trueLabels.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE) > 0.5;
         p.probability =Math.max(
                 output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE),
-                output.getDouble(predictionIndex, BooleanLabelMapper.IS_FALSE))
-        ;
+                output.getDouble(predictionIndex, BooleanLabelMapper.IS_FALSE));
 
         return p;
     }
@@ -31,6 +30,9 @@ public class IsVariantInterpreter implements PredictionInterpreter<BaseInformati
         p.isVariantTruth = record.getSamples(0).getIsVariant();
         int predictionIndex = 0;
         p.isVariantPredicted = output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE) > 0.5;
+        p.probability =Math.max(
+                output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE),
+                output.getDouble(predictionIndex, BooleanLabelMapper.IS_FALSE));
 
         return p;
     }
