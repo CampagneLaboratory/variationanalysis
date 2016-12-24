@@ -5,10 +5,6 @@ if [ "$#" -ne 2 ]; then
    echo "Argument missing. You must provide a feature mapper classname to use in the iteration."
    exit 1;
 fi
-if [ -e configure.sh ]; then
- echo "Loading configure.sh"
- source configure.sh
-fi
 if [ -z "${LEARNING_RATE+set}" ]; then
     LEARNING_RATE="50"
     echo "LEARNING_RATE set to ${LEARNING_RATE}. Change the variable to switch the learning rate."

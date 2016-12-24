@@ -11,6 +11,11 @@ export VERSION=`cat ${DISTRIBUTION_DIR}/VERSION.txt`
 export DLVA_HOME=${DISTRIBUTION_DIR}
 EXECUTION_PLATFORM=`tail -1 ${DISTRIBUTION_DIR}/PROFILE.txt`
 
+if [ -e configure.sh ]; then
+ echo "Loading configure.sh"
+ source configure.sh
+fi
+
 if [ -n "${FORCE_PLATFORM+set}" ]; then
     EXECUTION_PLATFORM="${FORCE_PLATFORM}"
 fi
