@@ -1,12 +1,12 @@
 package org.campagnelab.dl.framework.iterators.cache;
 
 import org.apache.commons.io.FilenameUtils;
+import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.iterators.MultiDatasetMappedFeaturesIterator;
-import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.tools.MapMultiDatasetFeatures;
 import org.campagnelab.dl.framework.tools.MapMultiDatasetFeaturesArguments;
-import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
 import java.io.File;
@@ -34,9 +34,9 @@ public class CacheHelper<RecordType> {
     public MultiDataSetIterator cache(final DomainDescriptor domainDescriptor,
                                       MultiDataSetIteratorAdapter adapter, String cacheName, int cacheN, int minibatchSize) {
 
-
+//TODO use a file lock to prevent two processes from trying to create a cache at the same time.
         // determine if cache exists. If it does, use it.
-    cacheName=decorateCacheName(domainDescriptor,cacheName);
+        cacheName = decorateCacheName(domainDescriptor, cacheName);
         if (!cacheExists(cacheName, cacheN, true)) {
             // Cache does not exist, we first build it:
             MapMultiDatasetFeatures tool = new MapMultiDatasetFeatures() {
@@ -61,17 +61,17 @@ public class CacheHelper<RecordType> {
 
     private String decorateCacheName(DomainDescriptor domainDescriptor, String cacheName) {
 
-        int domainHashCode=0x72E7;
+        int domainHashCode = 0x72E7;
         for (Object o : domainDescriptor.featureMappers()) {
-            domainHashCode^=o.getClass().getCanonicalName().hashCode();
+            domainHashCode ^= o.getClass().getCanonicalName().hashCode();
         }
         for (Object o : domainDescriptor.labelMappers()) {
-            domainHashCode^=o.getClass().getCanonicalName().hashCode();
+            domainHashCode ^= o.getClass().getCanonicalName().hashCode();
         }
-        domainHashCode^=domainDescriptor.getComputationalGraph().getClass().getCanonicalName().hashCode();
+        domainHashCode ^= domainDescriptor.getComputationalGraph().getClass().getCanonicalName().hashCode();
 
         String cacheHash = Integer.toHexString(domainHashCode);
-        cacheName = FilenameUtils.removeExtension(cacheName) + "-"+cacheHash;
+        cacheName = FilenameUtils.removeExtension(cacheName) + "-" + cacheHash;
         return cacheName;
     }
 
@@ -103,12 +103,30 @@ public class CacheHelper<RecordType> {
             }
 
             long cacheNSaved = Long.parseLong(n.toString());
-            return (cacheNSaved >= cacheN || cacheN == Integer.MAX_VALUE);
+            return (chacheMatchesSbi(cacheName, cacheNSaved) || cacheNSaved >= cacheN || cacheN == Integer.MAX_VALUE);
         } catch (FileNotFoundException e) {
             return false;
         } catch (IOException e) {
             return false;
         }
+    }
+
+    // Access the .sbi file to see if the cache
+    private static boolean chacheMatchesSbi(String cacheName, long cachedNSaved) {
+        String sbiBasename;
+        // remove hashCode:
+        sbiBasename = cacheName.substring(0, cacheName.lastIndexOf("-"));
+        try (SequenceBaseInformationReader reader = new SequenceBaseInformationReader(sbiBasename)) {
+            String n = reader.getProperties().getProperty("numRecords");
+            if (n == null) return false;
+            long sbiCachedRecords = Long.parseLong(n.toString());
+            if ( cachedNSaved<=sbiCachedRecords) {
+                return true;
+            }
+        } catch (IOException e) {
+            return false;
+        }
+        return false;
     }
 
 
