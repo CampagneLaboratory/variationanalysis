@@ -144,6 +144,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         outputWriter.close();
         pgReadWrite.stop();
         reportStatistics(prefix);
+        System.out.println("Model: "+modelPath+" tag:"+modelTag);
         modelLoader.writeTestCount(totalRecords);
     }
 
