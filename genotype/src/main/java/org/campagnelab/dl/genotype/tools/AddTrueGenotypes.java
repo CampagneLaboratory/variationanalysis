@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -94,42 +95,29 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                 String referenceBase = Character.toString(genome.get(genomeTargetIndex, buildRec.getPosition()));
                 boolean isVariant = false;
                 boolean inMap = false;
-                String genotypeFromMap=null;
+                String genotypeFromMap = null;
                 Int2ObjectMap<String> chromMap = chMap.get(chrom);
 
                 if (chromMap != null) {
-                     genotypeFromMap = chromMap.get(position);
+                    // The map contains Goby positions (zero-based).
+                    genotypeFromMap = chromMap.get(position);
                     if (genotypeFromMap != null) {
                         inMap = true;
                     }
                 }
                 //indels should not be counted as variants: simply use refbase
-                boolean isIndel = (inMap && genotypeFromMap.length() > 3);
+                boolean isIndel = GenotypeHelper.isIndel(genotypeFromMap);
                 if (isIndel) {
                     numIndelsIgnored++;
                 }
                 if (inMap && (!isIndel)) {
-                    // The map contains Goby positions (zero-based).
-                    trueGenotype = genotypeFromMap;
-                    trueGenotype = trueGenotype.toUpperCase();
-                    genotypeSet = GenotypePrediction.alleles(trueGenotype);
-
-                    //handle special case where a homozygous deletion like AG->A is not caught and matches ref
-                    //such cases chould not be counted as variants.
-                    boolean matchesRef = false;
-
-                    if (genotypeSet.size() == 1 && genotypeSet.iterator().next().equals(referenceBase)) {
-                        matchesRef = true;
-                        if (genotypeSet.size() > 1) {
-                            matchesRef = true;
-                        }
-                        if (matchesRef) {
-                            isVariant = true;
-                            numVariantsAdded++;
-                        }
-                    } else {
-                        LOG.error("Cannot parse true genotype from map: " + trueGenotype);
+                    trueGenotype=genotypeFromMap;
+                    isVariant=GenotypeHelper.isVariant(false /*do not consider indels*/,genotypeFromMap, referenceBase);
+                    if (isVariant) {
+                        isVariant = true;
+                        numVariantsAdded++;
                     }
+
                 } else {
                     if (random.nextFloat() > args().referenceSamplingRate) {
                         skip = true;
@@ -150,7 +138,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                     BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
                     for (int i = 0; i < buildSample.getCountsCount(); i++) {
                         BaseInformationRecords.CountInfo.Builder count = buildSample.getCounts(i).toBuilder();
-                        boolean isCalled = genotypeSet.contains(count.getToSequence());
+                        boolean isCalled = GenotypeHelper.getAlleles(trueGenotype).contains(count.getToSequence());
                         count.setIsCalled(isCalled);
                         buildSample.setCounts(i, count);
                     }
