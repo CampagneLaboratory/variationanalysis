@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.intermediaries.QuickConcatArguments;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
@@ -56,6 +57,9 @@ public class QuickConcat extends AbstractTool<QuickConcatArguments> {
      * @throws IOException
      */
     private void performQuickConcat(String[] inputFilenames, String outputBasename) {
+        if (outputBasename.endsWith(".sbi")) {
+            outputBasename= FilenameUtils.removeExtension(outputBasename);
+        }
         System.out.println("quick concatenating files");
         File outputFile = new File(outputBasename);
         if (outputFile.exists()) {
