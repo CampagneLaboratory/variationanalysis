@@ -46,7 +46,7 @@ cat << EOF | cat>gpu.txt
 3
 EOF
 
-`NUM_GPUS=`wc -l gpu.txt|cut -d " " -f 1`
+NUM_GPUS=`wc -l gpu.txt|cut -d " " -f 1`
 
 num_executions=${memory_requirement}
 
