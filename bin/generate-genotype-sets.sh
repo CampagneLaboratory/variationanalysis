@@ -30,8 +30,8 @@ parallel-genotype-sbi.sh 10g ${ALIGNMENTS}
 
 add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
   -i tmp/genotype_full.sbi \
-  -o tmp/genotype_full_called.sbi \
-  --genome ${GENOME}
+  -o tmp/genotype_full_called \
+  --genome ${SBI_GENOME}
 
 randomize.sh ${memory_requirement} -i tmp/genotype_full_called.sbi \
   -o tmp/genotype_full_called_randomized.sbi
