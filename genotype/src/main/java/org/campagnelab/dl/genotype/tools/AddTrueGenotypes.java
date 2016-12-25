@@ -9,16 +9,17 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
+import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
 import org.campagnelab.goby.reads.RandomAccessSequenceCache;
-import org.campagnelab.goby.reads.RandomAccessSequenceInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * The addcalls object uses a map to create a new protobuf file with genotype calls.
@@ -70,7 +71,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
         int sampleIndex = args().sampleIndex;
         Random random = new XorShift1024StarRandom();
         try {
-            Object2ObjectMap<String,Int2ObjectMap<String>> chMap = (Object2ObjectMap<String,Int2ObjectMap<String>>)BinIO.loadObject(args().genotypeMap);
+            Object2ObjectMap<String, Int2ObjectMap<String>> chMap = (Object2ObjectMap<String, Int2ObjectMap<String>>) BinIO.loadObject(args().genotypeMap);
             RecordReader source = new RecordReader(args().inputFile);
             SequenceBaseInformationWriter dest = new SequenceBaseInformationWriter(args().outputFilename);
 
@@ -79,59 +80,77 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             System.out.println(source.numRecords() + " records to label");
             int recordsLabeled = 0;
             recordLogger.start();
-          ObjectSet<String> distinctTrueGenotypes=new ObjectArraySet<>();
+            ObjectSet<String> distinctTrueGenotypes = new ObjectArraySet<>();
             for (BaseInformationRecords.BaseInformation rec : source) {
                 boolean skip = false;
-
-
-
-
 
 
                 BaseInformationRecords.BaseInformation.Builder buildRec = rec.toBuilder();
                 int position = buildRec.getPosition();
                 String chrom = buildRec.getReferenceId();
-                String[] genotypes = new String[3];
+                Set<String> genotypeSet;
                 String trueGenotype;
-                int genomeTargetIndex=genome.getReferenceIndex(buildRec.getReferenceId());
-                String referenceBase = Character.toString(genome.get(genomeTargetIndex,buildRec.getPosition()));
+                int genomeTargetIndex = genome.getReferenceIndex(buildRec.getReferenceId());
+                String referenceBase = Character.toString(genome.get(genomeTargetIndex, buildRec.getPosition()));
                 boolean isVariant = false;
-                boolean inMap = (chMap.get(chrom) != null && chMap.get(chrom).get(position) != null);
+                boolean inMap = false;
+                String genotypeFromMap=null;
+                Int2ObjectMap<String> chromMap = chMap.get(chrom);
+
+                if (chromMap != null) {
+                     genotypeFromMap = chromMap.get(position);
+                    if (genotypeFromMap != null) {
+                        inMap = true;
+                    }
+                }
                 //indels should not be counted as variants: simply use refbase
-                boolean isIndel = (inMap && chMap.get(chrom).get(position).length()>3);
-                if (isIndel){
+                boolean isIndel = (inMap && genotypeFromMap.length() > 3);
+                if (isIndel) {
                     numIndelsIgnored++;
                 }
                 if (inMap && (!isIndel)) {
                     // The map contains Goby positions (zero-based).
-                    trueGenotype = chMap.get(chrom).get(position);
+                    trueGenotype = genotypeFromMap;
                     trueGenotype = trueGenotype.toUpperCase();
-                    genotypes = trueGenotype.split("|");
+                    genotypeSet = GenotypePrediction.alleles(trueGenotype);
+
                     //handle special case where a homozygous deletion like AG->A is not caught and matches ref
                     //such cases chould not be counted as variants.
-                    if (!(genotypes[0].equals(genotypes[2]) && genotypes[0].equals(referenceBase))){
-                        isVariant = true;
-                        numVariantsAdded++;
+                    boolean matchesRef = false;
+
+                    if (genotypeSet.size() == 1 && genotypeSet.iterator().next().equals(referenceBase)) {
+                        matchesRef = true;
+                        if (genotypeSet.size() > 1) {
+                            matchesRef = true;
+                        }
+                        if (matchesRef) {
+                            isVariant = true;
+                            numVariantsAdded++;
+                        }
+                    } else {
+                        LOG.error("Cannot parse true genotype from map: " + trueGenotype);
                     }
                 } else {
                     if (random.nextFloat() > args().referenceSamplingRate) {
                         skip = true;
                     }
                     // alignment and genome do not necessarily share the same space of reference indices. Convert:
-                    trueGenotype = referenceBase+"|"+referenceBase;
+                    trueGenotype = referenceBase + "|" + referenceBase;
                     referenceBase = referenceBase.toUpperCase();
-                    genotypes[0] = referenceBase;
-                    genotypes[2] = referenceBase;
+                    genotypeSet = new ObjectArraySet<>();
+                    genotypeSet.add(referenceBase);
+
                 }
 
                 if (!skip) {
+
                     distinctTrueGenotypes.add(trueGenotype);
                     // write the record.
                     buildRec.setTrueGenotype(trueGenotype.replace('|', '/').toUpperCase());
                     BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
                     for (int i = 0; i < buildSample.getCountsCount(); i++) {
                         BaseInformationRecords.CountInfo.Builder count = buildSample.getCounts(i).toBuilder();
-                        boolean isCalled = (count.getToSequence().equals(genotypes[0]) || count.getToSequence().equals(genotypes[2]));
+                        boolean isCalled = genotypeSet.contains(count.getToSequence());
                         count.setIsCalled(isCalled);
                         buildSample.setCounts(i, count);
                     }
@@ -144,7 +163,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             }
             recordLogger.done();
             dest.close();
-            System.out.println("Found the following distinct true genotypes: "+distinctTrueGenotypes);
+            System.out.println("Found the following distinct true genotypes: " + distinctTrueGenotypes);
             System.out.println(numVariantsAdded + " number of variants in the sbi file.");
             System.out.println(numIndelsIgnored + " number of indels ignored in the file.");
         } catch (IOException | ClassNotFoundException e) {
@@ -153,12 +172,10 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
     }
 
 
-
     @Override
     public AddTrueGenotypesArguments createArguments() {
         return new AddTrueGenotypesArguments();
     }
-
 
 
 }
