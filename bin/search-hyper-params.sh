@@ -46,7 +46,7 @@ cat << EOF | cat>gpu.txt
 3
 EOF
 
-NUM_GPUS=`wc -l gpus.txt|cut -d " " -f 1`
+`NUM_GPUS=`wc -l gpu.txt|cut -d " " -f 1`
 
 num_executions=${memory_requirement}
 
@@ -54,5 +54,5 @@ parallel echo `cat main-command.txt` --regularization-rate :::: reg.txt :::  --r
 shuf commands.txt  |head -${num_executions} >commands-head-${num_executions}
 chmod +x commands-head-${num_executions}
 cat ./commands-head-${num_executions} |parallel --xapply ::: echo  :::: - ::: --gpu-device :::: gpu.txt  >all-commands.txt
-cat all-commands.txt |parallel -j${GPU_NUM} --progress
+cat all-commands.txt |parallel -j${NUM_GPUS} --progress
 sort -n -k 2 model-conditions.txt|tail
