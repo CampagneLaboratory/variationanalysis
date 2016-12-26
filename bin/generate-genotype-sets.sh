@@ -31,10 +31,13 @@ parallel-genotype-sbi.sh 10g ${ALIGNMENTS}
 add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
   -i tmp/genotype_full.sbi \
   -o tmp/genotype_full_called \
-  --genome ${SBI_GENOME}
+  --genome ${SBI_GENOME} |tee add-true-genotypes.log
 
 randomize.sh ${memory_requirement} -i tmp/genotype_full_called.sbi \
-  -o tmp/genotype_full_called_randomized
+  -o tmp/genotype_full_called_randomized -b 100000 -c 100 |tee randomize.log
+
+DATE=`date +%Y-%m-%d`
+echo ${DATE} >DATE.txt
 
 split.sh ${memory_requirement} -i tmp/genotype_full_called_randomized.sbi \
   -f 0.8 -f 0.1 -f 0.1 \
@@ -49,7 +52,7 @@ mv genotype_noIndel_validation.sbip genotype_noIndel_validation-all.sbip
 add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
   -i genotype_noIndel_validation-all.sbi \
   -o genotype_noIndel_validation \
-  --genome ${GENOME} --ref-sampling-rate 0.01
+  --genome ${GENOME} --ref-sampling-rate 0.01 |tee add-true-genotypes-downsampling-ref.log
 
 if [ ${DELETE_TMP} = "true" ]; then
    rm -rf tmp
