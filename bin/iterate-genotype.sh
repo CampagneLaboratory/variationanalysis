@@ -65,4 +65,4 @@ MODEL_DIR=`train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFI
   --early-stopping-num-epochs 10 --gpu-device ${GPU} \
   | tee output-${RANDOM}.log |grep "model directory:"|cut -d " " -f 3`
 
-predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f -i ${DATASET}test.sbi --num-variants-expected 5205
+predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f -i ${DATASET}test.sbi --num-variants-expected 3948
