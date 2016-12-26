@@ -12,6 +12,10 @@ public class GenotypeHelper {
         return isVariant(true, genotype, referenceBase);
     }
 
+    public static boolean isNoCall(String genotype) {
+        return ("N/N".equals(genotype));
+    }
+
     public static boolean isVariant(boolean considerIndels, String genotype, String reference) {
 
         Set<String> genotypeSet = getAlleles(genotype);
@@ -22,11 +26,11 @@ public class GenotypeHelper {
 
         if (genotypeSet.size() == 1) {
             String allele = genotypeSet.iterator().next();
-           // When there is only one allele, only the first bases need to match with the reference,
+            // When there is only one allele, only the first bases need to match with the reference,
             // up to the length of the reference:
             // i.e., genotype: TC/TC ref: T, or genotype: TCA/TCA ref: TC
-            int refLength=reference.length();
-            if (reference.substring(0,refLength).equals(allele.substring(0,refLength))) {
+            int refLength = reference.length();
+            if (reference.substring(0, refLength).equals(allele.substring(0, refLength))) {
                 matchesRef = true;
             }
         }
@@ -36,8 +40,8 @@ public class GenotypeHelper {
                 if (considerIndels) {
                     return true;
                 } else {
-                    String referenceBase=reference.substring(0,1);
-                 return!   referenceBase.equals(genotypeSet.stream().map(allele -> Character.toString(allele.charAt(0))).distinct().findFirst().get());
+                    String referenceBase = reference.substring(0, 1);
+                    return !referenceBase.equals(genotypeSet.stream().map(allele -> Character.toString(allele.charAt(0))).distinct().findFirst().get());
                 }
             }
             matchesRef = false;
@@ -47,7 +51,7 @@ public class GenotypeHelper {
 
     public static Set<String> getAlleles(String genotype) {
         String trueGenotype = genotype.toUpperCase();
-    return    GenotypePrediction.alleles(trueGenotype);
+        return GenotypePrediction.alleles(trueGenotype);
     }
 
     public static boolean isIndel(String genotype) {

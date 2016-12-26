@@ -110,13 +110,14 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                     numIndelsIgnored++;
                 }
                 if (inMap && (!isIndel)) {
-                    trueGenotype=genotypeFromMap;
-                    isVariant=GenotypeHelper.isVariant(args().considerIndels /**/,genotypeFromMap, referenceBase);
-                    if (isVariant) {
-                        isVariant = true;
-                        numVariantsAdded++;
+                    trueGenotype = genotypeFromMap;
+                    if (!GenotypeHelper.isNoCall(genotypeFromMap)) {
+                        isVariant = GenotypeHelper.isVariant(args().considerIndels /**/, genotypeFromMap, referenceBase);
+                        if (isVariant) {
+                            isVariant = true;
+                            numVariantsAdded++;
+                        }
                     }
-
                 } else {
                     if (random.nextFloat() > args().referenceSamplingRate) {
                         skip = true;
