@@ -6,28 +6,30 @@ import org.campagnelab.dl.somatic.mappers.GenomicContextMapper;
 import org.campagnelab.dl.somatic.mappers.NamingConcatFeatureMapper;
 import org.campagnelab.dl.somatic.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.CountInfoOrBuilder;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Properties;
 
 /**
- * distinct alleles+inverse
+ * distinct alleles+inverse+ reduced number of bins for quality scores, mapping qual. Adding
  */
-public class GenotypeMapperV11 extends GenotypeMapperV9 {
+public class GenotypeMapperV15 extends GenotypeMapperV11 {
 
 
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;
 
-    public GenotypeMapperV11() {
+    public GenotypeMapperV15() {
         super();
         sortCounts = true;
         withDistinctAlleleCounts = true;
         withCombinedLayer = false;
-
+        MAX_GENOTYPES = 3;
     }
-    int MAX_GENOTYPES = 3;
+
+
 
     /**
      * Configure the feature mapper to map a specific sampleIndex
@@ -95,6 +97,12 @@ public class GenotypeMapperV11 extends GenotypeMapperV9 {
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readIndexMappers)),
                         new GenomicContextMapper(sbiProperties),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
+                        /* NumVariationsInReads for counts not in the best 3: */
+                        new DensityMapper("numVariationsInRead",
+                                40, sbiProperties,
+                                record -> TraversalHelper.forAllSampleCounts(record,
+                                        CountInfoOrBuilder::getNumVariationsInReadsList)),
+
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(numVariationsInReadMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readMappingQualityMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(baseQualityMappers)
