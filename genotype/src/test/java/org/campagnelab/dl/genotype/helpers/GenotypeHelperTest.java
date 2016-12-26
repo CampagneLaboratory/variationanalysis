@@ -10,6 +10,8 @@ import static org.junit.Assert.assertEquals;
 public class GenotypeHelperTest {
     @Test
     public void testGenotypes() {
+        assertEquals(false, GenotypeHelper.isVariant("CT|CT", "C"));
+
         assertEquals(false, GenotypeHelper.isIndel("A|C"));
         assertEquals(true, GenotypeHelper.isIndel("-|C"));
         assertEquals(true, GenotypeHelper.isIndel("-|T"));

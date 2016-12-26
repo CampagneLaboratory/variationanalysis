@@ -19,8 +19,16 @@ public class GenotypeHelper {
         //such cases chould not be counted as variants.
         boolean matchesRef = false;
 
-        if (genotypeSet.size() == 1 && genotypeSet.iterator().next().equals(reference)) {
-            matchesRef = true;
+
+        if (genotypeSet.size() == 1) {
+            String allele = genotypeSet.iterator().next();
+           // When there is only one allele, only the first bases need to match with the reference,
+            // up to the length of the reference:
+            // i.e., genotype: TC/TC ref: T, or genotype: TCA/TCA ref: TC
+            int refLength=reference.length();
+            if (reference.substring(0,refLength).equals(allele.substring(0,refLength))) {
+                matchesRef = true;
+            }
         }
         if (genotypeSet.size() > 1) {
             if (genotypeSet.stream().map(allele -> allele.length()).distinct().count() == 1) {
