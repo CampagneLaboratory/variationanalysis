@@ -16,8 +16,8 @@ if [ -z "${DELETE_TMP}" ]; then
     DELETE_TMP="false"
     echo "DELETE_TMP set to ${DELETE_TMP}. Change the variable with export to clear the working directory."
 fi
-rm -rf tmp
-mkdir tmp
+#rm -rf tmp
+mkdir -p tmp
 
 goby ${memory_requirement} vcf-to-genotype-map ${VCF} \
   -o tmp/variants.varmap
@@ -34,7 +34,7 @@ add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
   --genome ${SBI_GENOME}
 
 randomize.sh ${memory_requirement} -i tmp/genotype_full_called.sbi \
-  -o tmp/genotype_full_called_randomized.sbi
+  -o tmp/genotype_full_called_randomized
 
 split.sh ${memory_requirement} -i tmp/genotype_full_called_randomized.sbi \
   -f 0.8 -f 0.1 -f 0.1 \

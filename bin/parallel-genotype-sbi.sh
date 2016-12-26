@@ -36,7 +36,7 @@ echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
 
 goby ${memory_requirement} suggest-position-slices ${ALIGNMENTS} --number-of-slices 200 -o slices.tsv
 grep -v targetIdStart slices.tsv >slices
-echo " discover-sequence-variants -n 1 -t 1 --genome  ${SBI_GENOME} --format  SEQUENCE_BASE_INFORMATION  ${ALIGNMENTS} \
+echo " discover-sequence-variants -n -1 -t -1 --genome  ${SBI_GENOME} --format  SEQUENCE_BASE_INFORMATION  ${ALIGNMENTS} \
     --call-indels  ${INCLUDE_INDELS} --processor realign_near_indels \
     --max-coverage-per-site 10000 -x HTSJDKReaderImpl:force-sorted=true " >command.txt
 
