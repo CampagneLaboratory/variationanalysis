@@ -10,7 +10,6 @@ import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
-import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
@@ -112,7 +111,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                 }
                 if (inMap && (!isIndel)) {
                     trueGenotype=genotypeFromMap;
-                    isVariant=GenotypeHelper.isVariant(false /*do not consider indels*/,genotypeFromMap, referenceBase);
+                    isVariant=GenotypeHelper.isVariant(args().considerIndels /**/,genotypeFromMap, referenceBase);
                     if (isVariant) {
                         isVariant = true;
                         numVariantsAdded++;

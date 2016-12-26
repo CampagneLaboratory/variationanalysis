@@ -27,5 +27,8 @@ public class AddTrueGenotypesArguments implements ToolArguments {
 
     @Parameter( names = { "--ref-sampling-rate"}, description = "Sampling rate for positions where the true genotype matches the reference.")
     public float referenceSamplingRate=1.0f;
+
+    @Parameter( names = { "--consider-indels"}, description = "When true, add true genotypes for indels. False (default) ignores indels.")
+    public boolean considerIndels;
 }
 
