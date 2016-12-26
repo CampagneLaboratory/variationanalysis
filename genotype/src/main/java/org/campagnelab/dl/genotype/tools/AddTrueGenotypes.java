@@ -138,7 +138,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                     BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
                     for (int i = 0; i < buildSample.getCountsCount(); i++) {
                         BaseInformationRecords.CountInfo.Builder count = buildSample.getCounts(i).toBuilder();
-                        boolean isCalled = GenotypeHelper.getAlleles(trueGenotype).contains(count.getToSequence());
+                        boolean isCalled = GenotypeHelper.genotypeHasAllele(trueGenotype,count.getToSequence());
                         count.setIsCalled(isCalled);
                         buildSample.setCounts(i, count);
                     }

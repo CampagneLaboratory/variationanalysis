@@ -2,6 +2,7 @@ package org.campagnelab.dl.genotype.helpers;
 
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -76,7 +77,7 @@ public class GenotypeHelper {
             String oneA = allelesA.iterator().next();
             String oneB = allelesB.iterator().next();
             if (a.contains("-") || b.contains("-")) {
-             // do not allow prefix match for indels.
+                // do not allow prefix match for indels.
                 return false;
             }
             if (oneA.length() > oneB.length()) {
@@ -84,6 +85,24 @@ public class GenotypeHelper {
             }
             if (oneB.length() > oneA.length()) {
                 return oneB.startsWith(oneA);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Return true iff the true genotype has an allele matching toSequence.
+     * @param trueGenotype a true genotype, e.g., A/T
+     * @param testAllele the sequence of an allele, e.g., A
+     * @return True if and only if one of the true genotype alleles is matching testAllele.
+     */
+    public static boolean genotypeHasAllele(String trueGenotype, String testAllele) {
+        Set<String> alleles = getAlleles(trueGenotype);
+        Iterator<String> iterator = alleles.iterator();
+        while (iterator.hasNext()) {
+            String oneTrueAllele = iterator.next();
+            if (matchingGenotypes(oneTrueAllele, testAllele)) {
+                return true;
             }
         }
         return false;
