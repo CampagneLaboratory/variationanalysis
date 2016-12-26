@@ -10,13 +10,21 @@ memory_requirement=$1
 ALIGNMENTS=$1
 VCF=$2
 GENOME=$3
+DATE=`date +%Y-%m-%d`
+echo ${DATE} >DATE.txt
 
+case ${ALIGNMENTS} in *.bam) OUTPUT_PREFIX=`basename ${ALIGNMENTS} .bam`;; esac
+case ${ALIGNMENTS} in *.sam) OUTPUT_PREFIX=`basename ${ALIGNMENTS} .sam`;; esac
+case ${ALIGNMENTS} in *.cram) OUTPUT_PREFIX=`basename ${ALIGNMENTS} .cram`;; esac
+case ${ALIGNMENTS} in *.entries) OUTPUT_PREFIX=`basename ${ALIGNMENTS} .entries`;; esac
+OUTPUT_PREFIX="${OUTPUT_PREFIX}-${DATE}"
+echo "Will write results to ${OUTPUT_PREFIX}"
 
 if [ -z "${DELETE_TMP}" ]; then
     DELETE_TMP="false"
     echo "DELETE_TMP set to ${DELETE_TMP}. Change the variable with export to clear the working directory."
 fi
-#rm -rf tmp
+rm -rf tmp
 mkdir -p tmp
 
 goby ${memory_requirement} vcf-to-genotype-map ${VCF} \
@@ -26,7 +34,7 @@ export SBI_GENOME=${GENOME}
 export OUTPUT_BASENAME=tmp/genotype_full
 
 parallel-genotype-sbi.sh 10g ${ALIGNMENTS}
-
+export OUTPUT_BASENAME=${OUTPUT_PREFIX}
 
 add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
   -i tmp/genotype_full.sbi \
@@ -36,26 +44,23 @@ add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
 randomize.sh ${memory_requirement} -i tmp/genotype_full_called.sbi \
   -o tmp/genotype_full_called_randomized -b 100000 -c 100 |tee randomize.log
 
-DATE=`date +%Y-%m-%d`
-echo ${DATE} >DATE.txt
-
 split.sh ${memory_requirement} -i tmp/genotype_full_called_randomized.sbi \
   -f 0.8 -f 0.1 -f 0.1 \
-  -o genotype_noIndel_ \
+  -o "${OUTPUT_BASENAME}-" \
    -s train -s test -s validation
-
+ls -ltr
 # subset the validation sample, throwing out many reference matching sites (to speed
 # up performance evaluation for early stopping):
-mv genotype_noIndel_validation.sbi genotype_noIndel_validation-all.sbi
-mv genotype_noIndel_validation.sbip genotype_noIndel_validation-all.sbip
+mv "${OUTPUT_BASENAME}-validation.sbi" "${OUTPUT_BASENAME}-validation-all.sbi"
+mv "${OUTPUT_BASENAME}-validation.sbip" "${OUTPUT_BASENAME}-validation-all.sbip"
 
 add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
-  -i genotype_noIndel_validation-all.sbi \
-  -o genotype_noIndel_validation \
+  -i "${OUTPUT_BASENAME}-validation-all.sbi" \
+  -o "${OUTPUT_BASENAME}-validation" \
   --genome ${GENOME} --ref-sampling-rate 0.01 |tee add-true-genotypes-downsampling-ref.log
 
 if [ ${DELETE_TMP} = "true" ]; then
    rm -rf tmp
 fi
 
-export DATASET=genotype_noIndel_
+export DATASET="${OUTPUT_BASENAME}-"
