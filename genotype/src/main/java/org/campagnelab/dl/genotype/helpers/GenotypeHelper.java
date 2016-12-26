@@ -13,7 +13,7 @@ public class GenotypeHelper {
     }
 
     public static boolean isNoCall(String genotype) {
-        return ("N/N".equals(genotype));
+        return ("N|N".equals(genotype)|"N/N".equals(genotype));
     }
 
     public static boolean isVariant(boolean considerIndels, String genotype, String reference) {
