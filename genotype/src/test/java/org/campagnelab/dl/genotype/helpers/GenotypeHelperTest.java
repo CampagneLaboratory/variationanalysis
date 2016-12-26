@@ -31,5 +31,22 @@ public class GenotypeHelperTest {
         assertEquals(false, GenotypeHelper.isVariant("A", "A"));
         assertEquals(true, GenotypeHelper.isVariant("A", "C"));
 
+
+    }
+    @Test
+    public void checkMatchingGenotypes() {
+        assertEquals(true, GenotypeHelper.matchingGenotypes("A", "N"));
+
+        assertEquals(false, GenotypeHelper.matchingGenotypes("A", "C"));
+        assertEquals(false, GenotypeHelper.matchingGenotypes("A", ""));
+        assertEquals(true, GenotypeHelper.matchingGenotypes("N", "A"));
+        assertEquals(false, GenotypeHelper.matchingGenotypes("GT/GT ", "G"));
+        assertEquals(false, GenotypeHelper.matchingGenotypes("CCTA/CCTA ", "A"));
+        assertEquals(false, GenotypeHelper.matchingGenotypes("CCTA/CCTA ", "C"));
+        assertEquals(false, GenotypeHelper.matchingGenotypes("CCTA/CCTA ", "CC"));
+        assertEquals(false, GenotypeHelper.matchingGenotypes("CCTA/CCTA ", "CCT"));
+        assertEquals(false, GenotypeHelper.matchingGenotypes("CCTA/CCTA ", "CCA"));
+
+
     }
 }

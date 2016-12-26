@@ -7,6 +7,7 @@ import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.performance.StatsAccumulator;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -117,6 +118,13 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             // no longer an indel, and now matching reference:
             fullPred.isIndel = false;
             fullPred.isVariant = false;
+        }
+        boolean forceCorrect = false;
+        if ( !GenotypeHelper.isVariant(args().scoreIndels,
+                        fullPred.predictedGenotype, record.getReferenceBase())) {
+            System.out.printf("removing spurious variant: %s %s %n", fullPred.predictedGenotype, record.getReferenceBase());
+            fullPred.isVariant = false;
+
         }
         boolean correct = fullPred.isCorrect();
         //remove dangling commas

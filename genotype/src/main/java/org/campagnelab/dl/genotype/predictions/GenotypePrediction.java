@@ -3,6 +3,7 @@ package org.campagnelab.dl.genotype.predictions;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Collections;
@@ -62,7 +63,8 @@ public class GenotypePrediction extends Prediction {
      * Returns whether or not the prediction is correct, will be used for statistics.
      */
     public boolean isCorrect() {
-        return alleles(trueGenotype).equals(alleles(predictedGenotype));
+        return GenotypeHelper.matchingGenotypes(trueGenotype,predictedGenotype);
+
     }
 
     public boolean isVariant() {

@@ -13,7 +13,7 @@ public class GenotypeHelper {
     }
 
     public static boolean isNoCall(String genotype) {
-        return ("N|N".equals(genotype)|"N/N".equals(genotype));
+        return ("N".equals(genotype) || "N|N".equals(genotype) || "N/N".equals(genotype));
     }
 
     public static boolean isVariant(boolean considerIndels, String genotype, String reference) {
@@ -57,6 +57,34 @@ public class GenotypeHelper {
     public static boolean isIndel(String genotype) {
         if (genotype != null) {
             return (genotype.contains("-"));
+        }
+        return false;
+    }
+
+    public static boolean matchingGenotypes(String a, String b) {
+        if (isNoCall(a) || isNoCall(b)) {
+            return true;
+        }
+        Set<String> allelesA = getAlleles(a);
+        Set<String> allelesB = getAlleles(b);
+        boolean allelesMatch = allelesA.equals(allelesB);
+        if (allelesMatch) {
+            return true;
+        }
+        if (allelesA.size() == 1 && allelesB.size() == 1) {
+
+            String oneA = allelesA.iterator().next();
+            String oneB = allelesB.iterator().next();
+            if (a.contains("-") || b.contains("-")) {
+             // do not allow prefix match for indels.
+                return false;
+            }
+            if (oneA.length() > oneB.length()) {
+                return oneA.startsWith(oneB);
+            }
+            if (oneB.length() > oneA.length()) {
+                return oneB.startsWith(oneA);
+            }
         }
         return false;
     }
