@@ -62,10 +62,14 @@ public class GenotypeHelper {
         return false;
     }
 
-    public static boolean matchingGenotypes(String a, String b) {
+    public static boolean matchingGenotypesWithN(String a, String b) {
         if (isNoCall(a) || isNoCall(b)) {
             return true;
         }
+      return  matchingGenotypes(a,b);
+    }
+    public static boolean matchingGenotypes(String a, String b) {
+
         Set<String> allelesA = getAlleles(a);
         Set<String> allelesB = getAlleles(b);
         boolean allelesMatch = allelesA.equals(allelesB);

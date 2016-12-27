@@ -35,17 +35,29 @@ public class GenotypeHelperTest {
     }
     @Test
     public void checkMatchingGenotypes() {
-        assertEquals(true, GenotypeHelper.matchingGenotypes("A", "N"));
+        assertEquals(true, GenotypeHelper.matchingGenotypesWithN("A", "N"));
+        assertEquals(false, GenotypeHelper.matchingGenotypes("A", "N"));
 
         assertEquals(false, GenotypeHelper.matchingGenotypes("A", "C"));
         assertEquals(false, GenotypeHelper.matchingGenotypes("A", ""));
-        assertEquals(true, GenotypeHelper.matchingGenotypes("N", "A"));
-        assertEquals(false, GenotypeHelper.matchingGenotypes("GT/GT ", "G"));
-        assertEquals(false, GenotypeHelper.matchingGenotypes("CCTA/CCTA ", "A"));
-        assertEquals(false, GenotypeHelper.matchingGenotypes("CCTA/CCTA ", "C"));
-        assertEquals(false, GenotypeHelper.matchingGenotypes("CCTA/CCTA ", "CC"));
-        assertEquals(false, GenotypeHelper.matchingGenotypes("CCTA/CCTA ", "CCT"));
-        assertEquals(false, GenotypeHelper.matchingGenotypes("CCTA/CCTA ", "CCA"));
+        assertEquals(true, GenotypeHelper.matchingGenotypesWithN("N", "A"));
+        assertEquals(false, GenotypeHelper.matchingGenotypes("N", "A"));
+        assertEquals(true, GenotypeHelper.matchingGenotypes("GT/GT", "G"));
+        assertEquals(false, GenotypeHelper.matchingGenotypes("CCTA/CCTA", "A"));
+        assertEquals(true, GenotypeHelper.matchingGenotypes("CCTA/CCTA", "C"));
+        assertEquals(true, GenotypeHelper.matchingGenotypes("CCTA/CCTA", "CC"));
+        assertEquals(true, GenotypeHelper.matchingGenotypes("CCTA/CCTA", "CCT"));
+        assertEquals(false, GenotypeHelper.matchingGenotypes("CCTA/CCTA", "CCA"));
+    }
+
+    @Test
+    public void checkHasGenotype() {
+        assertEquals(true, GenotypeHelper.genotypeHasAllele("A/C", "N"));
+        assertEquals(true, GenotypeHelper.genotypeHasAllele("A/C", "A"));
+        assertEquals(true, GenotypeHelper.genotypeHasAllele("A/C", "C"));
+        assertEquals(false, GenotypeHelper.genotypeHasAllele("A/C", "T"));
+        assertEquals(false, GenotypeHelper.genotypeHasAllele("A/C", "T"));
+        assertEquals(true, GenotypeHelper.genotypeHasAllele("GT/GT", "G"));
 
 
     }

@@ -63,8 +63,7 @@ public class GenotypePrediction extends Prediction {
      * Returns whether or not the prediction is correct, will be used for statistics.
      */
     public boolean isCorrect() {
-        return GenotypeHelper.matchingGenotypes(trueGenotype,predictedGenotype);
-
+        return alleles(trueGenotype).equals(alleles(predictedGenotype));
     }
 
     public boolean isVariant() {
