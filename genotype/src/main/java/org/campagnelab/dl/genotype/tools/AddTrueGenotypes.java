@@ -69,9 +69,13 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
         try {
             RecordReader source = new RecordReader(args().inputFile);
             SequenceBaseInformationWriter dest = new SequenceBaseInformationWriter(args().outputFilename);
-            AddTrueGenotypeHelper addTrueGenotypeHelper = new AddTrueGenotypeHelper(args().genotypeMap, genome,
+            AddTrueGenotypeHelper addTrueGenotypeHelper = new AddTrueGenotypeHelper();
+            addTrueGenotypeHelper.configure(
+                    args().genotypeMap,
+                    genome,
                     args().sampleIndex,
-                    args().considerIndels, args().referenceSamplingRate);
+                    args().considerIndels,
+                    args().referenceSamplingRate);
             ProgressLogger recordLogger = new ProgressLogger(LOG);
             recordLogger.expectedUpdates = source.numRecords();
             System.out.println(source.numRecords() + " records to label");
@@ -95,7 +99,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             System.out.println(addTrueGenotypeHelper.getNumVariantsAdded() + " number of variants in the sbi file.");
             System.out.println(addTrueGenotypeHelper.getNumIndelsIgnored() + " number of indels ignored in the file.");
             System.out.println(recordsLabeled + " labeled records written.");
-         } catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
