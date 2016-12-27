@@ -20,7 +20,7 @@ fi
 
 echo "Will write Goby alignment to ${OUTPUT_BASENAME}"
 if [ -z "${SBI_GENOTYPE_VARMAP+set}" ]; then
-    echo "Set `SBI_GENOTYPE_VARMAP to the filename of a varmap to annotate true genotypes while you generate the .sbi file."
+    echo "Set SBI_GENOTYPE_VARMAP to the filename of a varmap to annotate true genotypes while you generate the .sbi file."
     VARMAP_OPTION=" "
 else
    if [ -z "${REF_SAMPLING_RATE+set}" ]; then
