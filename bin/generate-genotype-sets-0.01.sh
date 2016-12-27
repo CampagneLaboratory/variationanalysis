@@ -26,22 +26,22 @@ if [ -z "${DELETE_TMP}" ]; then
 fi
 rm -rf tmp
 mkdir -p tmp
+if [ -z "${SBI_VARMAP+set}" ]; then
+  echo "Recalculating varmap. Set SBI_VARMAP to reuse a previous map."
+  goby ${memory_requirement} vcf-to-genotype-map ${VCF} \
+    -o tmp/variants.varmap
+  SBI_VARMAP=tmp/variants.varmap
+fi
 
-goby ${memory_requirement} vcf-to-genotype-map ${VCF} \
-  -o tmp/variants.varmap
-
+export SBI_GENOTYPE_VARMAP="tmp/variants.varmap"
 export SBI_GENOME=${GENOME}
 export OUTPUT_BASENAME=tmp/genotype_full
 
+# We keep only 10% of reference matching sites as we add the true genotypes:
+export REF_SAMPLING_RATE=0.1
+
 parallel-genotype-sbi.sh 10g ${ALIGNMENTS}
 export OUTPUT_BASENAME=${OUTPUT_PREFIX}
-
-# We keep only 10% of reference matching sites as we add the true genotypes:
-
-add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
-  -i tmp/genotype_full.sbi \
-  -o tmp/genotype_full_called \
-  --genome ${SBI_GENOME} --ref-sampling-rate 0.1 |tee add-true-genotypes.log
 
 randomize.sh ${memory_requirement} -i tmp/genotype_full_called.sbi \
   -o tmp/genotype_full_called_randomized -b 100000 -c 100 |tee randomize.log

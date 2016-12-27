@@ -19,6 +19,17 @@ if [ -z "${OUTPUT_BASENAME+set}" ]; then
 fi
 
 echo "Will write Goby alignment to ${OUTPUT_BASENAME}"
+if [ -z "${SBI_GENOTYPE_VARMAP+set}" ]; then
+    echo "Set "SBI_GENOTYPE_VARMAP to the filename of a varmap to annotate true genotypes while you generate the .sbi file."
+    VARMAP_OPTION=" "
+else
+   if [ -z "${REF_SAMPLING_RATE+set}" ]; then
+        REF_SAMPLING_RATE="0.1"
+        echo "Define REF_SAMPLING_RATE to change the default sampling rate. Set to ${REF_SAMPLING_RATE}"
+    fi
+    VARMAP_OPTION=" -x SequenceBaseInformationOutputFormat:random-seed=3764 -x SequenceBaseInformationOutputFormat:sampling-rate=${REF_SAMPLING_RATE} -x SequenceBaseInformationOutputFormat:true-genotype-map=${SBI_GENOTYPE_VARMAP} "
+fi
+
 
 if [ -z "${INCLUDE_INDELS+set}" ]; then
     INCLUDE_INDELS="false"
@@ -38,7 +49,7 @@ goby ${memory_requirement} suggest-position-slices ${ALIGNMENTS} --number-of-sli
 grep -v targetIdStart slices.tsv >slices
 echo " discover-sequence-variants -n 0 -t 1 --genome  ${SBI_GENOME} --format  SEQUENCE_BASE_INFORMATION  ${ALIGNMENTS} \
     --call-indels  ${INCLUDE_INDELS} --processor realign_near_indels \
-    --max-coverage-per-site 10000 -x HTSJDKReaderImpl:force-sorted=true " >command.txt
+    --max-coverage-per-site 10000 -x HTSJDKReaderImpl:force-sorted=true ${VARMAP_OPTION} " >command.txt
 
 cut -f3,6 slices  | awk 'BEGIN{count=1} {print "-s "$1" -e " $2" -o out-part-"(count++)}' >boundaries
 parallel -j${SBI_NUM_THREADS} --plus  --progress goby ${memory_requirement}  `cat command.txt`  :::: boundaries
