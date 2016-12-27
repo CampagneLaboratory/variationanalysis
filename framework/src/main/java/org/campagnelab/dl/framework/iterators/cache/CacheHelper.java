@@ -115,19 +115,22 @@ public class CacheHelper<RecordType> {
     private static boolean chacheMatchesSbi(String cacheName, long cachedNSaved) {
         String sbiBasename;
         // remove hashCode:
-        sbiBasename = cacheName.substring(0, cacheName.lastIndexOf("-"));
-        try (SequenceBaseInformationReader reader = new SequenceBaseInformationReader(sbiBasename)) {
-            String n = reader.getProperties().getProperty("numRecords");
-            if (n == null) return false;
-            long sbiCachedRecords = Long.parseLong(n.toString());
-            if ( cachedNSaved<=sbiCachedRecords) {
-                return true;
+        if (cacheName.contains("-")) {
+            sbiBasename = cacheName.substring(0, cacheName.lastIndexOf("-"));
+            try (SequenceBaseInformationReader reader = new SequenceBaseInformationReader(sbiBasename)) {
+                String n = reader.getProperties().getProperty("numRecords");
+                if (n == null) return false;
+                long sbiCachedRecords = Long.parseLong(n.toString());
+                if (cachedNSaved <= sbiCachedRecords) {
+                    return true;
+                }
+            } catch (IOException e) {
+                return false;
             }
-        } catch (IOException e) {
+            return false;
+        } else {
             return false;
         }
-        return false;
     }
-
 
 }
