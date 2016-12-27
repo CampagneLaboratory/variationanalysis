@@ -13,6 +13,7 @@ import java.util.Properties;
 
 /**
  * distinct alleles+inverse+ reduced number of bins for quality scores, mapping qual. Adding
+ * bins for numVariationsInRead.
  */
 public class GenotypeMapperV15 extends GenotypeMapperV11 {
 
