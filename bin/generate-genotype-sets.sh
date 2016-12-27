@@ -44,11 +44,6 @@ add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
 randomize.sh ${memory_requirement} -i tmp/genotype_full_called.sbi \
   -o tmp/genotype_full_called_randomized -b 100000 -c 100 |tee randomize.log
 
-add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
-  -i tmp/genotype_full_called_randomized.sbi \
-  -o genotype_full_called_randomized \
-  --genome ${SBI_GENOME}
-
 split.sh ${memory_requirement} -i tmp/genotype_full_called_randomized.sbi \
   -f 0.8 -f 0.1 -f 0.1 \
   -o "${OUTPUT_BASENAME}-" \
