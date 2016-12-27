@@ -41,6 +41,7 @@ public class GenotypePrediction extends Prediction {
      * Indicates the confidence that the genotype is a variant.
      */
     public double isVariantProbability;
+
     public GenotypePrediction(String predictedGenotype, String trueGenotype) {
         this.predictedGenotype = predictedGenotype;
         this.trueGenotype = trueGenotype;
@@ -63,7 +64,7 @@ public class GenotypePrediction extends Prediction {
      * Returns whether or not the prediction is correct, will be used for statistics.
      */
     public boolean isCorrect() {
-        return alleles(trueGenotype).equals(alleles(predictedGenotype));
+        return GenotypeHelper.matchingGenotypes(trueGenotype, predictedGenotype);
     }
 
     public boolean isVariant() {
