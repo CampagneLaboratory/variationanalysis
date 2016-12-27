@@ -66,6 +66,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     private ComputationGraph computationGraph;
     private CacheHelper<RecordType> cacheHelper = new CacheHelper<>();
 
+
     @Override
     public void execute() {
         InitializeGpu.initialize();
@@ -115,10 +116,10 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         assembler.setArguments(args());
         for (String inputName : assembler.getInputNames()) {
             int[] domainDescriptorNumInputs = domainDescriptor.getNumInputs(inputName).clone();
-            boolean padEos = (args().previousModelPretraining) &&
+            boolean domainPadEos = (args().previousModelPretraining) &&
                     ((args().eosIndex != null && args().eosIndex == domainDescriptorNumInputs[0])
                             || args().eosIndex == null);
-            if (padEos) domainDescriptorNumInputs[0]++;
+            if (domainPadEos) domainDescriptorNumInputs[0]++;
             assembler.setNumInputs(inputName, domainDescriptorNumInputs);
         }
         for (String outputName : assembler.getOutputNames()) {
@@ -281,7 +282,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         Iterable<RecordType> recordIterable = Iterables.limit(inputIterable, args().numTraining);
         final int miniBatchSize = args().miniBatchSize;
         MultiDataSetIteratorAdapter<RecordType> adapter = new MultiDataSetIteratorAdapter<RecordType>(recordIterable,
-                miniBatchSize, domainDescriptor) {
+                miniBatchSize, domainDescriptor, args().previousModelPretraining, args().eosIndex) {
             @Override
             public String getBasename() {
                 return buildBaseName(args().trainingSets);
@@ -431,7 +432,8 @@ trainer.setLogSpeed(args().trackingStyle== TrainingArguments.TrackStyle.SPEED);
     private MultiDataSetIterator readValidationSet() {
         Iterable<RecordType> validationRecords = domainDescriptor.getRecordIterable().apply(args().validationSet);
         try {
-            MultiDataSetIteratorAdapter<RecordType> adapter = new MultiDataSetIteratorAdapter<RecordType>(validationRecords, args().miniBatchSize, domainDescriptor) {
+            MultiDataSetIteratorAdapter<RecordType> adapter = new MultiDataSetIteratorAdapter<RecordType>(validationRecords,
+                    args().miniBatchSize, domainDescriptor, args().previousModelPretraining, args().eosIndex) {
                 @Override
                 public String getBasename() {
                     return args().validationSet;
