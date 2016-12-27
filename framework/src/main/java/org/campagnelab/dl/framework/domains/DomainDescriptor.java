@@ -18,6 +18,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -349,5 +350,15 @@ public abstract class DomainDescriptor<RecordType> {
      */
     public void configure(Properties modelProperties) {
 
+    }
+
+    private Map<String, Boolean> inputsPaddedEos;
+
+    public Map<String, Boolean> inputsPaddedEos() {
+        return inputsPaddedEos;
+    }
+
+    public void setInputsPaddedEos(Map<String, Boolean> inputsPaddedEos) {
+        this.inputsPaddedEos = inputsPaddedEos;
     }
 }

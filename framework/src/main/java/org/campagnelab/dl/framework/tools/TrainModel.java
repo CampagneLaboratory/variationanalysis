@@ -114,14 +114,17 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         ComputationGraphAssembler assembler = domainDescriptor.getComputationalGraph();
         assert assembler != null : "Computational Graph assembler must be defined.";
         assembler.setArguments(args());
+        Map<String, Boolean> padded = new HashMap<>();
         for (String inputName : assembler.getInputNames()) {
             int[] domainDescriptorNumInputs = domainDescriptor.getNumInputs(inputName).clone();
             boolean domainPadEos = (args().previousModelPretraining) &&
                     ((args().eosIndex != null && args().eosIndex == domainDescriptorNumInputs[0])
                             || args().eosIndex == null);
+            padded.put(inputName, domainPadEos);
             if (domainPadEos) domainDescriptorNumInputs[0]++;
             assembler.setNumInputs(inputName, domainDescriptorNumInputs);
         }
+        domainDescriptor.setInputsPaddedEos(padded);
         for (String outputName : assembler.getOutputNames()) {
             assembler.setNumOutputs(outputName, domainDescriptor.getNumOutputs(outputName));
             assembler.setLossFunction(outputName, domainDescriptor.getOutputLoss(outputName));
