@@ -34,7 +34,7 @@ if [ -z "${SBI_GENOTYPE_VARMAP+set}" ]; then
 fi
 
 export SBI_GENOME=${GENOME}
-export OUTPUT_BASENAME=tmp/genotype_full
+export OUTPUT_BASENAME=tmp/genotype_full_called.sbi
 
 # We keep only 10% of reference matching sites as we add the true genotypes:
 export REF_SAMPLING_RATE=0.1
