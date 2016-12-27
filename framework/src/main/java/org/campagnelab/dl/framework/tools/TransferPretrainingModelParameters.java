@@ -11,9 +11,9 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Date;
+import java.util.Properties;
 
 /**
  * Created by joshuacohen on 12/19/16.
@@ -23,16 +23,20 @@ public abstract class TransferPretrainingModelParameters<RecordType> extends Abs
     private DomainDescriptor<RecordType> domainDescriptor;
     private ComputationGraphAssembler assembler;
     private ComputationGraph computationGraph;
+    private String modelPath;
 
     @Override
     public void execute() {
         try {
+            modelPath = args().modelPath != null ? args().modelPath : "models/" + Long.toString(new Date().getTime());
+            FileUtils.forceMkdir(new File(modelPath));
             domainDescriptor = (DomainDescriptor<RecordType>) Class.forName(args().domainDescriptorName())
                     .getConstructor(String.class)
                     .newInstance(args().pretrainingModelPath);
             assembler = domainDescriptor.getComputationalGraph();
             getComputationGraph();
             transferParams();
+            transferProperties();
         } catch (Exception e) {
             throw new RuntimeException("Couldn't transfer parameters", e);
         }
@@ -62,6 +66,25 @@ public abstract class TransferPretrainingModelParameters<RecordType> extends Abs
         computationGraph.init();
     }
 
+    private void transferProperties() throws IOException {
+        Properties configProperties = new Properties();
+        Properties domainProperties = new Properties();
+        Reader configReader = new FileReader(new File(args().pretrainingModelPath, "config.properties"));
+        Reader domainReader = new FileReader(new File(args().pretrainingModelPath, "domain.properties"));
+        configProperties.load(configReader);
+        domainProperties.load(domainReader);
+        Writer configWriter = new FileWriter(new File(modelPath, "config.properties"));
+        Writer domainWriter = new FileWriter(new File(modelPath, "domain.properties"));
+        configProperties.store(configWriter,
+                String.format("Config properties created via pretraining parameter transfer from %s",
+                        args().pretrainingModelPath));
+        domainProperties.store(domainWriter,
+                String.format("Domain properties created via pretraining parameter transfer from %s",
+                        args().pretrainingModelPath));
+        configWriter.close();
+        domainWriter.close();
+    }
+
     private void transferParams() throws IOException {
         if (args().pretrainingModelPath != null) {
             ModelLoader pretrainingLoader = new ModelLoader(args().pretrainingModelPath);
@@ -71,9 +94,9 @@ public abstract class TransferPretrainingModelParameters<RecordType> extends Abs
                     null;
             if (savedPretrainingNetwork == null || savedPretrainingGraph == null
                     || savedPretrainingGraph.getUpdater() == null || savedPretrainingGraph.getLayers() == null) {
-                LOG.warn("Unable to load model for pretraining from {}", args().pretrainingModelPath);
+                throw new RuntimeException(String.format("Unable to load model for pretraining from %s",
+                        args().pretrainingModelPath));
             } else {
-                computationGraph.setUpdater(savedPretrainingGraph.getUpdater());
                 for (String inputLayer : assembler.getInputNames()) {
                     computationGraph.getLayer(inputLayer).setParams(
                             savedPretrainingGraph.getLayer(inputLayer).params());
@@ -83,8 +106,6 @@ public abstract class TransferPretrainingModelParameters<RecordType> extends Abs
                             savedPretrainingGraph.getLayer(componentLayer).params());
                 }
             }
-            String modelPath = args().modelPath != null ? args().modelPath : "models/" + Long.toString(new Date().getTime());
-            FileUtils.forceMkdir(new File(modelPath));
             String modelPrefix = args().modelPrefix != null ? args().modelPrefix : "pretraining";
             ComputationGraphSaver graphSaver = new ComputationGraphSaver(modelPath);
             graphSaver.saveModel(computationGraph, modelPrefix);

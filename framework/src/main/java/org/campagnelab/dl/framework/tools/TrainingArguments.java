@@ -111,11 +111,6 @@ public abstract class TrainingArguments extends RecordingToolArguments {
         PERFS // show performance metric values in console
     }
 
-    @Parameter(names = "--pretraining-model-path", description = "If provided, use the pretraining model at pretrainedModelPath to initialize parameters. ")
-    public String pretrainingModelPath = null;
-    @Parameter(names = "--pretraining-model-name", description = "The name of the pretrained model to load to initialize parameters. ")
-    public String pretrainingModelName = "best";
-
     @Parameter(names = "--eos-character", description = "If provided, use as EOS character index for alignment. If not, adds EOS to the input vocab. Must be specified if specified during pretraining, and likewise if not. " )
     public Integer eosIndex = null;
     @Parameter(names = "--previous-model-pretraining", description = "If true, previous model was pretrained, and adjust graph accordingly. ")
