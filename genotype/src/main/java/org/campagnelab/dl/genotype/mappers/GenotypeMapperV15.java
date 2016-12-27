@@ -13,7 +13,7 @@ import java.util.Properties;
 
 /**
  * distinct alleles+inverse+ reduced number of bins for quality scores, mapping qual. Adding
- * bins for numVariationsInRead.
+ * bins for numVariationsInRead, targetAlignedLength, queryAlignedLength, pairFlags.
  */
 public class GenotypeMapperV15 extends GenotypeMapperV11 {
 
@@ -29,9 +29,6 @@ public class GenotypeMapperV15 extends GenotypeMapperV11 {
         withCombinedLayer = false;
         MAX_GENOTYPES = 3;
     }
-
-
-
     /**
      * Configure the feature mapper to map a specific sampleIndex
      */
@@ -45,6 +42,9 @@ public class GenotypeMapperV15 extends GenotypeMapperV11 {
         FeatureNameMapper[] matchesRefMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] firstBaseMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] numVariationsInReadMappers = new FeatureNameMapper[MAX_GENOTYPES];
+        FeatureNameMapper[] targetAlignedLengthMappers = new FeatureNameMapper[MAX_GENOTYPES];
+        FeatureNameMapper[] queryAlignedLengthMappers = new FeatureNameMapper[MAX_GENOTYPES];
+        FeatureNameMapper[] pairFlagMappers = new FeatureNameMapper[MAX_GENOTYPES];
         int genotypeIndex = 0;
 
         for (int i = 0; i < MAX_GENOTYPES; i++) {
@@ -55,7 +55,7 @@ public class GenotypeMapperV15 extends GenotypeMapperV11 {
             firstBaseMappers[i] = new GenomicContextMapper(1,
                     record -> record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence().substring(0, 1));
             numVariationsInReadMappers[i] = new DensityMapper("numVariationsInRead",
-                    40, sbiProperties,
+                    10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getNumVariationsInReadsList));
             readMappingQualityMappers[i] = new DensityMapper("readMappingQuality.forward",
@@ -67,6 +67,21 @@ public class GenotypeMapperV15 extends GenotypeMapperV11 {
                     10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresForwardStrandList));
+
+            targetAlignedLengthMappers[i] = new DensityMapper("targetAlignedLength",
+                    10, sbiProperties,
+                    baseInformationOrBuilder ->
+                            TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getTargetAlignedLengthsList));
+            queryAlignedLengthMappers[i] = new DensityMapper("queryAlignedLength",
+                    10, sbiProperties,
+                    baseInformationOrBuilder ->
+                            TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQueryAlignedLengthsList));
+            // need a better way to map binary flags, whe the number of distinct combination is smaller than the range:
+            pairFlagMappers[i] = new DensityMapper("pairFlag",
+                    12, sbiProperties,
+                    baseInformationOrBuilder ->
+                            TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getPairFlagsList));
+
 
             genotypeIndex++;
         }
@@ -98,9 +113,12 @@ public class GenotypeMapperV15 extends GenotypeMapperV11 {
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readIndexMappers)),
                         new GenomicContextMapper(sbiProperties),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(targetAlignedLengthMappers),
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(queryAlignedLengthMappers),
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(pairFlagMappers),
                         /* NumVariationsInReads for counts not in the best 3: */
                         new DensityMapper("numVariationsInRead",
-                                40, sbiProperties,
+                                10, sbiProperties,
                                 record -> TraversalHelper.forAllSampleCounts(record,
                                         CountInfoOrBuilder::getNumVariationsInReadsList)),
 
