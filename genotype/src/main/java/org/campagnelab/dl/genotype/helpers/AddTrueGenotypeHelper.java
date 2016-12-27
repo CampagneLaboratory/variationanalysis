@@ -10,6 +10,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.reads.RandomAccessSequenceCache;
 
 import java.io.IOException;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 
@@ -28,9 +29,12 @@ public class AddTrueGenotypeHelper {
     private float referenceSamplingRate;
     private BaseInformationRecords.BaseInformation labeledEntry;
     private int sampleIndex;
+    private int numRecords=0;
+    private String mapFilename;
 
     /**
      * Create a helper with map, genome, etc.
+     *
      * @param mapFilename
      * @param genome
      * @param sampleIndex
@@ -39,11 +43,12 @@ public class AddTrueGenotypeHelper {
      */
     public AddTrueGenotypeHelper(String mapFilename, RandomAccessSequenceCache genome,
                                  int sampleIndex, boolean considerIndels, float referenceSamplingRate) {
+        this.mapFilename=mapFilename;
         try {
             chMap = (Object2ObjectMap<String, Int2ObjectMap<String>>) BinIO.loadObject(mapFilename);
         } catch (IOException | ClassNotFoundException e) {
 
-            throw new RuntimeException("Unable to load true genotype map with filename " + mapFilename,e);
+            throw new RuntimeException("Unable to load true genotype map with filename " + mapFilename, e);
         }
         this.genome = genome;
         this.considerIndels = considerIndels;
@@ -60,6 +65,9 @@ public class AddTrueGenotypeHelper {
      * @return True if the record should be kept, i.e., written to the output, false otherwise.
      */
     public boolean addTrueGenotype(BaseInformationRecords.BaseInformation record) {
+
+        numRecords++;
+
         boolean skip = false;
         BaseInformationRecords.BaseInformation.Builder buildRec = record.toBuilder();
         int position = buildRec.getPosition();
@@ -137,5 +145,16 @@ public class AddTrueGenotypeHelper {
 
     public int getNumVariantsAdded() {
         return numVariantsAdded;
+    }
+
+    public Properties getStatProperties() {
+        Properties result = new Properties();
+        result.put("addTrueGenotypes.numIndelsIgnored", Integer.toString(numIndelsIgnored));
+        result.put("addTrueGenotypes.numVariantsAdded", Integer.toString(numVariantsAdded));
+        result.put("addTrueGenotypes.input.numRecords", Integer.toString(numRecords));
+        result.put("addTrueGenotypes.referenceSamplingRate", Float.toString(referenceSamplingRate));
+        result.put("addTrueGenotypes.considerIndels", Boolean.toString(considerIndels));
+        result.put("addTrueGenotypes.mapFilename", mapFilename);
+        return result;
     }
 }

@@ -89,6 +89,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                 recordLogger.lightUpdate();
             }
             recordLogger.done();
+            dest.setCustomProperties(addTrueGenotypeHelper.getStatProperties());
             dest.close();
             System.out.println("Found the following distinct true genotypes: " + distinctTrueGenotypes);
             System.out.println(addTrueGenotypeHelper.getNumVariantsAdded() + " number of variants in the sbi file.");
