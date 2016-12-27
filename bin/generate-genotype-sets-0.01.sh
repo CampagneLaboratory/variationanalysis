@@ -26,14 +26,13 @@ if [ -z "${DELETE_TMP}" ]; then
 fi
 rm -rf tmp
 mkdir -p tmp
-if [ -z "${SBI_VARMAP+set}" ]; then
-  echo "Recalculating varmap. Set SBI_VARMAP to reuse a previous map."
+if [ -z "${SBI_GENOTYPE_VARMAP+set}" ]; then
+  echo "Recalculating varmap. Set SBI_GENOTYPE_VARMAP to reuse a previous map."
   goby ${memory_requirement} vcf-to-genotype-map ${VCF} \
     -o tmp/variants.varmap
-  SBI_VARMAP=tmp/variants.varmap
+  SBI_GENOTYPE_VARMAP=tmp/variants.varmap
 fi
 
-export SBI_GENOTYPE_VARMAP="tmp/variants.varmap"
 export SBI_GENOME=${GENOME}
 export OUTPUT_BASENAME=tmp/genotype_full
 
@@ -56,7 +55,7 @@ split.sh ${memory_requirement} -i tmp/genotype_full_called_randomized.sbi \
 mv "${OUTPUT_BASENAME}-validation.sbi" "${OUTPUT_BASENAME}-validation-all.sbi"
 mv "${OUTPUT_BASENAME}-validation.sbip" "${OUTPUT_BASENAME}-validation-all.sbip"
 
-add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
+add-true-genotypes.sh ${memory_requirement} -m ${SBI_GENOTYPE_VARMAP} \
   -i "${OUTPUT_BASENAME}-validation-all.sbi" \
   -o "${OUTPUT_BASENAME}-validation" \
   --genome ${GENOME} --ref-sampling-rate 0.01 |tee add-true-genotypes-downsampling-ref.log
