@@ -3,7 +3,12 @@ if [ "$#" -ne 4 ]; then
    echo "Argument missing. expected arguments memory_size goby_alignment vcf goby_genome"
    exit 1;
 fi
-
+function dieIfError {
+    if [ ! $? == 0 ]; then
+     echo "An error was encountered ($1)"
+     exit;
+    fi
+}
 memory_requirement=$1
 #!/usr/bin/env bash
 . `dirname "${BASH_SOURCE[0]}"`/setup.sh
@@ -29,6 +34,7 @@ mkdir -p tmp
 
 goby ${memory_requirement} vcf-to-genotype-map ${VCF} \
   -o tmp/variants.varmap
+dieIfError "Cannot create varmap"
 
 export SBI_GENOME=${GENOME}
 export OUTPUT_BASENAME=tmp/genotype_full
@@ -40,15 +46,18 @@ add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
   -i tmp/genotype_full.sbi \
   -o tmp/genotype_full_called \
   --genome ${SBI_GENOME} |tee add-true-genotypes.log
+dieIfError "Failed to annotate true variants"
 
 randomize.sh ${memory_requirement} -i tmp/genotype_full_called.sbi \
   -o tmp/genotype_full_called_randomized -b 100000 -c 100 |tee randomize.log
+dieIfError "Failed to randomize"
 
 split.sh ${memory_requirement} -i tmp/genotype_full_called_randomized.sbi \
   -f 0.8 -f 0.1 -f 0.1 \
   -o "${OUTPUT_BASENAME}-" \
    -s train -s test -s validation
-ls -ltr
+dieIfError "Failed to split"
+
 # subset the validation sample, throwing out many reference matching sites (to speed
 # up performance evaluation for early stopping):
 mv "${OUTPUT_BASENAME}-validation.sbi" "${OUTPUT_BASENAME}-validation-all.sbi"
@@ -58,6 +67,7 @@ add-true-genotypes.sh ${memory_requirement} -m tmp/variants.varmap \
   -i "${OUTPUT_BASENAME}-validation-all.sbi" \
   -o "${OUTPUT_BASENAME}-validation" \
   --genome ${GENOME} --ref-sampling-rate 0.01 |tee add-true-genotypes-downsampling-ref.log
+dieIfError "Failed to reduce validation set"
 
 if [ ${DELETE_TMP} = "true" ]; then
    rm -rf tmp
