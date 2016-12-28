@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
+. `dirname "${BASH_SOURCE[0]}"`/common.sh
+
 if [ "$#" -ne 4 ]; then
    echo "Argument missing. expected arguments memory_size goby_alignment vcf goby_genome"
    exit 1;
 fi
-function dieIfError {
-    if [ ! $? == 0 ]; then
-     echo "An error was encountered ($1)"
-     exit;
-    fi
-}
+
 memory_requirement=$1
 #!/usr/bin/env bash
 . `dirname "${BASH_SOURCE[0]}"`/setup.sh

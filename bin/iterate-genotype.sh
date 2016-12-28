@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. `dirname "${BASH_SOURCE[0]}"`/common.sh
 FEATURE_MAPPER=$1
 GPU=$2
 
@@ -56,6 +57,7 @@ export FORCE_PLATFORM=native
 #rm ${DATASET}train*.cf ${DATASET}${VAL_SUFFIX}*cf
 train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
  --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} --feature-mapper ${FEATURE_MAPPER} -x 10000 --build-cache-then-stop
+dieIfError "Failed to map features with CPU build."
 
 export FORCE_PLATFORM=cuda
 MODEL_DIR=`train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
@@ -64,5 +66,7 @@ MODEL_DIR=`train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFI
   --early-stopping-measure ${EVALUATION_METRIC_NAME} \
   --early-stopping-num-epochs 10 --gpu-device ${GPU} \
   | tee output-${RANDOM}.log |grep "model directory:"|cut -d " " -f 3`
+dieIfError "Failed to train model with CUDA GPU build."
 
 predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f -i ${DATASET}test.sbi --num-variants-expected 3948
+dieIfError "Failed to predict statistics."

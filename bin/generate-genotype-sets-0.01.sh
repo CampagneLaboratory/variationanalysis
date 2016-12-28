@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. `dirname "${BASH_SOURCE[0]}"`/common.sh
 if [ "$#" -ne 4 ]; then
    echo "Argument missing. expected arguments memory_size goby_alignment vcf goby_genome"
    exit 1;
@@ -24,13 +25,6 @@ if [ -z "${DELETE_TMP}" ]; then
     DELETE_TMP="false"
     echo "DELETE_TMP set to ${DELETE_TMP}. Change the variable with export to clear the working directory."
 fi
-
-function dieIfError {
-    if [ ! $? == 0 ]; then
-     echo "An error was encountered ($1)"
-     exit;
-    fi
-}
 
 rm -rf tmp
 mkdir -p tmp

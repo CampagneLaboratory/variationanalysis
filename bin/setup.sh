@@ -19,19 +19,4 @@ export GDLVA_JAR=${DLVA_HOME}/gpus/target/gpus-${VERSION}.jar:${DLVA_HOME}/genot
 
 export SLF4J_CONFIG=${DLVA_HOME}/config/logback.xml
 
-function assertGobyInstalled {
-    goby 1g version >/dev/null 2>&1 || { echo >&2 "This script requires goby but it's not installed. Aborting. Install Goby and add the distribution folder to your path, then try again."; exit 1; }
-}
-
-function assertParallelInstalled {
-    echo donothing |parallel echo >/dev/null 2>&1 || { echo >&2 "This script requires GNU parallel, but it's not installed. Aborting. Install GNU parallel and try again."; exit 1; }
-}
-
-function loadConfigure {
-
-if [ -e configure.sh ]; then
- echo "Loading configure.sh"
- source configure.sh
-fi
-
-}
+. ${DISTRIBUTION_DIR}/bin/common.sh
