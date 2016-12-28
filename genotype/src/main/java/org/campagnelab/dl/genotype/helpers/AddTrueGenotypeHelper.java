@@ -8,20 +8,18 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.predictions.AddTrueGenotypeHelperI;
-import org.campagnelab.goby.reads.RandomAccessSequenceCache;
 import org.campagnelab.goby.reads.RandomAccessSequenceInterface;
 
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * Encapsulates the AddTrueGenotype logic.
  * Created by fac2003 on 12/27/16.
  */
 public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
-    private  RandomAccessSequenceInterface genome;
+    private RandomAccessSequenceInterface genome;
     Random random = new XorShift1024StarRandom();
     Object2ObjectMap<String, Int2ObjectMap<String>> chMap;
     private int numIndelsIgnored;
@@ -45,7 +43,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
      * @param referenceSamplingRate
      */
     public void configure(String mapFilename, RandomAccessSequenceInterface genome,
-                                  int sampleIndex, boolean considerIndels, float referenceSamplingRate) {
+                          int sampleIndex, boolean considerIndels, float referenceSamplingRate) {
         this.mapFilename = mapFilename;
         try {
             chMap = (Object2ObjectMap<String, Int2ObjectMap<String>>) BinIO.loadObject(mapFilename);
@@ -105,7 +103,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
 
         if (keep) {
             // We keep this record, so we label it:
-           if (isVariant) distinctTrueGenotypes.add(trueGenotype);
+            if (isVariant) distinctTrueGenotypes.add(trueGenotype);
             // write the record.
             buildRec.setTrueGenotype(trueGenotype);
             BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
@@ -177,8 +175,8 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
         }
 
         public WillKeep invoke() {
-            isVariant = false;
-            boolean skip=false;
+            boolean isVariant = false;
+            boolean skip = false;
             boolean inMap = false;
             String genotypeFromMap = null;
             Int2ObjectMap<String> chromMap = chMap.get(chrom);
@@ -205,7 +203,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                     }
                 }
             }
-            if (!isVariant){
+            if (!isVariant) {
                 if (random.nextFloat() > referenceSamplingRate) {
                     skip = true;
                 }
@@ -213,11 +211,13 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                 trueGenotype = referenceBase + "|" + referenceBase;
                 referenceBase = referenceBase.toUpperCase();
             }
-            this.trueGenotype=trueGenotype.replace('|', '/').toUpperCase();
+            this.trueGenotype = trueGenotype.replace('|', '/').toUpperCase();
+            this.isVariant = isVariant;
             keep = !skip;
             return this;
         }
     }
+
     public void printStats() {
 
         System.out.println("Found the following distinct true genotypes (variants only): " + distinctTrueGenotypes);
