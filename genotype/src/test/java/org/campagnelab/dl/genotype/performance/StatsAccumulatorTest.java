@@ -66,7 +66,7 @@ public class StatsAccumulatorTest {
         acc.observe(pred4);
 
 
-            assertEquals(1f / nVariants, acc.createOutputStatistics("recall")[0], 0.1);
+            assertEquals(1f / nVariants, acc.createOutputStatistics("Recall")[0], 0.1);
 
     }
 

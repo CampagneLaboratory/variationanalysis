@@ -52,7 +52,7 @@ public class GenotypeHelperTest {
 
     @Test
     public void checkHasGenotype() {
-        assertEquals(true, GenotypeHelper.genotypeHasAllele("A/C", "N"));
+        assertEquals(false, GenotypeHelper.genotypeHasAllele("A/C", "N"));
         assertEquals(true, GenotypeHelper.genotypeHasAllele("A/C", "A"));
         assertEquals(true, GenotypeHelper.genotypeHasAllele("A/C", "C"));
         assertEquals(false, GenotypeHelper.genotypeHasAllele("A/C", "T"));
