@@ -33,6 +33,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
     private int sampleIndex;
     private int numRecords = 0;
     private String mapFilename;
+    private int recordsLabeled;
 
     /**
      * Create a helper with map, genome, etc.
@@ -72,8 +73,9 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
     public boolean addTrueGenotype(BaseInformationRecords.BaseInformation record) {
         int position = record.getPosition();
         String chrom = record.getReferenceId();
-        int genomeTargetIndex = genome.getReferenceIndex(record.getReferenceId());
-        String referenceBase = Character.toString(genome.get(genomeTargetIndex, record.getPosition()));
+        int genomeTargetIndex = genome.getReferenceIndex(chrom);
+        char referenceBaseChar = genome.get(genomeTargetIndex, record.getPosition());
+        String referenceBase = Character.toString(referenceBaseChar);
         return addTrueGenotype(willKeep(position, chrom, referenceBase), record);
     }
 
@@ -95,12 +97,9 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
     public boolean addTrueGenotype(WillKeepI willKeep, BaseInformationRecords.BaseInformation record) {
 
         numRecords++;
-
-        Set<String> genotypeSet;
-        String trueGenotype;
         // determine if the record should be kept:
         boolean keep = willKeep.isKeep();
-        trueGenotype = willKeep.getTrueGenotype();
+        String trueGenotype = willKeep.getTrueGenotype();
         boolean isVariant = willKeep.isVariant();
         BaseInformationRecords.BaseInformation.Builder buildRec = record.toBuilder();
 
@@ -108,7 +107,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
             // We keep this record, so we label it:
             distinctTrueGenotypes.add(trueGenotype);
             // write the record.
-            buildRec.setTrueGenotype(trueGenotype.replace('|', '/').toUpperCase());
+            buildRec.setTrueGenotype(trueGenotype);
             BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
             for (int i = 0; i < buildSample.getCountsCount(); i++) {
                 BaseInformationRecords.CountInfo.Builder count = buildSample.getCounts(i).toBuilder();
@@ -119,6 +118,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
             buildSample.setIsVariant(isVariant);
             buildRec.setSamples(sampleIndex, buildSample.build());
             labeledEntry = buildRec.build();
+            recordsLabeled++;
         } else {
             labeledEntry = null;
         }
@@ -177,7 +177,6 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
         }
 
         public WillKeep invoke() {
-            Set<String> genotypeSet;
             isVariant = false;
             boolean inMap = false;
             String genotypeFromMap = null;
@@ -211,12 +210,20 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                 // alignment and genome do not necessarily share the same space of reference indices. Convert:
                 trueGenotype = referenceBase + "|" + referenceBase;
                 referenceBase = referenceBase.toUpperCase();
-                genotypeSet = new ObjectArraySet<>();
-                genotypeSet.add(referenceBase);
 
             }
+            this.trueGenotype=trueGenotype.replace('|', '/').toUpperCase();
             keep = !skip;
             return this;
         }
     }
+    public void printStats() {
+
+        System.out.println("Found the following distinct true genotypes: " + distinctTrueGenotypes);
+        System.out.println(getNumVariantsAdded() + " number of variants in the sbi file.");
+        System.out.println(getNumIndelsIgnored() + " number of indels ignored in the file.");
+        System.out.println(recordsLabeled + " labeled records written.");
+
+    }
+
 }

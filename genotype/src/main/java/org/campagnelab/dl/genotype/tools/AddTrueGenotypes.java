@@ -81,13 +81,14 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             System.out.println(source.numRecords() + " records to label");
             int recordsLabeled = 0;
             recordLogger.start();
-            ObjectSet<String> distinctTrueGenotypes = new ObjectArraySet<>();
             for (BaseInformationRecords.BaseInformation rec : source) {
                 boolean keep = false;
 
                 keep = addTrueGenotypeHelper.addTrueGenotype(rec);
                 if (keep) {
+
                     dest.appendEntry(addTrueGenotypeHelper.labeledEntry());
+
                     recordsLabeled++;
                 }
                 recordLogger.lightUpdate();
@@ -95,11 +96,8 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             recordLogger.done();
             dest.setCustomProperties(addTrueGenotypeHelper.getStatProperties());
             dest.close();
-            System.out.println("Found the following distinct true genotypes: " + distinctTrueGenotypes);
-            System.out.println(addTrueGenotypeHelper.getNumVariantsAdded() + " number of variants in the sbi file.");
-            System.out.println(addTrueGenotypeHelper.getNumIndelsIgnored() + " number of indels ignored in the file.");
-            System.out.println(recordsLabeled + " labeled records written.");
-        } catch (IOException e) {
+            addTrueGenotypeHelper.printStats();
+            } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
