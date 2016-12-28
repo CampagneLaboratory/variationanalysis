@@ -50,7 +50,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
-        resutsWriter.append("index\tpredictionCorrect01\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness").append("\n");
+        resutsWriter.append("index\tpredictionCorrect01\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness\tisVariant").append("\n");
     }
 
     @Override
@@ -120,8 +120,8 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             fullPred.isVariant = false;
         }
         boolean forceCorrect = false;
-        if ( !GenotypeHelper.isVariant(args().scoreIndels,
-                        fullPred.predictedGenotype, record.getReferenceBase())) {
+        if (!GenotypeHelper.isVariant(args().scoreIndels,
+                fullPred.predictedGenotype, record.getReferenceBase())) {
             System.out.printf("removing spurious variant: %s %s %n", fullPred.predictedGenotype, record.getReferenceBase());
             fullPred.isVariant = false;
 
@@ -133,10 +133,11 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         if (filterHet(args(), fullPred) &&
                 filterVariant(args(), fullPred) &&
                 doOuptut(correctness, args(), fullPred.overallProbability)) {
-            resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\t%s:%s\n",
-                    fullPred.index, (correct ? 1 : 0), fullPred.trueGenotype,
-                    fullPred.predictedGenotype,
-                    fullPred.isVariantProbability, correctness, record.getReferenceId(), record.getPosition() + 1);
+            resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\t%s:%s\t%s\n",
+                    fullPred.index, (correct ? 1 : 0),
+                    fullPred.trueGenotype, fullPred.predictedGenotype,
+                    fullPred.isVariantProbability, correctness, record.getReferenceId(), record.getPosition() + 1,
+                    fullPred.isVariant ? "variant" : "-");
             if (args().filterMetricObservations) {
                 stats.observe(fullPred);
                 observeForAUC(fullPred);
