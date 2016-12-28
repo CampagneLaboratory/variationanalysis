@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
+import org.campagnelab.dl.somatic.mappers.BamFlagMapper;
 import org.campagnelab.dl.somatic.mappers.DensityMapper;
 import org.campagnelab.dl.somatic.mappers.GenomicContextMapper;
 import org.campagnelab.dl.somatic.mappers.NamingConcatFeatureMapper;
@@ -10,22 +11,20 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.CountInfoO
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Properties;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
- * v15 + distancesToReadVariations, without old PairFlags.
+ * V16 (=v15+distanceReads), + new PairFlag mappers
  * distinct alleles+inverse+ reduced number of bins for quality scores, mapping qual. Adding
- * bins for numVariationsInRead, targetAlignedLength, queryAlignedLength,
+ * bins for numVariationsInRead, targetAlignedLength, queryAlignedLength.
  */
-public class GenotypeMapperV16 extends GenotypeMapperV11 {
+public class GenotypeMapperV17 extends GenotypeMapperV11 {
 
 
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;
 
-    public GenotypeMapperV16() {
+    public GenotypeMapperV17() {
         super();
         sortCounts = true;
         withDistinctAlleleCounts = true;
@@ -47,8 +46,11 @@ public class GenotypeMapperV16 extends GenotypeMapperV11 {
         FeatureNameMapper[] numVariationsInReadMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] targetAlignedLengthMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] queryAlignedLengthMappers = new FeatureNameMapper[MAX_GENOTYPES];
+
         //combined distances for now
         FeatureNameMapper[] distancesToReadVariations = new FeatureNameMapper[MAX_GENOTYPES];
+        FeatureNameMapper[] bamFlagMappers = new FeatureNameMapper[MAX_GENOTYPES];
+
 
 
 
@@ -90,8 +92,7 @@ public class GenotypeMapperV16 extends GenotypeMapperV11 {
                     10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQueryAlignedLengthsList));
-            // need a better way to map binary flags, whe the number of distinct combination is smaller than the range:
-
+            bamFlagMappers[i] = new BamFlagMapper(sampleIndex,genotypeIndex);
             genotypeIndex++;
         }
         genotypeIndex = 0;
@@ -110,11 +111,11 @@ public class GenotypeMapperV16 extends GenotypeMapperV11 {
                     10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresReverseStrandList));
-
             genotypeIndex++;
         }
         delegate =
                 new CountReorderingMapper(new NamingConcatFeatureMapper<>(
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(bamFlagMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),
                         new InverseNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),

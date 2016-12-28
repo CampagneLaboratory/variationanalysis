@@ -14,14 +14,16 @@ public class BamFlagMapper extends AbstractFeatureMapper1D<BaseInformationRecord
     final static int BOOL_NUM = 12;
 
     int genotypeIndex;
-    int alignmentCount;
+    int alignmentCount = 0;
     int[] propCounts;
     double[] propFractions;
+    int sampleIndex;
 
     private BamFlagMapper() {
     }
 
-    public BamFlagMapper(int genotypeIndex) {
+    public BamFlagMapper(int sample, int genotypeIndex) {
+        this.sampleIndex = sample;
         this.genotypeIndex = genotypeIndex;
     }
 
@@ -34,7 +36,7 @@ public class BamFlagMapper extends AbstractFeatureMapper1D<BaseInformationRecord
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
         propCounts = new int[BOOL_NUM];
         propFractions = new double[BOOL_NUM];
-        List<BaseInformationRecords.NumberWithFrequency> bamFlagFreqs = record.getSamples(0).getCounts(genotypeIndex).getPairFlagsList();
+        List<BaseInformationRecords.NumberWithFrequency> bamFlagFreqs = record.getSamples(sampleIndex).getCounts(genotypeIndex).getPairFlagsList();
         for (BaseInformationRecords.NumberWithFrequency bamFlagFreq : bamFlagFreqs){
             boolean[] decoded = decodeProps(bamFlagFreq.getNumber());
             for (int i = 0; i < BOOL_NUM; i++){
