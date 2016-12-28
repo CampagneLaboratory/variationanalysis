@@ -305,7 +305,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
         if (args().buildCacheAndStop) {
             System.out.println("Cache has been built. Exiting now since --build-cache-then-stop was used.");
-            System.exit(1);
+            System.exit(0);
         }
         ProgressLogger pgEpoch = new ProgressLogger(LOG);
         pgEpoch.displayLocalSpeed = true;
