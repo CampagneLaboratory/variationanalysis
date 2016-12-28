@@ -105,7 +105,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
 
         if (keep) {
             // We keep this record, so we label it:
-            distinctTrueGenotypes.add(trueGenotype);
+           if (isVariant) distinctTrueGenotypes.add(trueGenotype);
             // write the record.
             buildRec.setTrueGenotype(trueGenotype);
             BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
@@ -219,7 +219,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
     }
     public void printStats() {
 
-        System.out.println("Found the following distinct true genotypes: " + distinctTrueGenotypes);
+        System.out.println("Found the following distinct true genotypes (variants only): " + distinctTrueGenotypes);
         System.out.println(getNumVariantsAdded() + " number of variants in the sbi file.");
         System.out.println(getNumIndelsIgnored() + " number of indels ignored in the file.");
         System.out.println(recordsLabeled + " labeled records written.");
