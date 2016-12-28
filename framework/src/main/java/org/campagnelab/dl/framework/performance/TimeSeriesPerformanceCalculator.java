@@ -227,6 +227,7 @@ public class TimeSeriesPerformanceCalculator {
                 break;
             }
         }
+        iterator.reset();
         return calculator.eval().getMetric(metricName);
     }
 }

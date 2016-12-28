@@ -164,8 +164,6 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
      */
     protected abstract String[] createOutputHeader();
 
-    //TODO: Figure out if still necessary, or if outputStatistics suffices
-
     /**
      * This method is called after the test set has been observed and statistics evaluated. It prints statistics
      * to the console for the operators to read.

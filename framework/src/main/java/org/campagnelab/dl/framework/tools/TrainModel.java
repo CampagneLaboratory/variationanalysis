@@ -66,6 +66,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
     private ComputationGraph computationGraph;
     private CacheHelper<RecordType> cacheHelper = new CacheHelper<>();
 
+
     @Override
     public void execute() {
         InitializeGpu.initialize();
@@ -113,14 +114,22 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         ComputationGraphAssembler assembler = domainDescriptor.getComputationalGraph();
         assert assembler != null : "Computational Graph assembler must be defined.";
         assembler.setArguments(args());
+        Map<String, Boolean> padded = new HashMap<>();
         for (String inputName : assembler.getInputNames()) {
-            assembler.setNumInputs(inputName, domainDescriptor.getNumInputs(inputName));
+            int[] domainDescriptorNumInputs = domainDescriptor.getNumInputs(inputName).clone();
+            boolean domainPadEos = (args().previousModelPretraining) &&
+                    ((args().eosIndex != null && args().eosIndex == domainDescriptorNumInputs[0])
+                            || args().eosIndex == null);
+            padded.put(inputName, domainPadEos);
+            if (domainPadEos) domainDescriptorNumInputs[0]++;
+            assembler.setNumInputs(inputName, domainDescriptorNumInputs);
         }
+        domainDescriptor.setInputsPaddedEos(padded);
         for (String outputName : assembler.getOutputNames()) {
             assembler.setNumOutputs(outputName, domainDescriptor.getNumOutputs(outputName));
             assembler.setLossFunction(outputName, domainDescriptor.getOutputLoss(outputName));
         }
-        for (String componentName : assembler.getOutputNames()) {
+        for (String componentName : assembler.getComponentNames()) {
             assembler.setNumHiddenNodes(componentName, domainDescriptor.getNumHiddenNodes(componentName));
         }
 
@@ -136,7 +145,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             ComputationGraph savedGraph = savedNetwork instanceof ComputationGraph ?
                     (ComputationGraph) savedNetwork :
                     null;
-            if (savedNetwork == null || savedGraph.getUpdater() == null || savedGraph.params() == null) {
+            if (savedNetwork == null || savedGraph == null || savedGraph.getUpdater() == null || savedGraph.params() == null) {
                 System.err.println("Unable to load model or updater from " + args().previousModelPath);
             } else {
                 computationGraph.setUpdater(savedGraph.getUpdater());
@@ -276,7 +285,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         Iterable<RecordType> recordIterable = Iterables.limit(inputIterable, args().numTraining);
         final int miniBatchSize = args().miniBatchSize;
         MultiDataSetIteratorAdapter<RecordType> adapter = new MultiDataSetIteratorAdapter<RecordType>(recordIterable,
-                miniBatchSize, domainDescriptor) {
+                miniBatchSize, domainDescriptor, args().previousModelPretraining, args().eosIndex) {
             @Override
             public String getBasename() {
                 return buildBaseName(args().trainingSets);
@@ -426,7 +435,8 @@ trainer.setLogSpeed(args().trackingStyle== TrainingArguments.TrackStyle.SPEED);
     private MultiDataSetIterator readValidationSet() {
         Iterable<RecordType> validationRecords = domainDescriptor.getRecordIterable().apply(args().validationSet);
         try {
-            MultiDataSetIteratorAdapter<RecordType> adapter = new MultiDataSetIteratorAdapter<RecordType>(validationRecords, args().miniBatchSize, domainDescriptor) {
+            MultiDataSetIteratorAdapter<RecordType> adapter = new MultiDataSetIteratorAdapter<RecordType>(validationRecords,
+                    args().miniBatchSize, domainDescriptor, args().previousModelPretraining, args().eosIndex) {
                 @Override
                 public String getBasename() {
                     return args().validationSet;

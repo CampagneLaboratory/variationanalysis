@@ -23,6 +23,8 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
     private final DomainDescriptor domainDescriptor;
     private final Iterable<RecordType> iterable;
     private Iterator<RecordType> recordIterator;
+    private boolean isPretrained;
+    private Integer eosIndex;
 
     protected long totalExamples;
 
@@ -32,12 +34,18 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
 
 
     public MultiDataSetIteratorAdapter(Iterable<RecordType> iterable, int batchSize, DomainDescriptor domainDescriptor) throws IOException {
+        this(iterable, batchSize, domainDescriptor, false, null);
+    }
+
+    public MultiDataSetIteratorAdapter(Iterable<RecordType> iterable, int batchSize, DomainDescriptor domainDescriptor,
+                                       boolean isPretrained, Integer eosIndex) throws IOException {
         this.domainDescriptor = domainDescriptor;
         this.batchSize = batchSize;
         this.iterable = iterable;
         this.recordIterator = iterable.iterator();
+        this.isPretrained = isPretrained;
+        this.eosIndex = eosIndex;
     }
-
 
     abstract public String getBasename();
 
@@ -68,8 +76,15 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
         boolean hasFeatureMask = false;
         boolean hasLabelMask = false;
         for (String input : domainDescriptor.getComputationalGraph().getInputNames()) {
-
-            inputs[index] = Nd4j.zeros(domainDescriptor.getInputShape(size, input));
+            int[] inputShape = domainDescriptor.getInputShape(size, input).clone();
+            boolean padEos = (isPretrained) && ((eosIndex != null && eosIndex == inputShape[1]) || eosIndex == null);
+            if (padEos) {
+                if (inputShape.length != 3) {
+                    throw new RuntimeException("EOS padding only valid for sequences with 2D features");
+                }
+                inputShape[1]++;
+            }
+            inputs[index] = Nd4j.zeros(inputShape);
             featureMappers[index] = domainDescriptor.getFeatureMapper(input);
             boolean needMask = featureMappers[index].hasMask();
             inputMasks[index] = needMask ? Nd4j.zeros(domainDescriptor.getInputMaskShape(size, input)) : null;

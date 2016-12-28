@@ -3,3 +3,5 @@ workspace.xml
 target
 test-results
 somatic/test-results
+PROFILE.txt
+VERSION.txt

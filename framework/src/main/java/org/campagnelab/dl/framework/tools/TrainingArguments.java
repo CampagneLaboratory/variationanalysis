@@ -111,6 +111,9 @@ public abstract class TrainingArguments extends RecordingToolArguments {
         PERFS // show performance metric values in console
     }
 
-    ;
+    @Parameter(names = "--eos-character", description = "If provided, use as EOS character index for alignment. If not, adds EOS to the input vocab. Must be specified if specified during pretraining, and likewise if not. " )
+    public Integer eosIndex = null;
+    @Parameter(names = "--previous-model-pretraining", description = "If true, previous model was pretrained, and adjust graph accordingly. ")
+    public boolean previousModelPretraining = false;
 }
 

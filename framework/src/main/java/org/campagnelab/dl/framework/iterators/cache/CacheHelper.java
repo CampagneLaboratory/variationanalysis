@@ -70,6 +70,12 @@ public class CacheHelper<RecordType> {
         }
         domainHashCode ^= domainDescriptor.getComputationalGraph().getClass().getCanonicalName().hashCode();
 
+        if (domainDescriptor.inputsPaddedEos() != null) {
+            for (Object input : domainDescriptor.inputsPaddedEos().keySet()) {
+                domainHashCode ^= input.hashCode();
+                domainHashCode ^= domainDescriptor.inputsPaddedEos().get(input).hashCode();
+            }
+        }
         String cacheHash = Integer.toHexString(domainHashCode);
         cacheName = FilenameUtils.removeExtension(cacheName) + "-" + cacheHash;
         return cacheName;
