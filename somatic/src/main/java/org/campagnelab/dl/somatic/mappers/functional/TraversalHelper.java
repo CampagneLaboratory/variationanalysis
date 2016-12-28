@@ -61,4 +61,24 @@ public class TraversalHelper {
         list.addAll(function.apply(baseInformationOrBuilder.getSamples(sampleIndex).getCounts(genotypeIndex)));
         return list;
     }
+
+    /**
+     * Define a Function to reduce a record to a list of NumberWithFrequency found across all samples and counts of these samples, and both strands.
+     * This CAN output a NumberWithFrequency list with repeat numbers. The subsequent mapper (like a DensityMapper) must handle this appropriately.
+     * @param baseInformationOrBuilder
+     * @param forwardFunction function to get NumberWithFrequency of forward strand
+     * @param reverseFunction function to get NumberWithFrequency of reverse strand
+     * @return
+     */
+    public static List<BaseInformationRecords.NumberWithFrequency> forOneSampleGenotypeBothStrands(int sampleIndex,
+                                                                                        int genotypeIndex,
+                                                                                        BaseInformationRecords.BaseInformationOrBuilder baseInformationOrBuilder,
+                                                                                        Function<BaseInformationRecords.CountInfo,List<BaseInformationRecords.NumberWithFrequency>> forwardFunction,
+                                                                                        Function<BaseInformationRecords.CountInfo,List<BaseInformationRecords.NumberWithFrequency>> reverseFunction) {
+        List<BaseInformationRecords.NumberWithFrequency> list = new ObjectArrayList<>();
+        BaseInformationRecords.CountInfo countInfo = baseInformationOrBuilder.getSamples(sampleIndex).getCounts(genotypeIndex);
+        list.addAll(forwardFunction.apply(countInfo));
+        list.addAll(reverseFunction.apply(countInfo));
+        return list;
+    }
 }

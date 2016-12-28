@@ -17,12 +17,12 @@ import java.util.function.Function;
 public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
         implements FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
-    private final Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues;
-    private final int minValue;
-    private final int maxValue;
-    private final float binWidth;
-    private final String name;
-    private final Function<Integer, Float> valueFunction;
+    private Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues;
+    private int minValue;
+    private int maxValue;
+    private float binWidth;
+    private String name;
+    private Function<Integer, Float> valueFunction;
     int numBins = 10;
     float[] bins;
     private int[] indices;
@@ -33,6 +33,14 @@ public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.Ba
         this(name, numBins, sbiProperties, recordToValues, Integer::floatValue);
     }
 
+
+    /**
+     * @param name
+     * @param numBins number of bins to represent this density with. If -1, use a bin for every increment between minValue and maxValue.
+     * @param sbiProperties
+     * @param recordToValues
+     * @param valueFunction
+     */
     public DensityMapper(String name, int numBins, Properties sbiProperties,
                          Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues,
                          Function<Integer, Float> valueFunction) {
@@ -42,14 +50,41 @@ public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.Ba
         }
         this.minValue = (int)getMin(sbiProperties, "stats." + name);
         this.maxValue = (int)getMax(sbiProperties, "stats." + name);
-
-
-        this.name = name;
-        this.numBins = numBins;
-        bins = new float[numBins];
-        this.recordToValues = recordToValues;
-        this.binWidth = (valueFunction.apply(maxValue) - valueFunction.apply(minValue) )/ numBins;
+        constructorHelper(name,numBins,recordToValues,valueFunction);
     }
+
+
+    //handle case where there are two protobuf fields contributing to one map.
+    public DensityMapper(String name1, String name2, int numBins, Properties sbiProperties,
+                         Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues
+    ) {
+
+        if (!propertiesPresent(sbiProperties, "stats." + name1)) {
+            throw new UnsupportedOperationException("The sbip file does not contain the statistics for " + name1 + " (stats." + name1 + ".min and stats." + name1 + ".max)");
+        }
+        if (!propertiesPresent(sbiProperties, "stats." + name2)) {
+            throw new UnsupportedOperationException("The sbip file does not contain the statistics for " + name2 + " (stats." + name2 + ".min and stats." + name2 + ".max)");
+        }
+        //extend range to handle two fields
+        this.minValue = Math.min((int)getMin(sbiProperties, "stats." + name1),(int)getMin(sbiProperties, "stats." + name2));
+        this.maxValue = Math.max((int)getMax(sbiProperties, "stats." + name1),(int)getMax(sbiProperties, "stats." + name2));
+        constructorHelper(name1 + "+" + name2,numBins,recordToValues,valueFunction);
+    }
+
+
+    private void constructorHelper(String name, int numBins,
+                                   Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues,
+                                   Function<Integer, Float> valueFunction){
+        this.name = name;
+        if (numBins == -1){
+            this.numBins = (this.maxValue - this.minValue);
+        }
+        this.numBins = numBins;
+        bins = new float[this.numBins];
+        this.recordToValues = recordToValues;
+        this.binWidth = (valueFunction.apply(maxValue) - valueFunction.apply(minValue) )/ this.numBins;
+    }
+
 
 
     @Override
