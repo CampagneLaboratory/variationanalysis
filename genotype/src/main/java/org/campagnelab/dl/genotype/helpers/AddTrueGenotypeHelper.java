@@ -149,7 +149,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
     }
 
     public class WillKeep implements WillKeepI {
-        private boolean skip;
+
         private int position;
         private String chrom;
         private String referenceBase;
@@ -178,6 +178,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
 
         public WillKeep invoke() {
             isVariant = false;
+            boolean skip=false;
             boolean inMap = false;
             String genotypeFromMap = null;
             Int2ObjectMap<String> chromMap = chMap.get(chrom);
@@ -203,14 +204,14 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                         numVariantsAdded++;
                     }
                 }
-            } else {
+            }
+            if (!isVariant){
                 if (random.nextFloat() > referenceSamplingRate) {
                     skip = true;
                 }
                 // alignment and genome do not necessarily share the same space of reference indices. Convert:
                 trueGenotype = referenceBase + "|" + referenceBase;
                 referenceBase = referenceBase.toUpperCase();
-
             }
             this.trueGenotype=trueGenotype.replace('|', '/').toUpperCase();
             keep = !skip;
