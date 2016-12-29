@@ -151,8 +151,9 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     }
 
     private void observeForAUC(GenotypePrediction fullPred) {
-
-        aucLossCalculator.observe(fullPred.overallProbability, fullPred.isVariant() && fullPred.isCorrect() ? 1 : -1);
+        if (fullPred.isVariant()) {
+            aucLossCalculator.observe(fullPred.overallProbability,  fullPred.isCorrect() ? 1 : -1);
+        }
     }
 
     private boolean filterVariant(PredictGArguments args, GenotypePrediction fullPred) {
