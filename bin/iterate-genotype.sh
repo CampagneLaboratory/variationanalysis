@@ -16,6 +16,11 @@ if [ -z "${LEARNING_RATE+set}" ]; then
     LEARNING_RATE="50"
     echo "LEARNING_RATE set to ${LEARNING_RATE}. Change the variable to switch the learning rate."
 fi
+if [ -z "${TRAINING_OPTIONS+set}" ]; then
+    TRAINING_OPTIONS=" "
+    echo "TRAINING_OPTIONS set to ${TRAINING_OPTIONS}. Change the variable to switch training options (regularization, etc.)."
+fi
+
 if [ -z "${MINI_BATCH_SIZE+set}" ]; then
     MINI_BATCH_SIZE="128"
     echo "MINI_BATCH_SIZE set to ${MINI_BATCH_SIZE}. Change the variable to switch the mini-batch-size."
@@ -56,12 +61,15 @@ echo "Iteration for FEATURE_MAPPER=${FEATURE_MAPPER}"
 export FORCE_PLATFORM=native
 #rm ${DATASET}train*.cf ${DATASET}${VAL_SUFFIX}*cf
 train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
- --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} --feature-mapper ${FEATURE_MAPPER} -x 10000 --build-cache-then-stop
+   --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} ${TRAINING_OPTIONS} \
+   --feature-mapper ${FEATURE_MAPPER} -x 10000 --build-cache-then-stop
 dieIfError "Failed to map features with CPU build."
 
 export FORCE_PLATFORM=cuda
 MODEL_DIR=`train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
-  --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} --feature-mapper ${FEATURE_MAPPER} -x 10000 \
+  --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
+  ${TRAINING_OPTIONS} \
+  --feature-mapper ${FEATURE_MAPPER} -x 10000 \
   --random-seed 90129 \
   --early-stopping-measure ${EVALUATION_METRIC_NAME} \
   --early-stopping-num-epochs 10 --gpu-device ${GPU} \
