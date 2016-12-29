@@ -33,6 +33,12 @@ public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.Ba
         this(name, numBins, sbiProperties, recordToValues, Integer::floatValue);
     }
 
+    public DensityMapper(String name1, String name2, int numBins, Properties sbiProperties,
+                         Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues
+    ) {
+        this(name1, name2, numBins, sbiProperties, recordToValues, Integer::floatValue);
+    }
+
 
     /**
      * @param name
@@ -44,7 +50,6 @@ public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.Ba
     public DensityMapper(String name, int numBins, Properties sbiProperties,
                          Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues,
                          Function<Integer, Float> valueFunction) {
-        this.valueFunction = valueFunction;
         if (!propertiesPresent(sbiProperties, "stats." + name)) {
             throw new UnsupportedOperationException("The sbip file does not contain the statistics for " + name + " (stats." + name + ".min and stats." + name + ".max)");
         }
@@ -56,7 +61,8 @@ public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.Ba
 
     //handle case where there are two protobuf fields contributing to one map.
     public DensityMapper(String name1, String name2, int numBins, Properties sbiProperties,
-                         Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues
+                         Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues,
+                         Function<Integer, Float> valueFunction
     ) {
 
         if (!propertiesPresent(sbiProperties, "stats." + name1)) {
@@ -76,10 +82,12 @@ public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.Ba
                                    Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues,
                                    Function<Integer, Float> valueFunction){
         this.name = name;
+        this.valueFunction = valueFunction;
         if (numBins == -1){
             this.numBins = (this.maxValue - this.minValue);
+        } else {
+            this.numBins = numBins;
         }
-        this.numBins = numBins;
         bins = new float[this.numBins];
         this.recordToValues = recordToValues;
         this.binWidth = (valueFunction.apply(maxValue) - valueFunction.apply(minValue) )/ this.numBins;
