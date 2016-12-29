@@ -68,12 +68,15 @@ public class GenotypeMapperV17 extends GenotypeMapperV11 {
                     10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getNumVariationsInReadsList));
+
             distancesToReadVariations[i] = new DensityMapper("distancesToReadVariations.forward","distancesToReadVariations.reverse",
-                    -1, sbiProperties,
+                    10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotypeBothStrands(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder,
                                             BaseInformationRecords.CountInfo::getDistancesToReadVariationsForwardStrandList,
-                                            BaseInformationRecords.CountInfo::getDistancesToReadVariationsReverseStrandList));
+                                            BaseInformationRecords.CountInfo::getDistancesToReadVariationsReverseStrandList),
+                    distance  -> (float)(Math.log(distance)/Math.log(2)));
+
             readMappingQualityMappers[i] = new DensityMapper("readMappingQuality.forward",
                     10, sbiProperties,
                     baseInformationOrBuilder ->
@@ -115,6 +118,7 @@ public class GenotypeMapperV17 extends GenotypeMapperV11 {
         }
         delegate =
                 new CountReorderingMapper(new NamingConcatFeatureMapper<>(
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(distancesToReadVariations),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(bamFlagMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),
                         new InverseNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
