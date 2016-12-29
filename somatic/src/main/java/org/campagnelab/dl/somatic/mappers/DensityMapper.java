@@ -17,15 +17,15 @@ import java.util.function.Function;
 public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
         implements FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
-    private Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues;
-    private int minValue;
-    private int maxValue;
-    private float binWidth;
-    private String name;
-    private Function<Integer, Float> valueFunction;
+    protected Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues;
+    protected int minValue;
+    protected int maxValue;
+    protected float binWidth;
+    protected String name;
+    protected Function<Integer, Float> valueFunction;
     int numBins = 10;
     float[] bins;
-    private int[] indices;
+    protected int[] indices;
 
     public DensityMapper(String name, int numBins, Properties sbiProperties,
                          Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues
@@ -78,7 +78,7 @@ public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.Ba
     }
 
 
-    private void constructorHelper(String name, int numBins,
+    protected void constructorHelper(String name, int numBins,
                                    Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues,
                                    Function<Integer, Float> valueFunction){
         this.name = name;
@@ -159,17 +159,17 @@ public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.Ba
     }
 
 
-    private boolean propertiesPresent(Properties sbiProperties, String s) {
+    protected boolean propertiesPresent(Properties sbiProperties, String s) {
         final boolean minPresent = sbiProperties.containsKey(s + ".min");
         final boolean maxPresent = sbiProperties.containsKey(s + ".max");
         return (minPresent && maxPresent);
     }
 
-    private float getMin(Properties sbiProperties, String propertyName) {
+    protected float getMin(Properties sbiProperties, String propertyName) {
         return Float.parseFloat(sbiProperties.getProperty(propertyName + ".min"));
     }
 
-    private float getMax(Properties sbiProperties, String propertyName) {
+    protected float getMax(Properties sbiProperties, String propertyName) {
         return Float.parseFloat(sbiProperties.getProperty(propertyName + ".max"));
     }
 

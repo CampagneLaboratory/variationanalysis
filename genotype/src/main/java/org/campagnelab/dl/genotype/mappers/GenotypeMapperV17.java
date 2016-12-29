@@ -1,10 +1,7 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
-import org.campagnelab.dl.somatic.mappers.BamFlagMapper;
-import org.campagnelab.dl.somatic.mappers.DensityMapper;
-import org.campagnelab.dl.somatic.mappers.GenomicContextMapper;
-import org.campagnelab.dl.somatic.mappers.NamingConcatFeatureMapper;
+import org.campagnelab.dl.somatic.mappers.*;
 import org.campagnelab.dl.somatic.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.CountInfoOrBuilder;
@@ -68,12 +65,20 @@ public class GenotypeMapperV17 extends GenotypeMapperV11 {
                     10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getNumVariationsInReadsList));
+            //simple density mapper so that even variations outside of caps are included in some aggregated way
             distancesToReadVariations[i] = new DensityMapper("distancesToReadVariations.forward","distancesToReadVariations.reverse",
-                    -1, sbiProperties,
+                    10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotypeBothStrands(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder,
                                             BaseInformationRecords.CountInfo::getDistancesToReadVariationsForwardStrandList,
                                             BaseInformationRecords.CountInfo::getDistancesToReadVariationsReverseStrandList));
+            //bin width 1 density mapper that ignores variations outside of caps
+            distancesToReadVariations[i] = new DensityMapperCapped("distancesToReadVariations.forward","distancesToReadVariations.reverse",
+                    -50,50, sbiProperties,
+                    baseInformationOrBuilder ->
+                            TraversalHelper.forOneSampleGenotypeBothStrands(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder,
+                                    BaseInformationRecords.CountInfo::getDistancesToReadVariationsForwardStrandList,
+                                    BaseInformationRecords.CountInfo::getDistancesToReadVariationsReverseStrandList));
             readMappingQualityMappers[i] = new DensityMapper("readMappingQuality.forward",
                     10, sbiProperties,
                     baseInformationOrBuilder ->
