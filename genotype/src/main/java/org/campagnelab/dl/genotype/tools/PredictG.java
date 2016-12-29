@@ -61,8 +61,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         aucLossCalculator = new AreaUnderTheROCCurve(args().numRecordsForAUC);
     }
 
-    String[] orderStats = {"Accuracy", "Recall", "Precision",
-            "F1", "NumVariants", "Concordance"};
+    String[] orderStats = {"Accuracy", "Recall", "Precision",   "F1", "NumVariants", "Concordance"};
 
     @Override
     protected double[] createOutputStatistics() {
@@ -126,6 +125,8 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         boolean correct = fullPred.isCorrect();
         //remove dangling commas
         String correctness = correct ? "correct" : "wrong";
+       // obtain isVariant from the gold-standard, not from the prediction.
+        boolean isVariant = record.getSamples(0).getIsVariant();
 
         if (filterHet(args(), fullPred) &&
                 filterVariant(args(), fullPred) &&
@@ -134,21 +135,22 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                     fullPred.index, (correct ? 1 : 0),
                     fullPred.trueGenotype, fullPred.predictedGenotype,
                     fullPred.isVariantProbability, correctness, record.getReferenceId(), record.getPosition() + 1,
-                    fullPred.isVariant ? "variant" : "-");
+                    isVariant ? "variant" : "-");
             if (args().filterMetricObservations) {
-                stats.observe(fullPred);
-                observeForAUC(fullPred);
+
+                stats.observe(fullPred, isVariant);
+                observeForAUC(fullPred,isVariant);
             }
         }
         if (!args().filterMetricObservations) {
             stats.observe(fullPred);
-            observeForAUC(fullPred);
+            observeForAUC(fullPred, isVariant);
         }
 
     }
 
-    private void observeForAUC(GenotypePrediction fullPred) {
-        if (fullPred.isVariant()) {
+    private void observeForAUC(GenotypePrediction fullPred, boolean isVariant) {
+        if (isVariant) {
             aucLossCalculator.observe(fullPred.overallProbability,  fullPred.isCorrect() ? 1 : -1);
         }
     }
