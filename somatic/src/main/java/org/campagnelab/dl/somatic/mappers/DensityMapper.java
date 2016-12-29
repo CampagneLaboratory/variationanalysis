@@ -18,8 +18,8 @@ public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.Ba
         implements FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
 
     protected Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues;
-    protected int minValue;
-    protected int maxValue;
+    protected int minValue=Integer.MAX_VALUE;
+    protected int maxValue=Integer.MIN_VALUE;
     protected float binWidth;
     protected String name;
     protected Function<Integer, Float> valueFunction;

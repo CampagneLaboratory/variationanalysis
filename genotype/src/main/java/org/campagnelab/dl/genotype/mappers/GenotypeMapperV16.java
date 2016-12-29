@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
+import org.campagnelab.dl.somatic.mappers.BamFlagMapper;
 import org.campagnelab.dl.somatic.mappers.DensityMapper;
 import org.campagnelab.dl.somatic.mappers.GenomicContextMapper;
 import org.campagnelab.dl.somatic.mappers.NamingConcatFeatureMapper;
@@ -47,8 +48,11 @@ public class GenotypeMapperV16 extends GenotypeMapperV11 {
         FeatureNameMapper[] numVariationsInReadMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] targetAlignedLengthMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] queryAlignedLengthMappers = new FeatureNameMapper[MAX_GENOTYPES];
+
         //combined distances for now
         FeatureNameMapper[] distancesToReadVariations = new FeatureNameMapper[MAX_GENOTYPES];
+        FeatureNameMapper[] bamFlagMappers = new FeatureNameMapper[MAX_GENOTYPES];
+
 
 
 
@@ -66,12 +70,15 @@ public class GenotypeMapperV16 extends GenotypeMapperV11 {
                     10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getNumVariationsInReadsList));
+
             distancesToReadVariations[i] = new DensityMapper("distancesToReadVariations.forward","distancesToReadVariations.reverse",
-                    -1, sbiProperties,
+                    10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotypeBothStrands(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder,
-                                            BaseInformationRecords.CountInfo::getDistancesToReadVariationsForwardStrandList,
-                                            BaseInformationRecords.CountInfo::getDistancesToReadVariationsReverseStrandList));
+                                    BaseInformationRecords.CountInfo::getDistancesToReadVariationsForwardStrandList,
+                                    BaseInformationRecords.CountInfo::getDistancesToReadVariationsReverseStrandList),
+                    distance  -> (float)(Math.log(distance)/Math.log(2)));
+
             readMappingQualityMappers[i] = new DensityMapper("readMappingQuality.forward",
                     10, sbiProperties,
                     baseInformationOrBuilder ->
@@ -90,8 +97,7 @@ public class GenotypeMapperV16 extends GenotypeMapperV11 {
                     10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQueryAlignedLengthsList));
-            // need a better way to map binary flags, whe the number of distinct combination is smaller than the range:
-
+            bamFlagMappers[i] = new BamFlagMapper(sampleIndex,genotypeIndex);
             genotypeIndex++;
         }
         genotypeIndex = 0;
@@ -110,11 +116,12 @@ public class GenotypeMapperV16 extends GenotypeMapperV11 {
                     10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresReverseStrandList));
-
             genotypeIndex++;
         }
         delegate =
                 new CountReorderingMapper(new NamingConcatFeatureMapper<>(
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(distancesToReadVariations),
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(bamFlagMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),
                         new InverseNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),
@@ -132,7 +139,12 @@ public class GenotypeMapperV16 extends GenotypeMapperV11 {
 
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(numVariationsInReadMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readMappingQualityMappers),
-                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(baseQualityMappers)
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(baseQualityMappers),
+                        new DensityMapper("insertSizes", 10, sbiProperties, (BaseInformationRecords.BaseInformationOrBuilder baseInformationOrBuilder) -> {
+                            return TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getInsertSizesList);
+                        },
+                                insertSize -> (float)Math.log10(insertSize))
+
                 ));
 
         ;

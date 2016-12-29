@@ -37,27 +37,30 @@ public class BamFlagMapper extends AbstractFeatureMapper1D<BaseInformationRecord
         propCounts = new int[BOOL_NUM];
         propFractions = new double[BOOL_NUM];
         List<BaseInformationRecords.NumberWithFrequency> bamFlagFreqs = record.getSamples(sampleIndex).getCounts(genotypeIndex).getPairFlagsList();
-        for (BaseInformationRecords.NumberWithFrequency bamFlagFreq : bamFlagFreqs){
+        for (BaseInformationRecords.NumberWithFrequency bamFlagFreq : bamFlagFreqs) {
             boolean[] decoded = decodeProps(bamFlagFreq.getNumber());
-            for (int i = 0; i < BOOL_NUM; i++){
-                if (decoded[i]){
-                    propCounts[i]+=bamFlagFreq.getFrequency();
+            for (int i = 0; i < BOOL_NUM; i++) {
+                if (decoded[i]) {
+                    propCounts[i] += bamFlagFreq.getFrequency();
                 }
             }
             alignmentCount += bamFlagFreq.getFrequency();
         }
-        for (int i = 0; i < BOOL_NUM; i++){
-            propFractions[i] = propCounts[i]/(double)alignmentCount;
+        for (int i = 0; i < BOOL_NUM; i++) {
+            if (alignmentCount != 0) {
+                propFractions[i] = propCounts[i] / (double) (alignmentCount);
+            } else {
+                propFractions[i] = 0;
+            }
         }
 
     }
 
 
-
-    boolean[] decodeProps(int bamFlag){
+    boolean[] decodeProps(int bamFlag) {
         boolean[] decoded = new boolean[BOOL_NUM];
-        for (int i = 0; i < BOOL_NUM; i++){
-            if (getBit(bamFlag,i)==1){
+        for (int i = 0; i < BOOL_NUM; i++) {
+            if (getBit(bamFlag, i) == 1) {
                 decoded[i] = true;
             }
         }
@@ -66,13 +69,13 @@ public class BamFlagMapper extends AbstractFeatureMapper1D<BaseInformationRecord
 
     @Override
     public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        return (float)propFractions[featureIndex];
+        return (float) propFractions[featureIndex];
     }
 
 
     @Override
     public String getFeatureName(int featureIndex) {
-        switch(featureIndex){
+        switch (featureIndex) {
             case 0:
                 return "template having multiple segments in sequencing";
             case 1:
