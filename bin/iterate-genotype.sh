@@ -68,5 +68,5 @@ MODEL_DIR=`train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFI
   | tee output-${RANDOM}.log |grep "model directory:"|cut -d " " -f 3`
 dieIfError "Failed to train model with CUDA GPU build."
 
-predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f -i ${DATASET}test.sbi --num-variants-expected 3948
+predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f -i ${DATASET}test.sbi
 dieIfError "Failed to predict statistics."
