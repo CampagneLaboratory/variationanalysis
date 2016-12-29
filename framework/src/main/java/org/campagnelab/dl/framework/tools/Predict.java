@@ -51,7 +51,8 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         try {
             File modelPath = new File(args().modelPath);
             String modelTime = modelPath.getName();
-            outputFileExists = new File(args().outputFile).exists();
+            File file = new File(args().outputFile);
+            outputFileExists = file.exists() &&file.length()>0;
             if (args().toFile) {
                 String resultPath = "predictions";
                 File dir = new File(resultPath);
