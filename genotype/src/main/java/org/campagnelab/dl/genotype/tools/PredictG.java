@@ -119,12 +119,9 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             fullPred.isIndel = false;
             fullPred.isVariant = false;
         }
-        boolean forceCorrect = false;
-        if (!GenotypeHelper.isVariant(args().scoreIndels,
-                fullPred.predictedGenotype, record.getReferenceBase())) {
-            System.out.printf("removing spurious variant: %s %s %n", fullPred.predictedGenotype, record.getReferenceBase());
+        if (GenotypeHelper.isNoCall(fullPred.predictedGenotype)) {
+            System.out.printf("preventing no call from being interpreted as a variant: %s %s %n", fullPred.predictedGenotype, record.getReferenceBase());
             fullPred.isVariant = false;
-
         }
         boolean correct = fullPred.isCorrect();
         //remove dangling commas
