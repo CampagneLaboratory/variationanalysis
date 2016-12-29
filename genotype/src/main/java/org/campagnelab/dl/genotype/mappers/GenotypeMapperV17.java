@@ -68,7 +68,7 @@ public class GenotypeMapperV17 extends GenotypeMapperV11 {
                     10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getNumVariationsInReadsList));
-            distancesToReadVariations[i] = new DensityMapper("distancesToReadVariationsForwardStrand","distancesToReadVariationsReverseStrand",
+            distancesToReadVariations[i] = new DensityMapper("distancesToReadVariations.forward","distancesToReadVariations.reverse",
                     -1, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotypeBothStrands(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder,
