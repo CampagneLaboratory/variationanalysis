@@ -3,10 +3,10 @@ package org.campagnelab.dl.genotype.mappers;
 /**
  * V17 (combined) with hasIsVariantLabelMapper.
  */
-public class GenotypeMapperV18 extends GenotypeMapperV17 {
+public class GenotypeMapperV20 extends GenotypeMapperV19 {
 
 
-    public GenotypeMapperV18() {
+    public GenotypeMapperV20() {
         super();
         sortCounts = true;
         withDistinctAlleleCounts = false;
