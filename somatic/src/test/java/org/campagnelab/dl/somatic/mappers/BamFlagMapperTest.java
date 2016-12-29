@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 public class BamFlagMapperTest {
     @Test
     public void decodeProps() throws Exception {
-        BamFlagMapper mapper = new BamFlagMapper(0);
+        BamFlagMapper mapper = new BamFlagMapper(0,0);
         boolean[] decoded = mapper.decodeProps(1187);
         assertArrayEquals(new boolean[]{true,true,false,false,false,true,false,true,false,false,true,false},decoded);
     }
