@@ -66,12 +66,16 @@ on Mac:
    ```sh
    goby 10g build-sequence-cache ucsc_hg19.fasta
    ```
+The next two steps are time-consuming, so you can skip them if you prefer and 
+download a [pre-built dataset](http://gobyweb.apps.campagnelab.org/data/DLSV/chr21-NA12878-sbi-dataset.zip) 
+(unzip the archive in the tutorial directory).
 
 ### Convert the VCF to a varmap
 ````
 goby 4g vcf-to-genotype-map NA12878-ok.vcf -o  NA12878-true-genotypes.varmap
 ````
 ### Generate the training set
+
    ```
    export SBI_GENOME=ucsc_hg19
    export SBI_NUM_THREADS=6
@@ -82,9 +86,12 @@ goby 4g vcf-to-genotype-map NA12878-ok.vcf -o  NA12878-true-genotypes.varmap
      has less cores.)_
      
 ### Train and evaluate the model:
-
+In the code fragment below, adjust the DATASET variable to match the filename prefix 
+for the dataset you just built (it is preset for the pre-built dataset download):
    ```sh
      export CONSIDER_INDELS=false
+     export DATASET=NA12878_S1_21_dec19-2016-12-29-
+     export MINI_BATCH_SIZE=2048
      iterate-genotype.sh org.campagnelab.dl.genotype.mappers.GenotypeMapperV13 1
    ```
 This tool will train the model with the specified feature mapper using early stopping. 
@@ -95,3 +102,18 @@ More data and model files are available in the model directories produced as par
 ```
 ls -ltr models
 ```
+
+### Use the model call genotypes
+The model can be used with  Goby to call genotypes and produce a VCF for new samples:
+
+```sh
+MODEL_TIMESTAMP=`ls -1 models`
+goby 4g discover-sequence-variants NA12878_S1_21_dec19.entries \
+ --format GENOTYPES -o NA12878_S1_chr21.vcf \
+ --genome ucsc_hg19 \
+ -x SomaticVariationOutputFormat:model-path=`pwd`/models/${MODEL_TIMESTAMP}/bestAUC-ComputationGraph.bin \
+```
+The predictions will be written to NA12878_S1_chr21.vcf. 
+Note that this model is trained with too few examples to be reliable, but training with more data 
+should yield reasonable models. See our preprint for details (Torracinta and Campagne, 2016. 
+Training Genotype Callers with Neural Networks, BioRxiv, doi pending).
