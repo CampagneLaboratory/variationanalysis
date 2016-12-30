@@ -62,19 +62,20 @@ export FORCE_PLATFORM=native
 #rm ${DATASET}train*.cf ${DATASET}${VAL_SUFFIX}*cf
 train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
    --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} ${TRAINING_OPTIONS} \
-   --feature-mapper ${FEATURE_MAPPER} -x 10000 --build-cache-then-stop
+   --feature-mapper ${FEATURE_MAPPER} --build-cache-then-stop
 dieIfError "Failed to map features with CPU build."
 
-export FORCE_PLATFORM=cuda
-MODEL_DIR=`train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+OUTPUT_FILE=output-${RANDOM}.log
+unset FORCE_PLATFORM
+train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
   --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
   ${TRAINING_OPTIONS} \
-  --feature-mapper ${FEATURE_MAPPER} -x 10000 \
+  --feature-mapper ${FEATURE_MAPPER} \
   --random-seed 90129 \
   --early-stopping-measure ${EVALUATION_METRIC_NAME} \
-  --early-stopping-num-epochs 10 --gpu-device ${GPU} \
-  | tee output-${RANDOM}.log |grep "model directory:"|cut -d " " -f 3`
+  --early-stopping-num-epochs 10 --gpu-device ${GPU} | tee ${OUTPUT_FILE}
 dieIfError "Failed to train model with CUDA GPU build."
 
+MODEL_DIR=`grep "model directory:" ${OUTPUT_FILE}  |cut -d " " -f 3`
 predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f -i ${DATASET}test.sbi
 dieIfError "Failed to predict statistics."
