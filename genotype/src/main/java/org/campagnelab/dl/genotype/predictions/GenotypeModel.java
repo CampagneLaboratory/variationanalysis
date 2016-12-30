@@ -92,7 +92,8 @@ public class GenotypeModel {
         sampleToReaderIdxs = new Integer[]{readerIdxs[0]};
 
         //in the past, predictions on 0 reads have been bypassed and given prediction value 0. leaving this out for now.
-        BaseInformationRecords.BaseInformation proto = ProtoHelper.toProto(genome, referenceID, sampleCounts, referenceIndex, position, list, sampleToReaderIdxs);
+        int contextLength = (int)Float.parseFloat(modelProperties.getProperty("stats.genomicContextSize.max"));
+        BaseInformationRecords.BaseInformation proto = ProtoHelper.toProto(genome, referenceID, sampleCounts, referenceIndex, position, list, sampleToReaderIdxs,contextLength);
         return protoPredictor.predictGenotype(proto);
     }
 
