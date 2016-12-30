@@ -1,5 +1,6 @@
 package org.campagnelab.dl.framework.mappers;
 
+import org.campagnelab.goby.util.WarningCounter;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,10 +108,12 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
         return false;
     }
 
+    private static WarningCounter counter = new WarningCounter();
+
     private static int getIntegerOfBase(String context, int baseIndex) {
         if (baseIndex < 0 || baseIndex >= context.length()) {
-            LOG.warn("incompatible character index: {} for context: {} of length {}",
-                    baseIndex, context, context.length());
+            counter.warn(LOG,String.format("incompatible character index: {} for context: {} of length {}",
+                    baseIndex, context, context.length()));
             return 5;
         }
         Character base = context.charAt(baseIndex);
