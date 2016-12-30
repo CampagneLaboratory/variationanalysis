@@ -9,17 +9,17 @@ same directory. It is a good idea to create a tutorial directory and move there 
  1. Download and install Goby:
 Add Goby to the PATH:
     ```sh
-    wget http://gobyweb.apps.campagnelab.org/data/DLSV/goby_3.2-SNAPSHOT-bin.zip    
+    wget http://gobyweb.apps.campagnelab.org/data/DLSV/goby-3.2-SNAPSHOT.zip    
     unzip goby*.zip
-    export PATH=${PATH}:~/IdeaProjects/git/goby3
+    export PATH=`pwd`/goby-3.2-SNAPSHOT:${PATH}
     ```
 
 2. Download and install variationanalysis
 Add the variationanalysis tools to the PATH (we assumed you downloaded version 1.2, adjust as needed):
     ```sh
-    wget wget http://gobyweb.apps.campagnelab.org/data/DLSV/release-dlvariation_1.2-SNAPSHOT.zip 
+    wget http://gobyweb.apps.campagnelab.org/data/DLSV/release-dlvariation_1.2-SNAPSHOT.zip 
     unzip release-dlvariation*.zip
-    export PATH=${PATH}:release-dlvariation-1.2-SNAPSHOT/bin
+    export PATH=`pwd`/release-dlvariation_1.2-SNAPSHOT/bin:${PATH}
     ```
 
 ### Download the Data
@@ -67,12 +67,16 @@ on Mac:
    goby 10g build-sequence-cache ucsc_hg19.fasta
    ```
 
-
+### Convert the VCF to a varmap
+````
+goby 4g vcf-to-genotype-map NA12878-ok.vcf -o  NA12878-true-genotypes.varmap
+````
 ### Generate the training set
    ```
    export SBI_GENOME=ucsc_hg19
    export SBI_NUM_THREADS=6
-   parallel-genotype-sbi.sh 10g NA12878_S1.bam
+   export SBI_GENOTYPE_VARMAP=NA12878-true-genotypes.varmap
+   parallel-genotype-sbi.sh 10g NA12878_S1_21_dec19.entries
    ```
    _(The above assumes you can run the tool with 6 threads in parallel. Adjust if your computer
      has less cores.)_
