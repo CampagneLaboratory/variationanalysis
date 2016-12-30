@@ -76,7 +76,7 @@ public class DLGenotypePredictor implements GenotypePredictor, Predictor {
      * @return a number between 0 and 1 inclusive.
      */
     public double getProbabilityOfCalledGenotype() {
-        return prediction.overallProbability;
+        return prediction.isVariantProbability;
     }
 
     @Override
