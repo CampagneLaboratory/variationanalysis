@@ -347,42 +347,44 @@ trainer.setLogSpeed(args().trackingStyle== TrainingArguments.TrackStyle.SPEED);
             saver.saveLatestModel(computationGraph, computationGraph.score());
             writeProperties();
             writeBestScoreFile();
+            if (epoch % args().validateEvery == 0) {
 
-            // estimate all performance metrics. Note that we do a pass over the validation set for each metric:
-            // (avoid using several metrics).
-            double validationMetricValue = initializePerformance(perfDescriptor, perfDescriptor.earlyStoppingMetric());
-            DoubleArrayList metricValues = new DoubleArrayList();
+                // estimate all performance metrics. Note that we do a pass over the validation set for each metric:
+                // (avoid using several metrics).
+                double validationMetricValue = initializePerformance(perfDescriptor, perfDescriptor.earlyStoppingMetric());
+                DoubleArrayList metricValues = new DoubleArrayList();
 
 
-            validationIterator.reset();
-            assert validationIterator.hasNext() : "validation iterator must have datasets. Make sure the latest release of Goby is installed in the maven repo.";
-            final double[] performanceValues = perfDescriptor.estimateMetric(computationGraph,
-                    validationIterator, args().numValidation, perfDescriptor.performanceMetrics());
-            metricValues = DoubleArrayList.wrap(performanceValues);
+                validationIterator.reset();
+                assert validationIterator.hasNext() : "validation iterator must have datasets. Make sure the latest release of Goby is installed in the maven repo.";
+                final double[] performanceValues = perfDescriptor.estimateMetric(computationGraph,
+                        validationIterator, args().numValidation, perfDescriptor.performanceMetrics());
+                metricValues = DoubleArrayList.wrap(performanceValues);
 
-            validationMetricValue = findMetricValue(perfDescriptor.earlyStoppingMetric(),
-                    perfDescriptor.performanceMetrics(),
-                    performanceValues);
+                validationMetricValue = findMetricValue(perfDescriptor.earlyStoppingMetric(),
+                        perfDescriptor.performanceMetrics(),
+                        performanceValues);
 
-            performanceLogger.logMetrics("epochs", numExamplesUsed, epoch, metricValues.toDoubleArray());
-            if (args().trackingStyle == TrainingArguments.TrackStyle.PERFS) {
-                performanceLogger.show("epochs");
-            }
-            //System.out.println(metricValues);
-            if (!Double.isNaN(bestValue) &&
-                    (perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
-                    (!perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue < bestValue)) {
-                saver.saveModel(computationGraph, "best" + validationMetricName);
-                bestValue = validationMetricValue;
+                performanceLogger.logMetrics("epochs", numExamplesUsed, epoch, metricValues.toDoubleArray());
+                if (args().trackingStyle == TrainingArguments.TrackStyle.PERFS) {
+                    performanceLogger.show("epochs");
+                }
+                //System.out.println(metricValues);
+                if (!Double.isNaN(bestValue) &&
+                        (perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue > bestValue) ||
+                        (!perfDescriptor.largerValueIsBetterPerformance(validationMetricName) && validationMetricValue < bestValue)) {
+                    saver.saveModel(computationGraph, "best" + validationMetricName);
+                    bestValue = validationMetricValue;
 
-                performanceLogger.logMetrics(bestMetricName, numExamplesUsed, epoch, metricValues.toDoubleArray());
-                notImproved = 0;
-            } else {
-                notImproved++;
-            }
-            if (notImproved > args().stopWhenEpochsWithoutImprovement) {
-                // we have not improved after earlyStopCondition epoch, time to stop.
-                break;
+                    performanceLogger.logMetrics(bestMetricName, numExamplesUsed, epoch, metricValues.toDoubleArray());
+                    notImproved = 0;
+                } else {
+                    notImproved++;
+                }
+                if (notImproved > args().stopWhenEpochsWithoutImprovement) {
+                    // we have not improved after earlyStopCondition epoch, time to stop.
+                    break;
+                }
             }
             if (args().trackingStyle == TrainingArguments.TrackStyle.PERFS) {
                 pg.stop();
