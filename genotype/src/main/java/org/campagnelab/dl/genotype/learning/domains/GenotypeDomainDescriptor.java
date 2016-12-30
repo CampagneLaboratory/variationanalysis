@@ -376,8 +376,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new LossMCXENT();
             case "isVariant":
                 INDArray weights = Nd4j.ones(2);
-                weights.putScalar(BooleanLabelMapper.IS_TRUE, 50);
-                weights.putScalar(BooleanLabelMapper.IS_FALSE, 0);
+                weights.putScalar(BooleanLabelMapper.IS_TRUE, 5);
+                weights.putScalar(BooleanLabelMapper.IS_FALSE, 5);
                 return new LossBinaryXENT(weights);
             // return new LossBinaryXENT();
             case "metaData":
