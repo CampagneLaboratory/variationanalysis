@@ -11,9 +11,15 @@ cp ../../LICENSE.md .
 cp ../../README.md .
 cp ../../SOMATIC-TUTORIAL.md . 
 cp -r ../../bin .
+
 mkdir -p gpus/target
 cp ../../gpus/target/gpus-$DL_VERSION.jar gpus/target/
+
 mkdir -p somatic/target
-cp ../../somatic/target/somatic-$DL_VERSION-bin.jar somatic/target/
+cp ../../somatic/target/somatic-$DL_VERSION-bin-native.jar somatic/target/
+
+mkdir -p genotype/target
+cp ../../genotype/target/genotype-$DL_VERSION-bin-native.jar genotype/target/
+
 cd ${WORKDIR}
-zip -r release-dlvariation_1.1.1.zip release-dlvariation_1.1.1/
+zip -r release-dlvariation_${DL_VERSION}.zip release-dlvariation_${DL_VERSION}
