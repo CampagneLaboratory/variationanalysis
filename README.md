@@ -19,13 +19,13 @@ of the Matcha framework and takes advantage of ground-truth genotypes
 established for specific quality control samples.
 
 
-We provide a [tutorial](./SOMATIC-TUTORIAL.md) for the somatic calling models.
+We provide a [tutorial](./GENOTYPE-TUTORIAL-SHORT.md) for the somatic calling models.
 It is strongly recommended that you read the tutorial at this time. It
 demonstrates an end-to-end application where we collect data, train a model,
 and use it in an application. The domain is genomics, but you will get an idea
 how the framework can help with deep learning projects.
 
-A [second tutorial](./GENOTYPE-TUTORIAL.md) describes how to train genotype models. Note that this feature
+A [second tutorial](./GENOTYPE-TUTORIAL-SHORT.md) describes how to train genotype models. Note that this feature
 is an early preview.
 
 Two of the tools demonstrated in the tutorial have been developed with
@@ -53,7 +53,7 @@ the framework:
  Scales to files with hundreds of million of examples.
 
 Interested in genotype calling with deep learning models? Have a look at the preview
- of the genotype module ([tutorial](./GENOTYPE-TUTORIAL.md) and [doc](./docs/genotype/genotype.md)).
+ of the genotype module ([tutorial](./GENOTYPE-TUTORIAL-SHORT.md) and [doc](./docs/genotype/genotype.md)).
 
 [![framework javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/framework.svg?label=framework_javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/framework)
 [![somatic javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/somatic.svg?label=somatic_javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/somatic)
