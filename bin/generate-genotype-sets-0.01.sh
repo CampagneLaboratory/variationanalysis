@@ -59,13 +59,10 @@ split.sh ${memory_requirement} -i tmp/genotype_full_called_randomized.sbi \
 dieIfError "Failed to split"
 # subset the validation sample further, throwing out many reference matching sites (to speed
 # up performance evaluation for early stopping):
-mv "${OUTPUT_BASENAME}-validation.sbi" "${OUTPUT_BASENAME}-validation-all.sbi"
-mv "${OUTPUT_BASENAME}-validation.sbip" "${OUTPUT_BASENAME}-validation-all.sbip"
-
 add-true-genotypes.sh ${memory_requirement} -m ${SBI_GENOTYPE_VARMAP} \
   -i "${OUTPUT_BASENAME}-validation-all.sbi" \
-  -o "${OUTPUT_BASENAME}-validation" \
-  --genome ${GENOME} --ref-sampling-rate 0.01 |tee add-true-genotypes-downsampling-ref.log
+  -o "${OUTPUT_BASENAME}-validation-0.1" \
+  --genome ${GENOME} --ref-sampling-rate 0.1 |tee add-true-genotypes-downsampling-ref.log
 dieIfError "Failed to reduce validation set"
 
 if [ ${DELETE_TMP} = "true" ]; then
