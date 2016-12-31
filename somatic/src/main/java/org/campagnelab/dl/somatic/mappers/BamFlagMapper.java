@@ -3,28 +3,44 @@ package org.campagnelab.dl.somatic.mappers;
 import org.campagnelab.dl.framework.mappers.AbstractFeatureMapper1D;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 /**
- * Produces feature that represent a density of values for a given number of bins..
- * Created by fac2003 on 10/21/16.
+ * Map binary flags to a specific number of bins, as a histogram (each bin indicates the frequency of finding the bit=1).
  */
 public class BamFlagMapper extends AbstractFeatureMapper1D<BaseInformationRecords.BaseInformationOrBuilder> {
 
-    final static int BOOL_NUM = 12;
 
-    int genotypeIndex;
-    int alignmentCount = 0;
-    int[] propCounts;
+    private int BOOL_NUM = 12;
+    private final Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> function;
+    private final int[] propCounts;
     double[] propFractions;
-    int sampleIndex;
-
-    private BamFlagMapper() {
+    /**
+     * * @param sampleIndex index of the sample to get the list from.
+     *
+     * @param genotypeIndex index of the genotype to get the list from.
+     */
+    public BamFlagMapper(final int sampleIndex, final int genotypeIndex) {
+        this(12, baseInformationOrBuilder -> {
+            return baseInformationOrBuilder.getSamples(sampleIndex).getCounts(genotypeIndex).getPairFlagsList();
+        });
     }
 
-    public BamFlagMapper(int sample, int genotypeIndex) {
-        this.sampleIndex = sample;
-        this.genotypeIndex = genotypeIndex;
+    /**
+     * Construct a mapper for lists of boolean flag integers stored in NumberWithFrequency.
+     *
+     * @param flagSize Number of bits to map in the flag (lower bits are extracted).
+     * @param function function that extracts a list of number from a record.
+     */
+    public BamFlagMapper(int flagSize,
+                         Function<BaseInformationRecords.BaseInformationOrBuilder,
+                                 List<BaseInformationRecords.NumberWithFrequency>> function) {
+        this.BOOL_NUM = flagSize;
+        this.function = function;
+        propCounts = new int[BOOL_NUM];
+        propFractions = new double[BOOL_NUM];
     }
 
     @Override
@@ -34,21 +50,26 @@ public class BamFlagMapper extends AbstractFeatureMapper1D<BaseInformationRecord
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
-        propCounts = new int[BOOL_NUM];
-        propFractions = new double[BOOL_NUM];
-        List<BaseInformationRecords.NumberWithFrequency> bamFlagFreqs = record.getSamples(sampleIndex).getCounts(genotypeIndex).getPairFlagsList();
+        Arrays.fill(propCounts, 0);
+        Arrays.fill(propFractions, 0);
+
+        List<BaseInformationRecords.NumberWithFrequency> bamFlagFreqs = function.apply(record);
+        int overallSum = 0;
         for (BaseInformationRecords.NumberWithFrequency bamFlagFreq : bamFlagFreqs) {
-            boolean[] decoded = decodeProps(bamFlagFreq.getNumber());
-            for (int i = 0; i < BOOL_NUM; i++) {
-                if (decoded[i]) {
-                    propCounts[i] += bamFlagFreq.getFrequency();
+            int flags = bamFlagFreq.getNumber();
+            int frequency = bamFlagFreq.getFrequency();
+            // reverser order here so bits and histogram are in the same order:
+            for (int i = BOOL_NUM; i >= 0; i--) {
+                if (getBit(flags, i) == 1) {
+                    propCounts[i] += frequency;
+                    overallSum += frequency;
                 }
             }
-            alignmentCount += bamFlagFreq.getFrequency();
+            //  alignmentCount += frequency;
         }
         for (int i = 0; i < BOOL_NUM; i++) {
-            if (alignmentCount != 0) {
-                propFractions[i] = propCounts[i] / (double) (alignmentCount);
+            if (overallSum != 0) {
+                propFractions[i] = propCounts[i] / (double) (overallSum);
             } else {
                 propFractions[i] = 0;
             }
@@ -56,15 +77,8 @@ public class BamFlagMapper extends AbstractFeatureMapper1D<BaseInformationRecord
 
     }
 
-
-    boolean[] decodeProps(int bamFlag) {
-        boolean[] decoded = new boolean[BOOL_NUM];
-        for (int i = 0; i < BOOL_NUM; i++) {
-            if (getBit(bamFlag, i) == 1) {
-                decoded[i] = true;
-            }
-        }
-        return decoded;
+    private int getBit(int n, int k) {
+        return (n >> k) & 1;
     }
 
     @Override
@@ -105,8 +119,5 @@ public class BamFlagMapper extends AbstractFeatureMapper1D<BaseInformationRecord
         }
     }
 
-    static int getBit(int n, int k) {
-        return (n >> k) & 1;
-    }
 
 }
