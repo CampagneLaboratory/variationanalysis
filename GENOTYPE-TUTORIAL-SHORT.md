@@ -116,4 +116,4 @@ goby 4g discover-sequence-variants NA12878_S1_21_dec19.entries \
 The predictions will be written to NA12878_S1_chr21.vcf. 
 Note that this model is trained with too few examples to be reliable, but training with more data 
 should yield reasonable models. See our preprint for details (Torracinta and Campagne, 2016. 
-Training Genotype Callers with Neural Networks, BioRxiv, doi pending).
+Training Genotype Callers with Neural Networks, BioRxiv, http://biorxiv.org/content/early/2016/12/30/097469).
