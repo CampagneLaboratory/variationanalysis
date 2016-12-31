@@ -11,6 +11,7 @@ cp ../../LICENSE.md .
 cp ../../README.md .
 cp ../../SOMATIC-TUTORIAL.md . 
 cp -r ../../bin .
+cp -r ../../config .
 
 mkdir -p gpus/target
 cp ../../gpus/target/gpus-$DL_VERSION.jar gpus/target/
