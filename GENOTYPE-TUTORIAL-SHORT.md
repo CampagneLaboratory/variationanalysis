@@ -90,7 +90,7 @@ In the code fragment below, adjust the DATASET variable to match the filename pr
 for the dataset you just built (it is preset for the pre-built dataset download):
    ```sh
      export CONSIDER_INDELS=false
-     export DATASET=NA12878_S1_21_dec19-2016-12-29-
+     export DATASET=NA12878_S1_21_dec19-2016-12-30-
      export MINI_BATCH_SIZE=2048
      iterate-genotype.sh org.campagnelab.dl.genotype.mappers.GenotypeMapperV13 1
    ```
