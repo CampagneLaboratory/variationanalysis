@@ -65,13 +65,6 @@ public class GenotypeMapperV19 extends GenotypeMapperV11 {
                     10, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getNumVariationsInReadsList));
-            //simple density mapper so that even variations outside of caps are included in some aggregated way
-            distancesToReadVariations[i] = new DensityMapper("distancesToReadVariations.forward","distancesToReadVariations.reverse",
-                    10, sbiProperties,
-                    baseInformationOrBuilder ->
-                            TraversalHelper.forOneSampleGenotypeBothStrands(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder,
-                                    BaseInformationRecords.CountInfo::getDistancesToReadVariationsForwardStrandList,
-                                    BaseInformationRecords.CountInfo::getDistancesToReadVariationsReverseStrandList));
             //bin width 1 density mapper that ignores variations outside of caps
             distancesToReadVariations[i] = new DensityMapperCapped("distancesToReadVariations.forward","distancesToReadVariations.reverse",
                     -50,50, sbiProperties,
@@ -126,7 +119,7 @@ public class GenotypeMapperV19 extends GenotypeMapperV11 {
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),
                         new InverseNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readIndexMappers)),
-                        new GenomicContextMapper(sbiProperties),
+                        new GenomicContextMapper(sbiProperties, this.genomicContextLength),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(targetAlignedLengthMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(queryAlignedLengthMappers),

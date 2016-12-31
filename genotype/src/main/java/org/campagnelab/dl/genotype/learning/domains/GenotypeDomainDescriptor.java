@@ -101,28 +101,50 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public FeatureMapper getFeatureMapper(String inputName) {
+        FeatureMapper result = null;
+
         if (args().featureMapperClassname != null) {
             assert "input".equals(inputName) : "Only one input supported by this domain.";
 
             try {
-                return TrainSomaticModel.configureFeatureMapper(args().featureMapperClassname, false,
-                        args().getTrainingSets());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                Class clazz = Class.forName(args().featureMapperClassname );
+                final FeatureMapper featureMapper = (FeatureMapper) clazz.newInstance();
+                configureGenomicContext(featureMapper);
+                if (featureMapper instanceof ConfigurableFeatureMapper) {
+                    ConfigurableFeatureMapper cmapper = (ConfigurableFeatureMapper) featureMapper;
+                    final Properties properties = TrainSomaticModel.getReaderProperties(args().trainingSets.get(0));
+                    cmapper.configure(properties);
+                }
+                configureGenomicContext(result);
+                result=featureMapper;
+            } catch (IOException |IllegalAccessException|InstantiationException|ClassNotFoundException e) {
+                throw new RuntimeException( "Unable to instanciate or configure feature mapper",e);
             }
         } else {
             try {
-                FeatureMapper fMapper = (FeatureMapper) Class.forName(domainProperties.getProperty("input.featureMapper")).newInstance();
+                String mapperName = domainProperties.getProperty("input.featureMapper");
+
+                FeatureMapper fMapper = (FeatureMapper) Class.forName(mapperName).newInstance();
+                configureGenomicContext(fMapper);
                 if (fMapper instanceof ConfigurableFeatureMapper) {
                     ConfigurableFeatureMapper cfmapper = (ConfigurableFeatureMapper) fMapper;
                     cfmapper.configure(modelProperties);
                 }
-                return fMapper;
+                result = fMapper;
+
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
 
+        return result;
+    }
+
+    private void configureGenomicContext(FeatureMapper fMapper) {
+        if (fMapper instanceof GenotypeFeatureMapper) {
+            GenotypeFeatureMapper genotypeFeatureMapper = (GenotypeFeatureMapper) fMapper;
+            genotypeFeatureMapper.setGenomicContextLength(args().genomicContextLength);
+        }
     }
 
     public int[] getNumMaskInputs(String inputName) {
@@ -267,6 +289,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             @Override
             public String[] performanceMetrics() {
                 return new String[]{"AUC", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score","AUC+F1"};
+                //       return new String[]{"AUC_V", "AUC_R", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score", "AUC_VxR"};
             }
 
             @Override
@@ -275,8 +298,11 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
                     case "score":
                         return false;
+                    case "AUC_V":
                     case "AUC":
+                    case "AUC_R":
                     case "F1":
+                    case "AUC_VxR":
                     case "AUC+F1":
                     case "accuracy":
                     case "Recall":
@@ -295,9 +321,11 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 switch (metricName) {
                     case "Accuracy":
                     case "AUC":
-
+                    case "AUC_V":
+                    case "AUC_R":
                     case "F1":
                     case "AUC+F1":
+                    case "AUC_VxR":
                     case "Recall":
                     case "Precision":
                     case "NumVariants":
@@ -376,8 +404,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new LossMCXENT();
             case "isVariant":
                 INDArray weights = Nd4j.ones(2);
-                weights.putScalar(BooleanLabelMapper.IS_TRUE, 5);
-                weights.putScalar(BooleanLabelMapper.IS_FALSE, 5);
+                weights.putScalar(BooleanLabelMapper.IS_TRUE, args().variantLossWeight);
+                weights.putScalar(BooleanLabelMapper.IS_FALSE, args().variantLossWeight);
                 return new LossBinaryXENT(weights);
             // return new LossBinaryXENT();
             case "metaData":

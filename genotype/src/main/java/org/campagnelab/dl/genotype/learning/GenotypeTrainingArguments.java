@@ -11,12 +11,23 @@ import org.campagnelab.dl.genotype.mappers.GenotypeMapperV1;
 public class GenotypeTrainingArguments extends TrainingArguments {
 
     @Parameter(names = "--early-stopping-measure", description = "Name of the measure to monitor to stop early stopping. " +
-            "One of score, AUC+F1, F1, Concordance, Accuracy, AUC (of correct variant identification), " +
+            "One of score, AUC_VxR, F1, Concordance, Accuracy, AUC (of correct variant identification), " +
             "Recall, Precision.")
-    public String earlyStoppingMeasureName="score";
+    public String earlyStoppingMeasureName = "score";
 
     @Parameter(names = "--auc-clip-max-observations", description = "The maximum number of observations to sample when evaluating the AUC. ")
     public int aucClipMaxObservations = 10000;
+
+    @Parameter(names = "--variant-loss-weight", description = "The weight of variants in the loss function. " +
+            "A number larger than 1 gives more weight to variant sites than non-variant sites and helps drive optimization" +
+            "towards models that do well for variant prediction. This value should be included in a hyper-parameter search. ")
+    public double variantLossWeight = 5;
+    @Parameter(names = "--genomic-context-length", description = "The length of the genomic context. Must be an odd number. " +
+            "When this number is smaller than the length of context included in the .sbi file, the context is trimmed while keeping the " +
+            "base of interest in the center. Values between 21 and 61 are recommended." +
+            " Since it is not clear what length of context provides best performance for a specific sequencing platform,  " +
+            "this value should be included in a hyper-parameter search. ")
+    public int genomicContextLength = Integer.MAX_VALUE;
 
     @Override
     protected String defaultArchitectureClassname() {
@@ -29,5 +40,5 @@ public class GenotypeTrainingArguments extends TrainingArguments {
     }
 
     @Parameter(names = "--ploidy", description = "The organism ploidy (2 for humans, more for some plants). ")
-    public int ploidy=2;
+    public int ploidy = 2;
 }

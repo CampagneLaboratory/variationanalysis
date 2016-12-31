@@ -322,7 +322,7 @@ public abstract class SomaticTrainer extends ConditionRecordingTool<SomaticTrain
         return null;
     }
 
-    private static Properties getReaderProperties(String trainingSet) throws IOException {
+    public static Properties getReaderProperties(String trainingSet) throws IOException {
         SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSet);
         final Properties properties = reader.getProperties();
         reader.close();
