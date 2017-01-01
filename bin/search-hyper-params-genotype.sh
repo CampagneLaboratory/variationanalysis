@@ -35,11 +35,10 @@ EOF
 
 
 cat << EOF | cat>is-variant-loss-weight.txt
-1
-2
-3
+0
 5
 10
+50
 100
 1000
 EOF
