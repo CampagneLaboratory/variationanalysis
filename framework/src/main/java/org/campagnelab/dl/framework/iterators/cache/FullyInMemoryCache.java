@@ -1,12 +1,12 @@
 package org.campagnelab.dl.framework.iterators.cache;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.nd4j.linalg.api.concurrency.AffinityManager;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 
-import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 /**
@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
  */
 public class FullyInMemoryCache implements MultiDataSetIterator {
     private MultiDataSetIterator source;
-    private ArrayList<MultiDataSet> cache = new ArrayList<>();
+    private ObjectArrayList<MultiDataSet> cache = new ObjectArrayList<>();
     private int index = -1;
     private boolean sourceIsComplete;
 
@@ -50,12 +50,15 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
     @Override
     public void reset() {
         index = -1;
+
         // force traversal and caching of iterator if reset is called before a full traversal:
         if (!sourceIsComplete) {
+            cache.clear();
             while (hasNext()) {
                 next();
             }
             reset();
+            System.out.println("Memory cache size="+cache.size());
         }
 
     }
