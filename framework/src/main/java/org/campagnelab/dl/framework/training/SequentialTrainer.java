@@ -23,7 +23,7 @@ public class SequentialTrainer implements Trainer {
             final int numExamples = ds.getFeatures(0).size(0);
             numExamplesUsed += numExamples;
             if (logSpeed) {
-                progressLogger.lightUpdate();
+                progressLogger.update();
             }
         }
         return numExamplesUsed;

@@ -323,15 +323,19 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
         switch (args().trackingStyle) {
             case PERFS:
-                pgEpoch.start();
-            case SPEED:
                 System.out.println(performanceLogger.getMetricHeader());
+                break;
+            case SPEED:
+                pgEpoch.start();
+                break;
+            default:
+                System.out.println("Unsupported tracking style: " + args().trackingStyle);
         }
 
         Trainer trainer = args().parallel ? new ParallelTrainerOnGPU(computationGraph, args().miniBatchSize,
                 (int) domainDescriptor.getNumRecords(args().getTrainingSets())) :
                 new SequentialTrainer();
-trainer.setLogSpeed(args().trackingStyle== TrainingArguments.TrackStyle.SPEED);
+        trainer.setLogSpeed(args().trackingStyle == TrainingArguments.TrackStyle.SPEED);
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -386,9 +390,9 @@ trainer.setLogSpeed(args().trackingStyle== TrainingArguments.TrackStyle.SPEED);
                     break;
                 }
             }
-            if (args().trackingStyle == TrainingArguments.TrackStyle.PERFS) {
+            if (args().trackingStyle == TrainingArguments.TrackStyle.SPEED) {
                 pg.stop();
-                pgEpoch.lightUpdate();
+                pgEpoch.updateAndDisplay();
             }
             iterator.reset();    //Reset iterator for another epoch
             performanceLogger.write();
