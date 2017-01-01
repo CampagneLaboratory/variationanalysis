@@ -21,7 +21,7 @@ public class GenotypeTrainingArguments extends TrainingArguments {
     @Parameter(names = "--variant-loss-weight", description = "The weight of variants in the loss function. " +
             "A number larger than 1 gives more weight to variant sites than non-variant sites and helps drive optimization" +
             "towards models that do well for variant prediction. This value should be included in a hyper-parameter search. ")
-    public double variantLossWeight = 5;
+    public double variantLossWeight = 50;
     @Parameter(names = "--genomic-context-length", description = "The length of the genomic context. Must be an odd number. " +
             "When this number is smaller than the length of context included in the .sbi file, the context is trimmed while keeping the " +
             "base of interest in the center. Values between 21 and 61 are recommended." +
