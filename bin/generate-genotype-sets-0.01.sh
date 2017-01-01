@@ -60,7 +60,7 @@ dieIfError "Failed to split"
 # subset the validation sample further, throwing out many reference matching sites (to speed
 # up performance evaluation for early stopping):
 add-true-genotypes.sh ${memory_requirement} -m ${SBI_GENOTYPE_VARMAP} \
-  -i "${OUTPUT_BASENAME}-validation-all.sbi" \
+  -i "${OUTPUT_BASENAME}-validation.sbi" \
   -o "${OUTPUT_BASENAME}-validation-0.1" \
   --genome ${GENOME} --ref-sampling-rate 0.1 |tee add-true-genotypes-downsampling-ref.log
 dieIfError "Failed to reduce validation set"
