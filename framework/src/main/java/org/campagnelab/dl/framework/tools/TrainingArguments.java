@@ -67,8 +67,27 @@ public abstract class TrainingArguments extends RecordingToolArguments {
     @Parameter(names = "--ignore-cache", description = "Ignore the cache.")
     public boolean ignoreCache;
 
-    @Parameter(names = "--memory-cache", description = "Cache the entire datasets in memory. Can speed up training, but requires the training set to be small enough to fit in the GPU memory.")
-    public boolean memoryCache;
+    @Parameter(names = "--memory-cache", description = "Name of the datasets to fully cache in memory. Use training,validation to " +
+            "cache both trainind and validation set, or validation only when the training set is too large to fit fully in memory. " +
+            "Can speed up training, but requires the training set to be small enough to fit in the GPU memory. The default caches" +
+            "only the validation set. Use none to disable caching entirely.")
+    public String memoryCache = "validation";
+
+    public boolean memoryCacheTraining() {
+        boolean result= memoryCache.length() > 1 && memoryCache.contains("training");
+        if (result) {
+            System.out.println("Training set will be fully cached in memory.");
+        }
+        return result;
+    }
+
+    public boolean memoryCacheValidation() {
+        boolean result= memoryCache.length() > 1 && memoryCache.contains("validation");
+        if (result) {
+            System.out.println("Validation set will be fully cached in memory.");
+        }
+        return result;
+    }
 
     @Parameter(names = "--gpu-device", description = "Index of the GPU to use for training (0,1, up to the number of GPUs in the server).")
     public Integer deviceIndex = null;
@@ -111,7 +130,7 @@ public abstract class TrainingArguments extends RecordingToolArguments {
         PERFS // show performance metric values in console
     }
 
-    @Parameter(names = "--eos-character", description = "If provided, use as EOS character index for alignment. If not, adds EOS to the input vocab. Must be specified if specified during pretraining, and likewise if not. " )
+    @Parameter(names = "--eos-character", description = "If provided, use as EOS character index for alignment. If not, adds EOS to the input vocab. Must be specified if specified during pretraining, and likewise if not. ")
     public Integer eosIndex = null;
     @Parameter(names = "--previous-model-pretraining", description = "If true, previous model was pretrained, and adjust graph accordingly. ")
     public boolean previousModelPretraining = false;

@@ -297,7 +297,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 adapter, adapter.getBasename(),
                 args().numTraining, args().miniBatchSize) :
                 adapter;
-        if (args().memoryCache) {
+        if (args().memoryCacheTraining()) {
             iterator = new FullyInMemoryCache(iterator);
             // force loading immediately:
             LOG.warn("Loading training set in memory.");
@@ -404,6 +404,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 "not early stopping", scoreMap, performanceLogger.getBestEpoch(bestMetricName), bestScore, args().maxEpochs, computationGraph);
     }
 
+
+
     private double findMetricValue(String lookupName, String[] metricNames, double[] performanceValues) {
         int i = 0;
         for (String name : metricNames) {
@@ -451,7 +453,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             MultiDataSetIterator iterator = args().ignoreCache ? adapter : cacheHelper.cache(domainDescriptor,
                     adapter, adapter.getBasename(),
                     args().numValidation, args().miniBatchSize);
-            if (args().memoryCache) {
+            if (args().memoryCacheValidation()) {
                 iterator = new FullyInMemoryCache(iterator);
             }
             return iterator;

@@ -58,7 +58,7 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
                 next();
             }
             reset();
-            System.out.println("Memory cache size="+cache.size());
+          //  System.out.println("Memory cache size="+cache.size());
         }
 
     }
