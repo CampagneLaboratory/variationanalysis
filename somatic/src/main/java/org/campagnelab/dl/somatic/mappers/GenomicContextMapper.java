@@ -20,7 +20,7 @@ public class GenomicContextMapper extends NoMaskFeatureMapper<BaseInformationRec
     public GenomicContextMapper(Properties sbiProperties, int maxContextSize) {
 
         this(Math.min(maxContextSize, (int) Float.parseFloat(sbiProperties.getProperty("stats.genomicContextSize.min", "0.0"))));
-        if (sbiProperties.getProperty("stats.genomicContextSize.min") == null) {
+        if (sbiProperties.getProperty("") == null) {
             throw new RuntimeException("Unable to obtain stats.genomicContextSize.min from properties.");
         }
     }

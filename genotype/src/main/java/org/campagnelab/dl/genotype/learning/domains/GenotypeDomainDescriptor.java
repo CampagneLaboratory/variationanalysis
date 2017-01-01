@@ -46,11 +46,14 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
 
     private int ploidy;
+    double variantLossWeight;
+
 
     public GenotypeDomainDescriptor(GenotypeTrainingArguments arguments) {
         this.arguments = arguments;
         initializeArchitecture(arguments.architectureClassname);
         this.ploidy = arguments.ploidy;
+        variantLossWeight = args().variantLossWeight;
     }
 
     /**
@@ -73,6 +76,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     public void putProperties(Properties props) {
         super.putProperties(props);
         props.setProperty(NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY, Integer.toString(ploidy));
+        decorateProperties(props);
     }
 
     /**
@@ -107,27 +111,27 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             assert "input".equals(inputName) : "Only one input supported by this domain.";
 
             try {
-                Class clazz = Class.forName(args().featureMapperClassname );
+                Class clazz = Class.forName(args().featureMapperClassname);
                 final FeatureMapper featureMapper = (FeatureMapper) clazz.newInstance();
-                configureGenomicContext(featureMapper);
                 if (featureMapper instanceof ConfigurableFeatureMapper) {
                     ConfigurableFeatureMapper cmapper = (ConfigurableFeatureMapper) featureMapper;
                     final Properties properties = TrainSomaticModel.getReaderProperties(args().trainingSets.get(0));
+                    decorateProperties(properties);
                     cmapper.configure(properties);
                 }
-                configureGenomicContext(result);
-                result=featureMapper;
-            } catch (IOException |IllegalAccessException|InstantiationException|ClassNotFoundException e) {
-                throw new RuntimeException( "Unable to instanciate or configure feature mapper",e);
+                result = featureMapper;
+            } catch (IOException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+                throw new RuntimeException("Unable to instanciate or configure feature mapper", e);
             }
         } else {
             try {
                 String mapperName = domainProperties.getProperty("input.featureMapper");
 
                 FeatureMapper fMapper = (FeatureMapper) Class.forName(mapperName).newInstance();
-                configureGenomicContext(fMapper);
+
                 if (fMapper instanceof ConfigurableFeatureMapper) {
                     ConfigurableFeatureMapper cfmapper = (ConfigurableFeatureMapper) fMapper;
+                    decorateProperties(modelProperties);
                     cfmapper.configure(modelProperties);
                 }
                 result = fMapper;
@@ -138,13 +142,6 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         }
 
         return result;
-    }
-
-    private void configureGenomicContext(FeatureMapper fMapper) {
-        if (fMapper instanceof GenotypeFeatureMapper) {
-            GenotypeFeatureMapper genotypeFeatureMapper = (GenotypeFeatureMapper) fMapper;
-            genotypeFeatureMapper.setGenomicContextLength(args().genomicContextLength);
-        }
     }
 
     public int[] getNumMaskInputs(String inputName) {
@@ -225,6 +222,23 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY));
         }
         ploidy = Integer.parseInt(property);
+        String variantLossWeightProperty = modelProperties.getProperty("variantLossWeight");
+        variantLossWeight = Double.parseDouble(variantLossWeightProperty);
+
+    }
+
+    /**
+     * Record arguments to the properties, that need to be provided to feature/label mappers.
+     *
+     * @param modelProperties
+     */
+    void decorateProperties(Properties modelProperties) {
+        if (args().genomicContextLength != Integer.MAX_VALUE) {
+            // override the .sbi context size only if the argument was used on the command line:
+            modelProperties.setProperty("stats.genomicContextSize.min", Integer.toString(args().genomicContextLength));
+            modelProperties.setProperty("stats.genomicContextSize.max", Integer.toString(args().genomicContextLength));
+        }
+        modelProperties.setProperty("variantLossWeight", Double.toString(variantLossWeight));
     }
 
     @Override
@@ -288,7 +302,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"AUC", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score","AUC+F1"};
+                return new String[]{"AUC", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score", "AUC+F1"};
                 //       return new String[]{"AUC_V", "AUC_R", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score", "AUC_VxR"};
             }
 
@@ -404,8 +418,9 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new LossMCXENT();
             case "isVariant":
                 INDArray weights = Nd4j.ones(2);
-                weights.putScalar(BooleanLabelMapper.IS_TRUE, args().variantLossWeight);
-                weights.putScalar(BooleanLabelMapper.IS_FALSE, args().variantLossWeight);
+
+                weights.putScalar(BooleanLabelMapper.IS_TRUE, variantLossWeight);
+                weights.putScalar(BooleanLabelMapper.IS_FALSE, variantLossWeight);
                 return new LossBinaryXENT(weights);
             // return new LossBinaryXENT();
             case "metaData":

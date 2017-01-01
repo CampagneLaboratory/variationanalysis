@@ -47,7 +47,18 @@ public class TrainModelG extends TrainModel<BaseInformationRecords.BaseInformati
         SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSet);
         final Properties properties = reader.getProperties();
         reader.close();
+      //  properties.setProperty("stats.genomicContextSize.min", getGenomicContextArg());
+      //  properties.setProperty("stats.genomicContextSize.max", getGenomicContextArg());
         return properties;
 
+    }
+
+    private String getGenomicContextArg() {
+
+        int genomicContextLength = ((GenotypeTrainingArguments) args()).genomicContextLength;
+        if ((genomicContextLength % 2) == 0) {
+            throw new RuntimeException("The genomic context length must be an odd number, usually in the range 21-61");
+        }
+        return Integer.toString(genomicContextLength);
     }
 }
