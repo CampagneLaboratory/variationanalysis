@@ -230,4 +230,18 @@ public abstract class PretrainingDomainDescriptor<RecordType> extends DomainDesc
      * @return properties object
      */
     public abstract Properties pretrainingDomainProperties(TrainingArguments args);
+
+    @Override
+    public String produceCacheUniqueId() {
+       String id=super.produceCacheUniqueId();
+       int domainHashCode=id.hashCode();
+        if (inputsPaddedEos() != null) {
+            for (Object input : inputsPaddedEos().keySet()) {
+                domainHashCode ^= input.hashCode();
+                domainHashCode ^= inputsPaddedEos().get(input).hashCode();
+            }
+        }
+        String uniqueId = Integer.toHexString(domainHashCode);
+        return uniqueId;
+    }
 }

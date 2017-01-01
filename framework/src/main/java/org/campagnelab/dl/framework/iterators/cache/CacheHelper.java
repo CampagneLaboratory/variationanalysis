@@ -21,6 +21,7 @@ import java.util.Properties;
 public class CacheHelper<RecordType> {
 
 
+
     /**
      * Return a cached version of the iterator. Either returns a pre-cached iterator, or chaches the iterator
      * and returns the cached version.
@@ -33,7 +34,6 @@ public class CacheHelper<RecordType> {
      */
     public MultiDataSetIterator cache(final DomainDescriptor domainDescriptor,
                                       MultiDataSetIteratorAdapter adapter, String cacheName, int cacheN, int minibatchSize) {
-
 //TODO use a file lock to prevent two processes from trying to create a cache at the same time.
         // determine if cache exists. If it does, use it.
         cacheName = decorateCacheName(domainDescriptor, cacheName);
@@ -60,25 +60,10 @@ public class CacheHelper<RecordType> {
     }
 
     private String decorateCacheName(DomainDescriptor domainDescriptor, String cacheName) {
-
-        int domainHashCode = 0x72E7;
-        for (Object o : domainDescriptor.featureMappers()) {
-            domainHashCode ^= o.getClass().getCanonicalName().hashCode();
-        }
-        for (Object o : domainDescriptor.labelMappers()) {
-            domainHashCode ^= o.getClass().getCanonicalName().hashCode();
-        }
-        domainHashCode ^= domainDescriptor.getComputationalGraph().getClass().getCanonicalName().hashCode();
-
-        if (domainDescriptor.inputsPaddedEos() != null) {
-            for (Object input : domainDescriptor.inputsPaddedEos().keySet()) {
-                domainHashCode ^= input.hashCode();
-                domainHashCode ^= domainDescriptor.inputsPaddedEos().get(input).hashCode();
-            }
-        }
-        String cacheHash = Integer.toHexString(domainHashCode);
-        cacheName = FilenameUtils.removeExtension(cacheName) + "-" + cacheHash;
+        String uniqueId=domainDescriptor.produceCacheUniqueId();
+        cacheName = FilenameUtils.removeExtension(cacheName) + "-" + uniqueId;
         return cacheName;
+
     }
 
 

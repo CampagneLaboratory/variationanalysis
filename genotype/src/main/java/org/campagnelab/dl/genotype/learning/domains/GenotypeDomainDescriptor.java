@@ -47,6 +47,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     private int ploidy;
     double variantLossWeight;
+    private int genomicContextSize;
 
 
     public GenotypeDomainDescriptor(GenotypeTrainingArguments arguments) {
@@ -54,6 +55,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         initializeArchitecture(arguments.architectureClassname);
         this.ploidy = arguments.ploidy;
         variantLossWeight = args().variantLossWeight;
+        genomicContextSize = args().genomicContextLength;
     }
 
     /**
@@ -227,6 +229,15 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     }
 
+    @Override
+    public String produceCacheUniqueId() {
+        String id = super.produceCacheUniqueId();
+        int domainHashcode = id.hashCode();
+        domainHashcode ^= ploidy;
+        domainHashcode ^= genomicContextSize;
+        return Integer.toHexString(domainHashcode);
+    }
+
     /**
      * Record arguments to the properties, that need to be provided to feature/label mappers.
      *
@@ -235,6 +246,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     void decorateProperties(Properties modelProperties) {
         if (args().genomicContextLength != Integer.MAX_VALUE) {
             // override the .sbi context size only if the argument was used on the command line:
+            genomicContextSize = args().genomicContextLength;
             modelProperties.setProperty("stats.genomicContextSize.min", Integer.toString(args().genomicContextLength));
             modelProperties.setProperty("stats.genomicContextSize.max", Integer.toString(args().genomicContextLength));
         }

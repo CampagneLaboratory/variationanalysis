@@ -1,6 +1,7 @@
 package org.campagnelab.dl.framework.domains;
 
 import com.google.common.collect.Iterables;
+import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
@@ -360,5 +361,27 @@ public abstract class DomainDescriptor<RecordType> {
 
     public void setInputsPaddedEos(Map<String, Boolean> inputsPaddedEos) {
         this.inputsPaddedEos = inputsPaddedEos;
+    }
+
+    /**
+     * Produce a unique identifier given the variable parts of this domain descriptor (feature mappers, label mappers,
+     * computation graph assembler). The identifier is used to name mapped feature cache files. Any parameter that
+     * affects the mapped features or labels should be used in the construction of the cache unique id.
+
+     * @return a hashcode formatted as a hexadecimal string, or an arbitrary  string that hashes or encodes parameters.
+     */
+    public String produceCacheUniqueId() {
+        int domainHashCode = 0x72E7;
+        for (Object o : featureMappers()) {
+            domainHashCode ^= o.getClass().getCanonicalName().hashCode();
+        }
+        for (Object o : labelMappers()) {
+            domainHashCode ^= o.getClass().getCanonicalName().hashCode();
+        }
+        domainHashCode ^= getComputationalGraph().getClass().getCanonicalName().hashCode();
+
+        String uniqueId = Integer.toHexString(domainHashCode);
+        return uniqueId;
+
     }
 }
