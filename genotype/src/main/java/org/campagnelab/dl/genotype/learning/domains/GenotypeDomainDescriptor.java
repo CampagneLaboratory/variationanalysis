@@ -58,6 +58,9 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         variantLossWeight = args().variantLossWeight;
         genomicContextSize = args().genomicContextLength;
         modelCapacity= args().modelCapacity;
+        if (modelCapacity<0) {
+            throw new RuntimeException("Model capacity cannot be negative. Typical values are >=1 (1-5)");
+        }
     }
 
     /**

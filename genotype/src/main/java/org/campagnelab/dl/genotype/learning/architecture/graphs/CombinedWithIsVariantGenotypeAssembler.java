@@ -5,12 +5,8 @@ import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -21,11 +17,11 @@ import org.nd4j.linalg.lossfunctions.ILossFunction;
  */
 public class CombinedWithIsVariantGenotypeAssembler implements ComputationGraphAssembler {
 
-    private int numHiddenNodes;
+
     private LearningRatePolicy learningRatePolicy;
     private TrainingArguments arguments;
-    private int numInputs;
     private int numLayers;
+    FeedForwardDenseLayerAssembler layerAssembler;
 
     private TrainingArguments args() {
         return arguments;
@@ -36,89 +32,41 @@ public class CombinedWithIsVariantGenotypeAssembler implements ComputationGraphA
     public void setArguments(TrainingArguments arguments) {
         this.arguments = arguments;
         this.numLayers = ((GenotypeTrainingArguments) arguments).numLayers;
+        layerAssembler = new FeedForwardDenseLayerAssembler(arguments);
     }
 
     @Override
     public ComputationGraph createComputationalGraph(DomainDescriptor domainDescriptor) {
+        layerAssembler.setLearningRatePolicy(learningRatePolicy);
         int numInputs = domainDescriptor.getNumInputs("input")[0];
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("firstDense");
-        assert numHiddenNodes > 0 : "model capacity is too small. At least some hidden nodes must be created.";
+        ComputationGraphConfiguration.GraphBuilder build = layerAssembler.assemble(numInputs, numHiddenNodes, numLayers);
+        int numIn = layerAssembler.getNumOutputs();
         WeightInit WEIGHT_INIT = WeightInit.XAVIER;
-        learningRatePolicy = LearningRatePolicy.Poly;
-        float reduction = 1f;
-        int minimum = (int) (numHiddenNodes * Math.pow(reduction, 4));
-        assert minimum > 2 : "Too much reduction, not enough outputs: ";
-        ComputationGraphConfiguration confBuilder = null;
-        double epsilon = 1e-08d;
-        NeuralNetConfiguration.Builder graphBuilder = new NeuralNetConfiguration.Builder()
-                .seed(args().seed)
-                .iterations(1)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(args().learningRate)
-                .updater(Updater.ADAGRAD);
-        graphBuilder.epsilon(epsilon);
-        if (args().regularizationRate != null) {
-            graphBuilder.l2(args().regularizationRate);
-        }
-        if (args().dropoutRate != null) {
-            graphBuilder.dropOut(args().dropoutRate);
-            graphBuilder.setUseDropConnect(true);
-        }
-        NeuralNetConfiguration.Builder graphConfiguration = graphBuilder.lrPolicyDecayRate(0.5)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-                .learningRate(args().learningRate)
-                .seed(args().seed);
-        if (args().regularizationRate != null) {
-            graphConfiguration.regularization(args().regularizationRate != null);
-        }
-        if (args().dropoutRate != null) {
-            graphConfiguration.dropOut(args().dropoutRate);
-            graphConfiguration.setUseDropConnect(true);
-        }
-        ComputationGraphConfiguration.GraphBuilder build = graphConfiguration
-                .weightInit(WeightInit.XAVIER).graphBuilder().addInputs("input");
-        int numIn = numInputs;
-        int numOut = numHiddenNodes;
-
-        String lastDenseLayerName = "no layers";
-        String previousLayerName = "input";
-        epsilon = 0.1;
-        for (int i = 1; i <= numLayers; i++) {
-            numOut = numHiddenNodes;
-            System.out.printf("layer %d numIn=%d numOut=%d%n", i, numIn, numOut);
-            lastDenseLayerName = "dense" + i;
-
-            previousLayerName = i == 1 ? "input" : "dense" + (i - 1);
-            build.addLayer(lastDenseLayerName, new DenseLayer.Builder().nIn(numIn).nOut(numOut)
-                    .weightInit(WEIGHT_INIT)
-                    .activation("relu").learningRateDecayPolicy(learningRatePolicy).epsilon(epsilon)
-                    .build(), previousLayerName);
-            numIn = numOut;
-
-        }
+        String lastDenseLayerName = layerAssembler.lastLayerName();
 
         build.addLayer("combined", new OutputLayer.Builder(
                 domainDescriptor.getOutputLoss("combined"))
                 .weightInit(WEIGHT_INIT)
                 .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                 .nIn(numIn)
-                .nOut(domainDescriptor.getNumOutputs("combined")[0]).epsilon(epsilon).build(), lastDenseLayerName);
+                .nOut(domainDescriptor.getNumOutputs("combined")[0]).build(), lastDenseLayerName);
         build.addLayer("metaData", new OutputLayer.Builder(
                 domainDescriptor.getOutputLoss("metaData"))
-                .weightInit(WEIGHT_INIT).epsilon(epsilon)
+                .weightInit(WEIGHT_INIT)
                 .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                 .nIn(numIn)
                 .nOut(
                         domainDescriptor.getNumOutputs("metaData")[0]
-                ).epsilon(epsilon).build(), lastDenseLayerName);
+                ).build(), lastDenseLayerName);
         build.addLayer("isVariant", new OutputLayer.Builder(
                 domainDescriptor.getOutputLoss("isVariant"))
-                .weightInit(WEIGHT_INIT).epsilon(epsilon)
+                .weightInit(WEIGHT_INIT)
                 .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                 .nIn(numIn)
                 .nOut(
                         domainDescriptor.getNumOutputs("isVariant")[0]
-                ).epsilon(epsilon).build(), lastDenseLayerName);
+                ).build(), lastDenseLayerName);
         ComputationGraphConfiguration conf = build
                 .setOutputs(getOutputNames())
                 .build();
