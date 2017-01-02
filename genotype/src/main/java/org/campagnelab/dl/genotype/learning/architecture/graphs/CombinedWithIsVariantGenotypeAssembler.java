@@ -42,7 +42,7 @@ public class CombinedWithIsVariantGenotypeAssembler implements ComputationGraphA
     public ComputationGraph createComputationalGraph(DomainDescriptor domainDescriptor) {
         int numInputs = domainDescriptor.getNumInputs("input")[0];
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("firstDense");
-
+        assert numHiddenNodes > 0 : "model capacity is too small. At least some hidden nodes must be created.";
         WeightInit WEIGHT_INIT = WeightInit.XAVIER;
         learningRatePolicy = LearningRatePolicy.Poly;
         float reduction = 1f;

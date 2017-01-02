@@ -48,6 +48,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     private int ploidy;
     double variantLossWeight;
     private int genomicContextSize;
+    private float modelCapacity;
 
 
     public GenotypeDomainDescriptor(GenotypeTrainingArguments arguments) {
@@ -56,6 +57,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         this.ploidy = arguments.ploidy;
         variantLossWeight = args().variantLossWeight;
         genomicContextSize = args().genomicContextLength;
+        modelCapacity= args().modelCapacity;
     }
 
     /**
@@ -226,7 +228,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         ploidy = Integer.parseInt(property);
         String variantLossWeightProperty = modelProperties.getProperty("variantLossWeight");
         variantLossWeight = Double.parseDouble(variantLossWeightProperty);
-
+        String modelCapacityProperty = modelProperties.getProperty("modelCapacity");
+        modelCapacity = Float.parseFloat(modelCapacityProperty);
     }
 
     @Override
@@ -250,6 +253,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             modelProperties.setProperty("stats.genomicContextSize.min", Integer.toString(args().genomicContextLength));
             modelProperties.setProperty("stats.genomicContextSize.max", Integer.toString(args().genomicContextLength));
         }
+        modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
         modelProperties.setProperty("variantLossWeight", Double.toString(variantLossWeight));
     }
 
@@ -421,7 +425,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public int getNumHiddenNodes(String componentName) {
-        return getNumInputs("input")[0] ;
+        return Math.round(getNumInputs("input")[0] *modelCapacity);
     }
 
     @Override

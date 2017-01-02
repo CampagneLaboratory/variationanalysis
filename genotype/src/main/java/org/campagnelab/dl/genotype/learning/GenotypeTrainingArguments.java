@@ -32,6 +32,10 @@ public class GenotypeTrainingArguments extends TrainingArguments {
     @Parameter(names = "--num-layers", description = "The number of dense layers in the model.")
     public int numLayers = 5;
 
+    @Parameter(names = "--model-capacity", description = "A floating number that controls model capacity (i.e., number of hidden " +
+            "nodes in the neural network). Use a c >=1 to control how many hidden nodes are created (#hiddenNodes=c*#inputs).")
+    public float modelCapacity=1f;
+
     @Override
     protected String defaultArchitectureClassname() {
         return GenotypeSixDenseLayersNarrower2.class.getCanonicalName();
