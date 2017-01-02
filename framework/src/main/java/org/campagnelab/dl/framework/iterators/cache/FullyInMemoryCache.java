@@ -20,7 +20,7 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
 
     public FullyInMemoryCache(MultiDataSetIterator source) {
         this.source = source;
-        if (resetSupported()) {
+        if (source.resetSupported()) {
             source.reset();
         }
         reset();
@@ -48,18 +48,24 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
     }
 
     @Override
-    public void reset() {
-        index = -1;
+    public synchronized void reset() {
 
+        index = -1;
         // force traversal and caching of iterator if reset is called before a full traversal:
         if (!sourceIsComplete) {
             cache.clear();
+            if (source.resetSupported()) {
+                source.reset();
+            }
             while (hasNext()) {
                 next();
             }
+            sourceIsComplete = true;
             reset();
-          //  System.out.println("Memory cache size="+cache.size());
+
         }
+        //  System.out.println("Memory cache size="+cache.size());
+
 
     }
 
@@ -88,7 +94,7 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
 
                 MultiDataSet multiDataSet = null;
                 multiDataSet = source.next();
-               // assignToHostMemory(multiDataSet);
+                // assignToHostMemory(multiDataSet);
                 cache.add(multiDataSet);
                 return multiDataSet;
             }
