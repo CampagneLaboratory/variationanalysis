@@ -29,6 +29,9 @@ public class GenotypeTrainingArguments extends TrainingArguments {
             "this value should be included in a hyper-parameter search. ")
     public int genomicContextLength = Integer.MAX_VALUE;
 
+    @Parameter(names = "--num-layers", description = "The number of dense layers in the model.")
+    public int numLayers = 5;
+
     @Override
     protected String defaultArchitectureClassname() {
         return GenotypeSixDenseLayersNarrower2.class.getCanonicalName();

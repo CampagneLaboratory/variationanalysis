@@ -390,19 +390,22 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public ComputationGraphAssembler getComputationalGraph() {
+        ComputationGraphAssembler assembler;
         if (withDistinctAllele()) {
-            return new NumDistinctAlleleAssembler();
+            assembler = new NumDistinctAlleleAssembler();
         } else if (withCombinedLayer() && !withIsVariantLabelMapper()) {
-            return new CombinedGenotypeSixDenseLayers();
+            assembler = new CombinedGenotypeSixDenseLayers();
         } else if (withIsVariantLabelMapper()) {
-            return new CombinedWithIsVariantGenotypeAssembler();
+            assembler = new CombinedWithIsVariantGenotypeAssembler();
+        } else {
+            try {
+                assembler = (ComputationGraphAssembler) Class.forName(args().architectureClassname).newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
-        try {
-            ComputationGraphAssembler assembler = (ComputationGraphAssembler) Class.forName(args().architectureClassname).newInstance();
-            return assembler;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        assembler.setArguments(args());
+        return assembler;
     }
 
 
@@ -418,7 +421,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public int getNumHiddenNodes(String componentName) {
-        return getNumInputs("input")[0] * 1;
+        return getNumInputs("input")[0] ;
     }
 
     @Override
