@@ -439,7 +439,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 INDArray weights = Nd4j.ones(2);
 
                 weights.putScalar(BooleanLabelMapper.IS_TRUE, variantLossWeight);
-                weights.putScalar(BooleanLabelMapper.IS_FALSE, variantLossWeight);
+                weights.putScalar(BooleanLabelMapper.IS_FALSE, 0);
                 return new LossBinaryXENT(weights);
             // return new LossBinaryXENT();
             case "metaData":
