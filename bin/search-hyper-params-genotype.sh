@@ -56,7 +56,8 @@ NUM_GPUS=`wc -l gpu.txt|cut -d " " -f 1`
 
 num_executions=${memory_requirement}
 
-parallel echo `cat main-command.txt` --build-cache-then-stop \
+parallel echo `cat main-command.txt` --mini-batch-size 2048 \
+  --build-cache-then-stop \
   --genomic-context-length :::: genomic-context-size.txt ::: \
 >build-cache-commands.txt
 
@@ -64,7 +65,8 @@ export FORCE_PLATFORM=native
 cat build-cache-commands.txt |parallel -j${NUM_GPUS} --progress
 
 unset FORCE_PLATFORM
-parallel echo `cat main-command.txt` --regularization-rate :::: reg.txt :::  \
+parallel echo `cat main-command.txt` --mini-batch-size 2048 \
+  --regularization-rate :::: reg.txt :::  \
   --random-seed :::: seed.txt ::: --learning-rate :::: learn.txt ::: \
   --dropout-rate :::: drop.txt ::: --early-stopping-num-epochs ::: 1 ::: \
   --variant-loss-weight :::: is-variant-loss-weight.txt ::: \
