@@ -74,7 +74,8 @@ public abstract class TrainingArguments extends RecordingToolArguments {
     public String memoryCache = "validation";
 
     public boolean memoryCacheTraining() {
-        boolean result= memoryCache.length() > 1 && memoryCache.contains("training");
+        // do not cache in memory if just build a cache on disk:
+        boolean result = memoryCache.length() > 1 && memoryCache.contains("training") && !buildCacheAndStop;
         if (result) {
             System.out.println("Training set will be fully cached in memory.");
         }
@@ -82,7 +83,8 @@ public abstract class TrainingArguments extends RecordingToolArguments {
     }
 
     public boolean memoryCacheValidation() {
-        boolean result= memoryCache.length() > 1 && memoryCache.contains("validation");
+        // do not cache in memory if just build a cache on disk:
+        boolean result = memoryCache.length() > 1 && memoryCache.contains("validation") && !buildCacheAndStop;
         if (result) {
             System.out.println("Validation set will be fully cached in memory.");
         }
