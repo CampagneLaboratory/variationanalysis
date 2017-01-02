@@ -43,19 +43,21 @@ public class GenomicContextMapper extends NoMaskFeatureMapper<BaseInformationRec
     }
 
     /**
-     * Trim a larger context to remain centered on the base of interest, but have only up to contextSize bases.
+     * Trim a larger context to remain centered on the base of interest, but have only up to trimLength bases.
      *
-     * @param contextSize                  target context size.
-     * @param recordGenomicSequenceContext the genomic context from the sbi file, may be larger than contextSize
+     * @param trimLength                  target context size.
+     * @param recordGenomicSequenceContext the genomic context from the sbi file, may be larger than trimLength
      * @return
      */
-    String trim(int contextSize, String recordGenomicSequenceContext) {
-       assert contextSize>=recordGenomicSequenceContext.length() :"The trim length must be smaller than the .sbi context length.";
-        if (recordGenomicSequenceContext.length() == contextSize) {
+    String trim(int trimLength, String recordGenomicSequenceContext) {
+       assert trimLength<=recordGenomicSequenceContext.length() :
+               String.format("The trim length (%d) must be smaller than the .sbi context length (%d).",
+               trimLength,  recordGenomicSequenceContext.length()) ;
+        if (recordGenomicSequenceContext.length() == trimLength) {
             return recordGenomicSequenceContext;
         }
-        int clipLength=(recordGenomicSequenceContext.length()-contextSize)/2;
-        String result= recordGenomicSequenceContext.substring(clipLength,contextSize+clipLength);
+        int clipLength=(recordGenomicSequenceContext.length()-trimLength)/2;
+        String result= recordGenomicSequenceContext.substring(clipLength,trimLength+clipLength);
         return result;
     }
 
