@@ -41,7 +41,10 @@ if [ -z "${EVALUATION_METRIC_NAME+set}" ]; then
       EVALUATION_METRIC_NAME="AUC+F1"
       echo "EVALUATION_METRIC_NAME set to ${EVALUATION_METRIC_NAME}. Change the variable to switch the performance metric used to control early stopping."
 fi
-
+if [ -z "${PREDICT_OPTIONS+set}" ]; then
+      PREDICT_OPTIONS=" "
+      echo "PREDICT_OPTIONS set to ${PREDICT_OPTIONS}. Change the variable to switch the options for predict."
+fi
 if [ ! -e "${DATASET}${VAL_SUFFIX}.sbi" ]; then
     echo "The validation set was not found: ${DATASET}${VAL_SUFFIX}.sbi  "
        exit 1;
@@ -77,5 +80,5 @@ train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
 dieIfError "Failed to train model with CUDA GPU build."
 
 MODEL_DIR=`grep "model directory:" ${OUTPUT_FILE}  |cut -d " " -f 3`
-predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f -i ${DATASET}test.sbi
+predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f -i ${DATASET}test.sbi ${PREDICT_OPTIONS}
 dieIfError "Failed to predict statistics."

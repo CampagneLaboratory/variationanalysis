@@ -15,13 +15,20 @@ import org.nd4j.linalg.lossfunctions.ILossFunction;
 /**
  * Created by fac2003 on 12/23/16.
  */
-public class CombinedWithIsVariantGenotypeAssembler implements ComputationGraphAssembler {
+public class CombinedGenotypeAssembler extends GenotypeAssembler implements ComputationGraphAssembler {
 
 
-    private LearningRatePolicy learningRatePolicy;
     private TrainingArguments arguments;
     private int numLayers;
-    FeedForwardDenseLayerAssembler layerAssembler;
+    private FeedForwardDenseLayerAssembler layerAssembler;
+
+    public CombinedGenotypeAssembler() {
+        this(false);
+    }
+
+    public CombinedGenotypeAssembler(boolean hasIsVariant) {
+        this.hasIsVariant = hasIsVariant;
+    }
 
     private TrainingArguments args() {
         return arguments;
@@ -37,10 +44,14 @@ public class CombinedWithIsVariantGenotypeAssembler implements ComputationGraphA
 
     @Override
     public ComputationGraph createComputationalGraph(DomainDescriptor domainDescriptor) {
+        LearningRatePolicy learningRatePolicy = LearningRatePolicy.Poly;
         layerAssembler.setLearningRatePolicy(learningRatePolicy);
         int numInputs = domainDescriptor.getNumInputs("input")[0];
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("firstDense");
-        ComputationGraphConfiguration.GraphBuilder build = layerAssembler.assemble(numInputs, numHiddenNodes, numLayers);
+
+        ComputationGraphConfiguration.GraphBuilder build = layerAssembler.assemble(numInputs,
+                numHiddenNodes, numLayers);
+
         int numIn = layerAssembler.getNumOutputs();
         WeightInit WEIGHT_INIT = WeightInit.XAVIER;
         String lastDenseLayerName = layerAssembler.lastLayerName();
@@ -51,22 +62,8 @@ public class CombinedWithIsVariantGenotypeAssembler implements ComputationGraphA
                 .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                 .nIn(numIn)
                 .nOut(domainDescriptor.getNumOutputs("combined")[0]).build(), lastDenseLayerName);
-        build.addLayer("metaData", new OutputLayer.Builder(
-                domainDescriptor.getOutputLoss("metaData"))
-                .weightInit(WEIGHT_INIT)
-                .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                .nIn(numIn)
-                .nOut(
-                        domainDescriptor.getNumOutputs("metaData")[0]
-                ).build(), lastDenseLayerName);
-        build.addLayer("isVariant", new OutputLayer.Builder(
-                domainDescriptor.getOutputLoss("isVariant"))
-                .weightInit(WEIGHT_INIT)
-                .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                .nIn(numIn)
-                .nOut(
-                        domainDescriptor.getNumOutputs("isVariant")[0]
-                ).build(), lastDenseLayerName);
+        appendMetaDataLayer(domainDescriptor, learningRatePolicy, build, numIn, WEIGHT_INIT, lastDenseLayerName);
+        appendIsVariantLayer(domainDescriptor, learningRatePolicy, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         ComputationGraphConfiguration conf = build
                 .setOutputs(getOutputNames())
                 .build();
@@ -97,8 +94,14 @@ public class CombinedWithIsVariantGenotypeAssembler implements ComputationGraphA
 
     @Override
     public String[] getOutputNames() {
-        return new String[]{"combined", "metaData", "isVariant"};
+
+        if (hasIsVariant) {
+            return new String[]{"combined", "metaData", "isVariant"};
+        } else {
+            return new String[]{"combined", "metaData"};
+        }
     }
+
 
     @Override
     public String[] getComponentNames() {

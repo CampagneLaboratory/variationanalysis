@@ -11,8 +11,8 @@ import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
-import org.campagnelab.dl.genotype.learning.architecture.graphs.CombinedGenotypeSixDenseLayers;
-import org.campagnelab.dl.genotype.learning.architecture.graphs.CombinedWithIsVariantGenotypeAssembler;
+import org.campagnelab.dl.genotype.learning.architecture.graphs.CombinedGenotypeAssembler;
+import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.NumDistinctAlleleAssembler;
 import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
@@ -57,8 +57,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         this.ploidy = arguments.ploidy;
         variantLossWeight = args().variantLossWeight;
         genomicContextSize = args().genomicContextLength;
-        modelCapacity= args().modelCapacity;
-        if (modelCapacity<0) {
+        modelCapacity = args().modelCapacity;
+        if (modelCapacity < 0) {
             throw new RuntimeException("Model capacity cannot be negative. Typical values are >=1 (1-5)");
         }
     }
@@ -208,12 +208,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     private boolean withDistinctAllele() {
         final GenotypeFeatureMapper featureMapper = (GenotypeFeatureMapper) getFeatureMapper("input");
-        return featureMapper.withDistinctAlleleCounts && !featureMapper.hasIsVariantLabelMapper;
+        return featureMapper.withDistinctAlleleCounts;
     }
 
     private boolean withCombinedLayer() {
         final GenotypeFeatureMapper featureMapper = (GenotypeFeatureMapper) getFeatureMapper("input");
-        return featureMapper.withCombinedLayer && !featureMapper.hasIsVariantLabelMapper;
+        return featureMapper.withCombinedLayer ;
     }
 
     private boolean withIsVariantLabelMapper() {
@@ -399,11 +399,11 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     public ComputationGraphAssembler getComputationalGraph() {
         ComputationGraphAssembler assembler;
         if (withDistinctAllele()) {
-            assembler = new NumDistinctAlleleAssembler();
-        } else if (withCombinedLayer() && !withIsVariantLabelMapper()) {
-            assembler = new CombinedGenotypeSixDenseLayers();
-        } else if (withIsVariantLabelMapper()) {
-            assembler = new CombinedWithIsVariantGenotypeAssembler();
+            assembler = new NumDistinctAlleleAssembler(withIsVariantLabelMapper());
+        } else if (withCombinedLayer()) {
+            assembler = new CombinedGenotypeAssembler(withIsVariantLabelMapper());
+        } else if (!withDistinctAllele() && !withCombinedLayer()) {
+            assembler = new GenotypeSixDenseLayersNarrower2(withIsVariantLabelMapper());
         } else {
             try {
                 assembler = (ComputationGraphAssembler) Class.forName(args().architectureClassname).newInstance();
@@ -428,7 +428,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public int getNumHiddenNodes(String componentName) {
-        return Math.round(getNumInputs("input")[0] *modelCapacity);
+        return Math.round(getNumInputs("input")[0] * modelCapacity);
     }
 
     @Override
@@ -457,14 +457,19 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public GenotypePrediction aggregatePredictions(List<Prediction> individualOutputPredictions) {
-        if (withDistinctAllele())
-            return new NumDistinctIndelGenotypePrediction(individualOutputPredictions);
-        else if (withCombinedLayer()) {
-            CombinedGenotypePrediction overall = new CombinedGenotypePrediction(individualOutputPredictions);
-            return overall;
-        } else if (withIsVariantLabelMapper()) {
-            CombinedGenotypePrediction overall = new CombinedWithIsVariantGenotypePrediction(individualOutputPredictions);
-            return overall;
+        if (withDistinctAllele()) {
+            if (withIsVariantLabelMapper()) {
+                return new NumDistinctAlleleWithIsVariantGenotypePrediction(individualOutputPredictions);
+            } else {
+                return new NumDistinctAlleleGenotypePrediction(individualOutputPredictions);
+            }
+        } else if (withCombinedLayer()) {
+            if (withIsVariantLabelMapper()) {
+                return new CombinedWithIsVariantGenotypePrediction(individualOutputPredictions);
+            } else {
+                return new CombinedGenotypePrediction(individualOutputPredictions);
+            }
+
         }
         throw new IllegalArgumentException("The type of aggregate prediction is not recognized.");
     }

@@ -10,10 +10,11 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.weights.WeightInit;
 
 /**
+ * A helper class to assemble a configurable number of dense feed forward layers.
  * Created by fac2003 on 1/2/17.
  */
 public class FeedForwardDenseLayerAssembler {
-    TrainingArguments args;
+    private TrainingArguments args;
     private LearningRatePolicy learningRatePolicy;
     private int numOutputs;
     private String lastLayerName;
@@ -69,7 +70,7 @@ public class FeedForwardDenseLayerAssembler {
         epsilon = 0.1;
         for (int i = 1; i <= numLayers; i++) {
             numOut = numHiddenNodes;
-       //     System.out.printf("layer %d numIn=%d numOut=%d%n", i, numIn, numOut);
+            //     System.out.printf("layer %d numIn=%d numOut=%d%n", i, numIn, numOut);
             lastDenseLayerName = "dense" + i;
 
             previousLayerName = i == 1 ? "input" : "dense" + (i - 1);
@@ -80,8 +81,9 @@ public class FeedForwardDenseLayerAssembler {
             numIn = numOut;
 
         }
-        this.numOutputs=numOut;
-        this.lastLayerName=lastDenseLayerName;
+
+        this.numOutputs = numOut;
+        this.lastLayerName = lastDenseLayerName;
         return build;
 
     }

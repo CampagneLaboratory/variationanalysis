@@ -11,9 +11,9 @@ import java.util.List;
 /**
  * A prediction for models that encode the number of distinct alleles.
  */
-public class NumDistinctIndelGenotypePrediction extends GenotypePrediction {
+public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
 
-    public NumDistinctIndelGenotypePrediction(List<Prediction> predictionList) {
+    public NumDistinctAlleleGenotypePrediction(List<Prediction> predictionList) {
         set(predictionList);
     }
 
