@@ -7,21 +7,21 @@ import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.campagnelab.dl.framework.architecture.nets.NeuralNetAssembler;
 import org.campagnelab.dl.framework.gpu.ParameterPrecision;
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
-import org.campagnelab.dl.framework.tools.TrainingArguments;
-import org.campagnelab.dl.somatic.mappers.SimpleFeatureCalculator;
 import org.campagnelab.dl.framework.models.ModelLoader;
-import org.campagnelab.dl.framework.architecture.nets.NeuralNetAssembler;
+import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
+import org.campagnelab.dl.framework.performance.PerformanceLogger;
+import org.campagnelab.dl.framework.tools.TrainingArguments;
+import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.somatic.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.somatic.learning.iterators.NamedDataSetIterator;
-import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
-import org.campagnelab.dl.framework.performance.PerformanceLogger;
-import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
+import org.campagnelab.dl.somatic.mappers.SimpleFeatureCalculator;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
@@ -323,9 +323,10 @@ public abstract class SomaticTrainer extends ConditionRecordingTool<SomaticTrain
     }
 
     public static Properties getReaderProperties(String trainingSet) throws IOException {
-        SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSet);
-        final Properties properties = reader.getProperties();
-        reader.close();
-        return properties;
+        try (SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSet)) {
+            final Properties properties = reader.getProperties();
+            reader.close();
+            return properties;
+        }
     }
 }

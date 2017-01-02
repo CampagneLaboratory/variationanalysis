@@ -36,9 +36,7 @@ import org.nd4j.linalg.lossfunctions.impl.LossBinaryXENT;
 import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -110,8 +108,13 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         return arguments;
     }
 
+    Map<String, FeatureMapper> featureMappers = new HashMap<>();
+
     @Override
     public FeatureMapper getFeatureMapper(String inputName) {
+        if (featureMappers.containsKey(inputName)) {
+            return featureMappers.get(inputName);
+        }
         FeatureMapper result = null;
 
         if (args().featureMapperClassname != null) {
@@ -147,7 +150,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 throw new RuntimeException(e);
             }
         }
-
+        featureMappers.put(inputName, result);
         return result;
     }
 
@@ -213,7 +216,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     private boolean withCombinedLayer() {
         final GenotypeFeatureMapper featureMapper = (GenotypeFeatureMapper) getFeatureMapper("input");
-        return featureMapper.withCombinedLayer ;
+        return featureMapper.withCombinedLayer;
     }
 
     private boolean withIsVariantLabelMapper() {
@@ -363,6 +366,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     case "Precision":
                     case "NumVariants":
                     case "Concordance":
+                        assert false : "avoid using the single metric evaluation method. Very slow.";
                         GenotypeTrainingPerformanceHelper helper = new GenotypeTrainingPerformanceHelper(domainDescriptor);
                         return helper.estimateWithGraph(dataSetIterator, graph,
                                 index -> index > scoreN);

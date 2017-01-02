@@ -23,14 +23,11 @@ import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
 import org.nd4j.linalg.lossfunctions.impl.LossMSE;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -81,13 +78,19 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         return arguments;
     }
 
+    Map<String, FeatureMapper> cachedFeatureMappers = new HashMap<>();
+
     @Override
     public FeatureMapper getFeatureMapper(String inputName) {
+        if (cachedFeatureMappers.containsKey(inputName)) {
+            return cachedFeatureMappers.get(inputName);
+        }
+        FeatureMapper result;
         if (args().featureMapperClassname != null) {
             assert "input".equals(inputName) : "Only one input supported by this domain.";
 
             try {
-                return TrainSomaticModel.configureFeatureMapper(args().featureMapperClassname, (args()).isTrio,
+                result = TrainSomaticModel.configureFeatureMapper(args().featureMapperClassname, (args()).isTrio,
                         args().getTrainingSets());
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -99,11 +102,13 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
                     ConfigurableFeatureMapper cfmapper = (ConfigurableFeatureMapper) fMapper;
                     cfmapper.configure(modelProperties);
                 }
-                return fMapper;
+                result = fMapper;
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
+        cachedFeatureMappers.put(inputName, result);
+        return result;
 
     }
 
