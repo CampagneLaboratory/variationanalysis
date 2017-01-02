@@ -348,7 +348,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             numExamplesUsed += trainer.train(computationGraph, iterator, pg);
 
             //save latest after the end of an epoch:
-            saver.saveLatestModel(computationGraph, computationGraph.score());
+            double trainingScore = computationGraph.score();
+            saver.saveLatestModel(computationGraph, trainingScore);
             writeProperties();
             writeBestScoreFile();
             if (epoch % args().validateEvery == 0) {
@@ -370,6 +371,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                         performanceValues);
 
                 performanceLogger.logMetrics("epochs", numExamplesUsed, epoch, metricValues.toDoubleArray());
+                performanceLogger.logTrainingScore("epochs", epoch, trainingScore);
                 if (args().trackingStyle == TrainingArguments.TrackStyle.PERFS) {
                     performanceLogger.show("epochs");
                 }
@@ -403,7 +405,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         return new EarlyStoppingResult<ComputationGraph>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, performanceLogger.getBestEpoch(bestMetricName), bestScore, args().maxEpochs, computationGraph);
     }
-
 
 
     private double findMetricValue(String lookupName, String[] metricNames, double[] performanceValues) {

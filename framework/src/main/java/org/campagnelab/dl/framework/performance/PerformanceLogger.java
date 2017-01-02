@@ -133,10 +133,17 @@ public class PerformanceLogger {
         }
     }
 
+    public void logTrainingScore(String prefix, int epoch, double trainingScore) {
+        List<Performance> values = log.get(prefix);
+        Performance perf = values.stream().filter(performance -> performance.epoch == epoch).findFirst().get();
+        perf.trainingScore = trainingScore;
+
+    }
+
     public void show(String prefix) {
-        List<Performance>      perfs= log.get(prefix);
-        Performance perf= perfs.get(perfs.size()-1);
-        System.out.println(perf.formatValues());
+        List<Performance> perfs = log.get(prefix);
+        Performance perf = perfs.get(perfs.size() - 1);
+        System.out.printf("%d\t%f\t%s%n",perf.epoch, perf.trainingScore,perf.formatValues());
     }
 
     /**
@@ -219,8 +226,8 @@ public class PerformanceLogger {
             }
             for (Performance perf : perfs) {
 
-                writer.write(String.format("%d\t%d\t%s",
-                        perf.numExamplesUsed, perf.epoch, perf.formatValues()));
+                writer.write(String.format("%d\t%d\t%f\t%s",
+                        perf.numExamplesUsed, perf.epoch,perf.trainingScore, perf.formatValues()));
 
                 if (conditionId != null) {
                     writer.write("\t" + conditionId);
@@ -235,7 +242,7 @@ public class PerformanceLogger {
     }
 
     private void writeHeaders(Writer writer) throws IOException {
-        writer.write("numExamplesUsed\tepoch\t" + getMetricHeader());
+        writer.write("numExamplesUsed\tepoch\ttrainingScore\t" + getMetricHeader());
         if (conditionId != null) {
             writer.write("\tcondition");
         }
@@ -249,7 +256,7 @@ public class PerformanceLogger {
         if (performanceNames == null) {
             return "score\tAUC";
         } else {
-            String result = "";
+            String result = "epoch\ttrainingScore\t";
             int index = 0;
             for (String name : performanceNames) {
                 result += name;
@@ -268,6 +275,10 @@ public class PerformanceLogger {
         int epoch;
         double[] performanceValues;
         String[] performanceNames;
+        /**
+         * The score obtained on the training set.
+         */
+        public double trainingScore;
 
         public Performance(long numExamplesUsed, int epoch, double score, double auc) {
             this.numExamplesUsed = numExamplesUsed;

@@ -49,7 +49,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
         while (iterator.hasNext()) {
             MultiDataSet next = iterator.next();
             INDArray[] outputs = graph.output(next.getFeatures());
-            double dsScore = graph.score();
+            double dsScore = graph.score(next);
             if (dsScore == dsScore) {
                 scoreObserver.accept(dsScore);
             }
