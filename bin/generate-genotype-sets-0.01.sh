@@ -40,8 +40,13 @@ fi
 export SBI_GENOME=${GENOME}
 export OUTPUT_BASENAME=tmp/genotype_full_called.sbi
 
-# We keep only 10% of reference matching sites as we add the true genotypes:
-export REF_SAMPLING_RATE=0.1
+if [ -z "${REF_SAMPLING_RATE+set}" ]; then
+    # We keep only 10% of reference matching sites as we add the true genotypes:
+    REF_SAMPLING_RATE="0.1"
+    echo "REF_SAMPLING_RATE set to ${REF_SAMPLING_RATE}. Change the variable to influence what percent of reference sites are sampled."
+else
+ echo "REF_SAMPLING_RATE set to ${REF_SAMPLING_RATE}."
+fi
 
 parallel-genotype-sbi.sh 10g ${ALIGNMENTS}
 dieIfError "Failed to generate .sbi file"
