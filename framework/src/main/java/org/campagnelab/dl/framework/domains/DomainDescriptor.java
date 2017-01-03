@@ -37,7 +37,8 @@ import java.util.stream.Collectors;
 public abstract class DomainDescriptor<RecordType> {
 
     /**
-     * Get the feature mapper for a given model graph input.
+     * Get the feature mapper for a given model graph input. If creating a feature mapper is expensive (e.g., involves
+     * reading files), it is strongly recommended to cache mapper instances by input name.
      *
      * @param inputName The name of a graph input. Must match an input of the computational graph.
      * @return A feature mapper.
@@ -45,7 +46,8 @@ public abstract class DomainDescriptor<RecordType> {
     public abstract FeatureMapper getFeatureMapper(String inputName);
 
     /**
-     * Get the label mapper for a given model graph output.
+     * Get the label mapper for a given model graph output. If creating a label mapper is expensive (e.g., involves
+     * reading files), it is strongly recommended to cache mapper instances by input name.
      *
      * @param outputName The name of a graph output. Must match an output of the computational graph.
      * @return A label mapper.
