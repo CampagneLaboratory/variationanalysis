@@ -67,7 +67,7 @@ on Mac:
    goby 10g build-sequence-cache ucsc_hg19.fasta
    ```
 The next two steps are time-consuming, so you can skip them if you prefer and 
-download a [pre-built dataset](http://gobyweb.apps.campagnelab.org/data/DLSV/chr21-NA12878-sbi-dataset.zip) 
+download a [pre-built dataset](http://gobyweb.apps.campagnelab.org/data/DLSV/chr21-NA12878-sbi-dataset-17-1-1.zip) 
 (unzip the archive in the tutorial directory).
 
 ### Convert the VCF to a varmap
@@ -90,7 +90,7 @@ In the code fragment below, adjust the DATASET variable to match the filename pr
 for the dataset you just built (it is preset for the pre-built dataset download):
    ```sh
      export CONSIDER_INDELS=false
-     export DATASET=NA12878_S1_21_dec19-2016-12-30-
+     export DATASET=NA12878_S1_21_dec19-2017-01-01-
      export MINI_BATCH_SIZE=2048
      iterate-genotype.sh org.campagnelab.dl.genotype.mappers.GenotypeMapperV13 1
    ```
