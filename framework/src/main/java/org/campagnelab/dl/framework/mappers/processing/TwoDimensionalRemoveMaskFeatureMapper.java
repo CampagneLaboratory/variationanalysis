@@ -118,6 +118,7 @@ public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements Featur
             boundsMap.put(record, boundsList);
         }
         normalizedCalled.add(record);
+        delegate.prepareToNormalize(record, indexOfRecord);
     }
 
     @Override

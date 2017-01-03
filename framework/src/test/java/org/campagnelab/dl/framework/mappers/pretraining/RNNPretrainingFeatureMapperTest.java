@@ -51,18 +51,22 @@ public class RNNPretrainingFeatureMapperTest {
                 String::length);
         RNNPretrainingFeatureMapper<String> rnnPretrainingFeatureMapper = new RNNPretrainingFeatureMapper<>(
                 rnnFeatureMapper, null, String::length);
-        rnnPretrainingFeatureMapper.prepareToNormalize(sequence1, 0);
-        rnnPretrainingFeatureMapper.prepareToNormalize(sequence2, 1);
-        rnnPretrainingFeatureMapper.prepareToNormalize(sequence3, 2);
         INDArray inputs = Nd4j.zeros(3, 7, 7);
-        rnnPretrainingFeatureMapper.mapFeatures(sequence1, inputs, 0);
-        rnnPretrainingFeatureMapper.mapFeatures(sequence2, inputs, 1);
-        rnnPretrainingFeatureMapper.mapFeatures(sequence3, inputs, 2);
-        assertEquals(inputs.toString(), expectedFeatures);
         INDArray mask = Nd4j.zeros(3, 7);
+
+        rnnPretrainingFeatureMapper.prepareToNormalize(sequence1, 0);
+        rnnPretrainingFeatureMapper.mapFeatures(sequence1, inputs, 0);
         rnnPretrainingFeatureMapper.maskFeatures(sequence1, mask, 0);
+
+        rnnPretrainingFeatureMapper.prepareToNormalize(sequence2, 1);
+        rnnPretrainingFeatureMapper.mapFeatures(sequence2, inputs, 1);
         rnnPretrainingFeatureMapper.maskFeatures(sequence2, mask, 1);
+
+        rnnPretrainingFeatureMapper.prepareToNormalize(sequence3, 2);
+        rnnPretrainingFeatureMapper.mapFeatures(sequence3, inputs, 2);
         rnnPretrainingFeatureMapper.maskFeatures(sequence3, mask, 2);
+
+        assertEquals(inputs.toString(), expectedFeatures);
         assertEquals(mask.toString(), expectedMask);
     }
 }

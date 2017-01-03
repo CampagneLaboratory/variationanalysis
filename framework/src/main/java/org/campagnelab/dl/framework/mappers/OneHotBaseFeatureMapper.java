@@ -63,10 +63,12 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
     public int numberOfFeatures() {
         return 6;
     }
-String cachedString;
+
+    String cachedString;
+
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
-        cachedString=recordToString.apply(record);
+        cachedString = recordToString.apply(record);
     }
 
     @Override
