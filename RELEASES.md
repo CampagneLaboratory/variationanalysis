@@ -15,3 +15,10 @@ The same procedure is followed, but using a formal release number in the last st
 ```
 ./prepare-release.sh 1.2
 ```
+
+# MAVEN RELEASES
+ 1. Make sure the project version does not end with -SNAPSHOT in the poms
+ 2. Deploy on the staging repository with ````mvn deploy -U````  (you need the CampagneLaboratory PGP keys for this step)
+ 3. Log in with the CampagneLaboratory at [Maven staging repository](https://oss.sonatype.org/#stagingRepositories) 
+ 4. Delete all the *bin-native* files from somatic and genotype modules in the CampagneLab repo
+ 5. Release the repository ()
