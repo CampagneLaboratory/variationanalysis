@@ -31,7 +31,7 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
     private Function<RecordType, String> recordToString;
     private BiFunction<String, Integer, Integer> recordStringAtBaseToInteger;
     private int baseIndex;
-    private HashMap<RecordType, String> recordStringMap;
+
 
     /**
      * Constructs a OneHotBaseFeatureMapper that can be used to encode DNA sequences
@@ -55,7 +55,7 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
         this.baseIndex = baseIndex;
         this.recordToString = recordToString;
         this.recordStringAtBaseToInteger = recordStringAtBaseToInteger;
-        recordStringMap = new HashMap<>();
+
     }
 
     private static final int[] indices = new int[]{0, 0};
@@ -63,10 +63,10 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
     public int numberOfFeatures() {
         return 6;
     }
-
+String cachedString;
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
-        recordStringMap.put(record, recordToString.apply(record));
+        cachedString=recordToString.apply(record);
     }
 
     @Override
@@ -80,12 +80,8 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
 
     @Override
     public float produceFeature(RecordType record, int featureIndex) {
-        String recordString = recordStringMap.computeIfAbsent(record, r -> {
-           String s = recordToString.apply(r);
-           recordStringMap.put(r, s);
-           return s;
-        });
-        int value = recordStringAtBaseToInteger.apply(recordString, baseIndex);
+
+        int value = recordStringAtBaseToInteger.apply(cachedString, baseIndex);
         return value == featureIndex ? 1F : 0F;
     }
 

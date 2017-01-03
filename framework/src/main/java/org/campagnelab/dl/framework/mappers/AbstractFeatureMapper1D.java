@@ -22,7 +22,8 @@ public abstract class AbstractFeatureMapper1D<RecordType> implements FeatureName
     public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
 
 
-        for (int featureIndex = 0; featureIndex < numberOfFeatures(); featureIndex++) {
+        final int numberOfFeatures = numberOfFeatures();
+        for (int featureIndex = 0; featureIndex < numberOfFeatures; featureIndex++) {
             indices[0] = indexOfRecord;
             indices[1] = featureIndex;
             inputs.putScalar(indices, produceFeature(record, featureIndex));
