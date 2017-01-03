@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.campagnelab.dl</groupId>
     <artifactId>variation-analysis</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <packaging>pom</packaging>
     <modules>
         <module>framework</module>
@@ -52,7 +52,7 @@
         <connection>scm:git@github.com:CampagneLaboratory/variationanalysis.git</connection>
         <developerConnection>scm:git:git@github.com:CampagneLaboratory/variationanalysis.git</developerConnection>
         <url>git@github.com:CampagneLaboratory/variationanalysis.git</url>
-        <tag>r1.1.1</tag>
+        <tag>r1.2</tag>
     </scm>
 
     <properties>
@@ -258,11 +258,11 @@
             </snapshots>
         </repository>
         <!-- nexus staging can be used to test staged artifacts before their official release -->
-        <!--repository>
+        <repository>
             <id>nexus-staging</id>
             <name>Nexus Release Repository</name>
             <url>https://oss.sonatype.org/content/groups/staging</url>
-        </repository-->
+        </repository>
     </repositories>
 
     <distributionManagement>
@@ -282,7 +282,7 @@
         <dependency>
             <groupId>org.campagnelab.goby</groupId>
             <artifactId>goby-io</artifactId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2</version>
         </dependency>
     </dependencies>
 
