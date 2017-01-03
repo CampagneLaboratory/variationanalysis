@@ -54,9 +54,22 @@ public class TwoDimensionalConcatFeatureMapperTest {
         twoDConcatFMapper.mapFeatures(sequence1, inputs, 0);
         twoDConcatFMapper.maskFeatures(sequence1, mask, 0);
 
+        INDArray sequence1Features = inputs.getRow(0);
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 6; j++) {
+                int featureIndex = i * 6 + j;
+                assertEquals(sequence1Features.getFloat(j, i), twoDConcatFMapper.produceFeature(sequence1, featureIndex), 1e-9);
+            }
+        }
+
         twoDConcatFMapper.prepareToNormalize(sequence2, 1);
         twoDConcatFMapper.mapFeatures(sequence2, inputs, 1);
         twoDConcatFMapper.maskFeatures(sequence2, mask, 1);
+
+        INDArray sequence2Mask = mask.getRow(1);
+        for (int i = 0; i < 9; i++) {
+            assertEquals(sequence2Mask.getInt(i) == 1, twoDConcatFMapper.isMasked(sequence2, i * 6));
+        }
 
         twoDConcatFMapper.prepareToNormalize(sequence3, 2);
         twoDConcatFMapper.mapFeatures(sequence3, inputs, 2);
@@ -65,16 +78,7 @@ public class TwoDimensionalConcatFeatureMapperTest {
         assertEquals(inputs.toString(), expectedFeatures);
         assertEquals(mask.toString(), expectedMask);
 
-        // TODO: Fix code/test so that these lines pass
-//        INDArray sequence1Features = inputs.getRow(0);
-//        INDArray sequence2Mask = mask.getRow(1);
 
-//        for (int i = 0; i < 9; i++) {
-//            assertEquals(sequence2Mask.getInt(i) == 1, twoDConcatFMapper.isMasked(sequence2, i * 6));
-//            for (int j = 0; j < 6; j++) {
-//                int featureIndex = i * 6 + j;
-//                assertEquals(sequence1Features.getFloat(j, i), twoDConcatFMapper.produceFeature(sequence1, featureIndex), 1e-9);
-//            }
-//        }
+
     }
 }

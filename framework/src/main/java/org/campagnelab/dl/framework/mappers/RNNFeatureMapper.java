@@ -2,7 +2,6 @@ package org.campagnelab.dl.framework.mappers;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.util.HashMap;
 import java.util.function.Function;
 
 /**
@@ -34,11 +33,12 @@ import java.util.function.Function;
 public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
     private int featuresPerTimeStep;
     private FeatureMapper<RecordType>[] delegates;
-    Function<RecordType, Integer> recordToSequenceLength;
-    HashMap<RecordType, Integer> sequenceLengthMap;
+    private Function<RecordType, Integer> recordToSequenceLength;
 
     private int[] indicesMapper = new int[]{0, 0, 0};
     private int[] indicesMasker = new int[]{0, 0};
+
+    int sequenceLength;
 
     private MappedDimensions dim;
 
@@ -78,7 +78,6 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
         }
         this.featuresPerTimeStep = dimensions.numElements();
         this.delegates = delegates;
-        sequenceLengthMap = new HashMap<>();
         dim = new MappedDimensions(featuresPerTimeStep, delegates.length);
     }
 
@@ -95,11 +94,7 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
 
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
-        Integer mapSequenceLength = sequenceLengthMap.get(record);
-        if (mapSequenceLength == null) {
-            int sequenceLength = recordToSequenceLength.apply(record);
-            sequenceLengthMap.put(record, sequenceLength);
-        }
+        sequenceLength = recordToSequenceLength.apply(record);
         for (FeatureMapper<RecordType> delegate : delegates) {
             delegate.prepareToNormalize(record, indexOfRecord);
         }
@@ -107,19 +102,13 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
 
     @Override
     public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
-        Integer sequenceLength = sequenceLengthMap.get(record);
-        int recordSequenceLength = sequenceLength != null
-                ? sequenceLength : recordToSequenceLength.apply(record);
-        if (sequenceLength == null) {
-            sequenceLengthMap.put(record, recordSequenceLength);
-        }
         indicesMapper[0] = indexOfRecord;
         for (int i = 0; i < delegates.length; i++) {
             indicesMapper[2] = i;
             final FeatureMapper<RecordType> delegate = delegates[i];
             for (int j = 0; j < delegate.numberOfFeatures(); j++) {
                 indicesMapper[1] = j;
-                if (i < recordSequenceLength) {
+                if (i < sequenceLength) {
                     inputs.putScalar(indicesMapper, delegate.produceFeature(record, j));
                 } else {
                     inputs.putScalar(indicesMapper, 0F);
@@ -135,51 +124,27 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
 
     @Override
     public void maskFeatures(RecordType record, INDArray mask, int indexOfRecord) {
-        Integer sequenceLength = sequenceLengthMap.get(record);
-        int recordSequenceLength = sequenceLength != null
-                ? sequenceLength : recordToSequenceLength.apply(record);
-        if (sequenceLength == null) {
-            sequenceLengthMap.put(record, recordSequenceLength);
-        }
         indicesMasker[0] = indexOfRecord;
         for (int i = 0; i < delegates.length; i++) {
             indicesMasker[1] = i;
-            mask.putScalar(indicesMasker, i < recordSequenceLength ? 1F : 0F);
+            mask.putScalar(indicesMasker, i < sequenceLength ? 1F : 0F);
         }
     }
 
     @Override
     public float produceFeature(RecordType record, int featureIndex) {
-        Integer sequenceLength = sequenceLengthMap.get(record);
-        int recordSequenceLength = sequenceLength != null
-                ? sequenceLength : recordToSequenceLength.apply(record);
-        if (sequenceLength == null) {
-            sequenceLengthMap.put(record, recordSequenceLength);
-        }
         int delegateIdx = featureIndex / featuresPerTimeStep;
-        if (delegateIdx >= recordSequenceLength) {
+        if (delegateIdx >= sequenceLength) {
             return 0F;
         }
         int featureInDelegateIdx = featureIndex % featuresPerTimeStep;
-        float feature;
-        try {
-            feature = delegates[delegateIdx].produceFeature(record, featureInDelegateIdx);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            int foo = 1;
-        }
         return delegates[delegateIdx].produceFeature(record, featureInDelegateIdx);
     }
 
     @Override
     public boolean isMasked(RecordType record, int featureIndex) {
-        Integer sequenceLength = sequenceLengthMap.get(record);
-        int recordSequenceLength = sequenceLength != null
-                ? sequenceLength : recordToSequenceLength.apply(record);
-        if (sequenceLength == null) {
-            sequenceLengthMap.put(record, recordSequenceLength);
-        }
         int delegateIdx = featureIndex / featuresPerTimeStep;
-        if (delegateIdx >= recordSequenceLength) {
+        if (delegateIdx >= sequenceLength) {
             return false;
         }
         int featureInDelegateIdx = featureIndex % featuresPerTimeStep;
