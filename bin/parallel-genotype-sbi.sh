@@ -30,7 +30,10 @@ else
     VARMAP_OPTION=" -x SequenceBaseInformationOutputFormat:random-seed=3764 -x SequenceBaseInformationOutputFormat:sampling-rate=${REF_SAMPLING_RATE} -x SequenceBaseInformationOutputFormat:true-genotype-map=${SBI_GENOTYPE_VARMAP} "
 fi
 
-
+if [ -z "${GOBY_NUM_SLICES+set}" ]; then
+    GOBY_NUM_SLICES="50"
+    echo "GOBY_NUM_SLICES set to ${GOBY_NUM_SLICES}. Change the variable to influence whether how many slices to use when processing an alignment."
+fi
 if [ -z "${INCLUDE_INDELS+set}" ]; then
     INCLUDE_INDELS="false"
     echo "INCLUDE_INDELS set to ${INCLUDE_INDELS}. Change the variable to influence whether indels are included in the SBI file."
@@ -45,7 +48,7 @@ if [ -z  "${SBI_NUM_THREADS+set}" ]; then
 fi
 echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
 
-goby ${memory_requirement} suggest-position-slices ${ALIGNMENTS} --number-of-slices 200 -o slices.tsv
+goby ${memory_requirement} suggest-position-slices ${ALIGNMENTS} --number-of-slices ${GOBY_NUM_SLICES} -o slices.tsv
 grep -v targetIdStart slices.tsv >slices
 echo " discover-sequence-variants -n 0 -t 1 --genome  ${SBI_GENOME} --format  SEQUENCE_BASE_INFORMATION  ${ALIGNMENTS} \
     --call-indels  ${INCLUDE_INDELS} --processor realign_near_indels \
