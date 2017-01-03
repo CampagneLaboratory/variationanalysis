@@ -18,6 +18,11 @@ This is a straightforward application
 of the Matcha framework and takes advantage of ground-truth genotypes
 established for specific quality control samples.
 
+# Download
+You can download the binary distribution here:
+* [Release 1.2](http://chagall.med.cornell.edu/goby/releases/release-dlvariation_1.2.zip) (January 2017).
+
+# Tutorials
 
 We provide a [tutorial](./GENOTYPE-TUTORIAL-SHORT.md) for the somatic calling models.
 It is strongly recommended that you read the tutorial at this time. It
@@ -57,5 +62,6 @@ Interested in genotype calling with deep learning models? Have a look at the pre
 
 [![framework javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/framework.svg?label=framework_javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/framework)
 [![somatic javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/somatic.svg?label=somatic_javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/somatic)
+[![genotype javadocs](http://www.javadoc.io/badge/org.campagnelab.dl/genotype.svg?label=genotype_javadoc)](http://www.javadoc.io/doc/org.campagnelab.dl/somatic)
 
 See the project on [GitHub](https://github.com/CampagneLaboratory/variationanalysis) --- Learn more about the [Campagne Laboratory](http://campagnelab.org)
