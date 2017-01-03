@@ -129,6 +129,7 @@ public class GenotypeMapperV19 extends GenotypeMapperV11 {
                                 record -> TraversalHelper.forAllSampleCounts(record,
                                         CountInfoOrBuilder::getNumVariationsInReadsList)),
 
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(distancesToReadVariations),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(numVariationsInReadMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readMappingQualityMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(baseQualityMappers)
