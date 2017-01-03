@@ -258,11 +258,11 @@
             </snapshots>
         </repository>
         <!-- nexus staging can be used to test staged artifacts before their official release -->
-        <repository>
+        <!--repository>
             <id>nexus-staging</id>
             <name>Nexus Release Repository</name>
             <url>https://oss.sonatype.org/content/groups/staging</url>
-        </repository>
+        </repository-->
     </repositories>
 
     <distributionManagement>
