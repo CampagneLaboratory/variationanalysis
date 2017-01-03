@@ -100,6 +100,9 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
             int sequenceLength = recordToSequenceLength.apply(record);
             sequenceLengthMap.put(record, sequenceLength);
         }
+        for (FeatureMapper<RecordType> delegate : delegates) {
+            delegate.prepareToNormalize(record, indexOfRecord);
+        }
     }
 
     @Override

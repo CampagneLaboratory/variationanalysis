@@ -103,7 +103,9 @@ public class TwoDimensionalConcatFeatureMapper<RecordType> implements FeatureMap
 
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
-
+        for (FeatureMapper<RecordType> delegate : delegates) {
+            delegate.prepareToNormalize(record, indexOfRecord);
+        }
     }
 
     @Override

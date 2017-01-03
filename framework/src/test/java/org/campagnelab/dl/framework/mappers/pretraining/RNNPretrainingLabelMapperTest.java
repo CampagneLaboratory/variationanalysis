@@ -51,18 +51,22 @@ public class RNNPretrainingLabelMapperTest {
                 String::length);
         RNNPretrainingLabelMapper<String> rnnPretrainingLabelMapper = new RNNPretrainingLabelMapper<>(
                 rnnFeatureMapper, null, String::length);
-        rnnPretrainingLabelMapper.prepareToNormalize(sequence1, 0);
-        rnnPretrainingLabelMapper.prepareToNormalize(sequence2, 1);
-        rnnPretrainingLabelMapper.prepareToNormalize(sequence3, 2);
         INDArray inputs = Nd4j.zeros(3, 7, 7);
-        rnnPretrainingLabelMapper.mapLabels(sequence1, inputs, 0);
-        rnnPretrainingLabelMapper.mapLabels(sequence2, inputs, 1);
-        rnnPretrainingLabelMapper.mapLabels(sequence3, inputs, 2);
-        assertEquals(inputs.toString(), expectedLabels);
         INDArray mask = Nd4j.zeros(3, 7);
+
+        rnnPretrainingLabelMapper.prepareToNormalize(sequence1, 0);
+        rnnPretrainingLabelMapper.mapLabels(sequence1, inputs, 0);
         rnnPretrainingLabelMapper.maskLabels(sequence1, mask, 0);
+
+        rnnPretrainingLabelMapper.prepareToNormalize(sequence2, 1);
+        rnnPretrainingLabelMapper.mapLabels(sequence2, inputs, 1);
         rnnPretrainingLabelMapper.maskLabels(sequence2, mask, 1);
+
+        rnnPretrainingLabelMapper.prepareToNormalize(sequence3, 2);
+        rnnPretrainingLabelMapper.mapLabels(sequence3, inputs, 2);
         rnnPretrainingLabelMapper.maskLabels(sequence3, mask, 2);
+
+        assertEquals(inputs.toString(), expectedLabels);
         assertEquals(mask.toString(), expectedMask);
     }
 
