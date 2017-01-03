@@ -53,7 +53,7 @@ grep -v targetIdStart slices.tsv >slices
 echo " discover-sequence-variants -n 0 -t 1 --genome  ${SBI_GENOME} --format  SEQUENCE_BASE_INFORMATION  ${ALIGNMENTS} \
     --call-indels  ${INCLUDE_INDELS} --processor realign_near_indels \
     --max-coverage-per-site 10000 -x HTSJDKReaderImpl:force-sorted=true \
-    -x SequenceBaseInformationOutputFormat:genomic-context-length=61 \
+    -x SequenceBaseInformationOutputFormat:genomic-context-length=41 \
     ${VARMAP_OPTION} " >command.txt
 
 cut -f3,6 slices  | awk 'BEGIN{count=1} {print "-s "$1" -e " $2" -o out-part-"(count++)}' >boundaries
