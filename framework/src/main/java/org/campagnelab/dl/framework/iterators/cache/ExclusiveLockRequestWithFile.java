@@ -1,7 +1,6 @@
 package org.campagnelab.dl.framework.iterators.cache;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,13 +17,13 @@ public class ExclusiveLockRequestWithFile {
 
     RandomAccessFile lockFile;
     private FileLock lock;
-    private static Logger LOG = Logger.getLogger(ExclusiveLockRequestWithFile.class);
+  //  private static Logger LOG = Logger.getLogger(ExclusiveLockRequestWithFile.class);
     private final String filename;
 
     public ExclusiveLockRequestWithFile(String filename, File repoDir) {
         this.filename = filename;
         if (!repoDir.exists()) {
-            LOG.warn("Repository directory did not exist, creating..");
+       //     LOG.warn("Repository directory did not exist, creating..");
             repoDir.mkdir();
         }
         String lockFilename = FilenameUtils.concat(repoDir.getAbsolutePath(), filename);
@@ -33,7 +32,7 @@ public class ExclusiveLockRequestWithFile {
         try {
             lockFile = new RandomAccessFile(lockFilename, "rw");
         } catch (FileNotFoundException e) {
-            LOG.error("Cannot create LOCK on " + this.filename, e);
+       //     LOG.error("Cannot create LOCK on " + this.filename, e);
         }
 
     }
@@ -46,7 +45,7 @@ public class ExclusiveLockRequestWithFile {
             try {
                 granted = (lock = lockFile.getChannel().tryLock()) != null;
             } catch (IOException e) {
-                LOG.error("Could not acquire lock on " + filename, e);
+       //         LOG.error("Could not acquire lock on " + filename, e);
                 granted = false;
             }
         }
@@ -84,7 +83,7 @@ public class ExclusiveLockRequestWithFile {
 
                     } catch (IOException e) {
 
-                        LOG.warn("Caught IO exception when trying to release file lock. Ignoring.", e);
+              //          LOG.warn("Caught IO exception when trying to release file lock. Ignoring.", e);
                     }
 
             }
