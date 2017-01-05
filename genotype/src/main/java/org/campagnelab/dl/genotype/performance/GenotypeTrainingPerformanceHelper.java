@@ -71,7 +71,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
                     }
                 }
                 GenotypePrediction gp = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictions);
-                accumulator.observe(gp);
+                accumulator.observe(gp,gp.isVariant(),gp.isVariant());
                 observer.accept(gp);
                 if (stopIfTrue.test(nProcessed)) {
                     break;

@@ -1,7 +1,9 @@
 package org.campagnelab.dl.genotype.tools;
 
+import edu.cornell.med.icb.util.VersionUtils;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
+import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
@@ -13,9 +15,7 @@ import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
  *         Created by rct66 on 12/7/16.
  */
 public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
+
     /**
      * We estimate the AUC of a correct prediction on a variant with respect to everything else (e.g., incorrect
      * on variant or reference).
@@ -32,6 +33,8 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     private AreaUnderTheROCCurve aucLossCalculator;
     private double auc;
     private double[] confidenceInterval95;
+
+
 
     @Override
     public PredictArguments createArguments() {
@@ -50,7 +53,13 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
-        resutsWriter.append("index\tpredictionCorrect01\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness\tregion\tisVariant").append("\n");
+        if (args().outputFormat == PredictGArguments.OutputFormat.VCF) {
+            resutsWriter.append(String.format(VCF_HEADER,
+                    VersionUtils.getImplementationVersion(PredictG.class),
+                    args().modelPath, args().modelName));
+        } else {
+            resutsWriter.append("index\tpredictionCorrect01\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness\tregion\tisVariant").append("\n");
+        }
     }
 
     @Override
@@ -61,7 +70,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         aucLossCalculator = new AreaUnderTheROCCurve(args().numRecordsForAUC);
     }
 
-    String[] orderStats = {"Accuracy", "Recall", "Precision",   "F1", "NumVariants", "Concordance"};
+    String[] orderStats = {"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance"};
 
     @Override
     protected double[] createOutputStatistics() {
@@ -77,7 +86,14 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
         return values.toDoubleArray();
     }
-
+    private static final String VCF_HEADER = "##fileformat=VCFv4.1\n" +
+            "##VariationAnalysis=%s\n" +
+            "##modelPath=%s\n" +
+            "##modelPrefix=%s\n" +
+            "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n" +
+            "##FORMAT=<ID=MC,Number=1,Type=String,Description=\"Model Calls.\">\n" +
+            "##FORMAT=<ID=P,Number=1,Type=Float,Description=\"Model proability.\">\n";
+    private static final String VCF_LINE = "%s\t%d\t%s\t%s\t.\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
     @Override
     protected String[] createOutputHeader() {
 
@@ -125,33 +141,73 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         boolean correct = fullPred.isCorrect();
         //remove dangling commas
         String correctness = correct ? "correct" : "wrong";
-       // obtain isVariant from the gold-standard, not from the prediction.
+        // obtain isVariant from the gold-standard, not from the prediction.
         boolean isVariant = record.getSamples(0).getIsVariant();
+        final boolean isPredictedVariant = GenotypeHelper.isVariant(fullPred.predictedGenotype, record.getReferenceBase());
 
         if (filterHet(args(), fullPred) &&
                 filterVariant(args(), fullPred) &&
                 doOuptut(correctness, args(), fullPred.overallProbability)) {
-            resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\t%s:%s\t%s\n",
-                    fullPred.index, (correct ? 1 : 0),
-                    fullPred.trueGenotype, fullPred.predictedGenotype,
-                    fullPred.isVariantProbability, correctness, record.getReferenceId(), record.getPosition() + 1,
-                    isVariant ? "variant" : "-");
+            switch (args().outputFormat) {
+                case TABLE:
+                    resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\t%s:%s\t%s\t\n",
+                            fullPred.index, (correct ? 1 : 0),
+                            fullPred.trueGenotype, fullPred.predictedGenotype,
+                            fullPred.isVariantProbability, correctness, record.getReferenceId(), record.getPosition() + 1,
+                            isVariant ? "variant" : "-");
+
+                case VCF:
+                    String ref=record.getReferenceBase();
+                    Set<String> altSet=fullPred.predictedAlleles();
+                    altSet.remove(ref);
+                    SortedSet<String> sortedAltSet=new ObjectAVLTreeSet<>();
+                    sortedAltSet.addAll(altSet);
+
+                    final Optional<String> optional = sortedAltSet.stream().reduce((s, s2) -> s + "," + s2);
+                    String alt = optional.isPresent()?optional.get():".";
+                    resultWriter.printf(VCF_LINE, record.getReferenceId(), record.getPosition() + 1,
+                            ref, alt,codeGT(fullPred.predictedGenotype,ref,sortedAltSet), fullPred.predictedGenotype, fullPred.isVariantProbability);
+            }
             if (args().filterMetricObservations) {
 
-                stats.observe(fullPred, isVariant);
-                observeForAUC(fullPred,isVariant);
+                stats.observe(fullPred, isVariant, isPredictedVariant);
+                observeForAUC(fullPred, isVariant);
             }
         }
         if (!args().filterMetricObservations) {
-            stats.observe(fullPred);
+            stats.observe(fullPred, fullPred.isVariant(), isPredictedVariant);
             observeForAUC(fullPred, isVariant);
         }
 
     }
 
+    private String codeGT(String predictedGenotype, String ref, SortedSet<String> altSet) {
+        String result="";
+        for (String allele:  GenotypeHelper.getAlleles(predictedGenotype)) {
+            if (ref.equals(allele)) {
+                result+= "0";
+            }
+            int altIndex=1;
+            for (String altAllele: altSet){
+                if (altAllele.equals(allele)) {
+                    if (result.length()>1) {
+                        result+="/";
+                    }
+                    result+= Integer.toString(altIndex);
+                }
+                altIndex+=1;
+            }
+        }
+        if (result.length()>0) {
+            return result;
+        }else {
+            return "./.";
+        }
+    }
+
     private void observeForAUC(GenotypePrediction fullPred, boolean isVariant) {
         if (isVariant) {
-            aucLossCalculator.observe(fullPred.overallProbability,  fullPred.isCorrect() ? 1 : -1);
+            aucLossCalculator.observe(fullPred.overallProbability, fullPred.isCorrect() ? 1 : -1);
         }
     }
 

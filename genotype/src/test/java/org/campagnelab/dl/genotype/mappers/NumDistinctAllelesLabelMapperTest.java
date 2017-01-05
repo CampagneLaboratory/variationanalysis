@@ -1,10 +1,9 @@
 package org.campagnelab.dl.genotype.mappers;
 
-import com.google.common.primitives.UnsignedLongs;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by fac2003 on 12/20/16.

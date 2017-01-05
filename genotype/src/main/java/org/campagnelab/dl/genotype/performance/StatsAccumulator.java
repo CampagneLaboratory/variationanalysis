@@ -1,5 +1,6 @@
 package org.campagnelab.dl.genotype.performance;
 
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 
 import java.util.Arrays;
@@ -20,6 +21,7 @@ public class StatsAccumulator {
     private int numVariants;
     private int concordantVariants;
     private int numVariantsExpected;
+    private int numTrueOrPredictedVariants;
 
     public void initializeStats() {
         numCorrect = 0;
@@ -30,38 +32,44 @@ public class StatsAccumulator {
         numFalseNegative = 0;
         numVariants = 0;
         concordantVariants = 0;
+        numTrueOrPredictedVariants = 0;
     }
 
     public void observe(GenotypePrediction fullPred) {
-        observe(fullPred, fullPred.isVariant());
+        observe(fullPred, fullPred.isVariant(), fullPred.isVariant());
     }
 
-    public void observe(GenotypePrediction fullPred, boolean isVariant) {
+    public void observe(GenotypePrediction fullPred, boolean isTrueVariant, boolean isPredictedVariant) {
         numProcessed++;
+        if (isPredictedVariant || isTrueVariant) {
+            numTrueOrPredictedVariants+=1;
+            concordantVariants += fullPred.isCorrect()  ? 1 : 0;
+        }
+
         if (fullPred.isCorrect()) {
             numCorrect++;
-            if (isVariant) {
+            if (isTrueVariant) {
                 numTruePositive++;
 
             } else {
                 numTrueNegative++;
             }
         } else {
-            if (isVariant) {
+            if (isTrueVariant) {
                 numFalseNegative++;
             } else {
                 numFalsePositive++;
             }
         }
-        concordantVariants += fullPred.isCorrect() && fullPred.isVariant() ? 1 : 0;
 
-        numVariants += isVariant ? 1 : 0;
 
+        numVariants += isTrueVariant ? 1 : 0;
+        assert numVariants == numTruePositive + numFalseNegative;
     }
 
     public double[] createOutputStatistics() {
         double accuracy = numCorrect / (double) numProcessed;
-        double genotypeConcordance = concordantVariants / (double) numVariants;
+        double genotypeConcordance = concordantVariants / (double) numTrueOrPredictedVariants;
         final int variantsExpected = Math.max(numTruePositive + numFalseNegative, this.numVariantsExpected);
         double recall = numTruePositive / ((double) variantsExpected);
         double precision = numTruePositive / ((double) (numTruePositive + numFalsePositive));
@@ -112,7 +120,7 @@ public class StatsAccumulator {
 
     public void reportStatistics(String prefix) {
         double[] statsArray = createOutputStatistics();
-        System.out.printf("Number of variants expected=%d%n",numVariantsExpected);
+        System.out.printf("Number of variants expected=%d%n", numVariantsExpected);
         System.out.println("Statistics estimated for " + prefix);
         System.out.println("Accuracy =" + statsArray[0]);
         System.out.println("Recall =" + statsArray[1]);

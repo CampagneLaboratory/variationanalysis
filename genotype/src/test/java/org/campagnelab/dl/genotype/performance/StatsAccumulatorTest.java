@@ -1,6 +1,5 @@
 package org.campagnelab.dl.genotype.performance;
 
-import org.campagnelab.dl.genotype.predictions.CombinedGenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.junit.Test;
 
