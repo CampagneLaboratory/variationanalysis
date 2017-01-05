@@ -168,6 +168,8 @@ public class TwoDimensionalConcatLabelMapper<RecordType> implements LabelMapper<
 
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
-
+        for (LabelMapper<RecordType> delegate : delegates) {
+            delegate.prepareToNormalize(record, indexOfRecord);
+        }
     }
 }

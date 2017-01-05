@@ -3,12 +3,9 @@ package org.campagnelab.dl.framework.mappers.processing;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.function.Function;
 
 /**
  * Label mapper that takes in a label mapper that maps two-dimensional labels, and removes masked elements in
@@ -24,19 +21,15 @@ import java.util.HashSet;
  * Created by joshuacohen on 12/13/16.
  */
 public class TwoDimensionalRemoveMaskLabelMapper<RecordType> implements LabelMapper<RecordType> {
-    static private Logger LOG = LoggerFactory.getLogger(TwoDimensionalRemoveMaskLabelMapper.class);
-
     private LabelMapper<RecordType> delegate;
     private MappedDimensions dim;
-    private HashSet<RecordType> normalizedCalled;
-    private HashMap<RecordType, ArrayList<Bounds>> boundsMap;
     private int labelsPerTimeStep;
     private int numTimeSteps;
-    private int startIndex;
-
+    private Function<RecordType, Integer> recordToPaddingLength;
 
     private int[] mapperIndices = new int[]{0, 0, 0};
     private int[] maskerIndices = new int[]{0, 0};
+    private ArrayList<Bounds> boundsList;
 
     /**
      * Creates a new label mapper from an existing 2D label mapper, where masked elements are removed
@@ -54,6 +47,19 @@ public class TwoDimensionalRemoveMaskLabelMapper<RecordType> implements LabelMap
      * @param startIndex starting position of where to start removing masked elements
      */
     public TwoDimensionalRemoveMaskLabelMapper(LabelMapper<RecordType> delegate, int startIndex) {
+        this(delegate, record -> startIndex);
+    }
+
+    /**
+     * Creates a new label mapper from an existing 2D feature mapper, where masked elements are removed
+     * for a given record starting from the position obtained by applying recordToPaddingLength
+     * on that record
+     * @param delegate Delegate two-dimensional label mapper
+     * @param recordToPaddingLength Function that, for each record, returns starting position of where to
+     *                              start removing masked elements
+     */
+    public TwoDimensionalRemoveMaskLabelMapper(LabelMapper<RecordType> delegate,
+                                               Function<RecordType, Integer> recordToPaddingLength) {
         dim = delegate.dimensions();
         if (dim.numDimensions() != 2) {
             throw new RuntimeException("Delegate mapper must be two dimensional");
@@ -61,9 +67,7 @@ public class TwoDimensionalRemoveMaskLabelMapper<RecordType> implements LabelMap
         labelsPerTimeStep = dim.numElements(1);
         numTimeSteps = dim.numElements(2);
         this.delegate = delegate;
-        this.startIndex = startIndex;
-        boundsMap = new HashMap<>();
-        normalizedCalled = new HashSet<>();
+        this.recordToPaddingLength = recordToPaddingLength;
     }
 
     @Override
@@ -78,15 +82,13 @@ public class TwoDimensionalRemoveMaskLabelMapper<RecordType> implements LabelMap
 
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
-        if (indexOfRecord == -1) {
-            LOG.warn("prepareToNormalize should be called before mapping/masking or calling produceLabel/isMasked");
-        }
+        delegate.prepareToNormalize(record, indexOfRecord);
+        boundsList = new ArrayList<>();
         if (delegate.hasMask()) {
             boolean prevMasked = true;
             Bounds currBounds = new Bounds();
-            ArrayList<Bounds> boundsList = new ArrayList<>();
             int prevBoundsIndex = -1;
-            for (int i = startIndex; i < dim.numElements(2); i++) {
+            for (int i = recordToPaddingLength.apply(record); i < dim.numElements(2); i++) {
                 int labelIndex = i * labelsPerTimeStep;
                 if (delegate.isMasked(record, labelIndex)) {
                     if (!prevMasked) {
@@ -106,9 +108,7 @@ public class TwoDimensionalRemoveMaskLabelMapper<RecordType> implements LabelMap
                     prevMasked = false;
                 }
             }
-            boundsMap.put(record, boundsList);
         }
-        normalizedCalled.add(record);
     }
 
     @Override
@@ -141,12 +141,8 @@ public class TwoDimensionalRemoveMaskLabelMapper<RecordType> implements LabelMap
 
     @Override
     public boolean isMasked(RecordType record, int labelIndex) {
-        if (!normalizedCalled.contains(record)) {
-            prepareToNormalize(record, -1);
-        }
         int timeStepIndex = labelIndex / labelsPerTimeStep;
         int timeStepLabelIndex = labelIndex % labelsPerTimeStep;
-        ArrayList<Bounds> boundsList = boundsMap.get(record);
         int shiftSize = 0;
         for (Bounds bounds : boundsList) {
             if (bounds.contains(timeStepIndex)) {
@@ -163,12 +159,8 @@ public class TwoDimensionalRemoveMaskLabelMapper<RecordType> implements LabelMap
 
     @Override
     public float produceLabel(RecordType record, int labelIndex) {
-        if (!normalizedCalled.contains(record)) {
-            prepareToNormalize(record, -1);
-        }
         int timeStepIndex = labelIndex / labelsPerTimeStep;
         int timeStepLabelIndex = labelIndex % labelsPerTimeStep;
-        ArrayList<Bounds> boundsList = boundsMap.get(record);
         int shiftSize = 0;
         for (Bounds bounds : boundsList) {
             if (bounds.contains(timeStepIndex)) {

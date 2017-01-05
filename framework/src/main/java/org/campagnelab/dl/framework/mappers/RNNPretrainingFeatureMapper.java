@@ -47,10 +47,9 @@ public class RNNPretrainingFeatureMapper<RecordType> implements FeatureMapper<Re
     public void mapFeatures(RecordType record, INDArray inputs, int indexOfRecord) {
         featureMapper.prepareToNormalize(record, indexOfRecord);
         mapperIndices[0] = indexOfRecord;
-        int sequenceLen = featureMapper.sequenceLengthMap.get(record);
         for (int i = 0; i < maxSequenceLen; i++) {
             mapperIndices[2] = i;
-            int indexInSequence = i % sequenceLen;
+            int indexInSequence = i % featureMapper.sequenceLength;
             for (int j = 0; j < featuresPerTimeStep; j++) {
                 mapperIndices[1] = j;
                 int featureIndex = indexInSequence * featuresPerTimeStep + j;
@@ -68,7 +67,7 @@ public class RNNPretrainingFeatureMapper<RecordType> implements FeatureMapper<Re
     public void maskFeatures(RecordType record, INDArray mask, int indexOfRecord) {
         featureMapper.prepareToNormalize(record, indexOfRecord);
         maskerIndices[0] = indexOfRecord;
-        int sequenceLenWithPadding = sequenceLenWithPadding(featureMapper.sequenceLengthMap.get(record));
+        int sequenceLenWithPadding = sequenceLenWithPadding(featureMapper.sequenceLength);
         for (int i = 0; i < maxSequenceLen; i++) {
             maskerIndices[1] = i;
             // TODO: Handling of EOS?
@@ -78,20 +77,14 @@ public class RNNPretrainingFeatureMapper<RecordType> implements FeatureMapper<Re
 
     @Override
     public boolean isMasked(RecordType record, int featureIndex) {
-        Integer sequenceLengthFromMap = featureMapper.sequenceLengthMap.get(record);
-        int sequenceLength = sequenceLengthFromMap != null
-                ? sequenceLengthFromMap : featureMapper.recordToSequenceLength.apply(record);
-        int sequenceLenWithPadding = sequenceLenWithPadding(sequenceLength);
+        int sequenceLenWithPadding = sequenceLenWithPadding(featureMapper.sequenceLength);
         int timeStepIdx = featureIndex / featuresPerTimeStep;
         return timeStepIdx < sequenceLenWithPadding;
     }
 
     @Override
     public float produceFeature(RecordType record, int featureIndex) {
-        Integer sequenceLengthFromMap = featureMapper.sequenceLengthMap.get(record);
-        int sequenceLength = sequenceLengthFromMap != null
-                ? sequenceLengthFromMap : featureMapper.recordToSequenceLength.apply(record);
-        int sequenceLenWithPadding = sequenceLenWithPadding(sequenceLength);
+        int sequenceLenWithPadding = sequenceLenWithPadding(featureMapper.sequenceLength);
         int timeStepIdx = featureIndex / featuresPerTimeStep;
         // TODO : Handling of EOS?
         return (timeStepIdx < sequenceLenWithPadding) ? featureMapper.produceFeature(record, featureIndex)

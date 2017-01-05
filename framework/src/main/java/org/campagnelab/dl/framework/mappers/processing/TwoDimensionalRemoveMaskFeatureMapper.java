@@ -3,12 +3,8 @@ package org.campagnelab.dl.framework.mappers.processing;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.function.Function;
 
 /**
@@ -25,20 +21,16 @@ import java.util.function.Function;
  * Created by joshuacohen on 12/12/16.
  */
 public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
-    static private Logger LOG = LoggerFactory.getLogger(TwoDimensionalRemoveMaskFeatureMapper.class);
-
     private FeatureMapper<RecordType> delegate;
     private MappedDimensions dim;
-    private HashSet<RecordType> normalizedCalled;
-    private HashMap<RecordType, ArrayList<Bounds>> boundsMap;
     private int featuresPerTimeStep;
     private int numTimeSteps;
-    private int startIndex;
     private Function<RecordType, Integer> recordToPaddingLength;
 
 
     private int[] mapperIndices = new int[]{0, 0, 0};
     private int[] maskerIndices = new int[]{0, 0};
+    private ArrayList<Bounds> boundsList;
 
     /**
      * Creates a new feature mapper from an existing 2D feature mapper, where masked elements are removed
@@ -59,6 +51,14 @@ public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements Featur
         this(delegate, record -> startIndex);
     }
 
+    /**
+     * Creates a new feature mapper from an existing 2D feature mapper, where masked elements are removed
+     * for a given record starting from the position obtained by applying recordToPaddingLength
+     * on that record
+     * @param delegate Delegate two-dimensional feature mapper
+     * @param recordToPaddingLength Function that, for each record, returns starting position of where to
+     *                              start removing masked elements
+     */
     public TwoDimensionalRemoveMaskFeatureMapper(FeatureMapper<RecordType> delegate,
                                                  Function<RecordType, Integer> recordToPaddingLength) {
         dim = delegate.dimensions();
@@ -69,8 +69,6 @@ public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements Featur
         numTimeSteps = dim.numElements(2);
         this.delegate = delegate;
         this.recordToPaddingLength = recordToPaddingLength;
-        boundsMap = new HashMap<>();
-        normalizedCalled = new HashSet<>();
     }
 
 
@@ -87,13 +85,11 @@ public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements Featur
 
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
-        if (indexOfRecord == -1) {
-            LOG.warn("prepareToNormalize should be called before mapping/masking or calling produceFeature/isMasked");
-        }
+        delegate.prepareToNormalize(record, indexOfRecord);
+        boundsList = new ArrayList<>();
         if (delegate.hasMask()) {
             boolean prevMasked = true;
             Bounds currBounds = new Bounds();
-            ArrayList<Bounds> boundsList = new ArrayList<>();
             int prevBoundsIndex = -1;
             for (int i = recordToPaddingLength.apply(record); i < dim.numElements(2); i++) {
                 int featureIndex = i * featuresPerTimeStep;
@@ -115,10 +111,7 @@ public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements Featur
                     prevMasked = false;
                 }
             }
-            boundsMap.put(record, boundsList);
         }
-        normalizedCalled.add(record);
-        delegate.prepareToNormalize(record, indexOfRecord);
     }
 
     @Override
@@ -151,12 +144,8 @@ public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements Featur
 
     @Override
     public boolean isMasked(RecordType record, int featureIndex) {
-        if (!normalizedCalled.contains(record)) {
-            prepareToNormalize(record, -1);
-        }
         int timeStepIndex = featureIndex / featuresPerTimeStep;
         int timeStepFeatureIndex = featureIndex % featuresPerTimeStep;
-        ArrayList<Bounds> boundsList = boundsMap.get(record);
         int shiftSize = 0;
         for (Bounds bounds : boundsList) {
             if (bounds.contains(timeStepIndex)) {
@@ -173,12 +162,8 @@ public class TwoDimensionalRemoveMaskFeatureMapper<RecordType> implements Featur
 
     @Override
     public float produceFeature(RecordType record, int featureIndex) {
-        if (!normalizedCalled.contains(record)) {
-            prepareToNormalize(record, -1);
-        }
         int timeStepIndex = featureIndex / featuresPerTimeStep;
         int timeStepFeatureIndex = featureIndex % featuresPerTimeStep;
-        ArrayList<Bounds> boundsList = boundsMap.get(record);
         int shiftSize = 0;
         for (Bounds bounds : boundsList) {
             if (bounds.contains(timeStepIndex)) {

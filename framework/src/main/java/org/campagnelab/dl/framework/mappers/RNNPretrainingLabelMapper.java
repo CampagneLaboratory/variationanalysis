@@ -48,11 +48,9 @@ public class RNNPretrainingLabelMapper<RecordType> implements LabelMapper<Record
     public void mapLabels(RecordType record, INDArray inputs, int indexOfRecord) {
         labelMapper.prepareToNormalize(record, indexOfRecord);
         mapperIndices[0] = indexOfRecord;
-        int sequenceLen = labelMapper.sequenceLengthMap.get(record);
-        int sequenceLenWithPadding = sequenceLenWithPadding(sequenceLen);
         for (int i = 0; i < maxSequenceLen; i++) {
             mapperIndices[2] = i;
-            int indexInSequence = i % sequenceLen;
+            int indexInSequence = i % labelMapper.sequenceLength;
             for (int j = 0; j < labelsPerTimeStep; j++) {
                 mapperIndices[1] = j;
                 int labelIndex = indexInSequence * labelsPerTimeStep + j;
@@ -70,35 +68,29 @@ public class RNNPretrainingLabelMapper<RecordType> implements LabelMapper<Record
     public void maskLabels(RecordType record, INDArray mask, int indexOfRecord) {
         labelMapper.prepareToNormalize(record, indexOfRecord);
         maskerIndices[0] = indexOfRecord;
-        int sequenceLen = labelMapper.sequenceLengthMap.get(record);
-        int sequenceLenWithPadding = sequenceLenWithPadding(sequenceLen);
+        int sequenceLenWithPadding = sequenceLenWithPadding(labelMapper.sequenceLength);
         for (int i = 0; i < maxSequenceLen; i++) {
             maskerIndices[1] = i;
             // TODO : Check offsets
-            mask.putScalar(maskerIndices, i < sequenceLen || i >= sequenceLenWithPadding ? 0F : 1F);
+            mask.putScalar(maskerIndices, i < labelMapper.sequenceLength || i >= sequenceLenWithPadding ? 0F : 1F);
         }
     }
 
     @Override
     public boolean isMasked(RecordType record, int labelIndex) {
-        Integer sequenceLengthFromMap = labelMapper.sequenceLengthMap.get(record);
-        int sequenceLength = sequenceLengthFromMap != null
-                ? sequenceLengthFromMap : labelMapper.recordToSequenceLength.apply(record);
-        int sequenceLenWithPadding = sequenceLenWithPadding(sequenceLength);
+        int sequenceLenWithPadding = sequenceLenWithPadding(labelMapper.sequenceLength);
         int timeStepIdx = labelIndex / labelsPerTimeStep;
         // TODO : Check offsets
-        return timeStepIdx >= sequenceLength && timeStepIdx < sequenceLenWithPadding;
+        return timeStepIdx >= labelMapper.sequenceLength && timeStepIdx < sequenceLenWithPadding;
     }
 
     @Override
     public float produceLabel(RecordType record, int labelIndex) {
         // TODO : Check offsets
-        Integer sequenceLengthFromMap = labelMapper.sequenceLengthMap.get(record);
-        int sequenceLength = sequenceLengthFromMap != null
-                ? sequenceLengthFromMap : labelMapper.recordToSequenceLength.apply(record);
-        int sequenceLenWithPadding = sequenceLenWithPadding(sequenceLength);
+        int sequenceLenWithPadding = sequenceLenWithPadding(labelMapper.sequenceLength);
         int timeStepIdx = labelIndex / labelsPerTimeStep;
-        return (timeStepIdx >= sequenceLength && timeStepIdx < sequenceLenWithPadding) ? labelMapper.produceFeature(record, labelIndex)
+        return (timeStepIdx >= labelMapper.sequenceLength && timeStepIdx < sequenceLenWithPadding)
+                ? labelMapper.produceFeature(record, labelIndex)
                 : 0F;
     }
 

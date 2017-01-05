@@ -4,7 +4,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.function.Function;
 
 /**
@@ -18,7 +17,6 @@ public class OneHotBaseLabelMapper<RecordType> implements LabelMapper<RecordType
     private int baseIndex;
     private int numLabels;
     private Function<RecordType, int[]> recordToLabel;
-    private HashMap<RecordType, int[]> recordLabelMap;
 
     private static final int[] indices = new int[]{0, 0};
 
@@ -34,12 +32,13 @@ public class OneHotBaseLabelMapper<RecordType> implements LabelMapper<RecordType
         this.baseIndex = baseIndex;
         this.numLabels = numLabels;
         this.recordToLabel = recordToLabel;
-        recordLabelMap = new HashMap<>();
     }
+
+    private int[] cachedLabel;
 
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
-        recordLabelMap.put(record, recordToLabel.apply(record));
+        cachedLabel = recordToLabel.apply(record);
     }
 
     @Override
@@ -63,17 +62,12 @@ public class OneHotBaseLabelMapper<RecordType> implements LabelMapper<RecordType
 
     @Override
     public float produceLabel(RecordType record, int labelIndex) {
-        int[] label = recordLabelMap.computeIfAbsent(record, r -> {
-            int[] l = recordToLabel.apply(r);
-            recordLabelMap.put(r, l);
-            return l;
-        });
-        if (baseIndex < 0 || baseIndex >= label.length) {
+        if (baseIndex < 0 || baseIndex >= cachedLabel.length) {
             LOG.warn("incompatible base index: {} for label: {} of length {}",
-                    baseIndex, label, label.length);
+                    baseIndex, cachedLabel, cachedLabel.length);
             return numLabels - 1;
         }
-        return labelIndex == label[baseIndex] ? 1F : 0F;
+        return labelIndex == cachedLabel[baseIndex] ? 1F : 0F;
     }
 
     @Override

@@ -5,7 +5,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -64,7 +63,7 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
         return 6;
     }
 
-    String cachedString;
+    private String cachedString;
 
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
@@ -82,7 +81,6 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
 
     @Override
     public float produceFeature(RecordType record, int featureIndex) {
-
         int value = recordStringAtBaseToInteger.apply(cachedString, baseIndex);
         return value == featureIndex ? 1F : 0F;
     }

@@ -10,18 +10,16 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.Properties;
 
 /**
- * V16 (=v15+distanceReads), + new PairFlag mappers
- * distinct alleles+inverse+ reduced number of bins for quality scores, mapping qual. Adding
- * bins for numVariationsInRead, targetAlignedLength, queryAlignedLength.
+ * V22 is V19 without numVariationsInRead for other genotypes and more bins for most density mappers.
  */
-public class GenotypeMapperV19 extends GenotypeMapperV11 {
+public class GenotypeMapperV22 extends GenotypeMapperV19 {
 
 
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;
 
-    public GenotypeMapperV19() {
+    public GenotypeMapperV22() {
         super();
         sortCounts = true;
         withDistinctAlleleCounts = true;
@@ -62,7 +60,7 @@ public class GenotypeMapperV19 extends GenotypeMapperV11 {
             firstBaseMappers[i] = new GenomicContextMapper(1,
                     record -> record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence().substring(0, 1));
             numVariationsInReadMappers[i] = new DensityMapper("numVariationsInRead",
-                    10, sbiProperties,
+                    40, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getNumVariationsInReadsList));
             //bin width 1 density mapper that ignores variations outside of caps
@@ -73,17 +71,17 @@ public class GenotypeMapperV19 extends GenotypeMapperV11 {
                                     BaseInformationRecords.CountInfo::getDistancesToReadVariationsForwardStrandList,
                                     BaseInformationRecords.CountInfo::getDistancesToReadVariationsReverseStrandList));
             readMappingQualityMappers[i] = new DensityMapper("readMappingQuality.forward",
-                    10, sbiProperties,
+                    20, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex,
                                     baseInformationOrBuilder, BaseInformationRecords.CountInfo::getReadMappingQualityForwardStrandList));
             baseQualityMappers[i] = new DensityMapper("baseQuality.forward",
-                    10, sbiProperties,
+                    20, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresForwardStrandList));
 
             targetAlignedLengthMappers[i] = new DensityMapper("targetAlignedLength",
-                    10, sbiProperties,
+                    20, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getTargetAlignedLengthsList));
             queryAlignedLengthMappers[i] = new DensityMapper("queryAlignedLength",
@@ -101,12 +99,12 @@ public class GenotypeMapperV19 extends GenotypeMapperV11 {
             readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex, genotypeIndex, false));
 
             readMappingQualityMappers[i] = new DensityMapper("readMappingQuality.reverse",
-                    10, sbiProperties,
+                    20, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex,
                                     baseInformationOrBuilder, BaseInformationRecords.CountInfo::getReadMappingQualityReverseStrandList));
             baseQualityMappers[i] = new DensityMapper("baseQuality.reverse",
-                    10, sbiProperties,
+                    20, sbiProperties,
                     baseInformationOrBuilder ->
                             TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQualityScoresReverseStrandList));
             genotypeIndex++;
@@ -122,12 +120,6 @@ public class GenotypeMapperV19 extends GenotypeMapperV11 {
                         new GenomicContextMapper(sbiProperties),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(targetAlignedLengthMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(queryAlignedLengthMappers),
-                        /* NumVariationsInReads for counts not in the best 3: */
-                        new DensityMapper("numVariationsInRead",
-                                10, sbiProperties,
-                                record -> TraversalHelper.forAllSampleCounts(record,
-                                        CountInfoOrBuilder::getNumVariationsInReadsList)),
-
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(distancesToReadVariations),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(numVariationsInReadMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readMappingQualityMappers),
