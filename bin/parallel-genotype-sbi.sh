@@ -49,10 +49,10 @@ fi
 
 if [ -z "${REALIGN_AROUND_INDELS+set}" ]; then
     # We keep only 10% of reference matching sites as we add the true genotypes:
-    echo "Set ${REALIGN_AROUND_INDELS} to true to enable realignment around indels."
+    echo "Set REALIGN_AROUND_INDELS to true to enable realignment around indels."
     REALIGNMENT_OPTION=" "
 else
- echo "REALIGN_AROUND_INDELS set to ${REALIGN_AROUND_INDELS}. Enabling realignment around indels."
+ echo "REALIGN_AROUND_INDELS is set (${REALIGN_AROUND_INDELS}). Enabling realignment around indels."
  REALIGNMENT_OPTION="--processor realign_near_indels "
 fi
 
