@@ -52,8 +52,11 @@ if [ -z "${REALIGN_AROUND_INDELS+set}" ]; then
     echo "Set REALIGN_AROUND_INDELS to true to enable realignment around indels."
     REALIGNMENT_OPTION=" "
 else
- echo "REALIGN_AROUND_INDELS is set (${REALIGN_AROUND_INDELS}). Enabling realignment around indels."
- REALIGNMENT_OPTION="--processor realign_near_indels "
+   echo "REALIGN_AROUND_INDELS set to ${REALIGN_AROUND_INDELS}. Change the variable to enable realignment around indels."
+fi
+
+if [ "${REALIGNMENT_OPTION}" == "true" ]; then
+    REALIGNMENT_OPTION="--processor realign_near_indels"
 fi
 
 echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
