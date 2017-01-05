@@ -4,6 +4,11 @@
 assertGobyInstalled
 assertParallelInstalled
 
+if [ -e configure.sh ]; then
+ echo "Loading configure.sh"
+ source configure.sh
+fi
+
 ALIGNMENTS="$*"
 if [ "$#" -eq 1 ]; then
    case ${ALIGNMENTS} in *.bam) OUTPUT_BASENAME=`basename ${ALIGNMENTS} .bam`;; esac
