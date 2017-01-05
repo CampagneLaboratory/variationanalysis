@@ -5,6 +5,11 @@ if [ "$#" -ne 4 ]; then
    exit 1;
 fi
 
+if [ -e configure.sh ]; then
+ echo "Loading configure.sh"
+ source configure.sh
+fi
+
 memory_requirement=$1
 #!/usr/bin/env bash
 . `dirname "${BASH_SOURCE[0]}"`/setup.sh

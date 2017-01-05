@@ -46,12 +46,25 @@ if [ -z  "${SBI_NUM_THREADS+set}" ]; then
     SBI_NUM_THREADS="2"
     echo "SBI_NUM_THREADS set to ${SBI_NUM_THREADS}. Change the variable to influence the number of parallel jobs."
 fi
+
+if [ -z "${REALIGN_AROUND_INDELS+set}" ]; then
+    # We keep only 10% of reference matching sites as we add the true genotypes:
+    echo "Set REALIGN_AROUND_INDELS to true to enable realignment around indels."
+    REALIGNMENT_OPTION=" "
+else
+   echo "REALIGN_AROUND_INDELS set to ${REALIGN_AROUND_INDELS}. Change the variable to enable realignment around indels."
+fi
+
+if [ "${REALIGNMENT_OPTION}" == "true" ]; then
+    REALIGNMENT_OPTION="--processor realign_near_indels"
+fi
+
 echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
 
 goby ${memory_requirement} suggest-position-slices ${ALIGNMENTS} --number-of-slices ${GOBY_NUM_SLICES} -o slices.tsv
 grep -v targetIdStart slices.tsv >slices
 echo " discover-sequence-variants -n 0 -t 1 --genome  ${SBI_GENOME} --format  SEQUENCE_BASE_INFORMATION  ${ALIGNMENTS} \
-    --call-indels  ${INCLUDE_INDELS} --processor realign_near_indels \
+    --call-indels  ${INCLUDE_INDELS} ${REALIGNMENT_OPTION} \
     --max-coverage-per-site 10000 -x HTSJDKReaderImpl:force-sorted=true \
     -x SequenceBaseInformationOutputFormat:genomic-context-length=41 \
     ${VARMAP_OPTION} " >command.txt
