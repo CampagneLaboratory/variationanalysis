@@ -8,6 +8,16 @@ if [ "$#" -ne 2 ]; then
 fi
 
 cat << EOF | cat> config.txt
+--num-layers
+int
+3
+15
+
+--model-capacity
+uniform
+0.3
+1.3
+
 --regularization-rate
 log-uniform
 1E-12
