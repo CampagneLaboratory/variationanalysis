@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.framework.tools.Predict;
@@ -14,6 +15,8 @@ import org.campagnelab.dl.genotype.performance.StatsAccumulator;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,7 +36,8 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     private AreaUnderTheROCCurve aucLossCalculator;
     private double auc;
     private double[] confidenceInterval95;
-
+    private PrintWriter bedWriter;
+    private PrintWriter vcfWriter;
 
 
     @Override
@@ -53,13 +57,28 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
+
+        try {
+            vcfWriter=new PrintWriter(new FileWriter(String.format("%s-%s-%s-genotypes.vcf",modelTime,modelPrefix, testSetBasename)));
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to create VCF output file.",e);
+        }
+
         if (args().outputFormat == PredictGArguments.OutputFormat.VCF) {
-            resutsWriter.append(String.format(VCF_HEADER,
+            vcfWriter.append(String.format(VCF_HEADER,
                     VersionUtils.getImplementationVersion(PredictG.class),
                     args().modelPath, args().modelName));
         } else {
             resutsWriter.append("index\tpredictionCorrect01\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness\tregion\tisVariant").append("\n");
         }
+        try {
+            bedWriter=new PrintWriter(new FileWriter(String.format("%s-%s-%s-observed-regions.bed",modelTime,modelPrefix, testSetBasename)));
+        } catch (IOException e) {
+           throw new RuntimeException("Unable to create bed file to record observed regions.",e);
+        }
+
+
+
     }
 
     @Override
@@ -92,8 +111,10 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             "##modelPrefix=%s\n" +
             "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n" +
             "##FORMAT=<ID=MC,Number=1,Type=String,Description=\"Model Calls.\">\n" +
-            "##FORMAT=<ID=P,Number=1,Type=Float,Description=\"Model proability.\">\n";
-    private static final String VCF_LINE = "%s\t%d\t%s\t%s\t.\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
+            "##FORMAT=<ID=P,Number=1,Type=Float,Description=\"Model proability.\">\n" +
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tNA12878\n";
+
+    private static final String VCF_LINE = "%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
     @Override
     protected String[] createOutputHeader() {
 
@@ -113,6 +134,8 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         System.out.printf("AUC = %f [%f-%f]%n", auc,
                 confidenceInterval95[0], confidenceInterval95[1]);
         System.out.println("Printable: " + Arrays.toString(createOutputStatistics()));
+        bedWriter.close();
+        vcfWriter.close();
     }
 
     public PredictGArguments args() {
@@ -159,14 +182,16 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                 case VCF:
                     String ref=record.getReferenceBase();
                     Set<String> altSet=fullPred.predictedAlleles();
+                    int maxLength=altSet.stream().map( a -> a.length()).max(Integer::compareTo).get();
                     altSet.remove(ref);
                     SortedSet<String> sortedAltSet=new ObjectAVLTreeSet<>();
                     sortedAltSet.addAll(altSet);
 
                     final Optional<String> optional = sortedAltSet.stream().reduce((s, s2) -> s + "," + s2);
                     String alt = optional.isPresent()?optional.get():".";
-                    resultWriter.printf(VCF_LINE, record.getReferenceId(), record.getPosition() + 1,
+                    vcfWriter.printf(VCF_LINE, record.getReferenceId(), record.getPosition() + 1,
                             ref, alt,codeGT(fullPred.predictedGenotype,ref,sortedAltSet), fullPred.predictedGenotype, fullPred.isVariantProbability);
+                    bedWriter.printf("%s\t%d\t%d\n",record.getReferenceId(),record.getPosition() + 1,record.getPosition() + 1+maxLength);
             }
             if (args().filterMetricObservations) {
 
@@ -190,7 +215,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             int altIndex=1;
             for (String altAllele: altSet){
                 if (altAllele.equals(allele)) {
-                    if (result.length()>1) {
+                    if (result.length()>0) {
                         result+="/";
                     }
                     result+= Integer.toString(altIndex);

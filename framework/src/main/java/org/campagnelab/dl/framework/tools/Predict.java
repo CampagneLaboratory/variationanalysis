@@ -30,6 +30,9 @@ import java.util.List;
 public abstract class Predict<RecordType> extends ConditionRecordingTool<PredictArguments> {
 
     static private Logger LOG = LoggerFactory.getLogger(Predict.class);
+    protected String modelTime;
+    protected String modelPrefix;
+    protected String testSetBasename;
 
     public PredictArguments args() {
         return arguments;
@@ -64,6 +67,9 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
                 System.out.println("Writing predictions to " + resultFilename);
                 resultWriter = new PrintWriter(resultFilename, "UTF-8");
                 outputWriter = new PrintWriter(new FileWriter(args().outputFile, true));
+                this.modelTime=modelTime;
+                this.modelPrefix=args().modelName;
+                this.testSetBasename=testSetName;
             } else {
                 resultWriter = new PrintWriter(System.out);
                 outputWriter = new PrintWriter(System.out);
