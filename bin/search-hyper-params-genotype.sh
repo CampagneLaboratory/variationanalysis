@@ -60,23 +60,22 @@ cat << EOF | cat>gpu.txt
 3
 EOF
 
-
-
-
 echo $* >main-command.txt
 NUM_GPUS=`wc -l gpu.txt|cut -d " " -f 1`
 
 num_executions=${memory_requirement}
-
-. `dirname "${BASH_SOURCE[0]}"`/arg-generator.sh 1g --config config.txt --output gen-args.txt --num-commands ${num_executions}
+echo "Building caches"
+arg-generator.sh 1g --config config.txt --output gen-args.txt --num-commands ${num_executions}
 
 parallel echo `cat main-command.txt` --mini-batch-size 2048 \
   --build-cache-then-stop \
   :::: gen-args.txt ::: \
->build-cache-commands.txtbuil
+>build-cache-commands.txt
 
 export FORCE_PLATFORM=native
 cat build-cache-commands.txt |parallel -j${NUM_GPUS} --progress
+
+echo "Training.."
 
 unset FORCE_PLATFORM
 parallel echo `cat main-command.txt` --mini-batch-size 2048 --memory-cache training,validation \
