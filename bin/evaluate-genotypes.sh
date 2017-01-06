@@ -81,7 +81,7 @@ MODEL_TIME=`basename ${MODEL_DIR}`
 
 echo "Running predict-genotypes to create VCF and observed region bed.."
 predict-genotypes.sh 10g -m ${MODEL_DIR} -l ${MODEL_PREFIX} -f -i ${DATASET_SBI} \
-    --format VCF -n 10000
+    --format VCF
 dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
 echo "Evaluation with rtg vcfeval starting.."
 
