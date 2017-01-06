@@ -5,29 +5,31 @@ assertParallelInstalled
 cat << EOF | cat> config.txt
 --regularization-rate
 log-uniform
-1E-10
+1E-12
 1E-1
 
 --random-seed
 categorical
-5
+32434
 
 --learning-rate
-categorical
-5
-
---dropout-rate
-uniform
-0.5
-1
+log-uniform
+0.1
+10
 
 --early-stopping-num-epochs
 categorical
 1
 
+--feature-mapper
+categorical
+org.campagnelab.dl.genotype.mappers.GenotypeMapperV22
+org.campagnelab.dl.genotype.mappers.GenotypeMapperV23
+org.campagnelab.dl.genotype.mappers.GenotypeMapperV24
+
 --variant-loss-weight
 log-uniform
-1E-10
+0
 1000
 
 --genomic-context-length
