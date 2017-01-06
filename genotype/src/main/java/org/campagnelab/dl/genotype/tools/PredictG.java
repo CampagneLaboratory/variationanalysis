@@ -3,6 +3,7 @@ package org.campagnelab.dl.genotype.tools;
 import edu.cornell.med.icb.util.VersionUtils;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FilenameUtils;
@@ -193,14 +194,14 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
                     final Optional<String> optional = sortedAltSet.stream().reduce((s, s2) -> s + "," + s2);
                     String alt = optional.isPresent() ? optional.get() : ".";
-                    if (sortedAltSet.size()>=1) {
+                    if (sortedAltSet.size() >= 1) {
                         // only append to VCF if there is at least one alternate allele:
                         // NB: VCF format is one-based.
                         vcfWriter.printf(VCF_LINE, record.getReferenceId(), record.getPosition() + 1,
                                 ref, alt, codeGT(fullPred.predictedGenotype, ref, sortedAltSet), fullPred.predictedGenotype, fullPred.isVariantProbability);
                     }
                     // NB: bed format is zero-based.
-                        bedWriter.printf("%s\t%d\t%d\n", record.getReferenceId(), record.getPosition(), record.getPosition()  + maxLength);
+                    bedWriter.printf("%s\t%d\t%d\n", record.getReferenceId(), record.getPosition(), record.getPosition() + maxLength);
 
                     break;
             }
@@ -217,24 +218,33 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     }
 
-    private String codeGT(String predictedGenotype, String ref, SortedSet<String> altSet) {
+    public static String codeGT(String predictedGenotype, String ref, SortedSet<String> altSet) {
+        IntArrayList codedAlleles = new IntArrayList();
+
         String result = "";
         for (String allele : GenotypeHelper.getAlleles(predictedGenotype)) {
             if (ref.equals(allele)) {
-                result += "0";
+                codedAlleles.add(0);
             }
             int altIndex = 1;
             for (String altAllele : altSet) {
                 if (altAllele.equals(allele)) {
-                    if (result.length() > 0) {
-                        result += "/";
-                    }
-                    result += Integer.toString(altIndex);
+                    codedAlleles.add(altIndex);
                 }
                 altIndex += 1;
             }
         }
-        if (result.length() > 0) {
+        if (codedAlleles.size() > 0) {
+            Collections.sort(codedAlleles);
+            result = "";
+            boolean first = true;
+            for (int code : codedAlleles) {
+                if (!first) {
+                    result += "/";
+                }
+                result += Integer.toString(code);
+                first = false;
+            }
             return result;
         } else {
             return "./.";
