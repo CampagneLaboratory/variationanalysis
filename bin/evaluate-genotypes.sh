@@ -33,6 +33,12 @@ function assertVcfToolsInstalled {
 
 assertVcfToolsInstalled
 
+function assertBedtoolsInstalled {
+   ./bedtools --version  >/dev/null 2>&1 || { echo >&2 "This script requires bedtools but it's not installed. Aborting. Install bedtools (see http://bedtools.readthedocs.io/en/latest/content/installation.html) and add the bedtools executable to your path, then try again."; exit 1; }
+}
+
+assertBedtoolsInstalled
+
 if [ -z "${GOLD_STANDARD_VCF_GZ+set}" ]; then
     echo "Downloading Gold standard Genome in a Bottle VCF"
     wget ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/NISTv3.3.1/GRCh37/HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz
@@ -94,7 +100,7 @@ bgzip -f ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed
 tabix ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz
 
 RTG_OUTPUT_FOLDER=output-${RANDOM}
-
+set -x
 rtg vcfeval --baseline=${GOLD_STANDARD_VCF_GZ}  \
         -c ${VCF_OUTPUT_SORTED}.gz -o ${RTG_OUTPUT_FOLDER} --template=hg19.sdf \
             --evaluation-regions=${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ} \
