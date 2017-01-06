@@ -64,7 +64,7 @@ export FORCE_PLATFORM=native
 cat build-cache-commands.txt |parallel -j${NUM_GPUS} --progress
 
 unset FORCE_PLATFORM
-parallel echo `cat main-command.txt` --mini-batch-size 2048 \
+parallel echo `cat main-command.txt` --mini-batch-size 2048 --memory-cache training,validation \
   :::: gen-args.txt \
 >commands.txt
 
