@@ -2,6 +2,11 @@
 . `dirname "${BASH_SOURCE[0]}"`/setup.sh
 assertParallelInstalled
 
+if [ "$#" -ne 2 ]; then
+   echo "Argument missing. usage: number-of-runs train-genotype.sh 10g .. -n 100000 -x 100000"
+   exit 1;
+fi
+
 cat << EOF | cat> config.txt
 --regularization-rate
 log-uniform
