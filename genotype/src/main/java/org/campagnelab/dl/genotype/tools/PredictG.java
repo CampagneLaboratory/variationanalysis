@@ -79,7 +79,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
            throw new RuntimeException("Unable to create bed file to record observed regions.",e);
         }
 
-        System.out.printf("Writing VCF and BED files: \n%s\n%s",vcfFilename,bedFilename);
+        System.out.printf("Writing VCF and BED files: \n%s\n%s%n",vcfFilename,bedFilename);
 
     }
 

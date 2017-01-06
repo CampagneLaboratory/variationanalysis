@@ -6,7 +6,9 @@ import org.campagnelab.dl.framework.models.ModelOutputHelper;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.deeplearning4j.nn.api.Model;
+import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.api.MultiDataSet;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -45,6 +47,39 @@ public class PredictWithModel<RecordType> {
                 stopIfTrue);
     }
 
+    public int makePredictions(MultiDataSet dataSet, List<RecordType> records,
+                                Model model,
+                                Consumer<RecordPredictions<RecordType>> doForEachPrediction,
+                                Predicate<Integer> stopIfTrue, int index) {
+        assert model instanceof ComputationGraph : "MultiDataSet only work with ComputationGraph";
+        ComputationGraph graph=(ComputationGraph)model;
+        INDArray[] outputPredictions = graph.output(dataSet.getFeatures());
+        List<Prediction> predictions = new ArrayList<>();
+
+        RecordType currentRecord;
+        for (int exampleIndex = 0; exampleIndex<records.size(); exampleIndex++) {
+            predictions.clear();
+            currentRecord=records.get(exampleIndex);
+            for (int outputIndex = 0; outputIndex < domainDescriptor.getNumModelOutputs(); outputIndex++) {
+
+
+                if (interpretors[outputIndex] != null) {
+                    Prediction prediction = interpretors[outputIndex].interpret(currentRecord, outputPredictions[outputIndex]);
+                    prediction.outputIndex = outputIndex;
+                    prediction.index = index;
+                    predictions.add(prediction);
+                }
+            }
+            doForEachPrediction.accept(new RecordPredictions<>(currentRecord, predictions));
+            index++;
+            if (stopIfTrue.test(index)) {
+                break;
+            }
+        }
+        return index;
+
+    }
+
     public void makePredictions(Iterator<RecordType> iterator,
                                 Model model,
                                 Consumer<RecordType> observeRecord,
@@ -53,6 +88,7 @@ public class PredictWithModel<RecordType> {
         int index = 0;
         List<Prediction> predictions = new ArrayList<>();
         while (iterator.hasNext()) {
+
             RecordType currentRecord = iterator.next();
             observeRecord.accept(currentRecord);
             outputHelper.predictForNextRecord(model, currentRecord, domainDescriptor.featureMappers());

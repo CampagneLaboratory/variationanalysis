@@ -6,10 +6,12 @@ import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.DomainDescriptorLoader;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
 import org.deeplearning4j.nn.api.Model;
+import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -55,7 +59,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
             File modelPath = new File(args().modelPath);
             String modelTime = modelPath.getName();
             File file = new File(args().outputFile);
-            outputFileExists = file.exists() &&file.length()>0;
+            outputFileExists = file.exists() && file.length() > 0;
             if (args().toFile) {
                 String resultPath = "predictions";
                 File dir = new File(resultPath);
@@ -67,9 +71,9 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
                 System.out.println("Writing predictions to " + resultFilename);
                 resultWriter = new PrintWriter(resultFilename, "UTF-8");
                 outputWriter = new PrintWriter(new FileWriter(args().outputFile, true));
-                this.modelTime=modelTime;
-                this.modelPrefix=args().modelName;
-                this.testSetBasename=testSetName;
+                this.modelTime = modelTime;
+                this.modelPrefix = args().modelName;
+                this.testSetBasename = testSetName;
             } else {
                 resultWriter = new PrintWriter(System.out);
                 outputWriter = new PrintWriter(System.out);
@@ -129,17 +133,54 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         PredictWithModel<RecordType> predictor = new PredictWithModel<RecordType>(domainDescriptor);
 
         Iterable<RecordType> apply = domainDescriptor.getRecordIterable().apply(evaluationDataFilename);
-        Iterable<RecordType> it = Iterables.limit(apply, args().scoreN);
+        Iterable<RecordType> itAdapter = Iterables.limit(apply, args().scoreN);
+        Iterable<RecordType> recordsIterable = Iterables.limit(domainDescriptor.getRecordIterable().apply(evaluationDataFilename), args().scoreN);
         initializeStats(prefix);
         writeHeader(resutsWriter);
+        final int miniBatchSize = args().miniBatchSize;
+        MultiDataSetIteratorAdapter<RecordType> adapter = new MultiDataSetIteratorAdapter<RecordType>(itAdapter,
+                miniBatchSize, domainDescriptor, false, null) {
+            @Override
+            public String getBasename() {
+                return FilenameUtils.getBaseName(args().testSet);
+            }
+        };
+        List<RecordType> records = new ArrayList<RecordType>();
+        Iterator<RecordType> recordIterator = recordsIterable.iterator();
+        int index = 0;
+        int adapterIndex=0;
+        while (adapter.hasNext() && recordIterator.hasNext()) {
 
-        predictor.makePredictions(it.iterator(),
-                model,
-                recordPredictions -> {  processPredictions(resutsWriter, recordPredictions.record,
-                        recordPredictions.predictions);
-                    pgReadWrite.lightUpdate();},
-                /* stop if */ nProcessed -> nProcessed > args().scoreN
-        );
+            MultiDataSet dataset = adapter.next();
+            final int datasetSize = dataset.getFeatures(0).rows();
+            adapterIndex++;
+            records.clear();
+            for (int exampleIndex = 0; exampleIndex < datasetSize; exampleIndex++) {
+                if (!recordIterator.hasNext()) {
+                    break;
+                }
+                records.add(recordIterator.next());
+            }
+            System.out.printf("minibatch %d %n",adapterIndex);
+            System.out.flush();
+            if (records.size()==datasetSize) {
+                index = predictor.makePredictions(dataset,
+                        records, model,
+                        recordPredictions -> {
+                            processPredictions(resutsWriter, recordPredictions.record,
+                                    recordPredictions.predictions);
+                            pgReadWrite.lightUpdate();
+                        },
+                /* stop if */ nProcessed -> nProcessed > args().scoreN, index
+                );
+            } else{
+                System.out.printf("dataset #examples %d and # records (%d) must match. Unable to obtain records for some examples in minibatch. Aborting. ",
+                        datasetSize, records.size());
+                break;
+            }
+
+        }
+
 
         resutsWriter.close();
         outputWriter.append(String.format("%s\t%s", modelTag, prefix));
@@ -151,7 +192,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         outputWriter.close();
         pgReadWrite.stop();
         reportStatistics(prefix);
-        System.out.println("Model: "+modelPath+" tag:"+modelTag);
+        System.out.println("Model: " + modelPath + " tag:" + modelTag);
         modelLoader.writeTestCount(totalRecords);
     }
 
