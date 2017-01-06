@@ -161,8 +161,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
                 }
                 records.add(recordIterator.next());
             }
-            System.out.printf("minibatch %d %n",adapterIndex);
-            System.out.flush();
+
             if (records.size()==datasetSize) {
                 index = predictor.makePredictions(dataset,
                         records, model,
