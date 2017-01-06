@@ -34,7 +34,7 @@ function assertVcfToolsInstalled {
 assertVcfToolsInstalled
 
 function assertBedtoolsInstalled {
-   ./bedtools --version  >/dev/null 2>&1 || { echo >&2 "This script requires bedtools but it's not installed. Aborting. Install bedtools (see http://bedtools.readthedocs.io/en/latest/content/installation.html) and add the bedtools executable to your path, then try again."; exit 1; }
+   bedtools --version  >/dev/null 2>&1 || { echo >&2 "This script requires bedtools but it's not installed. Aborting. Install bedtools (see http://bedtools.readthedocs.io/en/latest/content/installation.html) and add the bedtools executable to your path, then try again."; exit 1; }
 }
 
 assertBedtoolsInstalled
