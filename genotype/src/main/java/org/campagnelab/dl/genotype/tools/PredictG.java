@@ -61,9 +61,9 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         final String bedFilename = String.format("%s-%s-%s-observed-regions.bed", modelTime, modelPrefix, testSetBasename);
 
         try {
-            vcfWriter=new PrintWriter(new FileWriter(vcfFilename));
+            vcfWriter = new PrintWriter(new FileWriter(vcfFilename));
         } catch (IOException e) {
-            throw new RuntimeException("Unable to create VCF output file.",e);
+            throw new RuntimeException("Unable to create VCF output file.", e);
         }
 
         if (args().outputFormat == PredictGArguments.OutputFormat.VCF) {
@@ -74,12 +74,12 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             resutsWriter.append("index\tpredictionCorrect01\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness\tregion\tisVariant").append("\n");
         }
         try {
-            bedWriter=new PrintWriter(new FileWriter(bedFilename));
+            bedWriter = new PrintWriter(new FileWriter(bedFilename));
         } catch (IOException e) {
-           throw new RuntimeException("Unable to create bed file to record observed regions.",e);
+            throw new RuntimeException("Unable to create bed file to record observed regions.", e);
         }
 
-        System.out.printf("Writing VCF and BED files: \n%s\n%s",vcfFilename,bedFilename);
+        System.out.printf("Writing VCF and BED files: \n%s\n%s%n", vcfFilename, bedFilename);
 
     }
 
@@ -107,6 +107,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
         return values.toDoubleArray();
     }
+
     private static final String VCF_HEADER = "##fileformat=VCFv4.1\n" +
             "##VariationAnalysis=%s\n" +
             "##modelPath=%s\n" +
@@ -117,6 +118,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tNA12878\n";
 
     private static final String VCF_LINE = "%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
+
     @Override
     protected String[] createOutputHeader() {
 
@@ -180,23 +182,27 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                             fullPred.trueGenotype, fullPred.predictedGenotype,
                             fullPred.isVariantProbability, correctness, record.getReferenceId(), record.getPosition() + 1,
                             isVariant ? "variant" : "-");
-
+                    break;
                 case VCF:
-                    String ref=record.getReferenceBase();
-                    Set<String> altSet=fullPred.predictedAlleles();
-                    int maxLength=altSet.stream().map( a -> a.length()).max(Integer::compareTo).get();
+                    String ref = record.getReferenceBase();
+                    Set<String> altSet = fullPred.predictedAlleles();
+                    int maxLength = altSet.stream().map(a -> a.length()).max(Integer::compareTo).get();
                     altSet.remove(ref);
-                    SortedSet<String> sortedAltSet=new ObjectAVLTreeSet<>();
+                    SortedSet<String> sortedAltSet = new ObjectAVLTreeSet<>();
                     sortedAltSet.addAll(altSet);
 
                     final Optional<String> optional = sortedAltSet.stream().reduce((s, s2) -> s + "," + s2);
-                    String alt = optional.isPresent()?optional.get():".";
-                    if (optional.isPresent()) {
+                    String alt = optional.isPresent() ? optional.get() : ".";
+                    if (sortedAltSet.size()>=1) {
                         // only append to VCF if there is at least one alternate allele:
+                        // NB: VCF format is one-based.
                         vcfWriter.printf(VCF_LINE, record.getReferenceId(), record.getPosition() + 1,
                                 ref, alt, codeGT(fullPred.predictedGenotype, ref, sortedAltSet), fullPred.predictedGenotype, fullPred.isVariantProbability);
                     }
-                    bedWriter.printf("%s\t%d\t%d\n",record.getReferenceId(),record.getPosition() + 1,record.getPosition() + 1+maxLength);
+                    // NB: bed format is zero-based.
+                        bedWriter.printf("%s\t%d\t%d\n", record.getReferenceId(), record.getPosition(), record.getPosition()  + maxLength);
+
+                    break;
             }
             if (args().filterMetricObservations) {
 
@@ -212,25 +218,25 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     }
 
     private String codeGT(String predictedGenotype, String ref, SortedSet<String> altSet) {
-        String result="";
-        for (String allele:  GenotypeHelper.getAlleles(predictedGenotype)) {
+        String result = "";
+        for (String allele : GenotypeHelper.getAlleles(predictedGenotype)) {
             if (ref.equals(allele)) {
-                result+= "0";
+                result += "0";
             }
-            int altIndex=1;
-            for (String altAllele: altSet){
+            int altIndex = 1;
+            for (String altAllele : altSet) {
                 if (altAllele.equals(allele)) {
-                    if (result.length()>0) {
-                        result+="/";
+                    if (result.length() > 0) {
+                        result += "/";
                     }
-                    result+= Integer.toString(altIndex);
+                    result += Integer.toString(altIndex);
                 }
-                altIndex+=1;
+                altIndex += 1;
             }
         }
-        if (result.length()>0) {
+        if (result.length() > 0) {
             return result;
-        }else {
+        } else {
             return "./.";
         }
     }

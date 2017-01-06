@@ -26,7 +26,7 @@ public class PredictArguments extends RecordingToolArguments {
     @Parameter(names = {"-n", "--num-examples"}, description = "number of examples to iterate over in the test set. useful for quickly approximating performance with fewer examples.")
     public int scoreN = Integer.MAX_VALUE;
 
-    @Parameter(names = {"--minibatch-size"}, description = "Number of records in minibatch.")
+    @Parameter(names = {"--mini-batch-size"}, description = "Number of records in minibatch.")
     public int miniBatchSize = 512;
 
     @Parameter(names = {"--records-for-auc"}, description = "Number of records to use when evaluating AUC. Precision increases with larger values, but calculation is O(n^2) on this number.")
