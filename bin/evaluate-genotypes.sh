@@ -96,3 +96,9 @@ rtg vcfeval --baseline=${GOLD_STANDARD_VCF_GZ}  \
             --vcf-score-field=P  --sort-order=descending
 dieIfError "Failed to run rtg vcfeval."
 echo "See rtg vcfeval detailed output in ${RTG_OUTPUT_FOLDER}"
+
+rtg rocplot ${RTG_OUTPUT_FOLDER}/snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/SNP-ROC.svg
+                                         dieIfError "Unable to generate ROC plot."
+
+rtg rocplot ${RTG_OUTPUT_FOLDER}/snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/SNP-PrecisionRecall.svg
+dieIfError "Unable to generate Precision Recall plot."
