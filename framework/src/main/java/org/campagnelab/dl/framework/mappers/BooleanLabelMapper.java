@@ -1,6 +1,5 @@
 package org.campagnelab.dl.framework.mappers;
 
-import org.campagnelab.dl.somatic.mappers.NoMasksLabelMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.function.Predicate;
@@ -9,7 +8,7 @@ import java.util.function.Predicate;
  * A functional label mapper for boolean values.
  * Created by fac2003 on 12/23/16.
  */
-public class BooleanLabelMapper<RecordType> extends NoMasksLabelMapper<RecordType> {
+public class BooleanLabelMapper<RecordType> implements LabelMapper<RecordType> {
     public static final int IS_TRUE =0 ;
     public static final int IS_FALSE =1 ;
     private Predicate<RecordType> predicate;
@@ -48,6 +47,33 @@ public class BooleanLabelMapper<RecordType> extends NoMasksLabelMapper<RecordTyp
         }
 
     }
+    /**
+     * The default implementation returns a 1 dimension.
+     * @return
+     */
+    @Override
+    public MappedDimensions dimensions() {
+        return new MappedDimensions(numberOfLabels());
+    }
 
+    @Override
+    public boolean hasMask() {
+        return false;
+    }
+
+    @Override
+    public void maskLabels(RecordType record, INDArray mask, int indexOfRecord) {
+
+    }
+
+    @Override
+    public boolean isMasked(RecordType record, int featureIndex) {
+        return false;
+    }
+
+    @Override
+    public void prepareToNormalize(RecordType record, int indexOfRecord) {
+
+    }
 
 }
