@@ -27,6 +27,12 @@ function assertRTGInstalled {
 }
 assertRTGInstalled
 
+function assertVcfToolsInstalled {
+   echo done| vcf-sort >/dev/null 2>&1 || { echo >&2 "This script requires vcf-sort but it's not installed. Aborting. Install vcf-tools (see https://sourceforge.net/projects/vcftools/files/) and add the vcf-sort executable to your path, then try again."; exit 1; }
+}
+
+assertVcfToolsInstalled
+
 if [ -z "${GOLD_STANDARD_VCF_GZ+set}" ]; then
     echo "Downloading Gold standard Genome in a Bottle VCF"
     wget ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/NISTv3.3.1/GRCh37/HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz

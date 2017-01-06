@@ -57,9 +57,11 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
+        final String vcfFilename = String.format("%s-%s-%s-genotypes.vcf", modelTime, modelPrefix, testSetBasename);
+        final String bedFilename = String.format("%s-%s-%s-observed-regions.bed", modelTime, modelPrefix, testSetBasename);
 
         try {
-            vcfWriter=new PrintWriter(new FileWriter(String.format("%s-%s-%s-genotypes.vcf",modelTime,modelPrefix, testSetBasename)));
+            vcfWriter=new PrintWriter(new FileWriter(vcfFilename));
         } catch (IOException e) {
             throw new RuntimeException("Unable to create VCF output file.",e);
         }
@@ -72,12 +74,12 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             resutsWriter.append("index\tpredictionCorrect01\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness\tregion\tisVariant").append("\n");
         }
         try {
-            bedWriter=new PrintWriter(new FileWriter(String.format("%s-%s-%s-observed-regions.bed",modelTime,modelPrefix, testSetBasename)));
+            bedWriter=new PrintWriter(new FileWriter(bedFilename));
         } catch (IOException e) {
            throw new RuntimeException("Unable to create bed file to record observed regions.",e);
         }
 
-
+        System.out.printf("Writing VCF and BED files: \n%s\n%s",vcfFilename,bedFilename);
 
     }
 
@@ -189,8 +191,11 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
                     final Optional<String> optional = sortedAltSet.stream().reduce((s, s2) -> s + "," + s2);
                     String alt = optional.isPresent()?optional.get():".";
-                    vcfWriter.printf(VCF_LINE, record.getReferenceId(), record.getPosition() + 1,
-                            ref, alt,codeGT(fullPred.predictedGenotype,ref,sortedAltSet), fullPred.predictedGenotype, fullPred.isVariantProbability);
+                    if (optional.isPresent()) {
+                        // only append to VCF if there is at least one alternate allele:
+                        vcfWriter.printf(VCF_LINE, record.getReferenceId(), record.getPosition() + 1,
+                                ref, alt, codeGT(fullPred.predictedGenotype, ref, sortedAltSet), fullPred.predictedGenotype, fullPred.isVariantProbability);
+                    }
                     bedWriter.printf("%s\t%d\t%d\n",record.getReferenceId(),record.getPosition() + 1,record.getPosition() + 1+maxLength);
             }
             if (args().filterMetricObservations) {

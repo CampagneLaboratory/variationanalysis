@@ -119,7 +119,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         }
         domainDescriptor = DomainDescriptorLoader.load(modelPath);
         ProgressLogger pgReadWrite = new ProgressLogger(LOG);
-        pgReadWrite.itemsName = prefix;
+        pgReadWrite.itemsName = "sites";
         final long totalRecords = domainDescriptor.getNumRecords(new String[]{args().testSet});
         pgReadWrite.expectedUpdates = Math.min(args().scoreN,
                 totalRecords);
