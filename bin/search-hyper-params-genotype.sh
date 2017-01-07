@@ -6,6 +6,8 @@ if [ "$#" -lt 2 ]; then
    echo "Argument missing. usage: number-of-runs train-genotype.sh 10g .. -n 100000 -x 100000"
    exit 1;
 fi
+if [ -z "${SBI_SEARCH_PARAM_CONFIG+set}" ]; then
+    SBI_SEARCH_PARAM_CONFIG=config.txt
 
 cat << EOF | cat> config.txt
 --num-layers
@@ -52,6 +54,8 @@ int
 21
 41
 EOF
+    echo "SBI_SEARCH_PARAM_CONFIG not set. Using default hyper parameters. Change the variable a file with an arg-generator config file to customize the search."
+fi
 
 cat << EOF | cat>gpu.txt
 0
@@ -65,7 +69,7 @@ NUM_GPUS=`wc -l gpu.txt|cut -d " " -f 1`
 
 num_executions=${memory_requirement}
 echo "Building caches"
-arg-generator.sh 1g --config config.txt --output gen-args.txt --num-commands ${num_executions}
+arg-generator.sh 1g --config ${SBI_SEARCH_PARAM_CONFIG} --output gen-args.txt --num-commands ${num_executions}
 
 parallel echo `cat main-command.txt` --mini-batch-size 2048 \
   --build-cache-then-stop \
