@@ -15,6 +15,7 @@ public class CombinedOutputLayerInterpreter extends SortingCountInterpreter<Comb
         implements PredictionInterpreter<BaseInformationRecords.BaseInformation, CombinedOutputLayerPrediction> {
 
     private static final int MAX_GENOTYPES = CombinedLabelsMapper.NUM_LABELS;
+    public static final String NO_CALL = ".";
     private String[] toSequences;
     private double probability;
 
@@ -82,7 +83,7 @@ public class CombinedOutputLayerInterpreter extends SortingCountInterpreter<Comb
                 return homozygAllele + "/" + homozygAllele;
             default:
                 // other site predicted, mark as wrong
-                return "_";
+                return NO_CALL;
         }
     }
 }
