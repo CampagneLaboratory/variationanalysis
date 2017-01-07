@@ -24,6 +24,10 @@ private float epsilon=0;
         this.epsilon = epsilon;
     }
 
+    public CombinedLabelsMapper() {
+        this(0);
+    }
+
     @Override
     public int numberOfLabels() {
         return NUM_LABELS;
