@@ -16,9 +16,9 @@ import java.util.*;
 public class ArgGenerator {
 
     //this maps argument names to a list of options or (or range boundaries) for the argument.
-    LinkedHashMap<String,List<String>> options = new LinkedHashMap();
+    LinkedHashMap<String, List<String>> options = new LinkedHashMap();
     //this maps argument names to a type: either categorical, int, or float.
-    Map<String,String> types = new HashMap();
+    Map<String, String> types = new HashMap();
 
     Random rand = new Random();
 
@@ -43,37 +43,39 @@ public class ArgGenerator {
 
     }
 
-    ArgGenerator(){
-    };
+    ArgGenerator() {
+    }
+
+    ;
 
 
     void configure(String configPath) throws IOException {
 
-            BufferedReader br = new BufferedReader(new FileReader(configPath));
-            String argName;
-            while ((argName = br.readLine()) != null) {
-                List<String> options = new ArrayList<String>();
-                //store type in a map
-                types.put(argName,br.readLine());
+        BufferedReader br = new BufferedReader(new FileReader(configPath));
+        String argName;
+        while ((argName = br.readLine()) != null) {
+            List<String> options = new ArrayList<String>();
+            //store type in a map
+            types.put(argName, br.readLine());
 
-                //now iterate over arg options to make a list and put it in the option map
-                String argOption;
-                while ((argOption = br.readLine()) != null) {
-                    if (argOption.equals("")) {
-                        break;
-                    }
-                    options.add(argOption);
+            //now iterate over arg options to make a list and put it in the option map
+            String argOption;
+            while ((argOption = br.readLine()) != null) {
+                if (argOption.equals("")) {
+                    break;
                 }
-                this.options.put(argName, options);
+                options.add(argOption);
             }
-            br.close();
+            this.options.put(argName, options);
+        }
+        br.close();
     }
 
     void generateCommands(String outputPath, int numCommands) throws IOException {
 
         PrintWriter writer = new PrintWriter(outputPath, "UTF-8");
 
-        for (int i = 0; i < numCommands; i++){
+        for (int i = 0; i < numCommands; i++) {
             StringBuffer command = new StringBuffer();
             for (Map.Entry<String, List<String>> entry : options.entrySet()) {
                 String argName = entry.getKey();
@@ -93,6 +95,10 @@ public class ArgGenerator {
                     case "log-uniform":
                         double minD = Double.parseDouble(argOptions.get(0));
                         double maxD = Double.parseDouble(argOptions.get(1));
+                        if (minD == 0 || maxD == 0) {
+                            System.err.printf("%s: you cannot use a zero bound with log-uniform.", argName);
+                            System.exit(1);
+                        }
                         double minLog = Math.log(minD);
                         double maxLog = Math.log(maxD);
                         double valueLog = (rand.nextDouble() * (maxLog - minLog) + minLog);

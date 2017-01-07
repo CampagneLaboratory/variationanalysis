@@ -44,7 +44,7 @@ org.campagnelab.dl.genotype.mappers.GenotypeMapperV24
 
 --variant-loss-weight
 log-uniform
-0
+1
 1000
 
 --genomic-context-length
