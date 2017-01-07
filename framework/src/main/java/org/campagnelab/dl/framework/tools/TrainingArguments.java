@@ -73,6 +73,9 @@ public abstract class TrainingArguments extends RecordingToolArguments {
             "only the validation set. Use none to disable caching entirely.")
     public String memoryCache = "validation";
 
+    @Parameter(names = "--label-smoothing-epsilon", description = "Value of epsilon for label smoothing. Zero (default) is no smoothing. Try small values (<0.1).")
+    public float labelSmoothingEpsilon=0;
+
     public boolean memoryCacheTraining() {
         // do not cache in memory if just build a cache on disk:
         boolean result = memoryCache.length() > 1 && memoryCache.contains("training") && !buildCacheAndStop;

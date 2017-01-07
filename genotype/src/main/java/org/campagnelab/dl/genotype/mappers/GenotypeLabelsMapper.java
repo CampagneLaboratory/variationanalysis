@@ -11,6 +11,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 public class GenotypeLabelsMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
     private final boolean sortCounts;
+    private final float epsilon;
 
     @Override
     public int numberOfLabels() {
@@ -20,10 +21,14 @@ public class GenotypeLabelsMapper extends NoMasksLabelMapper<BaseInformationReco
     int genotypeIndex;
     int[] indices = new int[]{0, 0};
 
-
     public GenotypeLabelsMapper(int genotypeIndex, boolean sort) {
+        this(genotypeIndex, sort, 0);
+    }
+
+    public GenotypeLabelsMapper(int genotypeIndex, boolean sort, float epsilon) {
         this.genotypeIndex = genotypeIndex;
         this.sortCounts = sort;
+        this.epsilon = epsilon;
     }
 
     @Override
@@ -50,10 +55,10 @@ public class GenotypeLabelsMapper extends NoMasksLabelMapper<BaseInformationReco
         }
         if (labelIndex == 0) {
             // first index is 1 when site is  called.
-            return isCalled ? 1 : 0;
+            return isCalled ? 1-epsilon : epsilon;
         } else {
             // second index is 1 when site is not called.
-            return !isCalled ? 1 : 0;
+            return !isCalled ? 1-epsilon : epsilon;
         }
     }
 

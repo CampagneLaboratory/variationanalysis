@@ -16,11 +16,23 @@ import java.util.Properties;
 public class NumDistinctAllelesLabelMapper extends CountSortingLabelMapper implements ConfigurableFeatureMapper {
 
 
+    private final float epsilon;
     public int ploidy;
 
-    public NumDistinctAllelesLabelMapper(boolean sortCounts, int ploidy) {
+    /**
+     *
+     * @param sortCounts
+     * @param ploidy
+     * @param epsilon amount of label smoothing to apply.
+     */
+    public NumDistinctAllelesLabelMapper(boolean sortCounts, int ploidy, float epsilon) {
         super(sortCounts);
-        this.ploidy=ploidy;
+        this.ploidy = ploidy;
+        this.epsilon = epsilon;
+    }
+
+    public NumDistinctAllelesLabelMapper(boolean sortCounts, int ploidy) {
+        this(sortCounts, ploidy, 0);
     }
 
     @Override
@@ -36,9 +48,11 @@ public class NumDistinctAllelesLabelMapper extends CountSortingLabelMapper imple
 
     protected float label(int labelIndex, String trueGenotype) {
         int numDistinctAlleles = GenotypePrediction.alleles(trueGenotype).size();
-        return (labelIndex == numDistinctAlleles - 1) ? 1f : 0f;
+        return (labelIndex == numDistinctAlleles - 1) ? 1f-epsilon : epsilon/(numberOfLabels()-1);
     }
-    public static final java.lang.String PLOIDY_PROPERTY= "genotypes.ploidy";
+
+    public static final java.lang.String PLOIDY_PROPERTY = "genotypes.ploidy";
+
     @Override
     public void configure(Properties readerProperties) {
 

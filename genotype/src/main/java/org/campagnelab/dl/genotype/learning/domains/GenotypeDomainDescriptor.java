@@ -170,35 +170,37 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
         switch (outputName) {
             case "A":
-                return new GenotypeLabelsMapper(0, sortCounts);
+                return new GenotypeLabelsMapper(0, sortCounts,args().labelSmoothingEpsilon);
             case "T":
-                return new GenotypeLabelsMapper(1, sortCounts);
+                return new GenotypeLabelsMapper(1, sortCounts,args().labelSmoothingEpsilon);
             case "C":
-                return new GenotypeLabelsMapper(2, sortCounts);
+                return new GenotypeLabelsMapper(2, sortCounts,args().labelSmoothingEpsilon);
             case "G":
-                return new GenotypeLabelsMapper(3, sortCounts);
+                return new GenotypeLabelsMapper(3, sortCounts,args().labelSmoothingEpsilon);
             case "N":
-                return new GenotypeLabelsMapper(4, sortCounts);
+                return new GenotypeLabelsMapper(4, sortCounts,args().labelSmoothingEpsilon);
             case "I1":
-                return new GenotypeLabelsMapper(5, sortCounts);
+                return new GenotypeLabelsMapper(5, sortCounts,args().labelSmoothingEpsilon);
             case "I2":
-                return new GenotypeLabelsMapper(6, sortCounts);
+                return new GenotypeLabelsMapper(6, sortCounts,args().labelSmoothingEpsilon);
             case "I3":
-                return new GenotypeLabelsMapper(7, sortCounts);
+                return new GenotypeLabelsMapper(7, sortCounts,args().labelSmoothingEpsilon);
             case "I4":
-                return new GenotypeLabelsMapper(8, sortCounts);
+                return new GenotypeLabelsMapper(8, sortCounts,args().labelSmoothingEpsilon);
             case "I5":
-                return new GenotypeLabelsMapper(9, sortCounts);
+                return new GenotypeLabelsMapper(9, sortCounts,args().labelSmoothingEpsilon);
             case "homozygous":
-                return new HomozygousLabelsMapper(sortCounts);
+                return new HomozygousLabelsMapper(sortCounts,args().labelSmoothingEpsilon);
             case "numDistinctAlleles":
-                return new NumDistinctAllelesLabelMapper(sortCounts, ploidy);
+                return new NumDistinctAllelesLabelMapper(sortCounts, ploidy,args().labelSmoothingEpsilon);
             case "combined":
-                return new CombinedLabelsMapper();
+                return new CombinedLabelsMapper(args().labelSmoothingEpsilon);
             case "metaData":
                 return new MetaDataLabelMapper();
             case "isVariant":
-                return new BooleanLabelMapper<BaseInformationRecords.BaseInformation>(baseInformation -> baseInformation.getSamples(0).getIsVariant());
+                return new BooleanLabelMapper<BaseInformationRecords.BaseInformation>(
+                        baseInformation -> baseInformation.getSamples(0).getIsVariant(),
+                        args().labelSmoothingEpsilon);
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
@@ -261,6 +263,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         }
         modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
         modelProperties.setProperty("variantLossWeight", Double.toString(variantLossWeight));
+        modelProperties.setProperty("labelSmoothing.epsilon", Double.toString(args().labelSmoothingEpsilon));
     }
 
     @Override
@@ -473,7 +476,6 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             } else {
                 return new CombinedGenotypePrediction(individualOutputPredictions);
             }
-
         }
         throw new IllegalArgumentException("The type of aggregate prediction is not recognized.");
     }

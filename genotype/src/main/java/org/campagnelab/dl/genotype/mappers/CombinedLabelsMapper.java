@@ -18,6 +18,11 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class CombinedLabelsMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
 
     public static final int NUM_LABELS = 4;
+private float epsilon=0;
+
+    public CombinedLabelsMapper(float epsilon) {
+        this.epsilon = epsilon;
+    }
 
     @Override
     public int numberOfLabels() {
@@ -73,7 +78,7 @@ public class CombinedLabelsMapper extends NoMasksLabelMapper<BaseInformationReco
             //no call case
             correctLabelIndex = 3;
         }
-        return (labelIndex == correctLabelIndex)?1f:0f;
+        return (labelIndex == correctLabelIndex)?1-epsilon:epsilon/(numberOfLabels()-1);
     }
 
 

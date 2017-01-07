@@ -4,6 +4,7 @@ import com.beust.jcommander.Parameter;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
 import org.campagnelab.dl.genotype.mappers.GenotypeMapperV1;
+import org.campagnelab.dl.genotype.mappers.GenotypeMapperV24;
 
 /**
  * Arguments specific to somatic model training.
@@ -43,7 +44,7 @@ public class GenotypeTrainingArguments extends TrainingArguments {
 
     @Override
     protected String defaultFeatureMapperClassname() {
-        return GenotypeMapperV1.class.getCanonicalName();
+        return GenotypeMapperV24.class.getCanonicalName();
     }
 
     @Parameter(names = "--ploidy", description = "The organism ploidy (2 for humans, more for some plants). ")
