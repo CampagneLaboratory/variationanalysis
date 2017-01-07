@@ -188,7 +188,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                 case VCF:
                     String ref = record.getReferenceBase();
                     Set<String> altSet = fullPred.predictedAlleles();
-                    int maxLength = altSet.stream().map(a -> a.length()).max(Integer::compareTo).get();
+                    int maxLength = altSet.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
                     altSet.remove(ref);
                     SortedSet<String> sortedAltSet = new ObjectAVLTreeSet<>();
                     sortedAltSet.addAll(altSet);
