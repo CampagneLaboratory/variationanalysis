@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  * Example of Predict implementation. This class performs predictions with a model trained by TrainModelS.
  *
  * @author Remi Torracinta
+ * @author Fabien Campagne
  *         Created by rct66 on 12/7/16.
  */
 public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
