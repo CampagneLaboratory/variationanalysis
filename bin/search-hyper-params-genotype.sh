@@ -82,7 +82,7 @@ cat build-cache-commands.txt |parallel -j${NUM_GPUS} --progress
 echo "Training.."
 unset FORCE_PLATFORM
 parallel echo `cat main-command.txt` --mini-batch-size 2048 \
-        --memory-cache training,validation  --max-epochs 20 \
+        --memory-cache none  --max-epochs 20 \
         :::: gen-args.txt \
 >commands.txt
 
