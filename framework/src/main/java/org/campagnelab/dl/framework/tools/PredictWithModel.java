@@ -53,7 +53,7 @@ public class PredictWithModel<RecordType> {
                                 Predicate<Integer> stopIfTrue, int index) {
         assert model instanceof ComputationGraph : "MultiDataSet only work with ComputationGraph";
         ComputationGraph graph=(ComputationGraph)model;
-        INDArray[] outputPredictions = graph.output(dataSet.getFeatures());
+        INDArray[] outputPredictions = graph.output(false,dataSet.getFeatures());
         List<Prediction> predictions = new ArrayList<>();
 
         RecordType currentRecord;
@@ -64,7 +64,8 @@ public class PredictWithModel<RecordType> {
 
 
                 if (interpretors[outputIndex] != null) {
-                    Prediction prediction = interpretors[outputIndex].interpret(currentRecord, outputPredictions[outputIndex]);
+                    Prediction prediction = interpretors[outputIndex].interpret(currentRecord,
+                                                    outputPredictions[outputIndex].slice(exampleIndex));
                     prediction.outputIndex = outputIndex;
                     prediction.index = index;
                     predictions.add(prediction);
