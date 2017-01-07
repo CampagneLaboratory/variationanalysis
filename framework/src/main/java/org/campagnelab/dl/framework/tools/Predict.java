@@ -128,7 +128,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         pgReadWrite.expectedUpdates = Math.min(args().scoreN,
                 totalRecords);
         pgReadWrite.displayFreeMemory = true;
-        pgReadWrite.start();
+
 
         PredictWithModel<RecordType> predictor = new PredictWithModel<RecordType>(domainDescriptor);
 
@@ -149,6 +149,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         Iterator<RecordType> recordIterator = recordsIterable.iterator();
         int index = 0;
         int adapterIndex=0;
+        pgReadWrite.start();
         while (adapter.hasNext() && recordIterator.hasNext()) {
 
             MultiDataSet dataset = adapter.next();
@@ -168,7 +169,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
                         recordPredictions -> {
                             processPredictions(resutsWriter, recordPredictions.record,
                                     recordPredictions.predictions);
-                            pgReadWrite.lightUpdate();
+                            pgReadWrite.update(records.size());
                         },
                 /* stop if */ nProcessed -> nProcessed > args().scoreN, index
                 );
