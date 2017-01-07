@@ -39,6 +39,12 @@ function assertBedtoolsInstalled {
 
 assertBedtoolsInstalled
 
+
+if [ -z "${MINI_BATCH_SIZE+set}" ]; then
+    MINI_BATCH_SIZE="2048"
+    echo "MINI_BATCH_SIZE set to ${MINI_BATCH_SIZE}. Change the variable to switch the mini-batch-size."
+fi
+
 if [ -z "${GOLD_STANDARD_VCF_GZ+set}" ]; then
     echo "Downloading Gold standard Genome in a Bottle VCF"
     wget ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/NISTv3.3.1/GRCh37/HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz
@@ -81,7 +87,7 @@ MODEL_TIME=`basename ${MODEL_DIR}`
 
 echo "Running predict-genotypes to create VCF and observed region bed.."
 predict-genotypes.sh 10g -m ${MODEL_DIR} -l ${MODEL_PREFIX} -f -i ${DATASET_SBI} \
-    --format VCF --mini-batch-size 2048
+    --format VCF --mini-batch-size ${MINI_BATCH_SIZE}
 dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
 echo "Evaluation with rtg vcfeval starting.."
 
