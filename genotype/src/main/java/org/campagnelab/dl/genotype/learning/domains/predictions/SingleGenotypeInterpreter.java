@@ -28,7 +28,7 @@ public class SingleGenotypeInterpreter extends  SortingCountInterpreter<SingleGe
             pred.predictedSingleGenotype = ".";
         }
         pred.probabilityIsCalled = output.getDouble( predictionIndex,0);
-        pred.trueIsCalled = trueLabels.getDouble( predictionIndex,0)==1;
+        pred.trueIsCalled = trueLabels.getDouble( predictionIndex,0)>0.5;
         return pred;
     }
 
