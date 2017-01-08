@@ -15,5 +15,7 @@ public class CombinedWithIsVariantGenotypePrediction extends CombinedGenotypePre
         assert individualOutputPredictions.size()==3:"3 individual predictions are expected";
         this.isVariantPrediction= (IsVariantPrediction) individualOutputPredictions.get(2);
         this.isVariantProbability=isVariantPrediction.probability;
+        this.overallProbability=(combinedOutputPrediction.overallProbability+isVariantPrediction.probability)/2;
+        this.isVariantProbability=overallProbability;
     }
 }

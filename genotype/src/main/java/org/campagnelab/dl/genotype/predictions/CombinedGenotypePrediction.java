@@ -11,6 +11,8 @@ import java.util.List;
 public class CombinedGenotypePrediction extends GenotypePrediction {
 
 
+    protected final CombinedOutputLayerPrediction combinedOutputPrediction;
+
     public CombinedGenotypePrediction(CombinedOutputLayerPrediction outputLayer, MetadataPrediction metaData) {
         this.overallProbability = outputLayer.overallProbability;
         this.trueGenotype = outputLayer.trueGenotype;
@@ -19,8 +21,8 @@ public class CombinedGenotypePrediction extends GenotypePrediction {
         this.isVariant = metaData.isVariant;
         this.isIndel = metaData.isIndel;
         this.index = metaData.index;
-
-        this.isVariantProbability=overallProbability;
+        this.combinedOutputPrediction = outputLayer;
+        this.isVariantProbability = overallProbability;
     }
 
     public CombinedGenotypePrediction(List<Prediction> individualOutputPredictions) {
