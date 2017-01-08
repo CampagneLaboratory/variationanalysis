@@ -1,20 +1,31 @@
 #!/usr/bin/env bash
 . `dirname "${BASH_SOURCE[0]}"`/common.sh
 
-if [ "$#" -ne 3 ]; then
-   echo "Usage: evaluate-genotypes.sh model-directory model-prefix test-set.sbi."
+if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; then
+  NUM_ARGS="3"
+fi
+
+if [ "$#" == "3" ]; then
+  NUM_ARGS="3"
+  unset VCF_OUTPUT
+  unset BED_OBSERVED_REGIONS_OUTPUT
+fi
+
+if [ "$#" != "${NUM_ARGS}" ]; then
+   echo "Usage: evaluate-genotypes.sh model-directory model-prefix [test-set.sbi]."
    echo "The env variables GOLD_STANDARD_VCF_GZ and GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ can be used to change the VCF and confident region bed."
    echo "The first run downloads these files from the Genome in a Bottle for sample NA12878 when the variables are not defined."
+   echo "The 3rd argument is optional. You can bypass the predict phase by defining the variables VCF_OUTPUT and BED_OBSERVED_REGIONS_OUTPUT to point to the output of predict"
    exit 1;
 fi
 MODEL_DIR=$1
 MODEL_PREFIX=$2
-DATASET_SBI=$3
 
 if [ -e configure.sh ]; then
  echo "Loading configure.sh"
  source configure.sh
 fi
+
 if [ ! -e hg19.sdf ]; then
  echo "You must install hg19.sdf in the current directory. See rtg downloads at http://www.realtimegenomics.com/news/pre-formatted-reference-datasets/"
  exit 10;
@@ -78,21 +89,29 @@ if [ -z "${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ+set}" ]; then
     echo "Gold standard confident regions downloaded for NA12878  and named in configure.sh. Edit GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ to switch to a different gold-standard confident region bed file."
 fi
 
-if [ ! -e "${DATASET_SBI}" ]; then
+if [ "${NUM_ARGS}" -eq "3" ]; then
+    DATASET_SBI=$3
+    if [ ! -e "${DATASET_SBI}" ]; then
         echo "The test set was not found: ${DATASET_SBI}  "
         exit 1;
+    fi
 fi
 
-MODEL_TIME=`basename ${MODEL_DIR}`
-set -x
-echo "Running predict-genotypes to create VCF and observed region bed.."
-predict-genotypes.sh 20g -m ${MODEL_DIR} -l ${MODEL_PREFIX} -f -i ${DATASET_SBI} \
-    --format VCF --mini-batch-size ${MINI_BATCH_SIZE}
-dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
-echo "Evaluation with rtg vcfeval starting.."
+if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; then
+    echo "VCF_OUTPUT or BED_OBSERVED_REGIONS_OUTPUT are not defined. Running predict for ${DATASET_SBI}."
+    MODEL_TIME=`basename ${MODEL_DIR}`
+    set -x
+    echo "Running predict-genotypes to create VCF and observed region bed.."
+    predict-genotypes.sh 20g -m ${MODEL_DIR} -l ${MODEL_PREFIX} -f -i ${DATASET_SBI} \
+        --format VCF --mini-batch-size ${MINI_BATCH_SIZE} -n 10000
+    dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
+    echo "Evaluation with rtg vcfeval starting.."
 
-VCF_OUTPUT=`ls -1tr ${MODEL_TIME}-${MODEL_PREFIX}-*.vcf|tail -1`
-BED_OBSERVED_REGIONS_OUTPUT=`ls -1tr ${MODEL_TIME}-${MODEL_PREFIX}-*-observed-regions.bed |tail -1`
+    VCF_OUTPUT=`ls -1tr ${MODEL_TIME}-${MODEL_PREFIX}-*.vcf|tail -1`
+    BED_OBSERVED_REGIONS_OUTPUT=`ls -1tr ${MODEL_TIME}-${MODEL_PREFIX}-*-observed-regions.bed |tail -1`
+else
+    echo "Evaluating with VCF_OUTPUT=${VCF_OUTPUT} and BED_OBSERVED_REGIONS_OUTPUT=${BED_OBSERVED_REGIONS_OUTPUT}"
+fi
 
 VCF_OUTPUT_SORTED=`basename ${VCF_OUTPUT} .vcf`-sorted.vcf
 cat ${VCF_OUTPUT} | vcf-sort > ${VCF_OUTPUT_SORTED}
