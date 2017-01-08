@@ -56,6 +56,7 @@ public class CacheHelper<RecordType> {
             tool.execute();
         }
         assert cacheExists(cacheName, cacheN, true) : "A cache must exist at this point.";
+        System.out.println("Using cache: "+cacheName);
         return new MultiDatasetMappedFeaturesIterator(cacheName, cacheN);
     }
 
