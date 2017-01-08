@@ -80,5 +80,13 @@ train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
 dieIfError "Failed to train model with CUDA GPU build."
 
 MODEL_DIR=`grep "model directory:" ${OUTPUT_FILE}  |cut -d " " -f 3`
-predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f -i ${DATASET}test.sbi ${PREDICT_OPTIONS}
+predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f \
+    -i ${DATASET}test.sbi ${PREDICT_OPTIONS} --mini-batch-size ${MINI_BATCH_SIZE} \
+    --format VCF
 dieIfError "Failed to predict statistics."
+
+MODEL_TIME=`basename MODEL_DIR`
+VCF_OUTPUT=${MODEL_TIME}-best${EVALUATION_METRIC_NAME}-*.vcf
+BED_OBSERVED_REGIONS_OUTPUT=${MODEL_TIME}-best${EVALUATION_METRIC_NAME}-*.bed
+evaluate-genotypes.sh ${MODEL_DIR} best${EVALUATION_METRIC_NAME}
+dieIfError "Failed to run rtg evaluation."

@@ -50,6 +50,6 @@ public class NumDistinctAllelesInterpreter implements PredictionInterpreter<Base
                 maxProbability = outputDouble;
             }
         }
-       return maxIndex + 1;
+       return maxIndex;
     }
 }
