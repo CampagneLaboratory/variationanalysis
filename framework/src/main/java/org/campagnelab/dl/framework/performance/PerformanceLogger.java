@@ -143,7 +143,7 @@ public class PerformanceLogger {
     public void show(String prefix) {
         List<Performance> perfs = log.get(prefix);
         Performance perf = perfs.get(perfs.size() - 1);
-        System.out.printf("%d\t%f\t%s%n",perf.epoch, perf.trainingScore,perf.formatValues());
+        System.out.printf("%d\t%f\t%s%n", perf.epoch, perf.trainingScore, perf.formatValues());
     }
 
     /**
@@ -175,7 +175,9 @@ public class PerformanceLogger {
     public int getBestEpoch(String prefix) {
         int epoch = -1;
         List<Performance> performances = log.get(prefix);
-        assert performances != null : "Cannot find performance log for prefix=" + prefix;
+        if (performances == null) {
+            return -1;
+        }
         for (Performance per : performances) {
             epoch = Math.max(epoch, per.epoch);
         }
@@ -227,7 +229,7 @@ public class PerformanceLogger {
             for (Performance perf : perfs) {
 
                 writer.write(String.format("%d\t%d\t%f\t%s",
-                        perf.numExamplesUsed, perf.epoch,perf.trainingScore, perf.formatValues()));
+                        perf.numExamplesUsed, perf.epoch, perf.trainingScore, perf.formatValues()));
 
                 if (conditionId != null) {
                     writer.write("\t" + conditionId);

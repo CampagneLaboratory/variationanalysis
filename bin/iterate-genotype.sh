@@ -58,7 +58,6 @@ if [ ! -e "${DATASET}test.sbi" ]; then
            exit 1;
 fi
 
-
 echo "Iteration for FEATURE_MAPPER=${FEATURE_MAPPER}"
 
 export FORCE_PLATFORM=native
@@ -70,6 +69,8 @@ dieIfError "Failed to map features with CPU build."
 
 OUTPUT_FILE=output-${RANDOM}.log
 unset FORCE_PLATFORM
+resetPlatform
+
 train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
   --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
   ${TRAINING_OPTIONS} \
@@ -78,15 +79,18 @@ train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
   --early-stopping-measure ${EVALUATION_METRIC_NAME} \
   --early-stopping-num-epochs 10 --gpu-device ${GPU} | tee ${OUTPUT_FILE}
 dieIfError "Failed to train model with CUDA GPU build."
-
+set -x
 MODEL_DIR=`grep "model directory:" ${OUTPUT_FILE}  |cut -d " " -f 3`
+MODEL_TIME=`basename ${MODEL_DIR}`
+rm ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}*-genotypes.vcf
+rm ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}-*.bed
+
 predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f \
     -i ${DATASET}test.sbi ${PREDICT_OPTIONS} --mini-batch-size ${MINI_BATCH_SIZE} \
     --format VCF
 dieIfError "Failed to predict statistics."
 
-MODEL_TIME=`basename MODEL_DIR`
-VCF_OUTPUT=${MODEL_TIME}-best${EVALUATION_METRIC_NAME}-*.vcf
-BED_OBSERVED_REGIONS_OUTPUT=${MODEL_TIME}-best${EVALUATION_METRIC_NAME}-*.bed
+export VCF_OUTPUT=`ls -1 ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}*-genotypes.vcf`
+export BED_OBSERVED_REGIONS_OUTPUT=`ls -1 ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}-*.bed`
 evaluate-genotypes.sh ${MODEL_DIR} best${EVALUATION_METRIC_NAME}
 dieIfError "Failed to run rtg evaluation."
