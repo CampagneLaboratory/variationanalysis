@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
@@ -32,12 +33,13 @@ public class NumDistinctAllelesLabelMapper extends CountSortingLabelMapper imple
     }
 
     public NumDistinctAllelesLabelMapper(boolean sortCounts, int ploidy) {
+
         this(sortCounts, ploidy, 0);
     }
 
     @Override
     public int numberOfLabels() {
-        return ploidy;
+        return ploidy+1;
     }
 
     @Override
@@ -47,8 +49,10 @@ public class NumDistinctAllelesLabelMapper extends CountSortingLabelMapper imple
     }
 
     protected float label(int labelIndex, String trueGenotype) {
-        int numDistinctAlleles = GenotypePrediction.alleles(trueGenotype).size();
-        return (labelIndex == numDistinctAlleles - 1) ? 1f-epsilon : epsilon/(numberOfLabels()-1);
+        int numDistinctAlleles = GenotypeHelper.getAlleles(trueGenotype).size();
+        float v = epsilon / (numberOfLabels() - 1f);
+        return (labelIndex == numDistinctAlleles ) ? 1f-epsilon : v;
+
     }
 
     public static final java.lang.String PLOIDY_PROPERTY = "genotypes.ploidy";
