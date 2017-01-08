@@ -15,6 +15,7 @@ public class NumDistinctAllelesInterpreter implements PredictionInterpreter<Base
         NumDistinctAllelesOutputLayerPrediction> {
 
     int ploidy;
+    private double maxProbability;
 
     public NumDistinctAllelesInterpreter(int ploidy) {
         this.ploidy = ploidy;
@@ -26,6 +27,7 @@ public class NumDistinctAllelesInterpreter implements PredictionInterpreter<Base
 
         result.predictedValue = readPredicted(output, result,predictionIndex);
         result.trueValue = readPredicted(trueLabels, result,predictionIndex);
+        result.probability=maxProbability;
         return result;
     }
 
@@ -36,11 +38,12 @@ public class NumDistinctAllelesInterpreter implements PredictionInterpreter<Base
         result.trueValue = GenotypeHelper.getAlleles(trueGenotype).size();
         // interpret the prediction
         result.predictedValue = readPredicted(output, result,0);
+        result.probability=maxProbability;
         return result;
     }
 
     private int readPredicted(INDArray output, NumDistinctAllelesOutputLayerPrediction result, int  predictionIndex) {
-        double maxProbability = -1;
+        maxProbability = -1;
         int maxIndex = -1;
 
         for (int i = 0; i < ploidy+1; i++) {

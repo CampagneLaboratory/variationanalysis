@@ -31,7 +31,7 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
 
         int numAlleles = numDistinctAlleles.predictedValue;
 
-        double predProbability = 0;
+        double predProbability = numDistinctAlleles.probability;
 
         StringBuffer hetGenotype = new StringBuffer();
 
@@ -46,7 +46,7 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
             predProbability += Math.max(element.probabilityIsCalled,1-element.probabilityIsCalled);
         }
         this.trueGenotype  = extractTrueGenotype(singleGenotypePredictions);
-        overallProbability = predProbability / (double) numAlleles;
+        overallProbability = predProbability / (double) (numAlleles+1);
         this.isVariantProbability=overallProbability;
         predictedGenotype = hetGenotype.toString();
         this.isIndel = metaData.isIndel;

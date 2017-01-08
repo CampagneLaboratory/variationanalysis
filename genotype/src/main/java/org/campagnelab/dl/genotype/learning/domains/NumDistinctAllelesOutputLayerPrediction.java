@@ -10,4 +10,5 @@ import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPredic
 public class NumDistinctAllelesOutputLayerPrediction extends Prediction {
     public int trueValue;
     public int predictedValue;
+    public double probability;
 }
