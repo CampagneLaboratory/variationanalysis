@@ -54,19 +54,20 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
 
         @Override
         public float produceLabel (BaseInformationRecords.BaseInformation record,int labelIndex){
-
+            float v = epsilon / (numberOfLabels() + 1);
             record = sortedCountRecord;
             if (!getHomozygous(record)) {
                 // this site is heterozygous. The Allele will only be encoded in the other outputs.
-                return (labelIndex == IS_HETEROZYGOUS_INDEX/**last index */) ? 1-epsilon : epsilon;
+
+                return (labelIndex == IS_HETEROZYGOUS_INDEX/**last index */) ? 1-epsilon : v;
             } else {
                 // the site is homozygous.
                 if (labelIndex >= record.getSamples(0).getCountsCount()) {
                     // the labelIndex is outside the range of counts in the protobuff.
-                    return epsilon;
+                    return v;
                 } else {
                     // The allele is encoded here:
-                    return record.getSamples(0).getCounts(labelIndex).getIsCalled() ? 1-epsilon : epsilon;
+                    return record.getSamples(0).getCounts(labelIndex).getIsCalled() ? 1-epsilon : v;
                 }
             }
         }
