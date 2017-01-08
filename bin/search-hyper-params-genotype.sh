@@ -53,6 +53,12 @@ log-uniform
 int
 21
 41
+
+--label-smoothing-epsilon
+uniform
+0
+0.2
+
 EOF
     echo "SBI_SEARCH_PARAM_CONFIG not set. Using default hyper parameters. Change the variable a file with an arg-generator config file to customize the search."
 fi
