@@ -246,6 +246,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         int domainHashcode = id.hashCode();
         domainHashcode ^= ploidy;
         domainHashcode ^= genomicContextSize;
+        domainHashcode ^= Float.hashCode(args().labelSmoothingEpsilon);
         return Integer.toHexString(domainHashcode);
     }
 
