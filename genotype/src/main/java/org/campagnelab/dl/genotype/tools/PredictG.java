@@ -202,7 +202,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                                 ref, alt, codeGT(fullPred.predictedGenotype, ref, sortedAltSet), fullPred.predictedGenotype, fullPred.isVariantProbability);
                     }
                     // NB: bed format is zero-based.
-                    bedWriter.printf("%s\t%d\t%d\n", record.getReferenceId(), record.getPosition(), record.getPosition() + maxLength);
+                    bedWriter.printf("%s\t%d\t%d\t%d\n", record.getReferenceId(), record.getPosition(), record.getPosition() + maxLength, fullPred.index);
 
                     break;
             }
