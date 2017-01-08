@@ -14,20 +14,20 @@ public class NumDistinctAllelesLabelMapperTest {
     @Test
     public void testDistinctAlleles() {
         mapper.ploidy=2;
-        assertEquals("[0.0, 1.0]",map("A/B").toString());
-        assertEquals("[1.0, 0.0]",map("A/A").toString());
-        assertEquals("[1.0, 0.0]",map("B/B").toString());
+        assertEquals("[0.0, 0.0, 1.0]",map("A/B").toString());
+        assertEquals("[0.0, 1.0, 0.0]",map("A/A").toString());
+        assertEquals("[0.0, 1.0, 0.0]",map("B/B").toString());
 
         mapper.ploidy=3;
-        assertEquals("[0.0, 1.0, 0.0]",map("A/B").toString());
-        assertEquals("[1.0, 0.0, 0.0]",map("A").toString());
-        assertEquals("[0.0, 0.0, 1.0]",map("A/B/C").toString());
+        assertEquals("[0.0, 0.0, 1.0, 0.0]",map("A/B").toString());
+        assertEquals("[0.0, 1.0, 0.0, 0.0]",map("A").toString());
+        assertEquals("[0.0, 0.0, 0.0, 1.0]",map("A/B/C").toString());
 
     }
 
     private FloatArrayList map(String trueGenotype) {
         FloatArrayList result=new FloatArrayList();
-        for (int featureLabel=0;featureLabel<mapper.ploidy;featureLabel++) {
+        for (int featureLabel=0;featureLabel<mapper.ploidy+1;featureLabel++) {
             result.add(mapper.label(featureLabel, trueGenotype));
         }
         return result;
