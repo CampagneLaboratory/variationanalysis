@@ -2,6 +2,7 @@ package org.campagnelab.dl.genotype.learning.domains;
 
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -25,7 +26,6 @@ public class NumDistinctAllelesInterpreter implements PredictionInterpreter<Base
 
         result.predictedValue = readPredicted(output, result,predictionIndex);
         result.trueValue = readPredicted(trueLabels, result,predictionIndex);
-
         return result;
     }
 
@@ -33,7 +33,7 @@ public class NumDistinctAllelesInterpreter implements PredictionInterpreter<Base
     public NumDistinctAllelesOutputLayerPrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
         NumDistinctAllelesOutputLayerPrediction result = new NumDistinctAllelesOutputLayerPrediction();
         final String trueGenotype = record.getTrueGenotype();
-        result.trueValue = GenotypePrediction.alleles(trueGenotype).size();
+        result.trueValue = GenotypeHelper.getAlleles(trueGenotype).size();
         // interpret the prediction
         result.predictedValue = readPredicted(output, result,0);
         return result;
@@ -43,7 +43,7 @@ public class NumDistinctAllelesInterpreter implements PredictionInterpreter<Base
         double maxProbability = -1;
         int maxIndex = -1;
 
-        for (int i = 0; i < ploidy; i++) {
+        for (int i = 0; i < ploidy+1; i++) {
             double outputDouble = output.getDouble(predictionIndex, i);
             if (maxProbability < outputDouble) {
                 maxIndex = i;
