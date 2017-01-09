@@ -126,12 +126,6 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
             System.exit(1);
         }
         domainDescriptor = DomainDescriptorLoader.load(modelPath);
-        ProgressLogger pgReadWrite = new ProgressLogger(LOG);
-        pgReadWrite.itemsName = "sites";
-        final long totalRecords = domainDescriptor.getNumRecords(new String[]{args().testSet});
-        pgReadWrite.expectedUpdates = Math.min(args().scoreN,
-                totalRecords)/args().miniBatchSize;
-        pgReadWrite.displayFreeMemory = true;
 
 
         PredictWithModel<RecordType> predictor = new PredictWithModel<RecordType>(domainDescriptor);
@@ -157,6 +151,13 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         Iterator<RecordType> recordIterator = recordsIterable.iterator();
         int index = 0;
         int adapterIndex=0;
+        ProgressLogger pgReadWrite = new ProgressLogger(LOG);
+        pgReadWrite.itemsName = "sites";
+        final long totalRecords = domainDescriptor.getNumRecords(new String[]{args().testSet});
+        pgReadWrite.expectedUpdates = Math.min(args().scoreN,
+                totalRecords);
+        pgReadWrite.displayFreeMemory = false;
+        pgReadWrite.displayLocalSpeed=true;
         pgReadWrite.start();
         while (adapterCached.hasNext() && recordIterator.hasNext()) {
 
