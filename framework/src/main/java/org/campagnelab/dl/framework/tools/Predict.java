@@ -6,6 +6,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.DomainDescriptorLoader;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.framework.gpu.InitializeGpu;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
@@ -51,6 +52,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
 
     @Override
     public void execute() {
+        InitializeGpu.initialize();
         if (args().deviceIndex != null) {
             Nd4j.getAffinityManager().attachThreadToDevice(Thread.currentThread(), args().deviceIndex);
         }
