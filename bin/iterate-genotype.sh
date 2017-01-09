@@ -34,7 +34,7 @@ if [ -z "${GPU+set}" ]; then
     echo "GPU set to ${GPU}. Change the integer to switch to another GPU card."
 fi
 if [ -z "${TRAIN_SUFFIX+set}" ]; then
-    VAL_SUFFIX="train"
+    TRAIN_SUFFIX="train"
     echo "TRAIN_SUFFIX set to ${TRAIN_SUFFIX}. Change the variable to switch the training set suffix."
 fi
 if [ -z "${VAL_SUFFIX+set}" ]; then
