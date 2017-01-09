@@ -7,11 +7,13 @@ import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.DomainDescriptorLoader;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
+import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
 import org.deeplearning4j.nn.api.Model;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
+import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +93,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
 
 
     }
-
+    private CacheHelper<RecordType> cacheHelper = new CacheHelper<>();
     protected DomainDescriptor<RecordType> domainDescriptor;
 
     private void printPredictions(String prefix, String modelPath, String evaluationDataFilename,
@@ -135,6 +137,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         Iterable<RecordType> apply = domainDescriptor.getRecordIterable().apply(evaluationDataFilename);
         Iterable<RecordType> itAdapter = Iterables.limit(apply, args().scoreN);
         Iterable<RecordType> recordsIterable = Iterables.limit(domainDescriptor.getRecordIterable().apply(evaluationDataFilename), args().scoreN);
+
         initializeStats(prefix);
         writeHeader(resutsWriter);
         final int miniBatchSize = args().miniBatchSize;
@@ -145,14 +148,17 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
                 return FilenameUtils.getBaseName(args().testSet);
             }
         };
+        MultiDataSetIterator adapterCached = cacheHelper.cache(domainDescriptor,
+                adapter, adapter.getBasename(),
+                args().scoreN, args().miniBatchSize);
         List<RecordType> records = new ArrayList<RecordType>();
         Iterator<RecordType> recordIterator = recordsIterable.iterator();
         int index = 0;
         int adapterIndex=0;
         pgReadWrite.start();
-        while (adapter.hasNext() && recordIterator.hasNext()) {
+        while (adapterCached.hasNext() && recordIterator.hasNext()) {
 
-            MultiDataSet dataset = adapter.next();
+            MultiDataSet dataset = adapterCached.next();
             final int datasetSize = dataset.getFeatures(0).rows();
             adapterIndex++;
             records.clear();
