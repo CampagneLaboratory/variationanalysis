@@ -130,7 +130,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         pgReadWrite.itemsName = "sites";
         final long totalRecords = domainDescriptor.getNumRecords(new String[]{args().testSet});
         pgReadWrite.expectedUpdates = Math.min(args().scoreN,
-                totalRecords);
+                totalRecords)/args().miniBatchSize;
         pgReadWrite.displayFreeMemory = true;
 
 
