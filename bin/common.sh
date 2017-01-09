@@ -37,9 +37,8 @@ function resetPlatform {
          EXECUTION_PLATFORM="${FORCE_PLATFORM}"
     fi
     echo "Running with EXECUTION_PLATFORM=${EXECUTION_PLATFORM}"
+    export DLVA_JAR=${DLVA_HOME}/gpus/target/gpus-${VERSION}.jar:${DLVA_HOME}/somatic/target/somatic-${VERSION}-bin-${EXECUTION_PLATFORM}.jar
+    export GDLVA_JAR=${DLVA_HOME}/gpus/target/gpus-${VERSION}.jar:${DLVA_HOME}/genotype/target/genotype-${VERSION}-bin-${EXECUTION_PLATFORM}.jar
+    export SLF4J_CONFIG=${DLVA_HOME}/config/logback.xml
 }
 resetPlatform
-export DLVA_JAR=${DLVA_HOME}/gpus/target/gpus-${VERSION}.jar:${DLVA_HOME}/somatic/target/somatic-${VERSION}-bin-${EXECUTION_PLATFORM}.jar
-export GDLVA_JAR=${DLVA_HOME}/gpus/target/gpus-${VERSION}.jar:${DLVA_HOME}/genotype/target/genotype-${VERSION}-bin-${EXECUTION_PLATFORM}.jar
-
-export SLF4J_CONFIG=${DLVA_HOME}/config/logback.xml
