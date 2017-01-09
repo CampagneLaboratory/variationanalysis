@@ -1,6 +1,7 @@
 package org.campagnelab.dl.framework.tools;
 
 import com.google.common.collect.Iterables;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
@@ -147,7 +148,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         MultiDataSetIterator adapterCached = cacheHelper.cache(domainDescriptor,
                 adapter, adapter.getBasename(),
                 args().scoreN, args().miniBatchSize);
-        List<RecordType> records = new ArrayList<RecordType>();
+        List<RecordType> records = new ObjectArrayList<RecordType>(miniBatchSize);
         Iterator<RecordType> recordIterator = recordsIterable.iterator();
         int index = 0;
         int adapterIndex=0;
