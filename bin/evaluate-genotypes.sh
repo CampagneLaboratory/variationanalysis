@@ -136,7 +136,7 @@ rtg vcfeval --baseline=${GOLD_STANDARD_VCF_GZ}  \
 dieIfError "Failed to run rtg vcfeval."
 
 cp ${MODEL_DIR}/config.properties ${RTG_OUTPUT_FOLDER}
-cp ${VCF_OUTPUT_SORTED} ${RTG_OUTPUT_FOLDER}
+cp ${VCF_OUTPUT_SORTED}.gz ${RTG_OUTPUT_FOLDER}
 cp ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz ${RTG_OUTPUT_FOLDER}
 echo "See rtg vcfeval detailed output in ${RTG_OUTPUT_FOLDER}"
 
