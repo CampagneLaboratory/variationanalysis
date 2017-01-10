@@ -1,11 +1,13 @@
 package org.campagnelab.dl.framework.tools;
 
 import com.google.common.collect.Iterables;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.DomainDescriptorLoader;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.framework.gpu.InitializeGpu;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
@@ -51,6 +53,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
 
     @Override
     public void execute() {
+        InitializeGpu.initialize();
         if (args().deviceIndex != null) {
             Nd4j.getAffinityManager().attachThreadToDevice(Thread.currentThread(), args().deviceIndex);
         }
@@ -124,12 +127,6 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
             System.exit(1);
         }
         domainDescriptor = DomainDescriptorLoader.load(modelPath);
-        ProgressLogger pgReadWrite = new ProgressLogger(LOG);
-        pgReadWrite.itemsName = "sites";
-        final long totalRecords = domainDescriptor.getNumRecords(new String[]{args().testSet});
-        pgReadWrite.expectedUpdates = Math.min(args().scoreN,
-                totalRecords);
-        pgReadWrite.displayFreeMemory = true;
 
 
         PredictWithModel<RecordType> predictor = new PredictWithModel<RecordType>(domainDescriptor);
@@ -151,10 +148,17 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         MultiDataSetIterator adapterCached = cacheHelper.cache(domainDescriptor,
                 adapter, adapter.getBasename(),
                 args().scoreN, args().miniBatchSize);
-        List<RecordType> records = new ArrayList<RecordType>();
+        List<RecordType> records = new ObjectArrayList<RecordType>(miniBatchSize);
         Iterator<RecordType> recordIterator = recordsIterable.iterator();
         int index = 0;
         int adapterIndex=0;
+        ProgressLogger pgReadWrite = new ProgressLogger(LOG);
+        pgReadWrite.itemsName = "sites";
+        final long totalRecords = domainDescriptor.getNumRecords(new String[]{args().testSet});
+        pgReadWrite.expectedUpdates = Math.min(args().scoreN,
+                totalRecords);
+        pgReadWrite.displayFreeMemory = false;
+        pgReadWrite.displayLocalSpeed=true;
         pgReadWrite.start();
         while (adapterCached.hasNext() && recordIterator.hasNext()) {
 

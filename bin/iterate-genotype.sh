@@ -33,6 +33,10 @@ if [ -z "${GPU+set}" ]; then
     GPU="3"
     echo "GPU set to ${GPU}. Change the integer to switch to another GPU card."
 fi
+if [ -z "${TRAIN_SUFFIX+set}" ]; then
+    TRAIN_SUFFIX="train"
+    echo "TRAIN_SUFFIX set to ${TRAIN_SUFFIX}. Change the variable to switch the training set suffix."
+fi
 if [ -z "${VAL_SUFFIX+set}" ]; then
     VAL_SUFFIX="validation"
     echo "VAL_SUFFIX set to ${VAL_SUFFIX}. Change the variable to switch the validation suffix."
@@ -61,8 +65,8 @@ fi
 echo "Iteration for FEATURE_MAPPER=${FEATURE_MAPPER}"
 
 export FORCE_PLATFORM=native
-#rm ${DATASET}train*.cf ${DATASET}${VAL_SUFFIX}*cf
-train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+#rm ${DATASET}${TRAIN_SUFFIX}.sbi ${DATASET}${VAL_SUFFIX}*cf
+train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
    --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} ${TRAINING_OPTIONS} \
    --feature-mapper ${FEATURE_MAPPER} --build-cache-then-stop
 dieIfError "Failed to map features with CPU build."
@@ -71,7 +75,7 @@ OUTPUT_FILE=output-${RANDOM}.log
 unset FORCE_PLATFORM
 resetPlatform
 
-train-genotype.sh 10g -t ${DATASET}train.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
   --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
   ${TRAINING_OPTIONS} \
   --feature-mapper ${FEATURE_MAPPER} \

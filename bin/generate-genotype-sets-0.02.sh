@@ -47,7 +47,7 @@ export OUTPUT_BASENAME=tmp/genotype_full_called.sbi
 
 if [ -z "${REF_SAMPLING_RATE+set}" ]; then
     # We keep only 10% of reference matching sites as we add the true genotypes:
-    REF_SAMPLING_RATE="0.1"
+    REF_SAMPLING_RATE="0.02"
     echo "REF_SAMPLING_RATE set to ${REF_SAMPLING_RATE}. Change the variable to influence what percent of reference sites are sampled."
 else
  echo "REF_SAMPLING_RATE set to ${REF_SAMPLING_RATE}."
@@ -67,13 +67,6 @@ split.sh ${memory_requirement} -i tmp/genotype_full_called_randomized.sbi \
   -o "${OUTPUT_BASENAME}-" \
    -s train -s test -s validation
 dieIfError "Failed to split"
-# subset the validation sample further, throwing out many reference matching sites (to speed
-# up performance evaluation for early stopping):
-add-true-genotypes.sh ${memory_requirement} -m ${SBI_GENOTYPE_VARMAP} \
-  -i "${OUTPUT_BASENAME}-validation.sbi" \
-  -o "${OUTPUT_BASENAME}-validation-0.1" \
-  --genome ${GENOME} --ref-sampling-rate 0.1 |tee add-true-genotypes-downsampling-ref.log
-dieIfError "Failed to reduce validation set"
 
 if [ ${DELETE_TMP} = "true" ]; then
    rm -rf tmp
