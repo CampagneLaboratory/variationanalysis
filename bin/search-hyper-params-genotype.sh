@@ -77,7 +77,7 @@ num_executions=${memory_requirement}
 echo "Building caches"
 arg-generator.sh 1g --config ${SBI_SEARCH_PARAM_CONFIG} --output gen-args.txt --num-commands ${num_executions}
 
-parallel echo `cat main-command.txt` --mini-batch-size 2048 \
+parallel --eta --progress --bar echo `cat main-command.txt` --mini-batch-size 2048 \
   --build-cache-then-stop \
   :::: gen-args.txt ::: \
 >build-cache-commands.txt
@@ -95,5 +95,5 @@ parallel echo `cat main-command.txt` --mini-batch-size 2048 \
 shuf commands.txt  |head -${num_executions} >commands-head-${num_executions}
 chmod +x commands-head-${num_executions}
 cat ./commands-head-${num_executions} |parallel --xapply echo :::: - ::: --gpu-device :::: gpu.txt  >all-commands.txt
-cat all-commands.txt |parallel -j${NUM_GPUS} --progress
+cat all-commands.txt |parallel --eta --progress --bar -j${NUM_GPUS} --progress
 sort -n -k 2 model-conditions.txt|tail
