@@ -21,6 +21,7 @@ public class CombinedGenotypeAssembler extends GenotypeAssembler implements Comp
     private TrainingArguments arguments;
     private int numLayers;
     private FeedForwardDenseLayerAssembler layerAssembler;
+    private boolean fixRef = false;
 
     public CombinedGenotypeAssembler() {
         this(false);
@@ -28,6 +29,11 @@ public class CombinedGenotypeAssembler extends GenotypeAssembler implements Comp
 
     public CombinedGenotypeAssembler(boolean hasIsVariant) {
         this.hasIsVariant = hasIsVariant;
+    }
+
+    public CombinedGenotypeAssembler(boolean hasIsVariant, boolean fixRef) {
+        this.hasIsVariant = hasIsVariant;
+        this.fixRef = fixRef;
     }
 
     private TrainingArguments args() {
@@ -55,13 +61,13 @@ public class CombinedGenotypeAssembler extends GenotypeAssembler implements Comp
         int numIn = layerAssembler.getNumOutputs();
         WeightInit WEIGHT_INIT = WeightInit.XAVIER;
         String lastDenseLayerName = layerAssembler.lastLayerName();
-
-        build.addLayer("combined", new OutputLayer.Builder(
-                domainDescriptor.getOutputLoss("combined"))
+        String combined = fixRef?"combinedRef":"combined";
+        build.addLayer(combined, new OutputLayer.Builder(
+                domainDescriptor.getOutputLoss(combined))
                 .weightInit(WEIGHT_INIT)
-                .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
+                .activation(combined).weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                 .nIn(numIn)
-                .nOut(domainDescriptor.getNumOutputs("combined")[0]).build(), lastDenseLayerName);
+                .nOut(domainDescriptor.getNumOutputs(combined)[0]).build(), lastDenseLayerName);
         appendMetaDataLayer(domainDescriptor, learningRatePolicy, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         appendIsVariantLayer(domainDescriptor, learningRatePolicy, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         ComputationGraphConfiguration conf = build

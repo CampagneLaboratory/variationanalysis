@@ -1,7 +1,7 @@
 package org.campagnelab.dl.genotype.learning.domains.predictions;
 
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
-import org.campagnelab.dl.genotype.mappers.CombinedLabelsMapper;
+import org.campagnelab.dl.genotype.mappers.CombinedLabelsMapperRef;
 import org.campagnelab.dl.genotype.predictions.CombinedOutputLayerPrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +14,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class CombinedOutputLayerRefInterpreter extends SortingCountInterpreter<CombinedOutputLayerPrediction>
         implements PredictionInterpreter<BaseInformationRecords.BaseInformation, CombinedOutputLayerPrediction> {
 
-    private static final int MAX_GENOTYPES = CombinedLabelsMapper.NUM_LABELS;
+    private static final int MAX_GENOTYPES = CombinedLabelsMapperRef.NUM_LABELS;
     public static final String NO_CALL = ".";
     private String[] toSequences;
     private int referenceGenotypeIndex;
@@ -69,7 +69,7 @@ public class CombinedOutputLayerRefInterpreter extends SortingCountInterpreter<C
     private String reconstructGenotype(INDArray output, int predictionIndex) {
         probability = -1;
         int maxIndex = -1;
-        for (int i = 0; i < CombinedLabelsMapper.NUM_LABELS; i++) {
+        for (int i = 0; i < CombinedLabelsMapperRef.NUM_LABELS; i++) {
             double outputDouble = output.getDouble(predictionIndex, i);
             if (probability < outputDouble) {
                 maxIndex = i;

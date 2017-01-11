@@ -15,6 +15,7 @@ import org.campagnelab.dl.genotype.learning.architecture.graphs.CombinedGenotype
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.NumDistinctAlleleAssembler;
 import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerInterpreter;
+import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerRefInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypeInterpreter;
 import org.campagnelab.dl.genotype.mappers.*;
@@ -195,6 +196,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new NumDistinctAllelesLabelMapper(sortCounts, ploidy,args().labelSmoothingEpsilon);
             case "combined":
                 return new CombinedLabelsMapper(args().labelSmoothingEpsilon);
+            case "combinedRef":
+                return new CombinedLabelsMapperRef(args().labelSmoothingEpsilon);
             case "metaData":
                 return new MetaDataLabelMapper();
             case "isVariant":
@@ -219,6 +222,11 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     private boolean withCombinedLayer() {
         final GenotypeFeatureMapper featureMapper = (GenotypeFeatureMapper) getFeatureMapper("input");
         return featureMapper.withCombinedLayer;
+    }
+
+    private boolean withCombinedLayerRef() {
+        final GenotypeFeatureMapper featureMapper = (GenotypeFeatureMapper) getFeatureMapper("input");
+        return featureMapper.withCombinedLayerRef;
     }
 
     private boolean withIsVariantLabelMapper() {
@@ -297,6 +305,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new HomozygousInterpreter(sortCounts);
             case "combined":
                 return new CombinedOutputLayerInterpreter();
+            case "combinedRef":
+                return new CombinedOutputLayerRefInterpreter();
             case "numDistinctAlleles":
                 return new NumDistinctAllelesInterpreter(ploidy);
             case "isVariant":
@@ -409,7 +419,11 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         if (withDistinctAllele()) {
             assembler = new NumDistinctAlleleAssembler(withIsVariantLabelMapper());
         } else if (withCombinedLayer()) {
-            assembler = new CombinedGenotypeAssembler(withIsVariantLabelMapper());
+            if (withCombinedLayerRef()){
+                assembler = new CombinedGenotypeAssembler(withIsVariantLabelMapper(),true);
+            } else {
+                assembler = new CombinedGenotypeAssembler(withIsVariantLabelMapper(),false);
+            }
         } else if (!withDistinctAllele() && !withCombinedLayer()) {
             assembler = new GenotypeSixDenseLayersNarrower2(withIsVariantLabelMapper());
         } else {
@@ -445,6 +459,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "homozygous":
             case "numDistinctAlleles":
             case "combined":
+                return new LossMCXENT();
+            case "combinedRef":
                 return new LossMCXENT();
             case "isVariant":
                 INDArray weights = Nd4j.ones(2);
