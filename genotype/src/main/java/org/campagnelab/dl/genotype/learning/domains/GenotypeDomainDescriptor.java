@@ -131,8 +131,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     cmapper.configure(properties);
                 }
                 result = featureMapper;
-            } catch (IOException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
-                throw new RuntimeException("Unable to instanciate or configure feature mapper", e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Unable to instantiate or configure feature mapper", e);
+            } catch (IOException | IllegalAccessException | InstantiationException e) {
+                throw new RuntimeException("IO excpetion, perhaps sbi file not found?", e);
             }
         } else {
             try {
@@ -519,5 +521,4 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         }
         return 0;
     }
-
 }
