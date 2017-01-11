@@ -14,5 +14,5 @@ public class GenotypeMapperV20FixRef extends GenotypeMapperV19 {
         withCombinedLayerRef = true;
         hasIsVariantLabelMapper = true;
     }
-
 }
+
