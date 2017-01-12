@@ -100,11 +100,12 @@ public class CombinedGenotypeAssembler extends GenotypeAssembler implements Comp
 
     @Override
     public String[] getOutputNames() {
+        String combined =  fixRef ? "combinedRef" : "combined";
 
         if (hasIsVariant) {
-            return new String[]{"combined", "metaData", "isVariant"};
+            return new String[]{combined, "metaData", "isVariant"};
         } else {
-            return new String[]{"combined", "metaData"};
+            return new String[]{combined, "metaData"};
         }
     }
 
