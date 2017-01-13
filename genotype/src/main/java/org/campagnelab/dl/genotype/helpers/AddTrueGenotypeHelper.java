@@ -13,6 +13,7 @@ import org.campagnelab.goby.reads.RandomAccessSequenceInterface;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Encapsulates the AddTrueGenotype logic.
@@ -24,6 +25,9 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
     Object2ObjectMap<String, Int2ObjectMap<String>> chMap;
     private int numIndelsIgnored;
     private int numVariantsAdded;
+    private int numHomozygousAdded;
+    private int numHeterozygousAdded;
+    private int numReferenceAdded;
     private ObjectSet<String> distinctTrueGenotypes = new ObjectArraySet<>();
     private boolean considerIndels;
     private float referenceSamplingRate;
@@ -103,7 +107,9 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
 
         if (keep) {
             // We keep this record, so we label it:
-            if (isVariant) distinctTrueGenotypes.add(trueGenotype);
+            if (isVariant) {
+                distinctTrueGenotypes.add(trueGenotype);
+            }
             // write the record.
             buildRec.setTrueGenotype(trueGenotype);
             BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
@@ -129,6 +135,16 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
 
     public int getNumIndelsIgnored() {
         return numIndelsIgnored;
+    }
+
+    public int getNumHomozygousAdded() {
+        return numHomozygousAdded;
+    }
+    public int getNumReferenceAdded() {
+        return numReferenceAdded;
+    }
+    public int getNumHeterozygousAdded() {
+        return numHeterozygousAdded;
     }
 
     public int getNumVariantsAdded() {
@@ -200,7 +216,16 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                     if (isVariant) {
                         isVariant = true;
                         numVariantsAdded++;
+
+                        Set<String> alleles = GenotypeHelper.getAlleles(genotypeFromMap);
+                        if (alleles.size() > 1){
+                            numHeterozygousAdded++;
+                        } else {
+                            numHomozygousAdded++;
+                        }
                     }
+                    numReferenceAdded++;
+
                 }
             }
             if (!isVariant) {
@@ -223,7 +248,13 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
         System.out.println("Found the following distinct true genotypes (variants only): " + distinctTrueGenotypes);
         System.out.println(getNumVariantsAdded() + " number of variants in the sbi file.");
         System.out.println(getNumIndelsIgnored() + " number of indels ignored in the file.");
-        System.out.println(recordsLabeled + " labeled records written.");
+        System.out.println(getNumHeterozygousAdded() + " number of heterozygous added in the file.");
+
+        System.out.println(getNumHomozygousAdded() + " number of homozygous added in the file.");
+
+        System.out.println(getNumReferenceAdded() + " number of reference added in the file.");
+
+        System.out.println(recordsLabeled + " labeled records set for inclusion to to file.");
 
     }
 

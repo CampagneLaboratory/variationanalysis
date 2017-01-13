@@ -4,6 +4,7 @@
 assertGobyInstalled
 assertParallelInstalled
 
+
 ALIGNMENTS="$*"
 if [ -z "${OUTPUT_BASENAME+set}" ]; then
 
@@ -71,5 +72,7 @@ echo " discover-sequence-variants -n 0 -t 1 --genome  ${SBI_GENOME} --format  SE
 
 cut -f3,6 slices  | awk 'BEGIN{count=1} {print "-s "$1" -e " $2" -o out-part-"(count++)}' >boundaries
 parallel -j${SBI_NUM_THREADS} --plus  --progress goby 8g  `cat command.txt`  :::: boundaries
+
+
 
 concat.sh ${memory_requirement} -i out-part-*.sbi -o ${OUTPUT_BASENAME}
