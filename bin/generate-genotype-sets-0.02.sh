@@ -38,7 +38,7 @@ if [ -z "${SBI_GENOTYPE_VARMAP+set}" ]; then
   goby ${memory_requirement} vcf-to-genotype-map ${VCF} \
     -o tmp/variants.varmap
   dieIfError "Failed to produce varmap"
-  SBI_GENOTYPE_VARMAP=tmp/variants.varmap
+  export SBI_GENOTYPE_VARMAP=tmp/variants.varmap
 fi
 
 
