@@ -13,6 +13,8 @@ import java.util.List;
  */
 public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
 
+    private boolean useNumAlleles = false;
+
     public NumDistinctAlleleGenotypePrediction(List<Prediction> predictionList) {
         set(predictionList);
     }
@@ -28,29 +30,41 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
     }
 
     public void set(NumDistinctAllelesOutputLayerPrediction numDistinctAlleles, SingleGenotypePrediction[] singleGenotypePredictions, MetadataPrediction metaData) {
+        double threshold = 0.5;
+        ObjectArrayList<SingleGenotypePrediction> list = ObjectArrayList.wrap(singleGenotypePredictions);
+        list.sort((g1, g2) -> Double.compare(g2.probabilityIsCalled, g1.probabilityIsCalled));
 
-        int numAlleles = numDistinctAlleles.predictedValue;
+        int numAlleles = useNumAlleles ? numDistinctAlleles.predictedValue : calculateNumAlleles(threshold, list);
 
         double predProbability = numDistinctAlleles.probability;
 
         StringBuffer hetGenotype = new StringBuffer();
 
-        ObjectArrayList<SingleGenotypePrediction> list = ObjectArrayList.wrap(singleGenotypePredictions);
-
-        Collections.sort(list, (g1, g2) -> (int) Math.round(1000 * (g2.probabilityIsCalled - g1.probabilityIsCalled)));
         for (SingleGenotypePrediction element : list.subList(0, numAlleles)) {
             if (hetGenotype.length() > 0) {
                 hetGenotype.append("/");
             }
             hetGenotype.append(element.predictedSingleGenotype);
-            predProbability += Math.max(element.probabilityIsCalled,1-element.probabilityIsCalled);
+            predProbability += Math.max(element.probabilityIsCalled, 1 - element.probabilityIsCalled);
         }
-        this.trueGenotype  = extractTrueGenotype(singleGenotypePredictions);
-        overallProbability = predProbability / (double) (numAlleles+1);
-        this.isVariantProbability=overallProbability;
+        this.trueGenotype = extractTrueGenotype(singleGenotypePredictions);
+        overallProbability = predProbability / (double) (numAlleles + 1);
+        this.isVariantProbability = overallProbability;
         predictedGenotype = hetGenotype.toString();
         this.isIndel = metaData.isIndel;
         this.isVariant = metaData.isVariant;
+    }
+
+    private int calculateNumAlleles(double threshold, ObjectArrayList<SingleGenotypePrediction> list) {
+        int numAlelles = 0;
+        for (SingleGenotypePrediction genotypePrediction : list) {
+            if (genotypePrediction.probabilityIsCalled >= threshold) {
+                numAlelles += 1;
+            } else {
+                break;
+            }
+        }
+        return numAlelles;
     }
 
     private String extractTrueGenotype(SingleGenotypePrediction[] singleGenotypePredictions) {
