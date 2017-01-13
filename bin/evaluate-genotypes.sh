@@ -28,8 +28,13 @@ if [ -e configure.sh ]; then
  source configure.sh
 fi
 
-if [ ! -e hg19.sdf ]; then
- echo "You must install hg19.sdf in the current directory. See rtg downloads at http://www.realtimegenomics.com/news/pre-formatted-reference-datasets/"
+if [ -z "${RTG_TEMPLATE+set}" ]; then
+  RTG_TEMPLATE="hg19.sdf"
+  echo "RTG_TEMPLATE not set, using default=${RTG_TEMPLATE}"
+fi
+
+if [ ! -e "${RTG_TEMPLATE}" ]; then
+ echo "You must install an rtg template, or build one (rtg format file.fa -o template.sdf) in the current directory. See rtg downloads at http://www.realtimegenomics.com/news/pre-formatted-reference-datasets/"
  exit 10;
 fi
 
@@ -129,7 +134,7 @@ tabix ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz
 RTG_OUTPUT_FOLDER=output-${RANDOM}
 
 rtg vcfeval --baseline=${GOLD_STANDARD_VCF_GZ}  \
-        -c ${VCF_OUTPUT_SORTED}.gz -o ${RTG_OUTPUT_FOLDER} --template=hg19.sdf \
+        -c ${VCF_OUTPUT_SORTED}.gz -o ${RTG_OUTPUT_FOLDER} --template=${RTG_TEMPLATE}  \
             --evaluation-regions=${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ} \
             --bed-regions=${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz \
             --vcf-score-field=P  --sort-order=descending
