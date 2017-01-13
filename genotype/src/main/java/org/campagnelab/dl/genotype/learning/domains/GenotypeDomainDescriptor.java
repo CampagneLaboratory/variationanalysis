@@ -119,7 +119,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         FeatureMapper result = null;
 
         if (args().featureMapperClassname != null) {
-            assert "input".equals(inputName) : "Only one input supported by this domain.";
+            // Disabling assert b/c need more than one input now
+//            assert "input".equals(inputName) : "Only one input supported by this domain.";
 
             try {
                 Class clazz = Class.forName(args().featureMapperClassname);
