@@ -72,6 +72,10 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
         int position = record.getPosition();
         String chrom = record.getReferenceId();
         int genomeTargetIndex = genome.getReferenceIndex(chrom);
+        if (genomeTargetIndex==-1 ) {
+            System.err.printf("Unable to locate reference sequence %s in genome.",chrom);
+            System.exit(1);
+        }
         char referenceBaseChar = genome.get(genomeTargetIndex, record.getPosition());
         String referenceBase = Character.toString(referenceBaseChar);
         return addTrueGenotype(willKeep(position, chrom, referenceBase), record);
