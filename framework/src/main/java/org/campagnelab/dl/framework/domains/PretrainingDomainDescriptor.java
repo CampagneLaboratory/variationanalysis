@@ -5,7 +5,6 @@ import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.*;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -232,8 +231,8 @@ public abstract class PretrainingDomainDescriptor<RecordType> extends DomainDesc
     public abstract Properties pretrainingDomainProperties(TrainingArguments args);
 
     @Override
-    public String produceCacheUniqueId() {
-       String id=super.produceCacheUniqueId();
+    public String produceCacheUniqueId(int miniBatchSize) {
+       String id=super.produceCacheUniqueId(miniBatchSize);
        int domainHashCode=id.hashCode();
         if (inputsPaddedEos() != null) {
             for (Object input : inputsPaddedEos().keySet()) {

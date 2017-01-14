@@ -251,8 +251,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     }
 
     @Override
-    public String produceCacheUniqueId() {
-        String id = super.produceCacheUniqueId();
+    public String produceCacheUniqueId(int miniBatchSize) {
+        String id = super.produceCacheUniqueId(miniBatchSize);
         int domainHashcode = id.hashCode();
         domainHashcode ^= ploidy;
         domainHashcode ^= genomicContextSize;

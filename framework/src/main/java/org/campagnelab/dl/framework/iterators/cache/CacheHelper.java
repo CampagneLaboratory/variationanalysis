@@ -36,7 +36,7 @@ public class CacheHelper<RecordType> {
                                       MultiDataSetIteratorAdapter adapter, String cacheName, int cacheN, int minibatchSize) {
 //TODO use a file lock to prevent two processes from trying to create a cache at the same time.
         // determine if cache exists. If it does, use it.
-        cacheName = decorateCacheName(domainDescriptor, cacheName);
+        cacheName = decorateCacheName(domainDescriptor, cacheName, minibatchSize);
         if (!cacheExists(cacheName, cacheN, true)) {
             // Cache does not exist, we first build it:
             MapMultiDatasetFeatures tool = new MapMultiDatasetFeatures() {
@@ -60,8 +60,8 @@ public class CacheHelper<RecordType> {
         return new MultiDatasetMappedFeaturesIterator(cacheName, cacheN);
     }
 
-    private String decorateCacheName(DomainDescriptor domainDescriptor, String cacheName) {
-        String uniqueId=domainDescriptor.produceCacheUniqueId();
+    private String decorateCacheName(DomainDescriptor domainDescriptor, String cacheName,int miniBatchSize) {
+        String uniqueId=domainDescriptor.produceCacheUniqueId(miniBatchSize);
         cacheName = FilenameUtils.removeExtension(cacheName) + "-" + uniqueId;
         return cacheName;
 
