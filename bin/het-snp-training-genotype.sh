@@ -11,8 +11,8 @@ if [ -e configure.sh ]; then
 fi
 
 cat << EOF | cat>configure-downsampling.sh
-export TRAIN_SUFFIX="${TRAIN_SUFFIX}-ds"
-export VAL_SUFFIX="${VAL_SUFFIX}-ds"
+export TRAIN_SUFFIX="${TRAIN_SUFFIX}-het"
+export VAL_SUFFIX="${VAL_SUFFIX}-het"
 export TRAINING_OPTIONS="${TRAINING_OPTIONS} --previous-model-path ${PREVIOUS_MODEL_PATH} --previous-model-name ${PREVIOUS_MODEL_NAME} "
 EOF
 
