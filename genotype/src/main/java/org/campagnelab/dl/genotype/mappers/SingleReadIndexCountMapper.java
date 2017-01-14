@@ -103,7 +103,7 @@ public class SingleReadIndexCountMapper extends AbstractFeatureMapper1D<BaseInfo
             final BaseInformationRecords.SampleInfo sample = record.getSamples(sampleIndex);
             if (genotypeIndex < sample.getCountsCount()) {
                 genoInfo = sample.getCounts(genotypeIndex);
-                List<Integer> readIndicesList = ProtoPredictor.expandFreq(getForwardStrand ? genoInfo.getReadIndicesForwardStrandList() : genoInfo.getReadIndicesForwardStrandList());
+                List<Integer> readIndicesList = ProtoPredictor.expandFreq(getForwardStrand ? genoInfo.getReadIndicesForwardStrandList() : genoInfo.getReadIndicesReverseStrandList());
                 IntSet readIndicesSet = new IntArraySet(readIndicesList);
                 return readIndicesSet.size();
             }
