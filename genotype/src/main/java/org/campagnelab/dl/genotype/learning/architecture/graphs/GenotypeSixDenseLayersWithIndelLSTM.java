@@ -27,7 +27,7 @@ import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
  */
 public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler implements ComputationGraphAssembler {
     private final String[] outputNames;
-    private final String[] hiddenLayerNames;
+    private String[] hiddenLayerNames;
     private static final String[] lstmInputNames = new String[]{"from", "G1", "G2", "G3"};
     private static final WeightInit WEIGHT_INIT = WeightInit.XAVIER;
     private static final LearningRatePolicy LEARNING_RATE_POLICY = LearningRatePolicy.Poly;
@@ -48,22 +48,24 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
             outputNames = new String[]{"homozygous", "A", "T", "C", "G", "N",
                     "I1", "I2", "I3", "I4", "I5", "metaData", "isVariant"};
         }
-        hiddenLayerNames = new String[args().numLayers + (args().numLSTMLayers * lstmInputNames.length)];
-        for (int i = 0; i < args().numLayers; i++) {
-            hiddenLayerNames[i] = "dense" + i;
-        }
-        int c = args().numLayers;
-        for (int i = 0; i < args().numLSTMLayers; i++) {
-            for (String lstmInputName : lstmInputNames) {
-                hiddenLayerNames[c++] = "lstm" + lstmInputName + "Hidden" + i;
-            }
-        }
     }
 
     private GenotypeTrainingArguments args() {
         return arguments;
     }
 
+    public void setHiddenLayerNames() {
+        hiddenLayerNames = new String[args().numLayers + args().numPreVertexLayers + (args().numLSTMLayers * lstmInputNames.length)];
+        for (int i = 0; i < args().numLayers + args().numPreVertexLayers; i++) {
+            hiddenLayerNames[i] = "dense" + i;
+        }
+        int c = args().numLayers + args().numPreVertexLayers;
+        for (int i = 0; i < args().numLSTMLayers; i++) {
+            for (String lstmInputName : lstmInputNames) {
+                hiddenLayerNames[c++] = "lstm" + lstmInputName + "Hidden" + i;
+            }
+        }
+    }
     @Override
     public void setArguments(TrainingArguments arguments) {
         this.arguments = ((GenotypeTrainingArguments) arguments);
@@ -74,8 +76,11 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         int numInputs = domainDescriptor.getNumInputs("input")[0];
         int numLSTMInputs = domainDescriptor.getNumInputs("from")[0];
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("firstDense");
+        if (hiddenLayerNames == null) {
+            setHiddenLayerNames();
+        }
         FeedForwardDenseLayerAssembler assembler = new FeedForwardDenseLayerAssembler(args(), "input", "from", "G1", "G2", "G3");
-        assembler.setInputTypes(InputType.recurrent(numLSTMInputs), InputType.recurrent(numLSTMInputs),
+        assembler.setInputTypes(InputType.feedForward(numInputs), InputType.recurrent(numLSTMInputs), InputType.recurrent(numLSTMInputs),
                 InputType.recurrent(numLSTMInputs), InputType.recurrent(numLSTMInputs));
         ComputationGraphConfiguration.GraphBuilder build = assembler.getBuild();
         for (String lstmInputName : lstmInputNames) {
@@ -99,12 +104,14 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
                     .nOut(args().numLSTMOutputs)
                     .activation("softmax")
                     .build(), "lstm" + lstmInputName + "Hidden" + (args().numLSTMLayers - 1));
-            build.addVertex("lstm" + lstmInputName + "OutputVertex", new LastTimeStepVertex(lstmInputName),
+            build.addVertex("lstm" + lstmInputName + "LastTimeStepVertex", new LastTimeStepVertex(lstmInputName),
                     lstmOutputLayerName);
         }
         assembler.assemble(numInputs, numHiddenNodes, args().numPreVertexLayers);
         String[] mergeInputs = new String[lstmInputNames.length + 1];
-        System.arraycopy(lstmInputNames, 0, mergeInputs, 0, lstmInputNames.length);
+        for (int i = 0; i < lstmInputNames.length; i++) {
+            mergeInputs[i] = "lstm" + lstmInputNames[i] + "LastTimeStepVertex";
+        }
         mergeInputs[lstmInputNames.length] = assembler.lastLayerName();
         build.addVertex("lstmFeedForwardMerge", new MergeVertex(), mergeInputs);
         assembler.assemble(numHiddenNodes + args().numLSTMOutputs, numHiddenNodes,

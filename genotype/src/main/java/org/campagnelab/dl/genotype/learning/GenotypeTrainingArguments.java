@@ -30,6 +30,9 @@ public class GenotypeTrainingArguments extends TrainingArguments {
             "this value should be included in a hyper-parameter search. ")
     public int genomicContextLength = Integer.MAX_VALUE;
 
+    @Parameter(names = "--lstm-feature-mapper", description = "Fully qualified classname of feature mapper for LSTM used to train indels")
+    public String lstmFeatureMapperClassname = null;
+
     @Parameter(names = "--num-layers", description = "The number of dense layers in the feedforward model.")
     public int numLayers = 5;
 

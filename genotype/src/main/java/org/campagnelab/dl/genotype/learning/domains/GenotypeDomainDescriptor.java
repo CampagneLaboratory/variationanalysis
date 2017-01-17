@@ -13,6 +13,7 @@ import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.CombinedGenotypeAssembler;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
+import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersWithIndelLSTM;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.NumDistinctAlleleAssembler;
 import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerRefInterpreter;
@@ -111,6 +112,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     Map<String, FeatureMapper> featureMappers = new HashMap<>();
 
+    private boolean isLSTMInput(String inputName) {
+        return "from".equals(inputName) || "G1".equals(inputName) || "G2".equals(inputName) || "G3".equals(inputName);
+    }
+
     @Override
     public FeatureMapper getFeatureMapper(String inputName) {
         if (featureMappers.containsKey(inputName)) {
@@ -118,9 +123,24 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         }
         FeatureMapper result = null;
 
-        if (args().featureMapperClassname != null) {
-            // Disabling assert b/c need more than one input now
-//            assert "input".equals(inputName) : "Only one input supported by this domain.";
+        if (args().lstmFeatureMapperClassname != null && isLSTMInput(inputName)) {
+            try {
+                Class clazz = Class.forName(args().lstmFeatureMapperClassname);
+                final FeatureMapper featureMapper = (FeatureMapper) clazz.newInstance();
+                if (featureMapper instanceof ConfigurableFeatureMapper) {
+                    ConfigurableFeatureMapper cmapper = (ConfigurableFeatureMapper) featureMapper;
+                    final Properties properties = TrainSomaticModel.getReaderProperties(args().trainingSets.get(0));
+                    decorateProperties(properties);
+                    cmapper.configure(properties);
+                }
+                result = featureMapper;
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Unable to instantiate or configure feature mapper", e);
+            } catch (IOException | IllegalAccessException | InstantiationException e) {
+                throw new RuntimeException("IO excpetion, perhaps sbi file not found?", e);
+            }
+        } else if (args().featureMapperClassname != null) {
+            assert "input".equals(inputName) : "Only one input supported by this domain.";
 
             try {
                 Class clazz = Class.forName(args().featureMapperClassname);
@@ -419,7 +439,11 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     @Override
     public ComputationGraphAssembler getComputationalGraph() {
         ComputationGraphAssembler assembler;
-        if (withDistinctAllele()) {
+        if (args().lstmFeatureMapperClassname != null) {
+            assembler = new GenotypeSixDenseLayersWithIndelLSTM(true);
+            assembler.setArguments(args());
+            ((GenotypeSixDenseLayersWithIndelLSTM) assembler).setHiddenLayerNames();
+        } else if (withDistinctAllele()) {
             assembler = new NumDistinctAlleleAssembler(withIsVariantLabelMapper());
         } else if (withCombinedLayer()) {
             if (withCombinedLayerRef()){

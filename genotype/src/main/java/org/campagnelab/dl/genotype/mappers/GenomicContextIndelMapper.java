@@ -16,8 +16,9 @@ import java.util.function.Function;
  */
 
 
-public class GenomicContextIndelMapper extends NoMaskFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
-        implements FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>, FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+public class GenomicContextIndelMapper implements
+        FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> {
+    private final MappedDimensions dim;
     private RNNFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
 
     public GenomicContextIndelMapper(Properties sbiProperties, int maxContextSize) {
@@ -38,12 +39,19 @@ public class GenomicContextIndelMapper extends NoMaskFeatureMapper<BaseInformati
 
     public GenomicContextIndelMapper(int contextSize) {
         OneHotBaseFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>[] refContext = new OneHotBaseFeatureMapper[contextSize];
+        /** TODO: Figure out correct string to get from record, proper context size to set and how to set it-
+         *  Prior usage from GenotypeMapper classes either have it set to 1 or based on properties
+         *  but properties call results in error (since properties file encode as 99); could pass in from arguments, but
+         *  not sure where to do this in code. Genomic context also may not be the right thing to call for this, but I'm
+         *  not sure where I can get the indel information directly from.
+         */
         for (int i = 0; i < contextSize; i++) {
             refContext[i] = new OneHotBaseFeatureMapper<>(i,
                     record -> trim(contextSize, record.getGenomicSequenceContext()),
                     GenomicContextIndelMapper::getIntegerOfBase, 7);
         }
         delegate = new RNNFeatureMapper<>(r -> contextSize, refContext);
+        dim = new MappedDimensions(numberOfFeatures());
     }
 
     /**
@@ -71,6 +79,11 @@ public class GenomicContextIndelMapper extends NoMaskFeatureMapper<BaseInformati
     }
 
     @Override
+    public MappedDimensions dimensions() {
+        return dim;
+    }
+
+    @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
         delegate.prepareToNormalize(record, indexOfRecord);
     }
@@ -78,6 +91,21 @@ public class GenomicContextIndelMapper extends NoMaskFeatureMapper<BaseInformati
     @Override
     public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
         delegate.mapFeatures(record, inputs, indexOfRecord);
+    }
+
+    @Override
+    public boolean hasMask() {
+        return delegate.hasMask();
+    }
+
+    @Override
+    public void maskFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray mask, int indexOfRecord) {
+        delegate.maskFeatures(record, mask, indexOfRecord);
+    }
+
+    @Override
+    public boolean isMasked(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
+        return delegate.isMasked(record, featureIndex);
     }
 
     @Override
