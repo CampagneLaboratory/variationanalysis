@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.framework.tools.Predict;
@@ -151,7 +150,9 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     @Override
     protected void processPredictions(PrintWriter resultWriter, BaseInformationRecords.BaseInformation record, List<Prediction> predictionList) {
 
-
+        if (coverage(record) < args().minimumCoverage) {
+            return;
+        }
         GenotypePrediction fullPred = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictionList);
         fullPred.inspectRecord(record);
         long trueAlleleLength = fullPred.trueAlleles().stream().map(String::length).distinct().count();
@@ -217,6 +218,13 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             observeForAUC(fullPred, isVariant);
         }
 
+    }
+
+    private int coverage(BaseInformationRecords.BaseInformation record) {
+        int coverage = 0;
+        for (BaseInformationRecords.CountInfo count : record.getSamples(0).getCountsList())
+            coverage += count.getGenotypeCountForwardStrand() + count.getGenotypeCountReverseStrand();
+        return coverage;
     }
 
     public static String codeGT(String predictedGenotype, String ref, SortedSet<String> altSet) {
