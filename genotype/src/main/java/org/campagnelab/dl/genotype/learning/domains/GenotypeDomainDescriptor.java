@@ -134,6 +134,25 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     cmapper.configure(properties);
                 }
                 result = featureMapper;
+                if (result instanceof GenotypeMapperLSTM) {
+                    GenotypeMapperLSTM glMapper = (GenotypeMapperLSTM) result;
+                    switch (inputName) {
+                        case "from":
+                            glMapper.setInputType(GenotypeMapperLSTM.Input.FROM);
+                            break;
+                        case "G1":
+                            glMapper.setInputType(GenotypeMapperLSTM.Input.G1);
+                            break;
+                        case "G2":
+                            glMapper.setInputType(GenotypeMapperLSTM.Input.G2);
+                            break;
+                        case "G3":
+                            glMapper.setInputType(GenotypeMapperLSTM.Input.G3);
+                            break;
+                        default:
+                            throw new RuntimeException("Invalid LSTM mapper input name");
+                    }
+                }
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("Unable to instantiate or configure feature mapper", e);
             } catch (IOException | IllegalAccessException | InstantiationException e) {
@@ -176,16 +195,6 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         }
         featureMappers.put(inputName, result);
         return result;
-    }
-
-    public int[] getNumMaskInputs(String inputName) {
-        return new int[]{getFeatureMapper(inputName).numberOfFeatures()};
-    }
-
-
-    @Override
-    public int[] getNumMaskOutputs(String outputName) {
-        return new int[]{getLabelMapper(outputName).numberOfLabels()};
     }
 
     @Override
@@ -296,6 +305,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
         modelProperties.setProperty("variantLossWeight", Double.toString(variantLossWeight));
         modelProperties.setProperty("labelSmoothing.epsilon", Double.toString(args().labelSmoothingEpsilon));
+        modelProperties.setProperty("indelSequenceLength", Integer.toString(args().indelSequenceLength));
     }
 
     @Override
@@ -464,15 +474,30 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         return assembler;
     }
 
-
     @Override
     public int[] getNumInputs(String inputName) {
-        return new int[]{getFeatureMapper(inputName).numberOfFeatures()};
+        return getFeatureMapper(inputName).dimensions().dimensions;
     }
 
     @Override
     public int[] getNumOutputs(String outputName) {
-        return new int[]{getLabelMapper(outputName).numberOfLabels()};
+        return getLabelMapper(outputName).dimensions().dimensions;
+    }
+
+    @Override
+    public int[] getNumMaskInputs(String inputName) {
+        // For 2D feature mappers, need 2nd dimension, as this corresponds to the number of time steps
+        // For 1D feature mappers, 1st dimension is just the number of features
+        int idx = getNumInputs(inputName).length == 1 ? 1 : 2;
+        return new int[]{getFeatureMapper(inputName).dimensions().numElements(idx)};
+    }
+
+    @Override
+    public int[] getNumMaskOutputs(String outputName) {
+        // For 2D feature mappers, need 2nd dimension, as this corresponds to the number of time steps
+        // For 1D feature mappers, 1st dimension is just the number of features
+        int idx = getNumOutputs(outputName).length == 1 ? 1 : 2;
+        return new int[]{getLabelMapper(outputName).dimensions().numElements(idx)};
     }
 
     @Override

@@ -114,7 +114,8 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         }
         mergeInputs[lstmInputNames.length] = assembler.lastLayerName();
         build.addVertex("lstmFeedForwardMerge", new MergeVertex(), mergeInputs);
-        assembler.assemble(numHiddenNodes + args().numLSTMOutputs, numHiddenNodes,
+        int numInputsToDenseAfterMerge = assembler.getNumOutputs() + (args().numLSTMOutputs * lstmInputNames.length);
+        assembler.assemble(numInputsToDenseAfterMerge, numHiddenNodes,
                 args().numLayers, "lstmFeedForwardMerge", args().numPreVertexLayers + 1);
         // TODO: check proper outputs
         String lastDenseLayerName = assembler.lastLayerName();
@@ -125,7 +126,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
                 .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
                 .nIn(numIn).nOut(11).build(), lastDenseLayerName);
         for (int i = 1; i < outputNames.length; i++) {
-            build.addLayer(outputNames[i], new OutputLayer.Builder(
+                build.addLayer(outputNames[i], new OutputLayer.Builder(
                     domainDescriptor.getOutputLoss(outputNames[i]))
                     .weightInit(WEIGHT_INIT)
                     .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
@@ -136,7 +137,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         ComputationGraphConfiguration conf = build
                 .setOutputs(outputNames)
                 .build();
-
+        System.out.println(conf);
         return new ComputationGraph(conf);
     }
 

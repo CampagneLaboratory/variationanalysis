@@ -76,11 +76,11 @@ public class FeedForwardDenseLayerAssembler {
         int numOut = numHiddenNodes;
         String previousLayerName;
         String lastDenseLayerName = "no layers";
-        for (int i = startingIndex; i <= numLayers + startingIndex; i++) {
+        for (int i = startingIndex; i < numLayers + startingIndex; i++) {
             numOut = numHiddenNodes;
             //     System.out.printf("layer %d numIn=%d numOut=%d%n", i, numIn, numOut);
             lastDenseLayerName = "dense" + i;
-            previousLayerName = i == 1 ? baseLayer : "dense" + (i - 1);
+            previousLayerName = i == startingIndex ? baseLayer : "dense" + (i - 1);
             build.addLayer(lastDenseLayerName, new DenseLayer.Builder().nIn(numIn).nOut(numOut)
                     .weightInit(WEIGHT_INIT)
                     .activation("relu").learningRateDecayPolicy(learningRatePolicy).epsilon(LAYER_EPSILON)

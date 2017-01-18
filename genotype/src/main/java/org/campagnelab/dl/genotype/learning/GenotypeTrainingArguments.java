@@ -30,6 +30,10 @@ public class GenotypeTrainingArguments extends TrainingArguments {
             "this value should be included in a hyper-parameter search. ")
     public int genomicContextLength = Integer.MAX_VALUE;
 
+    @Parameter(names = "--indel-sequence-length", description = "Maximum length of indel sequences to use as LSTM input." +
+            " If sequences are longer than this length, they will be clipped. ")
+    public int indelSequenceLength = 30;
+
     @Parameter(names = "--lstm-feature-mapper", description = "Fully qualified classname of feature mapper for LSTM used to train indels")
     public String lstmFeatureMapperClassname = null;
 
