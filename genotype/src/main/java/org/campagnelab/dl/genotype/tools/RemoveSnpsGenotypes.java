@@ -63,7 +63,7 @@ public class RemoveSnpsGenotypes extends AbstractTool<RemoveSnpsGenotypesArgumen
             for (BaseInformationRecords.BaseInformation rec : source) {
                 inputNumRecords++;
                 boolean isVariant = rec.getSamples(0).getIsVariant();
-                boolean isSnp = isVariant && !GenotypeHelper.isIndel(rec.getTrueGenotype());
+                boolean isSnp = isVariant && !GenotypeHelper.isIndel(rec.getReferenceBase(),rec.getTrueGenotype());
                 if (isSnp){
                     snpsRemoved++;
                     continue;

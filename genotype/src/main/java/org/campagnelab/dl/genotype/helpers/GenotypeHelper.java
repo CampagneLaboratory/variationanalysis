@@ -17,7 +17,10 @@ public class GenotypeHelper {
         return ("N".equals(genotype) || "N|N".equals(genotype) || "N/N".equals(genotype));
     }
 
+
+
     public static boolean isVariant(boolean considerIndels, String genotype, String reference) {
+
 
         Set<String> genotypeSet = getAlleles(genotype);
         //handle special case where a homozygous deletion like AG->A is not caught and matches ref
@@ -30,22 +33,23 @@ public class GenotypeHelper {
             // When there is only one allele, only the first bases need to match with the reference,
             // up to the length of the reference:
             // i.e., genotype: TC/TC ref: T, or genotype: TCA/TCA ref: TC
-            int refLength = reference.length();
-            if (reference.substring(0, refLength).equals(allele.substring(0, refLength))) {
-                matchesRef = true;
-            }
-        }
-        if (genotypeSet.size() > 1) {
-            if (genotypeSet.stream().map(allele -> allele.length()).distinct().count() == 1) {
-                // alleles have same length
-                if (considerIndels) {
-                    return true;
-                } else {
-                    String referenceBase = reference.substring(0, 1);
-                    return !referenceBase.equals(genotypeSet.stream().map(allele -> Character.toString(allele.charAt(0))).distinct().findFirst().get());
+            if (considerIndels){
+                matchesRef = (reference.equals(allele));
+            } else {
+                //just check first base in this case.
+                if (reference.charAt(0)==(allele.charAt(0))) {
+                    matchesRef = true;
                 }
             }
-            matchesRef = false;
+
+        }
+        if (genotypeSet.size() > 1) {
+            if (considerIndels) {
+                return true;
+            } else {
+                String referenceBase = reference.substring(0, 1);
+                return !referenceBase.equals(genotypeSet.stream().map(allele -> Character.toString(allele.charAt(0))).distinct().findFirst().get());
+            }
         }
         return !matchesRef;
     }
@@ -55,9 +59,16 @@ public class GenotypeHelper {
         return GenotypePrediction.alleles(trueGenotype);
     }
 
-    public static boolean isIndel(String genotype) {
+
+    /**
+     * genotype must have two alleles
+     * @param reference
+     * @param genotype
+     * @return
+     */
+    public static boolean isIndel(String reference, String genotype) {
         if (genotype != null) {
-            return (genotype.contains("-"));
+            return (genotype.length()>3 || reference.length()>1);
         }
         return false;
     }
@@ -68,6 +79,7 @@ public class GenotypeHelper {
         }
       return  matchingGenotypes(a,b);
     }
+
     public static boolean matchingGenotypes(String a, String b) {
 
         Set<String> allelesA = getAlleles(a);
@@ -110,5 +122,45 @@ public class GenotypeHelper {
             }
         }
         return false;
+    }
+
+
+
+    public static String pad(String s, int maxLength){
+        StringBuffer toPad = new StringBuffer(s);
+        for (int i = 1; i <= maxLength; i++) {
+            if (toPad.length() < maxLength) {
+                toPad.append("-");
+            }
+        }
+        return toPad.toString();
+    }
+
+    public static int maxLength (Set<String> strings){
+        int max = 0;
+        for (String s : strings){
+            if (s.length() > max) {
+                max = s.length();
+            }
+        }
+        return max;
+    }
+
+
+    public static String padMulti(String genotype, int maxLength){
+        StringBuffer toPad = new StringBuffer();
+        Set<String> alleles = getAlleles(genotype);
+        for (String allele : alleles) {
+            toPad.append(pad(allele, maxLength) + "|");
+        }
+        //remove final |
+        toPad.deleteCharAt(toPad.length()-1);
+        return toPad.toString();
+    }
+
+    public static boolean genotypeHasIndel(String trueGenotype, String toSequence, String trueFrom, String fromSequence) {
+        boolean hasTo = genotypeHasAllele(trueGenotype,toSequence);
+        boolean fromMatches = matchingGenotypes(trueFrom,fromSequence);
+        return hasTo && fromMatches;
     }
 }

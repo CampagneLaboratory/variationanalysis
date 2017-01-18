@@ -30,5 +30,8 @@ public class AddTrueGenotypesArguments implements ToolArguments {
 
     @Parameter( names = { "--consider-indels"}, description = "When true, add true genotypes for indels. False (default) ignores indels.")
     public boolean considerIndels;
+
+    @Parameter( names = { "--indels-as-ref"}, description = "When true, treat add the first base of indels as ref if they aren't considered. Ignored if indels considered.")
+    public boolean indelsAsRef = true;
 }
 

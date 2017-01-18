@@ -75,6 +75,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                     genome,
                     args().sampleIndex,
                     args().considerIndels,
+                    args().indelsAsRef,
                     args().referenceSamplingRate);
             ProgressLogger recordLogger = new ProgressLogger(LOG);
             recordLogger.expectedUpdates = source.numRecords();
