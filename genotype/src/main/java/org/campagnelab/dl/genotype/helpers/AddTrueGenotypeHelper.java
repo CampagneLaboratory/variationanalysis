@@ -1,18 +1,18 @@
 package org.campagnelab.dl.genotype.helpers;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.io.BinIO;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.predictions.AddTrueGenotypeHelperI;
 import org.campagnelab.goby.reads.RandomAccessSequenceInterface;
+import org.campagnelab.goby.util.Variant;
+import org.campagnelab.goby.util.VariantMapHelper;
 
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Encapsulates the AddTrueGenotype logic.
@@ -21,11 +21,19 @@ import java.util.Random;
 public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
     private RandomAccessSequenceInterface genome;
     Random random = new XorShift1024StarRandom();
-    Object2ObjectMap<String, Int2ObjectMap<String>> chMap;
+    VariantMapHelper varMap;
+    private VariantMapHelper map;
     private int numIndelsIgnored;
+    private int numIndelsAdded;
+    private int numIndelsAddedAsRef;
+    private int numSnpsAdded;
     private int numVariantsAdded;
+    private int numHomozygousAdded;
+    private int numHeterozygousAdded;
+    private int numReferenceAdded;
     private ObjectSet<String> distinctTrueGenotypes = new ObjectArraySet<>();
     private boolean considerIndels;
+    private boolean indelsAsRef;
     private float referenceSamplingRate;
     private BaseInformationRecords.BaseInformation labeledEntry;
     private int sampleIndex;
@@ -43,21 +51,35 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
      * @param referenceSamplingRate
      */
     public void configure(String mapFilename, RandomAccessSequenceInterface genome,
-                          int sampleIndex, boolean considerIndels, float referenceSamplingRate) {
+                          int sampleIndex, boolean considerIndels, boolean indelsAsRef, float referenceSamplingRate) {
         this.mapFilename = mapFilename;
         try {
-            chMap = (Object2ObjectMap<String, Int2ObjectMap<String>>) BinIO.loadObject(mapFilename);
-            if (chMap == null) {
-                throw new RuntimeException("The true genotype map could not be loaded " + mapFilename);
-            }
+            varMap = new VariantMapHelper(mapFilename);
         } catch (IOException | ClassNotFoundException e) {
-
             throw new RuntimeException("Unable to load true genotype map with filename " + mapFilename, e);
         }
         this.genome = genome;
         this.considerIndels = considerIndels;
+        this.indelsAsRef = indelsAsRef;
         this.referenceSamplingRate = referenceSamplingRate;
         this.sampleIndex = sampleIndex;
+
+    }
+
+    public void configure(String mapFilename, RandomAccessSequenceInterface genome,
+                          int sampleIndex, boolean considerIndels, float referenceSamplingRate) {
+        this.mapFilename = mapFilename;
+        try {
+            varMap = new VariantMapHelper(mapFilename);
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("Unable to load true genotype map with filename " + mapFilename, e);
+        }
+        this.genome = genome;
+        this.considerIndels = considerIndels;
+        this.indelsAsRef = true;
+        this.referenceSamplingRate = referenceSamplingRate;
+        this.sampleIndex = sampleIndex;
+
     }
 
     /**
@@ -96,31 +118,48 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
      * @param record   The .sbi record to annotate.
      * @return True if the record should be kept, i.e., written to the output, false otherwise.
      */
+    //TODO: finish addTrueGenotype for indels here
     public boolean addTrueGenotype(WillKeepI willKeep, BaseInformationRecords.BaseInformation record) {
 
         numRecords++;
         // determine if the record should be kept:
         boolean keep = willKeep.isKeep();
         String trueGenotype = willKeep.getTrueGenotype();
+        String trueFrom = willKeep.getTrueFrom();
         boolean isVariant = willKeep.isVariant();
         BaseInformationRecords.BaseInformation.Builder buildRec = record.toBuilder();
 
         if (keep) {
             // We keep this record, so we label it:
-            if (isVariant) distinctTrueGenotypes.add(trueGenotype);
+            if (isVariant) {
+                distinctTrueGenotypes.add(trueGenotype);
+            }
             // write the record.
             buildRec.setTrueGenotype(trueGenotype);
+            buildRec.setTrueFrom(trueFrom);
             BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
+            boolean foundCalled = false;
             for (int i = 0; i < buildSample.getCountsCount(); i++) {
                 BaseInformationRecords.CountInfo.Builder count = buildSample.getCounts(i).toBuilder();
-                boolean isCalled = GenotypeHelper.genotypeHasAllele(trueGenotype, count.getToSequence());
+
+                boolean isCalled = GenotypeHelper.genotypeHasIndel(trueGenotype,count.getToSequence(),trueFrom,count.getFromSequence());
                 count.setIsCalled(isCalled);
                 buildSample.setCounts(i, count);
+                foundCalled |= isCalled;
             }
             buildSample.setIsVariant(isVariant);
             buildRec.setSamples(sampleIndex, buildSample.build());
             labeledEntry = buildRec.build();
             recordsLabeled++;
+            if (!foundCalled){
+                System.out.println("Genotype not found: \n" +
+                        "Ref: " + trueFrom + " True: " + trueGenotype);
+                for (BaseInformationRecords.CountInfo count: buildSample.getCountsList()){
+                    System.out.println("from" + count.getFromSequence() + " to: " + count.getToSequence() + "\n");
+                }
+
+
+            }
         } else {
             labeledEntry = null;
         }
@@ -133,6 +172,16 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
 
     public int getNumIndelsIgnored() {
         return numIndelsIgnored;
+    }
+
+    public int getNumHomozygousAdded() {
+        return numHomozygousAdded;
+    }
+    public int getNumReferenceAdded() {
+        return numReferenceAdded;
+    }
+    public int getNumHeterozygousAdded() {
+        return numHeterozygousAdded;
     }
 
     public int getNumVariantsAdded() {
@@ -156,6 +205,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
         private String chrom;
         private String referenceBase;
         private String trueGenotype;
+        private String trueFrom;
         private boolean isVariant;
         private boolean keep;
 
@@ -170,6 +220,11 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
             return trueGenotype;
         }
 
+
+        public String getTrueFrom() {
+            return trueFrom;
+        }
+
         public boolean isVariant() {
             return isVariant;
         }
@@ -182,38 +237,51 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
             boolean isVariant = false;
             boolean skip = false;
             boolean inMap = false;
-            String genotypeFromMap = null;
-            Int2ObjectMap<String> chromMap = chMap.get(chrom);
+            // The map contains Goby positions (zero-based).
+            Variant variant = varMap.getVariant(chrom,position);
+            if (variant != null) {
+                inMap = true;
 
-            if (chromMap != null) {
-                // The map contains Goby positions (zero-based).
-                genotypeFromMap = chromMap.get(position);
-                if (genotypeFromMap != null) {
-                    inMap = true;
-                }
             }
-            //indels should not be counted as variants: simply use refbase
-            boolean isIndel = GenotypeHelper.isIndel(genotypeFromMap);
-            if (isIndel) {
-                numIndelsIgnored++;
-            }
-            if (inMap && (!isIndel)) {
-                trueGenotype = genotypeFromMap;
-                if (!GenotypeHelper.isNoCall(genotypeFromMap)) {
-                    isVariant = GenotypeHelper.isVariant(considerIndels /**/, genotypeFromMap, referenceBase);
+            if (inMap) {
+                trueGenotype = variant.trueAllele1 + "|" + variant.trueAllele2;
+                trueFrom = variant.reference;
+                if (!GenotypeHelper.isNoCall(trueGenotype)) {
+                    isVariant = GenotypeHelper.isVariant(considerIndels /**/, trueGenotype, referenceBase);
                     if (isVariant) {
-                        isVariant = true;
+                        if (variant.isIndel) {
+                            numIndelsAdded++;
+                        } else {
+                            numSnpsAdded++;
+                        }
                         numVariantsAdded++;
+                        Set<String> alleles = GenotypeHelper.getAlleles(trueGenotype);
+                        if (alleles.size() > 1) {
+                            numHeterozygousAdded++;
+                        } else {
+                            numHomozygousAdded++;
+                        }
+                    } else {
+                        numReferenceAdded++;
                     }
                 }
+                if (variant.isIndel && indelsAsRef) {
+                    numIndelsAddedAsRef++;
+                }
             }
-            if (!isVariant) {
+            if (!isVariant && (!variant.isIndel || indelsAsRef)) {
                 if (random.nextFloat() > referenceSamplingRate) {
                     skip = true;
                 }
                 // alignment and genome do not necessarily share the same space of reference indices. Convert:
                 trueGenotype = referenceBase + "|" + referenceBase;
                 referenceBase = referenceBase.toUpperCase();
+                trueFrom = referenceBase;
+            } else if (!isVariant && !indelsAsRef){
+                numIndelsIgnored++;
+                skip = true;
+            } else {
+                throw new RuntimeException("incorrect logic, this should not be a possible case");
             }
             this.trueGenotype = trueGenotype.replace('|', '/').toUpperCase();
             this.isVariant = isVariant;
@@ -227,8 +295,16 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
         System.out.println("Found the following distinct true genotypes (variants only): " + distinctTrueGenotypes);
         System.out.println(getNumVariantsAdded() + " number of variants in the sbi file.");
         System.out.println(getNumIndelsIgnored() + " number of indels ignored in the file.");
-        System.out.println(recordsLabeled + " labeled records written.");
+        System.out.println(getNumHeterozygousAdded() + " number of heterozygous added in the file.");
+
+        System.out.println(getNumHomozygousAdded() + " number of homozygous added in the file.");
+
+        System.out.println(getNumReferenceAdded() + " number of reference added in the file.");
+
+        System.out.println(recordsLabeled + " labeled records set for inclusion to to file.");
 
     }
+
+
 
 }

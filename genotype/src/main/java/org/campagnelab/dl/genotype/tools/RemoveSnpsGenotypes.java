@@ -3,7 +3,6 @@ package org.campagnelab.dl.genotype.tools;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
-import org.campagnelab.dl.genotype.helpers.AddTrueGenotypeHelper;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -64,7 +63,7 @@ public class RemoveSnpsGenotypes extends AbstractTool<RemoveSnpsGenotypesArgumen
             for (BaseInformationRecords.BaseInformation rec : source) {
                 inputNumRecords++;
                 boolean isVariant = rec.getSamples(0).getIsVariant();
-                boolean isSnp = isVariant && !GenotypeHelper.isIndel(rec.getTrueGenotype());
+                boolean isSnp = isVariant && !GenotypeHelper.isIndel(rec.getReferenceBase(),rec.getTrueGenotype());
                 if (isSnp){
                     snpsRemoved++;
                     continue;

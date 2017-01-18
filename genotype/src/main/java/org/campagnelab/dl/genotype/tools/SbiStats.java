@@ -1,16 +1,9 @@
 package org.campagnelab.dl.genotype.tools;
 
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.io.BinIO;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.logging.ProgressLogger;
-import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.genotype.helpers.AddTrueGenotypeHelper;
-import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
@@ -19,8 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Random;
-import java.util.Set;
 
 /**
  * The addcalls object uses a map to create a new protobuf file with genotype calls.
@@ -29,17 +20,17 @@ import java.util.Set;
  *
  * @author rct66
  */
-public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
+public class SbiStats extends AbstractTool<SbiStatsArguments> {
 
 
     RandomAccessSequenceCache genome = new RandomAccessSequenceCache();
 
-    static private Logger LOG = LoggerFactory.getLogger(AddTrueGenotypes.class);
+    static private Logger LOG = LoggerFactory.getLogger(SbiStats.class);
 
     public static void main(String[] args) {
 
-        AddTrueGenotypes tool = new AddTrueGenotypes();
-        tool.parseArguments(args, "AddTrueGenotypes", tool.createArguments());
+        SbiStats tool = new SbiStats();
+        tool.parseArguments(args, "SbiStatsArguments", tool.createArguments());
         tool.execute();
 
     }
@@ -68,35 +59,24 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
 
         try {
             RecordReader source = new RecordReader(args().inputFile);
-            SequenceBaseInformationWriter dest = new SequenceBaseInformationWriter(args().outputFilename);
             AddTrueGenotypeHelper addTrueGenotypeHelper = new AddTrueGenotypeHelper();
             addTrueGenotypeHelper.configure(
                     args().genotypeMap,
                     genome,
                     args().sampleIndex,
                     args().considerIndels,
-                    args().indelsAsRef,
-                    args().referenceSamplingRate);
+                    1.0f);
             ProgressLogger recordLogger = new ProgressLogger(LOG);
             recordLogger.expectedUpdates = source.numRecords();
             System.out.println(source.numRecords() + " records to label");
             int recordsLabeled = 0;
             recordLogger.start();
             for (BaseInformationRecords.BaseInformation rec : source) {
-                boolean keep = false;
+                addTrueGenotypeHelper.addTrueGenotype(rec);
 
-                keep = addTrueGenotypeHelper.addTrueGenotype(rec);
-                if (keep) {
-
-                    dest.appendEntry(addTrueGenotypeHelper.labeledEntry());
-
-                    recordsLabeled++;
-                }
                 recordLogger.lightUpdate();
             }
             recordLogger.done();
-            dest.setCustomProperties(addTrueGenotypeHelper.getStatProperties());
-            dest.close();
             addTrueGenotypeHelper.printStats();
             } catch (IOException e) {
             throw new RuntimeException(e);
@@ -105,8 +85,8 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
 
 
     @Override
-    public AddTrueGenotypesArguments createArguments() {
-        return new AddTrueGenotypesArguments();
+    public SbiStatsArguments createArguments() {
+        return new SbiStatsArguments();
     }
 
 
