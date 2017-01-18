@@ -25,10 +25,15 @@ import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
 import org.campagnelab.dl.framework.training.ParallelTrainerOnGPU;
 import org.campagnelab.dl.framework.training.SequentialTrainer;
 import org.campagnelab.dl.framework.training.Trainer;
+import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.deeplearning4j.ui.api.UIServer;
+import org.deeplearning4j.ui.stats.StatsListener;
+import org.deeplearning4j.ui.storage.FileStatsStorage;
+import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -135,6 +140,14 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
         computationGraph = assembler.createComputationalGraph(domainDescriptor);
         computationGraph.init();
+        if (args().addUiListener) {
+            UIServer uiServer = UIServer.getInstance();
+            StatsStorage statsStorage = args().uiStatsFile == null
+                    ? new InMemoryStatsStorage()
+                    : new FileStatsStorage(new File(args().uiStatsFile));
+            uiServer.attach(statsStorage);
+            computationGraph.setListeners(new StatsListener(statsStorage));
+        }
         if (args().previousModelPath != null) {
             // Load the parameters of a previously trained model and set them on the new model to continue
             // training where we left it off. Note that models must have the same architecture or setting
