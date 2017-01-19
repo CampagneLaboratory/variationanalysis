@@ -42,7 +42,7 @@ tail -n +2 slices.tsv | while read -r line
        sPos=`echo $line | cut -f2 -d ' '`
        ePos=`echo $line | cut -f5 -d ' '`
        echo "samtools view -u ${ALIGNMENTS} ${sRef}:${sPos}-${ePos} > slice_${nLine}.bam ;\
-         samtools calmd -u slice_${nLine}.bam ${FASTA_GENOME} > md_slice_${nLine}.bam ;\
+         samtools calmd -E -u slice_${nLine}.bam ${FASTA_GENOME} > md_slice_${nLine}.bam ;\
          samtools index md_slice_${nLine}.bam &&\
          rm slice_${nLine}.bam ;\
          goby 8g concatenate-alignments --genome  ${SBI_GENOME}  md_slice_${nLine}.bam -o goby_slice_${nLine} &&\
@@ -52,7 +52,7 @@ tail -n +2 slices.tsv | while read -r line
        nLine=$((nLine+1))
 done
 
-parallel -j${SBI_NUM_THREADS} --eta :::: calmd-and-convert-commands.txt
+parallel --bar -j${SBI_NUM_THREADS} --eta :::: calmd-and-convert-commands.txt
 
 goby ${memory_requirement} concatenate-alignments goby_slice_*.entries -o ${OUTPUT_BASENAME} &&
 
