@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRecords.BaseInformation> {
 
 
+    private final boolean isLstmIndelModel;
     private int ploidy;
     double variantLossWeight;
     private int genomicContextSize;
@@ -57,6 +58,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         this.ploidy = arguments.ploidy;
         variantLossWeight = args().variantLossWeight;
         genomicContextSize = args().genomicContextLength;
+        isLstmIndelModel = netArchitectureHasIndelLSTM(args().architectureClassname);
         modelCapacity = args().modelCapacity;
         if (modelCapacity < 0) {
             throw new RuntimeException("Model capacity cannot be negative. Typical values are >=1 (1-5)");
@@ -74,6 +76,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         super.loadProperties(modelPath);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
+        isLstmIndelModel = netArchitectureHasIndelLSTM(domainProperties.getProperty("net.architecture.classname"));
         configure(modelProperties);
         initializeArchitecture();
     }
@@ -100,6 +103,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         super.loadProperties(domainProperties, sbiProperties);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
+        isLstmIndelModel = netArchitectureHasIndelLSTM(domainProperties.getProperty("net.architecture.classname"));
         configure(modelProperties);
         initializeArchitecture();
     }
@@ -114,6 +118,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     private boolean isLSTMInput(String inputName) {
         return "from".equals(inputName) || "G1".equals(inputName) || "G2".equals(inputName) || "G3".equals(inputName);
+    }
+
+    private boolean netArchitectureHasIndelLSTM(String className) {
+        return className.endsWith("GenotypeSixDenseLayersWithIndelLSTM");
     }
 
     @Override
@@ -250,10 +258,6 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     private boolean withIsVariantLabelMapper() {
         return ((GenotypeFeatureMapper) getFeatureMapper("input")).hasIsVariantLabelMapper;
-    }
-
-    private boolean trainLstmIndelModel() {
-        return args().architectureClassname.endsWith("GenotypeSixDenseLayersWithIndelLSTM");
     }
 
     @Override
@@ -441,21 +445,21 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     public ComputationGraphAssembler getComputationalGraph() {
         ComputationGraphAssembler assembler;
         if (withDistinctAllele()) {
-            if (trainLstmIndelModel()) {
+            if (isLstmIndelModel) {
                 assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.DISTINCT_ALLELES,
                         withIsVariantLabelMapper());
             } else {
                 assembler = new NumDistinctAlleleAssembler(withIsVariantLabelMapper());
             }
         } else if (withCombinedLayer()) {
-            if (trainLstmIndelModel()) {
+            if (isLstmIndelModel) {
                 assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.COMBINED,
                         withIsVariantLabelMapper(), withCombinedLayerRef());
             } else {
                 assembler = new CombinedGenotypeAssembler(withIsVariantLabelMapper(), withCombinedLayerRef());
             }
         } else if (!withDistinctAllele() && !withCombinedLayer()) {
-            if (trainLstmIndelModel()) {
+            if (isLstmIndelModel) {
                 assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.HOMOZYGOUS,
                         withIsVariantLabelMapper());
             } else {
