@@ -12,8 +12,8 @@ import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.CombinedGenotypeAssembler;
-import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersWithIndelLSTM;
+import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.NumDistinctAlleleAssembler;
 import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerRefInterpreter;
@@ -121,42 +121,29 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         if (featureMappers.containsKey(inputName)) {
             return featureMappers.get(inputName);
         }
-        FeatureMapper result = null;
+        FeatureMapper result;
 
-        if (args().lstmFeatureMapperClassname != null && isLSTMInput(inputName)) {
-            try {
-                Class clazz = Class.forName(args().lstmFeatureMapperClassname);
-                final FeatureMapper featureMapper = (FeatureMapper) clazz.newInstance();
-                if (featureMapper instanceof ConfigurableFeatureMapper) {
-                    ConfigurableFeatureMapper cmapper = (ConfigurableFeatureMapper) featureMapper;
-                    final Properties properties = TrainSomaticModel.getReaderProperties(args().trainingSets.get(0));
-                    decorateProperties(properties);
-                    cmapper.configure(properties);
-                }
-                result = featureMapper;
-                if (result instanceof GenotypeMapperLSTM) {
-                    GenotypeMapperLSTM glMapper = (GenotypeMapperLSTM) result;
-                    switch (inputName) {
-                        case "from":
-                            glMapper.setInputType(GenotypeMapperLSTM.Input.FROM);
-                            break;
-                        case "G1":
-                            glMapper.setInputType(GenotypeMapperLSTM.Input.G1);
-                            break;
-                        case "G2":
-                            glMapper.setInputType(GenotypeMapperLSTM.Input.G2);
-                            break;
-                        case "G3":
-                            glMapper.setInputType(GenotypeMapperLSTM.Input.G3);
-                            break;
-                        default:
-                            throw new RuntimeException("Invalid LSTM mapper input name");
-                    }
-                }
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Unable to instantiate or configure feature mapper", e);
-            } catch (IOException | IllegalAccessException | InstantiationException e) {
-                throw new RuntimeException("IO excpetion, perhaps sbi file not found?", e);
+        if (isLSTMInput(inputName)) {
+            result = new GenotypeMapperLSTM();
+            GenotypeMapperLSTM glMapper = (GenotypeMapperLSTM) result;
+            Properties glMapperProperties = new Properties();
+            decorateProperties(glMapperProperties);
+            glMapper.configure(glMapperProperties);
+            switch (inputName) {
+                case "from":
+                    glMapper.setInputType(GenotypeMapperLSTM.Input.FROM);
+                    break;
+                case "G1":
+                    glMapper.setInputType(GenotypeMapperLSTM.Input.G1);
+                    break;
+                case "G2":
+                    glMapper.setInputType(GenotypeMapperLSTM.Input.G2);
+                    break;
+                case "G3":
+                    glMapper.setInputType(GenotypeMapperLSTM.Input.G3);
+                    break;
+                default:
+                    throw new RuntimeException("Invalid LSTM mapper input name");
             }
         } else if (args().featureMapperClassname != null) {
             assert "input".equals(inputName) : "Only one input supported by this domain.";
@@ -263,6 +250,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     private boolean withIsVariantLabelMapper() {
         return ((GenotypeFeatureMapper) getFeatureMapper("input")).hasIsVariantLabelMapper;
+    }
+
+    private boolean trainLstmIndelModel() {
+        return args().architectureClassname.endsWith("GenotypeSixDenseLayersWithIndelLSTM");
     }
 
     @Override
@@ -449,20 +440,27 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     @Override
     public ComputationGraphAssembler getComputationalGraph() {
         ComputationGraphAssembler assembler;
-        if (args().lstmFeatureMapperClassname != null) {
-            assembler = new GenotypeSixDenseLayersWithIndelLSTM(true);
-            assembler.setArguments(args());
-            ((GenotypeSixDenseLayersWithIndelLSTM) assembler).setHiddenLayerNames();
-        } else if (withDistinctAllele()) {
-            assembler = new NumDistinctAlleleAssembler(withIsVariantLabelMapper());
-        } else if (withCombinedLayer()) {
-            if (withCombinedLayerRef()){
-                assembler = new CombinedGenotypeAssembler(withIsVariantLabelMapper(),true);
+        if (withDistinctAllele()) {
+            if (trainLstmIndelModel()) {
+                assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.DISTINCT_ALLELES,
+                        withIsVariantLabelMapper());
             } else {
-                assembler = new CombinedGenotypeAssembler(withIsVariantLabelMapper(),false);
+                assembler = new NumDistinctAlleleAssembler(withIsVariantLabelMapper());
+            }
+        } else if (withCombinedLayer()) {
+            if (trainLstmIndelModel()) {
+                assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.COMBINED,
+                        withIsVariantLabelMapper(), withCombinedLayerRef());
+            } else {
+                assembler = new CombinedGenotypeAssembler(withIsVariantLabelMapper(), withCombinedLayerRef());
             }
         } else if (!withDistinctAllele() && !withCombinedLayer()) {
-            assembler = new GenotypeSixDenseLayersNarrower2(withIsVariantLabelMapper());
+            if (trainLstmIndelModel()) {
+                assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.HOMOZYGOUS,
+                        withIsVariantLabelMapper());
+            } else {
+                assembler = new GenotypeSixDenseLayersNarrower2(withIsVariantLabelMapper());
+            }
         } else {
             try {
                 assembler = (ComputationGraphAssembler) Class.forName(args().architectureClassname).newInstance();
@@ -502,7 +500,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public int getNumHiddenNodes(String componentName) {
-        return Math.round(getNumInputs("input")[0] * modelCapacity);
+        switch (componentName) {
+            case "lstmLayer":
+                return Math.round(getNumInputs("from")[0] * 64 * modelCapacity);
+            default:
+                return Math.round(getNumInputs("input")[0] * modelCapacity);
+        }
     }
 
     @Override
