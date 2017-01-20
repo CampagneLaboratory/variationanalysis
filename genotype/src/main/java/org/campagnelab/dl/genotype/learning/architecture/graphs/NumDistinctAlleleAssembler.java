@@ -49,7 +49,7 @@ public class NumDistinctAlleleAssembler extends GenotypeAssembler implements Com
     public void setArguments(TrainingArguments arguments) {
         this.arguments = arguments;
         this.numLayers = ((GenotypeTrainingArguments) arguments).numLayers;
-        layerAssembler = new FeedForwardDenseLayerAssembler(arguments);
+        layerAssembler = new FeedForwardDenseLayerAssembler(arguments, getInputNames());
     }
 
     @Override

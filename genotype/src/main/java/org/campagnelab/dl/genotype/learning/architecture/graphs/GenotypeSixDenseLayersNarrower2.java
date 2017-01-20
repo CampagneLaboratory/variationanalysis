@@ -52,7 +52,7 @@ public class GenotypeSixDenseLayersNarrower2 extends GenotypeAssembler implement
     public void setArguments(TrainingArguments arguments) {
         this.arguments = arguments;
         this.numLayers = ((GenotypeTrainingArguments) arguments).numLayers;
-        layerAssembler = new FeedForwardDenseLayerAssembler(arguments);
+        layerAssembler = new FeedForwardDenseLayerAssembler(arguments, getInputNames());
 
     }
 
