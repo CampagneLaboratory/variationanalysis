@@ -15,21 +15,28 @@ import org.deeplearning4j.nn.weights.WeightInit;
  * Created by fac2003 on 1/2/17.
  */
 public class FeedForwardDenseLayerAssembler {
-    private final ComputationGraphConfiguration.GraphBuilder build;
-    private final int numGraphInputs;
     private TrainingArguments args;
     private LearningRatePolicy learningRatePolicy = LearningRatePolicy.Poly;
     private int numOutputs;
     private String lastLayerName;
+    private ComputationGraphConfiguration.GraphBuilder build;
     private static final double BUILDER_EPSILON = 1e-08d;
     private static final double LAYER_EPSILON = 0.1;
     private static final WeightInit WEIGHT_INIT = WeightInit.XAVIER;
     private static final float REDUCTION = 1f;
 
+    public FeedForwardDenseLayerAssembler(TrainingArguments args) {
+        this.args = args;
+    }
 
-    public FeedForwardDenseLayerAssembler(TrainingArguments args, String... inputNames) {
-        this.numGraphInputs = inputNames.length;
-        setArgs(args);
+    TrainingArguments args() {
+        return args;
+    }
+
+    public void initializeBuilder(String... inputNames) {
+        if (inputNames.length == 0) {
+            inputNames = new String[]{"input"};
+        }
         NeuralNetConfiguration.Builder graphBuilder = new NeuralNetConfiguration.Builder()
                 .seed(args().seed)
                 .iterations(1)
@@ -38,9 +45,10 @@ public class FeedForwardDenseLayerAssembler {
                 .updater(Updater.ADAGRAD)
                 .epsilon(BUILDER_EPSILON)
                 .lrPolicyDecayRate(0.5)
-                .weightInit(WeightInit.XAVIER);
+                .weightInit(WEIGHT_INIT);
         if (args().regularizationRate != null) {
             graphBuilder.l2(args().regularizationRate);
+            graphBuilder.regularization(args().regularizationRate != null);
         }
         if (args().dropoutRate != null) {
             graphBuilder.dropOut(args().dropoutRate);
@@ -49,34 +57,21 @@ public class FeedForwardDenseLayerAssembler {
         build = graphBuilder.graphBuilder().addInputs(inputNames);
     }
 
-    public FeedForwardDenseLayerAssembler(TrainingArguments args, ComputationGraphConfiguration.GraphBuilder build) {
-        setArgs(args);
-        this.build = build;
-        this.numGraphInputs = build.getNetworkInputs().size();
-    }
-
-    private void setArgs(TrainingArguments args) {
-        this.args = args;
-    }
-
-    private TrainingArguments args() {
-        return args;
-    }
-
     public ComputationGraphConfiguration.GraphBuilder assemble(int numInputs, int numHiddenNodes, int numLayers) {
         return assemble(numInputs, numHiddenNodes, numLayers, "input", 1);
     }
 
-    public ComputationGraphConfiguration.GraphBuilder assemble(int numInputs, int numHiddenNodes, int numLayers,
-                                                               String baseLayer, int startingIndex) {
+    ComputationGraphConfiguration.GraphBuilder assemble(int numInputs, int numHiddenNodes, int numLayers, String baseLayer, int startingIndex) {
         assert numHiddenNodes > 0 : "model capacity is too small. At least some hidden nodes must be created.";
-        int minimum = (int) (numHiddenNodes * Math.pow(REDUCTION, 4));
+        WeightInit WEIGHT_INIT = WeightInit.XAVIER;
+        float reduction = 1f;
+        int minimum = (int) (numHiddenNodes * Math.pow(reduction, 4));
         assert minimum > 2 : "Too much reduction, not enough outputs: ";
         int numIn = numInputs;
         int numOut = numHiddenNodes;
         String previousLayerName;
         String lastDenseLayerName = "no layers";
-        for (int i = startingIndex; i < numLayers + startingIndex; i++) {
+        for (int i = startingIndex; i < startingIndex + numLayers; i++) {
             numOut = numHiddenNodes;
             //     System.out.printf("layer %d numIn=%d numOut=%d%n", i, numIn, numOut);
             lastDenseLayerName = "dense" + i;
@@ -91,6 +86,7 @@ public class FeedForwardDenseLayerAssembler {
         this.numOutputs = numOut;
         this.lastLayerName = lastDenseLayerName;
         return build;
+
     }
 
     public int getNumOutputs() {
@@ -100,6 +96,7 @@ public class FeedForwardDenseLayerAssembler {
     public void setLearningRatePolicy(LearningRatePolicy learningRatePolicy) {
         this.learningRatePolicy = learningRatePolicy;
     }
+
 
     public void setInputTypes(InputType... inputTypes) {
         build.setInputTypes(inputTypes);

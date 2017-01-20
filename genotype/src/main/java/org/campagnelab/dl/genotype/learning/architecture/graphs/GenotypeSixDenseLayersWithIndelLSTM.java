@@ -129,7 +129,9 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         int numLSTMInputs = domainDescriptor.getNumInputs("from")[0];
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("firstDense");
         int numLSTMHiddenNodes = domainDescriptor.getNumHiddenNodes("lstmLayer");
-        FeedForwardDenseLayerAssembler assembler = new FeedForwardDenseLayerAssembler(args(), getInputNames());
+        FeedForwardDenseLayerAssembler assembler = new FeedForwardDenseLayerAssembler(args());
+        assembler.setLearningRatePolicy(LEARNING_RATE_POLICY);
+        assembler.initializeBuilder();
         assembler.setInputTypes(getInputTypes(domainDescriptor));
         ComputationGraphConfiguration.GraphBuilder build = assembler.getBuild();
         for (String lstmInputName : lstmInputNames) {

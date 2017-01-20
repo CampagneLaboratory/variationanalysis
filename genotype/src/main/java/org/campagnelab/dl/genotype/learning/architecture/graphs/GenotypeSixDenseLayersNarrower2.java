@@ -52,7 +52,7 @@ public class GenotypeSixDenseLayersNarrower2 extends GenotypeAssembler implement
     public void setArguments(TrainingArguments arguments) {
         this.arguments = arguments;
         this.numLayers = ((GenotypeTrainingArguments) arguments).numLayers;
-        layerAssembler = new FeedForwardDenseLayerAssembler(arguments, getInputNames());
+        layerAssembler = new FeedForwardDenseLayerAssembler(arguments);
 
     }
 
@@ -60,6 +60,7 @@ public class GenotypeSixDenseLayersNarrower2 extends GenotypeAssembler implement
     public ComputationGraph createComputationalGraph(DomainDescriptor domainDescriptor) {
         LearningRatePolicy learningRatePolicy = LearningRatePolicy.Poly;
         layerAssembler.setLearningRatePolicy(learningRatePolicy);
+        layerAssembler.initializeBuilder();
         int numInputs = domainDescriptor.getNumInputs("input")[0];
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("firstDense");
         ComputationGraphConfiguration.GraphBuilder build = layerAssembler.assemble(numInputs, numHiddenNodes, numLayers);
