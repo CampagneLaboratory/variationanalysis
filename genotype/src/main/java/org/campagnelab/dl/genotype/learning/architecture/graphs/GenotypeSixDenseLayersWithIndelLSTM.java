@@ -129,42 +129,36 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         int numLSTMInputs = domainDescriptor.getNumInputs("from")[0];
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("firstDense");
         int numLSTMHiddenNodes = domainDescriptor.getNumHiddenNodes("lstmLayer");
+        int numLSTMLayers = Math.max(1, args().numLSTMLayers);
+        int numLayers = Math.max(1, args().numLayers);
         FeedForwardDenseLayerAssembler assembler = new FeedForwardDenseLayerAssembler(args());
         assembler.setLearningRatePolicy(LEARNING_RATE_POLICY);
-        assembler.initializeBuilder();
+        assembler.initializeBuilder(getInputNames());
         assembler.setInputTypes(getInputTypes(domainDescriptor));
         ComputationGraphConfiguration.GraphBuilder build = assembler.getBuild();
         for (String lstmInputName : lstmInputNames) {
-            String lstmInputLayerName = "lstm" + lstmInputName + "Input";
-            String lstmInputToFeedForward = lstmInputLayerName;
-            build.addLayer(lstmInputLayerName, new GravesLSTM.Builder()
-                    .nIn(numLSTMInputs)
+            String lstmLayerName = "no layer";
+            for (int i = 0; i < numLSTMLayers; i++) {
+                lstmLayerName = "lstm" + lstmInputName + "_" + i;
+                String lstmPreviousLayerName = i == 0 ? lstmInputName : "lstm" + lstmInputName + "_" + (i - 1);
+                int numLSTMInputNodes = i == 0 ? numLSTMInputs : numLSTMHiddenNodes;
+                build.addLayer(lstmLayerName, new GravesLSTM.Builder()
+                    .nIn(numLSTMInputNodes)
                     .nOut(numLSTMHiddenNodes)
-                    .activation("softsign")
-                    .build(), lstmInputName);
-            for (int i = 0; i < args().numLSTMLayers; i++) {
-                String lstmPrevious = i == 0 ? lstmInputLayerName :  "lstm" + lstmInputName + "Hidden" + (i - 1);
-                String lstmHidden = "lstm" + lstmInputName + "Hidden" + i;
-                lstmInputToFeedForward = lstmHidden;
-                build.addLayer(lstmHidden, new GravesLSTM.Builder()
-                        .nIn(numLSTMHiddenNodes)
-                        .nOut(numLSTMHiddenNodes)
-                        .activation("softsign")
-                        .build(), lstmPrevious);
+                    .build(), lstmPreviousLayerName);
             }
             build.addVertex("lstm" + lstmInputName + "LastTimeStepVertex", new LastTimeStepVertex(lstmInputName),
-                    lstmInputToFeedForward);
+                    lstmLayerName);
         }
-        assembler.assemble(numInputs, numHiddenNodes, args().numPreVertexLayers);
         String[] mergeInputs = new String[lstmInputNames.length + 1];
         for (int i = 0; i < lstmInputNames.length; i++) {
             mergeInputs[i] = "lstm" + lstmInputNames[i] + "LastTimeStepVertex";
         }
-        mergeInputs[lstmInputNames.length] = assembler.lastLayerName();
+        mergeInputs[lstmInputNames.length] = "input";
         build.addVertex("lstmFeedForwardMerge", new MergeVertex(), mergeInputs);
-        int numInputsToDenseAfterMerge = assembler.getNumOutputs() + (lstmInputNames.length  * numLSTMHiddenNodes);
+        int numInputsToDenseAfterMerge = numInputs + (lstmInputNames.length  * numLSTMHiddenNodes);
         assembler.assemble(numInputsToDenseAfterMerge, numHiddenNodes,
-                args().numLayers, "lstmFeedForwardMerge", args().numPreVertexLayers + 1);
+                numLayers, "lstmFeedForwardMerge", 1);
         String lastDenseLayerName = assembler.lastLayerName();
         int numIn = assembler.getNumOutputs();
         addOutputLayers(build, domainDescriptor, lastDenseLayerName, numIn);
