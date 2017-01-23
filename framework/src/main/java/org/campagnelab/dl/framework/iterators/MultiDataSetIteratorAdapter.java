@@ -120,6 +120,35 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
             recordIndexInBatch += 1;
 
         }
+        // Necessary for mixed datasets (i.e., where some mappers have masks and others don't) - will raise NPE otherwise
+        if (hasFeatureMask) {
+            for (int i = 0; i < inputMasks.length; i++) {
+                if (inputMasks[i] == null) {
+                    int[] inputShape = inputs[i].shape();
+                    if (inputShape.length == 3) {
+                        throw new RuntimeException("3D features should have masks");
+                    } else if (inputShape.length == 2) {
+                        inputMasks[i] = Nd4j.ones(inputShape[0]);
+                    } else {
+                        inputMasks[i] = Nd4j.ones(inputShape.clone());
+                    }
+                }
+            }
+        }
+        if (hasLabelMask) {
+            for (int i = 0; i < labelMasks.length; i++) {
+                if (labelMasks[i] == null) {
+                    int[] labelShape = labels[i].shape();
+                    if (labelShape.length == 3) {
+                        throw new RuntimeException("3D labels should have masks");
+                    } else if (labelShape.length == 2) {
+                        labelMasks[i] = Nd4j.ones(labelShape[0]);
+                    } else {
+                        labelMasks[i] = Nd4j.ones(labelShape.clone());
+                    }
+                }
+            }
+        }
         final MultiDataSet result = new org.nd4j.linalg.dataset.MultiDataSet(inputs, labels,
                 hasFeatureMask ? inputMasks : null,
                 hasLabelMask ? labelMasks : null);

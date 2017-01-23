@@ -30,8 +30,9 @@ public class GenotypeTrainingArguments extends TrainingArguments {
             "this value should be included in a hyper-parameter search. ")
     public int genomicContextLength = Integer.MAX_VALUE;
 
-    @Parameter(names = "--lstm-feature-mapper", description = "Fully qualified classname of feature mapper for LSTM used to train indels")
-    public String lstmFeatureMapperClassname = null;
+    @Parameter(names = "--indel-sequence-length", description = "Maximum length of indel sequences to use as LSTM input." +
+            " If sequences are longer than this length, they will be clipped. ")
+    public int indelSequenceLength = 30;
 
     @Parameter(names = "--num-layers", description = "The number of dense layers in the feedforward model.")
     public int numLayers = 5;
@@ -40,15 +41,12 @@ public class GenotypeTrainingArguments extends TrainingArguments {
             description = "The number of LSTM hidden layers, if an LSTM is being used for indels. ")
     public int numLSTMLayers = 3;
 
-    @Parameter(names = "--num-pre-vertex-layers", description = "The number of dense layers in the feedforward model before the merge vertex. ")
-    public int numPreVertexLayers = 3;
-
-    @Parameter(names = "--num-lstm-outputs", description = "The number of outputs from the last layer in the LSTM")
-    public int numLSTMOutputs = 18;
-
     @Parameter(names = "--model-capacity", description = "A floating number that controls model capacity (i.e., number of hidden " +
             "nodes in the neural network). Use a c >=1 to control how many hidden nodes are created (#hiddenNodes=c*#inputs).")
     public float modelCapacity=1f;
+
+    @Parameter(names = "--lstm-model-capacity", description = "Model capacity for determining number of hidden nodes in LSTM layers. ")
+    public float lstmModelCapacity = 1f;
 
     @Override
     protected String defaultArchitectureClassname() {

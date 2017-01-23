@@ -5,48 +5,77 @@ import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.graph.MergeVertex;
 import org.deeplearning4j.nn.conf.graph.rnn.LastTimeStepVertex;
 import org.deeplearning4j.nn.conf.inputs.InputType;
-import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
-import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
-import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
 
 /**
  * Created by joshuacohen on 1/12/17.
  */
 public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler implements ComputationGraphAssembler {
     private final String[] outputNames;
-    private String[] hiddenLayerNames;
     private static final String[] lstmInputNames = new String[]{"from", "G1", "G2", "G3"};
     private static final WeightInit WEIGHT_INIT = WeightInit.XAVIER;
     private static final LearningRatePolicy LEARNING_RATE_POLICY = LearningRatePolicy.Poly;
+    private static final OutputType DEFAULT_OUTPUT_TYPE = OutputType.DISTINCT_ALLELES;
+    private final String combined;
+    private final OutputType outputType;
+
+    public enum OutputType {
+        HOMOZYGOUS,
+        DISTINCT_ALLELES,
+        COMBINED,
+    }
 
     private GenotypeTrainingArguments arguments;
 
-
     public GenotypeSixDenseLayersWithIndelLSTM() {
-        this(false);
+        this(DEFAULT_OUTPUT_TYPE, false, false);
     }
 
-    public GenotypeSixDenseLayersWithIndelLSTM(boolean hasIsVariant) {
+    public GenotypeSixDenseLayersWithIndelLSTM(OutputType outputType, boolean hasIsVariant) {
+        this(outputType, hasIsVariant, false);
+    }
+
+    public GenotypeSixDenseLayersWithIndelLSTM(OutputType outputType, boolean hasIsVariant, boolean fixRef) {
+        this.outputType = outputType;
         this.hasIsVariant = hasIsVariant;
-        if (hasIsVariant) {
-            outputNames = new String[]{"homozygous", "A", "T", "C", "G", "N",
-                    "I1", "I2", "I3", "I4", "I5", "metaData"};
-        } else {
-            outputNames = new String[]{"homozygous", "A", "T", "C", "G", "N",
-                    "I1", "I2", "I3", "I4", "I5", "metaData", "isVariant"};
+        combined = fixRef ? "combinedRef" : "combined";
+        switch (outputType) {
+            case DISTINCT_ALLELES:
+                if (hasIsVariant) {
+                    outputNames = new String[]{"numDistinctAlleles", "A", "T", "C", "G", "N",
+                            "I1", "I2", "I3", "I4", "I5", "metaData", "isVariant"};
+                } else {
+                    outputNames = new String[]{"numDistinctAlleles", "A", "T", "C", "G", "N",
+                            "I1", "I2", "I3", "I4", "I5", "metaData"};
+                }
+                break;
+            case COMBINED:
+                if (hasIsVariant) {
+                    outputNames = new String[]{combined, "metaData", "isVariant"};
+                } else {
+                    outputNames = new String[]{combined, "metaData"};
+                }
+                break;
+            case HOMOZYGOUS:
+                if (hasIsVariant) {
+                    outputNames = new String[]{"homozygous", "A", "T", "C", "G", "N",
+                            "I1", "I2", "I3", "I4", "I5", "metaData", "isVariant"};
+                } else {
+                    outputNames = new String[]{"homozygous", "A", "T", "C", "G", "N",
+                            "I1", "I2", "I3", "I4", "I5", "metaData"};
+                }
+                break;
+            default:
+                throw new RuntimeException("Output type not recognized");
         }
     }
 
@@ -54,21 +83,44 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         return arguments;
     }
 
-    public void setHiddenLayerNames() {
-        hiddenLayerNames = new String[args().numLayers + args().numPreVertexLayers + (args().numLSTMLayers * lstmInputNames.length)];
-        for (int i = 0; i < args().numLayers + args().numPreVertexLayers; i++) {
-            hiddenLayerNames[i] = "dense" + i;
-        }
-        int c = args().numLayers + args().numPreVertexLayers;
-        for (int i = 0; i < args().numLSTMLayers; i++) {
-            for (String lstmInputName : lstmInputNames) {
-                hiddenLayerNames[c++] = "lstm" + lstmInputName + "Hidden" + i;
-            }
-        }
-    }
     @Override
     public void setArguments(TrainingArguments arguments) {
         this.arguments = ((GenotypeTrainingArguments) arguments);
+    }
+
+    private void addOutputLayers(ComputationGraphConfiguration.GraphBuilder build, DomainDescriptor domainDescriptor,
+                                 String lastDenseLayerName, int numIn) {
+        if (outputType == OutputType.HOMOZYGOUS || outputType == OutputType.DISTINCT_ALLELES) {
+            if (outputType == OutputType.DISTINCT_ALLELES) {
+                build.addLayer("numDistinctAlleles", new OutputLayer.Builder(domainDescriptor.getOutputLoss("homozygous"))
+                        .weightInit(WEIGHT_INIT)
+                        .activation("softmax").weightInit(WEIGHT_INIT)
+                        .learningRateDecayPolicy(LEARNING_RATE_POLICY)
+                        .nIn(numIn)
+                        .nOut(domainDescriptor.getNumOutputs("numDistinctAlleles")[0])
+                        .build(), lastDenseLayerName);
+            } else {
+                build.addLayer("homozygous", new OutputLayer.Builder(domainDescriptor.getOutputLoss("homozygous"))
+                        .weightInit(WEIGHT_INIT)
+                        .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
+                        .nIn(numIn).nOut(11).build(), lastDenseLayerName);
+            }
+            int endingIndex = hasIsVariant ? outputNames.length - 2 : outputNames.length - 1;
+            for (int i = 1; i <= endingIndex; i++) {
+                build.addLayer(outputNames[i], new OutputLayer.Builder(domainDescriptor.getOutputLoss(outputNames[i]))
+                        .weightInit(WEIGHT_INIT)
+                        .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
+                        .nIn(numIn).nOut(2).build(), lastDenseLayerName);
+            }
+        } else if (outputType == OutputType.COMBINED) {
+            build.addLayer(combined, new OutputLayer.Builder(domainDescriptor.getOutputLoss(combined))
+                    .weightInit(WEIGHT_INIT)
+                    .activation(combined).weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
+                    .nIn(numIn)
+                    .nOut(domainDescriptor.getNumOutputs(combined)[0]).build(), lastDenseLayerName);
+        }
+        appendMetaDataLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
+        appendIsVariantLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
     }
 
     @Override
@@ -76,67 +128,44 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         int numInputs = domainDescriptor.getNumInputs("input")[0];
         int numLSTMInputs = domainDescriptor.getNumInputs("from")[0];
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("firstDense");
-        if (hiddenLayerNames == null) {
-            setHiddenLayerNames();
-        }
-        FeedForwardDenseLayerAssembler assembler = new FeedForwardDenseLayerAssembler(args(), "input", "from", "G1", "G2", "G3");
-        assembler.setInputTypes(InputType.feedForward(numInputs), InputType.recurrent(numLSTMInputs), InputType.recurrent(numLSTMInputs),
-                InputType.recurrent(numLSTMInputs), InputType.recurrent(numLSTMInputs));
+        int numLSTMHiddenNodes = domainDescriptor.getNumHiddenNodes("lstmLayer");
+        int numLSTMLayers = Math.max(1, args().numLSTMLayers);
+        int numLayers = Math.max(1, args().numLayers);
+        FeedForwardDenseLayerAssembler assembler = new FeedForwardDenseLayerAssembler(args());
+        assembler.setLearningRatePolicy(LEARNING_RATE_POLICY);
+        assembler.initializeBuilder(getInputNames());
+        assembler.setInputTypes(getInputTypes(domainDescriptor));
         ComputationGraphConfiguration.GraphBuilder build = assembler.getBuild();
         for (String lstmInputName : lstmInputNames) {
-            String lstmInputLayerName = "lstm" + lstmInputName + "Input";
-            build.addLayer(lstmInputLayerName, new GravesLSTM.Builder()
-                    .nIn(numLSTMInputs)
-                    .nOut(numHiddenNodes)
-                    .activation("softsign")
-                    .build(), lstmInputName);
-            for (int i = 0; i < args().numLSTMLayers; i++) {
-                String lstmPrevious = i == 0 ? lstmInputLayerName :  "lstm" + lstmInputName + "Hidden" + (i - 1);
-                build.addLayer("lstm" + lstmInputName + "Hidden" + i, new GravesLSTM.Builder()
-                        .nIn(numHiddenNodes)
-                        .nOut(numHiddenNodes)
-                        .activation("softsign")
-                        .build(), lstmPrevious);
+            String lstmLayerName = "no layer";
+            for (int i = 0; i < numLSTMLayers; i++) {
+                lstmLayerName = "lstm" + lstmInputName + "_" + i;
+                String lstmPreviousLayerName = i == 0 ? lstmInputName : "lstm" + lstmInputName + "_" + (i - 1);
+                int numLSTMInputNodes = i == 0 ? numLSTMInputs : numLSTMHiddenNodes;
+                build.addLayer(lstmLayerName, new GravesLSTM.Builder()
+                    .nIn(numLSTMInputNodes)
+                    .nOut(numLSTMHiddenNodes)
+                    .build(), lstmPreviousLayerName);
             }
-            String lstmOutputLayerName = "lstm" + lstmInputName + "Output";
-            build.addLayer(lstmOutputLayerName, new RnnOutputLayer.Builder(new LossMCXENT())
-                    .nIn(numHiddenNodes)
-                    .nOut(args().numLSTMOutputs)
-                    .activation("softmax")
-                    .build(), "lstm" + lstmInputName + "Hidden" + (args().numLSTMLayers - 1));
             build.addVertex("lstm" + lstmInputName + "LastTimeStepVertex", new LastTimeStepVertex(lstmInputName),
-                    lstmOutputLayerName);
+                    lstmLayerName);
         }
-        assembler.assemble(numInputs, numHiddenNodes, args().numPreVertexLayers);
         String[] mergeInputs = new String[lstmInputNames.length + 1];
         for (int i = 0; i < lstmInputNames.length; i++) {
             mergeInputs[i] = "lstm" + lstmInputNames[i] + "LastTimeStepVertex";
         }
-        mergeInputs[lstmInputNames.length] = assembler.lastLayerName();
+        mergeInputs[lstmInputNames.length] = "input";
         build.addVertex("lstmFeedForwardMerge", new MergeVertex(), mergeInputs);
-        assembler.assemble(numHiddenNodes + args().numLSTMOutputs, numHiddenNodes,
-                args().numLayers, "lstmFeedForwardMerge", args().numPreVertexLayers + 1);
-        // TODO: check proper outputs
+        int numInputsToDenseAfterMerge = numInputs + (lstmInputNames.length  * numLSTMHiddenNodes);
+        assembler.assemble(numInputsToDenseAfterMerge, numHiddenNodes,
+                numLayers, "lstmFeedForwardMerge", 1);
         String lastDenseLayerName = assembler.lastLayerName();
         int numIn = assembler.getNumOutputs();
-        build.addLayer("homozygous", new OutputLayer.Builder(
-                domainDescriptor.getOutputLoss("homozygous"))
-                .weightInit(WEIGHT_INIT)
-                .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
-                .nIn(numIn).nOut(11).build(), lastDenseLayerName);
-        for (int i = 1; i < outputNames.length; i++) {
-            build.addLayer(outputNames[i], new OutputLayer.Builder(
-                    domainDescriptor.getOutputLoss(outputNames[i]))
-                    .weightInit(WEIGHT_INIT)
-                    .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
-                    .nIn(numIn).nOut(2).build(), lastDenseLayerName);
-        }
-        appendMetaDataLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
-        appendIsVariantLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
+        addOutputLayers(build, domainDescriptor, lastDenseLayerName, numIn);
         ComputationGraphConfiguration conf = build
                 .setOutputs(outputNames)
                 .build();
-
+        System.out.println(conf);
         return new ComputationGraph(conf);
     }
 
@@ -160,6 +189,27 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         return new String[]{"input", "from", "G1", "G2", "G3"};
     }
 
+    private InputType[] getInputTypes(DomainDescriptor domainDescriptor) {
+        String[] inputNames = getInputNames();
+        InputType[] inputTypes = new InputType[inputNames.length];
+        for (int i = 0; i < inputNames.length; i++) {
+            switch(inputNames[i]) {
+                case "input":
+                    inputTypes[i] = InputType.feedForward(domainDescriptor.getNumInputs(inputNames[i])[0]);
+                    break;
+                case "from":
+                case "G1":
+                case "G2":
+                case "G3":
+                    inputTypes[i] = InputType.recurrent(domainDescriptor.getNumInputs(inputNames[i])[0]);
+                    break;
+                default:
+                    throw new RuntimeException("Invalid input to computation graph");
+            }
+        }
+        return inputTypes;
+    }
+
     @Override
     public String[] getOutputNames() {
         return outputNames;
@@ -167,7 +217,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
 
     @Override
     public String[] getComponentNames() {
-        return hiddenLayerNames;
+        return new String[]{"firstDense", "lstmLayer"};
     }
 
     @Override
