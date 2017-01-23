@@ -1,6 +1,11 @@
 package org.campagnelab.dl.genotype.helpers;
 
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
+import org.campagnelab.goby.algorithmic.indels.EquivalentIndelRegion;
+import org.campagnelab.goby.alignments.processors.ObservedIndel;
+import org.campagnelab.goby.algorithmic.algorithm.EquivalentIndelRegionCalculator;
+
 
 import java.util.Iterator;
 import java.util.Set;
@@ -9,6 +14,13 @@ import java.util.Set;
  * Created by fac2003 on 12/25/16.
  */
 public class GenotypeHelper {
+
+
+    private EquivalentIndelRegionCalculator equivalentIndelRegionCalculator;
+
+
+
+
     public static boolean isVariant(String genotype, String referenceBase) {
         return isVariant(true, genotype, referenceBase);
     }
@@ -158,9 +170,71 @@ public class GenotypeHelper {
         return toPad.toString();
     }
 
-    public static boolean genotypeHasIndel(String trueGenotype, String toSequence, String trueFrom, String fromSequence) {
-        boolean hasTo = genotypeHasAllele(trueGenotype,toSequence);
-        boolean fromMatches = matchingGenotypes(trueFrom,fromSequence);
-        return hasTo && fromMatches;
+    public static boolean genotypeHasAlleleOrIndel(String trueGenotype, String toSequence, String trueFrom, String fromSequence) {
+        boolean hasTo = false;
+        Set<String> alleles = getAlleles(trueGenotype);
+        Iterator<String> iterator = alleles.iterator();
+        while (iterator.hasNext()) {
+            String oneTrueAllele = iterator.next();
+            hasTo |= oneTrueAllele.equals(toSequence);
+        }
+        return hasTo;
     }
+
+
+    class callTruePair {
+        String trueTo; //true allele
+        String ref; //vcf's "from" string
+        String from; //goby's from
+        String to; //goby's to
+        int posRef;
+        int referenceIndex;
+
+
+
+        /*
+        *extend true allele to match length of its ref. eg: ATC A -> ATC A--
+        * This is a required step before using observeIndels, which requires placeholder dashes
+         */
+        void padTrueAndRef(){
+            int maxLen = Math.max(trueTo.length(), ref.length());
+            trueTo = pad(trueTo,maxLen);
+            ref = pad(ref,maxLen);
+        }
+
+        void trueToToEquivalent(){
+
+            if (trueTo.length() < 2 || ref.length() < 2){
+                //snp encountered, in an indel case one will be longer and the other should have been padded.
+                return;
+            }
+            String trueToAffix = trueTo.substring(1);
+            String refAffix = ref.substring(1);
+
+
+            ObservedIndel indel = new ObservedIndel(posRef, posRef, refAffix, "T");
+            EquivalentIndelRegion result = equivalentIndelRegionCalculator.determine(3, indel);
+
+
+
+//            assertEquals(3, result.referenceIndex);
+//            assertEquals(4, result.startPosition);
+//            assertEquals(7, result.endPosition);
+//            assertEquals("-TT", result.from);
+//            assertEquals("TTT", result.to);
+//            assertEquals("AAAC", result.flankLeft);
+//            assertEquals("GGGG", result.flankRight);
+//            assertEquals("AAAC-TTGGGG", result.fromInContext());
+//            assertEquals("AAACTTTGGGG", result.toInContext());
+        }
+
+
+
+
+
+
+
+
+    }
+
 }

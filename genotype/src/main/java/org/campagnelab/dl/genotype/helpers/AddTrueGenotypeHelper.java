@@ -138,25 +138,33 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
             buildRec.setTrueGenotype(trueGenotype);
             buildRec.setTrueFrom(trueFrom);
             BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
-            boolean foundCalled = false;
+            int trueAlleleCount = GenotypeHelper.getAlleles(trueGenotype).size();
+            int trueAlleleNum = trueAlleleCount;
+            StringBuffer matches = new StringBuffer("");
             for (int i = 0; i < buildSample.getCountsCount(); i++) {
                 BaseInformationRecords.CountInfo.Builder count = buildSample.getCounts(i).toBuilder();
-
-                boolean isCalled = GenotypeHelper.genotypeHasIndel(trueGenotype,count.getToSequence(),trueFrom,count.getFromSequence());
+                String countFrom = count.getFromSequence();
+                String trimmedCountFrom =  (i<5) ? countFrom.substring(0,1):countFrom;
+                boolean isCalled = GenotypeHelper.genotypeHasAlleleOrIndel(trueGenotype,count.getToSequence(),trueFrom,trimmedCountFrom);
+                if (isCalled){
+                    trueAlleleCount--;
+                    matches.append(trimmedCountFrom+":"+count.getToSequence() + ", ");
+                }
                 count.setIsCalled(isCalled);
                 buildSample.setCounts(i, count);
-                foundCalled |= isCalled;
             }
             buildSample.setIsVariant(isVariant);
             buildRec.setSamples(sampleIndex, buildSample.build());
             labeledEntry = buildRec.build();
             recordsLabeled++;
-            if (!foundCalled){
-                System.out.println("Genotype not found: \n" +
-                        "Ref: " + trueFrom + " True: " + trueGenotype);
+            if (trueAlleleCount!=0){
+                System.out.println(trueAlleleNum + " matching alleles expected");
+                System.out.println("Too may or two few genotypes found: \n" +
+                        "Ref:  " + trueFrom + " True:  " + trueGenotype);
                 for (BaseInformationRecords.CountInfo count: buildSample.getCountsList()){
-                    System.out.println("from" + count.getFromSequence() + " to: " + count.getToSequence() + "\n");
+                    System.out.println("from: " + count.getFromSequence() + " to: " + count.getToSequence() + " count: " + count.getGenotypeCountForwardStrand()+count.getGenotypeCountReverseStrand());
                 }
+                System.out.println("Matches trimmedFrom:to : " + matches);
 
 
             }
@@ -203,6 +211,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
 
         private int position;
         private String chrom;
+
         private String referenceBase;
         private String trueGenotype;
         private String trueFrom;
@@ -244,16 +253,19 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
 
             }
             if (inMap) {
-                trueGenotype = variant.trueAllele1 + "|" + variant.trueAllele2;
+
                 trueFrom = variant.reference;
                 if (!GenotypeHelper.isNoCall(trueGenotype)) {
                     isVariant = GenotypeHelper.isVariant(considerIndels /**/, trueGenotype, referenceBase);
                     if (isVariant) {
                         if (variant.isIndel) {
+                            //indel is in map and is considered
                             numIndelsAdded++;
                         } else {
+                            //snp is in map
                             numSnpsAdded++;
                         }
+                        //we have a snp or indel
                         numVariantsAdded++;
                         Set<String> alleles = GenotypeHelper.getAlleles(trueGenotype);
                         if (alleles.size() > 1) {
@@ -262,14 +274,17 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                             numHomozygousAdded++;
                         }
                     } else {
+                        //variant in map but not considered, to be added as ref
                         numReferenceAdded++;
                     }
                 }
                 if (variant.isIndel && indelsAsRef) {
+                    //indel in map but added as ref
                     numIndelsAddedAsRef++;
                 }
             }
-            if (!isVariant && (!variant.isIndel || indelsAsRef)) {
+            //handle case (whether or not is in map) where we want to use ref
+            if (!isVariant) {
                 if (random.nextFloat() > referenceSamplingRate) {
                     skip = true;
                 }
@@ -277,11 +292,9 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                 trueGenotype = referenceBase + "|" + referenceBase;
                 referenceBase = referenceBase.toUpperCase();
                 trueFrom = referenceBase;
-            } else if (!isVariant && !indelsAsRef){
+            } else if (!isVariant && variant.isIndel && !indelsAsRef){
                 numIndelsIgnored++;
                 skip = true;
-            } else {
-                throw new RuntimeException("incorrect logic, this should not be a possible case");
             }
             this.trueGenotype = trueGenotype.replace('|', '/').toUpperCase();
             this.isVariant = isVariant;
