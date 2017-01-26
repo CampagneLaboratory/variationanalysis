@@ -172,7 +172,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         String correctness = correct ? "correct" : "wrong";
         // obtain isVariant from the gold-standard, not from the prediction.
         boolean isVariant = record.getSamples(0).getIsVariant();
-        final boolean isPredictedVariant = GenotypeHelper.isVariant(fullPred.predictedGenotype, record.getReferenceBase());
+        final boolean isPredictedVariant = GenotypeHelper.isVariant(fullPred.predictedAlleles(), record.getReferenceBase());
 
         if (filterHet(args(), fullPred) &&
                 filterVariant(args(), fullPred) &&

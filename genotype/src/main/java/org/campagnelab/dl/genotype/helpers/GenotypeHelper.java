@@ -20,8 +20,12 @@ public class GenotypeHelper {
 
 
 
+    public static boolean isVariant(String trueGenotype, String referenceBase) {
+        return isVariant(true, trueGenotype, referenceBase);
+    }
 
-    public static boolean isVariant(String genotype, String referenceBase) {
+
+    public static boolean isVariant(Set<String> genotype, String referenceBase) {
         return isVariant(true, genotype, referenceBase);
     }
 
@@ -31,10 +35,14 @@ public class GenotypeHelper {
 
 
 
-    public static boolean isVariant(boolean considerIndels, String genotype, String reference) {
+    public static boolean isVariant(boolean considerIndels, String trueGenotype, String reference){
+        return isVariant(considerIndels,getAlleles(trueGenotype),reference);
+    }
+
+    public static boolean isVariant(boolean considerIndels, Set<String> genotypeSet, String reference) {
 
 
-        Set<String> genotypeSet = getAlleles(genotype);
+
         //handle special case where a homozygous deletion like AG->A is not caught and matches ref
         //such cases chould not be counted as variants.
         boolean matchesRef = false;
@@ -69,6 +77,22 @@ public class GenotypeHelper {
     public static Set<String> getAlleles(String genotype) {
         String trueGenotype = genotype.toUpperCase();
         return GenotypePrediction.alleles(trueGenotype);
+    }
+
+    public static String fromAlleles(Set<String> alleles){
+        StringBuffer sb = new StringBuffer();
+        if (alleles.size() > 1){
+            for (String allele : alleles){
+                sb.append(allele + "|");
+            }
+            return sb.substring(0,sb.length()-2);
+        } else {
+            for (String allele : alleles){
+                return (allele + "|" + allele).toUpperCase();
+            }
+            return ".|.";
+        }
+
     }
 
 
