@@ -196,7 +196,18 @@ public class GenotypeHelper {
 
     public static boolean genotypeHasAlleleOrIndel(String trueGenotype, String toSequence, String trueFrom, String fromSequence) {
         boolean hasTo = false;
-        Set<String> alleles = getAlleles(trueGenotype);
+            Set<String> alleles = getAlleles(trueGenotype);
+            //handle tail bug and append to true genotype
+            for (String allele : getAlleles(trueGenotype)){
+                if (allele.length() > 1 && toSequence.length() > allele.length() && toSequence.charAt(toSequence.length()-1)!='-') {
+                    String altAllele1 = allele + toSequence.substring(allele.length(), toSequence.length()); // append to true genotype
+                    alleles.add(altAllele1);
+                }
+                if (toSequence.length() > 1 && allele.length() > toSequence.length() && fromSequence.equals(trueFrom.substring(0,fromSequence.length())) && toSequence.charAt(toSequence.length()-1)!='-'){
+                    String altAllele2 = allele.substring(0,toSequence.length()); //clip 1 to handle flank blug
+                    alleles.add(altAllele2);
+                }
+        }
         Iterator<String> iterator = alleles.iterator();
         while (iterator.hasNext()) {
             String oneTrueAllele = iterator.next();

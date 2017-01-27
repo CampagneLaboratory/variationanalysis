@@ -126,7 +126,6 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
      * @param record   The .sbi record to annotate.
      * @return True if the record should be kept, i.e., written to the output, false otherwise.
      */
-    //TODO: finish addTrueGenotype for indels here
     public boolean addTrueGenotype(WillKeepI willKeep, BaseInformationRecords.BaseInformation record) {
 
         numRecords++;
@@ -171,7 +170,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                 sb.append("Too many or two few genotypes found: at Ref: " + record.getReferenceId() + " Pos: " + record.getPosition() + "\n" +
                         "Ref:  " + trueFrom + " True:  " + trueGenotype + "\n");
                 for (BaseInformationRecords.CountInfo count: buildSample.getCountsList()){
-                    sb.append("from: " + count.getFromSequence() + " to: " + count.getToSequence() + " count: " + count.getGenotypeCountForwardStrand()+count.getGenotypeCountReverseStrand()+"\n");
+                    sb.append("from: " + count.getFromSequence() + " to: " + count.getToSequence() + " count: " + count.getGenotypeCountForwardStrand()+","+count.getGenotypeCountReverseStrand()+"\n");
                 }
                 sb.append("Matches trimmedFrom:to : " + matches);
                 wrongNumGenosCalled.warn(LOG,sb.toString());

@@ -34,20 +34,7 @@ public class ProtobufPrinter {
     static int actualCount = 0;
 
     private int[] customPos = {
-            790695,
-            807301,
-            787684,
-            792479,
-            796726,
-            798025,
-            799462,
-            800008,
-            800384,
-            801944,
-            804116,
-            804541,
-            807303,
-            807513,
+            41509571
     };
     private Set<Integer> posSet = new IntOpenHashSet(customPos);
 
@@ -88,7 +75,7 @@ public class ProtobufPrinter {
             for (BaseInformationRecords.BaseInformation base : reader) {
                 if (!(focusPrint || customPosOnly) ||
                         (base.getReferenceIndex() == refIndex && base.getPosition() == position) || (posSet.contains(base.getPosition()))) {
-                    if (base.getSamples(0).getIsVariant() && base.getTrueGenotype().length()>3){
+                    if (/*base.getSamples(0).getIsVariant() && */ base.getSamples(0).getCountsCount() > 5){
                         recordPrinter(base);
                     }
                     actualCount++;
