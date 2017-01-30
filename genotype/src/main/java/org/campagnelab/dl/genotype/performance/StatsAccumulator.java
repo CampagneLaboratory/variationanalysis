@@ -18,6 +18,10 @@ public class StatsAccumulator {
     int numTrueNegative;
     int numFalsePositive;
     int numFalseNegative;
+    int numIndelsCorrect;
+    int numSnpsCorrect;
+    int numIndelsProcessed;
+    int numSnpsProcessed;
     private int numVariants;
     private int concordantVariants;
     private int numVariantsExpected;
@@ -33,6 +37,10 @@ public class StatsAccumulator {
         numVariants = 0;
         concordantVariants = 0;
         numTrueOrPredictedVariants = 0;
+        numIndelsCorrect = 0;
+        numSnpsCorrect = 0;
+        numIndelsProcessed = 0;
+        numSnpsProcessed = 0;
     }
 
     public void observe(GenotypePrediction fullPred) {
@@ -61,6 +69,25 @@ public class StatsAccumulator {
                 numFalsePositive++;
             }
         }
+        if (fullPred.isVariant()) {
+            if (fullPred.isIndel()) {
+                numIndelsProcessed++;
+//                System.out.println("===============");
+//                System.out.println("Curr indel #: " + numProcessed);
+//                System.out.println("Curr indel predicted: " + fullPred.predictedGenotype);
+//                System.out.println("Curr indel true: " + fullPred.trueGenotype);
+                if (fullPred.isCorrect()) {
+//                    System.out.println("Curr indel correct #: " + numProcessed);
+                    numIndelsCorrect++;
+                }
+//                System.out.println("===============");
+            } else {
+                numSnpsProcessed++;
+                if (fullPred.isCorrect()) {
+                    numSnpsCorrect++;
+                }
+            }
+        }
 
 
         numVariants += isTrueVariant ? 1 : 0;
@@ -69,13 +96,15 @@ public class StatsAccumulator {
 
     public double[] createOutputStatistics() {
         double accuracy = numCorrect / (double) numProcessed;
+        double indelAccuracy = numIndelsCorrect / (double) numIndelsProcessed;
+        double snpAccuracy = numSnpsCorrect / (double) numSnpsProcessed;
         double genotypeConcordance = concordantVariants / (double) numTrueOrPredictedVariants;
         final int variantsExpected = Math.max(numTruePositive + numFalseNegative, this.numVariantsExpected);
         double recall = numTruePositive / ((double) variantsExpected);
         double precision = numTruePositive / ((double) (numTruePositive + numFalsePositive));
         // important fix. Remi, see https://en.wikipedia.org/wiki/F1_score
         double F1 = 2 * precision * recall / (precision + recall);
-        return new double[]{accuracy, recall, precision, F1, numVariants, genotypeConcordance};
+        return new double[]{accuracy, recall, precision, F1, numVariants, genotypeConcordance, indelAccuracy, snpAccuracy};
     }
 
     public double[] createOutputStatistics(String... metrics) {
@@ -103,6 +132,12 @@ public class StatsAccumulator {
                 case "Concordance":
                     j = 5;
                     break;
+                case "Accuracy_Indels":
+                    j = 6;
+                    break;
+                case "Accuracy_SNPs":
+                    j = 7;
+                    break;
                 default:
                     throw new RuntimeException("performance metric not recognized: " + metricName);
             }
@@ -112,7 +147,7 @@ public class StatsAccumulator {
     }
 
     public String[] createOutputHeader() {
-        return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance",
+        return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance", "Accuracy_Indels", "Accuracy_SNPs",
         };
     }
 
@@ -128,6 +163,8 @@ public class StatsAccumulator {
         System.out.println("F1 =" + statsArray[3]);
         System.out.println("numVariants =" + statsArray[4]);
         System.out.println("genotype concordance =" + statsArray[5]);
+        System.out.println("Indel Accuracy =" + statsArray[6]);
+        System.out.println("SNP Accuracy =" + statsArray[7]);
 
     }
 
