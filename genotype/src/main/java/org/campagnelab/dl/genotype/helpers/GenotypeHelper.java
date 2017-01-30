@@ -85,7 +85,7 @@ public class GenotypeHelper {
             for (String allele : alleles){
                 sb.append(allele + "|");
             }
-            return sb.substring(0,sb.length()-2);
+            return sb.substring(0,sb.length()-1);
         } else {
             for (String allele : alleles){
                 return (allele + "|" + allele).toUpperCase();
