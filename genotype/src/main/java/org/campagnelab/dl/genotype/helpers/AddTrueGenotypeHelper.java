@@ -1,8 +1,10 @@
 package org.campagnelab.dl.genotype.helpers;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.util.XorShift1024StarRandom;
+import org.campagnelab.dl.genotype.tools.AddTrueGenotypes;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.predictions.AddTrueGenotypeHelperI;
 import org.campagnelab.goby.reads.RandomAccessSequenceInterface;
@@ -13,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
@@ -48,6 +51,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
     private String mapFilename;
     private int recordsLabeled;
     static WarningCounter wrongNumGenosCalled = new WarningCounter(26);
+    private List<BaseInformationRecords.BaseInformation> context;
 
 
     /**
@@ -118,6 +122,13 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
         return willKepp;
     }
 
+    //temporary addTrueGenotype that also receives context records for debugging
+    public boolean addTrueGenotype(BaseInformationRecords.BaseInformation record, ObjectArrayList<BaseInformationRecords.BaseInformation> context) {
+        this.context = context;
+        return addTrueGenotype(record);
+    }
+
+
     /**
      * Label a record with true genotype. Return true when the record should  be written to the output.
      * The result considers whether the site contains a true variant (always kept), or whether the site
@@ -173,7 +184,19 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                 for (BaseInformationRecords.CountInfo count: buildSample.getCountsList()){
                     sb.append("from: " + count.getFromSequence() + " to: " + count.getToSequence() + " count: " + count.getGenotypeCountForwardStrand()+","+count.getGenotypeCountReverseStrand()+"\n");
                 }
-                sb.append("Matches trimmedFrom:to : " + matches);
+                sb.append("context: \n");
+                if (AddTrueGenotypes.PRINT_INDEL_ERROR_CONTEXT && context!=null){
+                    for (BaseInformationRecords.BaseInformation rec : context){
+                        sb.append("pos: " + rec.getPosition() + "\n");
+                        for (BaseInformationRecords.CountInfo count : rec.getSamples(0).getCountsList()){
+                            if (count.getIsIndel()){
+                                sb.append("from: " + count.getFromSequence() + " to: " + count.getToSequence() + " count: " + (count.getGenotypeCountForwardStrand() + count.getGenotypeCountReverseStrand()) + "\n");
+                            }
+                        }
+                    }
+                }
+
+                sb.append("Matches trimmedFrom:to : " + matches + "\n\n");
                 wrongNumGenosCalled.warn(LOG,sb.toString());
                 if (SKIP_BAD_INDELS) {
                     keep = false;

@@ -30,11 +30,12 @@ public class ProtobufPrinter {
     boolean focusPrint = false;
     private int refIndex;
     private int position;
-    private boolean customPosOnly = false;
+    private boolean customPosOnly = true;
     static int actualCount = 0;
 
     private int[] customPos = {
-            41509571
+            14864815,
+            14864816
     };
     private Set<Integer> posSet = new IntOpenHashSet(customPos);
 
