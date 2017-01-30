@@ -22,8 +22,9 @@ import java.util.Set;
  * Created by fac2003 on 12/27/16.
  */
 public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
-    private static final Logger LOG = LoggerFactory.getLogger(AddTrueGenotypeHelper.class);
+    private final boolean SKIP_BAD_INDELS = true;
 
+    private static final Logger LOG = LoggerFactory.getLogger(AddTrueGenotypeHelper.class);
     private RandomAccessSequenceInterface genome;
     Random random = new XorShift1024StarRandom();
     VariantMapHelper varMap;
@@ -126,7 +127,6 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
      * @param record   The .sbi record to annotate.
      * @return True if the record should be kept, i.e., written to the output, false otherwise.
      */
-    //TODO: finish addTrueGenotype for indels here
     public boolean addTrueGenotype(WillKeepI willKeep, BaseInformationRecords.BaseInformation record) {
 
         numRecords++;
@@ -171,11 +171,13 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                 sb.append("Too many or two few genotypes found: at Ref: " + record.getReferenceId() + " Pos: " + record.getPosition() + "\n" +
                         "Ref:  " + trueFrom + " True:  " + trueGenotype + "\n");
                 for (BaseInformationRecords.CountInfo count: buildSample.getCountsList()){
-                    sb.append("from: " + count.getFromSequence() + " to: " + count.getToSequence() + " count: " + count.getGenotypeCountForwardStrand()+count.getGenotypeCountReverseStrand()+"\n");
+                    sb.append("from: " + count.getFromSequence() + " to: " + count.getToSequence() + " count: " + count.getGenotypeCountForwardStrand()+","+count.getGenotypeCountReverseStrand()+"\n");
                 }
                 sb.append("Matches trimmedFrom:to : " + matches);
                 wrongNumGenosCalled.warn(LOG,sb.toString());
-
+                if (SKIP_BAD_INDELS) {
+                    keep = false;
+                }
                 numWrongTrueCount++;
 
 
@@ -320,17 +322,19 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
 
     public void printStats() {
 
+        int indelsSkipped = (SKIP_BAD_INDELS?numWrongTrueCount:0);
+
         System.out.println("Found the following distinct true genotypes (variants only): " + distinctTrueGenotypes);
-        System.out.println(getNumVariantsAdded() + " number of variants in the sbi file.");
+        System.out.println(getNumVariantsAdded() - indelsSkipped + " number of variants in the sbi file.");
         System.out.println(getNumHeterozygousAdded() + " number of heterozygous added in the file.");
         System.out.println(getNumHomozygousAdded() + " number of homozygous added in the file.");
         System.out.println(getNumInMapAddedAsReference() + " number of map items added as reference instead.");
         System.out.println(recordsLabeled + " labeled records set for inclusion to file.");
-        System.out.println(numIndelsAdded + " total number of indels added");
+        System.out.println(numIndelsAdded - indelsSkipped + " total number of indels added");
         System.out.println(numSnpsAdded + " total number of snps added");
         System.out.println(numIndelsAddedAsRef + " total number of indels added as ref");
         System.out.println(getNumIndelsIgnored() + " number of indels ignored instead of being added (as ref or indel)");
-        System.out.println(numWrongTrueCount + " records found where too many or too few true genotypes set to called.");
+        System.out.println(numWrongTrueCount + " records found where too many or too few true genotypes set to called." + (SKIP_BAD_INDELS?" not included in sbi.":"included in sbi/"));
 
     }
 
