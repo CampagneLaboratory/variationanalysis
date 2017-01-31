@@ -217,6 +217,14 @@ public class GenotypeHelper {
 //                    String altAllele2 = allele.substring(0,toSequence.length()); //clip 1 to handle flank blug
 //                    alleles.add(altAllele2);
 //                }
+
+                //handle true genotype extended further than necessary with insertions
+                //eg: true: A--TGTG -> ATGTGTG, genotype : A--TG -> ATGTG
+                if (fromSequence.contains("-") && trueFrom.length() > fromSequence.length() && allele.length() > toSequence.length() && fromSequence.equals(trueFrom.substring(0,fromSequence.length())) && toSequence.equals(allele.substring(0,toSequence.length()))){
+                    alleles.add(allele.substring(0,toSequence.length()));
+                }
+
+
         }
         Iterator<String> iterator = alleles.iterator();
         while (iterator.hasNext()) {
