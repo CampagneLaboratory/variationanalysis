@@ -21,7 +21,7 @@ public class RecordCountSortHelper {
                     ? count.getGenotypeCountForwardStrand() - (count.getGenotypeCountForwardStrand() / 2)
                     : count.getGenotypeCountForwardStrand();
             int reverseCount = count.getIsIndel()
-                    ? count.getGenotypeCountReverseStrand() / 2
+                    ? count.getGenotypeCountForwardStrand() / 2
                     : count.getGenotypeCountReverseStrand();
             counts.add(BaseInformationRecords.CountInfo.newBuilder()
                     .mergeFrom(count)
