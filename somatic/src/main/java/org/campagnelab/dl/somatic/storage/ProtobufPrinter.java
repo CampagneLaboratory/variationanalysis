@@ -3,9 +3,12 @@ package org.campagnelab.dl.somatic.storage;
 
 import com.google.protobuf.TextFormat;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.FileNameMap;
 import java.util.Set;
 
 
@@ -30,11 +33,13 @@ public class ProtobufPrinter {
     boolean focusPrint = false;
     private int refIndex;
     private int position;
-    private boolean customPosOnly = false;
+    private boolean customPosOnly = true;
     static int actualCount = 0;
+    private boolean makeDebug = false;
+    private RecordWriter makeDebugWriter;
 
     private int[] customPos = {
-            41509571
+            21133946
     };
     private Set<Integer> posSet = new IntOpenHashSet(customPos);
 
@@ -61,8 +66,12 @@ public class ProtobufPrinter {
     }
 
 
-    public ProtobufPrinter(String path) {
+    public ProtobufPrinter(String path) throws IOException {
         this.path = path;
+        if (makeDebug){
+            String debugPath = FilenameUtils.getFullPath(path) + FilenameUtils.getBaseName(path) + "_debug.sbi";
+            makeDebugWriter = new RecordWriter(debugPath);
+        }
     }
 
     private void recordPrinter(BaseInformationRecords.BaseInformation base) throws IOException {
@@ -75,11 +84,18 @@ public class ProtobufPrinter {
             for (BaseInformationRecords.BaseInformation base : reader) {
                 if (!(focusPrint || customPosOnly) ||
                         (base.getReferenceIndex() == refIndex && base.getPosition() == position) || (posSet.contains(base.getPosition()))) {
-                    if (/*base.getSamples(0).getIsVariant() && */ base.getSamples(0).getCountsCount() > 5){
+                    //if (/*base.getSamples(0).getIsVariant() && */ base.getSamples(0).getCountsCount() > 5){
                         recordPrinter(base);
-                    }
+                    //}
                     actualCount++;
+                    if (makeDebug){
+                        makeDebugWriter.writeRecord(base);
+                    }
                 }
+            }
+            if (makeDebug){
+                makeDebugWriter.close();
+
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

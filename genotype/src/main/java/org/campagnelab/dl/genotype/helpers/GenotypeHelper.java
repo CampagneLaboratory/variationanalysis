@@ -85,7 +85,7 @@ public class GenotypeHelper {
             for (String allele : alleles){
                 sb.append(allele + "|");
             }
-            return sb.substring(0,sb.length()-2);
+            return sb.substring(0,sb.length()-1);
         } else {
             for (String allele : alleles){
                 return (allele + "|" + allele).toUpperCase();
@@ -197,16 +197,34 @@ public class GenotypeHelper {
     public static boolean genotypeHasAlleleOrIndel(String trueGenotype, String toSequence, String trueFrom, String fromSequence) {
         boolean hasTo = false;
             Set<String> alleles = getAlleles(trueGenotype);
-            //handle tail bug and append to true genotype
+
             for (String allele : getAlleles(trueGenotype)){
-                if (allele.length() > 1 && toSequence.length() > allele.length() && toSequence.charAt(toSequence.length()-1)!='-') {
-                    String altAllele1 = allele + toSequence.substring(allele.length(), toSequence.length()); // append to true genotype
-                    alleles.add(altAllele1);
+                //handle tail bug and append to true genotype (sometimes the goby realignment contains some extra characters at the end
+//                if (allele.length() > 1 && toSequence.length() > allele.length() && toSequence.charAt(toSequence.length()-1)!='-') {
+//                    //but don't append these extra characters if they are part of an insertion
+//                    if (fromSequence.length() >= toSequence.length() && (!fromSequence.substring(allele.length(),fromSequence.length()).contains("-"))){
+//                        String altAllele1 = allele + toSequence.substring(allele.length(), toSequence.length()); // append to true genotype
+//                        alleles.add(altAllele1);
+//                    }
+//                }
+////                handle additional trailing dash bug where true gentotype realign lacks one trailing dash
+//                if (toSequence.charAt(toSequence.length()-1)=='-' && allele.charAt(allele.length()-1)=='-' && toSequence.length() == allele.length()+1){
+//                    alleles.add(allele + "-");
+//                }
+
+
+//                if (toSequence.length() > 1 && allele.length() > toSequence.length() && fromSequence.equals(trueFrom.substring(0,fromSequence.length())) && allele.charAt(toSequence.length())!='-'){
+//                    String altAllele2 = allele.substring(0,toSequence.length()); //clip 1 to handle flank blug
+//                    alleles.add(altAllele2);
+//                }
+
+                //handle true genotype extended further than necessary with insertions
+                //eg: true: A--TGTG -> ATGTGTG, genotype : A--TG -> ATGTG
+                if (fromSequence.contains("-") && trueFrom.length() > fromSequence.length() && allele.length() > toSequence.length() && fromSequence.equals(trueFrom.substring(0,fromSequence.length())) && toSequence.equals(allele.substring(0,toSequence.length()))){
+                    alleles.add(allele.substring(0,toSequence.length()));
                 }
-                if (toSequence.length() > 1 && allele.length() > toSequence.length() && fromSequence.equals(trueFrom.substring(0,fromSequence.length())) && toSequence.charAt(toSequence.length()-1)!='-'){
-                    String altAllele2 = allele.substring(0,toSequence.length()); //clip 1 to handle flank blug
-                    alleles.add(altAllele2);
-                }
+
+
         }
         Iterator<String> iterator = alleles.iterator();
         while (iterator.hasNext()) {
