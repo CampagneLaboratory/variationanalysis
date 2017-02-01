@@ -36,6 +36,10 @@ public class GenotypePrediction extends Prediction {
      * Whether the true genotypes contains at least one indel.
      */
     public boolean isIndel;
+    /**
+     * Whether the predicted genotypes contain at least one indel.
+     */
+    public boolean isPredictedIndel;
 
     /**
      * Indicates the confidence that the genotype is a variant.
@@ -57,6 +61,7 @@ public class GenotypePrediction extends Prediction {
         trueGenotype = currentRecord.getTrueGenotype();
         isVariant = currentRecord.getSamples(0).getIsVariant();
         isIndel = trueGenotype.contains("-");
+        isPredictedIndel = predictedGenotype.contains("-");
     }
 
 
@@ -74,6 +79,14 @@ public class GenotypePrediction extends Prediction {
     public boolean isIndel() {
         return isIndel;
     }
+
+    public boolean isPredictedIndel() {
+        return isPredictedIndel;
+    }
+
+    public boolean isSnp() { return !isIndel; }
+
+    public boolean isPredictedSnp() { return !isPredictedIndel; }
 
     public Set<String> predictedAlleles() {
         return alleles(predictedGenotype);
