@@ -22,6 +22,12 @@ public class StatsAccumulator {
     int numSnpsCorrect;
     int numIndelsProcessed;
     int numSnpsProcessed;
+    int numIndelsTruePositive;
+    int numIndelsFalsePositive;
+    int numIndelsFalseNegative;
+    int numSnpsTruePositive;
+    int numSnpsFalsePositive;
+    int numSnpsFalseNegative;
     private int numVariants;
     private int concordantVariants;
     private int numVariantsExpected;
@@ -41,6 +47,12 @@ public class StatsAccumulator {
         numSnpsCorrect = 0;
         numIndelsProcessed = 0;
         numSnpsProcessed = 0;
+        numIndelsTruePositive = 0;
+        numIndelsFalsePositive = 0;
+        numIndelsFalseNegative = 0;
+        numSnpsTruePositive = 0;
+        numSnpsFalsePositive = 0;
+        numSnpsFalseNegative = 0;
     }
 
     public void observe(GenotypePrediction fullPred) {
@@ -69,6 +81,7 @@ public class StatsAccumulator {
                 numFalsePositive++;
             }
         }
+
         if (fullPred.isVariant()) {
             if (fullPred.isIndel()) {
                 numIndelsProcessed++;
@@ -89,6 +102,31 @@ public class StatsAccumulator {
             }
         }
 
+        if (fullPred.isPredictedIndel() && fullPred.isIndel()) {
+            if (GenotypeHelper.matchingGenotypes(fullPred.trueGenotype, fullPred.predictedGenotype)) {
+                numIndelsTruePositive++;
+            } else {
+                numIndelsFalseNegative++;
+            }
+        } else if (fullPred.isPredictedIndel() && !fullPred.isIndel()) {
+            numIndelsFalsePositive++;
+        } else if (!fullPred.isPredictedIndel() && fullPred.isIndel()) {
+            numIndelsFalseNegative++;
+        }
+
+        if (fullPred.isPredictedSnp() && fullPred.isSnp()) {
+            if (GenotypeHelper.matchingGenotypes(fullPred.trueGenotype, fullPred.predictedGenotype)) {
+                numSnpsTruePositive++;
+            } else {
+                numSnpsFalseNegative++;
+            }
+        } else if (fullPred.isPredictedSnp() && !fullPred.isSnp()) {
+            numSnpsFalsePositive++;
+        } else if (!fullPred.isPredictedSnp() && fullPred.isSnp()) {
+            numSnpsFalseNegative++;
+        }
+
+
 
         numVariants += isTrueVariant ? 1 : 0;
         assert numVariants == numTruePositive + numFalseNegative;
@@ -104,7 +142,14 @@ public class StatsAccumulator {
         double precision = numTruePositive / ((double) (numTruePositive + numFalsePositive));
         // important fix. Remi, see https://en.wikipedia.org/wiki/F1_score
         double F1 = 2 * precision * recall / (precision + recall);
-        return new double[]{accuracy, recall, precision, F1, numVariants, genotypeConcordance, indelAccuracy, snpAccuracy};
+        double indelRecall = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalseNegative);
+        double indelPrecision = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalsePositive);
+        double indelF1 = 2 * indelPrecision * indelRecall / (indelPrecision + indelRecall);
+        double snpRecall = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalseNegative);
+        double snpPrecision = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalsePositive);
+        double snpF1 = 2 * snpPrecision * snpRecall / (snpPrecision + snpRecall);
+        return new double[]{accuracy, recall, precision, F1, numVariants, genotypeConcordance, indelAccuracy,
+                indelRecall, indelPrecision, indelF1, snpAccuracy, snpRecall, snpPrecision, snpF1};
     }
 
     public double[] createOutputStatistics(String... metrics) {
@@ -135,8 +180,26 @@ public class StatsAccumulator {
                 case "Accuracy_Indels":
                     j = 6;
                     break;
-                case "Accuracy_SNPs":
+                case "Recall_Indels":
                     j = 7;
+                    break;
+                case "Precision_Indels":
+                    j = 8;
+                    break;
+                case "F1_Indels":
+                    j = 9;
+                    break;
+                case "Accuracy_SNPs":
+                    j = 10;
+                    break;
+                case "Recall_SNPs":
+                    j = 11;
+                    break;
+                case "Precision_SNPs":
+                    j = 12;
+                    break;
+                case "F1_SNPs":
+                    j = 13;
                     break;
                 default:
                     throw new RuntimeException("performance metric not recognized: " + metricName);
@@ -147,7 +210,9 @@ public class StatsAccumulator {
     }
 
     public String[] createOutputHeader() {
-        return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance", "Accuracy_Indels", "Accuracy_SNPs",
+        return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance",
+                "Accuracy_Indels", "Recall_Indels", "Precision_Indels", "F1_Indels",
+                "Accuracy_SNPs", "Recall_SNPs", "Precision_SNPs", "F1_SNPs",
         };
     }
 
@@ -164,8 +229,13 @@ public class StatsAccumulator {
         System.out.println("numVariants =" + statsArray[4]);
         System.out.println("genotype concordance =" + statsArray[5]);
         System.out.println("Indel Accuracy =" + statsArray[6]);
-        System.out.println("SNP Accuracy =" + statsArray[7]);
-
+        System.out.println("Indel Recall =" + statsArray[7]);
+        System.out.println("Indel Precision =" + statsArray[8]);
+        System.out.println("Indel F1 =" + statsArray[9]);
+        System.out.println("SNP Accuracy =" + statsArray[10]);
+        System.out.println("SNP Recall =" + statsArray[11]);
+        System.out.println("SNP precision =" + statsArray[12]);
+        System.out.println("SNP F1=" + statsArray[13]);
     }
 
     public void setNumVariantsExpected(int numVariantsExpected) {
