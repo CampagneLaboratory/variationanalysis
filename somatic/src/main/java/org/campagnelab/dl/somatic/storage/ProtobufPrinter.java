@@ -33,13 +33,13 @@ public class ProtobufPrinter {
     boolean focusPrint = false;
     private int refIndex;
     private int position;
-    private boolean customPosOnly = true;
+    private boolean customPosOnly = false;
     static int actualCount = 0;
-    private boolean makeDebug = false;
+    private boolean makeDebug = true;
     private RecordWriter makeDebugWriter;
 
     private int[] customPos = {
-            21133946
+            45944850
     };
     private Set<Integer> posSet = new IntOpenHashSet(customPos);
 
@@ -84,9 +84,9 @@ public class ProtobufPrinter {
             for (BaseInformationRecords.BaseInformation base : reader) {
                 if (!(focusPrint || customPosOnly) ||
                         (base.getReferenceIndex() == refIndex && base.getPosition() == position) || (posSet.contains(base.getPosition()))) {
-                    //if (/*base.getSamples(0).getIsVariant() && */ base.getSamples(0).getCountsCount() > 5){
+                    if (/*base.getSamples(0).getIsVariant() && */ base.getSamples(0).getCountsCount() > 5){
                         recordPrinter(base);
-                    //}
+                    }
                     actualCount++;
                     if (makeDebug){
                         makeDebugWriter.writeRecord(base);

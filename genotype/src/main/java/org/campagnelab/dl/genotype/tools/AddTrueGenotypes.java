@@ -64,6 +64,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             System.err.println("Could not load genome cache");
             e.printStackTrace();
             System.exit(1);
+
         }
 
 

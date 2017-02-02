@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.util.XorShift1024StarRandom;
-import org.campagnelab.dl.genotype.tools.AddTrueGenotypes;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.predictions.AddTrueGenotypeHelperI;
 import org.campagnelab.goby.reads.RandomAccessSequenceInterface;
@@ -176,28 +175,28 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
             labeledEntry = buildRec.build();
             recordsLabeled++;
             if (trueAlleleCount!=0){
-                StringBuffer sb = new StringBuffer();
-
-                sb.append(trueAlleleNum + " matching alleles expected\n");
-                sb.append("Too many or two few genotypes found: at Ref: " + record.getReferenceId() + " Pos: " + record.getPosition() + "\n" +
-                        "Ref:  " + trueFrom + " True:  " + trueGenotype + "\n");
-                for (BaseInformationRecords.CountInfo count: buildSample.getCountsList()){
-                    sb.append("from: " + count.getFromSequence() + " to: " + count.getToSequence() + " count: " + count.getGenotypeCountForwardStrand()+","+count.getGenotypeCountReverseStrand()+"\n");
-                }
-                sb.append("context: \n");
-                if (AddTrueGenotypes.PRINT_INDEL_ERROR_CONTEXT && context!=null){
-                    for (BaseInformationRecords.BaseInformation rec : context){
-                        sb.append("pos: " + rec.getPosition() + "\n");
-                        for (BaseInformationRecords.CountInfo count : rec.getSamples(0).getCountsList()){
-                            if (count.getIsIndel()){
-                                sb.append("from: " + count.getFromSequence() + " to: " + count.getToSequence() + " count: " + (count.getGenotypeCountForwardStrand() + count.getGenotypeCountReverseStrand()) + "\n");
-                            }
-                        }
-                    }
-                }
-
-                sb.append("Matches trimmedFrom:to : " + matches + "\n\n");
-                wrongNumGenosCalled.warn(LOG,sb.toString());
+//                StringBuffer sb = new StringBuffer();
+//
+//                sb.append(trueAlleleNum + " matching alleles expected\n");
+//                sb.append("Too many or two few genotypes found: at Ref: " + record.getReferenceId() + " Pos: " + record.getPosition() + "\n" +
+//                        "Ref:  " + trueFrom + " True:  " + trueGenotype + "\n");
+//                for (BaseInformationRecords.CountInfo count: buildSample.getCountsList()){
+//                    sb.append("from: " + count.getFromSequence() + " to: " + count.getToSequence() + " count: " + count.getGenotypeCountForwardStrand()+","+count.getGenotypeCountReverseStrand()+"\n");
+//                }
+//                sb.append("context: \n");
+//                if (AddTrueGenotypes.PRINT_INDEL_ERROR_CONTEXT && context!=null){
+//                    for (BaseInformationRecords.BaseInformation rec : context){
+//                        sb.append("pos: " + rec.getPosition() + "\n");
+//                        for (BaseInformationRecords.CountInfo count : rec.getSamples(0).getCountsList()){
+//                            if (count.getIsIndel()){
+//                                sb.append("from: " + count.getFromSequence() + " to: " + count.getToSequence() + " count: " + (count.getGenotypeCountForwardStrand() + count.getGenotypeCountReverseStrand()) + "\n");
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                sb.append("Matches trimmedFrom:to : " + matches + "\n\n");
+//                wrongNumGenosCalled.warn(LOG,sb.toString());
                 if (SKIP_BAD_INDELS) {
                     keep = false;
                 }
