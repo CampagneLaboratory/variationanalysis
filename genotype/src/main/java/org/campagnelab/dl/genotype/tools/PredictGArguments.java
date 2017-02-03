@@ -38,4 +38,9 @@ public class PredictGArguments extends PredictArguments {
             "used to estimate the false negative rate. Can be an estimate since we use max(num-variants-expected,TP) to " +
             "calculate TP+FN.")
     int numVariantsExpected;
+
+    @Parameter(names = {"--minimum-coverage"}, description = "The minimum coverage needed to report a site, " +
+            "used to filter exome results where some off-target hits are expected with very low coverage (e.g., 10). Sites with" +
+            "at least the number of reads mapping are reported. Default 0 (no coverage filter)" )
+    int minimumCoverage=0;
 }

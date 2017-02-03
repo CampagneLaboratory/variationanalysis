@@ -66,7 +66,7 @@ public class CombinedGenotypeAssembler extends GenotypeAssembler implements Comp
         build.addLayer(combined, new OutputLayer.Builder(
                 domainDescriptor.getOutputLoss(combined))
                 .weightInit(WEIGHT_INIT)
-                .activation(combined).weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
+                .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                 .nIn(numIn)
                 .nOut(domainDescriptor.getNumOutputs(combined)[0]).build(), lastDenseLayerName);
         appendMetaDataLayer(domainDescriptor, learningRatePolicy, build, numIn, WEIGHT_INIT, lastDenseLayerName);

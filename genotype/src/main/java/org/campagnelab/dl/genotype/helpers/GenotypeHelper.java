@@ -33,6 +33,11 @@ public class GenotypeHelper {
         return ("N".equals(genotype) || "N|N".equals(genotype) || "N/N".equals(genotype));
     }
 
+    public static boolean isHeterozygote(String genotype) {
+        return getAlleles(genotype).size() == 2;
+    }
+
+    public static boolean isVariant(boolean considerIndels, String genotype, String reference) {
 
 
     public static boolean isVariant(boolean considerIndels, String trueGenotype, String reference){
@@ -113,7 +118,7 @@ public class GenotypeHelper {
         if (isNoCall(a) || isNoCall(b)) {
             return true;
         }
-      return  matchingGenotypes(a,b);
+        return matchingGenotypes(a, b);
     }
 
     public static boolean matchingGenotypes(String a, String b) {
@@ -144,8 +149,9 @@ public class GenotypeHelper {
 
     /**
      * Return true iff the true genotype has an allele matching toSequence.
+     *
      * @param trueGenotype a true genotype, e.g., A/T
-     * @param testAllele the sequence of an allele, e.g., A
+     * @param testAllele   the sequence of an allele, e.g., A
      * @return True if and only if one of the true genotype alleles is matching testAllele.
      */
     public static boolean genotypeHasAllele(String trueGenotype, String testAllele) {

@@ -1,7 +1,6 @@
 package org.campagnelab.dl.framework.domains;
 
 import com.google.common.collect.Iterables;
-import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
@@ -13,7 +12,6 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -371,9 +369,11 @@ public abstract class DomainDescriptor<RecordType> {
      * affects the mapped features or labels should be used in the construction of the cache unique id.
 
      * @return a hashcode formatted as a hexadecimal string, or an arbitrary  string that hashes or encodes parameters.
+     * @param miniBatchSize size of minibatch.
      */
-    public String produceCacheUniqueId() {
+    public String produceCacheUniqueId(int miniBatchSize) {
         int domainHashCode = 0x72E7;
+        domainHashCode^=miniBatchSize;
         for (Object o : featureMappers()) {
             domainHashCode ^= o.getClass().getCanonicalName().hashCode();
         }

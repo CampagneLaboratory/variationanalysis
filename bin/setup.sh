@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+if [ $# -lt 1 ]; then
+  echo "The first argument must be memory (i.e., 4g)"
+  exit 1
+fi
 memory_requirement=$1
 shift
 other_parameters=$*

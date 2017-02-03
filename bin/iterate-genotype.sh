@@ -7,6 +7,10 @@ if [ -e configure.sh ]; then
  echo "Loading configure.sh"
  source configure.sh
 fi
+if [ -e configure-downsampling.sh ]; then
+ echo "Loading configure-downsampling.sh"
+ source configure-downsampling.sh
+fi
 
 if [ "$#" -ne 2 ]; then
    echo "Argument missing. You must provide a feature mapper classname to use in the iteration."

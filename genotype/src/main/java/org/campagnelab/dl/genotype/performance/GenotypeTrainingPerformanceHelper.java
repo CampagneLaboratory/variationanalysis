@@ -3,6 +3,7 @@ package org.campagnelab.dl.genotype.performance;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.tools.PredictWithModel;
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.graph.ComputationGraph;
@@ -71,7 +72,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
                     }
                 }
                 GenotypePrediction gp = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictions);
-                accumulator.observe(gp,gp.isVariant(),gp.isVariant());
+                accumulator.observe(gp,gp.isVariant(), GenotypeHelper.isVariant(gp.predictedGenotype,"0"));
                 observer.accept(gp);
                 if (stopIfTrue.test(nProcessed)) {
                     break;
