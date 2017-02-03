@@ -37,9 +37,6 @@ public class GenotypeHelper {
         return getAlleles(genotype).size() == 2;
     }
 
-    public static boolean isVariant(boolean considerIndels, String genotype, String reference) {
-
-
     public static boolean isVariant(boolean considerIndels, String trueGenotype, String reference){
         return isVariant(considerIndels,getAlleles(trueGenotype),reference);
     }

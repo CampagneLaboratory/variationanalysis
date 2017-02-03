@@ -91,7 +91,8 @@ public class DownSampleGenotypes extends AbstractTool<DownSampleGenotypeArgument
 
                 boolean keep = false;
 
-                boolean indel = GenotypeHelper.isIndel(trueGenotype);
+                //todo verify use of isIndel here
+                boolean indel = GenotypeHelper.isIndel(refBase,trueGenotype);
                 boolean heterozygote = GenotypeHelper.isHeterozygote(trueGenotype);
 
                 keep |= args().keepAllIndels && indel;
