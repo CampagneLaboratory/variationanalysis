@@ -12,14 +12,14 @@ import java.util.Properties;
 /**
  * V19, but with IsIndelMappers to indicate if records are indels
  */
-public class GenotypeMapperV25_alt extends GenotypeMapperV11 {
+public class GenotypeMapperV26 extends GenotypeMapperV11 {
 
 
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;
 
-    public GenotypeMapperV25_alt() {
+    public GenotypeMapperV26() {
         super();
         sortCounts = true;
         withDistinctAlleleCounts = true;
