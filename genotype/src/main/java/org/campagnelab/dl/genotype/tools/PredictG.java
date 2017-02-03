@@ -93,7 +93,10 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         aucLossCalculator = new AreaUnderTheROCCurve(args().numRecordsForAUC);
     }
 
-    String[] orderStats = {"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance", "Accuracy_Indels", "Accuracy_SNPs"};
+    String[] orderStats = {"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance",
+            "Accuracy_Indels", "Recall_Indels", "Precision_Indels", "F1_Indels",
+            "Accuracy_SNPs", "Recall_SNPs", "Precision_SNPs", "F1_SNPs",
+    };
 
     @Override
     protected double[] createOutputStatistics() {
