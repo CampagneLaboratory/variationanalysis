@@ -13,6 +13,7 @@ import org.campagnelab.dl.somatic.tools.QuickConcat;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
 import org.campagnelab.goby.reads.RandomAccessSequenceCache;
+import org.omg.PortableServer.THREAD_POLICY_ID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public class AddTrueGenotypesMultiThreaded extends AbstractTool<AddTrueGenotypes
 
 
     RandomAccessSequenceCache genome;
-    final int THREAD_COUNT = 4;
+    final static int THREAD_COUNT = 8;
     final public static boolean PRINT_INDEL_ERROR_CONTEXT = false;
 
     static private Logger LOG = LoggerFactory.getLogger(AddTrueGenotypesMultiThreaded.class);
@@ -43,7 +44,7 @@ public class AddTrueGenotypesMultiThreaded extends AbstractTool<AddTrueGenotypes
         AddTrueGenotypesMultiThreaded tool = new AddTrueGenotypesMultiThreaded();
         tool.parseArguments(args, "AddTrueGenotypes", tool.createArguments());
         tool.prepare();
-        for (int i = 0; i < 16; i++ ){
+        for (int i = 0; i < THREAD_COUNT; i++ ){
             new Thread(tool).start();
         }
         tool.finish();
