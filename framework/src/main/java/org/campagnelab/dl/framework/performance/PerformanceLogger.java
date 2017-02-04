@@ -121,10 +121,13 @@ public class PerformanceLogger {
     public void logMetrics(String prefix, long numExamplesUsed, int epoch, double... metricValues) {
         ObjectArrayList<Performance> defaultValue = new ObjectArrayList<>();
         for (int metricIndex = 0; metricIndex < metricValues.length; metricIndex++) {
-            if (performanceLargeIsBest[metricIndex]) {
-                bestPerformances[metricIndex] = Math.max(bestPerformances[metricIndex], metricValues[metricIndex]);
-            } else {
-                bestPerformances[metricIndex] = Math.min(bestPerformances[metricIndex], metricValues[metricIndex]);
+            if (metricValues[metricIndex] == metricValues[metricIndex]) {
+                // not NaN
+                if (performanceLargeIsBest[metricIndex]) {
+                    bestPerformances[metricIndex] = Math.max(bestPerformances[metricIndex], metricValues[metricIndex]);
+                } else {
+                    bestPerformances[metricIndex] = Math.min(bestPerformances[metricIndex], metricValues[metricIndex]);
+                }
             }
         }
         log.getOrDefault(prefix, defaultValue).add(new Performance(numExamplesUsed, epoch, performanceNames, metricValues));
