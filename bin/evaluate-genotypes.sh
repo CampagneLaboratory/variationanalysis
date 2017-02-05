@@ -75,7 +75,7 @@ if [ -z "${GOLD_STANDARD_VCF_SNP_GZ+set}" ] || [ -z "${GOLD_STANDARD_VCF_INDEL_G
     tabix -f GIAB-NA12878-confident-chr-snps.vcf.gz
 
     # keep only indels:
-    cat GIAB-NA12878-confident-chr.vcf|awk '{if($0 !~ /^#/) { if (length($4)!=1 || length($5)!=1) print $0;}  else {print $0}}' >GIAB-NA12878-confident-chr-indels.vcf
+    gzip -c -d  GIAB-NA12878-confident-chr.vcf|awk '{if($0 !~ /^#/) { if (length($4)!=1 || length($5)!=1) print $0;}  else {print $0}}' >GIAB-NA12878-confident-chr-indels.vcf
     bgzip -f GIAB-NA12878-confident-chr-indels.vcf
     tabix -f GIAB-NA12878-confident-chr-indels.vcf.gz
     GOLD_STANDARD_VCF_SNP_GZ="GIAB-NA12878-confident-chr-snps.vcf.gz"
