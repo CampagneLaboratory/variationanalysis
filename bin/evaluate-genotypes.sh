@@ -62,25 +62,33 @@ if [ -z "${MINI_BATCH_SIZE+set}" ]; then
     MINI_BATCH_SIZE="2048"
     echo "MINI_BATCH_SIZE set to ${MINI_BATCH_SIZE}. Change the variable to switch the mini-batch-size."
 fi
-
+set -x
 if [ -z "${GOLD_STANDARD_VCF_SNP_GZ+set}" ] || [ -z "${GOLD_STANDARD_VCF_INDEL_GZ+set}" ]; then
-    echo "Downloading Gold standard Genome in a Bottle VCF"
-    wget ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/NISTv3.3.1/GRCh37/HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz
-    mv HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz GIAB-NA12878-confident.vcf.gz
-    # add "chr prefix:"
-    gzip -c -d GIAB-NA12878-confident.vcf.gz|awk '{if($0 !~ /^#/) print "chr"$0; else print $0}' >GIAB-NA12878-confident-chr.vcf
+    if [ -z "${GOLD_STANDARD_VCF_GZ+set}" ]; then
+        echo "Downloading Gold standard Genome in a Bottle VCF. Define GOLD_STANDARD_VCF_GZ to use an alternate Gold Standard."
+        wget ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/NISTv3.3.1/GRCh37/HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz
+        mv HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz GIAB-NA12878-confident.vcf.gz
+        # add "chr prefix:"
+        gzip -c -d GIAB-NA12878-confident.vcf.gz|awk '{if($0 !~ /^#/) print "chr"$0; else print $0}' >GIAB-NA12878-confident-chr.vcf
+        bgzip -f GIAB-NA12878-confident-chr.vcf
+        tabix -f GIAB-NA12878-confident-chr.vcf.gz
+        echo 'export GOLD_STANDARD_VCF_GZ="GIAB-NA12878-confident-chr.vcf.gz"' >>configure.sh
+    else
+      echo "Formatting GOLD_STANDARD_VCF_GZ VCF for SNPs and indels"
+    fi
+
     # remove non-SNPs:
-    cat GIAB-NA12878-confident-chr.vcf|awk '{if($0 !~ /^#/) { if (length($4)==1 && length($5)==1) print $0;}  else {print $0}}' >GIAB-NA12878-confident-chr-snps.vcf
-    bgzip -f GIAB-NA12878-confident-chr-snps.vcf
-    tabix -f GIAB-NA12878-confident-chr-snps.vcf.gz
+    gzip -c -d  ${GOLD_STANDARD_VCF_GZ} |awk '{if($0 !~ /^#/) { if (length($4)==1 && length($5)==1) print $0;}  else {print $0}}' >GOLD-confident-chr-snps.vcf
+    bgzip -f GOLD-confident-chr-snps.vcf
+    tabix -f GOLD-confident-chr-snps.vcf.gz
 
     # keep only indels:
-    gzip -c -d  GIAB-NA12878-confident-chr.vcf|awk '{if($0 !~ /^#/) { if (length($4)!=1 || length($5)!=1) print $0;}  else {print $0}}' >GIAB-NA12878-confident-chr-indels.vcf
-    bgzip -f GIAB-NA12878-confident-chr-indels.vcf
-    tabix -f GIAB-NA12878-confident-chr-indels.vcf.gz
-    GOLD_STANDARD_VCF_SNP_GZ="GIAB-NA12878-confident-chr-snps.vcf.gz"
-    echo 'export GOLD_STANDARD_VCF_SNP_GZ="GIAB-NA12878-confident-chr-snps.vcf.gz"' >>configure.sh
-    echo 'export GOLD_STANDARD_VCF_INDEL_GZ="GIAB-NA12878-confident-chr-indels.vcf.gz"' >>configure.sh
+    gzip -c -d  ${GOLD_STANDARD_VCF_GZ} |awk '{if($0 !~ /^#/) { if (length($4)!=1 || length($5)!=1) print $0;}  else {print $0}}' >GOLD-confident-chr-indels.vcf
+    bgzip -f GOLD-confident-chr-indels.vcf
+    tabix -f GOLD-confident-chr-indels.vcf.gz
+    GOLD_STANDARD_VCF_SNP_GZ="GOLD-confident-chr-snps.vcf.gz"
+    echo 'export GOLD_STANDARD_VCF_SNP_GZ="GOLD-confident-chr-snps.vcf.gz"' >>configure.sh
+    echo 'export GOLD_STANDARD_VCF_INDEL_GZ="GOLD-confident-chr-indels.vcf.gz"' >>configure.sh
     echo "Gold standard VCF downloaded for NA12878 (SNPs) and named in configure.sh. Edit GOLD_STANDARD_VCF_SNP_GZ/GOLD_STANDARD_VCF_INDEL_GZ to switch to a different gold-standard validation VCF."
 fi
 
