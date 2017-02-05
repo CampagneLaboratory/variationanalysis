@@ -81,12 +81,13 @@ if [ -z "${GOLD_STANDARD_VCF_SNP_GZ+set}" ] || [ -z "${GOLD_STANDARD_VCF_INDEL_G
     gzip -c -d  ${GOLD_STANDARD_VCF_GZ} |awk '{if($0 !~ /^#/) { if (length($4)==1 && length($5)==1) print $0;}  else {print $0}}' >GOLD-confident-chr-snps.vcf
     bgzip -f GOLD-confident-chr-snps.vcf
     tabix -f GOLD-confident-chr-snps.vcf.gz
+    export GOLD_STANDARD_VCF_SNP_GZ="GOLD-confident-chr-snps.vcf.gz"
 
     # keep only indels:
     gzip -c -d  ${GOLD_STANDARD_VCF_GZ} |awk '{if($0 !~ /^#/) { if (length($4)!=1 || length($5)!=1) print $0;}  else {print $0}}' >GOLD-confident-chr-indels.vcf
     bgzip -f GOLD-confident-chr-indels.vcf
     tabix -f GOLD-confident-chr-indels.vcf.gz
-    GOLD_STANDARD_VCF_SNP_GZ="GOLD-confident-chr-snps.vcf.gz"
+    export GOLD_STANDARD_VCF_INDEL_GZ="GOLD-confident-chr-indels.vcf.gz"
     echo 'export GOLD_STANDARD_VCF_SNP_GZ="GOLD-confident-chr-snps.vcf.gz"' >>configure.sh
     echo 'export GOLD_STANDARD_VCF_INDEL_GZ="GOLD-confident-chr-indels.vcf.gz"' >>configure.sh
     echo "Gold standard VCF downloaded for NA12878 (SNPs) and named in configure.sh. Edit GOLD_STANDARD_VCF_SNP_GZ/GOLD_STANDARD_VCF_INDEL_GZ to switch to a different gold-standard validation VCF."
@@ -156,7 +157,7 @@ fi
 set -x
 
 RTG_OUTPUT_FOLDER=output-${RANDOM}
-gzip -c -d ${VCF_OUTPUT_SORTED}.gz |awk '{if($0 !~ /^#/) { if (length($4)==1 || length($5)==1) print $0;}  else {print $0}}'  >${VCF_OUTPUT_SORTED}-snps.vcf
+gzip -c -d ${VCF_OUTPUT_SORTED}.gz |awk '{if($0 !~ /^#/) { if (length($4)==1 && length($5)==1) print $0;}  else {print $0}}'  >${VCF_OUTPUT_SORTED}-snps.vcf
 bgzip -f ${VCF_OUTPUT_SORTED}-snps.vcf
 tabix -f ${VCF_OUTPUT_SORTED}-snps.vcf.gz
 
