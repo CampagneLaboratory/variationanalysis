@@ -15,7 +15,7 @@ fi
 
 if [ ! "${NUM_ARGS}" == "${NUM_ARGS_EXPECTED}" ]; then
    echo "Usage: evaluate-genotypes.sh model-directory model-prefix [test-set.sbi]."
-   echo "The env variables GOLD_STANDARD_VCF_GZ and GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ can be used to change the VCF and confident region bed."
+   echo "The env variables GOLD_STANDARD_VCF_SNP_GZ GOLD_STANDARD_VCF_INDEL_GZ and GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ can be used to change the VCFs and confident region bed."
    echo "The first run downloads these files from the Genome in a Bottle for sample NA12878 when the variables are not defined."
    echo "The 3rd argument is optional. You can bypass the predict phase by defining the variables VCF_OUTPUT and BED_OBSERVED_REGIONS_OUTPUT to point to the output of predict"
    exit 1;
@@ -62,22 +62,35 @@ if [ -z "${MINI_BATCH_SIZE+set}" ]; then
     MINI_BATCH_SIZE="2048"
     echo "MINI_BATCH_SIZE set to ${MINI_BATCH_SIZE}. Change the variable to switch the mini-batch-size."
 fi
+set -x
+if [ -z "${GOLD_STANDARD_VCF_SNP_GZ+set}" ] || [ -z "${GOLD_STANDARD_VCF_INDEL_GZ+set}" ]; then
+    if [ -z "${GOLD_STANDARD_VCF_GZ+set}" ]; then
+        echo "Downloading Gold standard Genome in a Bottle VCF. Define GOLD_STANDARD_VCF_GZ to use an alternate Gold Standard."
+        wget ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/NISTv3.3.1/GRCh37/HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz
+        mv HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz GIAB-NA12878-confident.vcf.gz
+        # add "chr prefix:"
+        gzip -c -d GIAB-NA12878-confident.vcf.gz|awk '{if($0 !~ /^#/) print "chr"$0; else print $0}' >GIAB-NA12878-confident-chr.vcf
+        bgzip -f GIAB-NA12878-confident-chr.vcf
+        tabix -f GIAB-NA12878-confident-chr.vcf.gz
+        echo 'export GOLD_STANDARD_VCF_GZ="GIAB-NA12878-confident-chr.vcf.gz"' >>configure.sh
+    else
+      echo "Formatting GOLD_STANDARD_VCF_GZ VCF for SNPs and indels"
+    fi
 
-if [ -z "${GOLD_STANDARD_VCF_GZ+set}" ]; then
-    echo "Downloading Gold standard Genome in a Bottle VCF"
-    wget ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/NISTv3.3.1/GRCh37/HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz
-    mv HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz GIAB-NA12878-confident.vcf.gz
-    # add "chr prefix:"
-    gzip -c -d GIAB-NA12878-confident.vcf.gz|awk '{if($0 !~ /^#/) print "chr"$0; else print $0}' >GIAB-NA12878-confident-chr.vcf
     # remove non-SNPs:
-    cat GIAB-NA12878-confident-chr.vcf|awk '{if($0 !~ /^#/) { if (length($4)==1 && length($5)==1) print $0;}  else {print $0}}' >GIAB-NA12878-confident-chr-snps.vcf
-    bgzip GIAB-NA12878-confident-chr-snps.vcf
-    tabix GIAB-NA12878-confident-chr-snps.vcf.gz
-    rm GIAB-NA12878-confident-chr.vcf
+    gzip -c -d  ${GOLD_STANDARD_VCF_GZ} |awk '{if($0 !~ /^#/) { if (length($4)==1 && length($5)==1) print $0;}  else {print $0}}' >GOLD-confident-chr-snps.vcf
+    bgzip -f GOLD-confident-chr-snps.vcf
+    tabix -f GOLD-confident-chr-snps.vcf.gz
+    export GOLD_STANDARD_VCF_SNP_GZ="GOLD-confident-chr-snps.vcf.gz"
 
-    GOLD_STANDARD_VCF_GZ="GIAB-NA12878-confident-chr-snps.vcf.gz"
-    echo 'export GOLD_STANDARD_VCF_GZ="GIAB-NA12878-confident-chr-snps.vcf.gz"' >>configure.sh
-    echo "Gold standard VCF downloaded for NA12878 (SNPs) and named in configure.sh. Edit GOLD_STANDARD_VCF_GZ to switch to a different gold-standard validation VCF."
+    # keep only indels:
+    gzip -c -d  ${GOLD_STANDARD_VCF_GZ} |awk '{if($0 !~ /^#/) { if (length($4)!=1 || length($5)!=1) print $0;}  else {print $0}}' >GOLD-confident-chr-indels.vcf
+    bgzip -f GOLD-confident-chr-indels.vcf
+    tabix -f GOLD-confident-chr-indels.vcf.gz
+    export GOLD_STANDARD_VCF_INDEL_GZ="GOLD-confident-chr-indels.vcf.gz"
+    echo 'export GOLD_STANDARD_VCF_SNP_GZ="GOLD-confident-chr-snps.vcf.gz"' >>configure.sh
+    echo 'export GOLD_STANDARD_VCF_INDEL_GZ="GOLD-confident-chr-indels.vcf.gz"' >>configure.sh
+    echo "Gold standard VCF downloaded for NA12878 (SNPs) and named in configure.sh. Edit GOLD_STANDARD_VCF_SNP_GZ/GOLD_STANDARD_VCF_INDEL_GZ to switch to a different gold-standard validation VCF."
 fi
 
 
@@ -121,20 +134,46 @@ else
 fi
 
 VCF_OUTPUT_SORTED=`basename ${VCF_OUTPUT} .vcf`-sorted.vcf
-cat ${VCF_OUTPUT} | vcf-sort > ${VCF_OUTPUT_SORTED}
-dieIfError "Unable to sort prediction VCF."
 
-bgzip -f ${VCF_OUTPUT_SORTED}
-tabix ${VCF_OUTPUT_SORTED}.gz
+if [ ! -e "${VCF_OUTPUT_SORTED}.gz" ]; then
 
-bedtools sort -i ${BED_OBSERVED_REGIONS_OUTPUT} > ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed
-bgzip -f ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed
-tabix ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz
+
+    cat ${VCF_OUTPUT} | vcf-sort > ${VCF_OUTPUT_SORTED}
+    dieIfError "Unable to sort prediction VCF."
+
+    bgzip -f ${VCF_OUTPUT_SORTED}
+    tabix ${VCF_OUTPUT_SORTED}.gz
+fi
+
+if [ ! -e "${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz" ]; then
+
+    # note -V option on chromosome key below is necessary on Centos 7, with sort version 8.22,
+    # see https://github.com/chapmanb/bcbio-nextgen/issues/624
+    sort -k1,1V -k2,2n ${BED_OBSERVED_REGIONS_OUTPUT} > ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed
+    bgzip -f ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed
+    tabix ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz
+fi
+
+set -x
 
 RTG_OUTPUT_FOLDER=output-${RANDOM}
+gzip -c -d ${VCF_OUTPUT_SORTED}.gz |awk '{if($0 !~ /^#/) { if (length($4)==1 && length($5)==1) print $0;}  else {print $0}}'  >${VCF_OUTPUT_SORTED}-snps.vcf
+bgzip -f ${VCF_OUTPUT_SORTED}-snps.vcf
+tabix -f ${VCF_OUTPUT_SORTED}-snps.vcf.gz
 
-rtg vcfeval --baseline=${GOLD_STANDARD_VCF_GZ}  \
-        -c ${VCF_OUTPUT_SORTED}.gz -o ${RTG_OUTPUT_FOLDER} --template=${RTG_TEMPLATE}  \
+rtg vcfeval --baseline=${GOLD_STANDARD_VCF_SNP_GZ}  \
+        -c ${VCF_OUTPUT_SORTED}-snps.vcf.gz -o ${RTG_OUTPUT_FOLDER}/snp --template=${RTG_TEMPLATE}  \
+            --evaluation-regions=${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ} \
+            --bed-regions=${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz \
+            --vcf-score-field=P  --sort-order=descending
+dieIfError "Failed to run rtg vcfeval for SNPs."
+
+gzip -c -d ${VCF_OUTPUT_SORTED}.gz |awk '{if($0 !~ /^#/) { if (length($4)!=1 || length($5)!=1) print $0;}  else {print $0}}'  >${VCF_OUTPUT_SORTED}-indels.vcf
+bgzip -f ${VCF_OUTPUT_SORTED}-indels.vcf
+tabix -f ${VCF_OUTPUT_SORTED}-indels.vcf.gz
+
+rtg vcfeval --baseline=${GOLD_STANDARD_VCF_INDEL_GZ}  \
+        -c ${VCF_OUTPUT_SORTED}-indels.vcf.gz -o ${RTG_OUTPUT_FOLDER}/indel --template=${RTG_TEMPLATE}  \
             --evaluation-regions=${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ} \
             --bed-regions=${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz \
             --vcf-score-field=P  --sort-order=descending
@@ -145,8 +184,14 @@ cp ${VCF_OUTPUT_SORTED}.gz ${RTG_OUTPUT_FOLDER}
 cp ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz ${RTG_OUTPUT_FOLDER}
 echo "See rtg vcfeval detailed output in ${RTG_OUTPUT_FOLDER}"
 
-rtg rocplot ${RTG_OUTPUT_FOLDER}/snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/SNP-ROC.svg
-                                         dieIfError "Unable to generate ROC plot."
+rtg rocplot ${RTG_OUTPUT_FOLDER}/snp/snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/snp/SNP-ROC.svg
+dieIfError "Unable to generate SNP ROC plot."
 
-rtg rocplot ${RTG_OUTPUT_FOLDER}/snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/SNP-PrecisionRecall.svg
-dieIfError "Unable to generate Precision Recall plot."
+rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/indel/SNP-ROC.svg
+dieIfError "Unable to generate indel ROC plot."
+
+rtg rocplot ${RTG_OUTPUT_FOLDER}/snp/snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/snp/SNP-PrecisionRecall.svg
+dieIfError "Unable to generate SNP Precision Recall plot."
+
+rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/indel/SNP-PrecisionRecall.svg
+dieIfError "Unable to generate indel Precision Recall plot."
