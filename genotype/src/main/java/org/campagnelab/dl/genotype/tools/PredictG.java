@@ -163,6 +163,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             // reduce A---A/ATTTA to A/A
             String trimmedGenotype = fullPred.trueAlleles().stream().map(s -> Character.toString(s.charAt(0))).collect(Collectors.joining("/"));
             fullPred.trueGenotype = trimmedGenotype;
+            fullPred.trueFrom = record.getReferenceBase();
             // no longer an indel, and now matching reference:
             fullPred.isIndel = false;
             fullPred.isVariant = false;
@@ -191,19 +192,13 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                     break;
                 case VCF:
                     //need from field on indels, not REF
-                    String ref = null;
-                    if (fullPred.isIndel()) {
-                        for (BaseInformationRecords.CountInfo g : record.getSamples(0).getCountsList()){
-                            if (g.getIsIndel() && fullPred.predictedAlleles().contains(g.getToSequence())){
-                                ref = g.getFromSequence();
-                            }
-                        }
-                    } else {
-                        ref = record.getReferenceBase();
-                    }
+                    String ref = fullPred.predictedFrom;
                     Set<String> altSet = fullPred.predictedAlleles();
                     int maxLength = altSet.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
                     altSet.remove(ref);
+                    //reference base is implicit the predictedFrom field, so it's removed too
+                    //TODO: improve logic so that a heterozygous SNP/Indel at the same position is handled. currently, the snp isn't adjusted to correspond the indel's from field.
+                    altSet.remove(record.getReferenceBase());
                     SortedSet<String> sortedAltSet = new ObjectAVLTreeSet<>();
                     sortedAltSet.addAll(altSet);
 
