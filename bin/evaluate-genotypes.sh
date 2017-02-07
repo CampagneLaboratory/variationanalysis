@@ -187,11 +187,11 @@ echo "See rtg vcfeval detailed output in ${RTG_OUTPUT_FOLDER}"
 rtg rocplot ${RTG_OUTPUT_FOLDER}/snp/snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/snp/SNP-ROC.svg
 dieIfError "Unable to generate SNP ROC plot."
 
-rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/indel/SNP-ROC.svg
+rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/non_snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/indel/INDEL-ROC.svg
 dieIfError "Unable to generate indel ROC plot."
 
 rtg rocplot ${RTG_OUTPUT_FOLDER}/snp/snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/snp/SNP-PrecisionRecall.svg
 dieIfError "Unable to generate SNP Precision Recall plot."
 
-rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/indel/SNP-PrecisionRecall.svg
+rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/non_snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/indel/INDEL-PrecisionRecall.svg
 dieIfError "Unable to generate indel Precision Recall plot."
