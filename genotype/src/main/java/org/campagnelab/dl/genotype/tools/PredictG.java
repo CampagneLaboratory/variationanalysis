@@ -6,14 +6,17 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.performance.StatsAccumulator;
+import org.campagnelab.dl.genotype.predictions.FormatIndelVCF;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.alignments.ConcatSortedAlignmentReader;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -191,24 +194,25 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                             isVariant ? "variant" : "-");
                     break;
                 case VCF:
-                    //need from field on indels, not REF
-                    String ref = fullPred.predictedFrom;
-                    Set<String> altSet = fullPred.predictedAlleles();
-                    int maxLength = altSet.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
-                    altSet.remove(ref);
-                    //reference base is implicit the predictedFrom field, so it's removed too
                     //TODO: improve logic so that a heterozygous SNP/Indel at the same position is handled. currently, the snp isn't adjusted to correspond the indel's from field.
-                    altSet.remove(record.getReferenceBase());
-                    SortedSet<String> sortedAltSet = new ObjectAVLTreeSet<>();
-                    sortedAltSet.addAll(altSet);
+                    //generated vcf formatted indel
+                    FormatIndelVCF format = new FormatIndelVCF(fullPred.predictedFrom,fullPred.predictedAlleles(),record.getReferenceBase().charAt(0));
 
-                    final Optional<String> optional = sortedAltSet.stream().reduce((s, s2) -> s + "," + s2);
-                    String alt = optional.isPresent() ? optional.get() : ".";
+                    //get max allele length for bed file
+                    int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
+                    maxLength = Math.max(maxLength,format.fromVCF.length());
+
+                    //make an alt-allele-only set for coding
+                    SortedSet<String> sortedAltSet = new ObjectAVLTreeSet<String>(format.toVCF);
+                    sortedAltSet.remove(format.fromVCF);
+
+                    final Optional<String> optional = format.toVCF.stream().reduce((s, s2) -> s + "," + s2);
+                    String altField = optional.isPresent() ? optional.get() : ".";
                     if (sortedAltSet.size() >= 1) {
                         // only append to VCF if there is at least one alternate allele:
                         // NB: VCF format is one-based.
                         vcfWriter.printf(VCF_LINE, record.getReferenceId(), record.getPosition() + 1,
-                                ref, alt, codeGT(fullPred.predictedGenotype, ref, sortedAltSet), fullPred.predictedGenotype, fullPred.isVariantProbability);
+                                format.fromVCF, altField, codeGT(format.toVCF, format.fromVCF, sortedAltSet), fullPred.predictedGenotype, fullPred.isVariantProbability);
                     }
                     // NB: bed format is zero-based.
                     bedWriter.printf("%s\t%d\t%d\t%d\n", record.getReferenceId(), record.getPosition(), record.getPosition() + maxLength, fullPred.index);
@@ -235,12 +239,18 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         return coverage;
     }
 
-    public static String codeGT(String predictedGenotype, String ref, SortedSet<String> altSet) {
+    /**
+     * @param to
+     * @param from
+     * @param altSet
+     * @return
+     */
+    public static String codeGT(Set<String> to, String from, SortedSet<String> altSet) {
         IntArrayList codedAlleles = new IntArrayList();
 
         String result = "";
-        for (String allele : GenotypeHelper.getAlleles(predictedGenotype)) {
-            if (ref.equals(allele)) {
+        for (String allele : to) {
+            if (from.equals(allele)) {
                 codedAlleles.add(0);
             }
             int altIndex = 1;
