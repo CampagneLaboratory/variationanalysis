@@ -196,7 +196,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                 case VCF:
                     //TODO: improve logic so that a heterozygous SNP/Indel at the same position is handled. currently, the snp isn't adjusted to correspond the indel's from field.
                     //generated vcf formatted indel
-                    FormatIndelVCF format = new FormatIndelVCF(fullPred.predictedFrom,fullPred.predictedAlleles(),record.getReferenceBase().charAt(0));
+                    FormatIndelVCF format = new FormatIndelVCF(fullPred.predictedFrom,fullPred.predictedAlleles(),fullPred.predictedFrom.charAt(0));
 
                     //get max allele length for bed file
                     int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
@@ -206,13 +206,20 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                     SortedSet<String> sortedAltSet = new ObjectAVLTreeSet<String>(format.toVCF);
                     sortedAltSet.remove(format.fromVCF);
 
-                    final Optional<String> optional = format.toVCF.stream().reduce((s, s2) -> s + "," + s2);
+                    //generate alt column from alt set
+                    final Optional<String> optional = sortedAltSet.stream().reduce((s, s2) -> s + "," + s2);
                     String altField = optional.isPresent() ? optional.get() : ".";
+
+                    //generate to column (format) from formatted predicted set
+                    final Optional<String> toColumnOpt = format.toVCF.stream().reduce((s, s2) -> s + "/" + s2);
+                    String toColumn = toColumnOpt.isPresent() ? toColumnOpt.get() : "./.";
+
+
                     if (sortedAltSet.size() >= 1) {
                         // only append to VCF if there is at least one alternate allele:
                         // NB: VCF format is one-based.
                         vcfWriter.printf(VCF_LINE, record.getReferenceId(), record.getPosition() + 1,
-                                format.fromVCF, altField, codeGT(format.toVCF, format.fromVCF, sortedAltSet), fullPred.predictedGenotype, fullPred.isVariantProbability);
+                                format.fromVCF, altField, codeGT(format.toVCF, format.fromVCF, sortedAltSet), toColumn, fullPred.isVariantProbability);
                     }
                     // NB: bed format is zero-based.
                     bedWriter.printf("%s\t%d\t%d\t%d\n", record.getReferenceId(), record.getPosition(), record.getPosition() + maxLength, fullPred.index);
