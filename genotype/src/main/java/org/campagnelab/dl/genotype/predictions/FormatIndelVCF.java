@@ -40,7 +40,7 @@ public class FormatIndelVCF extends Prediction {
 
 
         //find newlen for step 2
-        int newLen = -1;
+        int newLen = 1;
         int maxLen = -1;
         for (String s : to){
             if (s.length() > maxLen){

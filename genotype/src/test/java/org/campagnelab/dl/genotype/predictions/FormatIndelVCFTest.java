@@ -44,4 +44,30 @@ public class FormatIndelVCFTest {
         assertTrue(format.toVCF.contains("TG"));
         assertTrue(format.toVCF.contains("T"));
     }
+
+    //A to: A/T  -> from: A to: A/T
+    @Test
+    public void formatIndelVCF3() throws Exception {
+        String from = "A";
+        Set<String> to = new ObjectArraySet<>();
+        to.add("A");
+        to.add("T");
+        FormatIndelVCF format = new FormatIndelVCF(from,to, 'A');
+        assertEquals("A",format.fromVCF);
+        assertEquals(2,format.toVCF.size());
+        assertTrue(format.toVCF.contains("A"));
+        assertTrue(format.toVCF.contains("T"));
+    }
+
+    //A to: A/A  -> from: A to: A/A
+    @Test
+    public void formatIndelVCF4() throws Exception {
+        String from = "A";
+        Set<String> to = new ObjectArraySet<>();
+        to.add("A");
+        FormatIndelVCF format = new FormatIndelVCF(from,to, 'A');
+        assertEquals("A",format.fromVCF);
+        assertEquals(1,format.toVCF.size());
+        assertTrue(format.toVCF.contains("A"));
+    }
 }
