@@ -11,10 +11,7 @@ import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
-import org.campagnelab.dl.genotype.learning.architecture.graphs.CombinedGenotypeAssembler;
-import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersWithIndelLSTM;
-import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
-import org.campagnelab.dl.genotype.learning.architecture.graphs.NumDistinctAlleleAssembler;
+import org.campagnelab.dl.genotype.learning.architecture.graphs.*;
 import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerRefInterpreter;
 import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
@@ -46,6 +43,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
 
     private final boolean isLstmIndelModel;
+    private final boolean isLstmIndelAggregateModel;
     private int ploidy;
     double variantLossWeight;
     private int genomicContextSize;
@@ -59,6 +57,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         variantLossWeight = args().variantLossWeight;
         genomicContextSize = args().genomicContextLength;
         isLstmIndelModel = netArchitectureHasIndelLSTM(args().architectureClassname);
+        isLstmIndelAggregateModel = netArchitectureHasIndelAggregateLSTM(args().architectureClassname);
         modelCapacity = args().modelCapacity;
         if (modelCapacity < 0) {
             throw new RuntimeException("Model capacity cannot be negative. Typical values are >=1 (1-5)");
@@ -77,6 +76,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
         isLstmIndelModel = netArchitectureHasIndelLSTM(domainProperties.getProperty("net.architecture.classname"));
+        isLstmIndelAggregateModel = netArchitectureHasIndelAggregateLSTM(domainProperties.getProperty("net.architecture.classname"));
         configure(modelProperties);
         initializeArchitecture();
     }
@@ -104,6 +104,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
         isLstmIndelModel = netArchitectureHasIndelLSTM(domainProperties.getProperty("net.architecture.classname"));
+        isLstmIndelAggregateModel = netArchitectureHasIndelAggregateLSTM(domainProperties.getProperty("net.architecture.classname"));
         configure(modelProperties);
         initializeArchitecture();
     }
@@ -122,6 +123,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     private boolean netArchitectureHasIndelLSTM(String className) {
         return className.endsWith("GenotypeSixDenseLayersWithIndelLSTM");
+    }
+
+    private boolean netArchitectureHasIndelAggregateLSTM(String classname) {
+        return classname.endsWith("GenotypeSixDenseLayersWithIndelLSTMAggregate");
     }
 
     @Override
@@ -153,6 +158,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 default:
                     throw new RuntimeException("Invalid LSTM mapper input name");
             }
+        } else if (inputName.equals("indel")) {
+            result = new GenotypeMapperLSTMAllStrands();
+            GenotypeMapperLSTMAllStrands glaMapper = (GenotypeMapperLSTMAllStrands) result;
+            Properties glMapperProperties = new Properties();
+            decorateProperties(glMapperProperties);
+            glaMapper.configure(glMapperProperties);
         } else if (args().featureMapperClassname != null) {
             assert "input".equals(inputName) : "Only one input supported by this domain.";
 
@@ -448,6 +459,9 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             if (isLstmIndelModel) {
                 assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.DISTINCT_ALLELES,
                         withIsVariantLabelMapper());
+            } else if (isLstmIndelAggregateModel) {
+                assembler = new GenotypeSixDenseLayersWithIndelLSTMAggregate(GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType.DISTINCT_ALLELES,
+                        withIsVariantLabelMapper());
             } else {
                 assembler = new NumDistinctAlleleAssembler(withIsVariantLabelMapper());
             }
@@ -455,12 +469,18 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             if (isLstmIndelModel) {
                 assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.COMBINED,
                         withIsVariantLabelMapper(), withCombinedLayerRef());
+            } else if (isLstmIndelAggregateModel) {
+                assembler = new GenotypeSixDenseLayersWithIndelLSTMAggregate(GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType.COMBINED,
+                        withIsVariantLabelMapper(), withCombinedLayerRef());
             } else {
                 assembler = new CombinedGenotypeAssembler(withIsVariantLabelMapper(), withCombinedLayerRef());
             }
         } else if (!withDistinctAllele() && !withCombinedLayer()) {
             if (isLstmIndelModel) {
                 assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.HOMOZYGOUS,
+                        withIsVariantLabelMapper());
+            } else if (isLstmIndelAggregateModel) {
+                assembler = new GenotypeSixDenseLayersWithIndelLSTMAggregate(GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType.HOMOZYGOUS,
                         withIsVariantLabelMapper());
             } else {
                 assembler = new GenotypeSixDenseLayersNarrower2(withIsVariantLabelMapper());
