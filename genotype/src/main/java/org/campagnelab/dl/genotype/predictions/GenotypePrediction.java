@@ -70,6 +70,10 @@ public class GenotypePrediction extends Prediction {
         isVariant = currentRecord.getSamples(0).getIsVariant();
         trueFrom = currentRecord.getTrueFrom();
         predictedFrom = currentRecord.getReferenceBase();
+        //handle empty refbase case, only matters when there are no normal base counts (just indels)
+        if (predictedFrom == null || predictedFrom.length()==0){
+            predictedFrom=currentRecord.getSamples(0).getCounts(0).getFromSequence();
+        }
         for (BaseInformationRecords.CountInfo c : currentRecord.getSamples(0).getCountsList()){
             if (predictedAlleles().contains(c.getToSequence())){
                 predictedFrom=c.getFromSequence();
