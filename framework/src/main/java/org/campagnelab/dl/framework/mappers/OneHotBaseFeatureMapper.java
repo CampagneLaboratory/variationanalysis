@@ -26,6 +26,7 @@ import java.util.function.Function;
  */
 public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
     static private Logger LOG = LoggerFactory.getLogger(OneHotBaseFeatureMapper.class);
+    private final int numFeatures;
 
     private Function<RecordType, String> recordToString;
     private BiFunction<String, Integer, Integer> recordStringAtBaseToInteger;
@@ -38,7 +39,7 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
      * @param recordToString function that converts a sequence record into a string
      */
     public OneHotBaseFeatureMapper(int baseIndex, Function<RecordType, String> recordToString) {
-        this(baseIndex, recordToString, OneHotBaseFeatureMapper::getIntegerOfBase);
+        this(baseIndex, recordToString, OneHotBaseFeatureMapper::getIntegerOfBase, 6);
     }
 
     /**
@@ -48,19 +49,22 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
      * @param recordStringAtBaseToInteger function that takes in a record string (i.e., that
      *                                    converted by recordToString) and an integer representing
      *                                    a base index, and returns a one-hot encoding integer
+     * @param numFeatures number of possible features returned by recordStringAtBaseToInteger
      */
     public OneHotBaseFeatureMapper(int baseIndex, Function<RecordType, String> recordToString,
-                                   BiFunction<String, Integer, Integer> recordStringAtBaseToInteger) {
+                                   BiFunction<String, Integer, Integer> recordStringAtBaseToInteger,
+                                   int numFeatures) {
         this.baseIndex = baseIndex;
         this.recordToString = recordToString;
         this.recordStringAtBaseToInteger = recordStringAtBaseToInteger;
+        this.numFeatures = numFeatures;
 
     }
 
     private static final int[] indices = new int[]{0, 0};
 
     public int numberOfFeatures() {
-        return 6;
+        return numFeatures;
     }
 
     private String cachedString;

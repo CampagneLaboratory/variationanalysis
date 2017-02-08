@@ -10,16 +10,18 @@ import static org.junit.Assert.assertEquals;
 public class GenotypeHelperTest {
     @Test
     public void testGenotypes() {
-        assertEquals(false, GenotypeHelper.isVariant("CTG/CTG", "C"));
-        assertEquals(false, GenotypeHelper.isVariant("CTG|CTG", "C"));
+        assertEquals(true, GenotypeHelper.isVariant(true,"CTG/CTG", "C--"));
+        assertEquals(false, GenotypeHelper.isVariant(false,"CTG/CTG", "C--"));
+        assertEquals(true, GenotypeHelper.isVariant(true,"A--|A--", "ACA"));
+        assertEquals(false, GenotypeHelper.isVariant(false,"A--|A--", "ACA"));
         assertEquals(true, GenotypeHelper.isNoCall("N|N"));
         assertEquals(true, GenotypeHelper.isNoCall("N/N"));
         assertEquals(false, GenotypeHelper.isNoCall("C|N"));
-        assertEquals(false, GenotypeHelper.isVariant("CT|CT", "C"));
+        assertEquals(true, GenotypeHelper.isVariant("CT|CT", "C-"));
 
-        assertEquals(false, GenotypeHelper.isIndel("A|C"));
-        assertEquals(true, GenotypeHelper.isIndel("-|C"));
-        assertEquals(true, GenotypeHelper.isIndel("-|T"));
+        assertEquals(false, GenotypeHelper.isIndel("T","A|C"));
+        assertEquals(true, GenotypeHelper.isIndel("ACA","A--|ACA"));
+        assertEquals(true, GenotypeHelper.isIndel("G--","G|T"));
         assertEquals(false, GenotypeHelper.isVariant("A", "A"));
         assertEquals(true, GenotypeHelper.isVariant("A|C", "C"));
         assertEquals(true, GenotypeHelper.isVariant("CA|C", "C"));
@@ -58,6 +60,16 @@ public class GenotypeHelperTest {
         assertEquals(false, GenotypeHelper.genotypeHasAllele("A/C", "T"));
         assertEquals(false, GenotypeHelper.genotypeHasAllele("A/C", "T"));
         assertEquals(true, GenotypeHelper.genotypeHasAllele("GT/GT", "G"));
+
+
+    }
+
+    @Test
+    public void checkPad() {
+        assertEquals("ACA-", GenotypeHelper.pad("ACA", 4));
+        assertEquals("GATA|G---", GenotypeHelper.padMulti("GATA|G", 4));
+
+
 
 
     }

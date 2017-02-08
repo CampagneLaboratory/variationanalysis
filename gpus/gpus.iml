@@ -33,7 +33,8 @@
     <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:macosx-x86_64:8.0-1.2" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:windows-x86_64:8.0-1.2" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:linux-ppc64le:8.0-1.2" level="project" />
-    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.2.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.2.2-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-4" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.icb:icb-utils:2.0.1" level="project" />

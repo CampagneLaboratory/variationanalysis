@@ -94,6 +94,14 @@ public abstract class  TrainingArguments extends RecordingToolArguments {
         return result;
     }
 
+    @Parameter(names = "--add-ui-listener", description = "If true, adds a UI listener to the network to help visualize " +
+            "the network and training progress. Will affect speed, so only use for tuning. ")
+    public boolean addUiListener = false;
+
+    @Parameter(names = "--ui-stats-file", description = "If not null, will save stats to this file instead of in memory" +
+            " if a UI listener is being used. ")
+    public String uiStatsFile = null;
+
     @Parameter(names = "--gpu-device", description = "Index of the GPU to use for training (0,1, up to the number of GPUs in the server).")
     public Integer deviceIndex = null;
 
