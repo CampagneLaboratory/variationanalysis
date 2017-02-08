@@ -29,6 +29,7 @@ public class StatsAccumulator {
     int numSnpsFalsePositive;
     int numSnpsFalseNegative;
     private int numVariants;
+    private int numIndels;
     private int concordantVariants;
     private int numVariantsExpected;
     private int numTrueOrPredictedVariants;
@@ -41,6 +42,7 @@ public class StatsAccumulator {
         numFalsePositive = 0;
         numFalseNegative = 0;
         numVariants = 0;
+        numIndels = 0;
         concordantVariants = 0;
         numTrueOrPredictedVariants = 0;
         numIndelsCorrect = 0;
@@ -62,8 +64,8 @@ public class StatsAccumulator {
     public void observe(GenotypePrediction fullPred, boolean isTrueVariant, boolean isPredictedVariant) {
         numProcessed++;
         if (isPredictedVariant || isTrueVariant) {
-            numTrueOrPredictedVariants+=1;
-            concordantVariants += fullPred.isCorrect()  ? 1 : 0;
+            numTrueOrPredictedVariants += 1;
+            concordantVariants += fullPred.isCorrect() ? 1 : 0;
         }
 
         if (fullPred.isCorrect()) {
@@ -127,9 +129,9 @@ public class StatsAccumulator {
         }
 
 
-
         numVariants += isTrueVariant ? 1 : 0;
         assert numVariants == numTruePositive + numFalseNegative;
+        numIndels += isTrueVariant && fullPred.isIndel() ? 1 : 0;
     }
 
     public double[] createOutputStatistics() {
@@ -148,8 +150,9 @@ public class StatsAccumulator {
         double snpRecall = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalseNegative);
         double snpPrecision = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalsePositive);
         double snpF1 = 2 * snpPrecision * snpRecall / (snpPrecision + snpRecall);
+
         return new double[]{accuracy, recall, precision, F1, numVariants, genotypeConcordance, indelAccuracy,
-                indelRecall, indelPrecision, indelF1, snpAccuracy, snpRecall, snpPrecision, snpF1};
+                indelRecall, indelPrecision, indelF1, snpAccuracy, snpRecall, snpPrecision, snpF1, numIndels};
     }
 
     public double[] createOutputStatistics(String... metrics) {
@@ -201,6 +204,9 @@ public class StatsAccumulator {
                 case "F1_SNPs":
                     j = 13;
                     break;
+                case "numIndels":
+                    j = 14;
+                    break;
                 default:
                     throw new RuntimeException("performance metric not recognized: " + metricName);
             }
@@ -212,7 +218,7 @@ public class StatsAccumulator {
     public String[] createOutputHeader() {
         return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance",
                 "Accuracy_Indels", "Recall_Indels", "Precision_Indels", "F1_Indels",
-                "Accuracy_SNPs", "Recall_SNPs", "Precision_SNPs", "F1_SNPs",
+                "Accuracy_SNPs", "Recall_SNPs", "Precision_SNPs", "F1_SNPs","numIndels",
         };
     }
 
@@ -232,6 +238,7 @@ public class StatsAccumulator {
         System.out.println("Indel Recall =" + statsArray[7]);
         System.out.println("Indel Precision =" + statsArray[8]);
         System.out.println("Indel F1 =" + statsArray[9]);
+        System.out.println("numIndels =" + statsArray[14]);
         System.out.println("SNP Accuracy =" + statsArray[10]);
         System.out.println("SNP Recall =" + statsArray[11]);
         System.out.println("SNP precision =" + statsArray[12]);
