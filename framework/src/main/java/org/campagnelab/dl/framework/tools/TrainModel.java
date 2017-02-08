@@ -110,7 +110,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         time = new Date().getTime();
 
         System.out.println("epochs: " + args().maxEpochs);
-        System.out.println(featureCalculator.getClass().getTypeName());
+        System.out.println("FeatureMapper:"+featureCalculator.getClass().getTypeName());
+        System.out.println("ComputationGraphAssembler::"+args().architectureClassname);
         directory = "models/" + Long.toString(time);
         FileUtils.forceMkdir(new File(directory));
         System.out.println("model directory: " + new File(directory).getAbsolutePath());

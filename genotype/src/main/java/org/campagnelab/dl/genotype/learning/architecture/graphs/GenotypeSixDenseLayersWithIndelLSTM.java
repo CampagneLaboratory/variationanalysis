@@ -165,7 +165,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         ComputationGraphConfiguration conf = build
                 .setOutputs(outputNames)
                 .build();
-        System.out.println(conf);
+       // System.out.println(conf);
         return new ComputationGraph(conf);
     }
 
