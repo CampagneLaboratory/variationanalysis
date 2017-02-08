@@ -6,6 +6,7 @@ import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.weights.WeightInit;
 
@@ -15,9 +16,14 @@ import org.deeplearning4j.nn.weights.WeightInit;
  */
 public class FeedForwardDenseLayerAssembler {
     private TrainingArguments args;
-    private LearningRatePolicy learningRatePolicy;
+    private LearningRatePolicy learningRatePolicy = LearningRatePolicy.Poly;
     private int numOutputs;
     private String lastLayerName;
+    private ComputationGraphConfiguration.GraphBuilder build;
+    private static final double BUILDER_EPSILON = 1e-08d;
+    private static final double LAYER_EPSILON = 0.1;
+    private static final WeightInit WEIGHT_INIT = WeightInit.XAVIER;
+    private static final float REDUCTION = 1f;
 
     public FeedForwardDenseLayerAssembler(TrainingArguments args) {
         this.args = args;
@@ -27,59 +33,54 @@ public class FeedForwardDenseLayerAssembler {
         return args;
     }
 
-    ComputationGraphConfiguration.GraphBuilder assemble(int numInputs, int numHiddenNodes, int numLayers) {
-        assert numHiddenNodes > 0 : "model capacity is too small. At least some hidden nodes must be created.";
-        WeightInit WEIGHT_INIT = WeightInit.XAVIER;
-        float reduction = 1f;
-        int minimum = (int) (numHiddenNodes * Math.pow(reduction, 4));
-        assert minimum > 2 : "Too much reduction, not enough outputs: ";
-        ComputationGraphConfiguration confBuilder = null;
-        double epsilon = 1e-08d;
+    public void initializeBuilder(String... inputNames) {
+        if (inputNames.length == 0) {
+            inputNames = new String[]{"input"};
+        }
         NeuralNetConfiguration.Builder graphBuilder = new NeuralNetConfiguration.Builder()
                 .seed(args().seed)
                 .iterations(1)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(args().learningRate)
-                .updater(Updater.ADAGRAD);
-        graphBuilder.epsilon(epsilon);
+                .updater(Updater.ADAGRAD)
+                .epsilon(BUILDER_EPSILON)
+                .lrPolicyDecayRate(0.5)
+                .weightInit(WEIGHT_INIT);
         if (args().regularizationRate != null) {
             graphBuilder.l2(args().regularizationRate);
+            graphBuilder.regularization(args().regularizationRate != null);
         }
         if (args().dropoutRate != null) {
             graphBuilder.dropOut(args().dropoutRate);
             graphBuilder.setUseDropConnect(true);
         }
-        NeuralNetConfiguration.Builder graphConfiguration = graphBuilder.lrPolicyDecayRate(0.5)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-                .learningRate(args().learningRate)
-                .seed(args().seed);
-        if (args().regularizationRate != null) {
-            graphConfiguration.regularization(args().regularizationRate != null);
-        }
-        if (args().dropoutRate != null) {
-            graphConfiguration.dropOut(args().dropoutRate);
-            graphConfiguration.setUseDropConnect(true);
-        }
-        ComputationGraphConfiguration.GraphBuilder build = graphConfiguration
-                .weightInit(WeightInit.XAVIER).graphBuilder().addInputs("input");
+        build = graphBuilder.graphBuilder().addInputs(inputNames);
+    }
+
+    public ComputationGraphConfiguration.GraphBuilder assemble(int numInputs, int numHiddenNodes, int numLayers) {
+        return assemble(numInputs, numHiddenNodes, numLayers, "input", 1);
+    }
+
+    ComputationGraphConfiguration.GraphBuilder assemble(int numInputs, int numHiddenNodes, int numLayers, String baseLayer, int startingIndex) {
+        assert numHiddenNodes > 0 : "model capacity is too small. At least some hidden nodes must be created.";
+        WeightInit WEIGHT_INIT = WeightInit.XAVIER;
+        float reduction = 1f;
+        int minimum = (int) (numHiddenNodes * Math.pow(reduction, 4));
+        assert minimum > 2 : "Too much reduction, not enough outputs: ";
         int numIn = numInputs;
         int numOut = numHiddenNodes;
-
+        String previousLayerName;
         String lastDenseLayerName = "no layers";
-        String previousLayerName = "input";
-        epsilon = 0.1;
-        for (int i = 1; i <= numLayers; i++) {
+        for (int i = startingIndex; i < startingIndex + numLayers; i++) {
             numOut = numHiddenNodes;
             //     System.out.printf("layer %d numIn=%d numOut=%d%n", i, numIn, numOut);
             lastDenseLayerName = "dense" + i;
-
-            previousLayerName = i == 1 ? "input" : "dense" + (i - 1);
+            previousLayerName = i == startingIndex ? baseLayer : "dense" + (i - 1);
             build.addLayer(lastDenseLayerName, new DenseLayer.Builder().nIn(numIn).nOut(numOut)
                     .weightInit(WEIGHT_INIT)
-                    .activation("relu").learningRateDecayPolicy(learningRatePolicy).epsilon(epsilon)
+                    .activation("relu").learningRateDecayPolicy(learningRatePolicy).epsilon(LAYER_EPSILON)
                     .build(), previousLayerName);
             numIn = numOut;
-
         }
 
         this.numOutputs = numOut;
@@ -96,6 +97,14 @@ public class FeedForwardDenseLayerAssembler {
         this.learningRatePolicy = learningRatePolicy;
     }
 
+
+    public void setInputTypes(InputType... inputTypes) {
+        build.setInputTypes(inputTypes);
+    }
+
+    public ComputationGraphConfiguration.GraphBuilder getBuild() {
+        return build;
+    }
 
     public String lastLayerName() {
         return lastLayerName;

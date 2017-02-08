@@ -52,6 +52,7 @@ public class CombinedGenotypeAssembler extends GenotypeAssembler implements Comp
     public ComputationGraph createComputationalGraph(DomainDescriptor domainDescriptor) {
         LearningRatePolicy learningRatePolicy = LearningRatePolicy.Poly;
         layerAssembler.setLearningRatePolicy(learningRatePolicy);
+        layerAssembler.initializeBuilder();
         int numInputs = domainDescriptor.getNumInputs("input")[0];
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("firstDense");
 

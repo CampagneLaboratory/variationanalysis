@@ -24,6 +24,14 @@ public class GenotypePrediction extends Prediction {
      */
     public String trueGenotype;
     /**
+     * The 'from' field corresponding to predicted call
+     */
+    public String predictedFrom;
+    /**
+     * The 'from' field corresponding to true call
+     */
+    public String trueFrom;
+    /**
      * The probability of the called genotype according to the model. Forecast probability.
      */
     public double overallProbability;
@@ -36,6 +44,10 @@ public class GenotypePrediction extends Prediction {
      * Whether the true genotypes contains at least one indel.
      */
     public boolean isIndel;
+    /**
+     * Whether the predicted genotypes contain at least one indel.
+     */
+    public boolean isPredictedIndel;
 
     /**
      * Indicates the confidence that the genotype is a variant.
@@ -56,7 +68,30 @@ public class GenotypePrediction extends Prediction {
     public void inspectRecord(BaseInformationRecords.BaseInformation currentRecord) {
         trueGenotype = currentRecord.getTrueGenotype();
         isVariant = currentRecord.getSamples(0).getIsVariant();
-        isIndel = trueGenotype.contains("-");
+        trueFrom = currentRecord.getTrueFrom();
+        predictedFrom = currentRecord.getReferenceBase();
+        //handle empty refbase case, only matters when there are no normal base counts (just indels)
+        if (predictedFrom == null || predictedFrom.length()==0){
+            predictedFrom=currentRecord.getSamples(0).getCounts(0).getFromSequence();
+        }
+        for (BaseInformationRecords.CountInfo c : currentRecord.getSamples(0).getCountsList()){
+            if (predictedAlleles().contains(c.getToSequence())){
+                predictedFrom=c.getFromSequence();
+            }
+        }
+        //we need to check from and to fields for a genotype greater than length 1
+        //can't use existence of a dash "-" because some indels don't use them
+        isIndel = false;
+        for (String trueTo : trueAlleles()){
+            isIndel |= trueTo.length() > 1;
+        }
+        isIndel |= trueFrom.length() > 1;
+
+        isPredictedIndel = false;
+        for (String predTo : predictedAlleles()){
+            isPredictedIndel |= predTo.length() > 1;
+        }
+        isPredictedIndel |= predictedFrom.length() > 1;
     }
 
 
@@ -74,6 +109,14 @@ public class GenotypePrediction extends Prediction {
     public boolean isIndel() {
         return isIndel;
     }
+
+    public boolean isPredictedIndel() {
+        return isPredictedIndel;
+    }
+
+    public boolean isSnp() { return !isIndel; }
+
+    public boolean isPredictedSnp() { return !isPredictedIndel; }
 
     public Set<String> predictedAlleles() {
         return alleles(predictedGenotype);

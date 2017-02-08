@@ -3,6 +3,8 @@ package org.campagnelab.dl.genotype.performance;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -24,7 +26,9 @@ public class StatsAccumulatorTest {
         assertEquals("FN is wrong", 1, acc.numFalseNegative);
 
 
-        double[] actual = new double[]{0.5, 0.5, 0.5, 0.5, 2,0.5};
+        double[] actual = new double[]{0.5, 0.5, 0.5, 0.5, 2,0.5, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0.5,
+                0.5, 1.0, (2.0 * 0.5 * 1.0) / (0.5 + 1.0)};
+        System.out.println(Arrays.toString(stats));
         for (int i = 0; i < stats.length; i++) {
             assertEquals(actual[i], stats[i], 0.00001);
         }

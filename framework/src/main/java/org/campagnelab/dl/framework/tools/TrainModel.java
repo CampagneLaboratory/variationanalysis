@@ -30,6 +30,8 @@ import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.deeplearning4j.nn.graph.vertex.GraphVertex;
+import org.deeplearning4j.nn.graph.vertex.impl.LayerVertex;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.FileStatsStorage;
@@ -172,6 +174,11 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             int nParams = layers[i].numParams();
             System.out.println("Number of parameters in layer " + i + ": " + nParams);
             totalNumParams += nParams;
+        }
+        for (GraphVertex vertex : computationGraph.getVertices()) {
+            if (vertex instanceof LayerVertex) {
+                System.out.println("Number of parameters in layer " + vertex.getVertexName() + ": " + vertex.getLayer().numParams());
+            }
         }
         System.out.println("Total number of network parameters: " + totalNumParams);
 

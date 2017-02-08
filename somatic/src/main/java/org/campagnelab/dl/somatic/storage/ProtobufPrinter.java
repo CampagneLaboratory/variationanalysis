@@ -3,9 +3,12 @@ package org.campagnelab.dl.somatic.storage;
 
 import com.google.protobuf.TextFormat;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.FileNameMap;
 import java.util.Set;
 
 
@@ -32,9 +35,11 @@ public class ProtobufPrinter {
     private int position;
     private boolean customPosOnly = false;
     static int actualCount = 0;
+    private boolean makeDebug = true;
+    private RecordWriter makeDebugWriter;
 
     private int[] customPos = {
-            40932570
+            45944850
     };
     private Set<Integer> posSet = new IntOpenHashSet(customPos);
 
@@ -61,8 +66,12 @@ public class ProtobufPrinter {
     }
 
 
-    public ProtobufPrinter(String path) {
+    public ProtobufPrinter(String path) throws IOException {
         this.path = path;
+        if (makeDebug){
+            String debugPath = FilenameUtils.getFullPath(path) + FilenameUtils.getBaseName(path) + "_debug.sbi";
+            makeDebugWriter = new RecordWriter(debugPath);
+        }
     }
 
     private void recordPrinter(BaseInformationRecords.BaseInformation base) throws IOException {
@@ -75,9 +84,18 @@ public class ProtobufPrinter {
             for (BaseInformationRecords.BaseInformation base : reader) {
                 if (!(focusPrint || customPosOnly) ||
                         (base.getReferenceIndex() == refIndex && base.getPosition() == position) || (posSet.contains(base.getPosition()))) {
-                    recordPrinter(base);
+                    if (/*base.getSamples(0).getIsVariant() && */ base.getSamples(0).getCountsCount() > 5){
+                        recordPrinter(base);
+                    }
                     actualCount++;
+                    if (makeDebug){
+                        makeDebugWriter.writeRecord(base);
+                    }
                 }
+            }
+            if (makeDebug){
+                makeDebugWriter.close();
+
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

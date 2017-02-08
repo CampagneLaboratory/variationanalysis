@@ -3,9 +3,7 @@ package org.campagnelab.dl.genotype.tools;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.io.BinIO;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
+import it.unimi.dsi.fastutil.objects.*;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
@@ -19,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 
@@ -33,6 +33,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
 
 
     RandomAccessSequenceCache genome = new RandomAccessSequenceCache();
+    final public static boolean PRINT_INDEL_ERROR_CONTEXT = false;
 
     static private Logger LOG = LoggerFactory.getLogger(AddTrueGenotypes.class);
 
@@ -63,6 +64,7 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             System.err.println("Could not load genome cache");
             e.printStackTrace();
             System.exit(1);
+
         }
 
 
@@ -75,23 +77,37 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                     genome,
                     args().sampleIndex,
                     args().considerIndels,
+                    args().indelsAsRef,
                     args().referenceSamplingRate);
             ProgressLogger recordLogger = new ProgressLogger(LOG);
             recordLogger.expectedUpdates = source.numRecords();
             System.out.println(source.numRecords() + " records to label");
             int recordsLabeled = 0;
             recordLogger.start();
+            ObjectArrayList<BaseInformationRecords.BaseInformation> recContext = new ObjectArrayList<>(1000);
             for (BaseInformationRecords.BaseInformation rec : source) {
                 boolean keep = false;
+                if (PRINT_INDEL_ERROR_CONTEXT){
+                    recContext.add(rec);
+                    if (recContext.size() < 50){
+                        continue;
+                    }
+                    keep = addTrueGenotypeHelper.addTrueGenotype(recContext.get(recContext.size()/2),recContext);
+                    if (keep) {
+                        dest.appendEntry(addTrueGenotypeHelper.labeledEntry());
+                    }
 
-                keep = addTrueGenotypeHelper.addTrueGenotype(rec);
-                if (keep) {
-
-                    dest.appendEntry(addTrueGenotypeHelper.labeledEntry());
-
-                    recordsLabeled++;
+                    recContext.remove(0);
+                } else {
+                    keep = addTrueGenotypeHelper.addTrueGenotype(rec);
+                    if (keep) {
+                        dest.appendEntry(addTrueGenotypeHelper.labeledEntry());
+                    }
                 }
+                recordsLabeled++;
                 recordLogger.lightUpdate();
+
+
             }
             recordLogger.done();
             dest.setCustomProperties(addTrueGenotypeHelper.getStatProperties());

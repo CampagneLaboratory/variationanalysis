@@ -60,6 +60,7 @@ public class GenotypeSixDenseLayersNarrower2 extends GenotypeAssembler implement
     public ComputationGraph createComputationalGraph(DomainDescriptor domainDescriptor) {
         LearningRatePolicy learningRatePolicy = LearningRatePolicy.Poly;
         layerAssembler.setLearningRatePolicy(learningRatePolicy);
+        layerAssembler.initializeBuilder();
         int numInputs = domainDescriptor.getNumInputs("input")[0];
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("firstDense");
         ComputationGraphConfiguration.GraphBuilder build = layerAssembler.assemble(numInputs, numHiddenNodes, numLayers);
