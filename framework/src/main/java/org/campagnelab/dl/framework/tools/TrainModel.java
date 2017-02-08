@@ -168,13 +168,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             }
         }
         //Print the  number of parameters in the graph (and for each layer)
-        Layer[] layers = computationGraph.getLayers();
         int totalNumParams = 0;
-        for (int i = 0; i < layers.length; i++) {
-            int nParams = layers[i].numParams();
-            System.out.println("Number of parameters in layer " + i + ": " + nParams);
-            totalNumParams += nParams;
-        }
         for (GraphVertex vertex : computationGraph.getVertices()) {
             if (vertex instanceof LayerVertex) {
                 System.out.println("Number of parameters in layer " + vertex.getVertexName() + ": " + vertex.getLayer().numParams());
