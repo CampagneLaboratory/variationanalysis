@@ -242,6 +242,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new BooleanLabelMapper<BaseInformationRecords.BaseInformation>(
                         baseInformation -> baseInformation.getSamples(0).getIsVariant(),
                         args().labelSmoothingEpsilon);
+            case "trueGenotype":
+                return new TrueGenotypeLSTMLabelMapper();
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
@@ -555,6 +557,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 // no loss for metaData. These labels are virtual.
                 INDArray zeros = Nd4j.zeros(MetaDataLabelMapper.NUM_LABELS);
                 return new LossBinaryXENT(zeros);
+            case "trueGenotype":
+                return new LossMCXENT();
             default:
                 // any other is an individual genotype output:
                 return new LossBinaryXENT();
