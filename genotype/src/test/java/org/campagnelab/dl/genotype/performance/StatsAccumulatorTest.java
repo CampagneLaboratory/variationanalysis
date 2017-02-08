@@ -27,8 +27,7 @@ public class StatsAccumulatorTest {
 
 
         double[] actual = new double[]{0.5, 0.5, 0.5, 0.5, 2,0.5, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0.5,
-                0.5, 1.0, (2.0 * 0.5 * 1.0) / (0.5 + 1.0)};
-        System.out.println(Arrays.toString(stats));
+                0.5, 1.0, (2.0 * 0.5 * 1.0) / (0.5 + 1.0), 0};
         for (int i = 0; i < stats.length; i++) {
             assertEquals(actual[i], stats[i], 0.00001);
         }
