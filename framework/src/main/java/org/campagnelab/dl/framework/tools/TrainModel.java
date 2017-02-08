@@ -172,7 +172,9 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         int totalNumParams = 0;
         for (GraphVertex vertex : computationGraph.getVertices()) {
             if (vertex instanceof LayerVertex) {
-                System.out.println("Number of parameters in layer " + vertex.getVertexName() + ": " + vertex.getLayer().numParams());
+                final int numParams = vertex.getLayer().numParams();
+                System.out.println("Number of parameters in layer " + vertex.getVertexName() + ": " + numParams);
+                totalNumParams+=numParams;
             }
         }
         System.out.println("Total number of network parameters: " + totalNumParams);
