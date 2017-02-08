@@ -149,12 +149,11 @@ if [ ! -e "${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz" ]; then
 
     # note -V option on chromosome key below is necessary on Centos 7, with sort version 8.22,
     # see https://github.com/chapmanb/bcbio-nextgen/issues/624
-    sort -k1,1V -k2,2n ${BED_OBSERVED_REGIONS_OUTPUT} > ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed
+    sort -k1,1V -k2,2n ${BED_OBSERVED_REGIONS_OUTPUT} | bedtools merge > ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed
     bgzip -f ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed
     tabix ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz
 fi
 
-set -x
 
 RTG_OUTPUT_FOLDER=output-${RANDOM}
 gzip -c -d ${VCF_OUTPUT_SORTED}.gz |awk '{if($0 !~ /^#/) { if (length($4)==1 && length($5)==1) print $0;}  else {print $0}}'  >${VCF_OUTPUT_SORTED}-snps.vcf
@@ -168,6 +167,8 @@ rtg vcfeval --baseline=${GOLD_STANDARD_VCF_SNP_GZ}  \
             --vcf-score-field=P  --sort-order=descending
 dieIfError "Failed to run rtg vcfeval for SNPs."
 
+cp ${VCF_OUTPUT_SORTED}-snps.vcf.gz  ${RTG_OUTPUT_FOLDER}/snp/
+
 gzip -c -d ${VCF_OUTPUT_SORTED}.gz |awk '{if($0 !~ /^#/) { if (length($4)!=1 || length($5)!=1) print $0;}  else {print $0}}'  >${VCF_OUTPUT_SORTED}-indels.vcf
 bgzip -f ${VCF_OUTPUT_SORTED}-indels.vcf
 tabix -f ${VCF_OUTPUT_SORTED}-indels.vcf.gz
@@ -179,8 +180,9 @@ rtg vcfeval --baseline=${GOLD_STANDARD_VCF_INDEL_GZ}  \
             --vcf-score-field=P  --sort-order=descending
 dieIfError "Failed to run rtg vcfeval."
 
+cp ${VCF_OUTPUT_SORTED}-indels.vcf.gz  ${RTG_OUTPUT_FOLDER}/indel/
+
 cp ${MODEL_DIR}/config.properties ${RTG_OUTPUT_FOLDER}
-cp ${VCF_OUTPUT_SORTED}.gz ${RTG_OUTPUT_FOLDER}
 cp ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz ${RTG_OUTPUT_FOLDER}
 echo "See rtg vcfeval detailed output in ${RTG_OUTPUT_FOLDER}"
 

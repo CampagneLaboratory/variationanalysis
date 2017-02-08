@@ -39,7 +39,11 @@ public class GenotypeTrainingArguments extends TrainingArguments {
 
     @Parameter(names = "--num-lstm-layers",
             description = "The number of LSTM hidden layers, if an LSTM is being used for indels. ")
-    public int numLSTMLayers = 3;
+    public int numLSTMLayers = 1;
+
+    @Parameter(names = "--num-lstm-nodes",
+            description = "The number of LSTM hidden nodes, if an LSTM is being used for indels. ")
+    public int numLSTMHiddenNodes = 4;
 
     @Parameter(names = "--model-capacity", description = "A floating number that controls model capacity (i.e., number of hidden " +
             "nodes in the neural network). Use a c >=1 to control how many hidden nodes are created (#hiddenNodes=c*#inputs).")

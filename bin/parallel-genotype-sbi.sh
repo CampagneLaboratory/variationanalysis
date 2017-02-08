@@ -71,7 +71,7 @@ echo " discover-sequence-variants -n 0 -t 1 --genome  ${SBI_GENOME} --format  SE
     ${VARMAP_OPTION} " >command.txt
 
 cut -f3,6 slices  | awk 'BEGIN{count=1} {print "-s "$1" -e " $2" -o out-part-"(count++)}' >boundaries
-parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby 8g  `cat command.txt`  :::: boundaries
+parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby 10g  `cat command.txt`  :::: boundaries
 
 
 
