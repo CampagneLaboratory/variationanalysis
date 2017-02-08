@@ -1,5 +1,6 @@
 package org.campagnelab.dl.genotype.mappers;
 
+import org.apache.commons.lang.StringUtils;
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
 import org.campagnelab.dl.somatic.mappers.*;
 import org.campagnelab.dl.somatic.mappers.functional.TraversalHelper;
@@ -59,8 +60,16 @@ public class GenotypeMapperV26 extends GenotypeMapperV11 {
 
             matchesRefMappers[i] = (new MatchesReferenceMapper(sampleIndex, i));
             isIndelMappers[i] = new IsIndelMapper(sampleIndex, i);
-            firstBaseMappers[i] = new GenomicContextMapper(1,
-                    record -> record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence().substring(0, 1));
+            int baseContextLength=10;
+            firstBaseMappers[i] = new GenomicContextMapper(baseContextLength,
+
+                    record -> {
+
+                        String toSequence = record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence();
+                        int length=Math.min(toSequence.length(),baseContextLength);
+                        return StringUtils.rightPad(toSequence.substring(0, length), baseContextLength);
+
+                    });
             numVariationsInReadMappers[i] = new DensityMapper("numVariationsInRead",
                     10, sbiProperties,
                     baseInformationOrBuilder ->
