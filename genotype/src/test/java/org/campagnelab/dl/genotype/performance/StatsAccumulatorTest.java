@@ -25,11 +25,11 @@ public class StatsAccumulatorTest {
         assertEquals("FP is wrong", 1, acc.numFalsePositive);
         assertEquals("FN is wrong", 1, acc.numFalseNegative);
 
-
-        double[] actual = new double[]{0.5, 0.5, 0.5, 0.5, 2,0.5, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0.5,
-                0.5, 1.0, (2.0 * 0.5 * 1.0) / (0.5 + 1.0), 0};
+String header[]=acc.createOutputHeader();
+        double[] actual = new double[]{0.5, 0.5, 0.5, 0.5, 2.0,0.5, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0.5,
+                0.5, 0.5, 0.5, 0};
         for (int i = 0; i < stats.length; i++) {
-            assertEquals(actual[i], stats[i], 0.00001);
+            assertEquals("wrong stat at index "+i+" "+header[i], actual[i], stats[i], 0.00001);
         }
     }
 
