@@ -9,10 +9,13 @@ import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
 import org.campagnelab.goby.reads.RandomAccessSequenceCache;
+import org.campagnelab.goby.util.Variant;
+import org.campagnelab.goby.util.VariantMapHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 /**
  * The addcalls object uses a map to create a new protobuf file with genotype calls.
@@ -21,18 +24,21 @@ import java.io.IOException;
  *
  * @author rct66
  */
-public class GenotypeMapPrinter extends AbstractTool<AddTrueGenotypesArguments> {
+public class DebugGenotype extends AbstractTool<DebugGenotypeArguments> {
 
 
     RandomAccessSequenceCache genome = new RandomAccessSequenceCache();
     final public static boolean PRINT_INDEL_ERROR_CONTEXT = false;
 
-    static private Logger LOG = LoggerFactory.getLogger(GenotypeMapPrinter.class);
+    static private Logger LOG = LoggerFactory.getLogger(DebugGenotype.class);
+
+    boolean queryFile = false;
+
 
     public static void main(String[] args) {
 
-        GenotypeMapPrinter tool = new GenotypeMapPrinter();
-        tool.parseArguments(args, "AddTrueGenotypes", tool.createArguments());
+        DebugGenotype tool = new DebugGenotype();
+        tool.parseArguments(args, "DebugGenotypeArguments", tool.createArguments());
         tool.execute();
 
     }
@@ -40,8 +46,6 @@ public class GenotypeMapPrinter extends AbstractTool<AddTrueGenotypesArguments> 
     @Override
     //only supports genotypes encoded with a bar (|) delimiter
     public void execute() {
-
-        //get reference genome
         String genomePath = args().genomeFilename;
         try {
             System.err.println("Loading genome cache " + genomePath);
@@ -58,62 +62,81 @@ public class GenotypeMapPrinter extends AbstractTool<AddTrueGenotypesArguments> 
             System.exit(1);
 
         }
-
-
+        VariantMapHelper varMap = null;
+        RecordReader source = null;
         try {
-            RecordReader source = new RecordReader(args().inputFile);
-            SequenceBaseInformationWriter dest = new SequenceBaseInformationWriter(args().outputFilename);
-            AddTrueGenotypeHelper addTrueGenotypeHelper = new AddTrueGenotypeHelper();
-            addTrueGenotypeHelper.configure(
-                    args().genotypeMap,
-                    genome,
-                    args().sampleIndex,
-                    args().considerIndels,
-                    args().indelsAsRef,
-                    args().referenceSamplingRate);
-            ProgressLogger recordLogger = new ProgressLogger(LOG);
-            recordLogger.expectedUpdates = source.numRecords();
-            System.out.println(source.numRecords() + " records to label");
-            int recordsLabeled = 0;
-            recordLogger.start();
-            ObjectArrayList<BaseInformationRecords.BaseInformation> recContext = new ObjectArrayList<>(1000);
-            for (BaseInformationRecords.BaseInformation rec : source) {
-                boolean keep = false;
-                if (PRINT_INDEL_ERROR_CONTEXT){
-                    recContext.add(rec);
-                    if (recContext.size() < 50){
-                        continue;
-                    }
-                    keep = addTrueGenotypeHelper.addTrueGenotype(recContext.get(recContext.size()/2),recContext);
-                    if (keep) {
-                        dest.appendEntry(addTrueGenotypeHelper.labeledEntry());
-                    }
+            if (args().genotypeMap != null){
+                source = new RecordReader(args().inputFile);
+                queryFile = true;
+            }
+            varMap = new VariantMapHelper(args().genotypeMap);
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("Unable to load true genotype map with filename " + args().genotypeMap, e);
+        }
 
-                    recContext.remove(0);
-                } else {
-                    keep = addTrueGenotypeHelper.addTrueGenotype(rec);
-                    if (keep) {
-                        dest.appendEntry(addTrueGenotypeHelper.labeledEntry());
-                    }
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            System.out.println("Enter refId:pos, eg chr5:179535204 . enter \"exit\" to close. (1-indexed pos)");
+            String input = sc.next();
+            System.out.flush();
+            if (input.equals("exit")){
+                break;
+            }
+            String[] split = input.split(":");
+            String chr = split[0];
+            //goby pos
+            int pos =  -1;
+            try {
+                pos = Integer.parseInt(split[1]) - 1;
+            } catch (ArrayIndexOutOfBoundsException | NumberFormatException e){
+                System.out.println("refId:pos badly formatted. try again or exit.");
+                break;
+            }
+
+            //now find true genotype (map or genome)
+            Variant var = varMap.getVariant(chr,pos);
+            String trueGenotype = "True Genotype ";
+            if (var == null) {
+                trueGenotype += " not in varmap:\n";
+                int genomeTargetIndex = genome.getReferenceIndex(chr);
+                if (genomeTargetIndex==-1 ) {
+                    System.err.printf("Unable to locate reference sequence %s in genome.",chr);
+                    break;
                 }
-                recordsLabeled++;
+                char referenceBaseChar = genome.get(genomeTargetIndex, pos);
+                String referenceBase = Character.toString(referenceBaseChar);
+                referenceBase = referenceBase.toUpperCase();
+                trueGenotype += referenceBase + "|" + referenceBase;
+            } else {
+                trueGenotype += " found in map:\n";
+                trueGenotype += var.toString();
+            }
+            System.out.println(trueGenotype);
+            if (!queryFile){
+                continue;
+            }
+            ProgressLogger recordLogger = new ProgressLogger(LOG);
+            System.out.println("scanning from total of " + source.numRecords() + " records.");
+            for (BaseInformationRecords.BaseInformation rec :  source){
+                if (rec.getPosition() == pos && rec.getReferenceId().equals(chr)){
+                    System.out.println ("\n SBI record: \n" + rec);
+                    System.out.println(trueGenotype);
+                    break;
+                }
                 recordLogger.lightUpdate();
-
-
             }
             recordLogger.done();
-            dest.setCustomProperties(addTrueGenotypeHelper.getStatProperties());
-            dest.close();
-            addTrueGenotypeHelper.printStats();
-            } catch (IOException e) {
-            throw new RuntimeException(e);
+
         }
+
+
+
     }
 
 
     @Override
-    public AddTrueGenotypesArguments createArguments() {
-        return new AddTrueGenotypesArguments();
+    public DebugGenotypeArguments createArguments() {
+        return new DebugGenotypeArguments();
     }
 
 
