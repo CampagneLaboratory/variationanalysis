@@ -1,9 +1,6 @@
 package org.campagnelab.dl.genotype.performance;
 
-import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
-
-import java.util.Arrays;
 
 /**
  * Estimate genotype statistics.
@@ -33,6 +30,8 @@ public class StatsAccumulator {
     private int concordantVariants;
     private int numVariantsExpected;
     private int numTrueOrPredictedVariants;
+    private int numIndelsTrueNegative;
+    private int numSnpsTrueNegative;
 
     public void initializeStats() {
         numCorrect = 0;
@@ -49,9 +48,11 @@ public class StatsAccumulator {
         numSnpsCorrect = 0;
         numIndelsProcessed = 0;
         numSnpsProcessed = 0;
+        numSnpsTrueNegative = 0;
         numIndelsTruePositive = 0;
         numIndelsFalsePositive = 0;
         numIndelsFalseNegative = 0;
+        numIndelsTrueNegative = 0;
         numSnpsTruePositive = 0;
         numSnpsFalsePositive = 0;
         numSnpsFalseNegative = 0;
@@ -67,35 +68,56 @@ public class StatsAccumulator {
             numTrueOrPredictedVariants += 1;
             concordantVariants += fullPred.isCorrect() ? 1 : 0;
         }
-
-        if (fullPred.isCorrect()) {
-            numCorrect++;
-            if (isTrueVariant) {
-                numTruePositive++;
-
+        // estimate FP,TP,FN,TN for SNPs:
+        if (!fullPred.isPredictedIndel() && !fullPred.isIndel()) {
+            if (fullPred.isCorrect()) {
+                numCorrect++;
+                if (isTrueVariant) {
+                    numSnpsTruePositive++;
+                    numTruePositive++;
+                } else {
+                    numSnpsTrueNegative++;
+                    numTrueNegative++;
+                }
             } else {
-                numTrueNegative++;
+                if (isTrueVariant) {
+                    numSnpsFalseNegative++;
+                    numFalseNegative++;
+                } else {
+                    numSnpsFalsePositive++;
+                    numFalsePositive++;
+                }
             }
-        } else {
-            if (isTrueVariant) {
-                numFalseNegative++;
+        }
+        // estimate FP,TP,FN,TN for indels:
+        if (fullPred.isPredictedIndel() || fullPred.isIndel()) {
+            if (fullPred.isCorrect()) {
+                numCorrect++;
+                if (isTrueVariant) {
+                    numIndelsTruePositive++;
+                    numTruePositive++;
+
+                } else {
+                    numIndelsTrueNegative++;
+                    numTrueNegative++;
+                }
             } else {
-                numFalsePositive++;
+                if (isTrueVariant) {
+                    numIndelsFalsePositive++;
+                    numFalsePositive++;
+                } else {
+                    numIndelsFalseNegative++;
+                    numFalseNegative++;
+                }
             }
         }
 
         if (fullPred.isVariant()) {
             if (fullPred.isIndel()) {
                 numIndelsProcessed++;
-//                System.out.println("===============");
-//                System.out.println("Curr indel #: " + numProcessed);
-//                System.out.println("Curr indel predicted: " + fullPred.predictedGenotype);
-//                System.out.println("Curr indel true: " + fullPred.trueGenotype);
                 if (fullPred.isCorrect()) {
-//                    System.out.println("Curr indel correct #: " + numProcessed);
                     numIndelsCorrect++;
                 }
-//                System.out.println("===============");
             } else {
                 numSnpsProcessed++;
                 if (fullPred.isCorrect()) {
@@ -104,33 +126,13 @@ public class StatsAccumulator {
             }
         }
 
-        if (fullPred.isPredictedIndel() && fullPred.isIndel()) {
-            if (GenotypeHelper.matchingGenotypes(fullPred.trueGenotype, fullPred.predictedGenotype)) {
-                numIndelsTruePositive++;
-            } else {
-                numIndelsFalseNegative++;
-            }
-        } else if (fullPred.isPredictedIndel() && !fullPred.isIndel()) {
-            numIndelsFalsePositive++;
-        } else if (!fullPred.isPredictedIndel() && fullPred.isIndel()) {
-            numIndelsFalseNegative++;
-        }
-
-        if (fullPred.isPredictedSnp() && fullPred.isSnp()) {
-            if (GenotypeHelper.matchingGenotypes(fullPred.trueGenotype, fullPred.predictedGenotype)) {
-                numSnpsTruePositive++;
-            } else {
-                numSnpsFalseNegative++;
-            }
-        } else if (fullPred.isPredictedSnp() && !fullPred.isSnp()) {
-            numSnpsFalsePositive++;
-        } else if (!fullPred.isPredictedSnp() && fullPred.isSnp()) {
-            numSnpsFalseNegative++;
-        }
-
-
         numVariants += isTrueVariant ? 1 : 0;
-        assert numVariants == numTruePositive + numFalseNegative;
+      //  assert numVariants == numSnpsTruePositive + numSnpsFalseNegative + numIndelsTruePositive + numIndelsFalseNegative;
+        assert numTruePositive==numSnpsTruePositive+numIndelsTruePositive;
+        assert numFalsePositive==numSnpsFalsePositive+numIndelsFalsePositive;
+        assert numFalseNegative==numSnpsFalseNegative+numIndelsFalseNegative;
+        assert numTrueNegative==numSnpsTrueNegative+numIndelsTrueNegative;
+
         numIndels += isTrueVariant && fullPred.isIndel() ? 1 : 0;
     }
 
@@ -218,7 +220,7 @@ public class StatsAccumulator {
     public String[] createOutputHeader() {
         return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance",
                 "Accuracy_Indels", "Recall_Indels", "Precision_Indels", "F1_Indels",
-                "Accuracy_SNPs", "Recall_SNPs", "Precision_SNPs", "F1_SNPs","numIndels",
+                "Accuracy_SNPs", "Recall_SNPs", "Precision_SNPs", "F1_SNPs", "numIndels",
         };
     }
 

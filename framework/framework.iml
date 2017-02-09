@@ -44,6 +44,7 @@
     <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:windows-x86_64:8.0-1.2" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:linux-ppc64le:8.0-1.2" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.2.2-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-platform:0.7.1" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:0.7.1" level="project" />

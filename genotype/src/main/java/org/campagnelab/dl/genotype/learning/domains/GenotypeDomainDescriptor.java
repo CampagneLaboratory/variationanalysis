@@ -416,6 +416,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     case "AUC_V":
                     case "AUC_R":
                     case "F1":
+                    case "F1_Indels":
+                    case "F1_SNPs":
                     case "AUC+F1":
                     case "AUC_VxR":
                     case "Recall":
