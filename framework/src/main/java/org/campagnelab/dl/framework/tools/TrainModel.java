@@ -110,7 +110,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         time = new Date().getTime();
 
         System.out.println("epochs: " + args().maxEpochs);
-        System.out.println(featureCalculator.getClass().getTypeName());
+        System.out.println("FeatureMapper:"+featureCalculator.getClass().getTypeName());
+        System.out.println("ComputationGraphAssembler::"+args().architectureClassname);
         directory = "models/" + Long.toString(time);
         FileUtils.forceMkdir(new File(directory));
         System.out.println("model directory: " + new File(directory).getAbsolutePath());
@@ -168,16 +169,12 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             }
         }
         //Print the  number of parameters in the graph (and for each layer)
-        Layer[] layers = computationGraph.getLayers();
         int totalNumParams = 0;
-        for (int i = 0; i < layers.length; i++) {
-            int nParams = layers[i].numParams();
-            System.out.println("Number of parameters in layer " + i + ": " + nParams);
-            totalNumParams += nParams;
-        }
         for (GraphVertex vertex : computationGraph.getVertices()) {
             if (vertex instanceof LayerVertex) {
-                System.out.println("Number of parameters in layer " + vertex.getVertexName() + ": " + vertex.getLayer().numParams());
+                final int numParams = vertex.getLayer().numParams();
+                System.out.println("Number of parameters in layer " + vertex.getVertexName() + ": " + numParams);
+                totalNumParams+=numParams;
             }
         }
         System.out.println("Total number of network parameters: " + totalNumParams);

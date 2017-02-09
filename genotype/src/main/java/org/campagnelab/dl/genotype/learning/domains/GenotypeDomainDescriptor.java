@@ -377,7 +377,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"AUC", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score", "AUC+F1"};
+                return new String[]{"AUC", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score", "AUC+F1","F1_SNPs","F1_Indels","numIndels"};
                 //       return new String[]{"AUC_V", "AUC_R", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score", "AUC_VxR"};
             }
 
@@ -391,6 +391,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     case "AUC":
                     case "AUC_R":
                     case "F1":
+                    case "F1_SNPs":
+                    case "F1_Indels":
                     case "AUC_VxR":
                     case "AUC+F1":
                     case "accuracy":
@@ -398,6 +400,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     case "Precision":
                     case "alleleAccuracy":
                     case "NumVariants":
+                    case "numIndels":
                     case "Concordance":
                         return true;
                     default:
@@ -413,6 +416,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     case "AUC_V":
                     case "AUC_R":
                     case "F1":
+                    case "F1_Indels":
+                    case "F1_SNPs":
                     case "AUC+F1":
                     case "AUC_VxR":
                     case "Recall":

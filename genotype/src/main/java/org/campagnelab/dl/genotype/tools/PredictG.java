@@ -97,7 +97,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     String[] orderStats = {"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance",
             "Accuracy_Indels", "Recall_Indels", "Precision_Indels", "F1_Indels",
-            "Accuracy_SNPs", "Recall_SNPs", "Precision_SNPs", "F1_SNPs",
+            "Accuracy_SNPs", "Recall_SNPs", "Precision_SNPs", "F1_SNPs", "numIndels"
     };
 
     @Override

@@ -68,7 +68,7 @@ public abstract class  TrainingArguments extends RecordingToolArguments {
     public boolean ignoreCache;
 
     @Parameter(names = "--memory-cache", description = "Name of the datasets to fully cache in memory. Use training,validation to " +
-            "cache both trainind and validation set, or validation only when the training set is too large to fit fully in memory. " +
+            "cache both training and validation set, or validation only when the training set is too large to fit fully in memory. " +
             "Can speed up training, but requires the training set to be small enough to fit in the GPU memory. The default caches" +
             "only the validation set. Use none to disable caching entirely.")
     public String memoryCache = "validation";
