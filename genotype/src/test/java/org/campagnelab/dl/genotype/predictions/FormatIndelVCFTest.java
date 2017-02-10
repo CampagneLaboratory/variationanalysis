@@ -70,4 +70,55 @@ public class FormatIndelVCFTest {
         assertEquals(1,format.toVCF.size());
         assertTrue(format.toVCF.contains("A"));
     }
+
+    //handle snp and del at same pos
+    //from: G-C to: T/GTC  -> from: G to: T/GT
+    @Test
+    public void formatIndelVCF5() throws Exception {
+        String from = "G-C";
+        Set<String> to = new ObjectArraySet<>();
+        to.add("T");
+        to.add("GTC");
+        FormatIndelVCF format = new FormatIndelVCF(from,to, 'G');
+        assertEquals("G",format.fromVCF);
+        assertEquals(2,format.toVCF.size());
+        assertTrue(format.toVCF.contains("T"));
+        assertTrue(format.toVCF.contains("GT"));
+
+    }
+
+
+    //handle snp and insertion at same pos
+    //from: GAC to: T/G-C  -> from: GA to: TA/G
+    @Test
+    public void formatIndelVCF6() throws Exception {
+        String from = "GAC";
+        Set<String> to = new ObjectArraySet<>();
+        to.add("T");
+        to.add("G-C");
+        FormatIndelVCF format = new FormatIndelVCF(from,to, 'G');
+        assertEquals("GA",format.fromVCF);
+        assertEquals(2,format.toVCF.size());
+        assertTrue(format.toVCF.contains("TA"));
+        assertTrue(format.toVCF.contains("G"));
+
+    }
+
+
+
+    //handle simple snp! don't want to accidentally change something that doesn't need fixing
+    //from: A to: C/A  -> from: A  to: C/A
+    @Test
+    public void formatIndelVCF7() throws Exception {
+        String from = "A";
+        Set<String> to = new ObjectArraySet<>();
+        to.add("A");
+        to.add("C");
+        FormatIndelVCF format = new FormatIndelVCF(from,to, 'A');
+        assertEquals("A",format.fromVCF);
+        assertEquals(2,format.toVCF.size());
+        assertTrue(format.toVCF.contains("A"));
+        assertTrue(format.toVCF.contains("C"));
+
+    }
 }
