@@ -34,6 +34,10 @@ public class GenotypeTrainingArguments extends TrainingArguments {
             " If sequences are longer than this length, they will be clipped. ")
     public int indelSequenceLength = 30;
 
+    @Parameter(names = "--true-genotype-length", description = "Maximum length of true genotype to use when mapping" +
+            "true genotype as an output. ")
+    public int trueGenotypeLength = 30;
+
     @Parameter(names = "--num-layers", description = "The number of dense layers in the feedforward model.")
     public int numLayers = 5;
 

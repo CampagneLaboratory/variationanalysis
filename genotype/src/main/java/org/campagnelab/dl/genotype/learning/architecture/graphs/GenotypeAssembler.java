@@ -51,14 +51,14 @@ public abstract class GenotypeAssembler {
     protected void appendTrueGenotypeLayers(ComputationGraphConfiguration.GraphBuilder build, String lastDenseLayerName,
                                             DomainDescriptor domainDescriptor, WeightInit WEIGHT_INIT,
                                             LearningRatePolicy learningRatePolicy,
-                                            int numLSTMLayers, int numLSTMInputs, int numLSTMHiddenNodes) {
+                                            int numLSTMLayers, int numIn, int numLSTMHiddenNodes) {
 
         build.addVertex("feedForwardLstmDuplicate", new DuplicateToTimeSeriesVertex("trueGenotypeInput"), lastDenseLayerName);
         String lstmLayerName = "no layer";
         for (int i = 0; i < numLSTMLayers; i++) {
             lstmLayerName = "lstmTrueGenotype_" + i;
             String lstmPreviousLayerName = i == 0 ? "feedForwardLstmDuplicate" : "lstmTrueGenotype_" + (i - 1);
-            int numLSTMInputNodes = i == 0 ? numLSTMInputs : numLSTMHiddenNodes;
+            int numLSTMInputNodes = i == 0 ? numIn : numLSTMHiddenNodes;
             build.addLayer(lstmLayerName, new GravesLSTM.Builder()
                     .nIn(numLSTMInputNodes)
                     .nOut(numLSTMHiddenNodes)

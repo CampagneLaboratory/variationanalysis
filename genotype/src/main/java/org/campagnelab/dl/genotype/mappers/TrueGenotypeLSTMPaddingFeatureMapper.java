@@ -18,9 +18,9 @@ public class TrueGenotypeLSTMPaddingFeatureMapper implements
 
     @Override
     public void configure(Properties readerProperties) {
-        int indelSequenceLength = Integer.parseInt(readerProperties.getProperty("indelSequenceLength"));
-        OneHotBaseFeatureMapper<String>[] delegateMapperArray = new OneHotBaseFeatureMapper[indelSequenceLength];
-        for (int i = 0; i < indelSequenceLength; i++) {
+        int trueGenotypeLength = Integer.parseInt(readerProperties.getProperty("trueGenotypeLength"));
+        OneHotBaseFeatureMapper<String>[] delegateMapperArray = new OneHotBaseFeatureMapper[trueGenotypeLength];
+        for (int i = 0; i < trueGenotypeLength; i++) {
             delegateMapperArray[i] = new OneHotBaseFeatureMapper<>(i, Function.identity(),
                    TrueGenotypeLSTMPaddingFeatureMapper::baseToPaddingFeature, 1);
         }

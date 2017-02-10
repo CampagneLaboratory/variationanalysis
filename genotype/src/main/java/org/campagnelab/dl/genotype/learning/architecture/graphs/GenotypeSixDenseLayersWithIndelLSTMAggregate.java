@@ -158,7 +158,7 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
         appendMetaDataLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         appendIsVariantLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         appendTrueGenotypeLayers(build, lastDenseLayerName, domainDescriptor, WEIGHT_INIT, LEARNING_RATE_POLICY,
-                numLSTMLayers, numLSTMInputs, numLSTMHiddenNodes);
+                numLSTMLayers, numIn, numLSTMHiddenNodes);
     }
 
     @Override

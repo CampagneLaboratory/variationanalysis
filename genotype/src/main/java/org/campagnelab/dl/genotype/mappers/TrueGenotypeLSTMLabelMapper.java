@@ -15,8 +15,8 @@ public class TrueGenotypeLSTMLabelMapper implements LabelMapper<BaseInformationR
     private static final int labelsPerTimeStep = 8;
     private String cachedRecordGenotype;
 
-    public TrueGenotypeLSTMLabelMapper(int maxIndelLength) {
-        delegate = new RNNLabelMapper<>(maxIndelLength, labelsPerTimeStep,
+    public TrueGenotypeLSTMLabelMapper(int maxGenotypeLength) {
+        delegate = new RNNLabelMapper<>(maxGenotypeLength, labelsPerTimeStep,
                 TrueGenotypeLSTMLabelMapper::recordToLabel, String::length);
     }
 

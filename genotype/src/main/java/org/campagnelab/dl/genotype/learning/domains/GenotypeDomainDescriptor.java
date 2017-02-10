@@ -49,6 +49,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     double variantLossWeight;
     private int genomicContextSize;
     private int indelSeqeunceLength;
+    private int trueGenotypeLength;
     private float modelCapacity;
 
 
@@ -61,6 +62,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         isLstmIndelModel = netArchitectureHasIndelLSTM(args().architectureClassname);
         isLstmIndelAggregateModel = netArchitectureHasIndelAggregateLSTM(args().architectureClassname);
         indelSeqeunceLength = args().indelSequenceLength;
+        trueGenotypeLength = args().trueGenotypeLength;
         modelCapacity = args().modelCapacity;
         addTrueGenotypeLabels = args().addTrueGenotypeLabels;
         if (modelCapacity < 0) {
@@ -254,7 +256,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                         baseInformation -> baseInformation.getSamples(0).getIsVariant(),
                         args().labelSmoothingEpsilon);
             case "trueGenotype":
-                return new TrueGenotypeLSTMLabelMapper(args().genomicContextLength);
+                return new TrueGenotypeLSTMLabelMapper(args().trueGenotypeLength);
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
@@ -298,6 +300,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         String modelCapacityProperty = modelProperties.getProperty("modelCapacity");
         modelCapacity = Float.parseFloat(modelCapacityProperty);
         indelSeqeunceLength = Integer.parseInt(modelProperties.getProperty("indelSequenceLength"));
+        trueGenotypeLength = Integer.parseInt(modelProperties.getProperty("trueGenotypeLength"));
         addTrueGenotypeLabels = Boolean.parseBoolean(modelProperties.getProperty("addTrueGenotypeLabels"));
 
     }
@@ -328,6 +331,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         modelProperties.setProperty("variantLossWeight", Double.toString(variantLossWeight));
         modelProperties.setProperty("labelSmoothing.epsilon", Double.toString(args().labelSmoothingEpsilon));
         modelProperties.setProperty("indelSequenceLength", Integer.toString(args().indelSequenceLength));
+        modelProperties.setProperty("trueGenotypeLength", Integer.toString(args().trueGenotypeLength));
         modelProperties.setProperty("addTrueGenotypeLabels", Boolean.toString(args().addTrueGenotypeLabels));
     }
 
@@ -369,6 +373,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new IsVariantInterpreter();
             case "metaData":
                 return new MetaDataInterpreter();
+            case "trueGenotype":
+                return new TrueGenotypeInterpreter();
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
