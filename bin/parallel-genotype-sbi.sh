@@ -53,26 +53,30 @@ if [ -z "${REALIGN_AROUND_INDELS+set}" ]; then
     echo "Set REALIGN_AROUND_INDELS to true to enable realignment around indels."
     REALIGNMENT_OPTION=" "
 else
-   echo "REALIGN_AROUND_INDELS set to ${REALIGN_AROUND_INDELS}. Change the variable to enable realignment around indels."
+   echo "REALIGN_AROUND_INDELS set to ${REALIGN_AROUND_INDELS}. ENABLED realignment around indels."
+   REALIGNMENT_OPTION="--processor realign_near_indels"
 fi
 
-if [ "${REALIGNMENT_OPTION}" == "true" ]; then
-    REALIGNMENT_OPTION="--processor realign_near_indels"
-fi
 
 echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
 
 goby 8g suggest-position-slices ${ALIGNMENTS} --number-of-slices ${GOBY_NUM_SLICES} -o slices.tsv
 grep -v targetIdStart slices.tsv >slices
+
+
 echo " discover-sequence-variants -n 0 -t 1 --genome  ${SBI_GENOME} --format  SEQUENCE_BASE_INFORMATION  ${ALIGNMENTS} \
     --call-indels  ${INCLUDE_INDELS} ${REALIGNMENT_OPTION} \
     --max-coverage-per-site 10000 -x HTSJDKReaderImpl:force-sorted=true \
     -x SequenceBaseInformationOutputFormat:genomic-context-length=41 \
     ${VARMAP_OPTION} " >command.txt
 
+# keep a log of the commands that were used to generate this dataset:
+cp command.txt command-`date +%h_%d_%H_%M`.txt
+
 cut -f3,6 slices  | awk 'BEGIN{count=1} {print "-s "$1" -e " $2" -o out-part-"(count++)}' >boundaries
 parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby 10g  `cat command.txt`  :::: boundaries
 
-
+# keep a log of the commands that were used to generate this dataset:
+cp command.txt command-`date +%h_%d_%H_%M`.txt
 
 concat.sh ${memory_requirement} -i out-part-*.sbi -o ${OUTPUT_BASENAME}

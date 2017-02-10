@@ -21,6 +21,7 @@ import org.nd4j.linalg.lossfunctions.ILossFunction;
  */
 public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler implements ComputationGraphAssembler {
     private final String[] outputNames;
+    private final String[] inputNames;
     private static final String[] lstmInputNames = new String[]{"from", "G1", "G2", "G3"};
     private static final WeightInit WEIGHT_INIT = WeightInit.XAVIER;
     private static final LearningRatePolicy LEARNING_RATE_POLICY = LearningRatePolicy.Poly;
@@ -37,45 +38,79 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
     private GenotypeTrainingArguments arguments;
 
     public GenotypeSixDenseLayersWithIndelLSTM() {
-        this(DEFAULT_OUTPUT_TYPE, false, false);
+        this(DEFAULT_OUTPUT_TYPE, false, false, false);
     }
 
     public GenotypeSixDenseLayersWithIndelLSTM(OutputType outputType, boolean hasIsVariant) {
-        this(outputType, hasIsVariant, false);
+        this(outputType, hasIsVariant, false, false);
     }
 
-    public GenotypeSixDenseLayersWithIndelLSTM(OutputType outputType, boolean hasIsVariant, boolean fixRef) {
+    public GenotypeSixDenseLayersWithIndelLSTM(OutputType outputType, boolean hasIsVariant, boolean fixRef,
+                                               boolean addTrueGenotypeLabels) {
         this.outputType = outputType;
         this.hasIsVariant = hasIsVariant;
         combined = fixRef ? "combinedRef" : "combined";
         switch (outputType) {
             case DISTINCT_ALLELES:
                 if (hasIsVariant) {
-                    outputNames = new String[]{"numDistinctAlleles", "A", "T", "C", "G", "N",
-                            "I1", "I2", "I3", "I4", "I5", "metaData", "isVariant"};
+                    if (addTrueGenotypeLabels) {
+                        outputNames = new String[]{"numDistinctAlleles", "A", "T", "C", "G", "N",
+                                "I1", "I2", "I3", "I4", "I5", "metaData", "isVariant", "trueGenotype"};
+                    } else {
+                        outputNames = new String[]{"numDistinctAlleles", "A", "T", "C", "G", "N",
+                                "I1", "I2", "I3", "I4", "I5", "metaData", "isVariant"};
+                    }
                 } else {
-                    outputNames = new String[]{"numDistinctAlleles", "A", "T", "C", "G", "N",
-                            "I1", "I2", "I3", "I4", "I5", "metaData"};
+                    if (addTrueGenotypeLabels) {
+                        outputNames = new String[]{"numDistinctAlleles", "A", "T", "C", "G", "N",
+                                "I1", "I2", "I3", "I4", "I5", "metaData", "trueGenotype"};
+                    } else {
+                        outputNames = new String[]{"numDistinctAlleles", "A", "T", "C", "G", "N",
+                                "I1", "I2", "I3", "I4", "I5", "metaData"};
+                    }
                 }
                 break;
             case COMBINED:
                 if (hasIsVariant) {
-                    outputNames = new String[]{combined, "metaData", "isVariant"};
+                    if (addTrueGenotypeLabels) {
+                        outputNames = new String[]{combined, "metaData", "isVariant", "trueGenotype"};
+                    } else {
+                        outputNames = new String[]{combined, "metaData", "isVariant"};
+                    }
                 } else {
-                    outputNames = new String[]{combined, "metaData"};
+                    if (addTrueGenotypeLabels) {
+                        outputNames = new String[]{combined, "metaData", "trueGenotype"};
+                    } else {
+                        outputNames = new String[]{combined, "metaData"};
+                    }
                 }
                 break;
             case HOMOZYGOUS:
                 if (hasIsVariant) {
-                    outputNames = new String[]{"homozygous", "A", "T", "C", "G", "N",
-                            "I1", "I2", "I3", "I4", "I5", "metaData", "isVariant"};
+                    if (addTrueGenotypeLabels) {
+                        outputNames = new String[]{"homozygous", "A", "T", "C", "G", "N",
+                                "I1", "I2", "I3", "I4", "I5", "metaData", "isVariant", "trueGenotype"};
+                    } else {
+                        outputNames = new String[]{"homozygous", "A", "T", "C", "G", "N",
+                                "I1", "I2", "I3", "I4", "I5", "metaData", "isVariant"};
+                    }
                 } else {
-                    outputNames = new String[]{"homozygous", "A", "T", "C", "G", "N",
-                            "I1", "I2", "I3", "I4", "I5", "metaData"};
+                    if (addTrueGenotypeLabels) {
+                        outputNames = new String[]{"homozygous", "A", "T", "C", "G", "N",
+                                "I1", "I2", "I3", "I4", "I5", "metaData", "trueGenotype"};
+                    } else {
+                        outputNames = new String[]{"homozygous", "A", "T", "C", "G", "N",
+                                "I1", "I2", "I3", "I4", "I5", "metaData"};
+                    }
                 }
                 break;
             default:
                 throw new RuntimeException("Output type not recognized");
+        }
+        if (args().addTrueGenotypeLabels) {
+            inputNames = new String[]{"input", "from", "G1", "G2", "G3", "trueGenotypeInput"};
+        } else {
+            inputNames = new String[]{"input", "from", "G1", "G2", "G3"};
         }
     }
 
@@ -89,7 +124,8 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
     }
 
     private void addOutputLayers(ComputationGraphConfiguration.GraphBuilder build, DomainDescriptor domainDescriptor,
-                                 String lastDenseLayerName, int numIn) {
+                                 String lastDenseLayerName,  int numIn, int numLSTMLayers, int numLSTMHiddenNodes,
+                                 int numLSTMInputs) {
         if (outputType == OutputType.HOMOZYGOUS || outputType == OutputType.DISTINCT_ALLELES) {
             if (outputType == OutputType.DISTINCT_ALLELES) {
                 build.addLayer("numDistinctAlleles", new OutputLayer.Builder(domainDescriptor.getOutputLoss("homozygous"))
@@ -121,6 +157,8 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         }
         appendMetaDataLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         appendIsVariantLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
+        appendTrueGenotypeLayers(build, lastDenseLayerName, domainDescriptor, WEIGHT_INIT, LEARNING_RATE_POLICY,
+                numLSTMLayers, numLSTMInputs, numLSTMHiddenNodes);
     }
 
     @Override
@@ -161,7 +199,8 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
                 numLayers, "lstmFeedForwardMerge", 1);
         String lastDenseLayerName = assembler.lastLayerName();
         int numIn = assembler.getNumOutputs();
-        addOutputLayers(build, domainDescriptor, lastDenseLayerName, numIn);
+        addOutputLayers(build, domainDescriptor, lastDenseLayerName, numIn, numLSTMLayers, numLSTMHiddenNodes,
+                numLSTMInputs);
         ComputationGraphConfiguration conf = build
                 .setOutputs(outputNames)
                 .build();
@@ -186,7 +225,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
 
     @Override
     public String[] getInputNames() {
-        return new String[]{"input", "from", "G1", "G2", "G3"};
+        return inputNames;
     }
 
     private InputType[] getInputTypes(DomainDescriptor domainDescriptor) {
@@ -201,6 +240,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
                 case "G1":
                 case "G2":
                 case "G3":
+                case "trueGenotypeInput":
                     inputTypes[i] = InputType.recurrent(domainDescriptor.getNumInputs(inputNames[i])[0]);
                     break;
                 default:
