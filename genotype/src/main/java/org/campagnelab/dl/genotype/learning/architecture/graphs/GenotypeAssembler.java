@@ -3,7 +3,10 @@ package org.campagnelab.dl.genotype.learning.architecture.graphs;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
+import org.deeplearning4j.nn.conf.graph.rnn.DuplicateToTimeSeriesVertex;
+import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
+import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.weights.WeightInit;
 
 /**
@@ -43,5 +46,30 @@ public abstract class GenotypeAssembler {
                 .nOut(
                         domainDescriptor.getNumOutputs("metaData")[0]
                 ).build(), lastDenseLayerName);
+    }
+
+    protected void appendTrueGenotypeLayers(ComputationGraphConfiguration.GraphBuilder build, String lastDenseLayerName,
+                                            DomainDescriptor domainDescriptor, WeightInit WEIGHT_INIT,
+                                            LearningRatePolicy learningRatePolicy,
+                                            int numLSTMLayers, int numLSTMInputs, int numLSTMHiddenNodes) {
+
+        build.addVertex("feedForwardLstmDuplicate", new DuplicateToTimeSeriesVertex("trueGenotypeInput"), lastDenseLayerName);
+        String lstmLayerName = "no layer";
+        for (int i = 0; i < numLSTMLayers; i++) {
+            lstmLayerName = "lstmTrueGenotype_" + i;
+            String lstmPreviousLayerName = i == 0 ? "feedForwardLstmDuplicate" : "lstmTrueGenotype_" + (i - 1);
+            int numLSTMInputNodes = i == 0 ? numLSTMInputs : numLSTMHiddenNodes;
+            build.addLayer(lstmLayerName, new GravesLSTM.Builder()
+                    .nIn(numLSTMInputNodes)
+                    .nOut(numLSTMHiddenNodes)
+                    .build(), lstmPreviousLayerName);
+        }
+        build.addLayer("lstmTrueGenotypeOutput", new RnnOutputLayer.Builder(domainDescriptor.getOutputLoss("trueGenotype"))
+                .weightInit(WEIGHT_INIT)
+                .activation("softsign")
+                .learningRateDecayPolicy(learningRatePolicy)
+                .nIn(numLSTMHiddenNodes)
+                .nOut(domainDescriptor.getNumOutputs("trueGenotype")[0]).build(), lstmLayerName);
+
     }
 }
