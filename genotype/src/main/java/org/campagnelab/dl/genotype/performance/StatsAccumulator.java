@@ -25,15 +25,15 @@ public class StatsAccumulator {
     int numSnpsTruePositive;
     int numSnpsFalsePositive;
     int numSnpsFalseNegative;
-    private int numVariants;
-    private int numIndels;
-    private int concordantVariants;
-    private int numVariantsExpected;
-    private int numTrueOrPredictedVariants;
-    private int numIndelsTrueNegative;
-    private int numSnpsTrueNegative;
-    private int hetCount = 0;
-    private int homCount = 0;
+    int numVariants;
+    int numIndels;
+    int concordantVariants;
+    int numVariantsExpected;
+    int numTrueOrPredictedVariants;
+    int numIndelsTrueNegative;
+    int numSnpsTrueNegative;
+    int hetCount = 0;
+    int homCount = 0;
 
     public void initializeStats() {
         numCorrect = 0;
@@ -67,6 +67,7 @@ public class StatsAccumulator {
     }
 
     public void observe(GenotypePrediction fullPred, boolean isTrueVariant, boolean isPredictedVariant) {
+        fullPred.rebuild();
         numProcessed++;
         if (isPredictedVariant || isTrueVariant) {
             numTrueOrPredictedVariants += 1;
@@ -74,11 +75,11 @@ public class StatsAccumulator {
         }
         if (isPredictedVariant) {
             final int size = fullPred.predictedAlleles().size();
-            homCount+= (size ==1? 1:0);
-            hetCount+= (size ==2? 1:0);
+            homCount += (size == 1 ? 1 : 0);
+            hetCount += (size == 2 ? 1 : 0);
         }
         // estimate FP,TP,FN,TN for SNPs:
-        if (fullPred.isPredictedSnp() || fullPred.isSnp() ) {
+        if (fullPred.isPredictedSnp() || fullPred.isSnp()) {
             if (fullPred.isCorrect()) {
                 numCorrect++;
                 if (isTrueVariant) {
@@ -99,8 +100,8 @@ public class StatsAccumulator {
             }
         }
         // estimate FP,TP,FN,TN for indels:
-        else{
-        //if (fullPred.isPredictedIndel() || fullPred.isIndel()) {
+
+        if (fullPred.isPredictedIndel() || fullPred.isIndel()) {
             if (fullPred.isCorrect()) {
                 numCorrect++;
                 if (isTrueVariant) {
@@ -113,11 +114,11 @@ public class StatsAccumulator {
                 }
             } else {
                 if (isTrueVariant) {
-                    numIndelsFalsePositive++;
-                    numFalsePositive++;
-                } else {
                     numIndelsFalseNegative++;
                     numFalseNegative++;
+                } else {
+                    numIndelsFalsePositive++;
+                    numFalsePositive++;
                 }
             }
         }
@@ -162,7 +163,7 @@ public class StatsAccumulator {
         double snpRecall = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalseNegative);
         double snpPrecision = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalsePositive);
         double snpF1 = 2 * snpPrecision * snpRecall / (snpPrecision + snpRecall);
-        double het_hom_ratio = (1f+hetCount) / (1f+homCount);
+        double het_hom_ratio = (1f + hetCount) / (1f + homCount);
         return new double[]{accuracy, recall, precision, F1, numVariants, genotypeConcordance, indelAccuracy,
                 indelRecall, indelPrecision, indelF1, snpAccuracy, snpRecall, snpPrecision, snpF1, numIndels, het_hom_ratio, numTruePositive, numTrueNegative};
     }
@@ -223,10 +224,10 @@ public class StatsAccumulator {
                     j = 15;
                     break;
                 case "TP":
-                    j=16;
+                    j = 16;
                     break;
                 case "TN":
-                    j=17;
+                    j = 17;
                     break;
 
                 default:
@@ -240,7 +241,8 @@ public class StatsAccumulator {
     public String[] createOutputHeader() {
         return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance",
                 "Accuracy_Indels", "Recall_Indels", "Precision_Indels", "F1_Indels",
-                "Accuracy_SNPs", "Recall_SNPs", "Precision_SNPs", "F1_SNPs", "numIndels","Het_Hom_Ratio"
+                "Accuracy_SNPs", "Recall_SNPs", "Precision_SNPs", "F1_SNPs",
+                "numIndels", "Het_Hom_Ratio", "TP", "TN"
         };
     }
 
