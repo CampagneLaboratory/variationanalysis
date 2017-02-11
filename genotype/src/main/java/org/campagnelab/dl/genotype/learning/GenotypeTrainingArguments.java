@@ -64,4 +64,7 @@ public class GenotypeTrainingArguments extends TrainingArguments {
 
     @Parameter(names = "--ploidy", description = "The organism ploidy (2 for humans, more for some plants). ")
     public int ploidy = 2;
+
+    @Parameter(names = "--add-true-genotype-labels", description = "If true, add true genotype label mapper as output")
+    public boolean addTrueGenotypeLabels;
 }

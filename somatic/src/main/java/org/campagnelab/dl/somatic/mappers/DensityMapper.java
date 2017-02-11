@@ -74,7 +74,15 @@ public class DensityMapper extends NoMaskFeatureMapper<BaseInformationRecords.Ba
         //extend range to handle two fields
         this.minValue = Math.min((int)getMin(sbiProperties, "stats." + name1),(int)getMin(sbiProperties, "stats." + name2));
         this.maxValue = Math.max((int)getMax(sbiProperties, "stats." + name1),(int)getMax(sbiProperties, "stats." + name2));
-        constructorHelper(name1 + "+" + name2,numBins,recordToValues,valueFunction);
+        StringBuffer common = new StringBuffer(name1);
+        int i = 0;
+        for (i = 0; i < Math.min(name1.length(),name2.length()); i++){
+            if (!(name1.charAt(i) == name2.charAt(i))){
+                break;
+            }
+        }
+        common.append("+" + name2.substring(i));
+        constructorHelper(common.toString(),numBins,recordToValues,valueFunction);
     }
 
 

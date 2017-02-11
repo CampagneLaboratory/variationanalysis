@@ -29,14 +29,16 @@ public class FormatIndelVCF extends Prediction {
 
     public FormatIndelVCF(String from, Set<String> to, char refBase){
 
-        //step 1
+        //step 1. extend ref or snp to include remainder ref string
         String refBaseStr = Character.toString(refBase);
         for (String s: to) {
-            if (s.equals(refBaseStr)) {
+            if (s.length() == 1) {
                 to.remove(s);
-                to.add(from);
+                String refOrSnp = s + (from.length() > 1 ? from.substring(1,from.length()) : "");
+                to.add(refOrSnp);
             }
         }
+
 
 
         //find newlen for step 2

@@ -42,6 +42,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
                                     Consumer<GenotypePrediction > observer, Consumer<Double> scoreObserver) {
         iterator.reset();
         accumulator = new StatsAccumulator();
+        accumulator.initializeStats();
         int index = 0;
         int nProcessed = 0;
         int nCorrect = 0;
@@ -72,7 +73,8 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
                     }
                 }
                 GenotypePrediction gp = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictions);
-                accumulator.observe(gp,gp.isVariant(), GenotypeHelper.isVariant(gp.predictedGenotype,"0"));
+
+                accumulator.observe(gp, gp.isVariant(), GenotypeHelper.isVariant(gp.predictedGenotype,"0"));
                 observer.accept(gp);
                 if (stopIfTrue.test(nProcessed)) {
                     break;

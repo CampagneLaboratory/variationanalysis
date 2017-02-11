@@ -18,7 +18,12 @@ public class DebugGenotypeArguments implements ToolArguments {
 
     @Parameter(required = true, names = {"-g", "--genome"}, description = "Genome location to add calls with")
     public String genomeFilename;
+
+    @Parameter(names = "--feature-mapper", description = "Fully qualified name of the feature mapper class. Use this to see mapped features of a record.")
+    public String featureMapperClassname;
+
+    @Parameter(names = "--net-architecture", description = "fully qualified classname that implements the choice of network architecture. Use this to see mapped labels of a record.")
+    public java.lang.String architectureClassname;
     
 
 }
-
