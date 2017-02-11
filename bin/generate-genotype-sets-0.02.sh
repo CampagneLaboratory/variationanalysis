@@ -39,6 +39,8 @@ if [ -z "${SBI_GENOTYPE_VARMAP+set}" ]; then
     -o tmp/variants.varmap
   dieIfError "Failed to produce varmap"
   export SBI_GENOTYPE_VARMAP=tmp/variants.varmap
+  cp tmp/variants.varmap ./${OUTPUT_PREFIX}.varmap
+  echo "export SBI_GENOTYPE_VARMAP=${OUTPUT_PREFIX}.varmap" >> configure.sh
 fi
 
 
