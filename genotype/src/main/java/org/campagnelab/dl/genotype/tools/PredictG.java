@@ -233,7 +233,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             }
         }
         if (!args().filterMetricObservations) {
-            stats.observe(fullPred, fullPred.isVariant(), isPredictedVariant);
+            stats.observe(fullPred, isVariant, isPredictedVariant);
             observeForAUC(fullPred, isVariant);
         }
 

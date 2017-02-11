@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="Maven: org.campagnelab.goby:goby-io:3.2.2-SNAPSHOT">
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/campagnelab/goby/goby-io/3.2.2-SNAPSHOT/goby-io-3.2.2-SNAPSHOT.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/campagnelab/goby/goby-io/3.2.2-SNAPSHOT/goby-io-3.2.2-20170201.211953-1.jar!/" />
     </CLASSES>
     <JAVADOC>
-      <root url="jar://$MAVEN_REPOSITORY$/org/campagnelab/goby/goby-io/3.2.2-SNAPSHOT/goby-io-3.2.2-SNAPSHOT-javadoc.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/campagnelab/goby/goby-io/3.2.2-SNAPSHOT/goby-io-3.2.2-20170201.211953-1-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/campagnelab/goby/goby-io/3.2.2-SNAPSHOT/goby-io-3.2.2-SNAPSHOT-sources.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/campagnelab/goby/goby-io/3.2.2-SNAPSHOT/goby-io-3.2.2-20170201.211953-1-sources.jar!/" />
     </SOURCES>
   </library>
 </component>
