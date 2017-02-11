@@ -25,7 +25,7 @@ public class NamingConcatFeatureMapper<RecordType> extends ConcatFeatureMapper<R
         if (indexOfDelegate < 0) {
             indexOfDelegate = -(indexOfDelegate + 1) - 1;
         }
-        return ((FeatureNameMapper)this.mappers[indexOfDelegate]).getFeatureName(i - offsets[indexOfDelegate]);
+        return ((FeatureNameMapper)this.mappers[indexOfDelegate]).getFeatureName(i - offsets[indexOfDelegate])+ "_d" + Integer.toString(indexOfDelegate);
     }
 
 
