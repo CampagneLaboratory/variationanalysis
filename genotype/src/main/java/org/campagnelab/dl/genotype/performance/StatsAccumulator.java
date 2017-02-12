@@ -22,6 +22,7 @@ public class StatsAccumulator {
     int numIndelsTruePositive;
     int numIndelsFalsePositive;
     int numIndelsFalseNegative;
+    int numIndelsTrueNegative;
     int numSnpsTruePositive;
     int numSnpsFalsePositive;
     int numSnpsFalseNegative;
@@ -30,7 +31,7 @@ public class StatsAccumulator {
     int concordantVariants;
     int numVariantsExpected;
     int numTrueOrPredictedVariants;
-    int numIndelsTrueNegative;
+
     int numSnpsTrueNegative;
     int hetCount = 0;
     int homCount = 0;
@@ -75,8 +76,8 @@ public class StatsAccumulator {
         }
         if (isPredictedVariant) {
             final int size = fullPred.predictedAlleles().size();
-            homCount += (size == 1 ? 1 : 0);
-            hetCount += (size == 2 ? 1 : 0);
+            hetCount += (size == 2 ? 1 : 0); //AB
+            homCount += (size == 1 ? 1 : 0); //BB
         }
         // estimate FP,TP,FN,TN for SNPs:
         if (fullPred.isPredictedSnp() || fullPred.isSnp()) {
@@ -107,7 +108,6 @@ public class StatsAccumulator {
                 if (isTrueVariant) {
                     numIndelsTruePositive++;
                     numTruePositive++;
-
                 } else {
                     numIndelsTrueNegative++;
                     numTrueNegative++;
@@ -144,7 +144,7 @@ public class StatsAccumulator {
         assert numFalseNegative == numSnpsFalseNegative + numIndelsFalseNegative;
         assert numTrueNegative == numSnpsTrueNegative + numIndelsTrueNegative;
 
-        numIndels += isTrueVariant && fullPred.isIndel() ? 1 : 0;
+        numIndels += fullPred.isIndel() ? 1 : 0;
     }
 
     public double[] createOutputStatistics() {
@@ -163,7 +163,7 @@ public class StatsAccumulator {
         double snpRecall = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalseNegative);
         double snpPrecision = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalsePositive);
         double snpF1 = 2 * snpPrecision * snpRecall / (snpPrecision + snpRecall);
-        double het_hom_ratio = (1f + hetCount) / (1f + homCount);
+        double het_hom_ratio = (hetCount)/*AB*/ / (homCount == 0 ? 1 : homCount) /*BB*/;
         return new double[]{accuracy, recall, precision, F1, numVariants, genotypeConcordance, indelAccuracy,
                 indelRecall, indelPrecision, indelF1, snpAccuracy, snpRecall, snpPrecision, snpF1, numIndels, het_hom_ratio, numTruePositive, numTrueNegative};
     }
@@ -262,6 +262,8 @@ public class StatsAccumulator {
         System.out.println("Indel Recall =" + statsArray[7]);
         System.out.println("Indel Precision =" + statsArray[8]);
         System.out.println("Indel F1 =" + statsArray[9]);
+        System.out.printf( "Indel TP %d FN %d FP %d TN %d %n", numIndelsTruePositive, numIndelsFalseNegative, numIndelsFalsePositive, numIndelsTrueNegative);
+        System.out.printf( "numIndels=%d%n",numIndels);
         System.out.println("numIndels =" + statsArray[14]);
         System.out.println("SNP Accuracy =" + statsArray[10]);
         System.out.println("SNP Recall =" + statsArray[11]);
