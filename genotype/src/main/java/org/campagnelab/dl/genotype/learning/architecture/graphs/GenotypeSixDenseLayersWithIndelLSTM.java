@@ -28,6 +28,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
     private static final OutputType DEFAULT_OUTPUT_TYPE = OutputType.DISTINCT_ALLELES;
     private final String combined;
     private final OutputType outputType;
+    private final boolean addTrueGenotypeLabels;
 
     public enum OutputType {
         HOMOZYGOUS,
@@ -47,6 +48,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
 
     public GenotypeSixDenseLayersWithIndelLSTM(OutputType outputType, boolean hasIsVariant, boolean fixRef,
                                                boolean addTrueGenotypeLabels) {
+        this.addTrueGenotypeLabels = addTrueGenotypeLabels;
         this.outputType = outputType;
         this.hasIsVariant = hasIsVariant;
         combined = fixRef ? "combinedRef" : "combined";
@@ -107,7 +109,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
             default:
                 throw new RuntimeException("Output type not recognized");
         }
-        if (args().addTrueGenotypeLabels) {
+        if (addTrueGenotypeLabels) {
             inputNames = new String[]{"input", "from", "G1", "G2", "G3", "trueGenotypeInput"};
         } else {
             inputNames = new String[]{"input", "from", "G1", "G2", "G3"};
@@ -157,7 +159,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         }
         appendMetaDataLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         appendIsVariantLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
-        appendTrueGenotypeLayers(build, lastDenseLayerName, domainDescriptor, WEIGHT_INIT, LEARNING_RATE_POLICY,
+        appendTrueGenotypeLayers(build, addTrueGenotypeLabels, lastDenseLayerName, domainDescriptor, WEIGHT_INIT, LEARNING_RATE_POLICY,
                 numLSTMLayers, numIn, numLSTMHiddenNodes);
     }
 

@@ -28,6 +28,7 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
     private static final GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType DEFAULT_OUTPUT_TYPE = GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType.DISTINCT_ALLELES;
     private final String combined;
     private final GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType outputType;
+    private final boolean addTrueGenotypeLabels;
 
     public enum OutputType {
         HOMOZYGOUS,
@@ -49,6 +50,7 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
                                                         boolean hasIsVariant, boolean fixRef, boolean addTrueGenotypeLabels) {
         this.outputType = outputType;
         this.hasIsVariant = hasIsVariant;
+        this.addTrueGenotypeLabels = addTrueGenotypeLabels;
         combined = fixRef ? "combinedRef" : "combined";
         switch (outputType) {
             case DISTINCT_ALLELES:
@@ -107,10 +109,10 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
             default:
                 throw new RuntimeException("Output type not recognized");
         }
-        if (args().addTrueGenotypeLabels) {
-            inputNames = new String[]{"input", "from", "G1", "G2", "G3", "trueGenotypeInput"};
+        if (addTrueGenotypeLabels) {
+            inputNames = new String[]{"input", "indel", "trueGenotypeInput"};
         } else {
-            inputNames = new String[]{"input", "from", "G1", "G2", "G3"};
+            inputNames = new String[]{"input", "indel"};
         }
     }
 
@@ -157,7 +159,7 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
         }
         appendMetaDataLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         appendIsVariantLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
-        appendTrueGenotypeLayers(build, lastDenseLayerName, domainDescriptor, WEIGHT_INIT, LEARNING_RATE_POLICY,
+        appendTrueGenotypeLayers(build, addTrueGenotypeLabels, lastDenseLayerName, domainDescriptor, WEIGHT_INIT, LEARNING_RATE_POLICY,
                 numLSTMLayers, numIn, numLSTMHiddenNodes);
     }
 
