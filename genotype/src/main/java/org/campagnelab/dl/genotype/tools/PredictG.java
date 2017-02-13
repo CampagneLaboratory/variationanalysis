@@ -42,6 +42,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     private double[] confidenceInterval95;
     private PrintWriter bedWriter;
     private PrintWriter vcfWriter;
+    private String[] orderStats;
 
 
     @Override
@@ -92,10 +93,11 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         stats = new StatsAccumulator();
         stats.setNumVariantsExpected(args().numVariantsExpected);
         stats.initializeStats();
+        orderStats = stats.createOutputHeader();
         aucLossCalculator = new AreaUnderTheROCCurve(args().numRecordsForAUC);
     }
 
-    private String[] orderStats = stats.createOutputHeader();
+
 
     @Override
     protected double[] createOutputStatistics() {
