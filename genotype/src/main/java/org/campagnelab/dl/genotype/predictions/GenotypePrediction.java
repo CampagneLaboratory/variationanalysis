@@ -53,10 +53,22 @@ public class GenotypePrediction extends Prediction {
      * Indicates the confidence that the genotype is a variant.
      */
     public double isVariantProbability;
+    private boolean predictedSNP;
 
     public GenotypePrediction(String predictedGenotype, String trueGenotype) {
         this.predictedGenotype = predictedGenotype;
         this.trueGenotype = trueGenotype;
+        rebuild();
+    }
+
+    public void rebuild() {
+        predictedSNP = true;
+        for (String allele : predictedAlleles()) {
+            if (allele.length() > 1) {
+                predictedSNP = false;
+                isPredictedIndel = true;
+            }
+        }
     }
 
     public GenotypePrediction() {
@@ -71,24 +83,24 @@ public class GenotypePrediction extends Prediction {
         trueFrom = currentRecord.getTrueFrom();
         predictedFrom = currentRecord.getReferenceBase();
         //handle empty refbase case, only matters when there are no normal base counts (just indels)
-        if (predictedFrom == null || predictedFrom.length()==0){
-            predictedFrom=currentRecord.getSamples(0).getCounts(0).getFromSequence();
+        if (predictedFrom == null || predictedFrom.length() == 0) {
+            predictedFrom = currentRecord.getSamples(0).getCounts(0).getFromSequence();
         }
-        for (BaseInformationRecords.CountInfo c : currentRecord.getSamples(0).getCountsList()){
-            if (predictedAlleles().contains(c.getToSequence())){
-                predictedFrom=c.getFromSequence();
+        for (BaseInformationRecords.CountInfo c : currentRecord.getSamples(0).getCountsList()) {
+            if (predictedAlleles().contains(c.getToSequence())) {
+                predictedFrom = c.getFromSequence();
             }
         }
         //we need to check from and to fields for a genotype greater than length 1
         //can't use existence of a dash "-" because some indels don't use them
         isIndel = false;
-        for (String trueTo : trueAlleles()){
+        for (String trueTo : trueAlleles()) {
             isIndel |= trueTo.length() > 1;
         }
         isIndel |= trueFrom.length() > 1;
 
         isPredictedIndel = false;
-        for (String predTo : predictedAlleles()){
+        for (String predTo : predictedAlleles()) {
             isPredictedIndel |= predTo.length() > 1;
         }
         isPredictedIndel |= predictedFrom.length() > 1;
@@ -114,9 +126,13 @@ public class GenotypePrediction extends Prediction {
         return isPredictedIndel;
     }
 
-    public boolean isSnp() { return !isIndel; }
+    public boolean isSnp() {
+        return !isIndel;
+    }
 
-    public boolean isPredictedSnp() { return !isPredictedIndel; }
+    public boolean isPredictedSnp() {
+        return predictedSNP;
+    }
 
     public Set<String> predictedAlleles() {
         return alleles(predictedGenotype);
@@ -137,5 +153,6 @@ public class GenotypePrediction extends Prediction {
         result.remove("");
         return result;
     }
+
 
 }

@@ -2,6 +2,7 @@ package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.mappers.MappedDimensions;
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.somatic.mappers.NoMasksLabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -41,7 +42,8 @@ public class MetaDataLabelMapper extends NoMasksLabelMapper<BaseInformationRecor
             case IS_VARIANT_FEATURE_INDEX:
                 return record.getSamples(0).getIsVariant() ? 1 : 0;
             case IS_INDEL_FEATURE_INDEX:
-                return record.getTrueGenotype().contains("-") ? 1 : 0;
+                final String trueGenotype = record.getTrueGenotype();
+                return GenotypeHelper.isIndel(record.getReferenceBase(), trueGenotype) ? 1 : 0;
             default:
                 throw new RuntimeException("No such labelIndex: " + labelIndex);
         }

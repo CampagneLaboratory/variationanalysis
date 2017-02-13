@@ -35,7 +35,7 @@ public class ProtobufPrinter {
     private int position;
     private boolean customPosOnly = false;
     static int actualCount = 0;
-    private boolean makeDebug = true;
+    private boolean makeDebug = false;
     private RecordWriter makeDebugWriter;
 
     private int[] customPos = {

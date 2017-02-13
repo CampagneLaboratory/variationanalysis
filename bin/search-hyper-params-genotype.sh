@@ -15,6 +15,16 @@ int
 3
 15
 
+--num-lstm-layers
+int
+1
+3
+
+--num-lstm-nodes
+int
+2
+15
+
 --model-capacity
 uniform
 0.3
@@ -40,14 +50,8 @@ categorical
 
 --feature-mapper
 categorical
-org.campagnelab.dl.genotype.mappers.GenotypeMapperV22
-org.campagnelab.dl.genotype.mappers.GenotypeMapperV23
-org.campagnelab.dl.genotype.mappers.GenotypeMapperV24
-
---variant-loss-weight
-log-uniform
-1
-1000
+org.campagnelab.dl.genotype.mappers.GenotypeMapperV26
+org.campagnelab.dl.genotype.mappers.GenotypeMapperV19
 
 --genomic-context-length
 int
@@ -58,6 +62,13 @@ int
 uniform
 0
 0.2
+
+--net-architecture
+categorical
+org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersWithIndelLSTMAggregate
+org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2
+org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2
+org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersWithIndelLSTM
 
 EOF
     echo "SBI_SEARCH_PARAM_CONFIG not set. Using default hyper parameters. Change the variable a file with an arg-generator config file to customize the search."

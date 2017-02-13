@@ -91,31 +91,31 @@ public class BamFlagMapper extends AbstractFeatureMapper1D<BaseInformationRecord
     public String getFeatureName(int featureIndex) {
         switch (featureIndex) {
             case 0:
-                return "template having multiple segments in sequencing";
+                return "p_multiple_segs";
             case 1:
-                return "each segment properly aligned according to the aligner";
+                return "p_allsegs_aligned";
             case 2:
-                return "segment unmapped";
+                return "p_seg_unmapped";
             case 3:
-                return "next segment in the template unmapped";
+                return "p_nextseg_unmapped";
             case 4:
-                return "SEQ being reverse complemented";
+                return "p_SEQ_rev_comp";
             case 5:
-                return "SEQ of the next segment in the template being reversed";
+                return "p_nextSEQ_rev_comp";
             case 6:
-                return "the first segment in the template";
+                return "p_first_seg";
             case 7:
-                return "the last segment in the template";
+                return "p_last_seg";
             case 8:
-                return "secondary alignment";
+                return "p_secondary_align";
             case 9:
-                return "not passing quality controls";
+                return "p_fail_qualControl";
             case 10:
-                return "PCR or optical duplicate";
+                return "p_PCR||Opt_duplicate";
             case 11:
-                return "supplementary alignment";
+                return "p_supplement_align";
             default:
-                return "unknown flag";
+                return "p_unknown_flag";
         }
     }
 

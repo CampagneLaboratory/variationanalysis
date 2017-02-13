@@ -8,7 +8,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.Arrays;
 
 /**
- * Determine the number of genotypes with at least 90% base support.
+ * Determine the number of genotypes with at least 90% base support, which do not match the reference.
  * Created by fac2003 on 1/14/17.
  */
 public class NaiveNumAlleleMapper<T>
@@ -34,8 +34,10 @@ public class NaiveNumAlleleMapper<T>
         Arrays.fill(counts, 0);
         for (int i = 0; i < MAX_GENOTYPES; i++) {
             BaseInformationRecords.CountInfo counts = record.getSamples(sampleIndex).getCounts(i);
-            this.counts[i] += counts.getGenotypeCountForwardStrand() + counts.getGenotypeCountReverseStrand();
-            sumCounts += this.counts[i];
+            if (!counts.getMatchesReference()) {
+                this.counts[i] += counts.getGenotypeCountForwardStrand() + counts.getGenotypeCountReverseStrand();
+                sumCounts += this.counts[i];
+            }
         }
         numAlleles = 0;
         int cumulativeCount = 0;
@@ -46,7 +48,7 @@ public class NaiveNumAlleleMapper<T>
                 break;
             }
         }
-    //    System.out.println("num Alelles:"+numAlleles);
+     //   System.out.println("num Alleles:" + numAlleles);
     }
 
     private static final int[] indices = new int[]{0, 0};

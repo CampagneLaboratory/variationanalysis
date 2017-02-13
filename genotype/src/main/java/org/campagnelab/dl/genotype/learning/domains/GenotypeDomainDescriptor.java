@@ -400,7 +400,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"AUC", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score", "AUC+F1","F1_SNPs","F1_Indels","numIndels"};
+                return new String[]{"AUC", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score", "AUC+F1","F1_SNPs","F1_Indels","numIndels", "Het_Hom_Ratio","TP","TN"};
                 //       return new String[]{"AUC_V", "AUC_R", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score", "AUC_VxR"};
             }
 
@@ -424,7 +424,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     case "alleleAccuracy":
                     case "NumVariants":
                     case "numIndels":
+                    case "Het_Hom_Ratio":
                     case "Concordance":
+                    case "TP":
+                    case "TN":
                         return true;
                     default:
                         throw new IllegalArgumentException("metric not recognized: " + metricName);

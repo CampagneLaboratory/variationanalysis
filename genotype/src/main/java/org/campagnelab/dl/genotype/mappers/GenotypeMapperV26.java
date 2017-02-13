@@ -122,6 +122,7 @@ public class GenotypeMapperV26 extends GenotypeMapperV11 {
         }
         delegate =
                 new CountReorderingMapper(new NamingConcatFeatureMapper<>(
+                        new NaiveNumAlleleMapper<BaseInformationRecords.BaseInformationOrBuilder>(sampleIndex),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),
                         new InverseNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
