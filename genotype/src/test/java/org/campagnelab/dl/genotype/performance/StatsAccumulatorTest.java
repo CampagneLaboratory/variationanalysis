@@ -53,7 +53,7 @@ public class StatsAccumulatorTest {
 
         String header[] = acc.createOutputHeader();
         double[] actual = new double[]{0.5, 0.5, 0.5, 0.5, 2.0, 0.5,
-                0.5, 0.5, 0.5, 0.5,Double.NaN, Double.NaN, Double.NaN, Double.NaN, 2, 3, 1, 1};
+                0.5, 0.5, 0.5, 0.5,Double.NaN, Double.NaN, Double.NaN, Double.NaN, 4.0, 2.0, 1.0, 1.0};
         for (int i = 0; i < stats.length; i++) {
             assertEquals("wrong stat at index " + i + " " + header[i], actual[i], stats[i], 0.00001);
         }
