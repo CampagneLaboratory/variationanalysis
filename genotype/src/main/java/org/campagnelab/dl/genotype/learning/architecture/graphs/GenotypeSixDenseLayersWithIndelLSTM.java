@@ -42,10 +42,6 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         this(DEFAULT_OUTPUT_TYPE, false, false, false);
     }
 
-    public GenotypeSixDenseLayersWithIndelLSTM(OutputType outputType, boolean hasIsVariant) {
-        this(outputType, hasIsVariant, false, false);
-    }
-
     public GenotypeSixDenseLayersWithIndelLSTM(OutputType outputType, boolean hasIsVariant, boolean fixRef,
                                                boolean addTrueGenotypeLabels) {
         this.addTrueGenotypeLabels = addTrueGenotypeLabels;

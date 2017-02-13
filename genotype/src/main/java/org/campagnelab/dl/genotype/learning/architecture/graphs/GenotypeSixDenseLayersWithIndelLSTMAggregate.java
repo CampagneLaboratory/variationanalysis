@@ -42,10 +42,6 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
         this(DEFAULT_OUTPUT_TYPE, false, false, false);
     }
 
-    public GenotypeSixDenseLayersWithIndelLSTMAggregate(GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType outputType, boolean hasIsVariant) {
-        this(outputType, hasIsVariant, false, false);
-    }
-
     public GenotypeSixDenseLayersWithIndelLSTMAggregate(GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType outputType,
                                                         boolean hasIsVariant, boolean fixRef, boolean addTrueGenotypeLabels) {
         this.outputType = outputType;
@@ -237,6 +233,7 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
                     inputTypes[i] = InputType.feedForward(domainDescriptor.getNumInputs(inputNames[i])[0]);
                     break;
                 case "indel":
+                case "trueGenotypeInput":
                     inputTypes[i] = InputType.recurrent(domainDescriptor.getNumInputs(inputNames[i])[0]);
                     break;
                 default:
