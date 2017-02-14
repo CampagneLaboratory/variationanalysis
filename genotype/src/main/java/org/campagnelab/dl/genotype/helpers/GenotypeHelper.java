@@ -5,6 +5,7 @@ import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.goby.algorithmic.indels.EquivalentIndelRegion;
 import org.campagnelab.goby.alignments.processors.ObservedIndel;
 import org.campagnelab.goby.algorithmic.algorithm.EquivalentIndelRegionCalculator;
+import org.campagnelab.goby.util.Variant;
 
 
 import java.util.Iterator;
@@ -41,6 +42,12 @@ public class GenotypeHelper {
         return isVariant(considerIndels,getAlleles(trueGenotype),reference);
     }
 
+    /**
+     * @param considerIndels
+     * @param genotypeSet set of "to's"/true genotypes. requires deletions to be padded, since length 1 genotypes will be assumed to be snp/ref.
+     * @param reference
+     * @return
+     */
     public static boolean isVariant(boolean considerIndels, Set<String> genotypeSet, String reference) {
 
 
@@ -95,6 +102,19 @@ public class GenotypeHelper {
             return ".|.";
         }
 
+    }
+
+    public static Set<String> fromTosToAlleles(Set<Variant.FromTo> alleles){
+        Set<String> toSet = new ObjectArraySet<>(alleles.size());
+        for (Variant.FromTo allele : alleles){
+            toSet.add(allele.to);
+        }
+        return toSet;
+
+    }
+
+    public static String fromFromTos(Set<Variant.FromTo> alleles){
+        return fromAlleles(fromTosToAlleles(alleles));
     }
 
 
@@ -197,11 +217,12 @@ public class GenotypeHelper {
         return toPad.toString();
     }
 
-    public static boolean genotypeHasAlleleOrIndel(String trueGenotype, String toSequence, String trueFrom, String fromSequence) {
+    public static boolean genotypeHasAlleleOrIndel(Set<Variant.FromTo> trueAlleles, String toSequence, String fromSequence) {
         boolean hasTo = false;
-            Set<String> alleles = getAlleles(trueGenotype);
+            Variant.FromTo candidate = new Variant.FromTo(fromSequence,toSequence);
+            Set<Variant.FromTo> extendedTrueAlleles = new ObjectArraySet<>(trueAlleles);
 
-            for (String allele : getAlleles(trueGenotype)){
+            for (Variant.FromTo allele : trueAlleles){
                 //handle tail bug and append to true genotype (sometimes the goby realignment contains some extra characters at the end
 //                if (allele.length() > 1 && toSequence.length() > allele.length() && toSequence.charAt(toSequence.length()-1)!='-') {
 //                    //but don't append these extra characters if they are part of an insertion
@@ -223,16 +244,14 @@ public class GenotypeHelper {
 
                 //handle true genotype extended further than necessary with insertions
                 //eg: true: A--TGTG -> ATGTGTG, genotype : A--TG -> ATGTG
-                if (fromSequence.contains("-") && trueFrom.length() > fromSequence.length() && allele.length() > toSequence.length() && fromSequence.equals(trueFrom.substring(0,fromSequence.length())) && toSequence.equals(allele.substring(0,toSequence.length()))){
-                    alleles.add(allele.substring(0,toSequence.length()));
+                if (fromSequence.contains("-") && allele.from.length() > fromSequence.length() && allele.to.length() > toSequence.length() && fromSequence.equals(allele.from.substring(0,fromSequence.length())) && toSequence.equals(allele.to.substring(0,toSequence.length()))){
+                    extendedTrueAlleles.add(new Variant.FromTo(allele.from.substring(0,fromSequence.length()),allele.to.substring(0,toSequence.length())));
                 }
 
 
         }
-        Iterator<String> iterator = alleles.iterator();
-        while (iterator.hasNext()) {
-            String oneTrueAllele = iterator.next();
-            hasTo |= oneTrueAllele.equals(toSequence);
+        for (Variant.FromTo oneTrueAllele : extendedTrueAlleles) {
+            hasTo |= (oneTrueAllele.equals(candidate));
         }
         return hasTo;
     }
