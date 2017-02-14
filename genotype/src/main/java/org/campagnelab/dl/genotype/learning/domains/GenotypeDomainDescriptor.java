@@ -489,10 +489,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         if (withDistinctAllele()) {
             if (isLstmIndelModel) {
                 assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.DISTINCT_ALLELES,
-                        withIsVariantLabelMapper());
+                        withIsVariantLabelMapper(), withCombinedLayerRef(), addTrueGenotypeLabels);
             } else if (isLstmIndelAggregateModel) {
                 assembler = new GenotypeSixDenseLayersWithIndelLSTMAggregate(GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType.DISTINCT_ALLELES,
-                        withIsVariantLabelMapper());
+                        withIsVariantLabelMapper(), withCombinedLayerRef(), addTrueGenotypeLabels);
             } else {
                 assembler = new NumDistinctAlleleAssembler(withIsVariantLabelMapper());
             }
@@ -509,10 +509,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         } else if (!withDistinctAllele() && !withCombinedLayer()) {
             if (isLstmIndelModel) {
                 assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.HOMOZYGOUS,
-                        withIsVariantLabelMapper());
+                        withIsVariantLabelMapper(), withCombinedLayerRef(), addTrueGenotypeLabels);
             } else if (isLstmIndelAggregateModel) {
                 assembler = new GenotypeSixDenseLayersWithIndelLSTMAggregate(GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType.HOMOZYGOUS,
-                        withIsVariantLabelMapper());
+                        withIsVariantLabelMapper(), withCombinedLayerRef(), addTrueGenotypeLabels);
             } else {
                 assembler = new GenotypeSixDenseLayersNarrower2(withIsVariantLabelMapper());
             }

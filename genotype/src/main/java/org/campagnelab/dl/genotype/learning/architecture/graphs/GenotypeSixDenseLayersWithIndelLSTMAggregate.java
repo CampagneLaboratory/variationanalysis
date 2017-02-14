@@ -16,6 +16,10 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by joshuacohen on 2/6/17.
  */
@@ -28,6 +32,9 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
     private static final GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType DEFAULT_OUTPUT_TYPE = GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType.DISTINCT_ALLELES;
     private final String combined;
     private final GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType outputType;
+    private final boolean addTrueGenotypeLabels;
+    private static final String[] basicOutputNamesArray = new String[]{"A", "T", "C", "G", "N", "I1", "I2", "I3", "I4", "I5"};
+    private final Set<String> basicOutputNames;
 
     public enum OutputType {
         HOMOZYGOUS,
@@ -41,14 +48,13 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
         this(DEFAULT_OUTPUT_TYPE, false, false, false);
     }
 
-    public GenotypeSixDenseLayersWithIndelLSTMAggregate(GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType outputType, boolean hasIsVariant) {
-        this(outputType, hasIsVariant, false, false);
-    }
-
     public GenotypeSixDenseLayersWithIndelLSTMAggregate(GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType outputType,
                                                         boolean hasIsVariant, boolean fixRef, boolean addTrueGenotypeLabels) {
         this.outputType = outputType;
         this.hasIsVariant = hasIsVariant;
+        this.addTrueGenotypeLabels = addTrueGenotypeLabels;
+        this.basicOutputNames = new HashSet<>();
+        basicOutputNames.addAll(Arrays.asList(basicOutputNamesArray));
         combined = fixRef ? "combinedRef" : "combined";
         switch (outputType) {
             case DISTINCT_ALLELES:
@@ -107,10 +113,10 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
             default:
                 throw new RuntimeException("Output type not recognized");
         }
-        if (args().addTrueGenotypeLabels) {
-            inputNames = new String[]{"input", "from", "G1", "G2", "G3", "trueGenotypeInput"};
+        if (addTrueGenotypeLabels) {
+            inputNames = new String[]{"input", "indel", "trueGenotypeInput"};
         } else {
-            inputNames = new String[]{"input", "from", "G1", "G2", "G3"};
+            inputNames = new String[]{"input", "indel"};
         }
     }
 
@@ -141,12 +147,13 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
                         .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
                         .nIn(numIn).nOut(11).build(), lastDenseLayerName);
             }
-            int endingIndex = hasIsVariant ? outputNames.length - 2 : outputNames.length - 1;
-            for (int i = 1; i <= endingIndex; i++) {
-                build.addLayer(outputNames[i], new OutputLayer.Builder(domainDescriptor.getOutputLoss(outputNames[i]))
-                        .weightInit(WEIGHT_INIT)
-                        .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
-                        .nIn(numIn).nOut(2).build(), lastDenseLayerName);
+            for (String outputName : outputNames) {
+                if (basicOutputNames.contains(outputName)) {
+                    build.addLayer(outputName, new OutputLayer.Builder(domainDescriptor.getOutputLoss(outputName))
+                            .weightInit(WEIGHT_INIT)
+                            .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
+                            .nIn(numIn).nOut(2).build(), lastDenseLayerName);
+                }
             }
         } else if (outputType == GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType.COMBINED) {
             build.addLayer(combined, new OutputLayer.Builder(domainDescriptor.getOutputLoss(combined))
@@ -157,7 +164,7 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
         }
         appendMetaDataLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         appendIsVariantLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
-        appendTrueGenotypeLayers(build, lastDenseLayerName, domainDescriptor, WEIGHT_INIT, LEARNING_RATE_POLICY,
+        appendTrueGenotypeLayers(build, addTrueGenotypeLabels, lastDenseLayerName, domainDescriptor, WEIGHT_INIT, LEARNING_RATE_POLICY,
                 numLSTMLayers, numIn, numLSTMHiddenNodes);
     }
 
@@ -235,6 +242,7 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
                     inputTypes[i] = InputType.feedForward(domainDescriptor.getNumInputs(inputNames[i])[0]);
                     break;
                 case "indel":
+                case "trueGenotypeInput":
                     inputTypes[i] = InputType.recurrent(domainDescriptor.getNumInputs(inputNames[i])[0]);
                     break;
                 default:

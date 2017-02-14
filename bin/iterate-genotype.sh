@@ -2,6 +2,9 @@
 . `dirname "${BASH_SOURCE[0]}"`/common.sh
 FEATURE_MAPPER=$1
 GPU=$2
+if [ "$#" -eq 3 ]; then
+  NETWORK_ARCHITECTURE=$3
+fi
 
 if [ -e configure.sh ]; then
  echo "Loading configure.sh"
@@ -12,7 +15,7 @@ if [ -e configure-downsampling.sh ]; then
  source configure-downsampling.sh
 fi
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -lt 2 ]; then
    echo "Argument missing. You must provide a feature mapper classname to use in the iteration."
    exit 1;
 fi
@@ -70,22 +73,40 @@ echo "Iteration for FEATURE_MAPPER=${FEATURE_MAPPER}"
 
 export FORCE_PLATFORM=native
 #rm ${DATASET}${TRAIN_SUFFIX}.sbi ${DATASET}${VAL_SUFFIX}*cf
-train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
-   --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} ${TRAINING_OPTIONS} \
-   --feature-mapper ${FEATURE_MAPPER} --build-cache-then-stop
+if [ -z "${NETWORK_ARCHITECTURE+set}" ]; then
+    train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+       --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} ${TRAINING_OPTIONS} \
+       --feature-mapper ${FEATURE_MAPPER} --build-cache-then-stop
+else
+    train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+       --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} ${TRAINING_OPTIONS} \
+       --feature-mapper ${FEATURE_MAPPER} --net-architecture ${NETWORK_ARCHITECTURE} \
+       --build-cache-then-stop
+fi
 dieIfError "Failed to map features with CPU build."
 
 OUTPUT_FILE=output-${RANDOM}.log
 unset FORCE_PLATFORM
 resetPlatform
 
-train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
-  --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
-  ${TRAINING_OPTIONS} \
-  --feature-mapper ${FEATURE_MAPPER} \
-  --random-seed 90129 \
-  --early-stopping-measure ${EVALUATION_METRIC_NAME} \
-  --early-stopping-num-epochs 10 --gpu-device ${GPU} | tee ${OUTPUT_FILE}
+if [ -z "${NETWORK_ARCHITECTURE+set}" ]; then
+    train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+          --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
+          ${TRAINING_OPTIONS} \
+          --feature-mapper ${FEATURE_MAPPER} \
+          --random-seed 90129 \
+          --early-stopping-measure ${EVALUATION_METRIC_NAME} \
+          --early-stopping-num-epochs 10 --gpu-device ${GPU} | tee ${OUTPUT_FILE}
+else
+    train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+      --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
+      ${TRAINING_OPTIONS} \
+      --feature-mapper ${FEATURE_MAPPER} \
+      --net-architecture ${NETWORK_ARCHITECTURE} \
+      --random-seed 90129 \
+      --early-stopping-measure ${EVALUATION_METRIC_NAME} \
+      --early-stopping-num-epochs 10 --gpu-device ${GPU} | tee ${OUTPUT_FILE}
+fi
 dieIfError "Failed to train model with CUDA GPU build."
 set -x
 MODEL_DIR=`grep "model directory:" ${OUTPUT_FILE}  |cut -d " " -f 3`

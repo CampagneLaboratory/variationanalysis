@@ -58,6 +58,7 @@ public class TrueGenotypeLSTMLabelMapper implements LabelMapper<BaseInformationR
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
         cachedRecordGenotype = record.getTrueGenotype();
+        delegate.prepareToNormalize(cachedRecordGenotype, indexOfRecord);
     }
 
     private static int[] recordToLabel(String record) {

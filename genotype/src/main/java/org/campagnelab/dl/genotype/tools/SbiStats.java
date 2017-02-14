@@ -4,6 +4,7 @@ package org.campagnelab.dl.genotype.tools;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.genotype.helpers.AddTrueGenotypeHelper;
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
@@ -12,9 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Set;
 
 /**
- * The addcalls object uses a map to create a new protobuf file with genotype calls.
+ * Use sbistats to see the distibution of types of records in a dataset.
  * <p>
  * Created by rct66 on 5/18/16.
  *
@@ -38,46 +40,80 @@ public class SbiStats extends AbstractTool<SbiStatsArguments> {
     @Override
     //only supports genotypes encoded with a bar (|) delimiter
     public void execute() {
-
-        //get reference genome
-        String genomePath = args().genomeFilename;
-        try {
-            System.err.println("Loading genome cache " + genomePath);
-            genome = new RandomAccessSequenceCache();
-            genome.load(genomePath, "min", "max");
-            System.err.println("Done loading genome. ");
-        } catch (ClassNotFoundException e) {
-            System.err.println("Could not load genome cache");
-            e.printStackTrace();
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("Could not load genome cache");
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-
-        try {
+                try {
             RecordReader source = new RecordReader(args().inputFile);
-            AddTrueGenotypeHelper addTrueGenotypeHelper = new AddTrueGenotypeHelper();
-            addTrueGenotypeHelper.configure(
-                    args().genotypeMap,
-                    genome,
-                    args().sampleIndex,
-                    args().considerIndels,
-                    1.0f);
             ProgressLogger recordLogger = new ProgressLogger(LOG);
             recordLogger.expectedUpdates = source.numRecords();
             System.out.println(source.numRecords() + " records to label");
             int recordsLabeled = 0;
             recordLogger.start();
-            for (BaseInformationRecords.BaseInformation rec : source) {
-                addTrueGenotypeHelper.addTrueGenotype(rec);
 
+            int numIndels = 0;
+            int numSnps = 0;
+            int numHetSnps = 0;
+            int numHomSnps = 0;
+            int numHetIndels = 0;
+            int numHomIndels = 0;
+            int numVariants = 0;
+            int numHasIndel = 0;
+
+            for (BaseInformationRecords.BaseInformation rec : source) {
+                boolean isIndel = false;
+                boolean hasIndel = false;
+                boolean isVariant = false;
+                boolean isSnp = false;
+                boolean heterozygous = false;
+                for (BaseInformationRecords.CountInfo c : rec.getSamples(args().sampleIndex).getCountsList()){
+                    if (c.getIsIndel() && c.getIsCalled()) {
+                        isIndel = true;
+                    }
+                    if (c.getIsIndel()){
+                        hasIndel = true;
+                    }
+                    if (!c.getToSequence().equals(c.getFromSequence())){
+                        isVariant = true;
+                    }
+                    if (isVariant && !isIndel){
+                        isSnp = true;
+                    }
+                }
+                String trueGenotype = rec.getTrueGenotype();
+                Set<String> alleles = GenotypeHelper.getAlleles(trueGenotype);
+                if (alleles.size() > 1) {
+                    heterozygous = true;
+                }
+                if (isVariant){
+                    numVariants++;
+                }
+                if (isIndel){
+                    numIndels++;
+                    if(heterozygous){
+                        numHetIndels++;
+                    } else {
+                        numHomIndels++;
+                    }
+                } if (isSnp){
+                    numSnps++;
+                    if(heterozygous){
+                        numHetSnps++;
+                    } else {
+                        numHomSnps++;
+                    }
+                }
+                if (hasIndel){
+                    numHasIndel++;
+                }
                 recordLogger.lightUpdate();
             }
             recordLogger.done();
-            addTrueGenotypeHelper.printStats();
+            System.out.println("numIndels = " + numIndels );
+            System.out.println("numSnps = " + numSnps );
+            System.out.println("numHetSnps = " + numHetSnps );
+            System.out.println("numHomSnps = " + numHomSnps );
+            System.out.println("numHetIndels = " + numHetIndels );
+            System.out.println("numHomIndels = " + numHomIndels );
+            System.out.println("numVariants = " + numVariants );
+                    System.out.println("numHasIndel = " + numHasIndel );
             } catch (IOException e) {
             throw new RuntimeException(e);
         }
