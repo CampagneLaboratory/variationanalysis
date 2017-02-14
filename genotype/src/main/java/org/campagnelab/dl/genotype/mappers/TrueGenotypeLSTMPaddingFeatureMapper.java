@@ -15,10 +15,17 @@ public class TrueGenotypeLSTMPaddingFeatureMapper implements
 
     private RNNFeatureMapper<String> delegate;
     private String cachedRecordGenotype;
+    private int trueGenotypeLength;
+    private static final int defaultIndelSequenceLength = 30;
 
     @Override
     public void configure(Properties readerProperties) {
-        int trueGenotypeLength = Integer.parseInt(readerProperties.getProperty("trueGenotypeLength"));
+        String trueGenotypeLengthProperty = readerProperties.getProperty("trueGenotypeLength");
+        if (trueGenotypeLengthProperty == null) {
+            trueGenotypeLength = defaultIndelSequenceLength;
+        } else {
+            trueGenotypeLength = Integer.parseInt(trueGenotypeLengthProperty);
+        }
         OneHotBaseFeatureMapper<String>[] delegateMapperArray = new OneHotBaseFeatureMapper[trueGenotypeLength];
         for (int i = 0; i < trueGenotypeLength; i++) {
             delegateMapperArray[i] = new OneHotBaseFeatureMapper<>(i, Function.identity(),
@@ -45,6 +52,7 @@ public class TrueGenotypeLSTMPaddingFeatureMapper implements
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
         cachedRecordGenotype = record.getTrueGenotype();
+        delegate.prepareToNormalize(cachedRecordGenotype, indexOfRecord);
     }
 
     @Override

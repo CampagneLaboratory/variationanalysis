@@ -58,14 +58,16 @@ public abstract class GenotypeAssembler {
             String lstmLayerName = "no layer";
             for (int i = 0; i < numLSTMLayers; i++) {
                 lstmLayerName = "lstmTrueGenotype_" + i;
-                String lstmPreviousLayerName = i == 0 ? "feedForwardLstmDuplicate" : "lstmTrueGenotype_" + (i - 1);
-                int numLSTMInputNodes = i == 0 ? numIn : numLSTMHiddenNodes;
+                int numLSTMInputNodes = i == 0 ? (numIn + 1) : numLSTMHiddenNodes;
+                String[] layerInputs = i == 0
+                        ? new String[]{"trueGenotypeInput", "feedForwardLstmDuplicate"}
+                        : new String[]{"lstmTrueGenotype_" + (i - 1)};
                 build.addLayer(lstmLayerName, new GravesLSTM.Builder()
                         .nIn(numLSTMInputNodes)
                         .nOut(numLSTMHiddenNodes)
-                        .build(), lstmPreviousLayerName);
+                        .build(), layerInputs);
             }
-            build.addLayer("lstmTrueGenotypeOutput", new RnnOutputLayer.Builder(domainDescriptor.getOutputLoss("trueGenotype"))
+            build.addLayer("trueGenotype", new RnnOutputLayer.Builder(domainDescriptor.getOutputLoss("trueGenotype"))
                     .weightInit(WEIGHT_INIT)
                     .activation("softsign")
                     .learningRateDecayPolicy(learningRatePolicy)
