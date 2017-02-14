@@ -2,11 +2,14 @@ package org.campagnelab.dl.genotype.predictions;
 
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.accum.Max;
 import org.nd4j.linalg.api.ops.impl.accum.Mean;
+import org.nd4j.linalg.api.ops.impl.accum.Sum;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.NDArrayIndex;
 
 /**
  * Created by joshuacohen on 2/10/17.
@@ -54,18 +57,22 @@ public class TrueGenotypeInterpreter implements
     }
 
     private static String getGenotypeFromINDArray(INDArray genotypeArray) {
-        int[] genotypeLabels = getIntArgMaxArray(genotypeArray);
+        INDArray genotypeLabels = getIntArgMaxArray(genotypeArray);
         StringBuilder genotypeBuilder = new StringBuilder();
-        for (int genotypeLabel : genotypeLabels) {
+        for (int i = 0; i < genotypeLabels.length(); i++) {
+            int genotypeLabel = genotypeLabels.getInt(i);
             genotypeBuilder.append(labelToBase(genotypeLabel));
         }
         return genotypeBuilder.toString();
     }
-    private static int[] getIntArgMaxArray(INDArray array) {
-        return Nd4j.getExecutioner().exec(new IMax(array), 0).data().asInt();
+
+    private static INDArray getIntArgMaxArray(INDArray array) {
+        int maxValidIndex = Nd4j.getExecutioner().exec(new Sum(array), 0).gt(0).sumNumber().intValue();
+        INDArray argMax = Nd4j.getExecutioner().exec(new IMax(array), 0);
+        return argMax.get(NDArrayIndex.all(), NDArrayIndex.interval(0, maxValidIndex));
     }
 
-    private static double getAverageFloatMaxArray(INDArray array) {
+    private static  double getAverageFloatMaxArray(INDArray array) {
         INDArray max = Nd4j.getExecutioner().exec(new Max(array), 0);
         return Nd4j.getExecutioner().execAndReturn(new Mean(max)).getFinalResult().doubleValue();
     }
