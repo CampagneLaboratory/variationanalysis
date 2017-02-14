@@ -107,7 +107,7 @@ public class GenotypeHelper {
     public static Set<String> fromTosToAlleles(Set<Variant.FromTo> alleles){
         Set<String> toSet = new ObjectArraySet<>(alleles.size());
         for (Variant.FromTo allele : alleles){
-            toSet.add(allele.to);
+            toSet.add(allele.getTo());
         }
         return toSet;
 
@@ -244,8 +244,8 @@ public class GenotypeHelper {
 
                 //handle true genotype extended further than necessary with insertions
                 //eg: true: A--TGTG -> ATGTGTG, genotype : A--TG -> ATGTG
-                if (fromSequence.contains("-") && allele.from.length() > fromSequence.length() && allele.to.length() > toSequence.length() && fromSequence.equals(allele.from.substring(0,fromSequence.length())) && toSequence.equals(allele.to.substring(0,toSequence.length()))){
-                    extendedTrueAlleles.add(new Variant.FromTo(allele.from.substring(0,fromSequence.length()),allele.to.substring(0,toSequence.length())));
+                if (fromSequence.contains("-") && allele.getFrom().length() > fromSequence.length() && allele.getTo().length() > toSequence.length() && fromSequence.equals(allele.getFrom().substring(0,fromSequence.length())) && toSequence.equals(allele.getTo().substring(0,toSequence.length()))){
+                    extendedTrueAlleles.add(new Variant.FromTo(allele.getFrom().substring(0,fromSequence.length()),allele.getTo().substring(0,toSequence.length())));
                 }
 
 

@@ -287,7 +287,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
 
                 isIndel = variant.isIndel;
                 trueAlleles = variant.trueAlleles;
-                if (!GenotypeHelper.isNoCall(trueGenotype)) {
+                if (!GenotypeHelper.isNoCall(GenotypeHelper.fromAlleles(GenotypeHelper.fromTosToAlleles(variant.trueAlleles)))) {
                     isVariant = GenotypeHelper.isVariant(considerIndels /**/, GenotypeHelper.fromTosToAlleles(variant.trueAlleles), referenceBase);
                     if (isVariant) {
                         if (variant.isIndel) {
@@ -299,8 +299,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                         }
                         //we have a snp or indel
                         numVariantsAdded++;
-                        Set<String> alleles = GenotypeHelper.getAlleles(trueGenotype);
-                        if (alleles.size() > 1) {
+                        if (trueAlleles.size() > 1) {
                             numHeterozygousAdded++;
                         } else {
                             numHomozygousAdded++;
@@ -322,13 +321,15 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                 }
                 // alignment and genome do not necessarily share the same space of reference indices. Convert:
                 referenceBase = referenceBase.toUpperCase();
-                trueGenotype = referenceBase + "|" + referenceBase;
-                trueFrom = referenceBase;
+                trueAlleles.clear();
+                trueAlleles.add(new Variant.FromTo(referenceBase,referenceBase));
             } else if (isVariant && variant.isIndel && (!indelsAsRef) && (!considerIndels)){
                 numIndelsIgnored++;
                 skip = true;
             }
-            this.trueGenotype = trueGenotype.replace('|', '/').toUpperCase();
+            for (Variant.FromTo allele : trueAlleles){
+                allele.makeUpperCase();
+            }
             this.isVariant = isVariant;
             keep = !skip;
             return this;
