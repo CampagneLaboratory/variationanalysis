@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.framework.tools.Predict;
@@ -16,7 +15,6 @@ import org.campagnelab.dl.genotype.performance.StatsAccumulator;
 import org.campagnelab.dl.genotype.predictions.FormatIndelVCF;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.goby.alignments.ConcatSortedAlignmentReader;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,6 +45,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     public PredictArguments createArguments() {
+
         return new PredictGArguments();
     }
 
@@ -57,6 +56,11 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         predict.execute();
     }
 
+    public PredictG() {
+        stats=new StatsAccumulator();
+        stats.initializeStats();
+        orderStats=stats.createOutputHeader();
+    }
 
     protected StatsAccumulator stats;
 
@@ -98,7 +102,6 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     }
 
 
-
     @Override
     protected double[] createOutputStatistics() {
         DoubleList values = new DoubleArrayList();
@@ -128,7 +131,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     @Override
     protected String[] createOutputHeader() {
 
-
+        initializeStats("");
         ObjectArrayList<String> values = new ObjectArrayList<>();
 
         values.addAll(it.unimi.dsi.fastutil.objects.ObjectArrayList.wrap(orderStats));
@@ -195,11 +198,11 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                 case VCF:
                     //TODO: improve logic so that a heterozygous SNP/Indel at the same position is handled. currently, the snp isn't adjusted to correspond to the indel's from field.
                     //generated vcf formatted indel
-                    FormatIndelVCF format = new FormatIndelVCF(fullPred.predictedFrom,fullPred.predictedAlleles(),fullPred.predictedFrom.charAt(0));
+                    FormatIndelVCF format = new FormatIndelVCF(fullPred.predictedFrom, fullPred.predictedAlleles(), fullPred.predictedFrom.charAt(0));
 
                     //get max allele length for bed file
                     int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
-                    maxLength = Math.max(maxLength,format.fromVCF.length());
+                    maxLength = Math.max(maxLength, format.fromVCF.length());
 
                     //make an alt-allele-only set for coding
                     SortedSet<String> sortedAltSet = new ObjectAVLTreeSet<String>(format.toVCF);
