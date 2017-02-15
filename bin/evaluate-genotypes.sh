@@ -97,12 +97,13 @@ fi
 
 if [ -z "${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ+set}" ]; then
     echo "Downloading Gold standard Genome in a Bottle Confident Regions (bed)"
+    rm -fr HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf.bed*
     wget ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/NISTv3.3.1/GRCh37/HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf.bed
     mv HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf.bed GIAB-NA12878-confident-regions.bed
     # add "chr prefix:"
     cat  GIAB-NA12878-confident-regions.bed |awk '{print "chr"$1"\t"$2"\t"$3}' >GIAB-NA12878-confident-regions-chr.bed
-    bgzip GIAB-NA12878-confident-regions-chr.bed
-    tabix GIAB-NA12878-confident-regions-chr.bed.gz
+    bgzip -f GIAB-NA12878-confident-regions-chr.bed
+    tabix -f GIAB-NA12878-confident-regions-chr.bed.gz
     rm GIAB-NA12878-confident-regions.bed
 
     GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ="GIAB-NA12878-confident-regions-chr.bed.gz"
