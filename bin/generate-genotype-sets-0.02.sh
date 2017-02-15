@@ -55,7 +55,7 @@ else
  echo "REF_SAMPLING_RATE set to ${REF_SAMPLING_RATE}."
 fi
 
-parallel-genotype-sbi.sh 10g ${ALIGNMENTS}
+parallel-genotype-sbi.sh 10g ${ALIGNMENTS} 2>&1 | tee parallel-genotype-sbi.log
 dieIfError "Failed to generate .sbi file"
 
 export OUTPUT_BASENAME=${OUTPUT_PREFIX}
