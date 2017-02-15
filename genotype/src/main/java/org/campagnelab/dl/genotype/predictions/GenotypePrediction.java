@@ -91,7 +91,10 @@ public class GenotypePrediction extends Prediction {
                 predictedFrom = c.getFromSequence();
             }
         }
-        //we need to check from and to fields for a genotype greater than length 1
+        isIndel=GenotypeHelper.isIndel(currentRecord.getReferenceBase(), currentRecord.getTrueGenotype());
+
+        /*
+       //we need to check from and to fields for a genotype greater than length 1
         //can't use existence of a dash "-" because some indels don't use them
         isIndel = false;
         for (String trueTo : trueAlleles()) {
@@ -102,8 +105,11 @@ public class GenotypePrediction extends Prediction {
         isPredictedIndel = false;
         for (String predTo : predictedAlleles()) {
             isPredictedIndel |= predTo.length() > 1;
+            isPredictedIndel |= predTo.contains("-");
         }
         isPredictedIndel |= predictedFrom.length() > 1;
+        isPredictedIndel |= predictedFrom.contains("-");
+        */
     }
 
 
@@ -155,4 +161,5 @@ public class GenotypePrediction extends Prediction {
     }
 
 
+    public static String DECISION_THRESHOLD_PROPERTY ="genotypes.decisionThreshold";
 }
