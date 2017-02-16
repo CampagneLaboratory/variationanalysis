@@ -65,22 +65,26 @@ on Mac:
    Build the Goby genome cache:
    ```sh
    goby 10g build-sequence-cache ucsc_hg19.fasta
+   export SBI_GENOME=`pwd`/ucsc_hg19
    ```
 The next two steps are time-consuming, so you can skip them if you prefer and 
 download a [pre-built dataset](http://gobyweb.apps.campagnelab.org/data/DLSV/chr21-NA12878-sbi-dataset-17-1-1.zip) 
 (unzip the archive in the tutorial directory).
 
-### Convert the VCF to a varmap
-````
-goby 4g vcf-to-genotype-map NA12878-ok.vcf -o  NA12878-true-genotypes.varmap
-````
 ### Generate the training set
 
    ```
-   export SBI_GENOME=ucsc_hg19
-   export SBI_NUM_THREADS=6
-   export SBI_GENOTYPE_VARMAP=NA12878-true-genotypes.varmap
-   parallel-genotype-sbi.sh 10g NA12878_S1_21_dec19.entries
+  
+cat << EOF >configure.sh 
+export OUTPUT_PREFIX=NA12878
+export REALIGN_AROUND_INDELS=true
+export INCLUDE_INDELS=true
+export REF_SAMPLING_RATE=0.02
+export SBI_NUM_THREADS=5
+EOF
+   echo  "export SBI_GENOME=${SBI_GENOME}" >>configure.sh
+   . configure.sh 
+   generate-genotype-sets-0.02.sh 20g NA12878_S1_21_dec19.entries NA12878-ok.vcf ${SBI_GENOTYPE}
    ```
    _(The above assumes you can run the tool with 6 threads in parallel. Adjust if your computer
      has less cores.)_
@@ -88,11 +92,10 @@ goby 4g vcf-to-genotype-map NA12878-ok.vcf -o  NA12878-true-genotypes.varmap
 ### Train and evaluate the model:
 In the code fragment below, adjust the DATASET variable to match the filename prefix 
 for the dataset you just built (it is preset for the pre-built dataset download):
-   ```sh
-     export CONSIDER_INDELS=false
-     export DATASET=NA12878_S1_21_dec19-2017-01-01-
-     export MINI_BATCH_SIZE=2048
-     iterate-genotype.sh org.campagnelab.dl.genotype.mappers.GenotypeMapperV13 1
+   ```sh   
+     echo >>configure.sh "export DATASET=NA12878_S1_21_dec19-*-"
+     echo >>configure.sh  export MINI_BATCH_SIZE=2048
+     iterate-genotype.sh org.campagnelab.dl.genotype.mappers.GenotypeMapperV26 0
    ```
 This tool will train the model with the specified feature mapper using early stopping. 
 Performance metrics will be written to the console while training proceeds. When training ends,
