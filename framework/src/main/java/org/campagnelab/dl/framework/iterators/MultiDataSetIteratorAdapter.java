@@ -127,8 +127,8 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
                     int[] inputShape = inputs[i].shape();
                     if (inputShape.length == 3) {
                         throw new RuntimeException("3D features should have masks");
-                    } else if (inputShape.length == 2) {
-                        inputMasks[i] = Nd4j.ones(inputShape[0]);
+                    } else if (inputShape.length == 2 || inputShape.length == 1) {
+                        inputMasks[i] = Nd4j.ones(inputShape[0], 1);
                     } else {
                         inputMasks[i] = Nd4j.ones(inputShape.clone());
                     }
@@ -141,8 +141,8 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
                     int[] labelShape = labels[i].shape();
                     if (labelShape.length == 3) {
                         throw new RuntimeException("3D labels should have masks");
-                    } else if (labelShape.length == 2) {
-                        labelMasks[i] = Nd4j.ones(labelShape[0]);
+                    } else if (labelShape.length == 2 || labelShape.length == 1) {
+                        labelMasks[i] = Nd4j.ones(labelShape[0], 1);
                     } else {
                         labelMasks[i] = Nd4j.ones(labelShape.clone());
                     }

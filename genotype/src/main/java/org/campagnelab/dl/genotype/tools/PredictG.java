@@ -12,7 +12,7 @@ import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.performance.StatsAccumulator;
-import org.campagnelab.dl.genotype.predictions.FormatIndelVCF;
+import org.campagnelab.goby.predictions.FormatIndelVCF;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
