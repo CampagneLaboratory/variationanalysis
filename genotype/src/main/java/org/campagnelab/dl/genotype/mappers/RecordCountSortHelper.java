@@ -14,6 +14,7 @@ public class RecordCountSortHelper {
 
 
     public BaseInformationRecords.BaseInformationOrBuilder sort(BaseInformationRecords.BaseInformationOrBuilder record) {
+        int originalGenotypeIndex = 0;
         final List<BaseInformationRecords.CountInfo> countsList = record.getSamples(0).getCountsList();
         List<BaseInformationRecords.CountInfo> counts = new ArrayList<>();
         for (BaseInformationRecords.CountInfo count : countsList) {
@@ -25,6 +26,7 @@ public class RecordCountSortHelper {
                     : count.getGenotypeCountReverseStrand();
             counts.add(BaseInformationRecords.CountInfo.newBuilder()
                     .mergeFrom(count)
+                    .setGobyGenotypeIndex(originalGenotypeIndex++)
                     .setGenotypeCountForwardStrand(forwardCount)
                     .setGenotypeCountReverseStrand(reverseCount)
                     .build());
@@ -47,7 +49,9 @@ public class RecordCountSortHelper {
         copyOfRecord.addSamples(builder);
         return copyOfRecord.build();
     }
+
     public BaseInformationRecords.BaseInformation sort(BaseInformationRecords.BaseInformation record) {
+        int originalGenotypeIndex = 0;
         final List<BaseInformationRecords.CountInfo> countsList = record.getSamples(0).getCountsList();
         List<BaseInformationRecords.CountInfo> counts = new ArrayList<>();
         for (BaseInformationRecords.CountInfo count : countsList) {
@@ -60,7 +64,7 @@ public class RecordCountSortHelper {
             counts.add(BaseInformationRecords.CountInfo.newBuilder()
                     .mergeFrom(count)
                     .setGenotypeCountForwardStrand(forwardCount)
-                    .setGenotypeCountReverseStrand(reverseCount)
+                    .setGenotypeCountReverseStrand(reverseCount).setGobyGenotypeIndex(originalGenotypeIndex++)
                     .build());
         }
 
@@ -73,7 +77,7 @@ public class RecordCountSortHelper {
         builder.clearCounts();
         builder.addAllCounts(counts);
         BaseInformationRecords.BaseInformation.Builder copyOfRecord = record.toBuilder();
-        copyOfRecord.setSamples(0,builder);
+        copyOfRecord.setSamples(0, builder);
         return copyOfRecord.build();
     }
 }
