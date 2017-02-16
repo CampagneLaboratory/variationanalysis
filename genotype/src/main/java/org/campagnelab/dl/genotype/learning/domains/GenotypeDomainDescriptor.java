@@ -46,9 +46,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     private final boolean isLstmIndelAggregateModel;
     private boolean addTrueGenotypeLabels;
     private int ploidy;
+    private double decisionThreshold;
     double variantLossWeight;
     private int genomicContextSize;
-    private int indelSeqeunceLength;
+    private int indelSequenceLength;
     private int trueGenotypeLength;
     private float modelCapacity;
 
@@ -57,11 +58,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         this.arguments = arguments;
         initializeArchitecture(arguments.architectureClassname);
         this.ploidy = arguments.ploidy;
+        this.decisionThreshold = arguments.decisionThreshold;
         variantLossWeight = args().variantLossWeight;
         genomicContextSize = args().genomicContextLength;
         isLstmIndelModel = netArchitectureHasIndelLSTM(args().architectureClassname);
         isLstmIndelAggregateModel = netArchitectureHasIndelAggregateLSTM(args().architectureClassname);
-        indelSeqeunceLength = args().indelSequenceLength;
+        indelSequenceLength = args().indelSequenceLength;
         trueGenotypeLength = args().trueGenotypeLength;
         modelCapacity = args().modelCapacity;
         addTrueGenotypeLabels = args().addTrueGenotypeLabels;
@@ -93,6 +95,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     public void putProperties(Properties props) {
         super.putProperties(props);
         props.setProperty(NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY, Integer.toString(ploidy));
+        props.setProperty(GenotypePrediction.DECISION_THRESHOLD_PROPERTY, Double.toString(decisionThreshold));
         decorateProperties(props);
     }
 
@@ -222,29 +225,29 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
         switch (outputName) {
             case "A":
-                return new GenotypeLabelsMapper(0, sortCounts,args().labelSmoothingEpsilon);
+                return new GenotypeLabelsMapper(0, sortCounts, args().labelSmoothingEpsilon);
             case "T":
-                return new GenotypeLabelsMapper(1, sortCounts,args().labelSmoothingEpsilon);
+                return new GenotypeLabelsMapper(1, sortCounts, args().labelSmoothingEpsilon);
             case "C":
-                return new GenotypeLabelsMapper(2, sortCounts,args().labelSmoothingEpsilon);
+                return new GenotypeLabelsMapper(2, sortCounts, args().labelSmoothingEpsilon);
             case "G":
-                return new GenotypeLabelsMapper(3, sortCounts,args().labelSmoothingEpsilon);
+                return new GenotypeLabelsMapper(3, sortCounts, args().labelSmoothingEpsilon);
             case "N":
-                return new GenotypeLabelsMapper(4, sortCounts,args().labelSmoothingEpsilon);
+                return new GenotypeLabelsMapper(4, sortCounts, args().labelSmoothingEpsilon);
             case "I1":
-                return new GenotypeLabelsMapper(5, sortCounts,args().labelSmoothingEpsilon);
+                return new GenotypeLabelsMapper(5, sortCounts, args().labelSmoothingEpsilon);
             case "I2":
-                return new GenotypeLabelsMapper(6, sortCounts,args().labelSmoothingEpsilon);
+                return new GenotypeLabelsMapper(6, sortCounts, args().labelSmoothingEpsilon);
             case "I3":
-                return new GenotypeLabelsMapper(7, sortCounts,args().labelSmoothingEpsilon);
+                return new GenotypeLabelsMapper(7, sortCounts, args().labelSmoothingEpsilon);
             case "I4":
-                return new GenotypeLabelsMapper(8, sortCounts,args().labelSmoothingEpsilon);
+                return new GenotypeLabelsMapper(8, sortCounts, args().labelSmoothingEpsilon);
             case "I5":
-                return new GenotypeLabelsMapper(9, sortCounts,args().labelSmoothingEpsilon);
+                return new GenotypeLabelsMapper(9, sortCounts, args().labelSmoothingEpsilon);
             case "homozygous":
-                return new HomozygousLabelsMapper(sortCounts,args().labelSmoothingEpsilon);
+                return new HomozygousLabelsMapper(sortCounts, args().labelSmoothingEpsilon);
             case "numDistinctAlleles":
-                return new NumDistinctAllelesLabelMapper(sortCounts, ploidy,args().labelSmoothingEpsilon);
+                return new NumDistinctAllelesLabelMapper(sortCounts, ploidy, args().labelSmoothingEpsilon);
             case "combined":
                 return new CombinedLabelsMapper(args().labelSmoothingEpsilon);
             case "combinedRef":
@@ -289,17 +292,25 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     @Override
     public void configure(Properties modelProperties) {
         super.configure(modelProperties);
-        final String property = modelProperties.getProperty(NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY);
+        String property = modelProperties.getProperty(NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY);
         if (property == null) {
             throw new RuntimeException(String.format("property %s must be found in model config.properties",
                     NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY));
         }
         ploidy = Integer.parseInt(property);
+
+        property = modelProperties.getProperty(GenotypePrediction.DECISION_THRESHOLD_PROPERTY);
+        if (property == null) {
+            decisionThreshold = 0.5d;
+        } else {
+            decisionThreshold = Double.parseDouble(property);
+        }
+
         String variantLossWeightProperty = modelProperties.getProperty("variantLossWeight");
         variantLossWeight = Double.parseDouble(variantLossWeightProperty);
         String modelCapacityProperty = modelProperties.getProperty("modelCapacity");
         modelCapacity = Float.parseFloat(modelCapacityProperty);
-        indelSeqeunceLength = Integer.parseInt(modelProperties.getProperty("indelSequenceLength"));
+        indelSequenceLength = Integer.parseInt(modelProperties.getProperty("indelSequenceLength"));
         trueGenotypeLength = Integer.parseInt(modelProperties.getProperty("trueGenotypeLength"));
         addTrueGenotypeLabels = Boolean.parseBoolean(modelProperties.getProperty("addTrueGenotypeLabels"));
 
@@ -400,7 +411,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"AUC", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score", "AUC+F1","F1_SNPs","F1_Indels","numIndels", "Het_Hom_Ratio","TP","TN"};
+                return new String[]{"AUC", "Recall", "Precision", "F1", "NumVariants", "score", "Recall_Indels", "Precision_Indels", "F1_Indels", "numIndels", "Het_Hom_Ratio", "TP", "TN"};
                 //       return new String[]{"AUC_V", "AUC_R", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score", "AUC_VxR"};
             }
 
@@ -416,6 +427,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     case "F1":
                     case "F1_SNPs":
                     case "F1_Indels":
+                    case "Recall_Indels":
+                    case "Precision_Indels":
                     case "AUC_VxR":
                     case "AUC+F1":
                     case "accuracy":
@@ -425,6 +438,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     case "NumVariants":
                     case "numIndels":
                     case "Het_Hom_Ratio":
+                    case "Het":
+                    case "Hom":
                     case "Concordance":
                     case "TP":
                     case "TN":
@@ -595,9 +610,9 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     public GenotypePrediction aggregatePredictions(List<Prediction> individualOutputPredictions) {
         if (withDistinctAllele()) {
             if (withIsVariantLabelMapper()) {
-                return new NumDistinctAlleleWithIsVariantGenotypePrediction(individualOutputPredictions);
+                return new NumDistinctAlleleWithIsVariantGenotypePrediction(decisionThreshold, individualOutputPredictions);
             } else {
-                return new NumDistinctAlleleGenotypePrediction(individualOutputPredictions);
+                return new NumDistinctAlleleGenotypePrediction(decisionThreshold, individualOutputPredictions);
             }
         } else if (withCombinedLayer()) {
             if (withIsVariantLabelMapper()) {

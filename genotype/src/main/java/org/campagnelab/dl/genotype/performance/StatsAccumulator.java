@@ -35,6 +35,7 @@ public class StatsAccumulator {
     int numSnpsTrueNegative;
     int hetCount = 0;
     int homCount = 0;
+    int numTrueIndels = 0;
 
     public void initializeStats() {
         numCorrect = 0;
@@ -101,6 +102,8 @@ public class StatsAccumulator {
             }
         }
         // estimate FP,TP,FN,TN for indels:
+        final int foundIndel = isTrueVariant && (fullPred.isIndel()) ? 1 : 0;
+        numTrueIndels += foundIndel;
 
         if (fullPred.isPredictedIndel() || fullPred.isIndel()) {
             if (fullPred.isCorrect()) {
@@ -157,7 +160,7 @@ public class StatsAccumulator {
         double precision = numTruePositive / ((double) (numTruePositive + numFalsePositive));
         // important fix. Remi, see https://en.wikipedia.org/wiki/F1_score
         double F1 = 2 * precision * recall / (precision + recall);
-        double indelRecall = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalseNegative);
+        double indelRecall = numIndelsTruePositive / ((double) numTrueIndels);
         double indelPrecision = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalsePositive);
         double indelF1 = 2 * indelPrecision * indelRecall / (indelPrecision + indelRecall);
         double snpRecall = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalseNegative);
@@ -239,7 +242,7 @@ public class StatsAccumulator {
     }
 
     public String[] createOutputHeader() {
-        return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance",
+        return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants",
                 "Accuracy_Indels", "Recall_Indels", "Precision_Indels", "F1_Indels",
                 "Accuracy_SNPs", "Recall_SNPs", "Precision_SNPs", "F1_SNPs",
                 "numIndels", "Het_Hom_Ratio", "TP", "TN"
@@ -262,8 +265,8 @@ public class StatsAccumulator {
         System.out.println("Indel Recall =" + statsArray[7]);
         System.out.println("Indel Precision =" + statsArray[8]);
         System.out.println("Indel F1 =" + statsArray[9]);
-        System.out.printf( "Indel TP %d FN %d FP %d TN %d %n", numIndelsTruePositive, numIndelsFalseNegative, numIndelsFalsePositive, numIndelsTrueNegative);
-        System.out.printf( "numIndels=%d%n",numIndels);
+        System.out.printf("Indel TP %d FN %d FP %d TN %d %n", numIndelsTruePositive, numIndelsFalseNegative, numIndelsFalsePositive, numIndelsTrueNegative);
+        System.out.printf("numIndels=%d%n", numIndels);
         System.out.println("numIndels =" + statsArray[14]);
         System.out.println("SNP Accuracy =" + statsArray[10]);
         System.out.println("SNP Recall =" + statsArray[11]);
