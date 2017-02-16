@@ -60,7 +60,7 @@ fi
 
 echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
 
-goby 8g suggest-position-slices ${ALIGNMENTS} --number-of-slices ${GOBY_NUM_SLICES} -o slices.tsv
+goby 8g suggest-position-slices ${ALIGNMENTS} --modulo 1000 --number-of-slices ${GOBY_NUM_SLICES} -o slices.tsv
 grep -v targetIdStart slices.tsv >slices
 
 
