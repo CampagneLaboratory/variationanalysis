@@ -163,16 +163,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         }
         GenotypePrediction fullPred = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictionList);
         fullPred.inspectRecord(record);
-        long trueAlleleLength = fullPred.trueAlleles().stream().map(String::length).distinct().count();
-        if (!args().scoreIndels && (fullPred.isIndel || trueAlleleLength > 1)) {
-            // reduce A---A/ATTTA to A/A
-            String trimmedGenotype = fullPred.trueAlleles().stream().map(s -> Character.toString(s.charAt(0))).collect(Collectors.joining("/"));
-            fullPred.trueGenotype = trimmedGenotype;
-            fullPred.trueFrom = record.getReferenceBase();
-            // no longer an indel, and now matching reference:
-            fullPred.isIndel = false;
-            fullPred.isVariant = false;
-        }
+
         if (GenotypeHelper.isNoCall(fullPred.predictedGenotype)) {
             System.out.printf("preventing no call from being interpreted as a variant: %s %s %n", fullPred.predictedGenotype, record.getReferenceBase());
             fullPred.isVariant = false;
