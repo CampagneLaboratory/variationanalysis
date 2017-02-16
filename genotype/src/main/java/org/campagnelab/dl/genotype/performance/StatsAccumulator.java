@@ -70,7 +70,7 @@ public class StatsAccumulator {
     }
 
     public void observe(GenotypePrediction fullPred, boolean isTrueVariant, boolean isPredictedVariant) {
-        fullPred.rebuild();
+
         numProcessed++;
         if (isPredictedVariant || isTrueVariant) {
             numTrueOrPredictedVariants += 1;

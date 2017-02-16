@@ -5,6 +5,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
+ * Interpret a predicton for a single genotype.
  * Created by rct66 on 11/12/16.
  */
 public class SingleGenotypeInterpreter extends  SortingCountInterpreter<SingleGenotypePrediction>
@@ -15,7 +16,6 @@ public class SingleGenotypeInterpreter extends  SortingCountInterpreter<SingleGe
     public SingleGenotypeInterpreter(int genotypeIndex, boolean sort) {
         super(sort);
         this.genotypeIndex = genotypeIndex;
-
     };
 
 
@@ -24,6 +24,9 @@ public class SingleGenotypeInterpreter extends  SortingCountInterpreter<SingleGe
         SingleGenotypePrediction pred = new SingleGenotypePrediction();
         try {
             pred.predictedSingleGenotype = Integer.toString(genotypeIndex);
+            if (genotypeIndex>4) {
+                pred.isPredicteIndel=true;
+            }
         } catch (IndexOutOfBoundsException e) {
             pred.predictedSingleGenotype = ".";
         }

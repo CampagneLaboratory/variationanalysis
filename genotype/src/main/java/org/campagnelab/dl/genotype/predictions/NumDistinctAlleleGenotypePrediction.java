@@ -58,7 +58,17 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
         this.isVariantProbability = overallProbability;
         predictedGenotype = hetGenotype.toString();
         this.isIndel = metaData.isIndel;
+        this.isPredictedIndel=isPredictedIndel(singleGenotypePredictions);
         this.isVariant = metaData.isVariant;
+    }
+
+    private boolean isPredictedIndel(SingleGenotypePrediction[] singleGenotypePredictions) {
+        for (org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction p: singleGenotypePredictions) {
+            if (p.isPredicteIndel) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int calculateNumAlleles(double threshold, ObjectArrayList<SingleGenotypePrediction> list) {

@@ -59,19 +59,6 @@ public class GenotypePrediction extends Prediction {
     public GenotypePrediction(String predictedGenotype, String trueGenotype) {
         this.predictedGenotype = predictedGenotype;
         this.trueGenotype = trueGenotype;
-        rebuild();
-    }
-
-    public void rebuild() {
-        predictedSNP = true;
-        isPredictedIndel = false;
-        for (String allele : predictedAlleles()) {
-
-            isPredictedIndel |= allele.length() > 1 || (Character.isDigit(allele.charAt(0)) && Integer.parseInt(allele) >= SampleCountInfo.BASE_MAX_INDEX);
-        }
-        if (isPredictedIndel) {
-            predictedSNP = false;
-        }
     }
 
     public GenotypePrediction() {
@@ -140,7 +127,7 @@ public class GenotypePrediction extends Prediction {
     }
 
     public boolean isPredictedSnp() {
-        return predictedSNP;
+        return !isPredictedIndel;
     }
 
     public Set<String> predictedAlleles() {
