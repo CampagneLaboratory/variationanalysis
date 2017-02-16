@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Set;
 
 /**
@@ -86,6 +87,7 @@ public class SbiStats extends AbstractTool<SbiStatsArguments> {
                 recordLogger.lightUpdate();
             }
             recordLogger.done();
+            DecimalFormat df = new DecimalFormat("#.##");
             System.out.println("numSites = " + numSites);
             System.out.println("numIndels = " + numIndels);
             System.out.println("numSnps = " + numSnps);
@@ -94,6 +96,7 @@ public class SbiStats extends AbstractTool<SbiStatsArguments> {
             System.out.println("numHetIndels = " + numHetIndels);
             System.out.println("numHomIndels = " + numHomIndels);
             System.out.println("numVariants = " + numVariants);
+            System.out.println("Het/Hom_Ratio = "+df.format(df.format((0d+numHetIndels+numHetSnps)/(0d+numHomIndels+numHomSnps))));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -286,8 +286,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
             // The map contains Goby positions (zero-based).
             Variant variant = varMap.getVariant(chrom,position);
             if (variant != null) {
-                inMap = true;
-
+                inMap = GenotypeHelper.isVariant(considerIndels, variant.trueAlleles,variant.reference);
             }
             if (inMap) {
 
@@ -307,7 +306,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                         //we have a snp or indel
                         numVariantsAdded++;
                         Set<String> alleles = GenotypeHelper.getAlleles(trueGenotype);
-                        if (alleles.size() > 1) {
+                        if (GenotypeHelper.isHeterozygote(trueGenotype)) {
                             numHeterozygousAdded++;
                         } else {
                             numHomozygousAdded++;

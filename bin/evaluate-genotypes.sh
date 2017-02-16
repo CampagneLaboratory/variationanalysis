@@ -66,6 +66,7 @@ set -x
 if [ -z "${GOLD_STANDARD_VCF_SNP_GZ+set}" ] || [ -z "${GOLD_STANDARD_VCF_INDEL_GZ+set}" ]; then
     if [ -z "${GOLD_STANDARD_VCF_GZ+set}" ]; then
         echo "Downloading Gold standard Genome in a Bottle VCF. Define GOLD_STANDARD_VCF_GZ to use an alternate Gold Standard."
+        rm -fr HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz.*
         wget ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/NISTv3.3.1/GRCh37/HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz
         mv HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf_phased.vcf.gz GIAB-NA12878-confident.vcf.gz
         # add "chr prefix:"
@@ -73,6 +74,7 @@ if [ -z "${GOLD_STANDARD_VCF_SNP_GZ+set}" ] || [ -z "${GOLD_STANDARD_VCF_INDEL_G
         bgzip -f GIAB-NA12878-confident-chr.vcf
         tabix -f GIAB-NA12878-confident-chr.vcf.gz
         echo 'export GOLD_STANDARD_VCF_GZ="GIAB-NA12878-confident-chr.vcf.gz"' >>configure.sh
+        export GOLD_STANDARD_VCF_GZ="GIAB-NA12878-confident-chr.vcf.gz"
     else
       echo "Formatting GOLD_STANDARD_VCF_GZ VCF for SNPs and indels"
     fi
@@ -96,12 +98,13 @@ fi
 
 if [ -z "${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ+set}" ]; then
     echo "Downloading Gold standard Genome in a Bottle Confident Regions (bed)"
+    rm -fr HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf.bed*
     wget ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/NISTv3.3.1/GRCh37/HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf.bed
     mv HG001_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.1_highconf.bed GIAB-NA12878-confident-regions.bed
     # add "chr prefix:"
     cat  GIAB-NA12878-confident-regions.bed |awk '{print "chr"$1"\t"$2"\t"$3}' >GIAB-NA12878-confident-regions-chr.bed
-    bgzip GIAB-NA12878-confident-regions-chr.bed
-    tabix GIAB-NA12878-confident-regions-chr.bed.gz
+    bgzip -f GIAB-NA12878-confident-regions-chr.bed
+    tabix -f GIAB-NA12878-confident-regions-chr.bed.gz
     rm GIAB-NA12878-confident-regions.bed
 
     GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ="GIAB-NA12878-confident-regions-chr.bed.gz"
@@ -123,17 +126,17 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
 
     echo "Running predict-genotypes to create VCF and observed region bed.."
     predict-genotypes.sh 20g -m ${MODEL_DIR} -l ${MODEL_PREFIX} -f -i ${DATASET_SBI} \
-        --format VCF --mini-batch-size ${MINI_BATCH_SIZE} ${PREDICT_OPTIONS}
+        --format VCF --mini-batch-size ${MINI_BATCH_SIZE} --score-indels ${PREDICT_OPTIONS}
     dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
     echo "Evaluation with rtg vcfeval starting.."
 
-    VCF_OUTPUT=`ls -1tr ${MODEL_TIME}-${MODEL_PREFIX}-*.vcf|tail -1`
-    BED_OBSERVED_REGIONS_OUTPUT=`ls -1tr ${MODEL_TIME}-${MODEL_PREFIX}-*-observed-regions.bed |tail -1`
+    export VCF_OUTPUT=`ls -1tr ${MODEL_TIME}-${MODEL_PREFIX}-*.vcf|tail -1`
+    export BED_OBSERVED_REGIONS_OUTPUT=`ls -1tr ${MODEL_TIME}-${MODEL_PREFIX}-*-observed-regions.bed |tail -1`
 else
     echo "Evaluating with VCF_OUTPUT=${VCF_OUTPUT} and BED_OBSERVED_REGIONS_OUTPUT=${BED_OBSERVED_REGIONS_OUTPUT}"
 fi
 
-VCF_OUTPUT_SORTED=`basename ${VCF_OUTPUT} .vcf`-sorted.vcf
+export VCF_OUTPUT_SORTED=`basename ${VCF_OUTPUT} .vcf`-sorted.vcf
 
 if [ ! -e "${VCF_OUTPUT_SORTED}.gz" ]; then
 
@@ -197,3 +200,22 @@ dieIfError "Unable to generate SNP Precision Recall plot."
 
 rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/non_snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/indel/INDEL-PrecisionRecall.svg
 dieIfError "Unable to generate indel Precision Recall plot."
+
+# Following is currently disabled.
+exit 0
+# SNPs and indels, ignoring ploydy mistakes:
+rtg vcfeval --baseline=${GOLD_STANDARD_VCF_GZ}  \
+        -c ${VCF_OUTPUT_SORTED}.gz -o ${RTG_OUTPUT_FOLDER}/squash-ploidy --output-mode combine --template=${RTG_TEMPLATE}  \
+            --evaluation-regions=${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ} \
+            --bed-regions=${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz \
+            --vcf-score-field=P  --sort-order=descending --squash-ploidy
+dieIfError "Failed to run rtg vcfeval."
+
+rtg rocplot ${RTG_OUTPUT_FOLDER}/squash-ploidy/non_snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/squash-ploidy/INDEL-ROC.svg
+dieIfError "Unable to generate SNP ROC plot."
+
+rtg rocplot ${RTG_OUTPUT_FOLDER}/squash-ploidy/non_snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/squash-ploidy/non_snp-PrecisionRecall.svg
+dieIfError "Unable to generate SNP Precision Recall plot."
+
+rtg rocplot ${RTG_OUTPUT_FOLDER}/squash-ploidy/snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/squash-ploidy/snp-PrecisionRecall.svg
+dieIfError "Unable to generate non-SNP Precision Recall plot."
