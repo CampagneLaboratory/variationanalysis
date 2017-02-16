@@ -201,29 +201,26 @@ public class StatsAccumulator {
                 case "F1_Indels":
                     j = 6;
                     break;
-                case "Accuracy_SNPs":
+                case "Recall_SNPs":
                     j = 7;
                     break;
-                case "Recall_SNPs":
+                case "Precision_SNPs":
                     j = 8;
                     break;
-                case "Precision_SNPs":
+                case "F1_SNPs":
                     j = 9;
                     break;
-                case "F1_SNPs":
+                case "numIndels":
                     j = 10;
                     break;
-                case "numIndels":
+                case "Het_Hom_Ratio":
                     j = 11;
                     break;
-                case "Het_Hom_Ratio":
+                case "TP":
                     j = 12;
                     break;
-                case "TP":
-                    j = 13;
-                    break;
                 case "TN":
-                    j = 14;
+                    j = 13;
                     break;
 
                 default:
@@ -235,7 +232,7 @@ public class StatsAccumulator {
     }
 
     public String[] createOutputHeader() {
-        return new String[]{ "Recall", "Precision", "F1", "NumVariants",
+        return new String[]{"Recall", "Precision", "F1", "NumVariants",
                 "Recall_Indels", "Precision_Indels", "F1_Indels",
                 "Recall_SNPs", "Precision_SNPs", "F1_SNPs",
                 "numIndels", "Het_Hom_Ratio", "TP", "TN"
