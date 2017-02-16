@@ -321,7 +321,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                 }
                 // alignment and genome do not necessarily share the same space of reference indices. Convert:
                 referenceBase = referenceBase.toUpperCase();
-                trueAlleles.clear();
+                trueAlleles = new ObjectArraySet<Variant.FromTo>(1);
                 trueAlleles.add(new Variant.FromTo(referenceBase,referenceBase));
             } else if (isVariant && variant.isIndel && (!indelsAsRef) && (!considerIndels)){
                 numIndelsIgnored++;
