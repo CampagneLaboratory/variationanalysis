@@ -18,17 +18,8 @@ public class RecordCountSortHelper {
         final List<BaseInformationRecords.CountInfo> countsList = record.getSamples(0).getCountsList();
         List<BaseInformationRecords.CountInfo> counts = new ArrayList<>();
         for (BaseInformationRecords.CountInfo count : countsList) {
-            int forwardCount = count.getIsIndel()
-                    ? count.getGenotypeCountForwardStrand() - (count.getGenotypeCountForwardStrand() / 2)
-                    : count.getGenotypeCountForwardStrand();
-            int reverseCount = count.getIsIndel()
-                    ? count.getGenotypeCountForwardStrand() / 2
-                    : count.getGenotypeCountReverseStrand();
             counts.add(BaseInformationRecords.CountInfo.newBuilder()
                     .mergeFrom(count)
-                    .setGobyGenotypeIndex(originalGenotypeIndex++)
-                    .setGenotypeCountForwardStrand(forwardCount)
-                    .setGenotypeCountReverseStrand(reverseCount)
                     .build());
         }
 
@@ -49,9 +40,7 @@ public class RecordCountSortHelper {
         copyOfRecord.addSamples(builder);
         return copyOfRecord.build();
     }
-
     public BaseInformationRecords.BaseInformation sort(BaseInformationRecords.BaseInformation record) {
-        int originalGenotypeIndex = 0;
         final List<BaseInformationRecords.CountInfo> countsList = record.getSamples(0).getCountsList();
         List<BaseInformationRecords.CountInfo> counts = new ArrayList<>();
         for (BaseInformationRecords.CountInfo count : countsList) {
@@ -64,7 +53,7 @@ public class RecordCountSortHelper {
             counts.add(BaseInformationRecords.CountInfo.newBuilder()
                     .mergeFrom(count)
                     .setGenotypeCountForwardStrand(forwardCount)
-                    .setGenotypeCountReverseStrand(reverseCount).setGobyGenotypeIndex(originalGenotypeIndex++)
+                    .setGenotypeCountReverseStrand(reverseCount)
                     .build());
         }
 
@@ -77,7 +66,7 @@ public class RecordCountSortHelper {
         builder.clearCounts();
         builder.addAllCounts(counts);
         BaseInformationRecords.BaseInformation.Builder copyOfRecord = record.toBuilder();
-        copyOfRecord.setSamples(0, builder);
+        copyOfRecord.setSamples(0,builder);
         return copyOfRecord.build();
     }
 }
