@@ -1,5 +1,6 @@
 package org.campagnelab.dl.genotype.performance;
 
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 
 /**
@@ -158,10 +159,11 @@ public class StatsAccumulator {
         final int variantsExpected = Math.max(numTruePositive + numFalseNegative, this.numVariantsExpected);
         double recall = numTruePositive / ((double) numTruePositive + numFalseNegative);
         double precision = numTruePositive / ((double) (numTruePositive + numFalsePositive));
-        // important fix. Remi, see https://en.wikipedia.org/wiki/F1_score
+
         double F1 = 2 * precision * recall / (precision + recall);
-        double indelRecall = numIndelsTruePositive / ((double) numTrueIndels);
+        double indelRecall = numIndelsTruePositive / ((double) numIndelsTruePositive+numIndelsFalseNegative);
         double indelPrecision = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalsePositive);
+        System.out.printf("indels: TP %d FP %d FN %d  TN %d %n",numIndelsTruePositive, numIndelsFalsePositive,numIndelsFalseNegative, numIndelsTrueNegative );
         double indelF1 = 2 * indelPrecision * indelRecall / (indelPrecision + indelRecall);
         double snpRecall = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalseNegative);
         double snpPrecision = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalsePositive);

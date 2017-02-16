@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.algorithmic.dsv.SampleCountInfo;
 
 import java.util.Collections;
 import java.util.Set;
@@ -63,11 +64,13 @@ public class GenotypePrediction extends Prediction {
 
     public void rebuild() {
         predictedSNP = true;
+        isPredictedIndel = false;
         for (String allele : predictedAlleles()) {
-            if (allele.length() > 1) {
-                predictedSNP = false;
-                isPredictedIndel = true;
-            }
+
+            isPredictedIndel |= allele.length() > 1 || (Character.isDigit(allele.charAt(0)) && Integer.parseInt(allele) >= SampleCountInfo.BASE_MAX_INDEX);
+        }
+        if (isPredictedIndel) {
+            predictedSNP = false;
         }
     }
 
@@ -91,7 +94,7 @@ public class GenotypePrediction extends Prediction {
                 predictedFrom = c.getFromSequence();
             }
         }
-        isIndel=GenotypeHelper.isIndel(currentRecord.getReferenceBase(), currentRecord.getTrueGenotype());
+        isIndel = GenotypeHelper.isIndel(currentRecord.getReferenceBase(), currentRecord.getTrueGenotype());
 
         /*
        //we need to check from and to fields for a genotype greater than length 1
@@ -161,5 +164,5 @@ public class GenotypePrediction extends Prediction {
     }
 
 
-    public static String DECISION_THRESHOLD_PROPERTY ="genotypes.decisionThreshold";
+    public static String DECISION_THRESHOLD_PROPERTY = "genotypes.decisionThreshold";
 }
