@@ -167,8 +167,10 @@ public class StatsAccumulator {
         double snpPrecision = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalsePositive);
         double snpF1 = 2 * snpPrecision * snpRecall / (snpPrecision + snpRecall);
         double het_hom_ratio = (hetCount)/*AB*/ / (homCount == 0 ? 1 : homCount) /*BB*/;
-        return new double[]{accuracy, recall, precision, F1, numVariants, genotypeConcordance, indelAccuracy,
-                indelRecall, indelPrecision, indelF1, snpAccuracy, snpRecall, snpPrecision, snpF1, numIndels, het_hom_ratio, numTruePositive, numTrueNegative};
+        return new double[]{recall, precision, F1, numVariants,
+                indelRecall, indelPrecision, indelF1,
+                snpRecall, snpPrecision, snpF1, numIndels,
+                het_hom_ratio, numTruePositive, numTrueNegative};
     }
 
     public double[] createOutputStatistics(String... metrics) {
@@ -178,59 +180,50 @@ public class StatsAccumulator {
         for (String metricName : metrics) {
             int j = -1;
             switch (metricName) {
-                case "Accuracy":
+                case "Recall":
                     j = 0;
                     break;
-                case "Recall":
+                case "Precision":
                     j = 1;
                     break;
-                case "Precision":
+                case "F1":
                     j = 2;
                     break;
-                case "F1":
+                case "NumVariants":
                     j = 3;
                     break;
-                case "NumVariants":
+                case "Recall_Indels":
                     j = 4;
                     break;
-                case "Concordance":
+                case "Precision_Indels":
                     j = 5;
                     break;
-                case "Accuracy_Indels":
+                case "F1_Indels":
                     j = 6;
                     break;
-                case "Recall_Indels":
+                case "Accuracy_SNPs":
                     j = 7;
                     break;
-                case "Precision_Indels":
+                case "Recall_SNPs":
                     j = 8;
                     break;
-                case "F1_Indels":
+                case "Precision_SNPs":
                     j = 9;
                     break;
-                case "Accuracy_SNPs":
+                case "F1_SNPs":
                     j = 10;
                     break;
-                case "Recall_SNPs":
+                case "numIndels":
                     j = 11;
                     break;
-                case "Precision_SNPs":
+                case "Het_Hom_Ratio":
                     j = 12;
                     break;
-                case "F1_SNPs":
+                case "TP":
                     j = 13;
                     break;
-                case "numIndels":
-                    j = 14;
-                    break;
-                case "Het_Hom_Ratio":
-                    j = 15;
-                    break;
-                case "TP":
-                    j = 16;
-                    break;
                 case "TN":
-                    j = 17;
+                    j = 14;
                     break;
 
                 default:
@@ -242,9 +235,9 @@ public class StatsAccumulator {
     }
 
     public String[] createOutputHeader() {
-        return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants",
-                "Accuracy_Indels", "Recall_Indels", "Precision_Indels", "F1_Indels",
-                "Accuracy_SNPs", "Recall_SNPs", "Precision_SNPs", "F1_SNPs",
+        return new String[]{ "Recall", "Precision", "F1", "NumVariants",
+                "Recall_Indels", "Precision_Indels", "F1_Indels",
+                "Recall_SNPs", "Precision_SNPs", "F1_SNPs",
                 "numIndels", "Het_Hom_Ratio", "TP", "TN"
         };
     }
