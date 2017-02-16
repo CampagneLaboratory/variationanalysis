@@ -114,7 +114,7 @@ MODEL_TIMESTAMP=`ls -1 models`
 goby 4g discover-sequence-variants NA12878_S1_21_dec19.entries \
  --format GENOTYPES -o NA12878_S1_chr21.vcf \
  --genome ucsc_hg19 \
- -x SomaticVariationOutputFormat:model-path=`pwd`/models/${MODEL_TIMESTAMP}/bestAUC-ComputationGraph.bin \
+ -x GenotypesOutputFormat:model-path=`pwd`/models/${MODEL_TIMESTAMP}/bestAUC-ComputationGraph.bin \
 ```
 The predictions will be written to NA12878_S1_chr21.vcf. 
 Note that this model is trained with too few examples to be reliable, but training with more data 
