@@ -128,7 +128,6 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         }
         domainDescriptor = DomainDescriptorLoader.load(modelPath);
 
-
         PredictWithModel<RecordType> predictor = new PredictWithModel<RecordType>(domainDescriptor);
 
         Iterable<RecordType> apply = domainDescriptor.getRecordIterable().apply(evaluationDataFilename);

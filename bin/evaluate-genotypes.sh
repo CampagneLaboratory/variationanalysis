@@ -126,7 +126,7 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
 
     echo "Running predict-genotypes to create VCF and observed region bed.."
     predict-genotypes.sh 20g -m ${MODEL_DIR} -l ${MODEL_PREFIX} -f -i ${DATASET_SBI} \
-        --format VCF --mini-batch-size ${MINI_BATCH_SIZE} --score-indels ${PREDICT_OPTIONS}
+        --format VCF --mini-batch-size ${MINI_BATCH_SIZE}  ${PREDICT_OPTIONS}
     dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
     echo "Evaluation with rtg vcfeval starting.."
 

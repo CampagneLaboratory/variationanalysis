@@ -25,12 +25,6 @@ public class PredictGArguments extends PredictArguments {
         TABLE, VCF
     }
 
-    @Parameter(names = {"--score-indels"}, description = "When this flag is provided, we score indel alleles as" +
-            " we would SNPs. When this flag is omitted, we trim alleles longer than 1 base to exactly one base before" +
-            "comparing for allele match. For instance, with --score-indel, we consider A--------/ATTATTTAT vs  A/A to " +
-            " be a mismatch. Without it, we trim the indel to A/A and find a match. Set to default=true in release 1.2.2.")
-    boolean scoreIndels=true;
-
     @Parameter(names = {"--only-variants"}, description = "Only show sites where one allele is not reference.")
     boolean onlyVariants;
 

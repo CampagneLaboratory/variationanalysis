@@ -15,7 +15,12 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
 
     private boolean useNumAlleles = false;
 
-    public NumDistinctAlleleGenotypePrediction(List<Prediction> predictionList) {
+    public NumDistinctAlleleGenotypePrediction(double decisionThreshold) {
+        this.DECISION_THRESHOLD = decisionThreshold;
+    }
+
+    public NumDistinctAlleleGenotypePrediction(double decisionThreshold, List<Prediction> predictionList) {
+        this.DECISION_THRESHOLD=decisionThreshold;
         set(predictionList);
     }
 
@@ -28,9 +33,10 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
                 (MetadataPrediction) predictionList.get(11));
 
     }
+    private double DECISION_THRESHOLD = 0.5d;
 
     public void set(NumDistinctAllelesOutputLayerPrediction numDistinctAlleles, SingleGenotypePrediction[] singleGenotypePredictions, MetadataPrediction metaData) {
-        double threshold = 0.5;
+        double threshold = DECISION_THRESHOLD;
         ObjectArrayList<SingleGenotypePrediction> list = ObjectArrayList.wrap(singleGenotypePredictions);
         list.sort((g1, g2) -> Double.compare(g2.probabilityIsCalled, g1.probabilityIsCalled));
 
@@ -52,7 +58,17 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
         this.isVariantProbability = overallProbability;
         predictedGenotype = hetGenotype.toString();
         this.isIndel = metaData.isIndel;
+        this.isPredictedIndel=isPredictedIndel(singleGenotypePredictions);
         this.isVariant = metaData.isVariant;
+    }
+
+    private boolean isPredictedIndel(SingleGenotypePrediction[] singleGenotypePredictions) {
+        for (org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction p: singleGenotypePredictions) {
+            if (p.isPredicteIndel) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int calculateNumAlleles(double threshold, ObjectArrayList<SingleGenotypePrediction> list) {
