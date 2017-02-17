@@ -1,6 +1,5 @@
 package org.campagnelab.dl.genotype.performance;
 
-import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 
 /**
@@ -161,9 +160,9 @@ public class StatsAccumulator {
         double precision = numTruePositive / ((double) (numTruePositive + numFalsePositive));
 
         double F1 = 2 * precision * recall / (precision + recall);
-        double indelRecall = numIndelsTruePositive / ((double) numIndelsTruePositive+numIndelsFalseNegative);
+        double indelRecall = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalseNegative);
         double indelPrecision = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalsePositive);
-        System.out.printf("indels: TP %d FP %d FN %d  TN %d %n",numIndelsTruePositive, numIndelsFalsePositive,numIndelsFalseNegative, numIndelsTrueNegative );
+        System.out.printf("indels: TP %d FP %d FN %d  TN %d %n", numIndelsTruePositive, numIndelsFalsePositive, numIndelsFalseNegative, numIndelsTrueNegative);
         double indelF1 = 2 * indelPrecision * indelRecall / (indelPrecision + indelRecall);
         double snpRecall = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalseNegative);
         double snpPrecision = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalsePositive);
@@ -245,22 +244,11 @@ public class StatsAccumulator {
 
     public void reportStatistics(String prefix) {
         double[] statsArray = createOutputStatistics();
-        System.out.printf("Number of variants expected=%d%n", numVariantsExpected);
-        System.out.println("Statistics estimated for " + prefix);
-        System.out.println("Recall =" + statsArray[0]);
-        System.out.println("Precision =" + statsArray[1]);
-        System.out.println("F1 =" + statsArray[2]);
-        System.out.println("numVariants =" + statsArray[3]);
-        System.out.println("Indel Accuracy =" + statsArray[4]);
-        System.out.println("Indel Recall =" + statsArray[5]);
-        System.out.println("Indel Precision =" + statsArray[6]);
-        System.out.println("Indel F1 =" + statsArray[7]);
-        System.out.printf( "Indel TP %d FN %d FP %d TN %d %n", numIndelsTruePositive, numIndelsFalseNegative, numIndelsFalsePositive, numIndelsTrueNegative);
-        System.out.printf( "numIndels=%d%n",numIndels);
-        System.out.println("numIndels =" + statsArray[8]);
-        System.out.println("SNP Recall =" + statsArray[9]);
-        System.out.println("SNP precision =" + statsArray[10]);
-        System.out.println("SNP F1=" + statsArray[11]);
+        String[] header = createOutputHeader();
+        for (int i = 0; i < Math.min(header.length, statsArray.length); i++) {
+            System.out.println(header[i] + "=" + statsArray[i]);
+        }
+        System.out.printf("Indel TP %d FN %d FP %d TN %d %n", numIndelsTruePositive, numIndelsFalseNegative, numIndelsFalsePositive, numIndelsTrueNegative);
     }
 
     public void setNumVariantsExpected(int numVariantsExpected) {
