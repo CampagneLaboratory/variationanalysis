@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.algorithmic.dsv.SampleCountInfo;
 
 import java.util.Collections;
 import java.util.Set;
@@ -58,17 +59,6 @@ public class GenotypePrediction extends Prediction {
     public GenotypePrediction(String predictedGenotype, String trueGenotype) {
         this.predictedGenotype = predictedGenotype;
         this.trueGenotype = trueGenotype;
-        rebuild();
-    }
-
-    public void rebuild() {
-        predictedSNP = true;
-        for (String allele : predictedAlleles()) {
-            if (allele.length() > 1) {
-                predictedSNP = false;
-                isPredictedIndel = true;
-            }
-        }
     }
 
     public GenotypePrediction() {
@@ -91,7 +81,10 @@ public class GenotypePrediction extends Prediction {
                 predictedFrom = c.getFromSequence();
             }
         }
-        //we need to check from and to fields for a genotype greater than length 1
+        isIndel = GenotypeHelper.isIndel(currentRecord.getReferenceBase(), currentRecord.getTrueGenotype());
+
+        /*
+       //we need to check from and to fields for a genotype greater than length 1
         //can't use existence of a dash "-" because some indels don't use them
         isIndel = false;
         for (String trueTo : trueAlleles()) {
@@ -102,8 +95,11 @@ public class GenotypePrediction extends Prediction {
         isPredictedIndel = false;
         for (String predTo : predictedAlleles()) {
             isPredictedIndel |= predTo.length() > 1;
+            isPredictedIndel |= predTo.contains("-");
         }
         isPredictedIndel |= predictedFrom.length() > 1;
+        isPredictedIndel |= predictedFrom.contains("-");
+        */
     }
 
 
@@ -131,7 +127,7 @@ public class GenotypePrediction extends Prediction {
     }
 
     public boolean isPredictedSnp() {
-        return predictedSNP;
+        return !isPredictedIndel;
     }
 
     public Set<String> predictedAlleles() {
@@ -155,4 +151,5 @@ public class GenotypePrediction extends Prediction {
     }
 
 
+    public static String DECISION_THRESHOLD_PROPERTY = "genotypes.decisionThreshold";
 }

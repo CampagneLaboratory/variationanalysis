@@ -56,6 +56,9 @@ public class GenotypeTrainingArguments extends TrainingArguments {
     @Parameter(names = "--lstm-model-capacity", description = "Model capacity for determining number of hidden nodes in LSTM layers. ")
     public float lstmModelCapacity = 1f;
 
+    @Parameter(names = "--decision-threshold", description = "Threshold to decide if a genotype is predicted. Default is 0.5. Lower the default to increase recall.")
+    public double decisionThreshold=0.5;
+
     @Override
     protected String defaultArchitectureClassname() {
         return GenotypeSixDenseLayersNarrower2.class.getCanonicalName();

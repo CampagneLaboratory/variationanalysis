@@ -35,6 +35,7 @@ public class StatsAccumulator {
     int numSnpsTrueNegative;
     int hetCount = 0;
     int homCount = 0;
+    int numTrueIndels = 0;
 
     public void initializeStats() {
         numCorrect = 0;
@@ -68,7 +69,7 @@ public class StatsAccumulator {
     }
 
     public void observe(GenotypePrediction fullPred, boolean isTrueVariant, boolean isPredictedVariant) {
-        fullPred.rebuild();
+
         numProcessed++;
         if (isPredictedVariant || isTrueVariant) {
             numTrueOrPredictedVariants += 1;
@@ -79,28 +80,10 @@ public class StatsAccumulator {
             hetCount += (size == 2 ? 1 : 0); //AB
             homCount += (size == 1 ? 1 : 0); //BB
         }
-        // estimate FP,TP,FN,TN for SNPs:
-        if (fullPred.isPredictedSnp() || fullPred.isSnp()) {
-            if (fullPred.isCorrect()) {
-                numCorrect++;
-                if (isTrueVariant) {
-                    numSnpsTruePositive++;
-                    numTruePositive++;
-                } else {
-                    numSnpsTrueNegative++;
-                    numTrueNegative++;
-                }
-            } else {
-                if (isTrueVariant) {
-                    numSnpsFalseNegative++;
-                    numFalseNegative++;
-                } else {
-                    numSnpsFalsePositive++;
-                    numFalsePositive++;
-                }
-            }
-        }
+
         // estimate FP,TP,FN,TN for indels:
+        final int foundIndel = isTrueVariant && (fullPred.isIndel()) ? 1 : 0;
+        numTrueIndels += foundIndel;
 
         if (fullPred.isPredictedIndel() || fullPred.isIndel()) {
             if (fullPred.isCorrect()) {
@@ -118,6 +101,27 @@ public class StatsAccumulator {
                     numFalseNegative++;
                 } else {
                     numIndelsFalsePositive++;
+                    numFalsePositive++;
+                }
+            }
+        }else {
+            // estimate FP,TP,FN,TN for non-indels:
+
+            if (fullPred.isCorrect()) {
+                numCorrect++;
+                if (isTrueVariant) {
+                    numSnpsTruePositive++;
+                    numTruePositive++;
+                } else {
+                    numSnpsTrueNegative++;
+                    numTrueNegative++;
+                }
+            } else {
+                if (isTrueVariant) {
+                    numSnpsFalseNegative++;
+                    numFalseNegative++;
+                } else {
+                    numSnpsFalsePositive++;
                     numFalsePositive++;
                 }
             }
@@ -155,17 +159,20 @@ public class StatsAccumulator {
         final int variantsExpected = Math.max(numTruePositive + numFalseNegative, this.numVariantsExpected);
         double recall = numTruePositive / ((double) numTruePositive + numFalseNegative);
         double precision = numTruePositive / ((double) (numTruePositive + numFalsePositive));
-        // important fix. Remi, see https://en.wikipedia.org/wiki/F1_score
+
         double F1 = 2 * precision * recall / (precision + recall);
         double indelRecall = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalseNegative);
         double indelPrecision = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalsePositive);
+      //  System.out.printf("indels: TP %d FP %d FN %d  TN %d %n", numIndelsTruePositive, numIndelsFalsePositive, numIndelsFalseNegative, numIndelsTrueNegative);
         double indelF1 = 2 * indelPrecision * indelRecall / (indelPrecision + indelRecall);
         double snpRecall = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalseNegative);
         double snpPrecision = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalsePositive);
         double snpF1 = 2 * snpPrecision * snpRecall / (snpPrecision + snpRecall);
         double het_hom_ratio = (hetCount)/*AB*/ / (homCount == 0 ? 1 : homCount) /*BB*/;
-        return new double[]{accuracy, recall, precision, F1, numVariants, genotypeConcordance, indelAccuracy,
-                indelRecall, indelPrecision, indelF1, snpAccuracy, snpRecall, snpPrecision, snpF1, numIndels, het_hom_ratio, numTruePositive, numTrueNegative};
+        return new double[]{recall, precision, F1, numVariants,
+                indelRecall, indelPrecision, indelF1,
+                snpRecall, snpPrecision, snpF1, numIndels,
+                het_hom_ratio, numTruePositive, numTrueNegative};
     }
 
     public double[] createOutputStatistics(String... metrics) {
@@ -175,59 +182,47 @@ public class StatsAccumulator {
         for (String metricName : metrics) {
             int j = -1;
             switch (metricName) {
-                case "Accuracy":
+                case "Recall":
                     j = 0;
                     break;
-                case "Recall":
+                case "Precision":
                     j = 1;
                     break;
-                case "Precision":
+                case "F1":
                     j = 2;
                     break;
-                case "F1":
+                case "NumVariants":
                     j = 3;
                     break;
-                case "NumVariants":
+                case "Recall_Indels":
                     j = 4;
                     break;
-                case "Concordance":
+                case "Precision_Indels":
                     j = 5;
                     break;
-                case "Accuracy_Indels":
+                case "F1_Indels":
                     j = 6;
                     break;
-                case "Recall_Indels":
+                case "Recall_SNPs":
                     j = 7;
                     break;
-                case "Precision_Indels":
+                case "Precision_SNPs":
                     j = 8;
                     break;
-                case "F1_Indels":
+                case "F1_SNPs":
                     j = 9;
                     break;
-                case "Accuracy_SNPs":
+                case "numIndels":
                     j = 10;
                     break;
-                case "Recall_SNPs":
+                case "Het_Hom_Ratio":
                     j = 11;
                     break;
-                case "Precision_SNPs":
+                case "TP":
                     j = 12;
                     break;
-                case "F1_SNPs":
-                    j = 13;
-                    break;
-                case "numIndels":
-                    j = 14;
-                    break;
-                case "Het_Hom_Ratio":
-                    j = 15;
-                    break;
-                case "TP":
-                    j = 16;
-                    break;
                 case "TN":
-                    j = 17;
+                    j = 13;
                     break;
 
                 default:
@@ -239,9 +234,9 @@ public class StatsAccumulator {
     }
 
     public String[] createOutputHeader() {
-        return new String[]{"Accuracy", "Recall", "Precision", "F1", "NumVariants", "Concordance",
-                "Accuracy_Indels", "Recall_Indels", "Precision_Indels", "F1_Indels",
-                "Accuracy_SNPs", "Recall_SNPs", "Precision_SNPs", "F1_SNPs",
+        return new String[]{"Recall", "Precision", "F1", "NumVariants",
+                "Recall_Indels", "Precision_Indels", "F1_Indels",
+                "Recall_SNPs", "Precision_SNPs", "F1_SNPs",
                 "numIndels", "Het_Hom_Ratio", "TP", "TN"
         };
     }
@@ -250,25 +245,11 @@ public class StatsAccumulator {
 
     public void reportStatistics(String prefix) {
         double[] statsArray = createOutputStatistics();
-        System.out.printf("Number of variants expected=%d%n", numVariantsExpected);
-        System.out.println("Statistics estimated for " + prefix);
-        System.out.println("Accuracy =" + statsArray[0]);
-        System.out.println("Recall =" + statsArray[1]);
-        System.out.println("Precision =" + statsArray[2]);
-        System.out.println("F1 =" + statsArray[3]);
-        System.out.println("numVariants =" + statsArray[4]);
-        System.out.println("genotype concordance =" + statsArray[5]);
-        System.out.println("Indel Accuracy =" + statsArray[6]);
-        System.out.println("Indel Recall =" + statsArray[7]);
-        System.out.println("Indel Precision =" + statsArray[8]);
-        System.out.println("Indel F1 =" + statsArray[9]);
-        System.out.printf( "Indel TP %d FN %d FP %d TN %d %n", numIndelsTruePositive, numIndelsFalseNegative, numIndelsFalsePositive, numIndelsTrueNegative);
-        System.out.printf( "numIndels=%d%n",numIndels);
-        System.out.println("numIndels =" + statsArray[14]);
-        System.out.println("SNP Accuracy =" + statsArray[10]);
-        System.out.println("SNP Recall =" + statsArray[11]);
-        System.out.println("SNP precision =" + statsArray[12]);
-        System.out.println("SNP F1=" + statsArray[13]);
+        String[] header = createOutputHeader();
+        for (int i = 0; i < Math.min(header.length, statsArray.length); i++) {
+            System.out.println(header[i] + "=" + statsArray[i]);
+        }
+        System.out.printf("Indel TP %d FN %d FP %d TN %d %n", numIndelsTruePositive, numIndelsFalseNegative, numIndelsFalsePositive, numIndelsTrueNegative);
     }
 
     public void setNumVariantsExpected(int numVariantsExpected) {

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Set;
 
 /**
@@ -32,7 +33,7 @@ public class SbiStats extends AbstractTool<SbiStatsArguments> {
     public static void main(String[] args) {
 
         SbiStats tool = new SbiStats();
-        tool.parseArguments(args, "SbiStatsArguments", tool.createArguments());
+        tool.parseArguments(args, "SbiStats", tool.createArguments());
         tool.execute();
 
     }
@@ -40,7 +41,7 @@ public class SbiStats extends AbstractTool<SbiStatsArguments> {
     @Override
     //only supports genotypes encoded with a bar (|) delimiter
     public void execute() {
-                try {
+        try {
             RecordReader source = new RecordReader(args().inputFile);
             ProgressLogger recordLogger = new ProgressLogger(LOG);
             recordLogger.expectedUpdates = source.numRecords();
@@ -56,65 +57,47 @@ public class SbiStats extends AbstractTool<SbiStatsArguments> {
             int numHomIndels = 0;
             int numVariants = 0;
             int numHasIndel = 0;
-
+            int numSites = 0;
             for (BaseInformationRecords.BaseInformation rec : source) {
-                boolean isIndel = false;
-                boolean hasIndel = false;
-                boolean isVariant = false;
-                boolean isSnp = false;
-                boolean heterozygous = false;
-                for (BaseInformationRecords.CountInfo c : rec.getSamples(args().sampleIndex).getCountsList()){
-                    if (c.getIsIndel() && c.getIsCalled()) {
-                        isIndel = true;
-                    }
-                    if (c.getIsIndel()){
-                        hasIndel = true;
-                    }
-                    if (!c.getToSequence().equals(c.getFromSequence())){
-                        isVariant = true;
-                    }
-                    if (isVariant && !isIndel){
-                        isSnp = true;
-                    }
-                }
                 String trueGenotype = rec.getTrueGenotype();
-                Set<String> alleles = GenotypeHelper.getAlleles(trueGenotype);
-                if (alleles.size() > 1) {
-                    heterozygous = true;
-                }
-                if (isVariant){
+                boolean isIndel = GenotypeHelper.isIndel(rec.getReferenceBase(), trueGenotype);
+                boolean isVariant = GenotypeHelper.isVariant(true, trueGenotype, rec.getReferenceBase());
+                boolean isSnp = isVariant && !isIndel;
+                boolean heterozygous = GenotypeHelper.isHeterozygote(trueGenotype);
+                numSites++;
+                if (isVariant) {
                     numVariants++;
                 }
-                if (isIndel){
+                if (isIndel) {
                     numIndels++;
-                    if(heterozygous){
+                    if (heterozygous) {
                         numHetIndels++;
                     } else {
                         numHomIndels++;
                     }
-                } if (isSnp){
+                }
+                if (isSnp) {
                     numSnps++;
-                    if(heterozygous){
+                    if (heterozygous) {
                         numHetSnps++;
                     } else {
                         numHomSnps++;
                     }
                 }
-                if (hasIndel){
-                    numHasIndel++;
-                }
                 recordLogger.lightUpdate();
             }
             recordLogger.done();
-            System.out.println("numIndels = " + numIndels );
-            System.out.println("numSnps = " + numSnps );
-            System.out.println("numHetSnps = " + numHetSnps );
-            System.out.println("numHomSnps = " + numHomSnps );
-            System.out.println("numHetIndels = " + numHetIndels );
-            System.out.println("numHomIndels = " + numHomIndels );
-            System.out.println("numVariants = " + numVariants );
-                    System.out.println("numHasIndel = " + numHasIndel );
-            } catch (IOException e) {
+            DecimalFormat df = new DecimalFormat("#.##");
+            System.out.println("numSites = " + numSites);
+            System.out.println("numIndels = " + numIndels);
+            System.out.println("numSnps = " + numSnps);
+            System.out.println("numHetSnps = " + numHetSnps);
+            System.out.println("numHomSnps = " + numHomSnps);
+            System.out.println("numHetIndels = " + numHetIndels);
+            System.out.println("numHomIndels = " + numHomIndels);
+            System.out.println("numVariants = " + numVariants);
+            System.out.println("Het/Hom_Ratio = "+df.format(df.format((0d+numHetIndels+numHetSnps)/(0d+numHomIndels+numHomSnps))));
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

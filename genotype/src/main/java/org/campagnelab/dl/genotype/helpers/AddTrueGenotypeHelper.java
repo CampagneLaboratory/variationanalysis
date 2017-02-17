@@ -280,8 +280,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
             // The map contains Goby positions (zero-based).
             Variant variant = varMap.getVariant(chrom,position);
             if (variant != null) {
-                inMap = true;
-
+                inMap = GenotypeHelper.isVariant(considerIndels, variant.trueAlleles,variant.reference);
             }
             if (inMap) {
 

@@ -60,13 +60,13 @@ fi
 
 echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
 
-goby 8g suggest-position-slices ${ALIGNMENTS} --number-of-slices ${GOBY_NUM_SLICES} -o slices.tsv
+goby 8g suggest-position-slices ${ALIGNMENTS} --modulo 1000 --number-of-slices ${GOBY_NUM_SLICES} -o slices.tsv
 grep -v targetIdStart slices.tsv >slices
 
 
 echo " discover-sequence-variants -n 0 -t 1 --genome  ${SBI_GENOME} --format  SEQUENCE_BASE_INFORMATION  ${ALIGNMENTS} \
     --call-indels  ${INCLUDE_INDELS} ${REALIGNMENT_OPTION} \
-    --max-coverage-per-site 10000 -x HTSJDKReaderImpl:force-sorted=true \
+    --max-coverage-per-site 1000 -x HTSJDKReaderImpl:force-sorted=true \
     -x SequenceBaseInformationOutputFormat:genomic-context-length=41 \
     ${VARMAP_OPTION} " >command.txt
 

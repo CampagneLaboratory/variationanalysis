@@ -2,6 +2,7 @@ package org.campagnelab.dl.genotype.helpers;
 
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
+import org.campagnelab.goby.algorithmic.dsv.SampleCountInfo;
 import org.campagnelab.goby.algorithmic.indels.EquivalentIndelRegion;
 import org.campagnelab.goby.alignments.processors.ObservedIndel;
 import org.campagnelab.goby.algorithmic.algorithm.EquivalentIndelRegionCalculator;
@@ -152,6 +153,12 @@ public class GenotypeHelper {
             String oneB = allelesB.iterator().next();
             if (a.contains("-") || b.contains("-")) {
                 // do not allow prefix match for indels.
+                return false;
+            }
+            if ((Character.isDigit(oneB.charAt(0)) && Integer.parseInt(oneB) >= SampleCountInfo.BASE_MAX_INDEX)) {
+                return false;
+            }
+            if ((Character.isDigit(oneA.charAt(0)) && Integer.parseInt(oneA) >= SampleCountInfo.BASE_MAX_INDEX)) {
                 return false;
             }
             if (oneA.length() > oneB.length()) {

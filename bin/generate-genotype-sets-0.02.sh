@@ -31,6 +31,8 @@ if [ -z "${DELETE_TMP}" ]; then
     echo "DELETE_TMP set to ${DELETE_TMP}. Change the variable with export to clear the working directory."
 fi
 
+
+export SBI_GENOME=${GENOME}
 rm -rf tmp
 mkdir -p tmp
 if [ -z "${SBI_GENOTYPE_VARMAP+set}" ]; then
@@ -43,8 +45,6 @@ if [ -z "${SBI_GENOTYPE_VARMAP+set}" ]; then
   echo "export SBI_GENOTYPE_VARMAP=${OUTPUT_PREFIX}.varmap" >> configure.sh
 fi
 
-
-export SBI_GENOME=${GENOME}
 export OUTPUT_BASENAME=tmp/genotype_full_called.sbi
 
 if [ -z "${REF_SAMPLING_RATE+set}" ]; then
@@ -55,7 +55,7 @@ else
  echo "REF_SAMPLING_RATE set to ${REF_SAMPLING_RATE}."
 fi
 
-parallel-genotype-sbi.sh 10g ${ALIGNMENTS}
+parallel-genotype-sbi.sh 10g ${ALIGNMENTS} 2>&1 | tee parallel-genotype-sbi.log
 dieIfError "Failed to generate .sbi file"
 
 export OUTPUT_BASENAME=${OUTPUT_PREFIX}

@@ -14,19 +14,12 @@ public class RecordCountSortHelper {
 
 
     public BaseInformationRecords.BaseInformationOrBuilder sort(BaseInformationRecords.BaseInformationOrBuilder record) {
+        int originalGenotypeIndex = 0;
         final List<BaseInformationRecords.CountInfo> countsList = record.getSamples(0).getCountsList();
         List<BaseInformationRecords.CountInfo> counts = new ArrayList<>();
         for (BaseInformationRecords.CountInfo count : countsList) {
-            int forwardCount = count.getIsIndel()
-                    ? count.getGenotypeCountForwardStrand() - (count.getGenotypeCountForwardStrand() / 2)
-                    : count.getGenotypeCountForwardStrand();
-            int reverseCount = count.getIsIndel()
-                    ? count.getGenotypeCountForwardStrand() / 2
-                    : count.getGenotypeCountReverseStrand();
             counts.add(BaseInformationRecords.CountInfo.newBuilder()
                     .mergeFrom(count)
-                    .setGenotypeCountForwardStrand(forwardCount)
-                    .setGenotypeCountReverseStrand(reverseCount)
                     .build());
         }
 
