@@ -30,7 +30,6 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
     private RandomAccessSequenceInterface genome;
     Random random = new XorShift1024StarRandom();
     VariantMapHelper varMap;
-    private VariantMapHelper map;
     private int numIndelsIgnored;
     private int numIndelsAdded;
     private int numIndelsAddedAsRef;
@@ -142,30 +141,28 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
         numRecords++;
         // determine if the record should be kept:
         boolean keep = willKeep.isKeep();
-        String trueGenotype = willKeep.getTrueGenotype();
-        String trueFrom = willKeep.getTrueFrom();
+        Set<Variant.FromTo> trueAlleles = willKeep.getTrueAlleles();
+        String formattedTrueGenotype = GenotypeHelper.fromAlleles(GenotypeHelper.fromTosToAlleles(trueAlleles));
         boolean isVariant = willKeep.isVariant();
         BaseInformationRecords.BaseInformation.Builder buildRec = record.toBuilder();
 
         if (keep) {
             // We keep this record, so we label it:
             if (isVariant) {
-                distinctTrueGenotypes.add(trueGenotype);
+                distinctTrueGenotypes.add(formattedTrueGenotype);
             }
             // write the record.
-            buildRec.setTrueGenotype(trueGenotype);
-            buildRec.setTrueFrom(trueFrom);
+            buildRec.setTrueGenotype(formattedTrueGenotype);
             BaseInformationRecords.SampleInfo.Builder buildSample = buildRec.getSamples(sampleIndex).toBuilder();
-            int trueAlleleCount = GenotypeHelper.getAlleles(trueGenotype).size();
-            int trueAlleleNum = trueAlleleCount;
-            StringBuffer matches = new StringBuffer("");
+            int trueAlleleCount = trueAlleles.size();
+            StringBuilder matches = new StringBuilder("");
             for (int i = 0; i < buildSample.getCountsCount(); i++) {
                 BaseInformationRecords.CountInfo.Builder count = buildSample.getCounts(i).toBuilder();
                 String countFrom = count.getFromSequence();
-                boolean isCalled = GenotypeHelper.genotypeHasAlleleOrIndel(trueGenotype,count.getToSequence(),trueFrom,countFrom);
+                boolean isCalled = GenotypeHelper.genotypeHasAlleleOrIndel(trueAlleles,count.getToSequence(),countFrom);
                 if (isCalled){
                     trueAlleleCount--;
-                    matches.append(trueFrom+":"+count.getToSequence() + ", ");
+                    matches.append(count.getFromSequence()).append(":").append(count.getToSequence()).append(", ");
                 }
                 count.setIsCalled(isCalled);
                 buildSample.setCounts(i, count);
@@ -249,8 +246,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
         private String chrom;
 
         private String referenceBase;
-        private String trueGenotype;
-        private String trueFrom;
+        private Set<Variant.FromTo> trueAlleles;
         private boolean isVariant;
         private boolean keep;
         private boolean isIndel;
@@ -262,13 +258,6 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
             this.referenceBase = referenceBase;
         }
 
-        public String getTrueGenotype() {
-            return trueGenotype;
-        }
-
-        public String getTrueFrom() {
-            return trueFrom;
-        }
 
         public boolean isVariant() {
             return isVariant;
@@ -276,6 +265,11 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
 
         public boolean isKeep() {
             return keep;
+        }
+
+        @Override
+        public Set<Variant.FromTo> getTrueAlleles() {
+            return trueAlleles;
         }
 
         public WillKeep invoke() {
@@ -290,11 +284,10 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
             }
             if (inMap) {
 
-                trueFrom = variant.reference;
                 isIndel = variant.isIndel;
-                trueGenotype = GenotypeHelper.fromAlleles(variant.trueAlleles);
-                if (!GenotypeHelper.isNoCall(trueGenotype)) {
-                    isVariant = GenotypeHelper.isVariant(considerIndels /**/, variant.trueAlleles, referenceBase);
+                trueAlleles = variant.trueAlleles;
+                if (!GenotypeHelper.isNoCall(GenotypeHelper.fromAlleles(GenotypeHelper.fromTosToAlleles(variant.trueAlleles)))) {
+                    isVariant = GenotypeHelper.isVariant(variant.trueAlleles);
                     if (isVariant) {
                         if (variant.isIndel) {
                             //indel is in map and is considered
@@ -305,8 +298,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                         }
                         //we have a snp or indel
                         numVariantsAdded++;
-                        Set<String> alleles = GenotypeHelper.getAlleles(trueGenotype);
-                        if (GenotypeHelper.isHeterozygote(trueGenotype)) {
+                        if (trueAlleles.size() > 1) {
                             numHeterozygousAdded++;
                         } else {
                             numHomozygousAdded++;
@@ -328,13 +320,15 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                 }
                 // alignment and genome do not necessarily share the same space of reference indices. Convert:
                 referenceBase = referenceBase.toUpperCase();
-                trueGenotype = referenceBase + "|" + referenceBase;
-                trueFrom = referenceBase;
+                trueAlleles = new ObjectArraySet<Variant.FromTo>(1);
+                trueAlleles.add(new Variant.FromTo(referenceBase,referenceBase));
             } else if (isVariant && variant.isIndel && (!indelsAsRef) && (!considerIndels)){
                 numIndelsIgnored++;
                 skip = true;
             }
-            this.trueGenotype = trueGenotype.replace('|', '/').toUpperCase();
+            for (Variant.FromTo allele : trueAlleles){
+                allele.makeUpperCase();
+            }
             this.isVariant = isVariant;
             keep = !skip;
             return this;
