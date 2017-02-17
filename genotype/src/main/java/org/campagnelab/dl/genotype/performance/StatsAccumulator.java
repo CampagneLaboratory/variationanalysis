@@ -252,23 +252,20 @@ public class StatsAccumulator {
         double[] statsArray = createOutputStatistics();
         System.out.printf("Number of variants expected=%d%n", numVariantsExpected);
         System.out.println("Statistics estimated for " + prefix);
-        System.out.println("Accuracy =" + statsArray[0]);
-        System.out.println("Recall =" + statsArray[1]);
-        System.out.println("Precision =" + statsArray[2]);
-        System.out.println("F1 =" + statsArray[3]);
-        System.out.println("numVariants =" + statsArray[4]);
-        System.out.println("genotype concordance =" + statsArray[5]);
-        System.out.println("Indel Accuracy =" + statsArray[6]);
-        System.out.println("Indel Recall =" + statsArray[7]);
-        System.out.println("Indel Precision =" + statsArray[8]);
-        System.out.println("Indel F1 =" + statsArray[9]);
+        System.out.println("Recall =" + statsArray[0]);
+        System.out.println("Precision =" + statsArray[1]);
+        System.out.println("F1 =" + statsArray[2]);
+        System.out.println("numVariants =" + statsArray[3]);
+        System.out.println("Indel Accuracy =" + statsArray[4]);
+        System.out.println("Indel Recall =" + statsArray[5]);
+        System.out.println("Indel Precision =" + statsArray[6]);
+        System.out.println("Indel F1 =" + statsArray[7]);
         System.out.printf( "Indel TP %d FN %d FP %d TN %d %n", numIndelsTruePositive, numIndelsFalseNegative, numIndelsFalsePositive, numIndelsTrueNegative);
         System.out.printf( "numIndels=%d%n",numIndels);
-        System.out.println("numIndels =" + statsArray[14]);
-        System.out.println("SNP Accuracy =" + statsArray[10]);
-        System.out.println("SNP Recall =" + statsArray[11]);
-        System.out.println("SNP precision =" + statsArray[12]);
-        System.out.println("SNP F1=" + statsArray[13]);
+        System.out.println("numIndels =" + statsArray[8]);
+        System.out.println("SNP Recall =" + statsArray[9]);
+        System.out.println("SNP precision =" + statsArray[10]);
+        System.out.println("SNP F1=" + statsArray[11]);
     }
 
     public void setNumVariantsExpected(int numVariantsExpected) {
