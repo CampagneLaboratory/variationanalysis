@@ -104,7 +104,7 @@ public class StatsAccumulator {
                     numFalsePositive++;
                 }
             }
-        }else {
+        } else {
             // estimate FP,TP,FN,TN for non-indels:
 
             if (fullPred.isCorrect()) {
@@ -163,7 +163,8 @@ public class StatsAccumulator {
         double F1 = 2 * precision * recall / (precision + recall);
         double indelRecall = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalseNegative);
         double indelPrecision = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalsePositive);
-      //  System.out.printf("indels: TP %d FP %d FN %d  TN %d %n", numIndelsTruePositive, numIndelsFalsePositive, numIndelsFalseNegative, numIndelsTrueNegative);
+  //      System.out.printf("indels: TP %d FP %d FN %d  TN %d %n", numIndelsTruePositive, numIndelsFalsePositive, numIndelsFalseNegative, numIndelsTrueNegative);
+   //     System.out.printf("SNPs: TP %d FP %d FN %d  TN %d %n", numSnpsTruePositive, numSnpsFalsePositive, numSnpsFalseNegative, numSnpsTrueNegative);
         double indelF1 = 2 * indelPrecision * indelRecall / (indelPrecision + indelRecall);
         double snpRecall = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalseNegative);
         double snpPrecision = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalsePositive);
@@ -178,57 +179,22 @@ public class StatsAccumulator {
     public double[] createOutputStatistics(String... metrics) {
         double[] estimates = createOutputStatistics();
         double[] values = new double[metrics.length];
+        String header[] = createOutputHeader();
         int i = 0;
         for (String metricName : metrics) {
-            int j = -1;
-            switch (metricName) {
-                case "Recall":
-                    j = 0;
+            int metricNameIndex = 0;
+boolean found=false;
+            for (metricNameIndex = 0; metricNameIndex < header.length; metricNameIndex++) {
+                if (header[metricNameIndex].equals(metricName)) {
+                    values[i++] = estimates[metricNameIndex];
+                    found=true;
                     break;
-                case "Precision":
-                    j = 1;
-                    break;
-                case "F1":
-                    j = 2;
-                    break;
-                case "NumVariants":
-                    j = 3;
-                    break;
-                case "Recall_Indels":
-                    j = 4;
-                    break;
-                case "Precision_Indels":
-                    j = 5;
-                    break;
-                case "F1_Indels":
-                    j = 6;
-                    break;
-                case "Recall_SNPs":
-                    j = 7;
-                    break;
-                case "Precision_SNPs":
-                    j = 8;
-                    break;
-                case "F1_SNPs":
-                    j = 9;
-                    break;
-                case "numIndels":
-                    j = 10;
-                    break;
-                case "Het_Hom_Ratio":
-                    j = 11;
-                    break;
-                case "TP":
-                    j = 12;
-                    break;
-                case "TN":
-                    j = 13;
-                    break;
-
-                default:
-                    throw new RuntimeException("performance metric not recognized: " + metricName);
+                }
             }
-            values[i++] = estimates[j];
+            if (!found) {
+                throw new RuntimeException("Statistic not found for metric name "+metricName);
+            }
+
         }
         return values;
     }
