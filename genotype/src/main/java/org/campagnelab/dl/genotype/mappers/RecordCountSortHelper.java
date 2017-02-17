@@ -20,6 +20,7 @@ public class RecordCountSortHelper {
         for (BaseInformationRecords.CountInfo count : countsList) {
             counts.add(BaseInformationRecords.CountInfo.newBuilder()
                     .mergeFrom(count)
+                    .setGobyGenotypeIndex(originalGenotypeIndex++)
                     .build());
         }
 
@@ -41,19 +42,13 @@ public class RecordCountSortHelper {
         return copyOfRecord.build();
     }
     public BaseInformationRecords.BaseInformation sort(BaseInformationRecords.BaseInformation record) {
+        int originalGenotypeIndex = 0;
         final List<BaseInformationRecords.CountInfo> countsList = record.getSamples(0).getCountsList();
         List<BaseInformationRecords.CountInfo> counts = new ArrayList<>();
         for (BaseInformationRecords.CountInfo count : countsList) {
-            int forwardCount = count.getIsIndel()
-                    ? count.getGenotypeCountForwardStrand() - (count.getGenotypeCountForwardStrand() / 2)
-                    : count.getGenotypeCountForwardStrand();
-            int reverseCount = count.getIsIndel()
-                    ? count.getGenotypeCountReverseStrand() / 2
-                    : count.getGenotypeCountReverseStrand();
             counts.add(BaseInformationRecords.CountInfo.newBuilder()
                     .mergeFrom(count)
-                    .setGenotypeCountForwardStrand(forwardCount)
-                    .setGenotypeCountReverseStrand(reverseCount)
+                    .setGobyGenotypeIndex(originalGenotypeIndex++)
                     .build());
         }
 
