@@ -80,27 +80,7 @@ public class StatsAccumulator {
             hetCount += (size == 2 ? 1 : 0); //AB
             homCount += (size == 1 ? 1 : 0); //BB
         }
-        // estimate FP,TP,FN,TN for SNPs:
-        if (fullPred.isPredictedSnp() || fullPred.isSnp()) {
-            if (fullPred.isCorrect()) {
-                numCorrect++;
-                if (isTrueVariant) {
-                    numSnpsTruePositive++;
-                    numTruePositive++;
-                } else {
-                    numSnpsTrueNegative++;
-                    numTrueNegative++;
-                }
-            } else {
-                if (isTrueVariant) {
-                    numSnpsFalseNegative++;
-                    numFalseNegative++;
-                } else {
-                    numSnpsFalsePositive++;
-                    numFalsePositive++;
-                }
-            }
-        }
+
         // estimate FP,TP,FN,TN for indels:
         final int foundIndel = isTrueVariant && (fullPred.isIndel()) ? 1 : 0;
         numTrueIndels += foundIndel;
@@ -121,6 +101,27 @@ public class StatsAccumulator {
                     numFalseNegative++;
                 } else {
                     numIndelsFalsePositive++;
+                    numFalsePositive++;
+                }
+            }
+        }else {
+            // estimate FP,TP,FN,TN for non-indels:
+
+            if (fullPred.isCorrect()) {
+                numCorrect++;
+                if (isTrueVariant) {
+                    numSnpsTruePositive++;
+                    numTruePositive++;
+                } else {
+                    numSnpsTrueNegative++;
+                    numTrueNegative++;
+                }
+            } else {
+                if (isTrueVariant) {
+                    numSnpsFalseNegative++;
+                    numFalseNegative++;
+                } else {
+                    numSnpsFalsePositive++;
                     numFalsePositive++;
                 }
             }

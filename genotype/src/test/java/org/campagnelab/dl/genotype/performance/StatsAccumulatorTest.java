@@ -87,6 +87,7 @@ public class StatsAccumulatorTest {
         pred1.predictedGenotype = "A/A" + (isIndel ? "-" : "");
         pred1.isVariant = false;
         pred1.isIndel = isIndel;
+        pred1.isPredictedIndel=isIndel;
         acc.observe(pred1);
 
         //true positive
@@ -95,6 +96,7 @@ public class StatsAccumulatorTest {
         pred2.predictedGenotype = "G/A" + (isIndel ? "-" : "");
         pred2.isVariant = true;
         pred2.isIndel = isIndel;
+        pred1.isPredictedIndel=isIndel;
         acc.observe(pred2);
         nVariants += 1;
 
@@ -104,6 +106,7 @@ public class StatsAccumulatorTest {
         pred3.predictedGenotype = "T/C" + (isIndel ? "-" : "");
         pred3.isVariant = false;
         pred3.isIndel = isIndel;
+        pred1.isPredictedIndel=isIndel;
         acc.observe(pred3);
 
         //false negative
@@ -112,6 +115,7 @@ public class StatsAccumulatorTest {
         pred4.predictedGenotype = "G/G" + (isIndel ? "-" : "");
         pred4.isVariant = true;
         pred4.isIndel = isIndel;
+        pred1.isPredictedIndel=isIndel;
         nVariants += 1;
         acc.observe(pred4);
 
