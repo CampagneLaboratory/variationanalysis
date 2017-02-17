@@ -84,6 +84,21 @@ public class GenotypeHelper {
         return !matchesRef;
     }
 
+
+    /**
+     * this method assumes we want to consider indels, since we are abandoning snp-only development.
+     * @param genotypeSet
+     * @return
+     */
+    public static boolean isVariant(Set<Variant.FromTo> genotypeSet) {
+        for (Variant.FromTo ft : genotypeSet){
+            if (!ft.getFrom().equals(ft.getTo())){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static Set<String> getAlleles(String genotype) {
         String trueGenotype = genotype.toUpperCase();
         return GenotypePrediction.alleles(trueGenotype);
