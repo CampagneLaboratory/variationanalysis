@@ -381,7 +381,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "numDistinctAlleles":
                 return new NumDistinctAllelesInterpreter(ploidy);
             case "isVariant":
-                return new IsVariantInterpreter();
+                return new IsVariantInterpreter(decisionThreshold);
             case "metaData":
                 return new MetaDataInterpreter();
             case "trueGenotype":

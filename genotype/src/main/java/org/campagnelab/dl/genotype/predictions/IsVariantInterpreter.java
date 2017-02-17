@@ -12,15 +12,20 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class IsVariantInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation,
         IsVariantPrediction> {
 
+    private double DECISION_THRESHOLD;
+
+    public IsVariantInterpreter(double DECISION_THRESHOLD) {
+        this.DECISION_THRESHOLD = DECISION_THRESHOLD;
+    }
+
     @Override
     public IsVariantPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
         IsVariantPrediction p = new IsVariantPrediction();
-        p.isVariantPredicted = output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE) > 0.5;
-        p.isVariantTruth = trueLabels.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE) > 0.5;
-        p.probability =Math.max(
+        p.isVariantPredicted = output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE) > DECISION_THRESHOLD;
+        p.isVariantTruth = trueLabels.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE) > trueLabels.getDouble(predictionIndex, BooleanLabelMapper.IS_FALSE);
+        p.probability = Math.max(
                 output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE),
                 output.getDouble(predictionIndex, BooleanLabelMapper.IS_FALSE));
-
         return p;
     }
 
@@ -29,8 +34,8 @@ public class IsVariantInterpreter implements PredictionInterpreter<BaseInformati
         IsVariantPrediction p = new IsVariantPrediction();
         p.isVariantTruth = record.getSamples(0).getIsVariant();
         int predictionIndex = 0;
-        p.isVariantPredicted = output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE) > 0.5;
-        p.probability =Math.max(
+        p.isVariantPredicted = output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE) > DECISION_THRESHOLD;
+        p.probability = Math.max(
                 output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE),
                 output.getDouble(predictionIndex, BooleanLabelMapper.IS_FALSE));
 
