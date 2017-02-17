@@ -187,6 +187,7 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
             String lstmPreviousLayerName = i == 0 ? "indel" : "lstmindel_" + (i - 1);
             int numLSTMInputNodes = i == 0 ? numLSTMInputs : numLSTMHiddenNodes;
             build.addLayer(lstmLayerName, new GravesLSTM.Builder()
+                    .weightInit(WEIGHT_INIT)
                     .nIn(numLSTMInputNodes)
                     .nOut(numLSTMHiddenNodes)
                     .build(), lstmPreviousLayerName);

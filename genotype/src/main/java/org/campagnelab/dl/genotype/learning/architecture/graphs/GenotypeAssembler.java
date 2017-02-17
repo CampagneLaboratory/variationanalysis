@@ -65,6 +65,7 @@ public abstract class GenotypeAssembler {
                 build.addLayer(lstmLayerName, new GravesLSTM.Builder()
                         .nIn(numLSTMInputNodes)
                         .nOut(numLSTMHiddenNodes)
+                        .weightInit(WEIGHT_INIT)
                         .build(), layerInputs);
             }
             build.addLayer("trueGenotype", new RnnOutputLayer.Builder(domainDescriptor.getOutputLoss("trueGenotype"))

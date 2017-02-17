@@ -30,9 +30,9 @@ public class TrueGenotypeInterpreter implements
         String trueGenotype = getGenotypeFromINDArray(trueLabelForRecord);
         String predictedGenotype = getGenotypeFromINDArray(predictedLabelForRecord);
         trueGenotypePrediction.trueGenotype = trueGenotype;
-        trueGenotypePrediction.isIndel = trueGenotype.length() > 1;
+        trueGenotypePrediction.isIndel = trueGenotype.length() > 3;
         trueGenotypePrediction.predictedGenotype = predictedGenotype;
-        trueGenotypePrediction.isPredictedIndel = predictedGenotype.length() > 1;
+        trueGenotypePrediction.isPredictedIndel = predictedGenotype.length() > 3;
         trueGenotypePrediction.trueFrom = trueGenotype;
         trueGenotypePrediction.predictedFrom = predictedGenotype;
         double predictionProbability = getAverageFloatMaxArray(predictedLabelForRecord);
@@ -48,12 +48,11 @@ public class TrueGenotypeInterpreter implements
         trueGenotypePrediction.inspectRecord(record);
         String predictedGenotype = getGenotypeFromINDArray(output);
         trueGenotypePrediction.predictedGenotype = predictedGenotype;
-        trueGenotypePrediction.isPredictedIndel = predictedGenotype.length() > 1;
+        trueGenotypePrediction.isPredictedIndel = predictedGenotype.length() > 3;
         double predictionProbability = getAverageFloatMaxArray(output);
         trueGenotypePrediction.overallProbability = predictionProbability;
         trueGenotypePrediction.isVariantProbability = predictionProbability;
         return trueGenotypePrediction;
-
     }
 
     private static String getGenotypeFromINDArray(INDArray genotypeArray) {
@@ -69,12 +68,18 @@ public class TrueGenotypeInterpreter implements
     private static INDArray getIntArgMaxArray(INDArray array) {
         int maxValidIndex = Nd4j.getExecutioner().exec(new Sum(array), 0).gt(0).sumNumber().intValue();
         INDArray argMax = Nd4j.getExecutioner().exec(new IMax(array), 0);
-        return argMax.get(NDArrayIndex.all(), NDArrayIndex.interval(0, maxValidIndex));
+        return maxValidIndex > 0
+                ? argMax.get(NDArrayIndex.all(), NDArrayIndex.interval(0, maxValidIndex))
+                : argMax;
     }
 
-    private static  double getAverageFloatMaxArray(INDArray array) {
+    private static double getAverageFloatMaxArray(INDArray array) {
         INDArray max = Nd4j.getExecutioner().exec(new Max(array), 0);
-        return Nd4j.getExecutioner().execAndReturn(new Mean(max)).getFinalResult().doubleValue();
+        int maxValidIndex = max.gt(0).sumNumber().intValue();
+        INDArray truncatedMax = maxValidIndex > 0
+                ? max.get(NDArrayIndex.all(), NDArrayIndex.interval(0, maxValidIndex))
+                : max;
+        return Nd4j.getExecutioner().execAndReturn(new Mean(truncatedMax)).getFinalResult().doubleValue();
     }
 
     private static char labelToBase(int label) {
