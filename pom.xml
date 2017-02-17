@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.campagnelab.dl</groupId>
     <artifactId>variation-analysis</artifactId>
-    <version>1.2.2</version>
+    <version>1.2.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
         <module>framework</module>
@@ -52,7 +52,7 @@
         <connection>scm:git@github.com:CampagneLaboratory/variationanalysis.git</connection>
         <developerConnection>scm:git:git@github.com:CampagneLaboratory/variationanalysis.git</developerConnection>
         <url>git@github.com:CampagneLaboratory/variationanalysis.git</url>
-        <tag>r1.2.2</tag>
+        <tag>r1.2.3</tag>
     </scm>
 
     <properties>
@@ -282,7 +282,7 @@
         <dependency>
             <groupId>org.campagnelab.goby</groupId>
             <artifactId>goby-io</artifactId>
-            <version>3.2.2</version>
+            <version>3.2.3-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
