@@ -23,6 +23,6 @@ public class SingleGenotypePrediction extends Prediction {
     /**
      * True when the genotype is an indel.
      */
-    public boolean isPredicteIndel;
+    public boolean isPredictedIndel;
 }
 

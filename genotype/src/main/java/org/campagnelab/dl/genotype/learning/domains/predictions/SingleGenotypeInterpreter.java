@@ -25,7 +25,7 @@ public class SingleGenotypeInterpreter extends  SortingCountInterpreter<SingleGe
         try {
             pred.predictedSingleGenotype = Integer.toString(genotypeIndex);
             if (genotypeIndex>4) {
-                pred.isPredicteIndel=true;
+                pred.isPredictedIndel=true;
             }
         } catch (IndexOutOfBoundsException e) {
             pred.predictedSingleGenotype = ".";
@@ -38,12 +38,16 @@ public class SingleGenotypeInterpreter extends  SortingCountInterpreter<SingleGe
     @Override
     public SingleGenotypePrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
         SingleGenotypePrediction pred = new SingleGenotypePrediction();
+        int predictionIndex=0;
+
         try {
-            pred.predictedSingleGenotype = sort(record).getSamples(0).getCounts(genotypeIndex).getToSequence();
+            BaseInformationRecords.CountInfo counts = sort(record).getSamples(0).getCounts(genotypeIndex);
+            pred.predictedSingleGenotype = counts.getToSequence();
+            boolean genotypeIsCalled = output.getDouble(predictionIndex, 0) > output.getDouble(predictionIndex, 1);
+            pred.isPredictedIndel=counts.getIsIndel()&&genotypeIsCalled;
         } catch (IndexOutOfBoundsException e) {
             pred.predictedSingleGenotype = ".";
         }
-        int predictionIndex=0;
         pred.probabilityIsCalled = output.getDouble(predictionIndex,0);
         return pred;
     }

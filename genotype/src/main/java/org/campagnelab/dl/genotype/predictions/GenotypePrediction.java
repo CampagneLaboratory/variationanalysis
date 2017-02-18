@@ -123,7 +123,7 @@ public class GenotypePrediction extends Prediction {
     }
 
     public boolean isSnp() {
-        return !isIndel;
+        return !isIndel && isVariant;
     }
 
     public boolean isPredictedSnp() {

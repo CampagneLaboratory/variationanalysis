@@ -51,6 +51,7 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
                 hetGenotype.append("/");
             }
             hetGenotype.append(element.predictedSingleGenotype);
+            this.isPredictedIndel|=element.isPredictedIndel;
             predProbability += Math.max(element.probabilityIsCalled, 1 - element.probabilityIsCalled);
         }
         this.trueGenotype = extractTrueGenotype(singleGenotypePredictions);
@@ -58,13 +59,12 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
         this.isVariantProbability = overallProbability;
         predictedGenotype = hetGenotype.toString();
         this.isIndel = metaData.isIndel;
-        this.isPredictedIndel=isPredictedIndel(singleGenotypePredictions);
         this.isVariant = metaData.isVariant;
     }
 
     private boolean isPredictedIndel(SingleGenotypePrediction[] singleGenotypePredictions) {
         for (org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction p: singleGenotypePredictions) {
-            if (p.isPredicteIndel) {
+            if (p.isPredictedIndel) {
                 return true;
             }
         }
