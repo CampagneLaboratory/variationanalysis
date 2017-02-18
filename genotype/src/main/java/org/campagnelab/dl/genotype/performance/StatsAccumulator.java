@@ -36,6 +36,10 @@ public class StatsAccumulator {
     int hetCount = 0;
     int homCount = 0;
     int numTrueIndels = 0;
+    private int numPredictedIndels = 0;
+    private int numIsIndels = 0;
+    private int numPredictedSNPs;
+    private int numIsSNPs = 0;
 
     public void initializeStats() {
         numCorrect = 0;
@@ -62,6 +66,8 @@ public class StatsAccumulator {
         numSnpsFalseNegative = 0;
         hetCount = 0;
         homCount = 0;
+        numPredictedIndels = 0;
+        numIsIndels = 0;
     }
 
     public void observe(GenotypePrediction fullPred) {
@@ -80,91 +86,59 @@ public class StatsAccumulator {
             hetCount += (size == 2 ? 1 : 0); //AB
             homCount += (size == 1 ? 1 : 0); //BB
         }
+        // estimate FP,TP,FN,TN for SNPs:
 
         // estimate FP,TP,FN,TN for indels:
         final int foundIndel = isTrueVariant && (fullPred.isIndel()) ? 1 : 0;
         numTrueIndels += foundIndel;
+        numIsIndels += fullPred.isIndel() ? 1 : 0;
+        numIsSNPs += fullPred.isSnp() ? 1 : 0;
 
-        if (fullPred.isPredictedIndel() || fullPred.isIndel()) {
-            if (fullPred.isCorrect()) {
-                numCorrect++;
-                if (isTrueVariant) {
-                    numIndelsTruePositive++;
-                    numTruePositive++;
-                } else {
-                    numIndelsTrueNegative++;
-                    numTrueNegative++;
-                }
+        int fp = 0, fn = 0, tp = 0, tn = 0;
+        if (fullPred.isCorrect()) {
+            if (fullPred.isVariant) {
+                tp = 1;
             } else {
-                if (isTrueVariant) {
-                    numIndelsFalseNegative++;
-                    numFalseNegative++;
-                } else {
-                    numIndelsFalsePositive++;
-                    numFalsePositive++;
-                }
+                tn = 1;
             }
         } else {
-            // estimate FP,TP,FN,TN for non-indels:
-
-            if (fullPred.isCorrect()) {
-                numCorrect++;
-                if (isTrueVariant) {
-                    numSnpsTruePositive++;
-                    numTruePositive++;
-                } else {
-                    numSnpsTrueNegative++;
-                    numTrueNegative++;
-                }
+            if (fullPred.isVariant) {
+                fn = 1;
             } else {
-                if (isTrueVariant) {
-                    numSnpsFalseNegative++;
-                    numFalseNegative++;
-                } else {
-                    numSnpsFalsePositive++;
-                    numFalsePositive++;
-                }
+                fp = 1;
             }
         }
-
-        if (fullPred.isVariant()) {
-            if (fullPred.isIndel()) {
-                numIndelsProcessed++;
-                if (fullPred.isCorrect()) {
-                    numIndelsCorrect++;
-                }
-            } else {
-                numSnpsProcessed++;
-                if (fullPred.isCorrect()) {
-                    numSnpsCorrect++;
-                }
-            }
+        if (fullPred.isPredictedIndel()||fullPred.isIndel()) {
+            numIndelsTruePositive += tp;
+            numIndelsTrueNegative += tn;
+            numIndelsFalseNegative += fn;
+            numIndelsFalsePositive += fp;
+        } else {
+            numSnpsTruePositive += tp;
+            numSnpsTrueNegative += tn;
+            numSnpsFalseNegative += fn;
+            numSnpsFalsePositive += fp;
         }
 
         numVariants += isTrueVariant ? 1 : 0;
-        //  assert numVariants == numSnpsTruePositive + numSnpsFalseNegative + numIndelsTruePositive + numIndelsFalseNegative;
-        assert numTruePositive == numSnpsTruePositive + numIndelsTruePositive;
-        assert numFalsePositive == numSnpsFalsePositive + numIndelsFalsePositive;
-        assert numFalseNegative == numSnpsFalseNegative + numIndelsFalseNegative;
-        assert numTrueNegative == numSnpsTrueNegative + numIndelsTrueNegative;
-
         numIndels += fullPred.isIndel() ? 1 : 0;
     }
 
     public double[] createOutputStatistics() {
-        double accuracy = numCorrect / (double) numProcessed;
-        double indelAccuracy = numIndelsCorrect / (double) numIndelsProcessed;
-        double snpAccuracy = numSnpsCorrect / (double) numSnpsProcessed;
-        double genotypeConcordance = concordantVariants / (double) numTrueOrPredictedVariants;
-        final int variantsExpected = Math.max(numTruePositive + numFalseNegative, this.numVariantsExpected);
+
+        numTrueNegative = numSnpsTrueNegative + numIndelsTrueNegative;
+        numTruePositive = numSnpsTruePositive + numIndelsTruePositive;
+        numFalseNegative = numSnpsFalseNegative + numIndelsFalseNegative;
+        numFalsePositive = numSnpsFalsePositive + numIndelsFalsePositive;
+
         double recall = numTruePositive / ((double) numTruePositive + numFalseNegative);
         double precision = numTruePositive / ((double) (numTruePositive + numFalsePositive));
 
         double F1 = 2 * precision * recall / (precision + recall);
         double indelRecall = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalseNegative);
         double indelPrecision = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalsePositive);
-  //      System.out.printf("indels: TP %d FP %d FN %d  TN %d %n", numIndelsTruePositive, numIndelsFalsePositive, numIndelsFalseNegative, numIndelsTrueNegative);
-   //     System.out.printf("SNPs: TP %d FP %d FN %d  TN %d %n", numSnpsTruePositive, numSnpsFalsePositive, numSnpsFalseNegative, numSnpsTrueNegative);
+        System.out.printf("indels: TP %d FP %d FN %d  TN %d %n", numIndelsTruePositive, numIndelsFalsePositive, numIndelsFalseNegative, numIndelsTrueNegative);
+        System.out.printf("SNPs:   TP %d FP %d FN %d  TN %d %n", numSnpsTruePositive, numSnpsFalsePositive, numSnpsFalseNegative, numSnpsTrueNegative);
         double indelF1 = 2 * indelPrecision * indelRecall / (indelPrecision + indelRecall);
         double snpRecall = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalseNegative);
         double snpPrecision = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalsePositive);
@@ -183,16 +157,16 @@ public class StatsAccumulator {
         int i = 0;
         for (String metricName : metrics) {
             int metricNameIndex = 0;
-boolean found=false;
+            boolean found = false;
             for (metricNameIndex = 0; metricNameIndex < header.length; metricNameIndex++) {
                 if (header[metricNameIndex].equals(metricName)) {
                     values[i++] = estimates[metricNameIndex];
-                    found=true;
+                    found = true;
                     break;
                 }
             }
             if (!found) {
-                throw new RuntimeException("Statistic not found for metric name "+metricName);
+                throw new RuntimeException("Statistic not found for metric name " + metricName);
             }
 
         }
