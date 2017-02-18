@@ -190,6 +190,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
                 build.addLayer(lstmLayerName, new GravesLSTM.Builder()
                     .nIn(numLSTMInputNodes)
                     .nOut(numLSTMHiddenNodes)
+                    .activation("softsign")
                     .weightInit(WEIGHT_INIT)
                     .build(), lstmPreviousLayerName);
             }

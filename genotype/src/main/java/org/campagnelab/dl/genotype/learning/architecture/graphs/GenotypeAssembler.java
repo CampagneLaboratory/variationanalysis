@@ -63,6 +63,7 @@ public abstract class GenotypeAssembler {
                         ? new String[]{"trueGenotypeInput", "feedForwardLstmDuplicate"}
                         : new String[]{"lstmTrueGenotype_" + (i - 1)};
                 build.addLayer(lstmLayerName, new GravesLSTM.Builder()
+                        .activation("softsign")
                         .nIn(numLSTMInputNodes)
                         .nOut(numLSTMHiddenNodes)
                         .weightInit(WEIGHT_INIT)
@@ -70,7 +71,7 @@ public abstract class GenotypeAssembler {
             }
             build.addLayer("trueGenotype", new RnnOutputLayer.Builder(domainDescriptor.getOutputLoss("trueGenotype"))
                     .weightInit(WEIGHT_INIT)
-                    .activation("softsign")
+                    .activation("softmax")
                     .learningRateDecayPolicy(learningRatePolicy)
                     .nIn(numLSTMHiddenNodes)
                     .nOut(domainDescriptor.getNumOutputs("trueGenotype")[0]).build(), lstmLayerName);

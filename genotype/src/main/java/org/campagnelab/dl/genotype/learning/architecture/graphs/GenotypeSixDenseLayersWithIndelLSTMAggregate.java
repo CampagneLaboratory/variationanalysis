@@ -190,6 +190,7 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
                     .weightInit(WEIGHT_INIT)
                     .nIn(numLSTMInputNodes)
                     .nOut(numLSTMHiddenNodes)
+                    .activation("softsign")
                     .build(), lstmPreviousLayerName);
         }
         build.addVertex("lstmindelLastTimeStepVertex", new LastTimeStepVertex("indel"),
