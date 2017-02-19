@@ -13,9 +13,10 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 public class MetaDataLabelMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
 
-    public static final int NUM_LABELS = 2;
+    public static final int NUM_LABELS = 3;
     public static final int IS_VARIANT_FEATURE_INDEX = 0;
     public static final int IS_INDEL_FEATURE_INDEX = 1;
+    public static final int IS_MATCHING_REF_FEATURE_INDEX = 2;
 
     @Override
     public int numberOfLabels() {
@@ -44,9 +45,28 @@ public class MetaDataLabelMapper extends NoMasksLabelMapper<BaseInformationRecor
             case IS_INDEL_FEATURE_INDEX:
                 final String trueGenotype = record.getTrueGenotype();
                 return GenotypeHelper.isIndel(record.getReferenceBase(), trueGenotype) ? 1 : 0;
+            case IS_MATCHING_REF_FEATURE_INDEX:
+                return calculateReferenceIndex(record);
+
             default:
                 throw new RuntimeException("No such labelIndex: " + labelIndex);
         }
+    }
+
+    /**
+     * Determine the original goby count index of the allele matching the reference.
+     * @param record
+     * @return
+     */
+    private int calculateReferenceIndex(BaseInformationRecords.BaseInformation record) {
+
+        BaseInformationRecords.SampleInfo samples = record.getSamples(0);
+        for (BaseInformationRecords.CountInfo count: samples.getCountsList()) {
+            if (count.getMatchesReference()) {
+                return count.getGobyGenotypeIndex();
+            }
+        }
+        return -1;
     }
 
 

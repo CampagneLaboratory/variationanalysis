@@ -39,7 +39,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
     public double estimateWithGraph(MultiDataSetIterator iterator,
                                     ComputationGraph graph,
                                     Predicate<Integer> stopIfTrue,
-                                    Consumer<GenotypePrediction > observer, Consumer<Double> scoreObserver) {
+                                    Consumer<GenotypePrediction> observer, Consumer<Double> scoreObserver) {
         iterator.reset();
         accumulator = new StatsAccumulator();
         accumulator.initializeStats();
@@ -73,8 +73,10 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
                     }
                 }
                 GenotypePrediction gp = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictions);
-
-                accumulator.observe(gp, gp.isVariant(), GenotypeHelper.isVariant(gp.predictedGenotype,"0"));
+                // obtain the reference base as an int (e.g., 0 or 1), to match the format of
+                // genotypes obtained during training from the cache:
+                String referenceBase = Integer.toString(gp.referenceGobyIndex);
+                accumulator.observe(gp, gp.isVariant(), GenotypeHelper.isVariant(gp.predictedGenotype, referenceBase));
                 observer.accept(gp);
                 if (stopIfTrue.test(nProcessed)) {
                     break;

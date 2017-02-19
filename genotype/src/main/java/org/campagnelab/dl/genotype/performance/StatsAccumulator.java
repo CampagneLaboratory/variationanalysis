@@ -9,7 +9,7 @@ import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 public class StatsAccumulator {
 
 
-    int numCorrect;
+    int numCorrectVariants;
     int numProcessed;
     int numTruePositive;
     int numTrueNegative;
@@ -42,7 +42,7 @@ public class StatsAccumulator {
     private int numIsSNPs = 0;
 
     public void initializeStats() {
-        numCorrect = 0;
+        numCorrectVariants = 0;
         numProcessed = 0;
         numTruePositive = 0;
         numTrueNegative = 0;
@@ -96,19 +96,19 @@ public class StatsAccumulator {
 
         int fp = 0, fn = 0, tp = 0, tn = 0;
         if (fullPred.isCorrect()) {
-            if (fullPred.isVariant) {
+            if (isTrueVariant) {
                 tp = 1;
             } else {
                 tn = 1;
             }
         } else {
-            if (fullPred.isVariant) {
+            if (isTrueVariant) {
                 fn = 1;
             } else {
                 fp = 1;
             }
         }
-        if (fullPred.isPredictedIndel()||fullPred.isIndel()) {
+       if (fullPred.isPredictedIndel() || fullPred.isIndel()) {
             numIndelsTruePositive += tp;
             numIndelsTrueNegative += tn;
             numIndelsFalseNegative += fn;
@@ -119,7 +119,7 @@ public class StatsAccumulator {
             numSnpsFalseNegative += fn;
             numSnpsFalsePositive += fp;
         }
-
+        numPredictedIndels += fullPred.isCorrect() && fullPred.isPredictedIndel() && isTrueVariant ? 1 : 0;
         numVariants += isTrueVariant ? 1 : 0;
         numIndels += fullPred.isIndel() ? 1 : 0;
     }
@@ -137,13 +137,15 @@ public class StatsAccumulator {
         double F1 = 2 * precision * recall / (precision + recall);
         double indelRecall = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalseNegative);
         double indelPrecision = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalsePositive);
-        System.out.printf("indels: TP %d FP %d FN %d  TN %d %n", numIndelsTruePositive, numIndelsFalsePositive, numIndelsFalseNegative, numIndelsTrueNegative);
-        System.out.printf("SNPs:   TP %d FP %d FN %d  TN %d %n", numSnpsTruePositive, numSnpsFalsePositive, numSnpsFalseNegative, numSnpsTrueNegative);
+        //     System.out.printf("indels: TP %d FP %d FN %d  TN %d numPredictedIndels: %d %n", numIndelsTruePositive,
+        //           numIndelsFalsePositive, numIndelsFalseNegative, numIndelsTrueNegative,numPredictedIndels);
+        //  System.out.printf("SNPs:   TP %d FP %d FN %d  TN %d %n", numSnpsTruePositive, numSnpsFalsePositive, numSnpsFalseNegative, numSnpsTrueNegative);
         double indelF1 = 2 * indelPrecision * indelRecall / (indelPrecision + indelRecall);
         double snpRecall = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalseNegative);
         double snpPrecision = numSnpsTruePositive / ((double) numSnpsTruePositive + numSnpsFalsePositive);
         double snpF1 = 2 * snpPrecision * snpRecall / (snpPrecision + snpRecall);
-        double het_hom_ratio = (hetCount)/*AB*/ / (homCount == 0 ? 1 : homCount) /*BB*/;
+        double het_hom_ratio = ((double)hetCount)/*AB*/ / (homCount == 0 ? 1 : (double)homCount) /*BB*/;
+ //       System.out.printf("het: %d hom: %d ratio: %f %n", hetCount, homCount, het_hom_ratio);
         return new double[]{recall, precision, F1, numVariants,
                 indelRecall, indelPrecision, indelF1,
                 snpRecall, snpPrecision, snpF1, numIndels,

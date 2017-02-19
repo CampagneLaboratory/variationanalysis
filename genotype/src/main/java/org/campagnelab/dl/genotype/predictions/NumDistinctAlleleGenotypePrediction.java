@@ -60,6 +60,7 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
         predictedGenotype = hetGenotype.toString();
         this.isIndel = metaData.isIndel;
         this.isVariant = metaData.isVariant;
+        this.referenceGobyIndex=metaData.referenceGobyIndex;
     }
 
     private boolean isPredictedIndel(SingleGenotypePrediction[] singleGenotypePredictions) {

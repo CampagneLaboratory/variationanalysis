@@ -33,6 +33,10 @@ public class GenotypePrediction extends Prediction {
      */
     public String trueFrom;
     /**
+     * The index of the reference allele in the goby counts (sbi), or -1 if no count matched the reference.
+     */
+    public int referenceGobyIndex;
+    /**
      * The probability of the called genotype according to the model. Forecast probability.
      */
     public double overallProbability;

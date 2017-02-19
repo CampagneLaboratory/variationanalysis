@@ -18,6 +18,7 @@ public class MetaDataInterpreter implements PredictionInterpreter<BaseInformatio
         MetadataPrediction p = new MetadataPrediction();
         p.isIndel = trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_INDEL_FEATURE_INDEX) == 1;
         p.isVariant = trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_VARIANT_FEATURE_INDEX) == 1;
+        p.referenceGobyIndex=(int)trueLabels.getDouble(predictionIndex,MetaDataLabelMapper.IS_MATCHING_REF_FEATURE_INDEX);
         return p;
     }
 
