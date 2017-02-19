@@ -15,6 +15,11 @@ int
 3
 15
 
+--mini-batch-size
+categorical
+128
+2048
+
 --num-lstm-layers
 int
 1
@@ -50,8 +55,8 @@ categorical
 
 --feature-mapper
 categorical
-org.campagnelab.dl.genotype.mappers.GenotypeMapperV26
-org.campagnelab.dl.genotype.mappers.GenotypeMapperV19
+org.campagnelab.dl.genotype.mappers.GenotypeMapperV28
+org.campagnelab.dl.genotype.mappers.GenotypeMapperV29
 
 --genomic-context-length
 int
