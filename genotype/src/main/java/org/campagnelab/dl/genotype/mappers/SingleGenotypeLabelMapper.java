@@ -65,16 +65,22 @@ public class SingleGenotypeLabelMapper extends NoMasksLabelMapper<BaseInformatio
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
+        int sortedIndex = 0;
+        indexPermutation = new int[sortedCountRecord.getSamples(0).getCountsCount()];
         if (sortCounts) {
             sortedCountRecord = sortHelper.sort(record);
+
+            for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(0).getCountsList()) {
+                indexPermutation[count.getGobyGenotypeIndex()] = sortedIndex++;
+            }
         } else {
             sortedCountRecord = record;
+            for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(0).getCountsList()) {
+                indexPermutation[sortedIndex] = sortedIndex;
+                sortedIndex++;
+            }
         }
-        indexPermutation = new int[sortedCountRecord.getSamples(0).getCountsCount()];
-        int sortedIndex = 0;
-        for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(0).getCountsList()) {
-            indexPermutation[count.getGobyGenotypeIndex()] = sortedIndex++;
-        }
+
     }
 
 
