@@ -6,12 +6,13 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
- * Label: whether a genotype index is called or not.
+ * Label: whether a genotype index (original Goby index, before sorting) is called or not.
  * Created by rct66 on 12/6/16.
  */
-public class GenotypeLabelsMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
+public class SingleGenotypeLabelMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
     private final boolean sortCounts;
     private final float epsilon;
+    private int[] indexPermutation;
 
     @Override
     public int numberOfLabels() {
@@ -21,11 +22,11 @@ public class GenotypeLabelsMapper extends NoMasksLabelMapper<BaseInformationReco
     int genotypeIndex;
     int[] indices = new int[]{0, 0};
 
-    public GenotypeLabelsMapper(int genotypeIndex, boolean sort) {
+    public SingleGenotypeLabelMapper(int genotypeIndex, boolean sort) {
         this(genotypeIndex, sort, 0);
     }
 
-    public GenotypeLabelsMapper(int genotypeIndex, boolean sort, float epsilon) {
+    public SingleGenotypeLabelMapper(int genotypeIndex, boolean sort, float epsilon) {
         this.genotypeIndex = genotypeIndex;
         this.sortCounts = sort;
         this.epsilon = epsilon;
@@ -51,14 +52,14 @@ public class GenotypeLabelsMapper extends NoMasksLabelMapper<BaseInformationReco
         if (genotypeIndex >= record.getSamples(0).getCountsCount()) {
             isCalled = false;
         } else {
-            isCalled = record.getSamples(0).getCounts(genotypeIndex).getIsCalled();
+            isCalled = record.getSamples(0).getCounts(indexPermutation[genotypeIndex]).getIsCalled();
         }
         if (labelIndex == 0) {
             // first index is 1 when site is  called.
-            return isCalled ? 1-epsilon : epsilon;
+            return isCalled ? 1 - epsilon : epsilon;
         } else {
             // second index is 1 when site is not called.
-            return !isCalled ? 1-epsilon : epsilon;
+            return !isCalled ? 1 - epsilon : epsilon;
         }
     }
 
@@ -68,6 +69,11 @@ public class GenotypeLabelsMapper extends NoMasksLabelMapper<BaseInformationReco
             sortedCountRecord = sortHelper.sort(record);
         } else {
             sortedCountRecord = record;
+        }
+        indexPermutation = new int[sortedCountRecord.getSamples(0).getCountsCount()];
+        int sortedIndex = 0;
+        for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(0).getCountsList()) {
+            indexPermutation[count.getGobyGenotypeIndex()] = sortedIndex++;
         }
     }
 

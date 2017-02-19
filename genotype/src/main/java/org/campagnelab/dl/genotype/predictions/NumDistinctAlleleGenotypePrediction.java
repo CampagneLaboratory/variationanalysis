@@ -45,7 +45,7 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
         double predProbability = numDistinctAlleles.probability;
 
         StringBuffer hetGenotype = new StringBuffer();
-
+        isPredictedIndel=false;
         for (SingleGenotypePrediction element : list.subList(0, numAlleles)) {
             if (hetGenotype.length() > 0) {
                 hetGenotype.append("/");

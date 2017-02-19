@@ -43,8 +43,7 @@ public class SingleGenotypeInterpreter extends  SortingCountInterpreter<SingleGe
         try {
             BaseInformationRecords.CountInfo counts = sort(record).getSamples(0).getCounts(genotypeIndex);
             pred.predictedSingleGenotype = counts.getToSequence();
-            boolean genotypeIsCalled = output.getDouble(predictionIndex, 0) > output.getDouble(predictionIndex, 1);
-            pred.isPredictedIndel=counts.getIsIndel()&&genotypeIsCalled;
+            pred.isPredictedIndel=counts.getIsIndel();
         } catch (IndexOutOfBoundsException e) {
             pred.predictedSingleGenotype = ".";
         }

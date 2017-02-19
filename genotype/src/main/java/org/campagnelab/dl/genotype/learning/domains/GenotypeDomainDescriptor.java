@@ -225,25 +225,25 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
         switch (outputName) {
             case "A":
-                return new GenotypeLabelsMapper(0, sortCounts, args().labelSmoothingEpsilon);
+                return new SingleGenotypeLabelMapper(0, sortCounts, args().labelSmoothingEpsilon);
             case "T":
-                return new GenotypeLabelsMapper(1, sortCounts, args().labelSmoothingEpsilon);
+                return new SingleGenotypeLabelMapper(1, sortCounts, args().labelSmoothingEpsilon);
             case "C":
-                return new GenotypeLabelsMapper(2, sortCounts, args().labelSmoothingEpsilon);
+                return new SingleGenotypeLabelMapper(2, sortCounts, args().labelSmoothingEpsilon);
             case "G":
-                return new GenotypeLabelsMapper(3, sortCounts, args().labelSmoothingEpsilon);
+                return new SingleGenotypeLabelMapper(3, sortCounts, args().labelSmoothingEpsilon);
             case "N":
-                return new GenotypeLabelsMapper(4, sortCounts, args().labelSmoothingEpsilon);
+                return new SingleGenotypeLabelMapper(4, sortCounts, args().labelSmoothingEpsilon);
             case "I1":
-                return new GenotypeLabelsMapper(5, sortCounts, args().labelSmoothingEpsilon);
+                return new SingleGenotypeLabelMapper(5, sortCounts, args().labelSmoothingEpsilon);
             case "I2":
-                return new GenotypeLabelsMapper(6, sortCounts, args().labelSmoothingEpsilon);
+                return new SingleGenotypeLabelMapper(6, sortCounts, args().labelSmoothingEpsilon);
             case "I3":
-                return new GenotypeLabelsMapper(7, sortCounts, args().labelSmoothingEpsilon);
+                return new SingleGenotypeLabelMapper(7, sortCounts, args().labelSmoothingEpsilon);
             case "I4":
-                return new GenotypeLabelsMapper(8, sortCounts, args().labelSmoothingEpsilon);
+                return new SingleGenotypeLabelMapper(8, sortCounts, args().labelSmoothingEpsilon);
             case "I5":
-                return new GenotypeLabelsMapper(9, sortCounts, args().labelSmoothingEpsilon);
+                return new SingleGenotypeLabelMapper(9, sortCounts, args().labelSmoothingEpsilon);
             case "homozygous":
                 return new HomozygousLabelsMapper(sortCounts, args().labelSmoothingEpsilon);
             case "numDistinctAlleles":
