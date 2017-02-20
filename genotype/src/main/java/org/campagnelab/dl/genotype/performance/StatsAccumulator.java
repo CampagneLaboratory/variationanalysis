@@ -40,6 +40,10 @@ public class StatsAccumulator {
     private int numIsIndels = 0;
     private int numPredictedSNPs;
     private int numIsSNPs = 0;
+    private boolean observedWasFP;
+    private boolean observedWasTP;
+    private boolean observedWasFN;
+    private boolean observedWasTN;
 
     public void initializeStats() {
         numCorrectVariants = 0;
@@ -93,19 +97,26 @@ public class StatsAccumulator {
         numTrueIndels += foundIndel;
         numIsIndels += fullPred.isIndel() ? 1 : 0;
         numIsSNPs += fullPred.isSnp() ? 1 : 0;
-
+        observedWasFP=false;
+        observedWasTP=false;
+        observedWasFN=false;
+        observedWasTN=false;
         int fp = 0, fn = 0, tp = 0, tn = 0;
         if (fullPred.isCorrect()) {
             if (isTrueVariant) {
                 tp = 1;
+                observedWasTP=true;
             } else {
                 tn = 1;
+                observedWasTN=true;
             }
         } else {
             if (isTrueVariant) {
                 fn = 1;
+                observedWasFN=true;
             } else {
                 fp = 1;
+                observedWasFP=true;
             }
         }
        if (fullPred.isPredictedIndel() || fullPred.isIndel()) {
@@ -196,5 +207,18 @@ public class StatsAccumulator {
 
     public void setNumVariantsExpected(int numVariantsExpected) {
         this.numVariantsExpected = numVariantsExpected;
+    }
+
+    public boolean observedWasFP() {
+        return observedWasFP;
+    }
+    public boolean observedWasTP() {
+        return observedWasTP;
+    }
+    public boolean observedWasTN() {
+        return observedWasTN;
+    }
+    public boolean observedWasFN() {
+        return observedWasFN;
     }
 }

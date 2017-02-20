@@ -11,6 +11,7 @@ import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
+import org.campagnelab.dl.genotype.performance.BEDHelper;
 import org.campagnelab.dl.genotype.performance.StatsAccumulator;
 import org.campagnelab.goby.predictions.FormatIndelVCF;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
@@ -38,7 +39,6 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     private AreaUnderTheROCCurve aucLossCalculator;
     private double auc;
     private double[] confidenceInterval95;
-    private PrintWriter bedWriter;
     private PrintWriter vcfWriter;
     private String[] orderStats;
 
@@ -57,9 +57,9 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     }
 
     public PredictG() {
-        stats=new StatsAccumulator();
+        stats = new StatsAccumulator();
         stats.initializeStats();
-        orderStats=stats.createOutputHeader();
+        orderStats = stats.createOutputHeader();
     }
 
     protected StatsAccumulator stats;
@@ -67,7 +67,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
         final String vcfFilename = String.format("%s-%s-%s-genotypes.vcf", modelTime, modelPrefix, testSetBasename);
-        final String bedFilename = String.format("%s-%s-%s-observed-regions.bed", modelTime, modelPrefix, testSetBasename);
+        final String bedBasename = String.format("%s-%s-%s", modelTime, modelPrefix, testSetBasename);
 
         try {
             vcfWriter = new PrintWriter(new FileWriter(vcfFilename));
@@ -79,16 +79,17 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             vcfWriter.append(String.format(VCF_HEADER,
                     VersionUtils.getImplementationVersion(PredictG.class),
                     args().modelPath, args().modelName));
+            try {
+                bedHelper = new BEDHelper(bedBasename);
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to create bed file(s) to record observed regions.", e);
+            }
         } else {
             resutsWriter.append("index\tpredictionCorrect01\ttrueGenotypeCall\tpredictedGenotypeCall\tprobabilityIsCalled\tcorrectness\tregion\tisVariant").append("\n");
         }
-        try {
-            bedWriter = new PrintWriter(new FileWriter(bedFilename));
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to create bed file to record observed regions.", e);
-        }
 
-        System.out.printf("Writing VCF and BED files: \n%s\n%s%n", vcfFilename, bedFilename);
+
+        System.out.printf("Writing VCF and BED files: \n%s\n%s%n", vcfFilename, bedBasename + "-observed-regions.bed");
 
     }
 
@@ -147,7 +148,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         System.out.printf("AUC = %f [%f-%f]%n", auc,
                 confidenceInterval95[0], confidenceInterval95[1]);
         System.out.println("Printable: " + Arrays.toString(createOutputStatistics()));
-        bedWriter.close();
+        bedHelper.close();
         vcfWriter.close();
     }
 
@@ -174,10 +175,20 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         // obtain isVariant from the gold-standard, not from the prediction.
         boolean isVariant = record.getSamples(0).getIsVariant();
         final boolean isPredictedVariant = GenotypeHelper.isVariant(fullPred.predictedAlleles(), record.getReferenceBase());
-
+        if (!args().filterMetricObservations) {
+            stats.observe(fullPred, isVariant, isPredictedVariant);
+            observeForAUC(fullPred, isVariant);
+        }
         if (filterHet(args(), fullPred) &&
                 filterVariant(args(), fullPred) &&
                 doOuptut(correctness, args(), fullPred.overallProbability)) {
+
+            if (args().filterMetricObservations) {
+
+                stats.observe(fullPred, isVariant, isPredictedVariant);
+                observeForAUC(fullPred, isVariant);
+            }
+
             switch (args().outputFormat) {
                 case TABLE:
                     resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\t%s:%s\t%s\t\n",
@@ -215,22 +226,17 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                                 format.fromVCF, altField, codeGT(format.toVCF, format.fromVCF, sortedAltSet), toColumn, fullPred.isVariantProbability);
                     }
                     // NB: bed format is zero-based.
-                    bedWriter.printf("%s\t%d\t%d\t%d\n", record.getReferenceId(), record.getPosition(), record.getPosition() + maxLength, fullPred.index);
-
+                    bedHelper.add(record.getReferenceId(), record.getPosition(), record.getPosition() + maxLength, fullPred.index,
+                            stats);
                     break;
             }
-            if (args().filterMetricObservations) {
 
-                stats.observe(fullPred, isVariant, isPredictedVariant);
-                observeForAUC(fullPred, isVariant);
-            }
         }
-        if (!args().filterMetricObservations) {
-            stats.observe(fullPred, isVariant, isPredictedVariant);
-            observeForAUC(fullPred, isVariant);
-        }
+
 
     }
+
+    private BEDHelper bedHelper;
 
     private int coverage(BaseInformationRecords.BaseInformation record) {
         int coverage = 0;
