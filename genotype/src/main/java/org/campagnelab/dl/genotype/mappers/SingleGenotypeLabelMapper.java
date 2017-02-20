@@ -66,7 +66,7 @@ public class SingleGenotypeLabelMapper extends NoMasksLabelMapper<BaseInformatio
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
         int sortedIndex = 0;
-        indexPermutation = new int[sortedCountRecord.getSamples(0).getCountsCount()];
+        indexPermutation = new int[record.getSamples(0).getCountsCount()];
         if (sortCounts) {
             sortedCountRecord = sortHelper.sort(record);
 
