@@ -35,8 +35,8 @@ public class SingleGenotypeInterpreter extends SortingCountInterpreter<SingleGen
         pred.sortedCountIndex = sortedGenotypeIndex;
         pred.probabilityIsCalled = output.getDouble(predictionIndex, 0);
         sortedCountRecord = sort(record);
-        if (sortedGenotypeIndex < 10) {
-            // ONLY 3 genotypes stored.
+        if (sortedGenotypeIndex < sortedCountRecord.getSamples(0).getCountsCount()) {
+            // ONLY so many genotypes stored.
             pred.trueIsCalled = sortedCountRecord.getSamples(0).getCounts(sortedGenotypeIndex).getIsCalled();
         } else {
             pred.trueIsCalled = false;
