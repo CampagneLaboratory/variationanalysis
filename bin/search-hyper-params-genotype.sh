@@ -95,7 +95,7 @@ num_executions=${memory_requirement}
 echo "Building caches"
 arg-generator.sh 1g --config ${SBI_SEARCH_PARAM_CONFIG} --output gen-args.txt --num-commands ${num_executions}
 
-parallel  echo `cat main-command.txt` --mini-batch-size 2048 \
+parallel  echo `cat main-command.txt`  \
   --build-cache-then-stop \
   :::: gen-args.txt ::: \
 >build-cache-commands.txt
@@ -105,7 +105,7 @@ cat build-cache-commands.txt |parallel -j${NUM_GPUS} --progress --eta  --bar
 
 echo "Training.."
 unset FORCE_PLATFORM
-parallel echo `cat main-command.txt` --mini-batch-size 2048 \
+parallel echo `cat main-command.txt` \
         --memory-cache none  --max-epochs 20 \
         :::: gen-args.txt \
 >commands.txt
