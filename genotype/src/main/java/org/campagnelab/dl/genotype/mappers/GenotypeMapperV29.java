@@ -39,7 +39,8 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
         FeatureNameMapper[] baseQualityMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
         FeatureNameMapper[] matchesRefMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] isIndelMappers = new FeatureNameMapper[MAX_GENOTYPES];
-        FeatureNameMapper[] firstBaseMappers = new FeatureNameMapper[MAX_GENOTYPES];
+        FeatureNameMapper[] firstBaseMappersTo = new FeatureNameMapper[MAX_GENOTYPES];
+        FeatureNameMapper[] firstBaseMappersFrom = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] numVariationsInReadMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] targetAlignedLengthMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] queryAlignedLengthMappers = new FeatureNameMapper[MAX_GENOTYPES];
@@ -62,13 +63,22 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
             matchesRefMappers[i] = (new MatchesReferenceMapper(sampleIndex, i));
             isIndelMappers[i] = new IsIndelMapper(sampleIndex, i);
             int baseContextLength=10;
-            firstBaseMappers[i] = new GenomicContextMapper(baseContextLength,
+            firstBaseMappersTo[i] = new GenomicContextMapper(baseContextLength,
 
                     record -> {
 
                         String toSequence = record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence();
                         int length=Math.min(toSequence.length(),baseContextLength);
                         return StringUtils.rightPad(toSequence.substring(0, length), baseContextLength);
+
+                    });
+            firstBaseMappersFrom[i] = new GenomicContextMapper(baseContextLength,
+
+                    record -> {
+
+                        String fromSequence = record.getSamples(0).getCounts(constantGenotypeIndex).getFromSequence();
+                        int length=Math.min(fromSequence.length(),baseContextLength);
+                        return StringUtils.rightPad(fromSequence.substring(0, length), baseContextLength);
 
                     });
             numVariationsInReadMappers[i] = new DensityMapper("numVariationsInRead",
@@ -128,7 +138,8 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(originalGobyCountIndexMappers),
                         new NaiveNumAlleleMapper<BaseInformationRecords.BaseInformationOrBuilder>(sampleIndex),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
-                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappersTo),
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappersFrom),
                         new InverseNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),
                         new InverseNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
