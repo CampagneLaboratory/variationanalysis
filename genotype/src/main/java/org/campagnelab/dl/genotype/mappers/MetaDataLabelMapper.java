@@ -90,7 +90,7 @@ public class MetaDataLabelMapper extends RecordCountSortingLabelMapperImpl {
             case IS_COUNT8_ORIGINAL_INDEX_FEATURE_INDEX:
             case IS_COUNT9_ORIGINAL_INDEX_FEATURE_INDEX:
             case IS_COUNT10_ORIGINAL_INDEX_FEATURE_INDEX:
-                return calculateCountIndex(sortedCountRecord,  labelIndex-IS_COUNT1_ORIGINAL_INDEX_FEATURE_INDEX);
+                return calculateCountIndex(sortedCountRecord, labelIndex - IS_COUNT1_ORIGINAL_INDEX_FEATURE_INDEX);
 
             default:
                 throw new RuntimeException("No such labelIndex: " + labelIndex);
@@ -98,9 +98,9 @@ public class MetaDataLabelMapper extends RecordCountSortingLabelMapperImpl {
     }
 
     private float calculateCountIndex(BaseInformationRecords.BaseInformation record, int sortedCountIndex) {
-       if (sortedCountIndex>=record.getSamples(0).getCountsCount()) {
-           return -1;
-       }
+        if (sortedCountIndex >= record.getSamples(0).getCountsCount()) {
+            return -1;
+        }
         return record.getSamples(0).getCounts(sortedCountIndex).getGobyGenotypeIndex();
     }
 
