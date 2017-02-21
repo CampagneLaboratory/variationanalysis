@@ -148,7 +148,9 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         System.out.printf("AUC = %f [%f-%f]%n", auc,
                 confidenceInterval95[0], confidenceInterval95[1]);
         System.out.println("Printable: " + Arrays.toString(createOutputStatistics()));
-        bedHelper.close();
+        if (bedHelper != null) {
+            bedHelper.close();
+        }
         vcfWriter.close();
     }
 
