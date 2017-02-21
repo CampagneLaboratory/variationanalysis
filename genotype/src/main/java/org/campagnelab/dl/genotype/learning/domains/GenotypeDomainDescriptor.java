@@ -12,10 +12,7 @@ import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.*;
-import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerInterpreter;
-import org.campagnelab.dl.genotype.learning.domains.predictions.CombinedOutputLayerRefInterpreter;
-import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
-import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypeInterpreter;
+import org.campagnelab.dl.genotype.learning.domains.predictions.*;
 import org.campagnelab.dl.genotype.mappers.*;
 import org.campagnelab.dl.genotype.performance.AlleleAccuracyHelper;
 import org.campagnelab.dl.genotype.performance.GenotypeTrainingPerformanceHelper;
@@ -385,7 +382,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "metaData":
                 return new MetaDataInterpreter();
             case "trueGenotype":
-                return new TrueGenotypeInterpreter();
+                return new TrueGenotypeOutputLayerInterpreter();
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
@@ -608,7 +605,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public GenotypePrediction aggregatePredictions(BaseInformationRecords.BaseInformation record, List<Prediction> individualOutputPredictions) {
-        if (withDistinctAllele()) {
+        if (addTrueGenotypeLabels) {
+            return new TrueGenotypePrediction(record, individualOutputPredictions, withDistinctAllele(),
+                    withCombinedLayer(), withIsVariantLabelMapper(), decisionThreshold);
+        } else if (withDistinctAllele()) {
             if (withIsVariantLabelMapper()) {
                 return new NumDistinctAlleleWithIsVariantGenotypePrediction(record, decisionThreshold, individualOutputPredictions);
             } else {

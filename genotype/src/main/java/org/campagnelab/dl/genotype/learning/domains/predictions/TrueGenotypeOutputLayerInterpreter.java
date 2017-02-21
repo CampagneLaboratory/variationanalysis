@@ -1,6 +1,7 @@
-package org.campagnelab.dl.genotype.predictions;
+package org.campagnelab.dl.genotype.learning.domains.predictions;
 
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
+import org.campagnelab.dl.genotype.predictions.TrueGenotypeOutputLayerPrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -14,44 +15,32 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
 /**
  * Created by joshuacohen on 2/10/17.
  */
-public class TrueGenotypeInterpreter implements
-        PredictionInterpreter<BaseInformationRecords.BaseInformation, TrueGenotypePrediction> {
+public class TrueGenotypeOutputLayerInterpreter implements
+        PredictionInterpreter<BaseInformationRecords.BaseInformation, TrueGenotypeOutputLayerPrediction> {
 
-    // TODO: In methods below, check how predictedGenotype should be set
-    // TODO: In methods below, check how isVariantProbability should be set- both currently set to overallProbability
-    // TODO: Check more thoroughly if averaging probabilities makes sense
-
-    // TODO: In below method, seemingly no way to check trueFrom or predictedFrom- just set to genotype
+    // TODO: Check more thoroughly if averaging probabilities makes sense for overallProbability
     @Override
-    public TrueGenotypePrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
-        TrueGenotypePrediction trueGenotypePrediction = new TrueGenotypePrediction();
+    public TrueGenotypeOutputLayerPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+        TrueGenotypeOutputLayerPrediction trueGenotypePrediction = new TrueGenotypeOutputLayerPrediction();
         INDArray trueLabelForRecord = trueLabels.getRow(predictionIndex);
         INDArray predictedLabelForRecord = output.getRow(predictionIndex);
         String trueGenotype = getGenotypeFromINDArray(trueLabelForRecord);
         String predictedGenotype = getGenotypeFromINDArray(predictedLabelForRecord);
         trueGenotypePrediction.trueGenotype = trueGenotype;
-        trueGenotypePrediction.isIndel = trueGenotype.length() > 3;
         trueGenotypePrediction.predictedGenotype = predictedGenotype;
         trueGenotypePrediction.isPredictedIndel = predictedGenotype.length() > 3;
-        trueGenotypePrediction.trueFrom = trueGenotype;
-        trueGenotypePrediction.predictedFrom = predictedGenotype;
-        double predictionProbability = getAverageFloatMaxArray(predictedLabelForRecord);
-        trueGenotypePrediction.overallProbability = predictionProbability;
-        trueGenotypePrediction.isVariantProbability = predictionProbability;
+        trueGenotypePrediction.overallProbability = getAverageFloatMaxArray(predictedLabelForRecord);;
         return trueGenotypePrediction;
     }
 
-    // TODO: In below method, predictedFrom is just set using the default from inspectRecord
     @Override
-    public TrueGenotypePrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
-        TrueGenotypePrediction trueGenotypePrediction = new TrueGenotypePrediction();
-        trueGenotypePrediction.inspectRecord(record);
+    public TrueGenotypeOutputLayerPrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
+        TrueGenotypeOutputLayerPrediction trueGenotypePrediction = new TrueGenotypeOutputLayerPrediction();
         String predictedGenotype = getGenotypeFromINDArray(output);
+        trueGenotypePrediction.inspectRecord(record);
         trueGenotypePrediction.predictedGenotype = predictedGenotype;
         trueGenotypePrediction.isPredictedIndel = predictedGenotype.length() > 3;
-        double predictionProbability = getAverageFloatMaxArray(output);
-        trueGenotypePrediction.overallProbability = predictionProbability;
-        trueGenotypePrediction.isVariantProbability = predictionProbability;
+        trueGenotypePrediction.overallProbability = getAverageFloatMaxArray(output);
         return trueGenotypePrediction;
     }
 
