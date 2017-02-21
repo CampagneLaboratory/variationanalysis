@@ -1,6 +1,5 @@
 package org.campagnelab.dl.genotype.predictions;
 
-import com.sun.javafx.collections.SortHelper;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.mappers.MetaDataLabelMapper;
