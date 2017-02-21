@@ -50,17 +50,17 @@ public class MetaDataInterpreter implements PredictionInterpreter<BaseInformatio
         // obtain original indices for sorted counts:
         BaseInformationRecords.SampleInfo sortedCountSample = sortedRecord.getSamples(0);
         p.sorted2OriginalCountIndices = new int[]{
-                sortedCountSample.getCountsCount() <= 0 ? sortedCountSample.getCounts(0).getGobyGenotypeIndex() : -1,
-                sortedCountSample.getCountsCount() <= 1 ? sortedCountSample.getCounts(1).getGobyGenotypeIndex() : -1,
-                sortedCountSample.getCountsCount() <= 2 ? sortedCountSample.getCounts(2).getGobyGenotypeIndex() : -1,
-                sortedCountSample.getCountsCount() <= 3 ? sortedCountSample.getCounts(3).getGobyGenotypeIndex() : -1,
-                sortedCountSample.getCountsCount() <= 4 ? sortedCountSample.getCounts(4).getGobyGenotypeIndex() : -1,
-                sortedCountSample.getCountsCount() <= 5 ? sortedCountSample.getCounts(5).getGobyGenotypeIndex() : -1,
-                sortedCountSample.getCountsCount() <= 6 ? sortedCountSample.getCounts(6).getGobyGenotypeIndex() : -1,
-                sortedCountSample.getCountsCount() <= 7 ? sortedCountSample.getCounts(7).getGobyGenotypeIndex() : -1,
-                sortedCountSample.getCountsCount() <= 8 ? sortedCountSample.getCounts(8).getGobyGenotypeIndex() : -1,
-                sortedCountSample.getCountsCount() <= 9 ? sortedCountSample.getCounts(9).getGobyGenotypeIndex() : -1,
-                sortedCountSample.getCountsCount() <= 10 ? sortedCountSample.getCounts(10).getGobyGenotypeIndex() : -1,
+                sortedCountSample.getCountsCount() >= 1 ? sortedCountSample.getCounts(0).getGobyGenotypeIndex() : -1,
+                sortedCountSample.getCountsCount() >= 2 ? sortedCountSample.getCounts(1).getGobyGenotypeIndex() : -1,
+                sortedCountSample.getCountsCount() >= 3 ? sortedCountSample.getCounts(2).getGobyGenotypeIndex() : -1,
+                sortedCountSample.getCountsCount() >= 4 ? sortedCountSample.getCounts(3).getGobyGenotypeIndex() : -1,
+                sortedCountSample.getCountsCount() >= 5 ? sortedCountSample.getCounts(4).getGobyGenotypeIndex() : -1,
+                sortedCountSample.getCountsCount() >= 6 ? sortedCountSample.getCounts(5).getGobyGenotypeIndex() : -1,
+                sortedCountSample.getCountsCount() >= 7 ? sortedCountSample.getCounts(6).getGobyGenotypeIndex() : -1,
+                sortedCountSample.getCountsCount() >= 8 ? sortedCountSample.getCounts(7).getGobyGenotypeIndex() : -1,
+                sortedCountSample.getCountsCount() >= 9 ? sortedCountSample.getCounts(8).getGobyGenotypeIndex() : -1,
+                sortedCountSample.getCountsCount() >= 10 ? sortedCountSample.getCounts(9).getGobyGenotypeIndex() : -1,
+                sortedCountSample.getCountsCount() >= 11 ? sortedCountSample.getCounts(10).getGobyGenotypeIndex() : -1,
         };
         return p;
     }
