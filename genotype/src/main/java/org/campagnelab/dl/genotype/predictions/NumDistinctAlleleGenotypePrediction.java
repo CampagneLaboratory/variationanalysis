@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.genotype.learning.domains.NumDistinctAllelesOutputLayerPrediction;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,14 +14,12 @@ import java.util.List;
  */
 public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
 
+    private final BaseInformationRecords.BaseInformation record;
     private boolean useNumAlleles = false;
 
-    public NumDistinctAlleleGenotypePrediction(double decisionThreshold) {
-        this.DECISION_THRESHOLD = decisionThreshold;
-    }
-
-    public NumDistinctAlleleGenotypePrediction(double decisionThreshold, List<Prediction> predictionList) {
+    public NumDistinctAlleleGenotypePrediction(BaseInformationRecords.BaseInformation record, double decisionThreshold, List<Prediction> predictionList) {
         this.DECISION_THRESHOLD=decisionThreshold;
+        this.record=record;
         set(predictionList);
     }
 
@@ -50,26 +49,18 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
             if (hetGenotype.length() > 0) {
                 hetGenotype.append("/");
             }
-            hetGenotype.append(element.predictedSingleGenotype);
-            this.isPredictedIndel|=element.isPredictedIndel;
+            hetGenotype.append(element.predictedSingleGenotype(record,metaData));
+            final boolean alleleIsIndel = element.isPredictedIndel(record,metaData);
+            this.isPredictedIndel|= alleleIsIndel;
             predProbability += Math.max(element.probabilityIsCalled, 1 - element.probabilityIsCalled);
         }
-        this.trueGenotype = extractTrueGenotype(singleGenotypePredictions);
+        this.trueGenotype = extractTrueGenotype(record, singleGenotypePredictions,metaData);
         overallProbability = predProbability / (double) (numAlleles + 1);
         this.isVariantProbability = overallProbability;
         predictedGenotype = hetGenotype.toString();
         this.isIndel = metaData.isIndel;
         this.isVariant = metaData.isVariant;
         this.referenceGobyIndex=metaData.referenceGobyIndex;
-    }
-
-    private boolean isPredictedIndel(SingleGenotypePrediction[] singleGenotypePredictions) {
-        for (org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction p: singleGenotypePredictions) {
-            if (p.isPredictedIndel) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private int calculateNumAlleles(double threshold, ObjectArrayList<SingleGenotypePrediction> list) {
@@ -84,7 +75,7 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
         return numAlelles;
     }
 
-    private String extractTrueGenotype(SingleGenotypePrediction[] singleGenotypePredictions) {
+    private String extractTrueGenotype(BaseInformationRecords.BaseInformation record, SingleGenotypePrediction[] singleGenotypePredictions, MetadataPrediction metaData) {
         String result = "";
         for (SingleGenotypePrediction single : singleGenotypePredictions) {
 
@@ -92,7 +83,7 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
                 if (result.length() > 0 && !result.endsWith("/")) {
                     result += "/";
                 }
-                result += single.predictedSingleGenotype;
+                result += single.predictedSingleGenotype(record, metaData);
             }
         }
         return result;

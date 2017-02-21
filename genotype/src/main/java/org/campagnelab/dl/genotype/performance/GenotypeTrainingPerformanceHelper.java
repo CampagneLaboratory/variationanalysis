@@ -72,7 +72,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
                         predictions.add(prediction);
                     }
                 }
-                GenotypePrediction gp = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictions);
+                GenotypePrediction gp = (GenotypePrediction) domainDescriptor.aggregatePredictions(null/**null in training phase */, predictions);
                 // obtain the reference base as an int (e.g., 0 or 1), to match the format of
                 // genotypes obtained during training from the cache:
                 String referenceBase = Integer.toString(gp.referenceGobyIndex);

@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * Train Somatic implemented with the Generic TrainModel
+ * Train a Genotype mode. Implemented by specializing the framework TrainModel class.
  */
 public class TrainModelG extends TrainModel<BaseInformationRecords.BaseInformation> {
     static private Logger LOG = LoggerFactory.getLogger(TrainModelG.class);

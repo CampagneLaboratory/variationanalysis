@@ -1,7 +1,6 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.MappedDimensions;
-import org.campagnelab.dl.somatic.mappers.NoMasksLabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -9,25 +8,24 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  * Label: whether a genotype index (original Goby index, before sorting) is called or not.
  * Created by rct66 on 12/6/16.
  */
-public class SingleGenotypeLabelMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
-    private final boolean sortCounts;
-    private final float epsilon;
-    private int[] indexPermutation;
+public class SingleGenotypeLabelMapper extends RecordCountSortingLabelMapperImpl {
 
     @Override
     public int numberOfLabels() {
         return 2;
     }
 
-    int genotypeIndex;
-    int[] indices = new int[]{0, 0};
+    private int sortedGenotypeIndex;
+    private int[] indices = new int[]{0, 0};
+    private final float epsilon;
 
-    public SingleGenotypeLabelMapper(int genotypeIndex, boolean sort) {
-        this(genotypeIndex, sort, 0);
+    public SingleGenotypeLabelMapper(int sortedGenotypeIndex, boolean sort) {
+        this(sortedGenotypeIndex, sort, 0);
     }
 
-    public SingleGenotypeLabelMapper(int genotypeIndex, boolean sort, float epsilon) {
-        this.genotypeIndex = genotypeIndex;
+    public SingleGenotypeLabelMapper(int sortedGenotypeIndex, boolean sort, float epsilon) {
+        super(sort);
+        this.sortedGenotypeIndex = sortedGenotypeIndex;
         this.sortCounts = sort;
         this.epsilon = epsilon;
     }
@@ -41,18 +39,15 @@ public class SingleGenotypeLabelMapper extends NoMasksLabelMapper<BaseInformatio
         }
     }
 
-    private BaseInformationRecords.BaseInformation sortedCountRecord;
-    private RecordCountSortHelper sortHelper = new RecordCountSortHelper();
-
     @Override
     public float produceLabel(BaseInformationRecords.BaseInformation record, int labelIndex) {
         assert labelIndex == 0 || labelIndex == 1 : "only one label.";
         boolean isCalled;
         record = sortedCountRecord;
-        if (genotypeIndex >= record.getSamples(0).getCountsCount()) {
+        if (sortedGenotypeIndex >= record.getSamples(0).getCountsCount()) {
             isCalled = false;
         } else {
-            isCalled = record.getSamples(0).getCounts(indexPermutation[genotypeIndex]).getIsCalled();
+            isCalled = record.getSamples(0).getCounts(sortedGenotypeIndex).getIsCalled();
         }
         if (labelIndex == 0) {
             // first index is 1 when site is  called.
@@ -62,27 +57,6 @@ public class SingleGenotypeLabelMapper extends NoMasksLabelMapper<BaseInformatio
             return !isCalled ? 1 - epsilon : epsilon;
         }
     }
-
-    @Override
-    public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
-        int sortedIndex = 0;
-        indexPermutation = new int[record.getSamples(0).getCountsCount()];
-        if (sortCounts) {
-            sortedCountRecord = sortHelper.sort(record);
-
-            for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(0).getCountsList()) {
-                indexPermutation[count.getGobyGenotypeIndex()] = sortedIndex++;
-            }
-        } else {
-            sortedCountRecord = record;
-            for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(0).getCountsList()) {
-                indexPermutation[sortedIndex] = sortedIndex;
-                sortedIndex++;
-            }
-        }
-
-    }
-
 
     @Override
     public MappedDimensions dimensions() {

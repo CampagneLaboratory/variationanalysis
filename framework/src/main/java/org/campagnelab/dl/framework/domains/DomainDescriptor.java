@@ -8,6 +8,7 @@ import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssemble
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
@@ -65,10 +66,12 @@ public abstract class DomainDescriptor<RecordType> {
     /**
      * Return an aggregate prediction from individual predictions produced for each model output. The client of this
      * method is responsible for casting to the appropriate implementation for this domain.
+     *
+     * @param record record if available (e.g., predict phase), null otherwise (i.e., during training)
      * @param individualOutputPredictions individual predictions produced for each model output, in the order of outputs.
      * @return combined prediction for the model.
      */
-    public Prediction aggregatePredictions(List<Prediction> individualOutputPredictions) {
+    public Prediction aggregatePredictions(RecordType record, List<Prediction> individualOutputPredictions) {
         return null;
     }
     /**

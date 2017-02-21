@@ -13,4 +13,8 @@ public class MetadataPrediction extends Prediction {
      * The original goby count index of the reference allele, or -1 if not goby allele/countInfo matched the reference.
      */
     public int referenceGobyIndex;
+    /**
+     * Permutation, from sorted count indices to original/sbi goby count indices.
+     */
+    public int[] sorted2OriginalCountIndices;
 }

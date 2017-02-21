@@ -607,12 +607,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     }
 
     @Override
-    public GenotypePrediction aggregatePredictions(List<Prediction> individualOutputPredictions) {
+    public GenotypePrediction aggregatePredictions(BaseInformationRecords.BaseInformation record, List<Prediction> individualOutputPredictions) {
         if (withDistinctAllele()) {
             if (withIsVariantLabelMapper()) {
-                return new NumDistinctAlleleWithIsVariantGenotypePrediction(decisionThreshold, individualOutputPredictions);
+                return new NumDistinctAlleleWithIsVariantGenotypePrediction(record, decisionThreshold, individualOutputPredictions);
             } else {
-                return new NumDistinctAlleleGenotypePrediction(decisionThreshold, individualOutputPredictions);
+                return new NumDistinctAlleleGenotypePrediction(record, decisionThreshold, individualOutputPredictions);
             }
         } else if (withCombinedLayer()) {
             if (withIsVariantLabelMapper()) {

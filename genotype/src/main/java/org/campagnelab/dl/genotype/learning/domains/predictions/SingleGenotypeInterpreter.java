@@ -11,24 +11,17 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class SingleGenotypeInterpreter extends SortingCountInterpreter<SingleGenotypePrediction>
         implements PredictionInterpreter<BaseInformationRecords.BaseInformation, SingleGenotypePrediction> {
 
-    int genotypeIndex;
+    int sortedGenotypeIndex;
 
-    public SingleGenotypeInterpreter(int genotypeIndex, boolean sort) {
+    public SingleGenotypeInterpreter(int sortedGenotypeIndex, boolean sort) {
         super(sort);
-        this.genotypeIndex = genotypeIndex;
+        this.sortedGenotypeIndex = sortedGenotypeIndex;
     }
 
     @Override
     public SingleGenotypePrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
         SingleGenotypePrediction pred = new SingleGenotypePrediction();
-        try {
-            pred.predictedSingleGenotype = Integer.toString(genotypeIndex);
-            if (genotypeIndex > 4) {
-                pred.isPredictedIndel = true;
-            }
-        } catch (IndexOutOfBoundsException   e) {
-            pred.predictedSingleGenotype = ".";
-        }
+        pred.sortedCountIndex = sortedGenotypeIndex;
         pred.probabilityIsCalled = output.getDouble(predictionIndex, 0);
         pred.trueIsCalled = trueLabels.getDouble(predictionIndex, 0) > 0.5;
         return pred;
@@ -38,18 +31,15 @@ public class SingleGenotypeInterpreter extends SortingCountInterpreter<SingleGen
     public SingleGenotypePrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
         SingleGenotypePrediction pred = new SingleGenotypePrediction();
         int predictionIndex = 0;
-
-        try {
-            pred.isPredictedIndel = genotypeIndex > 4 ;
-            BaseInformationRecords.CountInfo counts = sort(record).getSamples(0).getCounts(indexPermutation[genotypeIndex]);
-            pred.predictedSingleGenotype = counts.getToSequence();
-
-        } catch (IndexOutOfBoundsException e) {
-            pred.predictedSingleGenotype = ".";
-        }
+        pred.sortedCountIndex = sortedGenotypeIndex;
         pred.probabilityIsCalled = output.getDouble(predictionIndex, 0);
+        sortedCountRecord = sort(record);
+        if (sortedGenotypeIndex < 3) {
+            // ONLY 3 genotypes stored.
+            pred.trueIsCalled = sortedCountRecord.getSamples(0).getCounts(sortedGenotypeIndex).getIsCalled();
+        } else {
+            pred.trueIsCalled = false;
+        }
         return pred;
     }
-
-
 }

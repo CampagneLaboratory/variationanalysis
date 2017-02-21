@@ -162,7 +162,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         if (coverage(record) < args().minimumCoverage) {
             return;
         }
-        GenotypePrediction fullPred = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictionList);
+        GenotypePrediction fullPred = (GenotypePrediction) domainDescriptor.aggregatePredictions(record,predictionList);
         fullPred.inspectRecord(record);
 
         if (GenotypeHelper.isNoCall(fullPred.predictedGenotype)) {

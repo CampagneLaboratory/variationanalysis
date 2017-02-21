@@ -56,7 +56,7 @@ public class GenotypeProtoPredictor {
             }
         }
 
-        GenotypePrediction overallPrediction = (GenotypePrediction) domainDescriptor.aggregatePredictions(predictions);
+        GenotypePrediction overallPrediction = (GenotypePrediction) domainDescriptor.aggregatePredictions(currentRecord, predictions);
 
         return overallPrediction;
     }
