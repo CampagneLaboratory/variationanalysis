@@ -13,7 +13,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 public class MetaDataLabelMapper extends RecordCountSortingLabelMapperImpl {
 
-    public static final int NUM_LABELS = 6;
+    public static final int NUM_LABELS = 13;
     /**
      * Stores 1 when the site contains a true variant. Zero otherwise.
      */
@@ -38,6 +38,13 @@ public class MetaDataLabelMapper extends RecordCountSortingLabelMapperImpl {
      * Permutation from sorted count index to original/sbi count index. For allele with third largest count.
      */
     public static final int IS_COUNT3_ORIGINAL_INDEX_FEATURE_INDEX = 5;
+    public static final int IS_COUNT4_ORIGINAL_INDEX_FEATURE_INDEX = 6;
+    public static final int IS_COUNT5_ORIGINAL_INDEX_FEATURE_INDEX = 7;
+    public static final int IS_COUNT6_ORIGINAL_INDEX_FEATURE_INDEX = 8;
+    public static final int IS_COUNT7_ORIGINAL_INDEX_FEATURE_INDEX = 9;
+    public static final int IS_COUNT8_ORIGINAL_INDEX_FEATURE_INDEX = 10;
+    public static final int IS_COUNT9_ORIGINAL_INDEX_FEATURE_INDEX = 11;
+    public static final int IS_COUNT10_ORIGINAL_INDEX_FEATURE_INDEX = 12;
 
     public MetaDataLabelMapper() {
         super(true);
@@ -74,17 +81,26 @@ public class MetaDataLabelMapper extends RecordCountSortingLabelMapperImpl {
             case IS_MATCHING_REF_FEATURE_INDEX:
                 return calculateReferenceIndex(sortedCountRecord);
             case IS_COUNT1_ORIGINAL_INDEX_FEATURE_INDEX:
-                return calculateCountIndex(sortedCountRecord, 0);
             case IS_COUNT2_ORIGINAL_INDEX_FEATURE_INDEX:
-                return calculateCountIndex(sortedCountRecord, 1);
             case IS_COUNT3_ORIGINAL_INDEX_FEATURE_INDEX:
-                return calculateCountIndex(sortedCountRecord, 2);
+            case IS_COUNT4_ORIGINAL_INDEX_FEATURE_INDEX:
+            case IS_COUNT5_ORIGINAL_INDEX_FEATURE_INDEX:
+            case IS_COUNT6_ORIGINAL_INDEX_FEATURE_INDEX:
+            case IS_COUNT7_ORIGINAL_INDEX_FEATURE_INDEX:
+            case IS_COUNT8_ORIGINAL_INDEX_FEATURE_INDEX:
+            case IS_COUNT9_ORIGINAL_INDEX_FEATURE_INDEX:
+            case IS_COUNT10_ORIGINAL_INDEX_FEATURE_INDEX:
+                return calculateCountIndex(sortedCountRecord,  labelIndex-IS_COUNT1_ORIGINAL_INDEX_FEATURE_INDEX);
+
             default:
                 throw new RuntimeException("No such labelIndex: " + labelIndex);
         }
     }
 
     private float calculateCountIndex(BaseInformationRecords.BaseInformation record, int sortedCountIndex) {
+       if (sortedCountIndex>=record.getSamples(0).getCountsCount()) {
+           return -1;
+       }
         return record.getSamples(0).getCounts(sortedCountIndex).getGobyGenotypeIndex();
     }
 

@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.learning.domains.predictions;
 
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
+import org.campagnelab.dl.genotype.mappers.GenotypeFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -34,7 +35,7 @@ public class SingleGenotypeInterpreter extends SortingCountInterpreter<SingleGen
         pred.sortedCountIndex = sortedGenotypeIndex;
         pred.probabilityIsCalled = output.getDouble(predictionIndex, 0);
         sortedCountRecord = sort(record);
-        if (sortedGenotypeIndex < 3) {
+        if (sortedGenotypeIndex < 10) {
             // ONLY 3 genotypes stored.
             pred.trueIsCalled = sortedCountRecord.getSamples(0).getCounts(sortedGenotypeIndex).getIsCalled();
         } else {

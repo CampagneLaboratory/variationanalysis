@@ -43,12 +43,12 @@ public class SingleGenotypePrediction extends Prediction {
     public boolean trueIsCalled;
 
     /**
-     * Index of the sorted count corresponding to this genotytpe.
+     * Index of the sorted count corresponding to this genotype.
      */
     public int sortedCountIndex;
 
     public boolean isPredictedIndel(BaseInformationRecords.BaseInformation record, MetadataPrediction metaData) {
-        return sortedCountIndex < 3 && (metaData.sorted2OriginalCountIndices[sortedCountIndex] > 4);
+        return sortedCountIndex < metaData.sorted2OriginalCountIndices.length && (metaData.sorted2OriginalCountIndices[sortedCountIndex] > 4);
     }
 }
 

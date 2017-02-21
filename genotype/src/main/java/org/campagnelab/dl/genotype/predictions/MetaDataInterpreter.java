@@ -26,7 +26,16 @@ public class MetaDataInterpreter implements PredictionInterpreter<BaseInformatio
         p.sorted2OriginalCountIndices = new int[]{
                 (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT1_ORIGINAL_INDEX_FEATURE_INDEX),
                 (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT2_ORIGINAL_INDEX_FEATURE_INDEX),
-                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT3_ORIGINAL_INDEX_FEATURE_INDEX)};
+                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT3_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT4_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT5_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT6_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT7_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT8_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT9_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT10_ORIGINAL_INDEX_FEATURE_INDEX)
+
+        };
         return p;
     }
 
@@ -45,6 +54,14 @@ public class MetaDataInterpreter implements PredictionInterpreter<BaseInformatio
                 sortedCountSample.getCounts(0).getGobyGenotypeIndex(),
                 sortedCountSample.getCounts(1).getGobyGenotypeIndex(),
                 sortedCountSample.getCounts(2).getGobyGenotypeIndex(),
+                sortedCountSample.getCounts(3).getGobyGenotypeIndex(),
+                sortedCountSample.getCounts(4).getGobyGenotypeIndex(),
+                sortedCountSample.getCounts(5).getGobyGenotypeIndex(),
+                sortedCountSample.getCounts(6).getGobyGenotypeIndex(),
+                sortedCountSample.getCounts(7).getGobyGenotypeIndex(),
+                sortedCountSample.getCounts(8).getGobyGenotypeIndex(),
+                sortedCountSample.getCounts(9).getGobyGenotypeIndex(),
+                sortedCountSample.getCounts(10).getGobyGenotypeIndex(),
         };
         return p;
     }

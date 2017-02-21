@@ -13,5 +13,5 @@ public abstract class GenotypeFeatureMapper extends NamingConcatFeatureMapper<Ba
     public boolean withCombinedLayer;
     public boolean withCombinedLayerRef;
     public boolean hasIsVariantLabelMapper;
-
+    public static int MAX_GENOTYPES = 3;
 }

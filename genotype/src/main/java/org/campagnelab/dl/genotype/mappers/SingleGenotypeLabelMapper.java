@@ -44,7 +44,7 @@ public class SingleGenotypeLabelMapper extends RecordCountSortingLabelMapperImpl
         assert labelIndex == 0 || labelIndex == 1 : "only one label.";
         boolean isCalled;
         record = sortedCountRecord;
-        if (sortedGenotypeIndex >= record.getSamples(0).getCountsCount()) {
+        if (sortedGenotypeIndex >= record.getSamples(0).getCountsCount() || sortedGenotypeIndex>= GenotypeFeatureMapper.MAX_GENOTYPES) {
             isCalled = false;
         } else {
             isCalled = record.getSamples(0).getCounts(sortedGenotypeIndex).getIsCalled();
