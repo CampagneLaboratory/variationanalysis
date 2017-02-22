@@ -65,14 +65,14 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
             readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex, i, true));
 
             matchesRefMappers[i] = (new MatchesReferenceMapper(sampleIndex, i));
-//            isIndelMappers[i] = new NamedWrapper<BaseInformationRecords.BaseInformationOrBuilder>(
-//                    new BooleanFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(record ->
-//                    record.getSamples(sampleIndex).getCounts(constantGenotypeIndex).getIsIndel(), i)) {
-//                @Override
-//                public String getFeatureName(int featureIndex) {
-//                    return "isIndel_sample="+sampleIndex+"_count="+constantGenotypeIndex;
-//                }
-//            };
+            isIndelMappers[i] = new NamedWrapper<BaseInformationRecords.BaseInformationOrBuilder>(
+                    new BooleanFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(record ->
+                    record.getSamples(sampleIndex).getCounts(constantGenotypeIndex).getIsIndel(), i)) {
+                @Override
+                public String getFeatureName(int featureIndex) {
+                    return "isIndel_sample="+sampleIndex+"_count="+constantGenotypeIndex;
+                }
+            };
             isReadInsertionMappers[i] = new NamedWrapper<BaseInformationRecords.BaseInformationOrBuilder>(
                     new BooleanFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(record ->
                             record.getSamples(sampleIndex).getCounts(constantGenotypeIndex).getFromSequence().contains("-"), 0)) {
@@ -185,7 +185,7 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readMappingQualityMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(baseQualityMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(bamFlagMappers),
-                  //      new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(isIndelMappers),
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(isIndelMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(isReadInsertionMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(isReadDeletionMappers)
                         ));
