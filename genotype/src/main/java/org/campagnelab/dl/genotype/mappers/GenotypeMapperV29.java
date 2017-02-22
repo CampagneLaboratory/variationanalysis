@@ -67,7 +67,7 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
             matchesRefMappers[i] = (new MatchesReferenceMapper(sampleIndex, i));
             isIndelMappers[i] = new NamedWrapper<BaseInformationRecords.BaseInformationOrBuilder>(
                     new BooleanFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(record ->
-                    record.getSamples(sampleIndex).getCounts(constantGenotypeIndex).getIsIndel(), i)) {
+                    record.getSamples(sampleIndex).getCounts(constantGenotypeIndex).getIsIndel(), 0)) {
                 @Override
                 public String getFeatureName(int featureIndex) {
                     return "isIndel_sample="+sampleIndex+"_count="+constantGenotypeIndex;
