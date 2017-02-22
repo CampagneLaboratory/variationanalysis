@@ -18,8 +18,6 @@ import java.util.Set;
 public class GenotypeHelper {
 
 
-    private EquivalentIndelRegionCalculator equivalentIndelRegionCalculator;
-
 
 
     public static boolean isVariant(String trueGenotype, String referenceBase) {
@@ -287,8 +285,6 @@ public class GenotypeHelper {
         int posRef;
         int referenceIndex;
 
-
-
         /*
         *extend true allele to match length of its ref. eg: ATC A -> ATC A--
         * This is a required step before using observeIndels, which requires placeholder dashes
@@ -325,13 +321,8 @@ public class GenotypeHelper {
 //            assertEquals("AAACTTTGGGG", result.toInContext());
         }
 
-
-
-
-
-
-
-
     }
+    private EquivalentIndelRegionCalculator equivalentIndelRegionCalculator;
+
 
 }

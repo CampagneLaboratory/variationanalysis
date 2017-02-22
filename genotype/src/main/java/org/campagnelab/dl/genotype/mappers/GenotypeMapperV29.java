@@ -1,7 +1,9 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.apache.commons.lang.StringUtils;
+import org.campagnelab.dl.framework.mappers.BooleanFeatureMapper;
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
+import org.campagnelab.dl.framework.mappers.NamedWrapper;
 import org.campagnelab.dl.somatic.mappers.*;
 import org.campagnelab.dl.somatic.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -39,6 +41,8 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
         FeatureNameMapper[] baseQualityMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
         FeatureNameMapper[] matchesRefMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] isIndelMappers = new FeatureNameMapper[MAX_GENOTYPES];
+        FeatureNameMapper[] isReadInsertionMappers = new FeatureNameMapper[MAX_GENOTYPES];
+        FeatureNameMapper[] isReadDeletionMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] firstBaseMappersTo = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] firstBaseMappersFrom = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] numVariationsInReadMappers = new FeatureNameMapper[MAX_GENOTYPES];
@@ -61,7 +65,30 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
             readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex, i, true));
 
             matchesRefMappers[i] = (new MatchesReferenceMapper(sampleIndex, i));
-            isIndelMappers[i] = new IsIndelMapper(sampleIndex, i);
+//            isIndelMappers[i] = new NamedWrapper<BaseInformationRecords.BaseInformationOrBuilder>(
+//                    new BooleanFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(record ->
+//                    record.getSamples(sampleIndex).getCounts(constantGenotypeIndex).getIsIndel(), i)) {
+//                @Override
+//                public String getFeatureName(int featureIndex) {
+//                    return "isIndel_sample="+sampleIndex+"_count="+constantGenotypeIndex;
+//                }
+//            };
+            isReadInsertionMappers[i] = new NamedWrapper<BaseInformationRecords.BaseInformationOrBuilder>(
+                    new BooleanFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(record ->
+                            record.getSamples(sampleIndex).getCounts(constantGenotypeIndex).getFromSequence().contains("-"), 0)) {
+                @Override
+                public String getFeatureName(int featureIndex) {
+                    return "isReadInsertion_sample="+sampleIndex+"_count="+constantGenotypeIndex;
+                }
+            };
+            isReadDeletionMappers[i] = new NamedWrapper<BaseInformationRecords.BaseInformationOrBuilder>(
+                    new BooleanFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(record ->
+                            record.getSamples(sampleIndex).getCounts(constantGenotypeIndex).getToSequence().contains("-"), 0)) {
+                @Override
+                public String getFeatureName(int featureIndex) {
+                    return "isReadDeletion_sample="+sampleIndex+"_count="+constantGenotypeIndex;
+                }
+            };
             int baseContextLength=10;
             firstBaseMappersTo[i] = new GenomicContextMapper(baseContextLength,
 
@@ -158,7 +185,9 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readMappingQualityMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(baseQualityMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(bamFlagMappers),
-                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(isIndelMappers)
+                  //      new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(isIndelMappers),
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(isReadInsertionMappers),
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(isReadDeletionMappers)
                         ));
 
         numFeatures = delegate.numberOfFeatures();
