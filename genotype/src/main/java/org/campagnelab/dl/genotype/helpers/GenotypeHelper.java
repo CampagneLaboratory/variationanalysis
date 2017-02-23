@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.helpers;
 
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.apache.commons.lang3.StringUtils;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.goby.algorithmic.dsv.SampleCountInfo;
 import org.campagnelab.goby.algorithmic.indels.EquivalentIndelRegion;
@@ -133,16 +134,45 @@ public class GenotypeHelper {
 
 
     /**
-     * genotype must have two alleles
-     * @param reference
-     * @param genotype
+     * genotype must have two alleles.
+     * @param gobyFormatReference
+     * @param gobyFormatGenotype genotype in goby format. ref/snps must have single base in ref and to.
      * @return
      */
-    public static boolean isIndel(String reference, String genotype) {
-        if (genotype != null) {
-            return (genotype.length()>3 || reference.length()>1);
+    public static boolean isIndel(String gobyFormatReference, String gobyFormatGenotype) {
+        if (gobyFormatGenotype != null) {
+            return (gobyFormatGenotype.length()>3 || gobyFormatReference.length()>1);
         }
         return false;
+    }
+
+
+
+    /**
+     * Check if a set of alleles contains an indel.
+     * genotype must have two alleles
+     * @param  mergedFormatAlleles set of from,to pairs in merged format, all from's should be the same via merge (to's and from's same length).
+     * @return
+     */
+    public static boolean isIndel(Set<Variant.FromTo> mergedFormatAlleles) {
+        for (Variant.FromTo allele : mergedFormatAlleles){
+            if (isIndel(allele)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * Check if a single allele is an indel.
+     * @param  mergedFormatAllele one from,to pair, the should be in merged format (to's and from's same length).
+     * @return
+     */
+    public static boolean isIndel(Variant.FromTo mergedFormatAllele) {
+        int numFromDashes = StringUtils.countMatches(mergedFormatAllele.getFrom(),"-");
+        int numToDashes = StringUtils.countMatches(mergedFormatAllele.getFrom(),"-");
+        return numFromDashes != numToDashes;
     }
 
     public static boolean matchingGenotypesWithN(String a, String b) {

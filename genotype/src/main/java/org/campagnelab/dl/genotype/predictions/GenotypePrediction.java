@@ -6,6 +6,8 @@ import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.algorithmic.dsv.SampleCountInfo;
+import org.campagnelab.goby.predictions.MergeIndelFrom;
+import org.campagnelab.goby.util.Variant;
 
 import java.util.Collections;
 import java.util.Set;
@@ -72,20 +74,26 @@ public class GenotypePrediction extends Prediction {
      * Inspect a record to obtain the true genotype and/or additional meta-data about the record.
      */
     public void inspectRecord(BaseInformationRecords.BaseInformation currentRecord) {
-        trueGenotype = currentRecord.getTrueGenotype();
+
         isVariant = currentRecord.getSamples(0).getIsVariant();
-        trueFrom = currentRecord.getTrueFrom();
-        predictedFrom = currentRecord.getReferenceBase();
-        //handle empty refbase case, only matters when there are no normal base counts (just indels)
-        if (predictedFrom == null || predictedFrom.length() == 0) {
-            predictedFrom = currentRecord.getSamples(0).getCounts(0).getFromSequence();
-        }
+        Set<Variant.FromTo> predictedFromTos = new ObjectArraySet<>(2);
+        Set<Variant.FromTo> trueFromTos = new ObjectArraySet<>(2);
         for (BaseInformationRecords.CountInfo c : currentRecord.getSamples(0).getCountsList()) {
             if (predictedAlleles().contains(c.getToSequence())) {
-                predictedFrom = c.getFromSequence();
+                predictedFromTos.add(new Variant.FromTo(c.getFromSequence(),c.getToSequence()));
+            }
+            if (c.getIsCalled()){
+                trueFromTos.add(new Variant.FromTo(c.getFromSequence(),c.getToSequence()));
             }
         }
-        isIndel = GenotypeHelper.isIndel(currentRecord.getReferenceBase(), currentRecord.getTrueGenotype());
+        MergeIndelFrom mergedTrue = new MergeIndelFrom(trueFromTos);
+        MergeIndelFrom mergedPrediction = new MergeIndelFrom(predictedFromTos);
+        trueGenotype = GenotypeHelper.fromAlleles(mergedTrue.getTos());
+        predictedGenotype = GenotypeHelper.fromAlleles(mergedPrediction.getTos());
+        trueFrom = mergedTrue.getFrom();
+        predictedFrom = mergedPrediction.getFrom();
+        isIndel = GenotypeHelper.isIndel(trueFromTos);
+        isPredictedIndel = GenotypeHelper.isIndel(predictedFromTos);
 
         /*
        //we need to check from and to fields for a genotype greater than length 1
