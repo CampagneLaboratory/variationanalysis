@@ -10,33 +10,36 @@ import java.util.function.Function;
 /**
  * Created by joshuacohen on 2/8/17.
  */
-public class TrueGenotypeLSTMPaddingFeatureMapper implements
+public class TrueGenotypeLSTMDecodingFeatureMapper implements
         FeatureNameMapper<BaseInformationRecords.BaseInformation>, ConfigurableFeatureMapper {
 
     private RNNFeatureMapper<String> delegate;
     private String cachedRecordGenotype;
     private int trueGenotypeLength;
-    private static final int defaultIndelSequenceLength = 30;
+    private static final int defaultGenotypeSequenceLength = 30;
+    private boolean isPredicting;
 
     @Override
     public void configure(Properties readerProperties) {
+        isPredicting = Boolean.parseBoolean(readerProperties.getProperty("isPredicting"));
         String trueGenotypeLengthProperty = readerProperties.getProperty("trueGenotypeLength");
         if (trueGenotypeLengthProperty == null) {
-            trueGenotypeLength = defaultIndelSequenceLength;
+            trueGenotypeLength = defaultGenotypeSequenceLength;
         } else {
             trueGenotypeLength = Integer.parseInt(trueGenotypeLengthProperty);
         }
-        OneHotBaseFeatureMapper<String>[] delegateMapperArray = new OneHotBaseFeatureMapper[trueGenotypeLength];
-        for (int i = 0; i < trueGenotypeLength; i++) {
+        OneHotBaseFeatureMapper<String>[] delegateMapperArray = new OneHotBaseFeatureMapper[trueGenotypeLength + 2];
+        for (int i = 0; i < trueGenotypeLength + 2; i++) {
             delegateMapperArray[i] = new OneHotBaseFeatureMapper<>(i, Function.identity(),
-                   TrueGenotypeLSTMPaddingFeatureMapper::baseToPaddingFeature, 1);
+                   TrueGenotypeLSTMDecodingFeatureMapper::baseToPaddingFeature,
+                    TrueGenotypeLSTMLabelMapper.featuresOrLabelsPerTimeStep);
         }
         delegate = new RNNFeatureMapper<>(String::length, delegateMapperArray);
     }
 
     @Override
     public String getFeatureName(int featureIndex) {
-        return TrueGenotypeLSTMPaddingFeatureMapper.class.getSimpleName() + featureIndex;
+        return TrueGenotypeLSTMDecodingFeatureMapper.class.getSimpleName() + featureIndex;
     }
 
     @Override
@@ -51,7 +54,18 @@ public class TrueGenotypeLSTMPaddingFeatureMapper implements
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
-        cachedRecordGenotype = record.getTrueGenotype();
+        String trueGenotype = record.getTrueGenotype();
+        StringBuilder cachedRecordGenotypeBuilder = new StringBuilder();
+        cachedRecordGenotypeBuilder.append('*');
+        if (!isPredicting) {
+            if (trueGenotype.length() >= trueGenotypeLength) {
+                cachedRecordGenotypeBuilder.append(trueGenotype.substring(0, trueGenotypeLength));
+            } else {
+                cachedRecordGenotypeBuilder.append(trueGenotype);
+            }
+            cachedRecordGenotypeBuilder.append('*');
+        }
+        cachedRecordGenotype = cachedRecordGenotypeBuilder.toString();
         delegate.prepareToNormalize(cachedRecordGenotype, indexOfRecord);
     }
 
@@ -81,6 +95,6 @@ public class TrueGenotypeLSTMPaddingFeatureMapper implements
     }
 
     private static int baseToPaddingFeature(String recordString, int baseIndex) {
-        return 0;
+        return TrueGenotypeLSTMLabelMapper.baseToLabel(recordString.charAt(baseIndex));
     }
 }

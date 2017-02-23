@@ -12,11 +12,13 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class TrueGenotypeLSTMLabelMapper implements LabelMapper<BaseInformationRecords.BaseInformation> {
 
     private final RNNLabelMapper<String> delegate;
-    private static final int labelsPerTimeStep = 8;
+    static final int featuresOrLabelsPerTimeStep = 10;
     private String cachedRecordGenotype;
+    private int maxGenotypeLength;
 
     public TrueGenotypeLSTMLabelMapper(int maxGenotypeLength) {
-        delegate = new RNNLabelMapper<>(maxGenotypeLength, labelsPerTimeStep,
+        this.maxGenotypeLength = maxGenotypeLength;
+        delegate = new RNNLabelMapper<>(maxGenotypeLength + 2, featuresOrLabelsPerTimeStep,
                 TrueGenotypeLSTMLabelMapper::recordToLabel, String::length);
     }
 
@@ -57,7 +59,16 @@ public class TrueGenotypeLSTMLabelMapper implements LabelMapper<BaseInformationR
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
-        cachedRecordGenotype = record.getTrueGenotype();
+        String trueGenotype = record.getTrueGenotype();
+        StringBuilder cachedRecordGenotypeBuilder = new StringBuilder();
+        cachedRecordGenotypeBuilder.append('$');
+        if (trueGenotype.length() >= maxGenotypeLength) {
+            cachedRecordGenotypeBuilder.append(trueGenotype.substring(0, maxGenotypeLength));
+        } else {
+            cachedRecordGenotypeBuilder.append(trueGenotype);
+        }
+        cachedRecordGenotypeBuilder.append('*');
+        cachedRecordGenotype = cachedRecordGenotypeBuilder.toString();
         delegate.prepareToNormalize(cachedRecordGenotype, indexOfRecord);
     }
 
@@ -65,7 +76,7 @@ public class TrueGenotypeLSTMLabelMapper implements LabelMapper<BaseInformationR
         return record.chars().map(TrueGenotypeLSTMLabelMapper::baseToLabel).toArray();
     }
 
-    private static int baseToLabel(int base) {
+    static int baseToLabel(int base) {
         switch (base) {
             case 'a':
             case 'A':
@@ -85,9 +96,14 @@ public class TrueGenotypeLSTMLabelMapper implements LabelMapper<BaseInformationR
             case '-':
                 return 5;
             case '/':
+            case '|':
                 return 6;
-            default:
+            case '*':
                 return 7;
+            case '$':
+                return 8;
+            default:
+                return 9;
 
         }
     }

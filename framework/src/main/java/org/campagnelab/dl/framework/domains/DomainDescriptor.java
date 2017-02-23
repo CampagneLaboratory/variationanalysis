@@ -249,12 +249,20 @@ public abstract class DomainDescriptor<RecordType> {
     }
 
     public FeatureMapper[] featureMappers() {
+        return featureMappers(false);
+    }
+
+    public FeatureMapper[] featureMappers(boolean isPredicting) {
         FeatureMapper[] mappers = new FeatureMapper[getNumModelInputs()];
         int i = 0;
         for (String inputName : getComputationalGraph().getInputNames()) {
-            mappers[i++] = getFeatureMapper(inputName);
+            mappers[i++] = getFeatureMapper(inputName, isPredicting);
         }
         return mappers;
+    }
+
+    public FeatureMapper getFeatureMapper(String inputName, boolean isPredicting) {
+        return getFeatureMapper(inputName);
     }
 
     public LabelMapper[] labelMappers() {
@@ -265,6 +273,11 @@ public abstract class DomainDescriptor<RecordType> {
         }
         return mappers;
     }
+
+    public int[] getNumInputs(String inputName, boolean isPredicting) {
+        return getNumInputs(inputName);
+    }
+
     public int getNumModelInputs() {
         return getComputationalGraph().getInputNames().length;
     }

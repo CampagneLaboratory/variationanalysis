@@ -92,7 +92,7 @@ public class PredictWithModel<RecordType> {
 
             RecordType currentRecord = iterator.next();
             observeRecord.accept(currentRecord);
-            outputHelper.predictForNextRecord(model, currentRecord, domainDescriptor.featureMappers());
+            outputHelper.predictForNextRecord(model, currentRecord, domainDescriptor.featureMappers(true));
             predictions.clear();
             for (int outputIndex = 0; outputIndex < domainDescriptor.getNumModelOutputs(); outputIndex++) {
                 INDArray outputPredictions = outputHelper.getOutput(outputIndex);

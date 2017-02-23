@@ -36,7 +36,8 @@ public class TrueGenotypePrediction extends GenotypePrediction {
         } else {
             throw new IllegalArgumentException("The type of aggregate prediction is not recognized.");
         }
-        boolean useAggregate = aggregatePrediction.overallProbability > trueGenotypeOutputLayerPrediction.overallProbability;
+//        boolean useAggregate = aggregatePrediction.overallProbability > trueGenotypeOutputLayerPrediction.overallProbability;
+        boolean useAggregate = false;
         if (useAggregate) {
             this.overallProbability = aggregatePrediction.overallProbability;
             this.trueGenotype = aggregatePrediction.trueGenotype;

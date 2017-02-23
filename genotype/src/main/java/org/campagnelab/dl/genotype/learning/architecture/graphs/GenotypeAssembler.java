@@ -52,13 +52,14 @@ public abstract class GenotypeAssembler {
                                             String lastDenseLayerName,
                                             DomainDescriptor domainDescriptor, WeightInit WEIGHT_INIT,
                                             LearningRatePolicy learningRatePolicy,
-                                            int numLSTMLayers, int numIn, int numLSTMHiddenNodes) {
+                                            int numLSTMLayers, int numIn, int numLSTMHiddenNodes,
+                                            int numLSTMDecoderInputs) {
         if (addTrueGenotypeLabels) {
             build.addVertex("feedForwardLstmDuplicate", new DuplicateToTimeSeriesVertex("trueGenotypeInput"), lastDenseLayerName);
             String lstmLayerName = "no layer";
             for (int i = 0; i < numLSTMLayers; i++) {
                 lstmLayerName = "lstmTrueGenotype_" + i;
-                int numLSTMInputNodes = i == 0 ? (numIn + 1) : numLSTMHiddenNodes;
+                int numLSTMInputNodes = i == 0 ? (numIn + numLSTMDecoderInputs) : numLSTMHiddenNodes;
                 String[] layerInputs = i == 0
                         ? new String[]{"trueGenotypeInput", "feedForwardLstmDuplicate"}
                         : new String[]{"lstmTrueGenotype_" + (i - 1)};

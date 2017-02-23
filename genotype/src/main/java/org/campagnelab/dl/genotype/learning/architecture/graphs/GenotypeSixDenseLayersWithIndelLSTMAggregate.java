@@ -131,7 +131,7 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
 
     private void addOutputLayers(ComputationGraphConfiguration.GraphBuilder build, DomainDescriptor domainDescriptor,
                                  String lastDenseLayerName, int numIn, int numLSTMLayers, int numLSTMHiddenNodes,
-                                 int numLSTMInputs) {
+                                 int numLSTMDecoderInputs) {
         if (outputType == GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType.HOMOZYGOUS || outputType == GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType.DISTINCT_ALLELES) {
             if (outputType == GenotypeSixDenseLayersWithIndelLSTMAggregate.OutputType.DISTINCT_ALLELES) {
                 build.addLayer("numDistinctAlleles", new OutputLayer.Builder(domainDescriptor.getOutputLoss("homozygous"))
@@ -165,13 +165,14 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
         appendMetaDataLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         appendIsVariantLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         appendTrueGenotypeLayers(build, addTrueGenotypeLabels, lastDenseLayerName, domainDescriptor, WEIGHT_INIT, LEARNING_RATE_POLICY,
-                numLSTMLayers, numIn, numLSTMHiddenNodes);
+                numLSTMLayers, numIn, numLSTMHiddenNodes, numLSTMDecoderInputs);
     }
 
     @Override
     public ComputationGraph createComputationalGraph(DomainDescriptor domainDescriptor) {
         int numInputs = domainDescriptor.getNumInputs("input")[0];
         int numLSTMInputs = domainDescriptor.getNumInputs("indel")[0];
+        int numLSTMDecoderInputs = domainDescriptor.getNumInputs("trueGenotypeInput")[0];
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("firstDense");
         int numLSTMHiddenNodes = domainDescriptor.getNumHiddenNodes("lstmLayer");
         int numLSTMLayers = Math.max(1, args().numLSTMLayers);
@@ -207,7 +208,7 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
         String lastDenseLayerName = assembler.lastLayerName();
         int numIn = assembler.getNumOutputs();
         addOutputLayers(build, domainDescriptor, lastDenseLayerName, numIn, numLSTMLayers, numLSTMHiddenNodes,
-                numLSTMInputs);
+                numLSTMDecoderInputs);
         ComputationGraphConfiguration conf = build
                 .setOutputs(outputNames)
                 .build();

@@ -86,7 +86,11 @@ public class TrueGenotypeOutputLayerInterpreter implements
             case 5:
                 return '-';
             case 6:
-                return '/';
+                return '|';
+            case 7:
+                return '*';
+            case 8:
+                return '$';
             default:
                 return ' ';
         }
