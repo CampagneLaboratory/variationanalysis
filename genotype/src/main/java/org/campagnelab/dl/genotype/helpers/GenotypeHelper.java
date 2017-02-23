@@ -7,6 +7,7 @@ import org.campagnelab.goby.algorithmic.dsv.SampleCountInfo;
 import org.campagnelab.goby.algorithmic.indels.EquivalentIndelRegion;
 import org.campagnelab.goby.alignments.processors.ObservedIndel;
 import org.campagnelab.goby.algorithmic.algorithm.EquivalentIndelRegionCalculator;
+import org.campagnelab.goby.predictions.MergeIndelFrom;
 import org.campagnelab.goby.util.Variant;
 
 
@@ -151,29 +152,20 @@ public class GenotypeHelper {
     /**
      * Check if a set of alleles contains an indel.
      * genotype must have two alleles
-     * @param  mergedFormatAlleles set of from,to pairs in merged format, all from's should be the same via merge (to's and from's same length).
+     * @param  mergedGenotypeSet a merged format genotype set, all from's should be the same via merge (to's and from's same length).
      * @return
      */
-    public static boolean isIndel(Set<Variant.FromTo> mergedFormatAlleles) {
-        for (Variant.FromTo allele : mergedFormatAlleles){
-            if (isIndel(allele)){
+    public static boolean isIndel(MergeIndelFrom mergedGenotypeSet) {
+        int numFromDashes = StringUtils.countMatches(mergedGenotypeSet.getFrom(),"-");
+        for (String to : mergedGenotypeSet.getTos()){
+            int numToDashes = StringUtils.countMatches(to,"-");
+            if (numFromDashes != numToDashes){
                 return true;
             }
         }
         return false;
     }
 
-
-    /**
-     * Check if a single allele is an indel.
-     * @param  mergedFormatAllele one from,to pair, the should be in merged format (to's and from's same length).
-     * @return
-     */
-    public static boolean isIndel(Variant.FromTo mergedFormatAllele) {
-        int numFromDashes = StringUtils.countMatches(mergedFormatAllele.getFrom(),"-");
-        int numToDashes = StringUtils.countMatches(mergedFormatAllele.getFrom(),"-");
-        return numFromDashes != numToDashes;
-    }
 
     public static boolean matchingGenotypesWithN(String a, String b) {
         if (isNoCall(a) || isNoCall(b)) {

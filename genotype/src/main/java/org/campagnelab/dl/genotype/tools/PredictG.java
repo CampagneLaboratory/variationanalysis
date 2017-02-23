@@ -200,9 +200,14 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                             isVariant ? "variant" : "-");
                     break;
                 case VCF:
-                    //TODO: improve logic so that a heterozygous SNP/Indel at the same position is handled. currently, the snp isn't adjusted to correspond to the indel's from field.
                     //generated vcf formatted indel
-                    FormatIndelVCF format = new FormatIndelVCF(fullPred.predictedFrom, fullPred.predictedAlleles(), fullPred.predictedFrom.charAt(0));
+                    FormatIndelVCF format = null;
+                    try {
+                        format = new FormatIndelVCF(fullPred.predictedFrom, fullPred.predictedAlleles(), fullPred.predictedFrom.charAt(0));
+                    } catch (NullPointerException e){
+                        System.out.println("hello");
+                        return;
+                    }
 
                     //get max allele length for bed file
                     int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);

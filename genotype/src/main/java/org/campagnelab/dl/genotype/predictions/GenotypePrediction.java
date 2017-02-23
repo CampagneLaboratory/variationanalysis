@@ -91,9 +91,13 @@ public class GenotypePrediction extends Prediction {
         trueGenotype = GenotypeHelper.fromAlleles(mergedTrue.getTos());
         predictedGenotype = GenotypeHelper.fromAlleles(mergedPrediction.getTos());
         trueFrom = mergedTrue.getFrom();
-        predictedFrom = mergedPrediction.getFrom();
-        isIndel = GenotypeHelper.isIndel(trueFromTos);
-        isPredictedIndel = GenotypeHelper.isIndel(predictedFromTos);
+        if (predictedGenotype.equals(".|.")){
+            predictedFrom = currentRecord.getReferenceBase();
+        } else {
+            predictedFrom = mergedPrediction.getFrom();
+        }
+        isIndel = GenotypeHelper.isIndel(mergedTrue);
+        isPredictedIndel = GenotypeHelper.isIndel(mergedPrediction);
 
         /*
        //we need to check from and to fields for a genotype greater than length 1
