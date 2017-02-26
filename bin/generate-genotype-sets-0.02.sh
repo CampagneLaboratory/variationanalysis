@@ -31,6 +31,13 @@ if [ -z "${DELETE_TMP}" ]; then
     echo "DELETE_TMP set to ${DELETE_TMP}. Change the variable with export to clear the working directory."
 fi
 
+if [ -z "${SBI_SPLIT_OVERRIDE_DESTINATION+set}" ]; then
+   export SBI_SPLIT_OVERRIDE_DESTINATION_OPTION=""
+   echo "SBI_SPLIT_OVERRIDE_DESTINATION not set. Change the variable to ."
+else
+    export SBI_SPLIT_OVERRIDE_DESTINATION_OPTION=" --override-destination test:${SBI_SPLIT_OVERRIDE_DESTINATION} "
+    echo "Using SBI_SPLIT_OVERRIDE_DESTINATION=${SBI_SPLIT_OVERRIDE_DESTINATION} to put chromosomes ${SBI_SPLIT_OVERRIDE_DESTINATION} into test set."
+fi
 
 export SBI_GENOME=${GENOME}
 rm -rf tmp
@@ -67,7 +74,7 @@ dieIfError "Failed to randomize"
 split.sh ${memory_requirement} -i tmp/genotype_full_called_randomized.sbi \
   -f 0.8 -f 0.1 -f 0.1 \
   -o "${OUTPUT_BASENAME}-" \
-   -s train -s test -s validation
+   -s train -s test -s validation ${SBI_SPLIT_OVERRIDE_DESTINATION_OPTION}
 dieIfError "Failed to split"
 
 if [ ${DELETE_TMP} = "true" ]; then
