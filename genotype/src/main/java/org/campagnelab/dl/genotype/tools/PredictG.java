@@ -202,12 +202,8 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                 case VCF:
                     //generated vcf formatted indel
                     FormatIndelVCF format = null;
-                    try {
-                        format = new FormatIndelVCF(fullPred.predictedFrom, fullPred.predictedAlleles(), fullPred.predictedFrom.charAt(0));
-                    } catch (NullPointerException e){
-                        System.out.println("hello");
-                        return;
-                    }
+                    format = new FormatIndelVCF(fullPred.predictedFrom, fullPred.predictedAlleles(), fullPred.predictedFrom.charAt(0));
+
 
                     //get max allele length for bed file
                     int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
