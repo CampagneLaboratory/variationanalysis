@@ -202,6 +202,8 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                 case VCF:
                     //generated vcf formatted indel
                     FormatIndelVCF format = null;
+                    assert fullPred!=null: "fullPref must not be null";
+                    assert fullPred.predictedFrom!=null: "predictedFrom must not be null";
                     format = new FormatIndelVCF(fullPred.predictedFrom, fullPred.predictedAlleles(), fullPred.predictedFrom.charAt(0));
 
 
