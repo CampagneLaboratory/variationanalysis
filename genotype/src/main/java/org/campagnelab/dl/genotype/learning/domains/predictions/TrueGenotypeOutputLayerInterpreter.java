@@ -25,21 +25,25 @@ public class TrueGenotypeOutputLayerInterpreter implements
         INDArray trueLabelForRecord = trueLabels.getRow(predictionIndex);
         INDArray predictedLabelForRecord = output.getRow(predictionIndex);
         String trueGenotype = getGenotypeFromINDArray(trueLabelForRecord);
-        String predictedGenotype = getGenotypeFromINDArray(predictedLabelForRecord);
+        String predictedGenotypeFull = getGenotypeFromINDArray(predictedLabelForRecord);
+        String predictedGenotype = predictedGenotypeFull.substring(0, trueGenotype.length());
+        String predictedGenotypeIsIndel = predictedGenotype.replace("$", "").replace("*", "");
         trueGenotypePrediction.trueGenotype = trueGenotype;
         trueGenotypePrediction.predictedGenotype = predictedGenotype;
-        trueGenotypePrediction.isPredictedIndel = predictedGenotype.length() > 3;
-        trueGenotypePrediction.overallProbability = getAverageFloatMaxArray(predictedLabelForRecord);;
+        trueGenotypePrediction.isPredictedIndel = predictedGenotypeIsIndel.length() > 3;
+        trueGenotypePrediction.overallProbability = getAverageFloatMaxArray(predictedLabelForRecord);
         return trueGenotypePrediction;
     }
 
     @Override
     public TrueGenotypeOutputLayerPrediction interpret(BaseInformationRecords.BaseInformation record, INDArray output) {
         TrueGenotypeOutputLayerPrediction trueGenotypePrediction = new TrueGenotypeOutputLayerPrediction();
-        String predictedGenotype = getGenotypeFromINDArray(output);
         trueGenotypePrediction.inspectRecord(record);
+        String predictedGenotypeFull = getGenotypeFromINDArray(output);
+        String predictedGenotype = predictedGenotypeFull.substring(0, trueGenotypePrediction.trueGenotype.length());
+        String predictedGenotypeIsIndel = predictedGenotype.replace("$", "").replace("*", "");
         trueGenotypePrediction.predictedGenotype = predictedGenotype;
-        trueGenotypePrediction.isPredictedIndel = predictedGenotype.length() > 3;
+        trueGenotypePrediction.isPredictedIndel = predictedGenotypeIsIndel.length() > 3;
         trueGenotypePrediction.overallProbability = getAverageFloatMaxArray(output);
         return trueGenotypePrediction;
     }
@@ -86,7 +90,11 @@ public class TrueGenotypeOutputLayerInterpreter implements
             case 5:
                 return '-';
             case 6:
-                return '/';
+                return '|';
+            case 7:
+                return '*';
+            case 8:
+                return '$';
             default:
                 return ' ';
         }

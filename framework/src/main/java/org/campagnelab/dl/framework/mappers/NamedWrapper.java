@@ -1,6 +1,5 @@
 package org.campagnelab.dl.framework.mappers;
 
-import com.sun.org.apache.regexp.internal.RE;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 

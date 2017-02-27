@@ -86,8 +86,8 @@ public class Split extends AbstractTool<SplitArguments> {
                 fractions[i] /= sumFractions;
             }
 
-            rand = new XoRoShiRo128PlusRandom();
-//set up logger
+            rand = new XoRoShiRo128PlusRandom(args().randomSeed);
+            //set up logger
             ProgressLogger pgRead = new ProgressLogger(LOG);
             pgRead.itemsName = "records";
             pgRead.expectedUpdates = Math.min(reader.getTotalRecords(), args().writeN);

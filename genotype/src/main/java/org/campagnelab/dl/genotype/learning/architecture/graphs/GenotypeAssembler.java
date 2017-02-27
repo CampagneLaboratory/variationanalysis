@@ -4,6 +4,7 @@ import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.graph.rnn.DuplicateToTimeSeriesVertex;
+import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
@@ -52,20 +53,38 @@ public abstract class GenotypeAssembler {
                                             String lastDenseLayerName,
                                             DomainDescriptor domainDescriptor, WeightInit WEIGHT_INIT,
                                             LearningRatePolicy learningRatePolicy,
-                                            int numLSTMLayers, int numIn, int numLSTMHiddenNodes) {
+                                            int numLSTMLayers, int numIn, int numLSTMTrueGenotypeHiddenNodes,
+                                            int numLSTMDecoderInputs, int numReductionLayers, float reductionRate) {
         if (addTrueGenotypeLabels) {
-            build.addVertex("feedForwardLstmDuplicate", new DuplicateToTimeSeriesVertex("trueGenotypeInput"), lastDenseLayerName);
+            String reductionLayerName = "no layer";
+            int numReductionLayerInputNodes = numIn;
+            int numReductionLayerOutputNodes = numIn;
+            for (int i = 0; i < numReductionLayers; i++) {
+                reductionLayerName = "denseReduction_" + i;
+                String previousLayerName = i == 0 ? lastDenseLayerName : "denseReduction_" + (i - 1);
+                numReductionLayerOutputNodes = (int) (numReductionLayerInputNodes * reductionRate);
+                build.addLayer(reductionLayerName, new DenseLayer.Builder()
+                        .weightInit(WEIGHT_INIT)
+                        .activation("relu")
+                        .learningRateDecayPolicy(learningRatePolicy)
+                        .nIn(numReductionLayerInputNodes)
+                        .nOut(numReductionLayerOutputNodes)
+                        .build(), previousLayerName);
+                numReductionLayerInputNodes = numReductionLayerOutputNodes;
+            }
+            build.addVertex("feedForwardLstmDuplicate", new DuplicateToTimeSeriesVertex("trueGenotypeInput"), reductionLayerName);
             String lstmLayerName = "no layer";
             for (int i = 0; i < numLSTMLayers; i++) {
                 lstmLayerName = "lstmTrueGenotype_" + i;
-                int numLSTMInputNodes = i == 0 ? (numIn + 1) : numLSTMHiddenNodes;
+                int numLSTMInputNodes = i == 0 ? (numReductionLayerOutputNodes + numLSTMDecoderInputs) : numLSTMTrueGenotypeHiddenNodes;
                 String[] layerInputs = i == 0
                         ? new String[]{"trueGenotypeInput", "feedForwardLstmDuplicate"}
                         : new String[]{"lstmTrueGenotype_" + (i - 1)};
                 build.addLayer(lstmLayerName, new GravesLSTM.Builder()
                         .activation("softsign")
                         .nIn(numLSTMInputNodes)
-                        .nOut(numLSTMHiddenNodes)
+                        .nOut(numLSTMTrueGenotypeHiddenNodes)
+                        .learningRateDecayPolicy(learningRatePolicy)
                         .weightInit(WEIGHT_INIT)
                         .build(), layerInputs);
             }
@@ -73,7 +92,7 @@ public abstract class GenotypeAssembler {
                     .weightInit(WEIGHT_INIT)
                     .activation("softmax")
                     .learningRateDecayPolicy(learningRatePolicy)
-                    .nIn(numLSTMHiddenNodes)
+                    .nIn(numLSTMTrueGenotypeHiddenNodes)
                     .nOut(domainDescriptor.getNumOutputs("trueGenotype")[0]).build(), lstmLayerName);
         }
     }

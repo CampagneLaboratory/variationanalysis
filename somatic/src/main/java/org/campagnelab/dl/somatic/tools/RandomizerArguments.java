@@ -23,7 +23,9 @@ public class RandomizerArguments implements ToolArguments {
     public String outputFile;
 
     @Parameter(required = false, names = {"-c", "--chunk-size"}, description = "Size of chunks for each bucket writer.")
-
     public int chunkSizePerWriter = 1000;
+
+    @Parameter(required=false, names = { "--random-seed"}, description = "Seed for random generator used to randomizing entries.")
+    long randomSeed=232323;
 }
 

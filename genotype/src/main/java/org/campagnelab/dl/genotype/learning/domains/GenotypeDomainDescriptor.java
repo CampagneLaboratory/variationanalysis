@@ -49,6 +49,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     private int indelSequenceLength;
     private int trueGenotypeLength;
     private float modelCapacity;
+    private boolean isPredicting;
 
 
     public GenotypeDomainDescriptor(GenotypeTrainingArguments arguments) {
@@ -138,6 +139,23 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     }
 
     @Override
+    public FeatureMapper getFeatureMapper(String inputName, boolean isPredicting) {
+        if (featureMappers.containsKey(inputName)) {
+            return featureMappers.get(inputName);
+        }
+        if (inputName.equals("trueGenotypeInput") && isPredicting) {
+            TrueGenotypeLSTMDecodingFeatureMapper glpfMapper = new TrueGenotypeLSTMDecodingFeatureMapper();
+            Properties glpfMapperProperties = new Properties();
+            glpfMapperProperties.setProperty("isPredicting", "true");
+            decorateProperties(glpfMapperProperties);
+            glpfMapper.configure(glpfMapperProperties);
+            return glpfMapper;
+        } else {
+            return getFeatureMapper(inputName);
+        }
+    }
+
+    @Override
     public FeatureMapper getFeatureMapper(String inputName) {
         if (featureMappers.containsKey(inputName)) {
             return featureMappers.get(inputName);
@@ -173,8 +191,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             decorateProperties(glMapperProperties);
             glaMapper.configure(glMapperProperties);
         } else if (inputName.equals("trueGenotypeInput")) {
-            result = new TrueGenotypeLSTMPaddingFeatureMapper();
-            TrueGenotypeLSTMPaddingFeatureMapper glpfMapper = (TrueGenotypeLSTMPaddingFeatureMapper) result;
+            result = new TrueGenotypeLSTMDecodingFeatureMapper();
+            TrueGenotypeLSTMDecodingFeatureMapper glpfMapper = (TrueGenotypeLSTMDecodingFeatureMapper) result;
             Properties glpfMapperProperties = new Properties();
             decorateProperties(glpfMapperProperties);
             glpfMapper.configure(glpfMapperProperties);
@@ -568,8 +586,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     @Override
     public int getNumHiddenNodes(String componentName) {
         switch (componentName) {
-            case "lstmLayer":
-                return args().numLSTMHiddenNodes;
+            case "lstmIndelLayer":
+                return args().numLSTMHiddenNodesIndels;
+            case "lstmTrueGenotypeLayer":
+                return args().numLSTMHiddenNodesTrueGenotype;
             default:
                 return Math.round(getNumInputs("input")[0] * modelCapacity);
         }
