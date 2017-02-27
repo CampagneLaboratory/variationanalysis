@@ -56,8 +56,9 @@ public class TrueGenotypeLSTMDecodingFeatureMapper implements
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
         String trueGenotype = record.getTrueGenotype();
         StringBuilder cachedRecordGenotypeBuilder = new StringBuilder();
-        cachedRecordGenotypeBuilder.append("$$");
+        cachedRecordGenotypeBuilder.append('$');
         if (!isPredicting) {
+            cachedRecordGenotypeBuilder.append('$');
             if (trueGenotype.length() >= trueGenotypeLength) {
                 cachedRecordGenotypeBuilder.append(trueGenotype.substring(0, trueGenotypeLength));
             } else {
