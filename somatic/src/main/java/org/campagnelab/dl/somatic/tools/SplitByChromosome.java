@@ -44,8 +44,8 @@ public class SplitByChromosome extends AbstractTool<SplitByChromosomeArguments> 
         try (RecordReader reader = new RecordReader(args().inputFile)) {
 
             RecordWriter trainWriter = new RecordWriter(args().outputFile + "train");
-            RecordWriter valWriter = new RecordWriter(args().outputFile + "test");
-            RecordWriter testWriter = new RecordWriter(args().outputFile + "validation");
+            RecordWriter valWriter = new RecordWriter(args().outputFile + "validation");
+            RecordWriter testWriter = new RecordWriter(args().outputFile + "test");
 
             //set up logger
             ProgressLogger pgRead = new ProgressLogger(LOG);
@@ -91,8 +91,8 @@ public class SplitByChromosome extends AbstractTool<SplitByChromosomeArguments> 
             float fractionTest = (float)sumTest/reader.numRecords();
 
             System.out.println("train counts = " + sumTrain + "," + fractionTrain + ": " + trainCounts);
-            System.out.println("validation counts = " + sumTest + "," + fractionVal + ": " + valCounts);
-            System.out.println("test counts = " + sumVal + "," + fractionTest + ": " + testCounts);
+            System.out.println("validation counts = " + sumVal + "," + fractionVal + ": " + valCounts);
+            System.out.println("test counts = " + sumTest + "," + fractionTest + ": " + testCounts);
 
             reader.close();
 
