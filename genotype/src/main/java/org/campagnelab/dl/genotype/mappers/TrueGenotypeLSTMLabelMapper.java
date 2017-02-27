@@ -18,7 +18,7 @@ public class TrueGenotypeLSTMLabelMapper implements LabelMapper<BaseInformationR
 
     public TrueGenotypeLSTMLabelMapper(int maxGenotypeLength) {
         this.maxGenotypeLength = maxGenotypeLength;
-        delegate = new RNNLabelMapper<>(maxGenotypeLength + 2, featuresOrLabelsPerTimeStep,
+        delegate = new RNNLabelMapper<>(maxGenotypeLength + 3, featuresOrLabelsPerTimeStep,
                 TrueGenotypeLSTMLabelMapper::recordToLabel, String::length);
     }
 

@@ -28,8 +28,8 @@ public class TrueGenotypeLSTMDecodingFeatureMapper implements
         } else {
             trueGenotypeLength = Integer.parseInt(trueGenotypeLengthProperty);
         }
-        OneHotBaseFeatureMapper<String>[] delegateMapperArray = new OneHotBaseFeatureMapper[trueGenotypeLength + 2];
-        for (int i = 0; i < trueGenotypeLength + 2; i++) {
+        OneHotBaseFeatureMapper<String>[] delegateMapperArray = new OneHotBaseFeatureMapper[trueGenotypeLength + 3];
+        for (int i = 0; i < trueGenotypeLength + 3; i++) {
             delegateMapperArray[i] = new OneHotBaseFeatureMapper<>(i, Function.identity(),
                    TrueGenotypeLSTMDecodingFeatureMapper::baseToPaddingFeature,
                     TrueGenotypeLSTMLabelMapper.featuresOrLabelsPerTimeStep);
@@ -56,7 +56,7 @@ public class TrueGenotypeLSTMDecodingFeatureMapper implements
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
         String trueGenotype = record.getTrueGenotype();
         StringBuilder cachedRecordGenotypeBuilder = new StringBuilder();
-        cachedRecordGenotypeBuilder.append('*');
+        cachedRecordGenotypeBuilder.append("$$");
         if (!isPredicting) {
             if (trueGenotype.length() >= trueGenotypeLength) {
                 cachedRecordGenotypeBuilder.append(trueGenotype.substring(0, trueGenotypeLength));
