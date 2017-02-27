@@ -130,8 +130,8 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
     }
 
     private void addOutputLayers(ComputationGraphConfiguration.GraphBuilder build, DomainDescriptor domainDescriptor,
-                                 String lastDenseLayerName, int numIn, int numLSTMLayers, int numLSTMHiddenNodes,
-                                 int numLSTMDecoderInputs) {
+                                 String lastDenseLayerName, int numIn, int numLSTMLayers, int numLSTMTrueGenotypeHiddenNodes,
+                                 int numLSTMDecoderInputs, int numReductionLayers, float reductionRate) {
         if (outputType == OutputType.HOMOZYGOUS || outputType == OutputType.DISTINCT_ALLELES) {
             if (outputType == OutputType.DISTINCT_ALLELES) {
                 build.addLayer("numDistinctAlleles", new OutputLayer.Builder(domainDescriptor.getOutputLoss("homozygous"))
@@ -164,8 +164,9 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         }
         appendMetaDataLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         appendIsVariantLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
-        appendTrueGenotypeLayers(build, addTrueGenotypeLabels, lastDenseLayerName, domainDescriptor, WEIGHT_INIT, LEARNING_RATE_POLICY,
-                numLSTMLayers, numIn, numLSTMHiddenNodes, numLSTMDecoderInputs);
+        appendTrueGenotypeLayers(build, addTrueGenotypeLabels, lastDenseLayerName, domainDescriptor, WEIGHT_INIT,
+                LEARNING_RATE_POLICY, numLSTMLayers, numIn, numLSTMTrueGenotypeHiddenNodes, numLSTMDecoderInputs,
+                numReductionLayers, reductionRate);
     }
 
     @Override
@@ -174,9 +175,13 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         int numLSTMInputs = domainDescriptor.getNumInputs("from")[0];
         int numLSTMDecoderInputs = domainDescriptor.getNumInputs("trueGenotypeInput")[0];
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("firstDense");
-        int numLSTMHiddenNodes = domainDescriptor.getNumHiddenNodes("lstmLayer");
+        int numLSTMIndelHiddenNodes = domainDescriptor.getNumHiddenNodes("lstmIndelLayer");
+        int numLSTMTrueGenotypeHiddenNodes = domainDescriptor.getNumHiddenNodes("lstmTrueGenotypeLayer");
         int numLSTMLayers = Math.max(1, args().numLSTMLayers);
         int numLayers = Math.max(1, args().numLayers);
+        int numReductionLayers = Math.max(1, args().numReductionLayers);
+        float reductionRate = Math.min(1F, args().reductionRate);
+        reductionRate = Math.max(0.1F, reductionRate);
         FeedForwardDenseLayerAssembler assembler = new FeedForwardDenseLayerAssembler(args());
         assembler.setLearningRatePolicy(LEARNING_RATE_POLICY);
         assembler.initializeBuilder(getInputNames());
@@ -187,10 +192,10 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
             for (int i = 0; i < numLSTMLayers; i++) {
                 lstmLayerName = "lstm" + lstmInputName + "_" + i;
                 String lstmPreviousLayerName = i == 0 ? lstmInputName : "lstm" + lstmInputName + "_" + (i - 1);
-                int numLSTMInputNodes = i == 0 ? numLSTMInputs : numLSTMHiddenNodes;
+                int numLSTMInputNodes = i == 0 ? numLSTMInputs : numLSTMIndelHiddenNodes;
                 build.addLayer(lstmLayerName, new GravesLSTM.Builder()
                     .nIn(numLSTMInputNodes)
-                    .nOut(numLSTMHiddenNodes)
+                    .nOut(numLSTMIndelHiddenNodes)
                     .activation("softsign")
                     .weightInit(WEIGHT_INIT)
                     .build(), lstmPreviousLayerName);
@@ -204,13 +209,13 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         }
         mergeInputs[lstmInputNames.length] = "input";
         build.addVertex("lstmFeedForwardMerge", new MergeVertex(), mergeInputs);
-        int numInputsToDenseAfterMerge = numInputs + (lstmInputNames.length  * numLSTMHiddenNodes);
+        int numInputsToDenseAfterMerge = numInputs + (lstmInputNames.length  * numLSTMIndelHiddenNodes);
         assembler.assemble(numInputsToDenseAfterMerge, numHiddenNodes,
                 numLayers, "lstmFeedForwardMerge", 1);
         String lastDenseLayerName = assembler.lastLayerName();
         int numIn = assembler.getNumOutputs();
-        addOutputLayers(build, domainDescriptor, lastDenseLayerName, numIn, numLSTMLayers, numLSTMHiddenNodes,
-                numLSTMDecoderInputs);
+        addOutputLayers(build, domainDescriptor, lastDenseLayerName, numIn, numLSTMLayers,
+                numLSTMTrueGenotypeHiddenNodes, numLSTMDecoderInputs, numReductionLayers, reductionRate);
         ComputationGraphConfiguration conf = build
                 .setOutputs(outputNames)
                 .build();

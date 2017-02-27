@@ -586,8 +586,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     @Override
     public int getNumHiddenNodes(String componentName) {
         switch (componentName) {
-            case "lstmLayer":
-                return args().numLSTMHiddenNodes;
+            case "lstmIndelLayer":
+                return args().numLSTMHiddenNodesIndels;
+            case "lstmTrueGenotypeLayer":
+                return args().numLSTMHiddenNodesTrueGenotype;
             default:
                 return Math.round(getNumInputs("input")[0] * modelCapacity);
         }
