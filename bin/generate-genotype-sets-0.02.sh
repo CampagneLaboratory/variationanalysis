@@ -68,10 +68,11 @@ dieIfError "Failed to generate .sbi file"
 export OUTPUT_BASENAME=${OUTPUT_PREFIX}
 
 randomize.sh ${memory_requirement} -i tmp/genotype_full_called.sbi \
-  -o tmp/genotype_full_called_randomized -b 100000 -c 100 |tee randomize.log
+  -o tmp/genotype_full_called_randomized -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
 dieIfError "Failed to randomize"
 
 split.sh ${memory_requirement} -i tmp/genotype_full_called_randomized.sbi \
+  --random-seed 2378237 \
   -f 0.8 -f 0.1 -f 0.1 \
   -o "${OUTPUT_BASENAME}-" \
    -s train -s test -s validation ${SBI_SPLIT_OVERRIDE_DESTINATION_OPTION}

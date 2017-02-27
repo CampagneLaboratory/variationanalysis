@@ -31,5 +31,8 @@ public class SplitArguments implements ToolArguments {
     @Parameter(required=false, names = { "--destination-override"}, description = "When provided, a syntax such as test:chr1,chr2 will force all records with chromosome chr1 or chr2 to be written to the test suffix output.")
     public String destinationOverride=null;
 
+    @Parameter(required=false, names = { "--random-seed"}, description = "Seed for random generator used to determine in which file to output a site.")
+    long randomSeed=232323;
+
 }
 

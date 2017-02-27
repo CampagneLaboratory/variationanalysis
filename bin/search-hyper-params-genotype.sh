@@ -55,8 +55,8 @@ categorical
 
 --feature-mapper
 categorical
-org.campagnelab.dl.genotype.mappers.GenotypeMapperV28
-org.campagnelab.dl.genotype.mappers.GenotypeMapperV29
+org.campagnelab.dl.genotype.mappers.GenotypeMapperV19
+org.campagnelab.dl.genotype.mappers.GenotypeMapperV26
 
 --genomic-context-length
 int
