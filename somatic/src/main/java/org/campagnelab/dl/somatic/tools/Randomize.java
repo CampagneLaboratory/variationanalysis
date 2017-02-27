@@ -58,7 +58,7 @@ public class Randomize extends AbstractTool<RandomizerArguments> {
                 bucketWriters.add(new RecordWriter(workingDir + "/tmp/bucket" + i, arguments.chunkSizePerWriter));
             }
             RecordWriter allWriter = new RecordWriter(args().outputFile);
-            Random rand = new XoRoShiRo128PlusRandom();
+            Random rand = new XoRoShiRo128PlusRandom(args().randomSeed);
 
             //set up logger
             ProgressLogger pgRead = new ProgressLogger(LOG);
