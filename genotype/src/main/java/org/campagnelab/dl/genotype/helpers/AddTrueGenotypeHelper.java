@@ -24,7 +24,8 @@ import java.util.Set;
  * Created by fac2003 on 12/27/16.
  */
 public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
-    private final boolean SKIP_BAD_INDELS = true;
+
+    private final boolean SKIP_BAD_INDELS = false;
 
     private static final Logger LOG = LoggerFactory.getLogger(AddTrueGenotypeHelper.class);
     private RandomAccessSequenceInterface genome;
@@ -298,7 +299,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                         }
                         //we have a snp or indel
                         numVariantsAdded++;
-                        if (trueAlleles.size() > 1) {
+                        if (trueAlleles.size()==2) {
                             numHeterozygousAdded++;
                         } else {
                             numHomozygousAdded++;

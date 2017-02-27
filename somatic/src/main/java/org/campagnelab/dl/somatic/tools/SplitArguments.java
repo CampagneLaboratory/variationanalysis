@@ -27,5 +27,9 @@ public class SplitArguments implements ToolArguments {
 
     @Parameter(required=false, names = {"-n", "--write-n"}, description = "Write at most n records.")
     public long writeN=Long.MAX_VALUE;
+
+    @Parameter(required=false, names = { "--destination-override"}, description = "When provided, a syntax such as test:chr1,chr2 will force all records with chromosome chr1 or chr2 to be written to the test suffix output.")
+    public String destinationOverride=null;
+
 }
 

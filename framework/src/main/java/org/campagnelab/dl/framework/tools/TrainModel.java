@@ -111,7 +111,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
 
         System.out.println("epochs: " + args().maxEpochs);
         System.out.println("FeatureMapper:"+featureCalculator.getClass().getTypeName());
-        System.out.println("ComputationGraphAssembler::"+args().architectureClassname);
+        System.out.println("ComputationGraphAssembler:"+args().architectureClassname);
         directory = "models/" + Long.toString(time);
         FileUtils.forceMkdir(new File(directory));
         System.out.println("model directory: " + new File(directory).getAbsolutePath());
@@ -192,10 +192,10 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         EarlyStoppingResult<ComputationGraph> result = train();
 
         //Print out the results:
-        System.out.println("Termination reason: " + result.getTerminationReason());
-        System.out.println("Termination details: " + result.getTerminationDetails());
-        System.out.println("Total epochs: " + result.getTotalEpochs());
+         System.out.println("Total epochs: " + result.getTotalEpochs());
         System.out.println("Best epoch number: " + result.getBestModelEpoch());
+        System.out.println("FeatureMapper:"+featureCalculator.getClass().getTypeName());
+        System.out.println("ComputationGraphAssembler:"+args().architectureClassname);
 
         for (String metricName : perfDescriptor.performanceMetrics()) {
             System.out.println(metricName + " at best epoch: " + performanceLogger.getBest(metricName));
@@ -206,7 +206,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         performanceLogger.write();
         for (String metric : domainDescriptor.performanceDescritor().performanceMetrics()) {
             resultValues().put(metric, performanceLogger.getBest(metric));
-
         }
         resultValues().put("bestModelEpoch", performanceLogger.getBestEpoch(bestMetricName));
         resultValues().put("model-time", time);
