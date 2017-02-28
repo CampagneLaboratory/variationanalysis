@@ -1,7 +1,11 @@
 package org.campagnelab.dl.framework.performance;
 
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.domains.prediction.TimeSeriesPrediction;
+import org.campagnelab.dl.framework.domains.prediction.TimeSeriesPredictionInterpreter;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -14,6 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
+ * Calculates stats for time series predictions
  * Created by joshuacohen on 11/28/16.
  */
 public class TimeSeriesPerformanceCalculator {
@@ -206,9 +211,37 @@ public class TimeSeriesPerformanceCalculator {
     }
 
     public static double estimateFromGraph(ComputationGraph graph, MultiDataSetIterator iterator, int numLabels,
-                                           String metricName, int outputIndex, long scoreN) {
+                                           String metricName, int outputIndex, long scoreN,
+                                           DomainDescriptor domainDescriptor) {
+
+        return estimateFromGraphHelper(graph, iterator, numLabels, outputIndex, scoreN, domainDescriptor)
+                .getMetric(metricName);
+    }
+
+    public static Map<String, Double> estimateFromGraph(ComputationGraph graph, MultiDataSetIterator iterator, int numLabels,
+                                             int outputIndex, long scoreN, DomainDescriptor domainDescriptor,
+                                             String... metrics) {
+        TimeSeriesPerformanceCalculator timeSeriesPerformanceCalculator = estimateFromGraphHelper(graph,
+                iterator, numLabels, outputIndex, scoreN, domainDescriptor);
+        Map<String, Double> graphMetrics = new HashMap<>();
+        for (String metric : metrics) {
+            if (!metric.equals("score")) {
+                graphMetrics.put(metric, timeSeriesPerformanceCalculator.getMetric(metric));
+            }
+        }
+        return graphMetrics;
+    }
+
+    private static TimeSeriesPerformanceCalculator estimateFromGraphHelper(ComputationGraph graph, MultiDataSetIterator iterator, int numLabels,
+                                                                           int outputIndex, long scoreN,
+                                                                           DomainDescriptor domainDescriptor) {
+        PredictionInterpreter predictionInterpreter = domainDescriptor.getPredictionInterpreter(
+                domainDescriptor.getComputationalGraph().getOutputNames()[outputIndex]);
+        if (!(predictionInterpreter instanceof TimeSeriesPredictionInterpreter)) {
+            throw new IllegalArgumentException("TimeSeriesPerformanceCalculator needs a TimeSeriesPredictionInterpreter");
+        }
+        TimeSeriesPredictionInterpreter timeSeriesPredictionInterpreter = (TimeSeriesPredictionInterpreter) predictionInterpreter;
         TimeSeriesPerformanceCalculator calculator = new TimeSeriesPerformanceCalculator(numLabels);
-        TimeSeriesPrediction prediction = new TimeSeriesPrediction();
         int sequenceCount = 0;
         while (iterator.hasNext()) {
             MultiDataSet next = iterator.next();
@@ -218,8 +251,8 @@ public class TimeSeriesPerformanceCalculator {
             INDArray allTrueLabels = graph.output(next.getFeatures())[outputIndex];
             int numExamples = next.getFeatures(outputIndex).size(0);
             for (int sequenceIdx = 0; sequenceIdx < numExamples; sequenceIdx++) {
-                prediction.setTrueLabels(allTrueLabels, sequenceIdx)
-                        .setPredictedLabels(next.getLabels(outputIndex), sequenceIdx);
+                TimeSeriesPrediction prediction = timeSeriesPredictionInterpreter.interpret(allTrueLabels,
+                        next.getLabels(outputIndex), sequenceIdx);
                 calculator.addTimeSeries(prediction);
                 sequenceCount++;
             }
@@ -228,6 +261,6 @@ public class TimeSeriesPerformanceCalculator {
             }
         }
         iterator.reset();
-        return calculator.eval().getMetric(metricName);
+        return calculator.eval();
     }
 }
