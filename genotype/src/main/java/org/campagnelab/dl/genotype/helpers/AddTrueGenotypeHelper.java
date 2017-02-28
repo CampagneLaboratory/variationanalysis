@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
 
-    private final boolean SKIP_BAD_INDELS = false;
+    private final boolean SKIP_BAD_INDELS = true;
 
     private static final Logger LOG = LoggerFactory.getLogger(AddTrueGenotypeHelper.class);
     private RandomAccessSequenceInterface genome;
