@@ -1,7 +1,10 @@
 package org.campagnelab.dl.framework.domains.prediction;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.impl.accum.Sum;
+import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.NDArrayIndex;
 
 /**
  * Created by joshuacohen on 11/23/16.
@@ -56,7 +59,11 @@ public class TimeSeriesPrediction extends Prediction {
         return predictedLabels;
     }
 
-    private int[] getIntArgMaxArray(INDArray array) {
-        return Nd4j.argMax(array, 0).data().asInt();
+    private static int[] getIntArgMaxArray(INDArray array) {
+        int maxValidIndex = Nd4j.getExecutioner().exec(new Sum(array), 0).gt(0).sumNumber().intValue();
+        INDArray argMax = Nd4j.getExecutioner().exec(new IMax(array), 0);
+        return maxValidIndex > 0
+                ? argMax.get(NDArrayIndex.all(), NDArrayIndex.interval(0, maxValidIndex)).data().asInt()
+                : argMax.data().asInt();
     }
 }
