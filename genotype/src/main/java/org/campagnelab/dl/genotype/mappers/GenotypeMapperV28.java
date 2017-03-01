@@ -65,7 +65,8 @@ public class GenotypeMapperV28 extends GenotypeMapperV11 {
             queryPositions[i] = new DensityMapper("queryPosition",
                     10, sbiProperties,
                     baseInformationOrBuilder ->
-                            TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQueryPositionsList));
+                            TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQueryPositionsList),
+                    queryPosition -> (float)(Math.log(queryPosition+1)/Math.log(2)));
 
             numVariationsInReadMappers[i] = new DensityMapper("numVariationsInRead",
                     10, sbiProperties,
