@@ -248,11 +248,12 @@ public class TimeSeriesPerformanceCalculator {
             if (next.hasMaskArrays()) {
                 graph.setLayerMaskArrays(next.getFeaturesMaskArrays(), next.getLabelsMaskArrays());
             }
-            INDArray allTrueLabels = graph.output(next.getFeatures())[outputIndex];
+            INDArray allPredictedLabels = graph.output(next.getFeatures())[outputIndex];
+            INDArray allTrueLabels = next.getLabels(outputIndex);
             int numExamples = next.getFeatures(outputIndex).size(0);
             for (int sequenceIdx = 0; sequenceIdx < numExamples; sequenceIdx++) {
                 TimeSeriesPrediction prediction = timeSeriesPredictionInterpreter.interpret(allTrueLabels,
-                        next.getLabels(outputIndex), sequenceIdx);
+                        allPredictedLabels, sequenceIdx);
                 calculator.addTimeSeries(prediction);
                 sequenceCount++;
             }
