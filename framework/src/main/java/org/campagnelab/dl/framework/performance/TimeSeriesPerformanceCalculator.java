@@ -256,6 +256,9 @@ public class TimeSeriesPerformanceCalculator {
                         allPredictedLabels, sequenceIdx);
                 calculator.addTimeSeries(prediction);
                 sequenceCount++;
+                if (sequenceCount > scoreN) {
+                    break;
+                }
             }
             if (sequenceCount > scoreN) {
                 break;
