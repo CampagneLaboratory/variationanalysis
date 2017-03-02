@@ -48,6 +48,7 @@ public class GenotypeMapperV28 extends GenotypeMapperV11 {
         FeatureNameMapper[] distancesToReadVariations = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] bamFlagMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] originalGobyCountIndexMappers = new FeatureNameMapper[MAX_GENOTYPES];
+        FeatureNameMapper[] queryPositions = new FeatureNameMapper[MAX_GENOTYPES];
 
 
         int genotypeIndex = 0;
@@ -60,6 +61,12 @@ public class GenotypeMapperV28 extends GenotypeMapperV11 {
             matchesRefMappers[i] = (new MatchesReferenceMapper(sampleIndex, i));
             firstBaseMappers[i] = new GenomicContextMapper(1,
                     record -> record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence().substring(0, 1));
+
+            queryPositions[i] = new DensityMapper("queryPosition",
+                    10, sbiProperties,
+                    baseInformationOrBuilder ->
+                            TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQueryPositionsList));
+
             numVariationsInReadMappers[i] = new DensityMapper("numVariationsInRead",
                     10, sbiProperties,
                     baseInformationOrBuilder ->
@@ -124,6 +131,7 @@ public class GenotypeMapperV28 extends GenotypeMapperV11 {
                         new GenomicContextMapper(sbiProperties),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(targetAlignedLengthMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(queryAlignedLengthMappers),
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(queryPositions),
                         /* NumVariationsInReads for counts not in the best 3: */
                         new DensityMapper("numVariationsInRead",
                                 10, sbiProperties,
