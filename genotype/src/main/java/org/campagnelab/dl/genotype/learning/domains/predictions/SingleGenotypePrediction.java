@@ -25,7 +25,7 @@ public class SingleGenotypePrediction extends Prediction {
             return Integer.toString(originalCountIndex);
         } else {
             final BaseInformationRecords.SampleInfo sample = record.getSamples(0);
-            if (originalCountIndex >= sample.getCountsCount()) {
+            if (originalCountIndex >= sample.getCountsCount()|| originalCountIndex==-1 ) {
                 return ".";
             } else {
                 return sample.getCountsOrBuilder(originalCountIndex).getToSequence();
