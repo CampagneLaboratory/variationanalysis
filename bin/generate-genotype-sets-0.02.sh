@@ -35,7 +35,7 @@ if [ -z "${SBI_SPLIT_OVERRIDE_DESTINATION+set}" ]; then
    export SBI_SPLIT_OVERRIDE_DESTINATION_OPTION=""
    echo "SBI_SPLIT_OVERRIDE_DESTINATION not set. Change the variable to chr21,chr22 to include only chr21 and chr22 in the test set."
 else
-    export SBI_SPLIT_OVERRIDE_DESTINATION_OPTION=" --override-destination test:${SBI_SPLIT_OVERRIDE_DESTINATION} "
+    export SBI_SPLIT_OVERRIDE_DESTINATION_OPTION=" --destination-override test:${SBI_SPLIT_OVERRIDE_DESTINATION} "
     echo "Using SBI_SPLIT_OVERRIDE_DESTINATION=${SBI_SPLIT_OVERRIDE_DESTINATION} to put chromosomes ${SBI_SPLIT_OVERRIDE_DESTINATION} into test set."
 fi
 
