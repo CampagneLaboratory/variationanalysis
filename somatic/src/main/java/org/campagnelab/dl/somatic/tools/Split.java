@@ -2,6 +2,8 @@ package org.campagnelab.dl.somatic.tools;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArraySet;
 import it.unimi.dsi.fastutil.doubles.DoubleSet;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.logging.ProgressLogger;
@@ -26,7 +28,7 @@ public class Split extends AbstractTool<SplitArguments> {
     static private Logger LOG = LoggerFactory.getLogger(Split.class);
     private int numOutputs;
     private double[] fractions;
-    private DoubleSet excludedIndices = new DoubleArraySet();
+    private IntSet excludedIndices = new IntArraySet();
 
     public static void main(String[] args) {
 
@@ -98,7 +100,7 @@ public class Split extends AbstractTool<SplitArguments> {
                 int index = recorgBelongsTo(record);
 
                 outputWriters[index].writeRecord(record);
-                pgRead.lightUpdate();
+                pgRead.update();
                 numWritten += 1;
                 if (numWritten > args().writeN) {
                     break;
@@ -118,10 +120,11 @@ public class Split extends AbstractTool<SplitArguments> {
     private int recorgBelongsTo(BaseInformationRecords.BaseInformation record) {
         final String chromosome = record.getReferenceId();
         //      System.out.println(chromosome);
-
+        // find the index that override wants to put the record into:
         int overrideIndex = chromosome == null ? -1 : chomosomeToSuffixIndex.getInt(chromosome);
         if (overrideIndex == -1 || args().destinationOverride == null) {
-
+            // record does not have an override index, we pick the index at random, but cannot put it in the destination suffix
+            // controlled by override:
             double choice = rand.nextDouble();
             double cumulativeFration = 0;
             int index;
@@ -129,7 +132,10 @@ public class Split extends AbstractTool<SplitArguments> {
                 cumulativeFration += fractions[index];
                 if (choice < cumulativeFration) {
                     if (excludedIndices.contains(index)) {
-                        index = 0;
+                        // if the choice was by chance the override destination suffix, make a choice again:
+                        index = -1;
+                        cumulativeFration=0;
+                        choice = rand.nextDouble();
                         continue;
                     }
                     // we found the index of the output that should contain this record.
@@ -138,6 +144,7 @@ public class Split extends AbstractTool<SplitArguments> {
             }
             return index;
         } else {
+            // return the override index:
             // System.out.println("Overriding destination: " + overrideIndex);
             return overrideIndex;
         }
