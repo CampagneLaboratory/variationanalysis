@@ -243,11 +243,9 @@ public class TimeSeriesPerformanceCalculator {
         TimeSeriesPredictionInterpreter timeSeriesPredictionInterpreter = (TimeSeriesPredictionInterpreter) predictionInterpreter;
         TimeSeriesPerformanceCalculator calculator = new TimeSeriesPerformanceCalculator(numLabels);
         int sequenceCount = 0;
+        iterator.reset();
         while (iterator.hasNext()) {
             MultiDataSet next = iterator.next();
-            if (next.hasMaskArrays()) {
-                graph.setLayerMaskArrays(next.getFeaturesMaskArrays(), next.getLabelsMaskArrays());
-            }
             INDArray allPredictedLabels = graph.output(next.getFeatures())[outputIndex];
             INDArray allTrueLabels = next.getLabels(outputIndex);
             int numExamples = next.getFeatures(outputIndex).size(0);
@@ -264,6 +262,7 @@ public class TimeSeriesPerformanceCalculator {
                 break;
             }
         }
+        graph.clearLayerMaskArrays();
         iterator.reset();
         return calculator.eval();
     }

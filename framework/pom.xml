@@ -228,11 +228,11 @@
             <artifactId>deeplearning4j-ui_2.10</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
-        <!--dependency> Uncomment when upgrading to 0.7.2+
+        <dependency> <!--Uncomment when upgrading to 0.7.2+-->
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-parallel-wrapper</artifactId>
             <version>${dl4j.version}</version>
-        </dependency-->
+        </dependency>
     </dependencies>
 
 

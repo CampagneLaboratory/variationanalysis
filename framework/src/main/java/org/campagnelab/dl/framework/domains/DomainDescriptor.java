@@ -184,6 +184,7 @@ public abstract class DomainDescriptor<RecordType> {
                 double score = 0;
                 long nBatch = 0;
                 long nExamples = 0;
+                dataSetIterator.reset();
                 while (dataSetIterator.hasNext()) {
                     MultiDataSet ds = dataSetIterator.next();
                     double dsSScore = graph.score(ds);
@@ -195,6 +196,7 @@ public abstract class DomainDescriptor<RecordType> {
                     nExamples += ds.getFeatures()[0].size(0);
                     if (nExamples > scoreN) break;
                 }
+                dataSetIterator.reset();
                 if (nBatch > 0) {
                     return score / nBatch;
                 } else {
