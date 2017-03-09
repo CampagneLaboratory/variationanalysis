@@ -22,7 +22,7 @@ public class InitializeGpu {
             System.out.println("Class not found ");
             // ignore, CUDA is not found in this installation.
         } catch (Exception e) {
-            throw new RuntimeException("Unable to initialie GPU/CUDA environment.", e);
+            System.out.println("Unable to initialize GPU/CUDA environment. This may be OK if we are running with the cpu profile.");
         }
     }
 }
