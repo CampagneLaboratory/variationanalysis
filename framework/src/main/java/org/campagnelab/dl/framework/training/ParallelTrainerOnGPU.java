@@ -19,11 +19,11 @@ public class ParallelTrainerOnGPU implements Trainer {
 
         wrapper = new ParallelWrapper.Builder(graph)
                 .prefetchBuffer(1)
-                .workers(2)
+                .workers(4)
                 .averagingFrequency(1)
                 .reportScoreAfterAveraging(false)
                 .useLegacyAveraging(false)
-                .useMQ(true)
+               // .useMQ(true)
                 .build();
         this.numExamplesPerIterator = totalExamplesPerIterator;
         this.miniBatchSize = miniBatchSize;
