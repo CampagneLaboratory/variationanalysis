@@ -7,6 +7,7 @@ public class InitializeCudaEnvironmentOnGPU {
     public void InitializeCudaEnvironmentOnGPU() {
 
         final long GB = 1024 * 1024 * 1024L;
+        System.out.println("===== DEBUG IS ON =====");
         CudaEnvironment.getInstance().getConfiguration()
                 .enableDebug(true)
                 .allowMultiGPU(true);
