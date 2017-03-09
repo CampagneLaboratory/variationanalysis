@@ -23,6 +23,7 @@ public class ParallelTrainerOnGPU implements Trainer {
                 .averagingFrequency(1)
                 .reportScoreAfterAveraging(false)
                 .useLegacyAveraging(false)
+                .useMQ(true)
                 .build();
         this.numExamplesPerIterator = totalExamplesPerIterator;
         this.miniBatchSize = miniBatchSize;
