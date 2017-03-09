@@ -14,7 +14,7 @@ public class InitializeCudaEnvironmentOnGPU {
                 .setMaximumDeviceCache(8L * 1024 * 1024 * 1024L)
                 .setMaximumHostCacheableLength(1024 * 1024 * 1024L)
                 .setMaximumHostCache(8L * 1024 * 1024 * 1024L)
-                .setMQ(true)
+                .useMQ(true)
                 // cross-device access is used for faster model averaging over pcie
                 .allowCrossDeviceAccess(true);
         System.out.println("Configured CUDA environment.");
