@@ -53,6 +53,7 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
         FeatureNameMapper[] distancesToReadVariations = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] bamFlagMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] originalGobyCountIndexMappers = new FeatureNameMapper[MAX_GENOTYPES];
+        FeatureNameMapper[] queryPositions = new FeatureNameMapper[MAX_GENOTYPES];
 
 
 
@@ -63,6 +64,11 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
             final int constantGenotypeIndex = genotypeIndex;
             countMappers[i] = (new SingleGenoTypeCountMapper(sampleIndex, i, true));
             readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex, i, true));
+            queryPositions[i] = new DensityMapper("queryPosition",
+                    10, sbiProperties,
+                    baseInformationOrBuilder ->
+                            TraversalHelper.forOneSampleGenotype(sampleIndex, constantGenotypeIndex, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getQueryPositionsList) /*,
+                    queryPosition -> (float)(Math.log(queryPosition+1)/Math.log(2))*/);
 
             matchesRefMappers[i] = (new MatchesReferenceMapper(sampleIndex, i));
             isIndelMappers[i] = new NamedWrapper<BaseInformationRecords.BaseInformationOrBuilder>(
@@ -174,13 +180,15 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
                         new GenomicContextMapper(sbiProperties),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(targetAlignedLengthMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(queryAlignedLengthMappers),
-                        /* NumVariationsInReads for counts not in the best 3: */
+                    //    new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(queryPositions),
+
                         new DensityMapper("numVariationsInRead",
                                 10, sbiProperties,
                                 record -> TraversalHelper.forAllSampleCounts(record,
                                         CountInfoOrBuilder::getNumVariationsInReadsList)),
 
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(distancesToReadVariations),
+                          /* NumVariationsInReads for counts not in the best 3: */
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(numVariationsInReadMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readMappingQualityMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(baseQualityMappers),
