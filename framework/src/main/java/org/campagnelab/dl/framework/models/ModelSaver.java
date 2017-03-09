@@ -47,7 +47,7 @@ public class ModelSaver implements EarlyStoppingModelSaver<MultiLayerNetwork> {
 
     @Override
     public void saveLatestModel(MultiLayerNetwork net, double score) throws IOException {
-     // saveModel(net,"latest",score);
+      saveModel(net,"latest",score);
     }
 
     @Override

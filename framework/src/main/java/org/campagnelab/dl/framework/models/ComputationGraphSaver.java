@@ -53,7 +53,7 @@ public class ComputationGraphSaver implements EarlyStoppingModelSaver<Computatio
 
     @Override
     public void saveLatestModel(ComputationGraph net, double score) throws IOException {
-        saveModel(net, "latest");
+//        saveModel(net, "latest");
 
     }
 
