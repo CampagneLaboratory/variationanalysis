@@ -5,8 +5,7 @@ import org.nd4j.jita.conf.CudaEnvironment;
  */
 public class InitializeCudaEnvironmentOnGPU {
     public void InitializeCudaEnvironmentOnGPU() {
-        // temp workaround for backend initialization
-        Nd4j.create(1);
+
         final long GB = 1024 * 1024 * 1024L;
         CudaEnvironment.getInstance().getConfiguration()
                 .enableDebug(false)
