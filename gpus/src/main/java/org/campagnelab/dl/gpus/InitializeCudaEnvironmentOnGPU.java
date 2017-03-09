@@ -22,7 +22,8 @@ public class InitializeCudaEnvironmentOnGPU {
                     .setMaximumHostCache(16L * GB)
                     // cross - device access is used for faster model averaging over pcie
                     .allowCrossDeviceAccess(true);
+            System.out.println("Configured CUDA environment.");
         }
-        System.out.println("Configured CUDA environment.");
+
     }
 }
