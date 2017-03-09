@@ -122,7 +122,7 @@
                 <GPUSpecificSuffix>XXXXXXXXX</GPUSpecificSuffix>
                 <dl4j.version>0.7.3-SNAPSHOT</dl4j.version>
                 <nd4j.version>0.7.3-SNAPSHOT</nd4j.version>
-                <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend>
+                <nd4j.backend>nd4j-cuda-8.0</nd4j.backend>
                 <jar.classifier>cuda</jar.classifier>
             </properties>
 
