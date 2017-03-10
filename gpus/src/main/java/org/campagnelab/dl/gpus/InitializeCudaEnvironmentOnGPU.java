@@ -8,7 +8,7 @@ public class InitializeCudaEnvironmentOnGPU {
         CudaEnvironment.getInstance().getConfiguration()
                 .enableDebug(false)
                 .allowMultiGPU(true)
-                .setMaximumGridSize(1024)
+                .setMaximumGridSize(512)
                 .setMaximumBlockSize(512)
                 .setMaximumDeviceCacheableLength(1024 * 1024 * 1024L)
                 .setMaximumDeviceCache(8L * 1024 * 1024 * 1024L)
