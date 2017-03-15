@@ -228,9 +228,9 @@
             <artifactId>deeplearning4j-ui_2.10</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
-        <dependency> <!--Uncomment when upgrading to 0.7.2+-->
+        <dependency> <!--Uncomment when version is 0.7.2-->
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-parallel-wrapper</artifactId>
+            <artifactId>deeplearning4j-parallel-wrapper_${scala.binary.version}</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
     </dependencies>
