@@ -5,3 +5,4 @@ test-results
 somatic/test-results
 PROFILE.txt
 VERSION.txt
+LAST_COMMIT.properties
