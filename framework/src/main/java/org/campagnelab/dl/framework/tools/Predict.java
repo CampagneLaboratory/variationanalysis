@@ -162,7 +162,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         while (adapterCached.hasNext() && recordIterator.hasNext()) {
 
             MultiDataSet dataset = adapterCached.next();
-            final int datasetSize = dataset.getFeatures(0).size(0);
+            final int datasetSize = dataset.getFeatures(0).rows();
             adapterIndex++;
             records.clear();
             for (int exampleIndex = 0; exampleIndex < datasetSize; exampleIndex++) {
