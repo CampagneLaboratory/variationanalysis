@@ -2,9 +2,11 @@ package org.campagnelab.dl.framework.iterators;
 
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +32,7 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
     private final int cacheN;
     private int index;
     private MultiDataSetPreProcessor preProcessor;
+    private int numDevices;
 
     public MultiDatasetMappedFeaturesIterator(String basename) {
         this(basename, Integer.MAX_VALUE);
@@ -80,6 +83,8 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
         } catch (IOException e) {
             LOG.error("Unable to reset iterator to position 0");
         }
+        numDevices = Nd4j.getAffinityManager().getNumberOfDevices();
+
     }
 
 
@@ -91,6 +96,7 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
 
     byte[] length = new byte[4];
     ByteArrayList content = new ByteArrayList();
+    long i = 0;
 
     @Override
     public MultiDataSet next() {
@@ -115,6 +121,13 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
             LOG.error("Unable to read content from stream at index " + index, e);
         }
         MultiDataSet ds = new org.nd4j.linalg.dataset.MultiDataSet();
+        if (numDevices >= 2) {
+            // try to move the MDS to a random device, so that we won't run out of memory on the first one
+            // as would happen if all MDS went there (they were built on a cpu)
+
+            moveToDecide(ds, (int) (i++ % numDevices));
+        }
+
         try (ByteArrayInputStream from = new ByteArrayInputStream(elements)) {
             ds.load(from);
         } catch (IOException e) {
@@ -126,6 +139,21 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
         index += ds.getFeatures(0).size(0);
         return ds;
 
+    }
+
+    private void moveToDecide(MultiDataSet multiDataSet, int deviceIndex) {
+        for (INDArray array : multiDataSet.getFeatures()) {
+            Nd4j.getAffinityManager().replicateToDevice(deviceIndex, array);
+        }
+        for (INDArray array : multiDataSet.getLabels()) {
+            Nd4j.getAffinityManager().replicateToDevice(deviceIndex, array);
+        }
+        for (INDArray array : multiDataSet.getLabelsMaskArrays()) {
+            Nd4j.getAffinityManager().replicateToDevice(deviceIndex, array);
+        }
+        for (INDArray array : multiDataSet.getLabelsMaskArrays()) {
+            Nd4j.getAffinityManager().replicateToDevice(deviceIndex, array);
+        }
     }
 }
 
