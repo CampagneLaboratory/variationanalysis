@@ -32,7 +32,7 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
     private final int cacheN;
     private int index;
     private MultiDataSetPreProcessor preProcessor;
-    private int numDevices;
+
 
     public MultiDatasetMappedFeaturesIterator(String basename) {
         this(basename, Integer.MAX_VALUE);
@@ -83,7 +83,6 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
         } catch (IOException e) {
             LOG.error("Unable to reset iterator to position 0");
         }
-        numDevices = Nd4j.getAffinityManager().getNumberOfDevices();
 
     }
 
@@ -121,12 +120,6 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
             LOG.error("Unable to read content from stream at index " + index, e);
         }
         MultiDataSet ds = new org.nd4j.linalg.dataset.MultiDataSet();
-        if (numDevices >= 2) {
-            // try to move the MDS to a random device, so that we won't run out of memory on the first one
-            // as would happen if all MDS went there (they were built on a cpu)
-
-            moveToDecide(ds, (int) (i++ % numDevices));
-        }
 
         try (ByteArrayInputStream from = new ByteArrayInputStream(elements)) {
             ds.load(from);
@@ -141,21 +134,6 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
 
     }
 
-    private void moveToDecide(MultiDataSet multiDataSet, int deviceIndex) {
 
-        moveArray(deviceIndex, multiDataSet.getFeatures());
-        moveArray(deviceIndex, multiDataSet.getLabels());
-        moveArray(deviceIndex, multiDataSet.getLabelsMaskArrays());
-        moveArray(deviceIndex, multiDataSet.getLabelsMaskArrays());
-    }
-
-    private void moveArray(int deviceIndex, INDArray[] features) {
-        if (features == null) return;
-        for (INDArray array : features) {
-            if (array != null) {
-                Nd4j.getAffinityManager().replicateToDevice(deviceIndex, array);
-            }
-        }
-    }
 }
 
