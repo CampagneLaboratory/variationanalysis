@@ -142,17 +142,19 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
     }
 
     private void moveToDecide(MultiDataSet multiDataSet, int deviceIndex) {
-        for (INDArray array : multiDataSet.getFeatures()) {
-            Nd4j.getAffinityManager().replicateToDevice(deviceIndex, array);
-        }
-        for (INDArray array : multiDataSet.getLabels()) {
-            Nd4j.getAffinityManager().replicateToDevice(deviceIndex, array);
-        }
-        for (INDArray array : multiDataSet.getLabelsMaskArrays()) {
-            Nd4j.getAffinityManager().replicateToDevice(deviceIndex, array);
-        }
-        for (INDArray array : multiDataSet.getLabelsMaskArrays()) {
-            Nd4j.getAffinityManager().replicateToDevice(deviceIndex, array);
+
+        moveArray(deviceIndex, multiDataSet.getFeatures());
+        moveArray(deviceIndex, multiDataSet.getLabels());
+        moveArray(deviceIndex, multiDataSet.getLabelsMaskArrays());
+        moveArray(deviceIndex, multiDataSet.getLabelsMaskArrays());
+    }
+
+    private void moveArray(int deviceIndex, INDArray[] features) {
+        if (features == null) return;
+        for (INDArray array : features) {
+            if (array != null) {
+                Nd4j.getAffinityManager().replicateToDevice(deviceIndex, array);
+            }
         }
     }
 }
