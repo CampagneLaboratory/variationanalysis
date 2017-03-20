@@ -37,7 +37,7 @@ public class TimeSeriesPredictionInterpreter<RecordType> implements PredictionIn
 
     public TimeSeriesPrediction interpret(INDArray trueMasks, INDArray trueLabels, INDArray output, int predictionIndex) {
         assert trueLabels.shape().length == 3 : "True labels should be a 3D array";
-        assert trueMasks.shape().length == 3 : "True masks should be a 3D array";
+        assert trueMasks.shape().length == 2 : "True masks should be a 2D array";
         assert output.shape().length == 3 : "True labels should be a 3D array";
         assert predictionIndex < trueMasks.shape()[0] : "prediction index is out of bounds for true masks";
         assert predictionIndex < trueLabels.shape()[0] : "prediction index is out of bounds for true labels";
