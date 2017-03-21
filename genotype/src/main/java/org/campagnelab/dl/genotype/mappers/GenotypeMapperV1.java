@@ -12,7 +12,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.Properties;
 
 /**
- * This m
+ * First attempt at a genotype mapper.
  */
 public class GenotypeMapperV1  extends GenotypeFeatureMapper{
     private NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
