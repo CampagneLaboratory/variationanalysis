@@ -1,7 +1,7 @@
 package org.campagnelab.dl.framework.iterators.cache;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.nd4j.linalg.api.concurrency.AffinityManager;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
@@ -17,6 +17,8 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
     private ObjectArrayList<MultiDataSet> cache = new ObjectArrayList<>();
     private int index = -1;
     private boolean sourceIsComplete;
+//    private int numDevices;
+//    private MagicQueue magicQueue;
 
     public FullyInMemoryCache(MultiDataSetIterator source) {
         this.source = source;
@@ -24,7 +26,9 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
             source.reset();
         }
         reset();
-
+//        if (numDevices >= 2) {
+//            magicQueue = new MagicQueue.Builder().setNumberOfBuckets(-1).build();
+//        }
     }
 
     @Override
@@ -49,6 +53,7 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
 
     @Override
     public synchronized void reset() {
+//        numDevices = Nd4j.getAffinityManager().getNumberOfDevices();
 
         index = -1;
         // force traversal and caching of iterator if reset is called before a full traversal:
@@ -84,6 +89,8 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
         }
     }
 
+    int i = 0;
+
     @Override
     public MultiDataSet next() {
         if (hasNext()) {
@@ -94,7 +101,13 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
 
                 MultiDataSet multiDataSet = null;
                 multiDataSet = source.next();
-                // assignToHostMemory(multiDataSet);
+//                if (numDevices >= 2) {
+//                    // try to move the MDS to a random device, so that we won't run out of memory on the first one
+//                    // as would happen if all MDS went there (they were built on a cpu)
+//
+//                    moveToDecide(multiDataSet, (int) (i++ % numDevices));
+//                }
+
                 cache.add(multiDataSet);
                 return multiDataSet;
             }
@@ -103,15 +116,21 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
         }
     }
 
-    private void assignToHostMemory(MultiDataSet dataSet) {
+    public static void moveToDecide(MultiDataSet multiDataSet, int deviceIndex) {
 
-        for (int i = 0; i < dataSet.numFeatureArrays(); i++) {
-            Nd4j.getAffinityManager().tagLocation(dataSet.getFeatures(i), AffinityManager.Location.HOST);
-            Nd4j.getAffinityManager().tagLocation(dataSet.getFeaturesMaskArray(i), AffinityManager.Location.HOST);
-        }
-        for (int i = 0; i < dataSet.numLabelsArrays(); i++) {
-            Nd4j.getAffinityManager().tagLocation(dataSet.getLabels(i), AffinityManager.Location.HOST);
-            Nd4j.getAffinityManager().tagLocation(dataSet.getLabelsMaskArray(i), AffinityManager.Location.HOST);
+        moveArray(deviceIndex, multiDataSet.getFeatures());
+        moveArray(deviceIndex, multiDataSet.getLabels());
+        moveArray(deviceIndex, multiDataSet.getLabelsMaskArrays());
+        moveArray(deviceIndex, multiDataSet.getLabelsMaskArrays());
+    }
+
+    public static void moveArray(int deviceIndex, INDArray[] features) {
+        if (features == null) return;
+        for (INDArray array : features) {
+            if (array != null) {
+                Nd4j.getAffinityManager().replicateToDevice(deviceIndex, array);
+            }
         }
     }
+
 }
