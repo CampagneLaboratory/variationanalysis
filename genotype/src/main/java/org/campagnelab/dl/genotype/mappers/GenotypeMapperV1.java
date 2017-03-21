@@ -18,12 +18,19 @@ public class GenotypeMapperV1  extends GenotypeFeatureMapper{
     private NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;
-
-
     public GenotypeMapperV1() {
         sortCounts = false;
     }
 
+    @Override
+    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
+        delegate.mapFeatures(record, inputs, indexOfRecord);
+    }
+
+    @Override
+    public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
+        return delegate.produceFeature(record, featureIndex);
+    }
     /**
      * Configure the feature mapper to map a specific sampleIndex
      */
@@ -90,14 +97,6 @@ public class GenotypeMapperV1  extends GenotypeFeatureMapper{
         delegate.prepareToNormalize(record, indexOfRecord);
     }
 
-    @Override
-    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
-        delegate.mapFeatures(record, inputs, indexOfRecord);
-    }
 
-    @Override
-    public float produceFeature(BaseInformationRecords.BaseInformationOrBuilder record, int featureIndex) {
-        return delegate.produceFeature(record, featureIndex);
-    }
 
 }
