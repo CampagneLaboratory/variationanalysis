@@ -44,4 +44,4 @@ parallel --bar -j${NUM_THREADS} --eta :::: calmd-and-convert-commands.txt
 
 samtools merge ${BAM_OUTPUT} realigned_md_slice_*.bam &&
 
-rm goby_slice_*
+rm realigned_md_slice_*
