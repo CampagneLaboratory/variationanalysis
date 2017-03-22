@@ -248,9 +248,10 @@ public class TimeSeriesPerformanceCalculator {
             MultiDataSet next = iterator.next();
             INDArray allPredictedLabels = graph.output(next.getFeatures())[outputIndex];
             INDArray allTrueLabels = next.getLabels(outputIndex);
+            INDArray allTrueMasks = next.getLabelsMaskArray(outputIndex);
             int numExamples = next.getFeatures(outputIndex).size(0);
             for (int sequenceIdx = 0; sequenceIdx < numExamples; sequenceIdx++) {
-                TimeSeriesPrediction prediction = timeSeriesPredictionInterpreter.interpret(allTrueLabels,
+                TimeSeriesPrediction prediction = timeSeriesPredictionInterpreter.interpret(allTrueMasks, allTrueLabels,
                         allPredictedLabels, sequenceIdx);
                 calculator.addTimeSeries(prediction);
                 sequenceCount++;
