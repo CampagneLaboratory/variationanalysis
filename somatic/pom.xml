@@ -103,14 +103,14 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/LAST_COMMIT.properties</include>
+                    <include>**/VARIATION_COMMIT.properties</include>
                 </includes>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
                 <excludes>
-                    <exclude>**/LAST_COMMIT.properties</exclude>
+                    <exclude>**/variation_commit.properties</exclude>
                 </excludes>
             </resource>
         </resources>
@@ -135,8 +135,8 @@
                                       toFile="${project.basedir}/../VERSION.txt" overwrite="true" />
                                 <copy file="${project.build.outputDirectory}/PROFILE.txt"
                                       toFile="${project.basedir}/../PROFILE.txt" overwrite="true" />
-                                <copy file="${project.build.outputDirectory}/LAST_COMMIT.properties"
-                                      toFile="${project.basedir}/../LAST_COMMIT.properties" overwrite="true" />
+                                <copy file="${project.build.outputDirectory}/VARIATION_COMMIT.properties"
+                                      toFile="${project.basedir}/../VARIATION_COMMIT.properties" overwrite="true" />
                             </tasks>
                         </configuration>
                         <goals>

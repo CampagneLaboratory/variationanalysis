@@ -14,6 +14,7 @@
             <directory>${basedir}</directory>
             <includes>
                 <include>*.txt</include>
+                <include>VARIATION_COMMIT.properties</include>
             </includes>
                 <excludes>
                     <exclude>org/datanucleus/**</exclude>
