@@ -96,7 +96,7 @@ public class SbiStats extends AbstractTool<SbiStatsArguments> {
             System.out.println("numHetIndels = " + numHetIndels);
             System.out.println("numHomIndels = " + numHomIndels);
             System.out.println("numVariants = " + numVariants);
-            System.out.println("Het/Hom_Ratio = "+df.format(df.format((0d+numHetIndels+numHetSnps)/(0d+numHomIndels+numHomSnps))));
+            System.out.println("Het/Hom_Ratio = "+df.format((0d+numHetIndels+numHetSnps)/(0d+numHomIndels+numHomSnps)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
