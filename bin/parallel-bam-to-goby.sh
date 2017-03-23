@@ -33,23 +33,19 @@ if [ -z  "${SBI_NUM_THREADS+set}" ]; then
 fi
 echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
 
+bamtools split -in ${ALIGNMENTS} -reference
+set -x
 goby 8g suggest-position-slices ${ALIGNMENTS} --number-of-slices 60 -o slices.tsv --restrict-per-chromosome
 rm -rf calmd-and-convert-commands.txt
-nLine=0
-tail -n +2 slices.tsv | while read -r line
+ls -1  *.REF_*.bam  | while read -r line
     do
-       sRef=`echo $line | cut -f1 -d ' '`
-       sPos=`echo $line | cut -f2 -d ' '`
-       ePos=`echo $line | cut -f5 -d ' '`
-       echo "samtools view -u ${ALIGNMENTS} ${sRef}:${sPos}-${ePos} > slice_${nLine}.bam ;\
-         samtools calmd -E -u slice_${nLine}.bam ${FASTA_GENOME} > md_slice_${nLine}.bam ;\
-         samtools index md_slice_${nLine}.bam &&\
-         rm slice_${nLine}.bam ;\
-         goby 8g concatenate-alignments --genome  ${SBI_GENOME}  md_slice_${nLine}.bam -o goby_slice_${nLine} &&\
-         rm md_slice_${nLine}.bam &&\
-         rm md_slice_${nLine}.bam.bai \
+       echo "\
+       samtools calmd -E -u ${line} ${FASTA_GENOME} > md_${line}.bam ;\
+         samtools index md_${line}.bam &&\
+         goby 8g concatenate-alignments --genome  ${SBI_GENOME}  md_${line}.bam  -o goby_slice_${line} &&\
+         rm md_${line}.bam  &&\
+         rm md_${line}.bam .bai \
        " >> calmd-and-convert-commands.txt
-       nLine=$((nLine+1))
 done
 
 parallel --bar -j${SBI_NUM_THREADS} --eta :::: calmd-and-convert-commands.txt
