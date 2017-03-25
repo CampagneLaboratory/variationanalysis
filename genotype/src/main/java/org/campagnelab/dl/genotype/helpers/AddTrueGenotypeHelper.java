@@ -241,17 +241,8 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
         result.put("addTrueGenotypes.referenceSamplingRate", Float.toString(referenceSamplingRate));
         result.put("addTrueGenotypes.considerIndels", Boolean.toString(considerIndels));
         result.put("addTrueGenotypes.mapFilename", mapFilename);
-        InputStream in = getClass().getResourceAsStream("/VARIATION_COMMIT.properties");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String prop;
-        try {
-            while ((prop = reader.readLine()) != null){
-                String[] splitProp = prop.split("=");
-                result.setProperty(splitProp[0],splitProp[1]);
-            }
-        } catch (IOException e) {
-            System.out.println("Attempted to read variation version info file and failed.");
-        }
+        CommitPropertyHelper.appendCommitInfo(this,"/VARIATION_COMMIT.properties",result);
+        CommitPropertyHelper.appendCommitInfo(this,"/GOBY_COMMIT.properties",result);
         return result;
     }
 
