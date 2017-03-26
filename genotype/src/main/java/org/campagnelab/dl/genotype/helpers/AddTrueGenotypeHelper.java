@@ -10,6 +10,7 @@ import org.campagnelab.goby.reads.RandomAccessSequenceInterface;
 import org.campagnelab.goby.util.Variant;
 import org.campagnelab.goby.util.VariantMapHelper;
 import org.campagnelab.goby.util.WarningCounter;
+import org.campagnelab.goby.util.commits.CommitPropertyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -241,8 +242,8 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
         result.put("addTrueGenotypes.referenceSamplingRate", Float.toString(referenceSamplingRate));
         result.put("addTrueGenotypes.considerIndels", Boolean.toString(considerIndels));
         result.put("addTrueGenotypes.mapFilename", mapFilename);
-        CommitPropertyHelper.appendCommitInfo(this,"/VARIATION_COMMIT.properties",result);
-        CommitPropertyHelper.appendCommitInfo(this,"/GOBY_COMMIT.properties",result);
+        CommitPropertyHelper.appendCommitInfo(this.getClass(),"/VARIATION_COMMIT.properties",result);
+
         return result;
     }
 
