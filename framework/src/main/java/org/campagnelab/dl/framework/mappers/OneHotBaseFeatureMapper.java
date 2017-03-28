@@ -110,7 +110,7 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
 
     private static WarningCounter counter = new WarningCounter();
 
-    private static int getIntegerOfBase(String context, int baseIndex) {
+    public static int getIntegerOfBase(String context, int baseIndex) {
         if (baseIndex < 0 || baseIndex >= context.length()) {
             counter.warn(LOG,String.format("incompatible character index: {} for context: {} of length {}",
                     baseIndex, context, context.length()));
