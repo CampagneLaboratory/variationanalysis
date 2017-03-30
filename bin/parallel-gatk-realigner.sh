@@ -20,11 +20,11 @@ if [ ! -f ${BAM_INPUT}.bai ]; then
     samtools index ${BAM_INPUT}
 fi
 
-goby ${MEMORY_PER_THREAD} suggest-position-slices ${BAM_INPUT} --number-of-slices 60 -o slices.tsv --restrict-per-chromosome
+samtools idxstats ${BAM_INPUT} | cut -f 1 | head -n -1 > refs.txt
 
 rm -rf calmd-and-convert-commands.txt
 nLine=0
-tail -n +2 slices.tsv | while read -r line
+cat refs.txt | while read -r line
     do
        sRef=`echo $line | cut -f1 -d ' '`
        sPos=`echo $line | cut -f2 -d ' '`

@@ -36,7 +36,7 @@ echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
 
 set -x
 
-samtools idxstats ${ALIGNMENTS} | cut -f 1 | head -3 > refs.txt
+samtools idxstats ${ALIGNMENTS} | cut -f 1 | head -n -1 > refs.txt
 rm -rf calmd-and-convert-commands.txt
 
 cat refs.txt | while read -r line
@@ -46,7 +46,7 @@ cat refs.txt | while read -r line
          samtools index md_${line}.bam &&\
          goby 8g concatenate-alignments --genome  ${SBI_GENOME}  md_${line}.bam  -o goby_slice_${line} &&\
          rm md_${line}.bam  &&\
-         rm md_${line}.bam .bai \
+         rm md_${line}.bam.bai \
        " >> calmd-and-convert-commands.txt
 done
 
