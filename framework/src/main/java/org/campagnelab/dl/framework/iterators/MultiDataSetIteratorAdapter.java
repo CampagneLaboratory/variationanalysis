@@ -52,7 +52,7 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
     public MultiDataSet next(int batchSize) {
         ObjectList<RecordType> buffer = new ObjectArrayList<RecordType>();
         // allocate a new dataset with batchSize records and fill it with features and labels.
-        while (recordIterator.hasNext() && buffer.size() < batchSize) {
+        while (recordIterator.hasNext() && buffer.size() < this.batchSize) {
             buffer.add(recordIterator.next());
         }
         int size = buffer.size();
@@ -84,10 +84,10 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
                 }
                 inputShape[1]++;
             }
-            inputs[index] = Nd4j.zeros(inputShape);
+            inputs[index] = Nd4j.create(inputShape);
             featureMappers[index] = domainDescriptor.getFeatureMapper(input);
             boolean needMask = featureMappers[index].hasMask();
-            inputMasks[index] = needMask ? Nd4j.zeros(domainDescriptor.getInputMaskShape(size, input)) : null;
+            inputMasks[index] = needMask ? Nd4j.create(domainDescriptor.getInputMaskShape(size, input)) : null;
             index += 1;
             hasFeatureMask |= needMask;
         }
@@ -96,7 +96,7 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
             labels[index] = Nd4j.zeros(domainDescriptor.getLabelShape(size, label));
             labelMappers[index] = domainDescriptor.getLabelMapper(label);
             boolean needMask = labelMappers[index].hasMask();
-            labelMasks[index] = needMask ? Nd4j.zeros(domainDescriptor.getLabelMaskShape(size, label)) : null;
+            labelMasks[index] = needMask ? Nd4j.create(domainDescriptor.getLabelMaskShape(size, label)) : null;
             index++;
             hasLabelMask |= needMask;
         }

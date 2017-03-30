@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
  * Calculates stats for time series predictions
  * Created by joshuacohen on 11/28/16.
  */
-public class TimeSeriesPerformanceCalculator {
+public class TimeSeriesPerformanceCalculator implements TimeSeriesPerformanceCalculatorI {
     private Counter truePositives;
     private Counter falsePositives;
     private Counter falseNegatives;
@@ -57,7 +57,7 @@ public class TimeSeriesPerformanceCalculator {
         this(IntStream.range(0, numLabels).boxed().collect(Collectors.toList()));
     }
 
-    public TimeSeriesPerformanceCalculator addTimeSeries(TimeSeriesPrediction timeSeries) {
+    public void addTimeSeries(TimeSeriesPrediction timeSeries) {
         for (int i = 0; i < timeSeries.trueLabels().length; i++) {
             totalPredictions++;
             confusionMatrix.increment(timeSeries.trueLabels()[i], timeSeries.predictedLabels()[i]);
@@ -69,10 +69,9 @@ public class TimeSeriesPerformanceCalculator {
                 falsePositives.increment(timeSeries.predictedLabels()[i]);
             }
         }
-        return this;
     }
 
-    public TimeSeriesPerformanceCalculator eval() {
+    public TimeSeriesPerformanceCalculatorI eval() {
         for (Integer label : allLabels) {
             int labelTP = truePositives.count(label);
             int labelFP = falsePositives.count(label);
@@ -221,7 +220,7 @@ public class TimeSeriesPerformanceCalculator {
     public static Map<String, Double> estimateFromGraph(ComputationGraph graph, MultiDataSetIterator iterator, int numLabels,
                                              int outputIndex, long scoreN, DomainDescriptor domainDescriptor,
                                              String... metrics) {
-        TimeSeriesPerformanceCalculator timeSeriesPerformanceCalculator = estimateFromGraphHelper(graph,
+        TimeSeriesPerformanceCalculatorI timeSeriesPerformanceCalculator = estimateFromGraphHelper(graph,
                 iterator, numLabels, outputIndex, scoreN, domainDescriptor);
         Map<String, Double> graphMetrics = new HashMap<>();
         for (String metric : metrics) {
@@ -232,7 +231,7 @@ public class TimeSeriesPerformanceCalculator {
         return graphMetrics;
     }
 
-    private static TimeSeriesPerformanceCalculator estimateFromGraphHelper(ComputationGraph graph, MultiDataSetIterator iterator, int numLabels,
+    private static TimeSeriesPerformanceCalculatorI estimateFromGraphHelper(ComputationGraph graph, MultiDataSetIterator iterator, int numLabels,
                                                                            int outputIndex, long scoreN,
                                                                            DomainDescriptor domainDescriptor) {
         PredictionInterpreter predictionInterpreter = domainDescriptor.getPredictionInterpreter(

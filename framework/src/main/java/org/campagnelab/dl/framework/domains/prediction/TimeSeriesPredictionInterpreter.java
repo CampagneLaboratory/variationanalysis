@@ -11,17 +11,25 @@ import java.util.function.Function;
  */
 public class TimeSeriesPredictionInterpreter<RecordType> implements PredictionInterpreter<RecordType, TimeSeriesPrediction> {
     private final Function<RecordType, int[]> recordToLabel;
+    private final Function<RecordType, Integer> recordToSequenceLength;
 
     public TimeSeriesPredictionInterpreter(Function<RecordType, int[]> recordToLabel) {
+        this(recordToLabel, null);
+    }
+
+    public TimeSeriesPredictionInterpreter(Function<RecordType, int[]> recordToLabel,
+                                           Function<RecordType, Integer> recordToSequenceLength) {
         this.recordToLabel = recordToLabel;
+        this.recordToSequenceLength = recordToSequenceLength;
     }
 
     @Override
     public TimeSeriesPrediction interpret(RecordType record, INDArray output) {
         int[] trueLabels = recordToLabel.apply(record);
-        TimeSeriesPrediction prediction = new TimeSeriesPrediction();
+        final Integer predictedSequenceLength = recordToSequenceLength.apply(record);
+        TimeSeriesPrediction prediction = new TimeSeriesPrediction(predictedSequenceLength);
         // TODO: Make sure trimming the output doesn't break anything
-        INDArray trimmedOutput = output.get(NDArrayIndex.all(), NDArrayIndex.interval(0, trueLabels.length));
+        INDArray trimmedOutput = output.get(NDArrayIndex.all(), NDArrayIndex.interval(0, predictedSequenceLength));
         prediction.setPredictedLabels(trimmedOutput);
         prediction.setTrueLabels(trueLabels);
         return prediction;
@@ -29,6 +37,7 @@ public class TimeSeriesPredictionInterpreter<RecordType> implements PredictionIn
 
     @Override
     public TimeSeriesPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+        // note: sequence length ignores masking on the training set.
         TimeSeriesPrediction prediction = new TimeSeriesPrediction();
         prediction.setPredictedLabels(output, predictionIndex);
         prediction.setTrueLabels(trueLabels, predictionIndex);
