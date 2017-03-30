@@ -150,8 +150,8 @@ public class SamplingIterator implements Iterator<DataSet>, NamedDataSetIterator
             return next;
         }
         num = 0;
-        INDArray examples = Nd4j.create(numSamples, next.getFeatures().columns());
-        INDArray outcomes = Nd4j.create(numSamples, next.numOutcomes());
+        INDArray examples = Nd4j.create(numSamples, next.getFeatures().columns(),'f');
+        INDArray outcomes = Nd4j.create(numSamples, next.numOutcomes(),'f');
         for (int delegateIndex : selectedIndices) {
             DataSet dataSet = next.get(delegateIndex);
             examples.putRow(num, dataSet.getFeatures());
