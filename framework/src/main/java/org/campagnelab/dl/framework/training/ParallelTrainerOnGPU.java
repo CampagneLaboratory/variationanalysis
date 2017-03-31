@@ -18,9 +18,9 @@ public class ParallelTrainerOnGPU implements Trainer {
     public ParallelTrainerOnGPU(ComputationGraph graph, int miniBatchSize, int totalExamplesPerIterator) {
 
         wrapper = new ParallelWrapper.Builder(graph)
-                .prefetchBuffer(24)
+                .prefetchBuffer(8)
                 .workers(4)
-                .averagingFrequency(3)
+                .averagingFrequency(2)
                 .reportScoreAfterAveraging(false)
                 .useLegacyAveraging(false)
                 .useMQ(true)
