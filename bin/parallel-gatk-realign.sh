@@ -26,14 +26,12 @@ rm -rf calmd-and-convert-commands.txt
 nLine=0
 cat refs.txt | while read -r line
     do
-       sRef=`echo $line | cut -f1 -d ' '`
-       sPos=`echo $line | cut -f2 -d ' '`
-       ePos=`echo $line | cut -f5 -d ' '`
-       echo "samtools view -u ${BAM_INPUT} ${sRef}:${sPos}-${ePos} > slice_${nLine}.bam ;\
+       echo "samtools view -u ${BAM_INPUT} ${line} > slice_${nLine}.bam ;\
          samtools calmd -E -u slice_${nLine}.bam ${GENOME_FA} > md_slice_${nLine}.bam ;\
          samtools index md_slice_${nLine}.bam &&\
          rm slice_${nLine}.bam ;\
-         java -Xmx${MEMORY_PER_THREAD} -jar ${GATK_JAR} -T HaplotypeCaller -R ${GENOME_FA} -I md_slice_${nLine}.bam -o hc_variants.vcf  -bamout realigned_md_slice_${nLine}.bam &&\
+         java -jar -Xmx${MEMORY_PER_THREAD} ${GATK_JAR} -R ${GENOME_FA} -ip 50 -T RealignerTargetCreator -I md_slice_${nLine}.bam  -o md_slice_${nLine}_realignment_targets.interval_list -mismatch 0.0 &&\
+         java -jar -Xmx${MEMORY_PER_THREAD} ${GATK_JAR} -R ${GENOME_FA} -ip 50 -T IndelRealigner -I md_slice_${nLine}.bam -targetIntervals md_slice_${nLine}_realignment_targets.interval_list -o realigned_md_slice_${nLine}.bam &&\
          rm md_slice_${nLine}.bam &&\
          rm md_slice_${nLine}.bam.bai \
        " >> calmd-and-convert-commands.txt
