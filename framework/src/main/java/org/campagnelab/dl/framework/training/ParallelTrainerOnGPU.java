@@ -20,7 +20,7 @@ public class ParallelTrainerOnGPU implements Trainer {
         wrapper = new ParallelWrapper.Builder(graph)
                 .prefetchBuffer(8)
                 .workers(4)
-                .averagingFrequency(1)
+                .averagingFrequency(2)
                 .reportScoreAfterAveraging(false)
                 .useLegacyAveraging(false)
                 .useMQ(true)
