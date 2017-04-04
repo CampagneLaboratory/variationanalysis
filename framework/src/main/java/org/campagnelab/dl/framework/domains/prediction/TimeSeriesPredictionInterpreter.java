@@ -1,8 +1,12 @@
 package org.campagnelab.dl.framework.domains.prediction;
 
+import org.campagnelab.dl.framework.tools.TrainModel;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 /**
@@ -10,6 +14,9 @@ import java.util.function.Function;
  * Created by joshuacohen on 11/21/16.
  */
 public class TimeSeriesPredictionInterpreter<RecordType> implements PredictionInterpreter<RecordType, TimeSeriesPrediction> {
+
+    static private Logger LOG = LoggerFactory.getLogger(TimeSeriesPredictionInterpreter.class);
+
     private final Function<RecordType, int[]> recordToLabel;
     private final Function<RecordType, Integer> recordToSequenceLength;
 
@@ -26,12 +33,21 @@ public class TimeSeriesPredictionInterpreter<RecordType> implements PredictionIn
     @Override
     public TimeSeriesPrediction interpret(RecordType record, INDArray output) {
         int[] trueLabels = recordToLabel.apply(record);
+        // true labels have been trimmed to the maximum length supported by the LSTM architecture we are using.
         final Integer predictedSequenceLength = recordToSequenceLength.apply(record);
-        TimeSeriesPrediction prediction = new TimeSeriesPrediction(predictedSequenceLength);
-        // TODO: Make sure trimming the output doesn't break anything
-        INDArray trimmedOutput = output.get(NDArrayIndex.all(), NDArrayIndex.interval(0, predictedSequenceLength));
+        if (predictedSequenceLength != trueLabels.length) {
+            LOG.warn("sequence and true labels lengths must agree. " +
+                    "Make sure the function recordToSequenceLength accounts for sequence clipping to maxLength.");
+        }
+        // trim to the maximum length (the LSTM is configured with a max length and we must trim accordingly):
+        int maxLength = Math.min(predictedSequenceLength, trueLabels.length);
+        TimeSeriesPrediction prediction = new TimeSeriesPrediction(maxLength);
+
+        INDArray trimmedOutput = output.get(NDArrayIndex.all(), NDArrayIndex.interval(0, maxLength));
         prediction.setPredictedLabels(trimmedOutput);
-        prediction.setTrueLabels(trueLabels);
+        int[] trimmedTrueLabels = trueLabels.length != maxLength ?
+                Arrays.copyOfRange(trueLabels, 0, maxLength) : trueLabels;
+        prediction.setTrueLabels(trimmedTrueLabels);
         return prediction;
     }
 

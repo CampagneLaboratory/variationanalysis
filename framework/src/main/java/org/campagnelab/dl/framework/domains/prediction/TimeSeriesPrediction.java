@@ -29,7 +29,10 @@ public class TimeSeriesPrediction extends Prediction {
 
     public TimeSeriesPrediction setTrueLabels(int[] trueLabels) {
         if (predictedLabels != null) {
-            assert trueLabels.length == predictedLabels.length : "Labels should have same length";
+
+            assert trueLabels.length == predictedLabels.length :
+                    String.format("Labels should have same length, trueLabels.length=%d predictedLabels.length=%d",
+                            trueLabels.length,predictedLabels.length);
         }
         this.trueLabels = trueLabels;
         if (predictedSequenceLength == null) {
