@@ -120,6 +120,6 @@ predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f \
 dieIfError "Failed to predict statistics."
 
 export VCF_OUTPUT=`ls -1 ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}*-genotypes.vcf`
-export BED_OBSERVED_REGIONS_OUTPUT=`ls -1 ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}-*.bed`
+export BED_OBSERVED_REGIONS_OUTPUT=`ls -1 ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}-*observed-regions.bed`
 evaluate-genotypes.sh ${MODEL_DIR} best${EVALUATION_METRIC_NAME}
 dieIfError "Failed to run rtg evaluation."
