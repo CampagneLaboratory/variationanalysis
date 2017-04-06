@@ -125,7 +125,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n" +
             "##FORMAT=<ID=MC,Number=1,Type=String,Description=\"Model Calls.\">\n" +
             "##FORMAT=<ID=P,Number=1,Type=Float,Description=\"Model proability.\">\n" +
-            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tNA12878\n";
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tNA12878\n"; //TODO: make vcf sample name dependent on input
 
     private static final String VCF_LINE = "%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
 
