@@ -29,7 +29,10 @@ public class TimeSeriesPrediction extends Prediction {
 
     public TimeSeriesPrediction setTrueLabels(int[] trueLabels) {
         if (predictedLabels != null) {
-            assert trueLabels.length == predictedLabels.length : "Labels should have same length";
+
+            assert trueLabels.length == predictedLabels.length :
+                    String.format("Labels should have same length, trueLabels.length=%d predictedLabels.length=%d",
+                            trueLabels.length,predictedLabels.length);
         }
         this.trueLabels = trueLabels;
         if (predictedSequenceLength == null) {
@@ -72,7 +75,7 @@ public class TimeSeriesPrediction extends Prediction {
 
     public TimeSeriesPrediction setPredictedLabels(INDArray predictedLabels) {
         assert predictedLabels.shape().length == 2 : "Predicted labels should be a 2D array (i.e., just for one time series)";
-
+        setProbabilities(predictedLabels);
         return setPredictedLabels(getIntArgMaxArray(predictedLabels));
     }
 
@@ -80,6 +83,11 @@ public class TimeSeriesPrediction extends Prediction {
         assert allPredictedLabels.shape().length == 3 : "All predicted labels should be a 3D array";
         assert labelIdx < allPredictedLabels.shape()[0] : "label index is out of bounds";
         int miniBatchSize = allPredictedLabels.size(0);
+        setProbabilities(allPredictedLabels, labelIdx);
+        return setPredictedLabels(allPredictedLabels.getRow(labelIdx));
+    }
+
+    private void setProbabilities(INDArray allPredictedLabels, int labelIdx) {
         int numBases = allPredictedLabels.size(1);
         int numTimeSteps = allPredictedLabels.size(2);
         this.probabilities = new double[numTimeSteps][numBases];
@@ -88,7 +96,16 @@ public class TimeSeriesPrediction extends Prediction {
                 probabilities[timeStep][base] = allPredictedLabels.getDouble(labelIdx, base, timeStep);
             }
         }
-        return setPredictedLabels(allPredictedLabels.getRow(labelIdx));
+    }
+    private void setProbabilities(INDArray allPredictedLabels) {
+        int numBases = allPredictedLabels.size(0);
+        int numTimeSteps = allPredictedLabels.size(1);
+        this.probabilities = new double[numTimeSteps][numBases];
+        for (int base = 0; base < numBases; base++) {
+            for (int timeStep = 0; timeStep < numTimeSteps; timeStep++) {
+                probabilities[timeStep][base] = allPredictedLabels.getDouble(base, timeStep);
+            }
+        }
     }
 
     public int[] trueLabels() {
