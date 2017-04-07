@@ -4,6 +4,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.campagnelab.dl.framework.tools.arguments.RecordingToolArguments;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -147,5 +148,12 @@ public abstract class  TrainingArguments extends RecordingToolArguments {
     public Integer eosIndex = null;
     @Parameter(names = "--previous-model-pretraining", description = "If true, previous model was pretrained, and adjust graph accordingly. ")
     public boolean previousModelPretraining = false;
+
+    @Parameter(names = {"-amp","--advanced-model-properties"}, description = "Path to a properties file with advanced " +
+            "model configuration properties. Advanced model properties are used by the computation graph architecture " +
+            "in an architecture dependent manner. Property keys must follow the convention: " +
+            "advancedModelProperties.classname.*, where classname is the fully qualified name of the class that needs " +
+            "to access the property ")
+    public File advancedModelConfiguration;
 }
 

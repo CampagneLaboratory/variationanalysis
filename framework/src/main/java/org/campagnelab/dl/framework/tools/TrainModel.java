@@ -44,9 +44,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,6 +79,9 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             System.err.println("You must provide training datasets.");
         }
         domainDescriptor = domainDescriptor();
+        if (args().advancedModelConfiguration!=null) {
+           domainDescriptor.loadAdvancedModelProperties(args().advancedModelConfiguration);
+        }
         try {
             featureMapper = domainDescriptor().getFeatureMapper("input");
 
