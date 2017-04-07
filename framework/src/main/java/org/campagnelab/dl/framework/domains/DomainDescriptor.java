@@ -8,15 +8,16 @@ import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssemble
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
+import org.campagnelab.dl.framework.tools.TrainModel;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
  * @param <RecordType> The type of record (i.e., record in .sbi file for instance) that is processed in the domain.
  */
 public abstract class DomainDescriptor<RecordType> {
+    static private Logger LOG = LoggerFactory.getLogger(DomainDescriptor.class);
 
     /**
      * Get the feature mapper for a given model graph input. If creating a feature mapper is expensive (e.g., involves
@@ -67,13 +69,14 @@ public abstract class DomainDescriptor<RecordType> {
      * Return an aggregate prediction from individual predictions produced for each model output. The client of this
      * method is responsible for casting to the appropriate implementation for this domain.
      *
-     * @param record record if available (e.g., predict phase), null otherwise (i.e., during training)
+     * @param record                      record if available (e.g., predict phase), null otherwise (i.e., during training)
      * @param individualOutputPredictions individual predictions produced for each model output, in the order of outputs.
      * @return combined prediction for the model.
      */
     public Prediction aggregatePredictions(RecordType record, List<Prediction> individualOutputPredictions) {
         return null;
     }
+
     /**
      * Returns a function that converts an input filename to an iterable over records in the file.
      *
@@ -87,8 +90,6 @@ public abstract class DomainDescriptor<RecordType> {
      * @return ComputationGraphAssembler
      */
     public abstract ComputationGraphAssembler getComputationalGraph();
-
-
 
 
     /**
@@ -167,7 +168,6 @@ public abstract class DomainDescriptor<RecordType> {
                                          MultiDataSetIterator dataSetIterator, long scoreN) {
                 return estimateScore(graph, metricName, dataSetIterator, scoreN);
             }
-
 
 
             @Override
@@ -306,12 +306,15 @@ public abstract class DomainDescriptor<RecordType> {
         this.modelProperties = new Properties();
         this.domainProperties.putAll(domainProperties);
         this.modelProperties.putAll(sbiProperties);
+       this.modelProperties.putAll(advancedModelProperties);
+
     }
 
     public void writeProperties(String modelPath) {
         Properties props = new Properties();
         String propFilename = ModelLoader.getModelPath(modelPath) + "/domain.properties";
         putProperties(props);
+        props.putAll(advancedModelProperties);
         try {
             props.store(new FileWriter(propFilename), "Domain properties created with " + this.getClass().getCanonicalName());
         } catch (IOException e) {
@@ -331,8 +334,8 @@ public abstract class DomainDescriptor<RecordType> {
             props.put(outputName + ".labelMapper", getLabelMapper(outputName).getClass().getCanonicalName());
             props.put(outputName + ".labelMapper.numLabels", Integer.toString(getLabelMapper(outputName).numberOfLabels()));
             props.put(outputName + ".predictionInterpreter", getPredictionInterpreter(outputName).getClass().getCanonicalName());
-
         }
+
 
     }
 
@@ -365,6 +368,7 @@ public abstract class DomainDescriptor<RecordType> {
 
     /**
      * Override this method to configure the domain descriptor using the content of model properties.
+     *
      * @param modelProperties
      */
     public void configure(Properties modelProperties) {
@@ -385,13 +389,13 @@ public abstract class DomainDescriptor<RecordType> {
      * Produce a unique identifier given the variable parts of this domain descriptor (feature mappers, label mappers,
      * computation graph assembler). The identifier is used to name mapped feature cache files. Any parameter that
      * affects the mapped features or labels should be used in the construction of the cache unique id.
-
-     * @return a hashcode formatted as a hexadecimal string, or an arbitrary  string that hashes or encodes parameters.
+     *
      * @param miniBatchSize size of minibatch.
+     * @return a hashcode formatted as a hexadecimal string, or an arbitrary  string that hashes or encodes parameters.
      */
     public String produceCacheUniqueId(int miniBatchSize) {
         int domainHashCode = 0x72E7;
-        domainHashCode^=miniBatchSize;
+        domainHashCode ^= miniBatchSize;
         for (Object o : featureMappers()) {
             domainHashCode ^= o.getClass().getCanonicalName().hashCode();
         }
@@ -403,5 +407,83 @@ public abstract class DomainDescriptor<RecordType> {
         String uniqueId = Integer.toHexString(domainHashCode);
         return uniqueId;
 
+    }
+
+    private Properties advancedModelProperties=new Properties();
+
+    public void loadAdvancedModelProperties(File path) {
+        try (FileInputStream stream = new FileInputStream(path)) {
+            advancedModelProperties = new Properties();
+            advancedModelProperties.load(stream);
+            System.out.println("Loaded advanced model properties " + path);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to load advanced model properties at " + path);
+        }
+    }
+
+    /**
+     * Access an advanced model property.
+     *
+     * @param instance     Instance that needs to read the value.
+     * @param key          name of the property (part after advancedModelProperty . classname .
+     * @param defaultValue default value
+     * @return value of the property if defined, or default.
+     */
+    public int getIntAMProperty(Object instance, String key, Integer defaultValue) {
+        return Integer.parseInt(getAMProperty(instance, key, defaultValue.toString()));
+    }
+
+    /**
+     * Access an advanced model property.
+     *
+     * @param instance     Instance that needs to read the value.
+     * @param key          name of the property (part after advancedModelProperty . classname .
+     * @param defaultValue default value
+     * @return value of the property if defined, or default.
+     */
+    public String getAMProperty(Object instance, String key, String defaultValue) {
+        final String longKey = "advancedModelProperty." + instance.getClass().getCanonicalName() + "." + key;
+        Object value = advancedModelProperties.get(longKey);
+
+        if (value == null) {
+            LOG.warn("Tried to read advanced model property " + longKey + ", not found, returning default value: " + defaultValue);
+            return defaultValue;
+        } else return value.toString();
+    }
+
+    /**
+     * Access an advanced model property.
+     *
+     * @param instance     Instance that needs to read the value.
+     * @param key          name of the property (part after advancedModelProperty . classname .
+     * @param defaultValue default value
+     * @return value of the property if defined, or default.
+     */
+    public Boolean getBooleanAMProperty(Object instance, String key, Boolean defaultValue) {
+        return Boolean.parseBoolean(getAMProperty(instance, key, defaultValue.toString()));
+    }
+
+    /**
+     * Access an advanced model property.
+     *
+     * @param instance     Instance that needs to read the value.
+     * @param key          name of the property (part after advancedModelProperty . classname .
+     * @param defaultValue default value
+     * @return value of the property if defined, or default.
+     */
+    public Float getFloatAMProperty(Object instance, String key, Float defaultValue) {
+        return Float.parseFloat(getAMProperty(instance, key, defaultValue.toString()));
+    }
+
+    /**
+     * Access an advanced model property.
+     *
+     * @param instance     Instance that needs to read the value.
+     * @param key          name of the property (part after advancedModelProperty . classname .
+     * @param defaultValue default value
+     * @return value of the property if defined, or default.
+     */
+    public Double getDoubleAMProperty(Object instance, String key, Double defaultValue) {
+        return Double.parseDouble(getAMProperty(instance, key, defaultValue.toString()));
     }
 }
