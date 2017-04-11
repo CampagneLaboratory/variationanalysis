@@ -2,18 +2,21 @@ package org.campagnelab.dl.framework.mappers;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import java.util.Properties;
+
 /**
  * Label mapper created from a delegate feature mapper, with all of the relevant
  * label methods (produceLabel, mapLabels, numberOfLabels) corresponding to the same
  * methods in feature (i.e. produceFeature, mapFeatures, numberOfFeatures)
- *
+ * <p>
  * Created by joshuacohen on 12/14/16.
  */
-public class LabelFromFeatureMapper<RecordType> implements LabelMapper<RecordType> {
+public class LabelFromFeatureMapper<RecordType> implements LabelMapper<RecordType>, ConfigurableFeatureMapper {
     FeatureMapper<RecordType> delegate;
 
     /**
      * Creates a label mapper from a feature mapper
+     *
      * @param delegate feature mapper delegate
      */
     public LabelFromFeatureMapper(FeatureMapper<RecordType> delegate) {
@@ -58,5 +61,12 @@ public class LabelFromFeatureMapper<RecordType> implements LabelMapper<RecordTyp
     @Override
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
         delegate.prepareToNormalize(record, indexOfRecord);
+    }
+
+    @Override
+    public void configure(Properties readerProperties) {
+        if (delegate instanceof ConfigurableFeatureMapper) {
+            ((ConfigurableFeatureMapper) delegate).configure(readerProperties);
+        }
     }
 }
