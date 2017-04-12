@@ -49,12 +49,16 @@ if [ -z  "${SBI_NUM_THREADS+set}" ]; then
 fi
 
 if [ -z "${REALIGN_AROUND_INDELS+set}" ]; then
-    # We keep only 10% of reference matching sites as we add the true genotypes:
     echo "Set REALIGN_AROUND_INDELS to true to enable realignment around indels."
     REALIGNMENT_OPTION=" "
 else
-   echo "REALIGN_AROUND_INDELS set to ${REALIGN_AROUND_INDELS}. ENABLED realignment around indels."
-   REALIGNMENT_OPTION="--processor realign_near_indels"
+   if ["${REALIGN_AROUND_INDELS}" == "true"]; then
+       echo "REALIGN_AROUND_INDELS set to ${REALIGN_AROUND_INDELS}. ENABLED realignment around indels."
+       REALIGNMENT_OPTION="--processor realign_near_indels"
+   else
+       echo "REALIGN_AROUND_INDELS set to ${REALIGN_AROUND_INDELS}. DISABLED realignment around indels."
+       REALIGNMENT_OPTION=" "
+   fi
 fi
 
 

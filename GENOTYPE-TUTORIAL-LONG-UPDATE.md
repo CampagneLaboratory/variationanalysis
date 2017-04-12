@@ -9,7 +9,7 @@ The tools demonstrated here are intended to be used with DNA-Seq alignments.
 We use this sample for this tutorial because it is an RNA-Seq alignment and therefore smaller than most DNA-Seq alignments available for download.
 
 - Download the genome sequence corresponding to this alignment.
-```sh
+```
 wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz
 ```
 Note that the build is hg19. The tools demonstrated here can be used with any build corresponding to the alignment. The only requirement is that alignment and genomes must match.
@@ -30,15 +30,16 @@ rm *.fa
 ### Download the software
 
  1. Download and install Goby and variationanalysis (maven is required for installation) We will add their tools to the path:
- (This script assumes we are at versions 3.2.4 and 1.2.4 respectively):
+ (This script assumes we are at goby version 3.2.4 and variationanalysis version 1.2.4):
 ``
 git clone https://github.com/CampagneLaboratory/goby3.git
 git clone https://github.com/CampagneLaboratory/variationanalysis.git
 (cd goby3; mvn install)
 (cd variationanalysis; ./build-cpu.sh)
-(goby3/formal-releases/_prepare-release.sh 3.2.4 goby3 1.2.4)
-(cd release-goby_3.2.4; export PATH=$PATH:$(pwd))
-(cd variationanalysis/bin; export PATH=$PATH:$(pwd))
+(cd goby3/formal-releases; ./prepare-release.sh 1.2.4)
+unzip goby3/formal-releases/release-goby_3.2.4/goby.zip
+cd goby-3.2.4 ; export PATH=$(pwd):$PATH ; cd .. 
+cd variationanalysis/bin ; export PATH=$(pwd):$PATH ; cd ..
 
 ```
 
