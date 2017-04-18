@@ -1,6 +1,7 @@
 package org.campagnelab.dl.framework.domains.prediction;
 
 import org.campagnelab.dl.framework.tools.TrainModel;
+import org.campagnelab.goby.util.WarningCounter;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.slf4j.Logger;
@@ -16,7 +17,7 @@ import java.util.function.Function;
 public class TimeSeriesPredictionInterpreter<RecordType> implements PredictionInterpreter<RecordType, TimeSeriesPrediction> {
 
     static private Logger LOG = LoggerFactory.getLogger(TimeSeriesPredictionInterpreter.class);
-
+WarningCounter warningCounter=new WarningCounter(10);
     private final Function<RecordType, int[]> recordToLabel;
     private final Function<RecordType, Integer> recordToSequenceLength;
 
@@ -36,7 +37,7 @@ public class TimeSeriesPredictionInterpreter<RecordType> implements PredictionIn
         // true labels have been trimmed to the maximum length supported by the LSTM architecture we are using.
         final Integer predictedSequenceLength = recordToSequenceLength.apply(record);
         if (predictedSequenceLength != trueLabels.length) {
-            LOG.warn("sequence and true labels lengths must agree. " +
+            warningCounter.warn(LOG, "sequence and true labels lengths must agree. " +
                     "Make sure the function recordToSequenceLength accounts for sequence clipping to maxLength.");
         }
         // trim to the maximum length (the LSTM is configured with a max length and we must trim accordingly):
