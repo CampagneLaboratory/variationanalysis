@@ -63,8 +63,8 @@ if [ ! -e "${DATASET}${VAL_SUFFIX}.sbi" ]; then
     echo "The validation set was not found: ${DATASET}${VAL_SUFFIX}.sbi  "
        exit 1;
 fi
-if [ ! -e "${DATASET}train.sbi" ]; then
-    echo "The training set was not found: ${DATASET}train.sbi  "
+if [ ! -e "${DATASET}${TRAIN_SUFFIX}.sbi" ]; then
+    echo "The training set was not found: ${DATASET}${TRAIN_SUFFIX}.sbi  "
        exit 1;
 fi
 if [ ! -e "${DATASET}test.sbi" ]; then
