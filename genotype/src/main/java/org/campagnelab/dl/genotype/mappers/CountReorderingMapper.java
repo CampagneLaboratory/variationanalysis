@@ -3,16 +3,17 @@ package org.campagnelab.dl.genotype.mappers;
 import org.campagnelab.dl.framework.mappers.AbstractFeatureMapper1D;
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
  * Created by fac2003 on 12/15/16.
  */
 public class CountReorderingMapper extends AbstractFeatureMapper1D<BaseInformationRecords.BaseInformationOrBuilder> {
-    FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
+    private int sampleIndex;
+    private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
 
-    public CountReorderingMapper(FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate) {
+    public CountReorderingMapper(int sampleIndex, FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate) {
         this.delegate = delegate;
+        this.sampleIndex=sampleIndex;
     }
 
     @Override
@@ -31,7 +32,7 @@ public class CountReorderingMapper extends AbstractFeatureMapper1D<BaseInformati
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
 
-        sortedCountRecord = sortHelper.sort(record);
+        sortedCountRecord = sortHelper.sort(sampleIndex,record);
         delegate.prepareToNormalize(sortedCountRecord, indexOfRecord);
     }
 

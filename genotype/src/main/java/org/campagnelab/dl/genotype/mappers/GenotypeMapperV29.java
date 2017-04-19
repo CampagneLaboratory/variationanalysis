@@ -21,9 +21,12 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;
-
     public GenotypeMapperV29() {
+        this(0);
+    }
+    public GenotypeMapperV29(int sampleIndex) {
         super();
+        this.sampleIndex=sampleIndex;
         sortCounts = true;
         withDistinctAlleleCounts = true;
         withCombinedLayer = false;
@@ -167,7 +170,7 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
             genotypeIndex++;
         }
         delegate =
-                new CountReorderingMapper(new NamingConcatFeatureMapper<>(
+                new CountReorderingMapper(sampleIndex, new NamingConcatFeatureMapper<>(
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(originalGobyCountIndexMappers),
                         new NaiveNumAlleleMapper<BaseInformationRecords.BaseInformationOrBuilder>(sampleIndex),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),

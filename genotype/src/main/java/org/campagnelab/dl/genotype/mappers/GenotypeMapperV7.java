@@ -7,9 +7,6 @@ import org.campagnelab.dl.somatic.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -59,7 +56,7 @@ public class GenotypeMapperV7 extends GenotypeMapperV4 {
             genotypeIndex++;
         }
         delegate =
-                new CountReorderingMapper(new NamingConcatFeatureMapper<>(
+                new CountReorderingMapper(sampleIndex, new NamingConcatFeatureMapper<>(
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),
                         new MaxNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(

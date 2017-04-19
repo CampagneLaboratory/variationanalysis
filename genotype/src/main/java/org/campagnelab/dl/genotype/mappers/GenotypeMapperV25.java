@@ -106,7 +106,7 @@ public class GenotypeMapperV25 extends GenotypeMapperV19 {
             genotypeIndex++;
         }
         delegate =
-                new CountReorderingMapper(new NamingConcatFeatureMapper<>(
+                new CountReorderingMapper(sampleIndex, new NamingConcatFeatureMapper<>(
                         new NaiveNumAlleleMapper<BaseInformationRecords.BaseInformationOrBuilder>(sampleIndex),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),

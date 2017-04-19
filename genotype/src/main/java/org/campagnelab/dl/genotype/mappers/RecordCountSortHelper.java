@@ -11,11 +11,13 @@ import java.util.List;
  * Created by fac2003 on 12/15/16.
  */
 public class RecordCountSortHelper {
-
-
     public BaseInformationRecords.BaseInformationOrBuilder sort(BaseInformationRecords.BaseInformationOrBuilder record) {
+        return sort(0, record);
+    }
+
+    public BaseInformationRecords.BaseInformationOrBuilder sort(int sampleIndex, BaseInformationRecords.BaseInformationOrBuilder record) {
         int originalGenotypeIndex = 0;
-        final List<BaseInformationRecords.CountInfo> countsList = record.getSamples(0).getCountsList();
+        final List<BaseInformationRecords.CountInfo> countsList = record.getSamples(sampleIndex).getCountsList();
         List<BaseInformationRecords.CountInfo> counts = new ArrayList<>();
         for (BaseInformationRecords.CountInfo count : countsList) {
             counts.add(BaseInformationRecords.CountInfo.newBuilder()
@@ -35,15 +37,22 @@ public class RecordCountSortHelper {
         copyOfRecord.setReferenceBase(record.getReferenceBase());
         copyOfRecord.setTrueGenotype(record.getTrueGenotype());
         copyOfRecord.setReferenceIndex(record.getReferenceIndex());
-        final BaseInformationRecords.SampleInfo.Builder builder = record.getSamples(0).toBuilder();
+        final BaseInformationRecords.SampleInfo.Builder builder = record.getSamples(sampleIndex).toBuilder();
         builder.clearCounts();
         builder.addAllCounts(counts);
-        copyOfRecord.addSamples(builder);
+        copyOfRecord.addAllSamples(record.getSamplesList());
+       // overwrite the sample we have sorted:
+        copyOfRecord.setSamples(sampleIndex, builder);
         return copyOfRecord.build();
     }
+
     public BaseInformationRecords.BaseInformation sort(BaseInformationRecords.BaseInformation record) {
+        return sort(0, record);
+    }
+
+    public BaseInformationRecords.BaseInformation sort(int sampleIndex, BaseInformationRecords.BaseInformation record) {
         int originalGenotypeIndex = 0;
-        final List<BaseInformationRecords.CountInfo> countsList = record.getSamples(0).getCountsList();
+        final List<BaseInformationRecords.CountInfo> countsList = record.getSamples(sampleIndex).getCountsList();
         List<BaseInformationRecords.CountInfo> counts = new ArrayList<>();
         for (BaseInformationRecords.CountInfo count : countsList) {
             counts.add(BaseInformationRecords.CountInfo.newBuilder()
@@ -57,11 +66,11 @@ public class RecordCountSortHelper {
                         (a.getGenotypeCountForwardStrand() + a.getGenotypeCountReverseStrand()));
 
 
-        final BaseInformationRecords.SampleInfo.Builder builder = record.getSamples(0).toBuilder();
+        final BaseInformationRecords.SampleInfo.Builder builder = record.getSamples(sampleIndex).toBuilder();
         builder.clearCounts();
         builder.addAllCounts(counts);
         BaseInformationRecords.BaseInformation.Builder copyOfRecord = record.toBuilder();
-        copyOfRecord.setSamples(0,builder);
+        copyOfRecord.setSamples(sampleIndex, builder);
         return copyOfRecord.build();
     }
 }

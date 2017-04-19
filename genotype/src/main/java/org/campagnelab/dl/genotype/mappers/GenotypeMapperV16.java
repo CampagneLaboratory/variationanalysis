@@ -11,8 +11,6 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.CountInfoO
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Properties;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * v15 + distancesToReadVariations, without old PairFlags.
@@ -119,7 +117,7 @@ public class GenotypeMapperV16 extends GenotypeMapperV11 {
             genotypeIndex++;
         }
         delegate =
-                new CountReorderingMapper(new NamingConcatFeatureMapper<>(
+                new CountReorderingMapper(sampleIndex, new NamingConcatFeatureMapper<>(
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(distancesToReadVariations),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(bamFlagMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),

@@ -1,6 +1,7 @@
 package org.campagnelab.dl.somatic.learning.architecture.graphs;
 
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
+import org.campagnelab.dl.framework.architecture.nets.NeuralNetAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
@@ -154,4 +155,5 @@ public class SixDenseLayersNarrower2WithFrequencyAndBase implements ComputationG
     public void saveProperties(ModelPropertiesHelper helper) {
 
     }
-}
+
+    }

@@ -4,7 +4,6 @@ import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
 import org.campagnelab.dl.somatic.mappers.*;
 import org.campagnelab.dl.somatic.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.CountInfoOrBuilder;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Properties;
@@ -110,7 +109,7 @@ public class GenotypeMapperV22 extends GenotypeMapperV19 {
             genotypeIndex++;
         }
         delegate =
-                new CountReorderingMapper(new NamingConcatFeatureMapper<>(
+                new CountReorderingMapper(sampleIndex, new NamingConcatFeatureMapper<>(
                     new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),
                         new InverseNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(

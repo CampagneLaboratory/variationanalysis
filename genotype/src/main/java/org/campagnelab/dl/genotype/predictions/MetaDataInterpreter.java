@@ -46,7 +46,7 @@ public class MetaDataInterpreter implements PredictionInterpreter<BaseInformatio
         final String trueGenotype = record.getTrueGenotype();
         p.isIndel = GenotypeHelper.isIndel(record.getReferenceBase(), trueGenotype);
         p.referenceGobyIndex = MetaDataLabelMapper.calculateReferenceIndex(record);
-        BaseInformationRecords.BaseInformation sortedRecord = sortHelper.sort(record);
+        BaseInformationRecords.BaseInformation sortedRecord = sortHelper.sort(0, record);
         // obtain original indices for sorted counts:
         BaseInformationRecords.SampleInfo sortedCountSample = sortedRecord.getSamples(0);
         p.sorted2OriginalCountIndices = new int[]{

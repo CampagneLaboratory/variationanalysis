@@ -32,7 +32,7 @@ public abstract class CountSortingLabelMapper extends NoMasksLabelMapper<BaseInf
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
         if (sortCounts) {
-            sortedCountRecord = sortHelper.sort(record);
+            sortedCountRecord = sortHelper.sort(0,record);
         } else {
             sortedCountRecord = record;
         }
