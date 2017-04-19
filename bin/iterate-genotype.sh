@@ -4,6 +4,9 @@ FEATURE_MAPPER=$1
 GPU=$2
 if [ "$#" -eq 3 ]; then
   NETWORK_ARCHITECTURE=$3
+  NETWORK_ARCHITECTURE_OPTION="--net-architecture ${NETWORK_ARCHITECTURE}"
+else
+  NETWORK_ARCHITECTURE_OPTION=""
 fi
 
 if [ -e configure.sh ]; then
@@ -73,40 +76,24 @@ echo "Iteration for FEATURE_MAPPER=${FEATURE_MAPPER}"
 
 export FORCE_PLATFORM=native
 #rm ${DATASET}${TRAIN_SUFFIX}.sbi ${DATASET}${VAL_SUFFIX}*cf
-if [ -z "${NETWORK_ARCHITECTURE+set}" ]; then
-    train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
-       --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} ${TRAINING_OPTIONS} \
-       --feature-mapper ${FEATURE_MAPPER} --build-cache-then-stop
-else
     train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
        --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} ${TRAINING_OPTIONS} \
        --feature-mapper ${FEATURE_MAPPER} --net-architecture ${NETWORK_ARCHITECTURE} \
-       --build-cache-then-stop
-fi
+       --build-cache-then-stop ${NETWORK_ARCHITECTURE_OPTION}
 dieIfError "Failed to map features with CPU build."
 
 OUTPUT_FILE=output-${RANDOM}.log
 unset FORCE_PLATFORM
 resetPlatform
 
-if [ -z "${NETWORK_ARCHITECTURE+set}" ]; then
-    train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
           --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
           ${TRAINING_OPTIONS} \
           --feature-mapper ${FEATURE_MAPPER} \
           --random-seed 90129 \
           --early-stopping-measure ${EVALUATION_METRIC_NAME} \
-          --early-stopping-num-epochs 10 --gpu-device ${GPU} | tee ${OUTPUT_FILE}
-else
-    train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
-      --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
-      ${TRAINING_OPTIONS} \
-      --feature-mapper ${FEATURE_MAPPER} \
-      --net-architecture ${NETWORK_ARCHITECTURE} \
-      --random-seed 90129 \
-      --early-stopping-measure ${EVALUATION_METRIC_NAME} \
-      --early-stopping-num-epochs 10 --gpu-device ${GPU} | tee ${OUTPUT_FILE}
-fi
+          --early-stopping-num-epochs 10 --gpu-device ${GPU} \
+          ${NETWORK_ARCHITECTURE_OPTION} | tee ${OUTPUT_FILE}
 dieIfError "Failed to train model with CUDA GPU build."
 set -x
 MODEL_DIR=`grep "model directory:" ${OUTPUT_FILE}  |cut -d " " -f 3`
