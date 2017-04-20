@@ -99,6 +99,5 @@ rm ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}*-genotypes.vcf
 rm ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}-*.bed
 
 predict.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f \
-    -i ${DATASET}test.sbi ${PREDICT_OPTIONS} --mini-batch-size ${MINI_BATCH_SIZE} \
-    --format VCF
+    -i ${DATASET}test.sbi ${PREDICT_OPTIONS} --mini-batch-size ${MINI_BATCH_SIZE}
 dieIfError "Failed to predict statistics."
