@@ -25,10 +25,6 @@ int
 1
 3
 
---num-lstm-nodes
-int
-2
-15
 
 --model-capacity
 uniform
@@ -55,8 +51,7 @@ categorical
 
 --feature-mapper
 categorical
-org.campagnelab.dl.genotype.mappers.GenotypeMapperV19
-org.campagnelab.dl.genotype.mappers.GenotypeMapperV26
+org.campagnelab.dl.genotype.mappers.GenotypeMapperV28
 
 --genomic-context-length
 int
@@ -88,7 +83,7 @@ cat << EOF | cat>gpu.txt
 3
 EOF
 
-echo $* >main-command.txt
+echo $* >-command.txt
 NUM_GPUS=`wc -l gpu.txt|cut -d " " -f 1`
 
 num_executions=${memory_requirement}
