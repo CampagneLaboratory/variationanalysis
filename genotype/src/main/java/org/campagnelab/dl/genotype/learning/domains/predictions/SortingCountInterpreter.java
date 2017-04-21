@@ -22,7 +22,7 @@ public abstract class SortingCountInterpreter<P extends Prediction> implements P
         indexPermutation = new int[record.getSamples(0).getCountsCount()];
 
         if (sortCounts) {
-            sortedCountRecord = sortHelper.sort(record);
+            sortedCountRecord = sortHelper.sort(0,record);
             for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(0).getCountsList()) {
                 // reverse permutation: from goby genotype index to sorted order.
                 indexPermutation[count.getGobyGenotypeIndex()] = sortedIndex++;

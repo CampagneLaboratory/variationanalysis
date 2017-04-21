@@ -11,7 +11,7 @@ import java.util.Properties;
  * <p>
  * Created by joshuacohen on 12/14/16.
  */
-public class LabelFromFeatureMapper<RecordType> implements LabelMapper<RecordType>, ConfigurableFeatureMapper {
+public class LabelFromFeatureMapper<RecordType> implements LabelMapper<RecordType>, ConfigurableLabelMapper {
     FeatureMapper<RecordType> delegate;
 
     /**

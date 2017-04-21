@@ -13,10 +13,6 @@ if [ -e configure.sh ]; then
  echo "Loading configure.sh"
  source configure.sh
 fi
-if [ -e configure-downsampling.sh ]; then
- echo "Loading configure-downsampling.sh"
- source configure-downsampling.sh
-fi
 
 if [ "$#" -lt 2 ]; then
    echo "Argument missing. You must provide a feature mapper classname to use in the iteration."
@@ -76,17 +72,18 @@ echo "Iteration for FEATURE_MAPPER=${FEATURE_MAPPER}"
 
 export FORCE_PLATFORM=native
 #rm ${DATASET}${TRAIN_SUFFIX}.sbi ${DATASET}${VAL_SUFFIX}*cf
-    train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+train-somatic.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
        --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} ${TRAINING_OPTIONS} \
-       --feature-mapper ${FEATURE_MAPPER} --net-architecture ${NETWORK_ARCHITECTURE} \
-       --build-cache-then-stop ${NETWORK_ARCHITECTURE_OPTION}
+       --feature-mapper ${FEATURE_MAPPER}  ${NETWORK_ARCHITECTURE_OPTION} \
+       --build-cache-then-stop
 dieIfError "Failed to map features with CPU build."
 
 OUTPUT_FILE=output-${RANDOM}.log
 unset FORCE_PLATFORM
 resetPlatform
 
-train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+
+    train-somatic.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
           --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
           ${TRAINING_OPTIONS} \
           --feature-mapper ${FEATURE_MAPPER} \
@@ -101,12 +98,6 @@ MODEL_TIME=`basename ${MODEL_DIR}`
 rm ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}*-genotypes.vcf
 rm ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}-*.bed
 
-predict-genotypes.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f \
-    -i ${DATASET}test.sbi ${PREDICT_OPTIONS} --mini-batch-size ${MINI_BATCH_SIZE} \
-    --format VCF
+predict.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f \
+    -i ${DATASET}test.sbi ${PREDICT_OPTIONS} --mini-batch-size ${MINI_BATCH_SIZE}
 dieIfError "Failed to predict statistics."
-
-export VCF_OUTPUT=`ls -1 ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}*-genotypes.vcf`
-export BED_OBSERVED_REGIONS_OUTPUT=`ls -1 ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}-*observed-regions.bed`
-evaluate-genotypes.sh ${MODEL_DIR} best${EVALUATION_METRIC_NAME}
-dieIfError "Failed to run rtg evaluation."

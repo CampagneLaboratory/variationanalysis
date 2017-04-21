@@ -111,7 +111,7 @@ public class RNNFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
                 if (i < sequenceLength) {
                     inputs.putScalar(indicesMapper, delegate.produceFeature(record, j));
                 } else {
-                    inputs.putScalar(indicesMapper, 0F);
+                    inputs.putScalar(indicesMapper, 0);
                 }
             }
         }

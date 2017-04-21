@@ -59,7 +59,7 @@ public class GenotypeMapperV8 extends GenotypeMapperV4 {
             genotypeIndex++;
         }
         delegate =
-                new CountReorderingMapper(new NamingConcatFeatureMapper<>(
+                new CountReorderingMapper(sampleIndex, new NamingConcatFeatureMapper<>(
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),
                         new MaxNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(

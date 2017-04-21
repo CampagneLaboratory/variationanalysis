@@ -13,11 +13,11 @@ import java.util.function.Function;
  * and the number of delegates- or the maxSequenceLength, which creates a set of
  * OneHotBaseLabelMappers with cardinality = maxSequenceLength- is the number of time
  * steps per label.
- *
+ * <p>
  * For sequences with lengths that are less than the number of delegates (i.e., the maxSequenceLength),
  * extra base indexes will not be masked- i.e., for # delegates = 6, and a label sequence [0,1], any features
  * corresponding to the 2nd through 5th indices will be 0, with a mask of 0
- *
+ * <p>
  * Example-
  * Sequence = ACT with a label [0, 1, 2]
  * OneHotBaseMapper at baseIndex = 0- maps to [1, 0, 0, 0]
@@ -25,12 +25,13 @@ import java.util.function.Function;
  * OneHotBaseMapper at baseIndex = 2- maps to [0, 0, 1, 0]
  * RNNFeatureMapper-
  * [[1, 0, 0],
- *  [0, 1, 0],
- *  [0, 0, 1],
- *  [0, 0, 0]]
+ * [0, 1, 0],
+ * [0, 0, 1],
+ * [0, 0, 0]]
  * Created by joshuacohen on 11/21/16.
  */
 public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
+    private final float epsilon;
     private int labelsPerTimeStep;
     private LabelMapper<RecordType>[] delegates;
     Function<RecordType, Integer> recordToSequenceLength;
@@ -45,26 +46,44 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
     /**
      * Constructor used to create an RNNLabelMapper with a set of OneHotBaseLabelMappers with
      * cardinality = maxSequenceLength as the delegate 1-dimensional feature mappers
-     * @param maxSequenceLength Maximum sequence length of any sequence in the set
-     * @param labelsPerTimeStep Number of labels for each OneHotBaseLabelMapper
-     * @param recordToLabel Function that converts a record to a string representation- used
-     *                       in OneHotBaseLabelMapper
+     *
+     * @param maxSequenceLength      Maximum sequence length of any sequence in the set
+     * @param labelsPerTimeStep      Number of labels for each OneHotBaseLabelMapper
+     * @param recordToLabel          Function that converts a record to a string representation- used
+     *                               in OneHotBaseLabelMapper
      * @param recordToSequenceLength Function that converts a record of a sequence to its length
      */
     public RNNLabelMapper(int maxSequenceLength, int labelsPerTimeStep, Function<RecordType, int[]> recordToLabel,
-                            Function<RecordType, Integer> recordToSequenceLength) {
+                          Function<RecordType, Integer> recordToSequenceLength) {
+        this(maxSequenceLength, labelsPerTimeStep, recordToLabel, recordToSequenceLength, 0);
+    }
+
+    /**
+     * Constructor used to create an RNNLabelMapper with a set of OneHotBaseLabelMappers with
+     * cardinality = maxSequenceLength as the delegate 1-dimensional feature mappers
+     *
+     * @param maxSequenceLength      Maximum sequence length of any sequence in the set
+     * @param labelsPerTimeStep      Number of labels for each OneHotBaseLabelMapper
+     * @param recordToLabel          Function that converts a record to a string representation- used
+     *                               in OneHotBaseLabelMapper
+     * @param recordToSequenceLength Function that converts a record of a sequence to its length
+     */
+    public RNNLabelMapper(int maxSequenceLength, int labelsPerTimeStep, Function<RecordType, int[]> recordToLabel,
+                          Function<RecordType, Integer> recordToSequenceLength, float epsilon) {
         this(recordToSequenceLength,
+                epsilon,
                 createOneHotBaseLabelMappers(maxSequenceLength, labelsPerTimeStep, recordToLabel));
     }
 
     /**
      * Constructor used to create an RNNFeatureMapper with an arbitrary set of delegates, all
      * with the same number of features
+     *
      * @param recordToSequenceLength Function that converts a record of a sequence to its length
-     * @param delegates Delegate label mappers
+     * @param delegates              Delegate label mappers
      */
     @SafeVarargs
-    public RNNLabelMapper(Function<RecordType, Integer> recordToSequenceLength,
+    public RNNLabelMapper(Function<RecordType, Integer> recordToSequenceLength, float epsilon,
                           LabelMapper<RecordType>... delegates) {
         this.recordToSequenceLength = recordToSequenceLength;
         MappedDimensions dimensions = delegates[0].dimensions();
@@ -80,6 +99,7 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
         this.labelsPerTimeStep = dimensions.numElements();
         this.delegates = delegates;
         dim = new MappedDimensions(labelsPerTimeStep, delegates.length);
+        this.epsilon = epsilon;
     }
 
     @Override
@@ -102,9 +122,9 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
             for (int j = 0; j < delegates[i].numberOfLabels(); j++) {
                 indicesMapper[1] = j;
                 if (i < sequenceLength) {
-                    labels.putScalar(indicesMapper, delegate.produceLabel(record, j));
+                    labels.putScalar(indicesMapper, delegate.produceLabel(record, j) - epsilon);
                 } else {
-                    labels.putScalar(indicesMapper, 0F);
+                    labels.putScalar(indicesMapper, epsilon);
                 }
             }
         }
@@ -131,7 +151,13 @@ public class RNNLabelMapper<RecordType> implements LabelMapper<RecordType> {
             return 0F;
         }
         int labelInDelegateIdx = labelIndex % labelsPerTimeStep;
-        return delegates[delegateIdx].produceLabel(record, labelInDelegateIdx);
+        //apply label smoothing:
+        final float v = delegates[delegateIdx].produceLabel(record, labelInDelegateIdx);
+        if (v > 0.5) {
+            return v - epsilon;
+        } else {
+            return epsilon;
+        }
     }
 
     @Override
