@@ -8,9 +8,11 @@ wget http://www.ebi.ac.uk/arrayexpress/files/E-MTAB-1883/E-MTAB-1883.processed.1
 The tools demonstrated here are intended to be used with DNA-Seq alignments.
 We use this sample for this tutorial because it is an RNA-Seq alignment and therefore smaller than most DNA-Seq alignments available for download.
 
-- Download the genome sequence corresponding to this alignment.
-```sh
-wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz
+- Download the genome sequence corresponding to this alignment:
+```
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/hg19/ucsc.hg19.fasta.faigz
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/hg19/ucsc.hg19.fasta.gz
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/hg19/ucsc.hg19.dict.gz
 ```
 Note that the build is hg19. The tools demonstrated here can be used with any build corresponding to the alignment. The only requirement is that alignment and genomes must match.
 
@@ -19,105 +21,103 @@ Click [on this link](ftp://platgene_ro@ussd-ftp.illumina.com/2016-1.0/hg19/small
 directory.
 Download
 
-Assemble a single genome fasta file:
-```
-gzip -c -d chromFa.tar.gz |tar -xvf -
-cat *.fa >ucsc_hg19.fasta
-rm *.fa
-```
 
 
 ### Download the software
 
- 1. Download and install Goby:
-Add Goby to the PATH:
-```sh
-export PATH=${PATH}:~/IdeaProjects/git/goby3
-```
+ 1. Download and install Goby and variationanalysis (maven is required for installation) We will add their tools to the path:
+ (This script assumes we are at goby version 3.2.4 and variationanalysis version 1.2.4):
+``
+git clone https://github.com/CampagneLaboratory/goby3.git
+git clone https://github.com/CampagneLaboratory/variationanalysis.git
+(cd goby3; mvn install)
+(cd variationanalysis; ./build-cpu.sh)
+(cd goby3/formal-releases; ./prepare-release.sh 1.2.4)
+unzip goby3/formal-releases/release-goby_3.2.4/goby.zip
+cd goby-3.2.4 ; export PATH=$(pwd):$PATH ; cd .. 
+cd variationanalysis/bin ; export PATH=$(pwd):$PATH ; cd ../..
 
-2. Download and install variationanalysis
-Add Variation analysis to the PATH (we assumed you downloaded version 1.2, adjust as needed):
-```sh
-export PATH=${PATH}:release-dlvariation_1.2/
 ```
 
 ### Prepare the training set
 
 Build the Goby genome cache:
 ```sh
-goby 10g build-sequence-cache ucsc_hg19.fasta
+goby 10g build-sequence-cache ucsc.hg19.fasta.gz
+```
+
+Some tools we use below execute a configure.sh file to set some of their parameters. Here are a good set of default settings.
+We set all chr2 positions to be moved to seperate test dataset, and will not train our model on these examples.
+
+```
+/bin/cat <<EOM >configure.sh
+export OUTPUT_PREFIX=GM_12878_processed
+export VAL_SUFFIX=validation
+export MINI_BATCH_SIZE=2048
+export LEARNING_RATE="3"
+EVALUATION_METRIC_NAME=score
+export SBI_GENOME=ucsg.hg19
+export FASTA_GENOME=ucsc.hg19.fasta
+export TRAINING_OPTIONS="--decision-threshold 0.4  --genomic-context-length 29 --label-smoothing-epsilon 0.17137805 --memory-cache none --num-layers 4 --regularization-rate 1.6938844983121584E-11 "
+export REF_SAMPLING_RATE=0.02
+export REALIGN_AROUND_INDELS=false
+export INCLUDE_INDELS=true
+SBI_SPLIT_OVERRIDE_DESTINATION=chr2
+EOM
 ```
 
 
-Convert the alignment file to a sequence base information (.sbi) file:
-```
- goby 10g discover-sequence-variants NA12878-sorted.bam \
-    --format SEQUENCE_BASE_INFORMATION     \
-    -o ./NA12878 \
-    --genome ucsc_hg19 \
-    -n 1 -t 1   \
-    --processor realign_near_indels    \
-    --call-indels false -x HTSJDKReaderImpl:force-sorted=true
-```
-(alternatively, with GNU parallel, do 
-```
-export SBI_GENOME=ucsc_hg19
-parallel-genotype-sbi.sh 10g NA12878-sorted.bam
-```
-)
 
-Randomize sites in the sbi file:
-
-```sh
- randomize.sh 10g -i NA12878.sbi -o NA12878-random
+Some tools are parallelized, so set memory usage parameters appropriate for your machine.
+Use no more than 1 thread for every 12gb of memory on your machine.
+```
+echo "export SBI_NUM_THREADS=4" >> configure.sh
+echo "export MEM_FOR_ASYNC=16g" >> configure.sh
+source configure.sh
 ```
 
-Add true labels from the ground-truth VCF:
+We recommend using GATK to realign around indels, for which we provide a tool that executes chromosomes in parallel.
+(Make sure to have GNU parallel installed and have downloaded a GATK jar).
+If you prefer, you can also use your preferred pipeline for producing a realigned bam file instead. Models trained will be very sensitive
+to the specifics of the pipeline used to train them, so make sure to reproduce the pipeline for data you want to make predictions on.
+Realignment can be very slow, so you can also skip this step for a faster demo:
 
 
- 1. Create a genotype map (a binary file that holds the true labels).
-```sh
-gzip -c -d  NA12878.vcf.gz|grep -v Child >NA12878-ok.vcf
-goby 4g vcf-to-genotype-map NA12878-ok.vcf -o  NA12878-true-genotypes.map
+```
+mv GM_12878_No1_110407_8_sorted.bam GM_12878_processed.bam
+```
+OR:
+```
+wget https://github.com/broadinstitute/picard/rneleases/download/2.9.0/picard.jar
+java -jar picard.jar AddOrReplaceReadGroups I=GM_12878_No1_110407_8_sorted.bam O=GM_12878_No1_110407_8_sorted_addRG.bam SO=coordinate RGID=NA12878 RGLB=NA12878 RGPL=ILLUMINA RGPU=Default RGSM=NA12878 CREATE_INDEX=true VALIDATION_STRINGENCY=LENIENT
+gunzip ucsc.hg19.fasta.gz
+gunzip ucsc.hg19.fasta.fai.gz
+gunzip ucsc.hg19.dict.gz
+java -jar picard.jar ReorderSam I=GM_12878_No1_110407_8_sorted_addRG.bam O=GM_12878_No1_110407_8_sorted_addRG_reorder.bam REFERENCE=ucsc.hg19.fasta VALIDATION_STRINGENCY=LENIENT
+parallel-gatk-realign.sh GenomeAnalysisTK.jar 12g ${SBI_NUM_THREADS} ucsc.hg19.fasta GM_12878_No1_110407_8_sorted_addRG_reorder.bam GM_12878_processed.bam
 ```
 
- 2. Add true genotypes to the site information:
-```sh
-add-true-genotypes.sh 1g  -m true-genotypes.map -i NA12878-random.sbi  -o NA12878-random-labeled --ref-sampling-rate 0.01
+
+
+Now, we will convert the realigned bam file to Goby alignements files. BAM files are not yet supported directly.
+```
+samtools index GM_12878_processed.bam
+parallel-bam-to-goby.sh $MEM_FOR_ASYNC GM_12878_processed.bam
 ```
 
-Split sites into training, validation and test sets:
-
-```sh
-split.sh 4g -i NA12878-random-labeled -f 0.9 -s training -f 0.05 -s validation -f 0.05 -s test -o NA12878-random-labeled-
+Now we will convert the alignment file to a sequence base information (.sbi) file. The sbi file serializes important
+information about individual position which we train our model on. The SBI file also stores the true label for each position.
+Non-variant sites will be down-sampled, because we've had better results training on a more balanced dataset.
+This file will be split into training, validation, and test sets, with positions inside randomly ordered.
+```
+generate-genotype-sets-0.02.sh $MEM_FOR_ASYNC GM_12878_processed  NA12878.vcf.gz ucsc.hg19
 ```
 
-Train the model:
-```sh
- train-genotype.sh 10g -t NA12878-random-labeled-training.sbi \
-                       -v NA12878-random-labeled-validation.sbi \
-                       -r 5 --mini-batch-size 512 \
-                       --feature-mapper org.campagnelab.dl.genotype.mappers.GenotypeMapperV3
+
+Iterate will train a model, make predictions on the hold-out test set, and report statistics about the prediction.
+```
+export DATE=`date +%Y-%m-%d`
+echo "export DATASET=${OUTPUT_PREFIX}-${DATE}-" >> configure.sh
+iterate-genotype.sh org.campagnelab.dl.genotype.mappers.GenotypeMapperV28 0
 ```
 
-You can monitor the performance of the model being trained in the models/[timestamp] director:
-```
-tail -f `ls -tr1 models/*/epoch*|tail -1`
-```
-Will show:
-```tsv
-numExamples	epoch	accuracy	alleleAcc	score	condition
-1187647	0	0.964349	0.992858	0.342842	not_specified
-2375294	1	0.965719	0.993168	0.322654	not_specified
-3562941	2	0.966069	0.993262	0.314700	not_specified
-```
-
-Training may need to proceed for tens or hundreds of epochs to converge.
-On CPU, each epoch may take a few minutes. On GPU only a few seconds.
-`
-Calculate performance metrics on the test set:
-```sh
-predict-genotypes.sh 10g -m models/1482038746102 -l bestAUC -i NA12878-random-labeled-test.sbi
-```
-
-The results are in the ```predict-statistics.tsv``` file.
