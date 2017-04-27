@@ -248,71 +248,179 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         }
         //write to respective builders and return rebuild
         BaseInformationRecords.SampleInfo.Builder somaticBuild = somatic.toBuilder();
+        BaseInformationRecords.CountInfo.Builder sourceBuild = somaticBuild.getCounts(oldBase).toBuilder();
+        BaseInformationRecords.CountInfo.Builder destBuild = somaticBuild.getCounts(oldBase).toBuilder();
 
 
-        //generate mutated numVariationsLists score lists (some boilerplate here...)
-        //will add 1 to mutated variant counts using mutateIntegerListsVarAdd
-        List<Integer> fromVC = new ObjectArrayList<Integer>();
-        List<Integer> toVC = new ObjectArrayList<Integer>();
-        if (somaticBuild.getCounts(oldBase).getNumVariationsInReadsCount() > 0) {
-
-            //forward strand
-            fromVC.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(oldBase).getNumVariationsInReadsList()));
-            toVC.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(newBase).getNumVariationsInReadsList()));
-            mutateIntegerListsVarAdd(fMutCount, fromVC, toVC, somaticBuild.getCounts(oldBase).getMatchesReference(), somaticBuild.getCounts(newBase).getMatchesReference());
-        }
-
-        //generate mutated insert sizes lists (some boilerplate here...)
-        List<Integer> fromIS = new ObjectArrayList<Integer>();
-        List<Integer> toIS = new ObjectArrayList<Integer>();
-        if (somaticBuild.getCounts(oldBase).getNumVariationsInReadsCount() > 0) {
-
-            //forward strand
-            fromIS.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(oldBase).getInsertSizesList()));
-            toIS.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(newBase).getInsertSizesList()));
-            mutateIntegerLists(fMutCount, fromIS, toIS);
+        {
+            //forward Quality
+            List<BaseInformationRecords.NumberWithFrequency> forwardQualitySource = somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList();
+            List<BaseInformationRecords.NumberWithFrequency> forwardQualityDest = somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList();
+            mutateNumWithFreqLists(fMutCount,forwardQualitySource,forwardQualityDest);
+            sourceBuild.clearQualityScoresForwardStrand();
+            destBuild.clearQualityScoresForwardStrand();
+            sourceBuild.addAllQualityScoresForwardStrand(forwardQualitySource);
+            destBuild.addAllQualityScoresForwardStrand(forwardQualityDest);
         }
 
 
-        //generate mutated quality score lists (some boilerplate here...)
-        //get old list of from scores
-        List<Integer> fromForward = new ObjectArrayList<Integer>();
-        List<Integer> fromBackward = new ObjectArrayList<Integer>();
-        List<Integer> toForward = new ObjectArrayList<Integer>();
-        List<Integer> toBackward = new ObjectArrayList<Integer>();
-        if (somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandCount() > 0 && somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandCount() > 0) {
+        {
+            //reverse Quality
+            List<BaseInformationRecords.NumberWithFrequency> reverseQualitySource = somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList();
+            List<BaseInformationRecords.NumberWithFrequency> reverseQualityDest = somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList();
+            mutateNumWithFreqLists(bMutCount, reverseQualitySource, reverseQualityDest);
+            sourceBuild.clearQualityScoresReverseStrand();
+            destBuild.clearQualityScoresReverseStrand();
+            sourceBuild.addAllQualityScoresReverseStrand(reverseQualitySource);
+            destBuild.addAllQualityScoresReverseStrand(reverseQualityDest);
+        }
 
-            //forward strand
-            fromForward.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList()));
-            toForward.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList()));
-            mutateIntegerLists(fMutCount, fromForward, toForward);
+        {
 
-            //reverse strand
-            fromBackward.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList()));
-            toBackward.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList()));
-            mutateIntegerLists(bMutCount, fromBackward, toBackward);
+            //forward readIndices
+            List<BaseInformationRecords.NumberWithFrequency> forwardReadIndicesSource = somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList();
+            List<BaseInformationRecords.NumberWithFrequency> forwardReadIndicesDest = somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList();
+            mutateNumWithFreqLists(fMutCount, forwardReadIndicesSource, forwardReadIndicesDest);
+            sourceBuild.clearReadIndicesForwardStrand();
+            destBuild.clearReadIndicesForwardStrand();
+            sourceBuild.addAllReadIndicesForwardStrand(forwardReadIndicesSource);
+            destBuild.addAllReadIndicesForwardStrand(forwardReadIndicesDest);
 
         }
 
-        //generate mutated readIndex lists
-        List<Integer> fromForwardR = new ObjectArrayList<Integer>();
-        List<Integer> fromBackwardR = new ObjectArrayList<Integer>();
-        List<Integer> toForwardR = new ObjectArrayList<Integer>();
-        List<Integer> toBackwardR = new ObjectArrayList<Integer>();
-        if (somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandCount() > 0 && somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandCount() > 0) {
+        {
+            //reverse readIndices
+            List<BaseInformationRecords.NumberWithFrequency> reverseReadIndicesSource = somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList();
+            List<BaseInformationRecords.NumberWithFrequency> reverseReadIndicesDest = somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList();
+            mutateNumWithFreqLists(bMutCount,reverseReadIndicesSource, reverseReadIndicesDest);
+            sourceBuild.clearReadIndicesReverseStrand();
+            destBuild.clearReadIndicesReverseStrand();
+            sourceBuild.addAllReadIndicesReverseStrand(reverseReadIndicesSource);
+            destBuild.addAllReadIndicesReverseStrand(reverseReadIndicesDest);
+        }
 
-            //forward strand
-            fromForwardR.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList()));
-            toForwardR.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList()));
-            mutateIntegerLists(fMutCount, fromForwardR, toForwardR);
 
-            //reverse strand
-            fromBackwardR.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList()));
-            toBackwardR.addAll(ProtoPredictor.expandFreq(somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList()));
-            mutateIntegerLists(bMutCount, fromBackwardR, toBackwardR);
 
+        {
+            //forward mapping quality
+            List<BaseInformationRecords.NumberWithFrequency> forwardMQualitySource = somaticBuild.getCounts(oldBase).getReadMappingQualityForwardStrandList();
+            List<BaseInformationRecords.NumberWithFrequency> forwardMQualityDest = somaticBuild.getCounts(newBase).getReadMappingQualityForwardStrandList();
+            mutateNumWithFreqLists(fMutCount,forwardMQualitySource,forwardMQualityDest);
+            sourceBuild.clearReadMappingQualityForwardStrand();
+            destBuild.clearReadMappingQualityForwardStrand();
+            sourceBuild.addAllReadMappingQualityForwardStrand(forwardMQualitySource);
+            destBuild.addAllReadMappingQualityForwardStrand(forwardMQualityDest);
+        }
+
+
+        {
+            //reverse mapping quality
+            List<BaseInformationRecords.NumberWithFrequency> reverseMQualitySource = somaticBuild.getCounts(oldBase).getReadMappingQualityReverseStrandList();
+            List<BaseInformationRecords.NumberWithFrequency> reverseMQualityDest = somaticBuild.getCounts(newBase).getReadMappingQualityReverseStrandList();
+            mutateNumWithFreqLists(bMutCount,reverseMQualitySource,reverseMQualityDest);
+            sourceBuild.clearReadMappingQualityReverseStrand();
+            destBuild.clearReadMappingQualityReverseStrand();
+            sourceBuild.addAllReadMappingQualityReverseStrand(reverseMQualitySource);
+            destBuild.addAllReadMappingQualityReverseStrand(reverseMQualityDest);
+        }
+
+
+        {
+            //numvariationinread read
+            List<BaseInformationRecords.NumberWithFrequency> numVariationSource = somaticBuild.getCounts(oldBase).getNumVariationsInReadsList();
+            List<BaseInformationRecords.NumberWithFrequency> numVariationDest = somaticBuild.getCounts(newBase).getNumVariationsInReadsList();
+            mutateNumWithFreqLists(fMutCount+bMutCount,numVariationSource,numVariationDest);
+            sourceBuild.clearNumVariationsInReads();
+            destBuild.clearNumVariationsInReads();
+            sourceBuild.addAllNumVariationsInReads(numVariationSource);
+            destBuild.addAllNumVariationsInReads(numVariationSource);
+        }
+
+
+        {
+            //target aligned length
+            List<BaseInformationRecords.NumberWithFrequency> targetLengthsSource = somaticBuild.getCounts(oldBase).getTargetAlignedLengthsList();
+            List<BaseInformationRecords.NumberWithFrequency> targetLengthsDest = somaticBuild.getCounts(newBase).getTargetAlignedLengthsList();
+            mutateNumWithFreqLists(fMutCount+bMutCount,targetLengthsSource,targetLengthsDest);
+            sourceBuild.clearTargetAlignedLengths();
+            destBuild.clearTargetAlignedLengths();
+            sourceBuild.addAllTargetAlignedLengths(targetLengthsSource);
+            destBuild.addAllTargetAlignedLengths(targetLengthsDest);
+        }
+
+        {
+            //query aligned length
+            List<BaseInformationRecords.NumberWithFrequency> queryLengthsSource = somaticBuild.getCounts(oldBase).getTargetAlignedLengthsList();
+            List<BaseInformationRecords.NumberWithFrequency> queryLengthsDest = somaticBuild.getCounts(newBase).getTargetAlignedLengthsList();
+            mutateNumWithFreqLists(fMutCount+bMutCount,queryLengthsSource,queryLengthsDest);
+            sourceBuild.clearQueryAlignedLengths();
+            destBuild.clearQueryAlignedLengths();
+            sourceBuild.addAllQueryAlignedLengths(queryLengthsSource);
+            destBuild.addAllQueryAlignedLengths(queryLengthsDest);
+        }
+
+
+        {
+            //distances to forward read vars
+            List<BaseInformationRecords.NumberWithFrequency> distToVarsForwardSource = somaticBuild.getCounts(oldBase).getDistancesToReadVariationsForwardStrandList();
+            List<BaseInformationRecords.NumberWithFrequency> distToVarsForwardDest = somaticBuild.getCounts(newBase).getDistancesToReadVariationsForwardStrandList();
+            mutateNumWithFreqLists(fMutCount,distToVarsForwardSource,distToVarsForwardDest);
+            sourceBuild.clearDistancesToReadVariationsForwardStrand();
+            destBuild.clearDistancesToReadVariationsForwardStrand();
+            sourceBuild.addAllDistancesToReadVariationsForwardStrand(distToVarsForwardSource);
+            destBuild.addAllDistancesToReadVariationsForwardStrand(distToVarsForwardDest);
+        }
+
+
+        {
+            //distances to reverse read vars Reverse
+            List<BaseInformationRecords.NumberWithFrequency> distToVarsReverseSource = somaticBuild.getCounts(oldBase).getDistancesToReadVariationsReverseStrandList();
+            List<BaseInformationRecords.NumberWithFrequency> distToVarsReverseDest = somaticBuild.getCounts(newBase).getDistancesToReadVariationsReverseStrandList();
+            mutateNumWithFreqLists(bMutCount,distToVarsReverseSource,distToVarsReverseDest);
+            sourceBuild.clearDistancesToReadVariationsReverseStrand();
+            destBuild.clearDistancesToReadVariationsReverseStrand();
+            sourceBuild.addAllDistancesToReadVariationsReverseStrand(distToVarsReverseSource);
+            destBuild.addAllDistancesToReadVariationsReverseStrand(distToVarsReverseDest);
+        }
+
+
+        {
+            //pairFlags
+            List<BaseInformationRecords.NumberWithFrequency> pairFlagsSource = somaticBuild.getCounts(oldBase).getPairFlagsList();
+            List<BaseInformationRecords.NumberWithFrequency> pairFlagsDest = somaticBuild.getCounts(newBase).getPairFlagsList();
+            mutateNumWithFreqLists(fMutCount+bMutCount,pairFlagsSource,pairFlagsDest);
+            sourceBuild.clearPairFlags();
+            destBuild.clearPairFlags();
+            sourceBuild.addAllPairFlags(pairFlagsSource);
+            destBuild.addAllPairFlags(pairFlagsDest);
 
         }
+
+        {
+            //query positions
+            List<BaseInformationRecords.NumberWithFrequency> queryPositionsSource = somaticBuild.getCounts(oldBase).getQueryPositionsList();
+            List<BaseInformationRecords.NumberWithFrequency> queryPositionsDest = somaticBuild.getCounts(newBase).getQueryPositionsList();
+            mutateNumWithFreqLists(fMutCount+bMutCount,queryPositionsSource,queryPositionsDest);
+            sourceBuild.clearQueryPositions();
+            destBuild.clearQueryPositions();
+            sourceBuild.addAllQueryPositions(queryPositionsSource);
+            destBuild.addAllQueryPositions(queryPositionsDest);
+        }
+
+        {
+            //insert sizes
+            List<BaseInformationRecords.NumberWithFrequency> insertSizesSource = somaticBuild.getCounts(oldBase).getInsertSizesList();
+            List<BaseInformationRecords.NumberWithFrequency> insertSizesDest = somaticBuild.getCounts(newBase).getInsertSizesList();
+            mutateNumWithFreqLists(fMutCount+bMutCount,insertSizesSource,insertSizesDest);
+            sourceBuild.clearInsertSizes();
+            destBuild.clearInsertSizes();
+            sourceBuild.addAllInsertSizes(insertSizesSource);
+            destBuild.addAllInsertSizes(insertSizesDest);
+        }
+
+
+
+
         String mutatedAllele = "?";
 
 
@@ -321,53 +429,6 @@ public class FirstSimulationStrategy implements SimulationStrategy {
             BaseInformationRecords.CountInfo.Builder countBuild = count.toBuilder();
             countBuild.setGenotypeCountForwardStrand(forward[i]);
             countBuild.setGenotypeCountReverseStrand(backward[i]);
-            if (i == oldBase) {
-                //replace quality scores
-                countBuild.clearQualityScoresForwardStrand();
-                countBuild.clearQualityScoresReverseStrand();
-                countBuild.addAllQualityScoresForwardStrand(ProtoHelper.compressFreq(fromForward));
-                countBuild.addAllQualityScoresReverseStrand(ProtoHelper.compressFreq(fromBackward));
-
-                //replace readIndices
-                countBuild.clearReadIndicesForwardStrand();
-                countBuild.clearReadIndicesReverseStrand();
-                countBuild.addAllReadIndicesForwardStrand(ProtoHelper.compressFreq(fromForwardR));
-                countBuild.addAllReadIndicesReverseStrand(ProtoHelper.compressFreq(fromBackwardR));
-
-                //replace numVars
-                countBuild.clearNumVariationsInReads();
-                countBuild.addAllNumVariationsInReads(ProtoHelper.compressFreq(fromVC));
-
-                //replace insert sizes
-                countBuild.clearInsertSizes();
-                countBuild.addAllInsertSizes(ProtoHelper.compressFreq(fromIS));
-
-
-            } else if (i == newBase) {
-                mutatedAllele = countBuild.getToSequence();
-                //replace quality scores
-                countBuild.clearQualityScoresForwardStrand();
-                countBuild.clearQualityScoresReverseStrand();
-                countBuild.addAllQualityScoresForwardStrand(ProtoHelper.compressFreq(toForward));
-                countBuild.addAllQualityScoresReverseStrand(ProtoHelper.compressFreq(toBackward));
-
-                //replace readIndices
-                countBuild.clearReadIndicesForwardStrand();
-                countBuild.clearReadIndicesReverseStrand();
-                countBuild.addAllReadIndicesForwardStrand(ProtoHelper.compressFreq(toForwardR));
-                countBuild.addAllReadIndicesReverseStrand(ProtoHelper.compressFreq(toBackwardR));
-                baseBuild.setMutatedBase(count.getToSequence());
-
-                //replace numVars
-                countBuild.clearNumVariationsInReads();
-                countBuild.addAllNumVariationsInReads(ProtoHelper.compressFreq(toVC));
-
-                //replace insert sizes
-                countBuild.clearInsertSizes();
-                countBuild.addAllInsertSizes(ProtoHelper.compressFreq(toIS));
-
-
-            }
             somaticBuild.setCounts(i, countBuild);
             i++;
         }
@@ -385,6 +446,27 @@ public class FirstSimulationStrategy implements SimulationStrategy {
     public void setSeed(long seed) {
         rand = new XorShift1024StarRandom(seed);
     }
+
+
+
+    private void mutateNumWithFreqLists(int fMutCount, List<BaseInformationRecords.NumberWithFrequency> source, List<BaseInformationRecords.NumberWithFrequency> dest){
+        List<Integer> from = new ObjectArrayList<Integer>();
+        List<Integer> to = new ObjectArrayList<Integer>();
+        if (source.size() > 0) {
+
+            //forward strand
+            from.addAll(ProtoPredictor.expandFreq(source));
+            to.addAll(ProtoPredictor.expandFreq(dest));
+            mutateIntegerLists(fMutCount, from, to);
+
+        }
+        source.clear();
+        dest.clear();
+        source.addAll(ProtoHelper.compressFreq(from));
+        dest.addAll(ProtoHelper.compressFreq(to));
+
+    }
+
 
     private void mutateIntegerLists(int fMutCount, List<Integer> source, List<Integer> dest) {
         Collections.shuffle(source, rand);
