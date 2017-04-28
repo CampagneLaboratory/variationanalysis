@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
+import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
 import org.campagnelab.dl.somatic.mappers.*;
 import org.campagnelab.dl.somatic.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -12,9 +13,9 @@ import java.util.Properties;
 /**
  * A somatic feature mapper that reuses GenotypeMapperV28 and adds somatic specific features.
  */
-public class SomaticFeatureMapperV26 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+public class SomaticFeatureMapper extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
         implements ConfigurableFeatureMapper {
-    private NamingConcatFeatureMapper delegate;
+    private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
 
     private String recordTo(final int contextLength, BaseInformationRecords.BaseInformationOrBuilder record, int countIndex) {
         return MappingFunctions.recordTo(contextLength, record, countIndex);
@@ -28,17 +29,16 @@ public class SomaticFeatureMapperV26 extends NamingConcatFeatureMapper<BaseInfor
     public void configure(Properties sbiProperties) {
 
 
-        final GenotypeMapperV28 a = new GenotypeMapperV28(0);
-        final GenotypeMapperV28 b = new GenotypeMapperV28(1);
+        final OneSampleMapperUnsortedV28 a = new OneSampleMapperUnsortedV28(0);
+        final OneSampleMapperUnsortedV28 b = new OneSampleMapperUnsortedV28(1);
         a.configure(sbiProperties);
         b.configure(sbiProperties);
-        delegate = new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(
+        delegate = new CountReorderingMapper(1, new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                 a,
                 b,
                 new FractionDifferences4(),
-                new MagnitudeFeatures2(),
-                new SimpleFeatureCalculator(true)
-        );
+                new MagnitudeFeatures2()
+        ));
 
 
     }
