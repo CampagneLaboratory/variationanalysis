@@ -249,7 +249,7 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         //write to respective builders and return rebuild
         BaseInformationRecords.SampleInfo.Builder somaticBuild = somatic.toBuilder();
         BaseInformationRecords.CountInfo.Builder sourceBuild = somaticBuild.getCounts(oldBase).toBuilder();
-        BaseInformationRecords.CountInfo.Builder destBuild = somaticBuild.getCounts(oldBase).toBuilder();
+        BaseInformationRecords.CountInfo.Builder destBuild = somaticBuild.getCounts(newBase).toBuilder();
 
 
         {
@@ -426,12 +426,17 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         i = 0;
         for (BaseInformationRecords.CountInfo count : somaticBuild.getCountsList()) {
+            if (i==newBase){
+                mutatedAllele = count.getToSequence();
+                baseBuild.setMutatedBase(count.getToSequence());
+            }
             BaseInformationRecords.CountInfo.Builder countBuild = count.toBuilder();
             countBuild.setGenotypeCountForwardStrand(forward[i]);
             countBuild.setGenotypeCountReverseStrand(backward[i]);
             somaticBuild.setCounts(i, countBuild);
             i++;
         }
+
         somaticBuild.setFormattedCounts(Mutate.regenerateFormattedCounts(somaticBuild, mutatedAllele));
         baseBuild.setSamples(numSamples - 1, somaticBuild);
         baseBuild.setFrequencyOfMutation((float) frequency);
