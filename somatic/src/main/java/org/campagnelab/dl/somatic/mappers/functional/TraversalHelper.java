@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -79,6 +80,29 @@ public class TraversalHelper {
         BaseInformationRecords.CountInfo countInfo = baseInformationOrBuilder.getSamples(sampleIndex).getCounts(genotypeIndex);
         list.addAll(forwardFunction.apply(countInfo));
         list.addAll(reverseFunction.apply(countInfo));
+        return list;
+    }
+
+
+    /**
+     * Define a Function to reduce a record to a list of NumberWithFrequency found across N samples and counts of these samples.
+     * @param baseInformationOrBuilder
+     * @param function
+     * @return
+     */
+    public static List<BaseInformationRecords.NumberWithFrequency> forNSampleCounts(Set<Integer> sampleIndices, BaseInformationRecords.BaseInformationOrBuilder baseInformationOrBuilder,
+                                                                                      Function<BaseInformationRecords.CountInfo,List<BaseInformationRecords.NumberWithFrequency>> function) {
+        List<BaseInformationRecords.NumberWithFrequency> list = new ObjectArrayList<>();
+
+        for (int i = 0; i < baseInformationOrBuilder.getSamplesList().size(); i++) {
+            if (!sampleIndices.contains(i)) {
+                continue;
+            }
+            BaseInformationRecords.SampleInfo si = baseInformationOrBuilder.getSamples(i);
+            for (BaseInformationRecords.CountInfo ci : si.getCountsList()){
+                list.addAll(function.apply(ci));
+            }
+        }
         return list;
     }
 }
