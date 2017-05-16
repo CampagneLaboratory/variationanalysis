@@ -18,8 +18,20 @@ public class DensityMapperCapped extends DensityMapper {
 
     int numLinearBins;
 
+    public DensityMapperCapped(String name1, int linearBinMin, int linearBinMax, Properties sbiProperties,
+                               Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues) {
+        super(name1, 1, sbiProperties, recordToValues, Integer::floatValue);
+        //now cap bins:
+        this.numBins = linearBinMax - linearBinMin;
+        this.linearBinMax = linearBinMax;
+        this.linearBinMin = linearBinMin;
+        bins = new float[this.numBins];
+        this.recordToValues = recordToValues;
+        this.binWidth = 1;
+    }
+
     public DensityMapperCapped(String name1, String name2, int linearBinMin, int linearBinMax, Properties sbiProperties,
-                         Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues
+                               Function<BaseInformationRecords.BaseInformationOrBuilder, List<BaseInformationRecords.NumberWithFrequency>> recordToValues
     ) {
 
         super(name1, name2, 1, sbiProperties, recordToValues, Integer::floatValue);
@@ -31,8 +43,6 @@ public class DensityMapperCapped extends DensityMapper {
         this.recordToValues = recordToValues;
         this.binWidth = 1;
     }
-
-
 
 
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
