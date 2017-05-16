@@ -27,6 +27,7 @@ import java.util.Scanner;
  *
  * @author rct66
  */
+
 public class DebugGenotype extends AbstractTool<DebugGenotypeArguments> {
 
 
@@ -73,10 +74,10 @@ public class DebugGenotype extends AbstractTool<DebugGenotypeArguments> {
         RecordReader source = null;
         try {
             if (args().genotypeMap != null){
-                source = new RecordReader(args().inputFile);
-                queryFile = true;
+                varMap = new VariantMapHelper(args().genotypeMap);
             }
-            varMap = new VariantMapHelper(args().genotypeMap);
+            source = new RecordReader(args().inputFile);
+            queryFile = true;
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Unable to load true genotype map with filename " + args().genotypeMap, e);
         }
@@ -99,9 +100,20 @@ public class DebugGenotype extends AbstractTool<DebugGenotypeArguments> {
                 System.out.println("refId:pos badly formatted. try again or exit.");
                 continue;
             }
+            Integer pos2 = null;
+            try {
+                pos2 = Integer.parseInt(split[2]) - 1;
+            } catch (ArrayIndexOutOfBoundsException | NumberFormatException e){
+                continue;
+            }
 
             //now find true genotype (map or genome)
-            Variant var = varMap.getVariant(chr,pos);
+            Variant var = null;
+            if (varMap != null) {
+                var = varMap.getVariant(chr,pos);
+            } else {
+                System.out.println("no varmap given");
+            }
             String trueGenotype = "True Genotype ";
             if (var == null) {
                 trueGenotype += " not in varmap:\n";
@@ -125,6 +137,15 @@ public class DebugGenotype extends AbstractTool<DebugGenotypeArguments> {
             ProgressLogger recordLogger = new ProgressLogger(LOG);
             System.out.println("scanning from total of " + source.numRecords() + " records.");
             for (BaseInformationRecords.BaseInformation rec :  source){
+                if (pos2 != null){
+                    if (rec.getPosition() >= pos && rec.getPosition() <= pos2 && rec.getReferenceId().equals(chr)){
+                        System.out.println(rec.getReferenceId() + ":" + rec.getPosition() + ":" + rec.getSamples(0).getFormattedCounts());
+                    }
+                    if (rec.getPosition() == pos2){
+                        break;
+                    }
+                    continue;
+                }
                 if (rec.getPosition() == pos && rec.getReferenceId().equals(chr)){
                     System.out.println ("\n SBI record: \n" + rec);
                     if (featureMapper!=null){
