@@ -163,6 +163,8 @@ public class GenotypeMapperV30 extends GenotypeMapperV11 {
                                         CountInfoOrBuilder::getNumVariationsInReadsList)),
 
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(distancesToReadVariations),
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(distancesFromStartOfRead),
+                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(distancesFromEndOfRead),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(numVariationsInReadMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readMappingQualityMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(baseQualityMappers),
