@@ -76,9 +76,9 @@ echo "Iteration for FEATURE_MAPPER=${FEATURE_MAPPER}"
 
 export FORCE_PLATFORM=native
 #rm ${DATASET}${TRAIN_SUFFIX}.sbi ${DATASET}${VAL_SUFFIX}*cf
-    train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
        --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} ${TRAINING_OPTIONS} \
-       --feature-mapper ${FEATURE_MAPPER} --net-architecture ${NETWORK_ARCHITECTURE} \
+       --feature-mapper ${FEATURE_MAPPER} ${NETWORK_ARCHITECTURE} \
        --build-cache-then-stop ${NETWORK_ARCHITECTURE_OPTION}
 dieIfError "Failed to map features with CPU build."
 
