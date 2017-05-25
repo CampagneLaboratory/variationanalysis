@@ -104,7 +104,6 @@ public class DebugGenotype extends AbstractTool<DebugGenotypeArguments> {
             try {
                 pos2 = Integer.parseInt(split[2]) - 1;
             } catch (ArrayIndexOutOfBoundsException | NumberFormatException e){
-                continue;
             }
 
             //now find true genotype (map or genome)
