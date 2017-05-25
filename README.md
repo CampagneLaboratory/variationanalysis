@@ -24,7 +24,7 @@ You can download the binary distribution here:
 
 # Tutorials
 
-We provide a [tutorial](./GENOTYPE-TUTORIAL-SHORT.md) for the somatic calling models.
+We provide a [tutorial](./SOMATIC-TUTORIAL.md) for the somatic calling models.
 It is strongly recommended that you read the tutorial at this time. It
 demonstrates an end-to-end application where we collect data, train a model,
 and use it in an application. The domain is genomics, but you will get an idea
