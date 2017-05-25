@@ -29,28 +29,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-cuda-8.0:linux-x86_64:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-api:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-buffer:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-common:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-context:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-api:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-core:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-nn:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:jackson:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.datavec:datavec-nd4j-common:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.datavec:datavec-api:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.datavec:datavec-data-image:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-nlp:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-jackson:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-ui_2.10:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-play_2.10:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-ui-model:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-ui-resources:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-cuda-8.0:0.7.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.2.2-SNAPSHOT" level="project" />
-    <orderEntry type="module" module-name="framework" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-platform:0.8.0" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:0.8.0" level="project" />
@@ -203,7 +181,7 @@
     <orderEntry type="library" name="Maven: io.aeron:aeron-all:1.0.4" level="project" />
     <orderEntry type="library" name="Maven: uk.co.real-logic:sbe-all:1.5.4" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-parameter-server-client:0.8.0" level="project" />
-    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.2.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.2.5" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.icb:icb-utils:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.ibm.icu:icu4j:3.4.4" level="project" />
     <orderEntry type="library" name="Maven: commons-beanutils:commons-beanutils:1.8.3" level="project" />
