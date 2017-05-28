@@ -111,7 +111,7 @@ public class ArgGenerator {
                         value = Integer.toString((rand.nextInt(maxI - minI + 1) + minI));
                         break;
                     default:
-                        throw new RuntimeException("There was a problem parsing the config. A non-existent argType ([categorical|uniform|log-uniform|int]) may have been used.");
+                        throw new RuntimeException("There was a problem parsing the config. A non-existent argType ([categorical|uniform|log-uniform|int]) may have been used: "+argType);
                 }
                 command.append(argName + " " + value + " ");
             }
