@@ -25,7 +25,6 @@ int
 1
 3
 
-
 --model-capacity
 uniform
 0.3
@@ -83,7 +82,7 @@ cat << EOF | cat>gpu.txt
 3
 EOF
 
-echo $* >-command.txt
+echo $* >main-command.txt
 NUM_GPUS=`wc -l gpu.txt|cut -d " " -f 1`
 
 num_executions=${memory_requirement}
