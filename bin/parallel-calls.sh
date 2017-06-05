@@ -3,6 +3,7 @@
 
 assertGobyInstalled
 assertParallelInstalled
+assertBctftoolsInstalled
 
 # Call Genotypes across an alignment, using a DL variationanalysis model and Goby3:
 # Usage: parallel-calls.sh 10g model alignment.entries

@@ -14,6 +14,10 @@ function assertParallelInstalled {
     echo donothing |parallel echo >/dev/null 2>&1 || { echo >&2 "This script requires GNU parallel, but it's not installed. Aborting. Install GNU parallel and try again."; exit 1; }
 }
 
+function assertBctftoolsInstalled {
+  bcftools >/dev/null 2>&1 || { echo >&2 "This script requires bcftools but it's not installed. Aborting. Install bcftools and add it to your path, then try again."; exit 1; }
+}
+
 function loadConfigure {
 
     if [ -e configure.sh ]; then
