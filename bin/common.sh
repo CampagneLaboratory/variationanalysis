@@ -15,7 +15,8 @@ function assertParallelInstalled {
 }
 
 function assertBctftoolsInstalled {
-  bcftools >/dev/null 2>&1 || { echo >&2 "This script requires bcftools but it's not installed. Aborting. Install bcftools and add it to your path, then try again."; exit 1; }
+  bcftools >/dev/null 2>&1 || if [ $? !=1 ]; then  { echo >&2 "This script requires bcftools but it's not installed. Aborting. Install bcftools and add it to your path, then try again."; exit 1; }
+  fi
 }
 
 function loadConfigure {

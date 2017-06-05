@@ -4,6 +4,7 @@
 assertGobyInstalled
 assertParallelInstalled
 assertBctftoolsInstalled
+. ./configure.sh
 
 # Call Genotypes across an alignment, using a DL variationanalysis model and Goby3:
 # Usage: parallel-calls.sh 10g model alignment.entries
@@ -56,9 +57,17 @@ fi
 
 echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
 
-goby 8g suggest-position-slices ${ALIGNMENTS} --modulo 1000 --number-of-slices ${GOBY_NUM_SLICES} -o slices.tsv
+set -x
+goby 8g suggest-position-slices ${ALIGNMENTS} --modulo 1000 --restrict-per-chromosome --number-of-slices ${GOBY_NUM_SLICES} -o slices.tsv
 grep -v targetIdStart slices.tsv >slices
 
+if [  -z "${LIMIT_TO_CHROMOSOME+set}" ]; then
+  echo "Set LIMIT_TO_CHROMOSOME to call only one chromosome";
+ else
+  # eliminate any slice that does not match the chromosome:
+  grep "${LIMIT_TO_CHROMOSOME}," slices >filtered_slices
+  mv filtered_slices slices
+fi
 
 echo " discover-sequence-variants -n 0 -t 1 --genome  ${SBI_GENOME} --format  GENOTYPES  ${ALIGNMENTS} \
     --call-indels  ${INCLUDE_INDELS} ${REALIGNMENT_OPTION} \
@@ -74,4 +83,4 @@ parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby ${memory_requi
 # keep a log of the commands that were used to generate this dataset:
 cp command.txt command-`date +%h_%d_%H_%M`.txt
 
-bcftools concat calls-part-*.vcf -o OUTPUT_BASENAME.vcf
+bcftools concat calls-part-*.vcf --output-type z -o ${OUTPUT_BASENAME}.vcf
