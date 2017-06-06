@@ -89,6 +89,7 @@ parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby ${memory_requi
 cp command.txt command-`date +%h_%d_%H_%M`.txt
 
 echo "Concatenating VCF files."
-goby ${memory_requirement} fdr calls-part-*.vcf -o ${OUTPUT_BASENAME}.vcf
-bgzip ${OUTPUT_BASENAME}.vcf
+goby ${memory_requirement} fdr calls-part-*.vcf -o output.vcf
+cat  output.vcf |vcf-sort >${OUTPUT_BASENAME}.vcf
+bgzip -f ${OUTPUT_BASENAME}.vcf
 bcftools index ${OUTPUT_BASENAME}.vcf.gz
