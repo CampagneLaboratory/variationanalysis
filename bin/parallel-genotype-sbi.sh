@@ -52,7 +52,7 @@ if [ -z "${REALIGN_AROUND_INDELS+set}" ]; then
     echo "Set REALIGN_AROUND_INDELS to true to enable realignment around indels."
     REALIGNMENT_OPTION=" "
 else
-   if ["${REALIGN_AROUND_INDELS}" == "true"]; then
+   if [ "${REALIGN_AROUND_INDELS}" == "true" ]; then
        echo "REALIGN_AROUND_INDELS set to ${REALIGN_AROUND_INDELS}. ENABLED realignment around indels."
        REALIGNMENT_OPTION="--processor realign_near_indels"
    else
