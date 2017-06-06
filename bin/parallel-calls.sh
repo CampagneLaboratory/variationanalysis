@@ -69,7 +69,12 @@ if [  -z "${LIMIT_TO_CHROMOSOME+set}" ]; then
   mv filtered_slices slices
 fi
 
-echo " discover-sequence-variants -n 0 -t 1 --genome  ${SBI_GENOME} --format  GENOTYPES  ${ALIGNMENTS} \
+if [  -z "${GOBY_DSV_OPTIONS+set}" ]; then
+  GOBY_DSV_OPTIONS=" -n 1 -t 0 "
+  echo "Set GOBY_DSV_OPTIONS to specify goby discover-sequence-variants options. Default set to ${GOBY_DSV_OPTIONS}";
+fi
+
+echo " discover-sequence-variants ${GOBY_DSV_OPTIONS} --genome  ${SBI_GENOME} --format  GENOTYPES  ${ALIGNMENTS} \
     --call-indels  ${INCLUDE_INDELS} ${REALIGNMENT_OPTION} \
     --max-coverage-per-site 1000 -x HTSJDKReaderImpl:force-sorted=true \
     -x GenotypesOutputFormat:model-path=${MODEL_PATH} " >command.txt
