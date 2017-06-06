@@ -83,4 +83,7 @@ parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby ${memory_requi
 # keep a log of the commands that were used to generate this dataset:
 cp command.txt command-`date +%h_%d_%H_%M`.txt
 
-bcftools concat calls-part-*.vcf --output-type z -o ${OUTPUT_BASENAME}.vcf
+echo "Concatenating VCF files."
+goby ${memory_requirement} fdr calls-part-*.vcf -o ${OUTPUT_BASENAME}.vcf
+bgzip ${OUTPUT_BASENAME}.vcf
+bcftools index ${OUTPUT_BASENAME}.vcf.gz
