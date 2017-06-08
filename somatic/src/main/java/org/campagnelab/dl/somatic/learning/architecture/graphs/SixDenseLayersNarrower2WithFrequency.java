@@ -81,37 +81,42 @@ public class SixDenseLayersNarrower2WithFrequency implements ComputationGraphAss
             graphConfiguration.setUseDropConnect(true);
         }
 
+        final int nOut0 = (int) (numHiddenNodes * modelCapacity);
+        final int nOut1 = (int) (numHiddenNodes * reductionRate * modelCapacity);
+        final int nOut2 = (int) (numHiddenNodes * Math.pow(reductionRate, 2) * modelCapacity);
+        final int nOut3 = (int) (numHiddenNodes * Math.pow(reductionRate, 3) * modelCapacity);
+        final int nOut4 = (int) (numHiddenNodes * Math.pow(reductionRate, 4) * modelCapacity);
 
         ComputationGraphConfiguration conf = graphConfiguration
                 .weightInit(WeightInit.XAVIER).graphBuilder().addInputs("input")
-                .addLayer("dense1", new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
+                .addLayer("dense1", new DenseLayer.Builder().nIn(numInputs).nOut(nOut0)
                         .weightInit(WEIGHT_INIT)
                         .activation("relu").learningRateDecayPolicy(learningRatePolicy)
                         .build(), "input")
-                .addLayer("dense2", new DenseLayer.Builder().nIn(numHiddenNodes).nOut((int) (numHiddenNodes * reductionRate * modelCapacity))
+                .addLayer("dense2", new DenseLayer.Builder().nIn(nOut0).nOut(nOut1)
                         .weightInit(WEIGHT_INIT)
                         .activation("relu").learningRateDecayPolicy(learningRatePolicy)
                         .build(), "dense1")
-                .addLayer("dense3", new DenseLayer.Builder().nIn((int) (numHiddenNodes * reductionRate * modelCapacity)).nOut((int) (numHiddenNodes * Math.pow(reductionRate, 2) * modelCapacity))
+                .addLayer("dense3", new DenseLayer.Builder().nIn(nOut1).nOut(nOut2)
                         .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build(), "dense2")
-                .addLayer("dense4", new DenseLayer.Builder().nIn((int) (numHiddenNodes * Math.pow(reductionRate, 2) * modelCapacity)).nOut((int) (numHiddenNodes * Math.pow(reductionRate, 3) * modelCapacity))
+                .addLayer("dense4", new DenseLayer.Builder().nIn(nOut2).nOut(nOut3)
                         .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build(), "dense3")
-                .addLayer("dense5", new DenseLayer.Builder().nIn((int) (numHiddenNodes * Math.pow(reductionRate, 3) * modelCapacity)).nOut((int) (numHiddenNodes * Math.pow(reductionRate, 4) * modelCapacity))
+                .addLayer("dense5", new DenseLayer.Builder().nIn(nOut3).nOut(nOut4)
                         .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build(), "dense4")
                 .addLayer("isMutated", new OutputLayer.Builder(domainDescriptor.getOutputLoss("isMutated"))
                         .weightInit(WEIGHT_INIT)
                         .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                        .nIn((int) (numHiddenNodes * Math.pow(reductionRate, 4) * modelCapacity)).nOut(numOutputsIsMutated).build(), "dense5")
+                        .nIn(nOut4).nOut(numOutputsIsMutated).build(), "dense5")
                 .addLayer("somaticFrequency", new OutputLayer.Builder(domainDescriptor.getOutputLoss("somaticFrequency"))
                         .weightInit(WEIGHT_INIT)
                         .activation("identity").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                        .nIn((int) (numHiddenNodes * Math.pow(reductionRate, 4) * modelCapacity)).nOut(numOutputsSomaticFrequency).build(), "dense5")
+                        .nIn(nOut4).nOut(numOutputsSomaticFrequency).build(), "dense5")
                 .setOutputs(getOutputNames())
                 .pretrain(false).backprop(true).build();
 
