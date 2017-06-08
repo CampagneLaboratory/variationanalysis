@@ -51,8 +51,9 @@ public class SixDenseLayersNarrower2WithFrequency implements ComputationGraphAss
 
         WeightInit WEIGHT_INIT = WeightInit.XAVIER;
         learningRatePolicy = LearningRatePolicy.Poly;
-        float reduction = 0.65f;
-        int minimum = (int) (numHiddenNodes * Math.pow(reduction, 4));
+        float reductionRate = Math.min(1F, args().reductionRate);
+
+        int minimum = (int) (numHiddenNodes * Math.pow(reductionRate, 4));
         assert minimum > numOutputsIsMutated : "Too much reduction, not enough outputs: ";
         ComputationGraphConfiguration confBuilder = null;
         NeuralNetConfiguration.Builder graphBuilder = new NeuralNetConfiguration.Builder()
@@ -79,8 +80,6 @@ public class SixDenseLayersNarrower2WithFrequency implements ComputationGraphAss
             graphConfiguration.setUseDropConnect(true);
         }
 
-        float reductionRate = Math.min(1F, args().reductionRate);
-
 
         ComputationGraphConfiguration conf = graphConfiguration
                 .weightInit(WeightInit.XAVIER).graphBuilder().addInputs("input")
@@ -88,30 +87,30 @@ public class SixDenseLayersNarrower2WithFrequency implements ComputationGraphAss
                         .weightInit(WEIGHT_INIT)
                         .activation("relu").learningRateDecayPolicy(learningRatePolicy)
                         .build(), "input")
-                .addLayer("dense2", new DenseLayer.Builder().nIn(numHiddenNodes).nOut((int) (numHiddenNodes * reduction))
+                .addLayer("dense2", new DenseLayer.Builder().nIn(numHiddenNodes).nOut((int) (numHiddenNodes * reductionRate))
                         .weightInit(WEIGHT_INIT)
                         .activation("relu").learningRateDecayPolicy(learningRatePolicy)
                         .build(), "dense1")
-                .addLayer("dense3", new DenseLayer.Builder().nIn((int) (numHiddenNodes * reduction)).nOut((int) (numHiddenNodes * Math.pow(reduction, 2)))
+                .addLayer("dense3", new DenseLayer.Builder().nIn((int) (numHiddenNodes * reductionRate)).nOut((int) (numHiddenNodes * Math.pow(reductionRate, 2)))
                         .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build(), "dense2")
-                .addLayer("dense4", new DenseLayer.Builder().nIn((int) (numHiddenNodes * Math.pow(reduction, 2))).nOut((int) (numHiddenNodes * Math.pow(reduction, 3)))
+                .addLayer("dense4", new DenseLayer.Builder().nIn((int) (numHiddenNodes * Math.pow(reductionRate, 2))).nOut((int) (numHiddenNodes * Math.pow(reductionRate, 3)))
                         .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build(), "dense3")
-                .addLayer("dense5", new DenseLayer.Builder().nIn((int) (numHiddenNodes * Math.pow(reduction, 3))).nOut((int) (numHiddenNodes * Math.pow(reduction, 4)))
+                .addLayer("dense5", new DenseLayer.Builder().nIn((int) (numHiddenNodes * Math.pow(reductionRate, 3))).nOut((int) (numHiddenNodes * Math.pow(reductionRate, 4)))
                         .weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
                         .activation("relu")
                         .build(), "dense4")
                 .addLayer("isMutated", new OutputLayer.Builder(domainDescriptor.getOutputLoss("isMutated"))
                         .weightInit(WEIGHT_INIT)
                         .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                        .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(numOutputsIsMutated).build(), "dense5")
+                        .nIn((int) (numHiddenNodes * Math.pow(reductionRate, 4))).nOut(numOutputsIsMutated).build(), "dense5")
                 .addLayer("somaticFrequency", new OutputLayer.Builder(domainDescriptor.getOutputLoss("somaticFrequency"))
                         .weightInit(WEIGHT_INIT)
                         .activation("identity").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                        .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(numOutputsSomaticFrequency).build(), "dense5")
+                        .nIn((int) (numHiddenNodes * Math.pow(reductionRate, 4))).nOut(numOutputsSomaticFrequency).build(), "dense5")
                 .setOutputs(getOutputNames())
                 .pretrain(false).backprop(true).build();
 
