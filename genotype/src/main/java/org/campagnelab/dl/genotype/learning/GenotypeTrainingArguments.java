@@ -57,13 +57,6 @@ public class GenotypeTrainingArguments extends TrainingArguments {
             "input to the true genotype LSTM subnetwork")
     public int numReductionLayers = 3;
 
-    @Parameter(names = "--reduction-rate", description = "The amount of reduction in hidden nodes to apply per layer")
-    public float reductionRate = 0.36f;
-
-    @Parameter(names = "--model-capacity", description = "A floating number that controls model capacity (i.e., number of hidden " +
-            "nodes in the neural network). Use a c >=1 to control how many hidden nodes are created (#hiddenNodes=c*#inputs).")
-    public float modelCapacity=1f;
-
 
     @Parameter(names = "--decision-threshold", description = "Threshold to decide if a genotype is predicted. Default is 0.5. Lower the default to increase recall.")
     public double decisionThreshold=0.5;

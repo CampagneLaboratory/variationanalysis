@@ -78,6 +78,10 @@ public class SixDenseLayersNarrower2WithFrequency implements ComputationGraphAss
             graphConfiguration.dropOut(args().dropoutRate);
             graphConfiguration.setUseDropConnect(true);
         }
+
+        float reductionRate = Math.min(1F, args().reductionRate);
+
+
         ComputationGraphConfiguration conf = graphConfiguration
                 .weightInit(WeightInit.XAVIER).graphBuilder().addInputs("input")
                 .addLayer("dense1", new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)

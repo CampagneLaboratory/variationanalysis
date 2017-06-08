@@ -155,5 +155,14 @@ public abstract class  TrainingArguments extends RecordingToolArguments {
             "advancedModelProperties.classname.*, where classname is the fully qualified name of the class that needs " +
             "to access the property ")
     public File advancedModelConfiguration;
+
+    @Parameter(names = "--reduction-rate", description = "The amount of reduction in hidden nodes to apply per layer")
+    public float reductionRate = 0.36f;
+
+    @Parameter(names = "--model-capacity", description = "A floating number that controls model capacity (i.e., number of hidden " +
+            "nodes in the neural network). Use a c >=1 to control how many hidden nodes are created (#hiddenNodes=c*#inputs).")
+    public float modelCapacity=1f;
+
+
 }
 
