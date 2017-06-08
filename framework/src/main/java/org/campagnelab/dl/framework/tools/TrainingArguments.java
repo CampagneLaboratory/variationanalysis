@@ -163,6 +163,13 @@ public abstract class  TrainingArguments extends RecordingToolArguments {
             "nodes in the neural network). Use a c >=1 to control how many hidden nodes are created (#hiddenNodes=c*#inputs).")
     public float modelCapacity=1f;
 
+    @Parameter(names = "--genomic-context-length", description = "The length of the genomic context. Must be an odd number. " +
+            "When this number is smaller than the length of context included in the .sbi file, the context is trimmed while keeping the " +
+            "base of interest in the center. Values between 21 and 61 are recommended." +
+            " Since it is not clear what length of context provides best performance for a specific sequencing platform,  " +
+            "this value should be included in a hyper-parameter search. ")
+    public int genomicContextLength = Integer.MAX_VALUE;
+
 
 }
 

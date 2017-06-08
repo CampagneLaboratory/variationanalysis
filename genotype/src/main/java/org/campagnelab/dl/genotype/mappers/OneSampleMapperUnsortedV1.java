@@ -93,7 +93,6 @@ public class OneSampleMapperUnsortedV1 extends GenotypeMapperV11 {
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)), // different
                         new InverseNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readIndexMappers)), // different
-                        new GenomicContextMapper(sbiProperties),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(targetAlignedLengthMappers), // different
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(queryAlignedLengthMappers), // different
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(queryPositions), // different

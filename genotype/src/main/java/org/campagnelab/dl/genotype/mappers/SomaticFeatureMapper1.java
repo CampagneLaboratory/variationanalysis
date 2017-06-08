@@ -31,20 +31,19 @@ public class SomaticFeatureMapper1 extends NamingConcatFeatureMapper<BaseInforma
 
 
     public SomaticFeatureMapper1() {
-        this(0,1);
+        this(0, 1);
         System.out.println("Somatic Feature Mapper instantiated with defaults:\n" +
                 "germline = sample 0 in sbi/protobuf, somatic = sample 1 in sbi/protobuf");
     }
 
     public SomaticFeatureMapper1(int germlineIndex, int somaticIndex) {
         super();
-        this.germlineIndex=germlineIndex;
-        this.somaticIndex=somaticIndex;
+        this.germlineIndex = germlineIndex;
+        this.somaticIndex = somaticIndex;
         withDistinctAlleleCounts = true;
         withCombinedLayer = false;
         MAX_GENOTYPES = 3;
     }
-
 
 
     /**
@@ -62,8 +61,6 @@ public class SomaticFeatureMapper1 extends NamingConcatFeatureMapper<BaseInforma
         FeatureNameMapper[] matchesRefMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] firstBaseMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] originalGobyCountIndexMappers = new FeatureNameMapper[MAX_GENOTYPES];
-
-
 
         int genotypeIndex = 0;
 
@@ -83,6 +80,7 @@ public class SomaticFeatureMapper1 extends NamingConcatFeatureMapper<BaseInforma
         delegate = new CountReorderingMapper(somaticIndex, new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                 a,
                 b,
+                new GenomicContextMapper(sbiProperties),
                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(originalGobyCountIndexMappers),
                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),
@@ -99,7 +97,7 @@ public class SomaticFeatureMapper1 extends NamingConcatFeatureMapper<BaseInforma
                 new DensityMapper("insertSizes", 10, sbiProperties, (BaseInformationRecords.BaseInformationOrBuilder baseInformationOrBuilder) -> {
                     return TraversalHelper.forNSampleCounts(sampleIndices, baseInformationOrBuilder, BaseInformationRecords.CountInfo::getInsertSizesList);
                 },
-                        insertSize -> (float)Math.log10(insertSize)),
+                        insertSize -> (float) Math.log10(insertSize)),
                 new FractionDifferences4(),
                 new MagnitudeFeatures2()
         ));

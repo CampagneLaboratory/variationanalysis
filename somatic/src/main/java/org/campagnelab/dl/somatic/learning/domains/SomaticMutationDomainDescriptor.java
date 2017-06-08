@@ -1,5 +1,6 @@
 package org.campagnelab.dl.somatic.learning.domains;
 
+import htsjdk.variant.vcf.VCFUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
@@ -9,6 +10,7 @@ import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.performance.AUCHelper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
+import org.campagnelab.dl.somatic.learning.SomaticTrainer;
 import org.campagnelab.dl.somatic.learning.SomaticTrainingArguments;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2;
@@ -34,6 +36,8 @@ import java.util.stream.Collectors;
 public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInformationRecords.BaseInformation> {
 
 
+    private int genomicContextSize;
+
     public SomaticMutationDomainDescriptor(SomaticTrainingArguments arguments) {
         this.arguments = arguments;
         initializeArchitecture(arguments.architectureClassname);
@@ -54,6 +58,21 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
     }
 
+    /**
+     * Record arguments to the properties, that need to be provided to feature/label mappers.
+     *
+     * @param modelProperties
+     */
+    void decorateProperties(Properties modelProperties) {
+        if (args().genomicContextLength != Integer.MAX_VALUE) {
+            // override the .sbi context size only if the argument was used on the command line:
+            genomicContextSize = args().genomicContextLength;
+            modelProperties.setProperty("stats.genomicContextSize.min", Integer.toString(args().genomicContextLength));
+            modelProperties.setProperty("stats.genomicContextSize.max", Integer.toString(args().genomicContextLength));
+        }
+        modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
+        modelProperties.setProperty("reductionRate", Float.toString(args().reductionRate));
+    }
 
     /**
      * Use this method to create a domain before training. The supplied properties provide
@@ -79,6 +98,28 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
     }
 
     Map<String, FeatureMapper> cachedFeatureMappers = new HashMap<>();
+    public  FeatureMapper configureFeatureMapper(String featureMapperClassname, boolean isTrio, String[] trainingSets) throws IOException {
+
+
+        try {
+            Class clazz = Class.forName(featureMapperClassname + (isTrio ? "Trio" : ""));
+            final FeatureMapper featureMapper = (FeatureMapper) clazz.newInstance();
+            if (featureMapper instanceof ConfigurableFeatureMapper) {
+                ConfigurableFeatureMapper cmapper = (ConfigurableFeatureMapper) featureMapper;
+                final Properties sbiProperties = SomaticTrainer.getReaderProperties(trainingSets[0]);
+                decorateProperties(sbiProperties);
+                cmapper.configure(sbiProperties);
+            }
+            return featureMapper;
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     @Override
     public FeatureMapper getFeatureMapper(String inputName) {
@@ -88,10 +129,11 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         FeatureMapper result;
         if (args().featureMapperClassname != null) {
             assert "input".equals(inputName) : "Only one input supported by this domain.";
-
             try {
-                result = TrainSomaticModel.configureFeatureMapper(args().featureMapperClassname, (args()).isTrio,
+
+                result = configureFeatureMapper(args().featureMapperClassname, (args()).isTrio,
                         args().getTrainingSets());
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -111,7 +153,14 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         return result;
 
     }
-
+    @Override
+    public String produceCacheUniqueId(int miniBatchSize) {
+        String id = super.produceCacheUniqueId(miniBatchSize);
+        int domainHashcode = id.hashCode();
+        domainHashcode ^= genomicContextSize;
+        domainHashcode ^= Float.hashCode(args().labelSmoothingEpsilon);
+        return Integer.toHexString(domainHashcode);
+    }
 
     @Override
     public LabelMapper getLabelMapper(String outputName) {

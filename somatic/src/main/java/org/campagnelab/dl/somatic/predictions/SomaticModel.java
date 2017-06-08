@@ -30,11 +30,11 @@ public class SomaticModel {
 
 
     static private Logger LOG = LoggerFactory.getLogger(SomaticModel.class);
-    private  DomainDescriptor domainDescriptor;
+    private DomainDescriptor domainDescriptor;
 
     private ProtoPredictor predictor;
     private boolean isTrio;
-
+    private int genomicContextLength;
 
 
     //prefix specifies whether to use best or latest model in directory
@@ -53,6 +53,8 @@ public class SomaticModel {
             input = new FileInputStream(modelPropertiesFilename);
             // load a properties file
             prop.load(input);
+            final String propertyLength = prop.getProperty("stats.genomicContextSize.min");
+            genomicContextLength = (int) Float.parseFloat(propertyLength);
             // get the property value and print it out
             mapperName = prop.getProperty("mapper");
             if (mapperName == null) {
@@ -108,7 +110,9 @@ public class SomaticModel {
         sampleToReaderIdxs = isTrio ? (new Integer[]{readerIdxs[0], readerIdxs[1], readerIdxs[2]}) : (new Integer[]{readerIdxs[3], readerIdxs[2]});
 
         //in the past, predictions on 0 reads have been bypassed and given prediction value 0. leaving this out for now.
-        BaseInformationRecords.BaseInformation proto = ProtoHelper.toProto(genome, referenceID, sampleCounts, referenceIndex, position, list, sampleToReaderIdxs);
+
+        BaseInformationRecords.BaseInformation proto = ProtoHelper.toProto(genome, referenceID, sampleCounts,
+                referenceIndex, position, list, sampleToReaderIdxs, genomicContextLength);
         return predictor.mutPrediction(proto);
     }
 
