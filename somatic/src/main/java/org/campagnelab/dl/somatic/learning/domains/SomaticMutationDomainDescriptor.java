@@ -213,6 +213,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
     @Override
     public ComputationGraphAssembler getComputationalGraph() {
+        computationGraphAssembler.setArguments(arguments);
         return computationGraphAssembler;
     }
 
