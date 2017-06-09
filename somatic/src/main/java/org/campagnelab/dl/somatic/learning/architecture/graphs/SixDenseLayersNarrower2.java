@@ -53,8 +53,7 @@ public class SixDenseLayersNarrower2 implements ComputationGraphAssembler {
         float reductionRate = Math.min(1F, args().reductionRate);
         float modelCapacity = args().modelCapacity;
 
-        float reduction = 0.65f;
-        int minimum = (int) (numHiddenNodes * Math.pow(reduction, 4));
+        int minimum = (int) (numHiddenNodes * Math.pow(reductionRate, 4));
         assert minimum > numOutputsIsMutated : "Too much reduction, not enough outputs: ";
         ComputationGraphConfiguration confBuilder = null;
         NeuralNetConfiguration.Builder graphBuilder = new NeuralNetConfiguration.Builder()
@@ -115,7 +114,7 @@ public class SixDenseLayersNarrower2 implements ComputationGraphAssembler {
                 .addLayer("isMutated", new OutputLayer.Builder(domainDescriptor.getOutputLoss("isMutated"))
                         .weightInit(WEIGHT_INIT)
                         .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                        .nIn((int) (numHiddenNodes * Math.pow(reduction, 4))).nOut(numOutputsIsMutated).build(), "dense5")
+                        .nIn(nOut4).nOut(numOutputsIsMutated).build(), "dense5")
                 .setOutputs(getOutputNames())
                 .pretrain(false).backprop(true).build();
 
