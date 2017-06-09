@@ -73,8 +73,17 @@ if [  -z "${GOBY_DSV_OPTIONS+set}" ]; then
   GOBY_DSV_OPTIONS=" -n 1 -t 0 "
   echo "Set GOBY_DSV_OPTIONS to specify goby discover-sequence-variants options. Default set to ${GOBY_DSV_OPTIONS}";
 fi
+if [  -z "${GOBY_GENOTYPE_FORMAT+set}" ]; then
+  GOBY_GENOTYPE_FORMAT="GENOTYPES"
+  echo "Set GOBY_GENOTYPE_FORMAT to specify another Goby dsv format than GENOTYPES. Default set to ${GOBY_GENOTYPE_FORMAT}";
+fi
 
-echo " discover-sequence-variants ${GOBY_DSV_OPTIONS} --genome  ${SBI_GENOME} --format  GENOTYPES  ${ALIGNMENTS} \
+if [  -z "${GOBY_DSV_OTHER_OPTIONS+set}" ]; then
+  # This variable is set by parallel-somatic-calls.sh
+  GOBY_DSV_OTHER_OPTIONS=" "
+fi
+
+echo " discover-sequence-variants ${GOBY_DSV_OPTIONS} ${GOBY_DSV_OTHER_OPTIONS} --genome  ${SBI_GENOME} --format  ${GOBY_GENOTYPE_FORMAT}  ${ALIGNMENTS} \
     --call-indels  ${INCLUDE_INDELS} ${REALIGNMENT_OPTION} \
     --max-coverage-per-site 1000 -x HTSJDKReaderImpl:force-sorted=true \
     -x GenotypesOutputFormat:model-path=${MODEL_PATH} " >command.txt

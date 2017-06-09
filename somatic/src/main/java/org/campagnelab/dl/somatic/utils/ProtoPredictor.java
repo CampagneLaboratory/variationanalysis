@@ -76,7 +76,7 @@ public class ProtoPredictor {
     public Prediction mutPrediction(BaseInformationRecords.BaseInformation record) {
         assert model != null : "Model cannot be null";
         assert isSomatic != null : "isSomatic interpreter must not be null";
-        assert somaticFrequency != null : "somaticFrequency interpreter must not be null";
+//        assert somaticFrequency != null : "somaticFrequency interpreter must not be null";
         INDArray arrayPredicted = null;
         Prediction prediction = new Prediction();
 
@@ -95,9 +95,12 @@ public class ProtoPredictor {
             IsMutatedPrediction isSomaticPrediction = isSomatic.interpret(record, outputHelper.getOutput(PROBABILITY_OUTPUT_INDEX));
             prediction.set((float) isSomaticPrediction.predictedLabelYes,
                     (float) isSomaticPrediction.predictedLabelNo);
-            SomaticFrequencyPrediction somaticFrequencyPrediction = somaticFrequency.interpret(record,
-                    outputHelper.getOutput(SOMATIC_FREQUENCY_INDEX));
-            prediction.setPredictedSomaticFrequency(somaticFrequencyPrediction.predictedValue);
+           if (somaticFrequency != null) {
+               SomaticFrequencyPrediction somaticFrequencyPrediction = somaticFrequency.interpret(record,
+                       outputHelper.getOutput(SOMATIC_FREQUENCY_INDEX));
+
+               prediction.setPredictedSomaticFrequency(somaticFrequencyPrediction.predictedValue);
+           }
         }
 
         return prediction;

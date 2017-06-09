@@ -83,7 +83,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
            domainDescriptor.loadAdvancedModelProperties(args().advancedModelConfiguration);
         }
         try {
-            featureMapper = domainDescriptor().getFeatureMapper("input");
+            featureMapper = domainDescriptor.getFeatureMapper("input");
 
             execute(featureMapper, args().getTrainingSets(), args().miniBatchSize);
         } catch (IOException e) {
@@ -227,7 +227,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         mpHelper.addProperties(getReaderProperties(args().trainingSets.get(0)));
         mpHelper.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
         mpHelper.put("tag", getTag());
-        domainDescriptor().putProperties(mpHelper.getProperties());
+        domainDescriptor.putProperties(mpHelper.getProperties());
         mpHelper.writeProperties(directory);
         domainDescriptor.writeProperties(directory);
     }
