@@ -1,3 +1,8 @@
+if [ $# -lt 6 ]; then
+ echo "usage: parallel-gatk-realign-filtered.sh GATK_JAR 10g NUM_THREADS GENOME_FA BAM_INPUT BAM_OUTPUT [GATK_ARGS]"
+ exit 1;
+fi
+
 GATK_JAR=$1
 MEMORY_PER_THREAD=$2
 NUM_THREADS=$3
@@ -22,7 +27,7 @@ if [ ! -f ${BAM_INPUT}.bai ]; then
     samtools index ${BAM_INPUT}
 fi
 
-samtools idxstats ${BAM_INPUT} | cut -f 1 | head -n -1 > refs.txt
+samtools idxstats ${BAM_INPUT} | cut -f 1 | head -n -1 |sort -r > refs.txt
 
 rm -rf calmd-and-convert-commands.txt
 nLine=0
@@ -39,7 +44,7 @@ cat refs.txt | while read -r line
        nLine=$((nLine+1))
 done
 
-parallel --bar -j${NUM_THREADS} --eta :::: calmd-and-convert-commands.txt
+parallel --bar -j${NUM_THREADS} --progress --eta :::: calmd-and-convert-commands.txt
 
 samtools merge ${BAM_OUTPUT} realigned_md_slice_*.bam &&
 
