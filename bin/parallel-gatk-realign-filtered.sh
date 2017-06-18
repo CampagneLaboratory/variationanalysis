@@ -37,7 +37,7 @@ cat refs.txt | while read -r line
          java -Xmx${MEMORY_PER_THREAD} -jar ${GATK_JAR} -T HaplotypeCaller -R ${GENOME_FA} -I slice_${nLine}.bam \
                                            ${GATK_ARGS} -o hc_variants.vcf  -bamout realigned_slice_${nLine}.bam && \
          rm -f slice_${nLine}.bam && \
-         samtools calmd -E -u realigned_slice_${nLine}.bam ${GENOME_FA} > realigned_slice_md_${nLine}.bam && \
+         samtools calmd -E -u realigned_slice_${nLine}.bam ${GENOME_FA} > realigned_slice_md_${nLine}.bam 2>&- && \
          samtools index realigned_slice_md_${nLine}.bam && \
          rm -f realigned_slice_${nLine}.bam && \
          rm -f realigned_slice_${nLine}.bam.bai

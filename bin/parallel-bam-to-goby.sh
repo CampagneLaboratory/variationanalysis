@@ -42,7 +42,7 @@ rm -rf calmd-and-convert-commands.txt
 cat refs.txt | while read -r line
     do
        echo "\
-       samtools calmd -E -u <(samtools view -b ${ALIGNMENTS} ${line}) ${FASTA_GENOME} > md_${line}.bam ;\
+       samtools calmd -E -u <(samtools view -b ${ALIGNMENTS} ${line}) ${FASTA_GENOME} > md_${line}.bam 2>&- && \
          samtools index md_${line}.bam &&\
          goby 8g concatenate-alignments --genome  ${SBI_GENOME}  md_${line}.bam  -o goby_slice_${line} &&\
          rm md_${line}.bam  &&\
