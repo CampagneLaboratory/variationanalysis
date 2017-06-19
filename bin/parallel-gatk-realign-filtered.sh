@@ -27,7 +27,7 @@ if [ ! -f ${BAM_INPUT}.bai ]; then
     samtools index ${BAM_INPUT}
 fi
 
-samtools idxstats ${BAM_INPUT} | cut -f 1 | head -n -1 |sort -r > refs.txt
+samtools idxstats ${BAM_INPUT} | cut -f 1 | head -n -1 |grep -v GL | sort -r > refs.txt
 
 rm -rf calmd-and-convert-commands.txt
 nLine=0
