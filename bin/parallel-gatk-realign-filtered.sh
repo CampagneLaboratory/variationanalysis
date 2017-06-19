@@ -34,6 +34,7 @@ nLine=0
 cat refs.txt | while read -r line
     do
        echo "samtools view -u ${BAM_INPUT} ${line} > slice_${nLine}.bam && \
+         samtools index slice_${nLine}.bam && \
          java -Xmx${MEMORY_PER_THREAD} -jar ${GATK_JAR} -T HaplotypeCaller -R ${GENOME_FA} -I slice_${nLine}.bam \
                                            ${GATK_ARGS} -o hc_variants.vcf  -bamout realigned_slice_${nLine}.bam && \
          rm -f slice_${nLine}.bam && \
