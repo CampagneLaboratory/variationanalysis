@@ -164,7 +164,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
             for (int i = 0; i < buildSample.getCountsCount(); i++) {
                 BaseInformationRecords.CountInfo.Builder count = buildSample.getCounts(i).toBuilder();
                 String countFrom = count.getFromSequence();
-                boolean isCalled = GenotypeHelper.genotypeHasAlleleOrIndel(trueAlleles,count.getToSequence(),countFrom);
+                boolean isCalled = GenotypeHelper.genotypeHasAlleleOrIndel(trueAlleles,countFrom,count.getToSequence());
                 if (isCalled){
                     trueAlleleCount--;
                     matches.append(count.getFromSequence()).append(":").append(count.getToSequence()).append(", ");

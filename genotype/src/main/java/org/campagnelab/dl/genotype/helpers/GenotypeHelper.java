@@ -20,8 +20,6 @@ import java.util.Set;
 public class GenotypeHelper {
 
 
-
-
     public static boolean isVariant(String trueGenotype, String referenceBase) {
         return isVariant(true, trueGenotype, referenceBase);
     }
@@ -39,18 +37,17 @@ public class GenotypeHelper {
         return getAlleles(genotype).size() == 2;
     }
 
-    public static boolean isVariant(boolean considerIndels, String trueGenotype, String reference){
-        return isVariant(considerIndels,getAlleles(trueGenotype),reference);
+    public static boolean isVariant(boolean considerIndels, String trueGenotype, String reference) {
+        return isVariant(considerIndels, getAlleles(trueGenotype), reference);
     }
 
     /**
      * @param considerIndels
-     * @param genotypeSet set of "to's"/true genotypes. requires deletions to be padded, since length 1 genotypes will be assumed to be snp/ref.
+     * @param genotypeSet    set of "to's"/true genotypes. requires deletions to be padded, since length 1 genotypes will be assumed to be snp/ref.
      * @param reference
      * @return
      */
     public static boolean isVariant(boolean considerIndels, Set<String> genotypeSet, String reference) {
-
 
 
         //handle special case where a homozygous deletion like AG->A is not caught and matches ref
@@ -63,11 +60,11 @@ public class GenotypeHelper {
             // When there is only one allele, only the first bases need to match with the reference,
             // up to the length of the reference:
             // i.e., genotype: TC/TC ref: T, or genotype: TCA/TCA ref: TC
-            if (considerIndels){
+            if (considerIndels) {
                 matchesRef = (reference.equals(allele));
             } else {
                 //just check first base in this case.
-                if (reference.charAt(0)==(allele.charAt(0))) {
+                if (reference.charAt(0) == (allele.charAt(0))) {
                     matchesRef = true;
                 }
             }
@@ -87,12 +84,14 @@ public class GenotypeHelper {
 
     /**
      * this method assumes we want to consider indels, since we are abandoning snp-only development.
+     *
      * @param genotypeSet
      * @return
      */
     public static boolean isVariant(Set<Variant.FromTo> genotypeSet) {
-        for (Variant.FromTo ft : genotypeSet){
-            if (!ft.getFrom().equals(ft.getTo())){
+        for (Variant.FromTo ft : genotypeSet) {
+            if (!ft.getFrom().equals(ft.getTo())) {
+                // at least one of the to do not match the from, so this site has a variant.
                 return true;
             }
         }
@@ -104,15 +103,15 @@ public class GenotypeHelper {
         return GenotypePrediction.alleles(trueGenotype);
     }
 
-    public static String fromAlleles(Set<String> alleles){
+    public static String fromAlleles(Set<String> alleles) {
         StringBuffer sb = new StringBuffer();
-        if (alleles.size() > 1){
-            for (String allele : alleles){
+        if (alleles.size() > 1) {
+            for (String allele : alleles) {
                 sb.append(allele + "|");
             }
-            return sb.substring(0,sb.length()-1);
+            return sb.substring(0, sb.length() - 1);
         } else {
-            for (String allele : alleles){
+            for (String allele : alleles) {
                 return (allele + "|" + allele).toUpperCase();
             }
             return ".|.";
@@ -120,46 +119,47 @@ public class GenotypeHelper {
 
     }
 
-    public static Set<String> fromTosToAlleles(Set<Variant.FromTo> alleles){
+    public static Set<String> fromTosToAlleles(Set<Variant.FromTo> alleles) {
         Set<String> toSet = new ObjectArraySet<>(alleles.size());
-        for (Variant.FromTo allele : alleles){
+        for (Variant.FromTo allele : alleles) {
             toSet.add(allele.getTo());
         }
         return toSet;
 
     }
 
-    public static String fromFromTos(Set<Variant.FromTo> alleles){
+    public static String fromFromTos(Set<Variant.FromTo> alleles) {
         return fromAlleles(fromTosToAlleles(alleles));
     }
 
 
     /**
      * genotype must have two alleles.
+     *
      * @param gobyFormatReference
-     * @param gobyFormatGenotype genotype in goby format. ref/snps must have single base in ref and to.
+     * @param gobyFormatGenotype  genotype in goby format. ref/snps must have single base in ref and to.
      * @return
      */
     public static boolean isIndel(String gobyFormatReference, String gobyFormatGenotype) {
         if (gobyFormatGenotype != null) {
-            return (gobyFormatGenotype.length()>3 || gobyFormatReference.length()>1);
+            return (gobyFormatGenotype.length() > 3 || gobyFormatReference.length() > 1);
         }
         return false;
     }
 
 
-
     /**
      * Check if a set of alleles contains an indel.
      * genotype must have two alleles
-     * @param  mergedGenotypeSet a merged format genotype set, all from's should be the same via merge (to's and from's same length).
+     *
+     * @param mergedGenotypeSet a merged format genotype set, all from's should be the same via merge (to's and from's same length).
      * @return
      */
     public static boolean isIndel(MergeIndelFrom mergedGenotypeSet) {
-        int numFromDashes = StringUtils.countMatches(mergedGenotypeSet.getFrom(),"-");
-        for (String to : mergedGenotypeSet.getTos()){
-            int numToDashes = StringUtils.countMatches(to,"-");
-            if (numFromDashes != numToDashes){
+        int numFromDashes = StringUtils.countMatches(mergedGenotypeSet.getFrom(), "-");
+        for (String to : mergedGenotypeSet.getTos()) {
+            int numToDashes = StringUtils.countMatches(to, "-");
+            if (numFromDashes != numToDashes) {
                 return true;
             }
         }
@@ -226,8 +226,7 @@ public class GenotypeHelper {
     }
 
 
-
-    public static String pad(String s, int maxLength){
+    public static String pad(String s, int maxLength) {
         StringBuffer toPad = new StringBuffer(s);
         for (int i = 1; i <= maxLength; i++) {
             if (toPad.length() < maxLength) {
@@ -237,9 +236,9 @@ public class GenotypeHelper {
         return toPad.toString();
     }
 
-    public static int maxLength (Set<String> strings){
+    public static int maxLength(Set<String> strings) {
         int max = 0;
-        for (String s : strings){
+        for (String s : strings) {
             if (s.length() > max) {
                 max = s.length();
             }
@@ -248,51 +247,53 @@ public class GenotypeHelper {
     }
 
 
-    public static String padMulti(String genotype, int maxLength){
+    public static String padMulti(String genotype, int maxLength) {
         StringBuffer toPad = new StringBuffer();
         Set<String> alleles = getAlleles(genotype);
         for (String allele : alleles) {
             toPad.append(pad(allele, maxLength) + "|");
         }
         //remove final |
-        toPad.deleteCharAt(toPad.length()-1);
+        toPad.deleteCharAt(toPad.length() - 1);
         return toPad.toString();
     }
 
-    public static boolean genotypeHasAlleleOrIndel(Set<Variant.FromTo> trueAlleles, String toSequence, String fromSequence) {
+    public static boolean genotypeHasAlleleOrIndel(Set<Variant.FromTo> trueAlleles, String fromSequence, String toSequence) {
         boolean hasTo = false;
-            Variant.FromTo candidate = new Variant.FromTo(fromSequence,toSequence);
-            Set<Variant.FromTo> extendedTrueAlleles = new ObjectArraySet<>(trueAlleles);
-
-            for (Variant.FromTo allele : trueAlleles){
-                //handle tail bug and append to true genotype (sometimes the goby realignment contains some extra characters at the end
-//                if (allele.length() > 1 && toSequence.length() > allele.length() && toSequence.charAt(toSequence.length()-1)!='-') {
-//                    //but don't append these extra characters if they are part of an insertion
-//                    if (fromSequence.length() >= toSequence.length() && (!fromSequence.substring(allele.length(),fromSequence.length()).contains("-"))){
-//                        String altAllele1 = allele + toSequence.substring(allele.length(), toSequence.length()); // append to true genotype
-//                        alleles.add(altAllele1);
-//                    }
-//                }
-////                handle additional trailing dash bug where true gentotype realign lacks one trailing dash
-//                if (toSequence.charAt(toSequence.length()-1)=='-' && allele.charAt(allele.length()-1)=='-' && toSequence.length() == allele.length()+1){
-//                    alleles.add(allele + "-");
-//                }
 
 
-//                if (toSequence.length() > 1 && allele.length() > toSequence.length() && fromSequence.equals(trueFrom.substring(0,fromSequence.length())) && allele.charAt(toSequence.length())!='-'){
-//                    String altAllele2 = allele.substring(0,toSequence.length()); //clip 1 to handle flank blug
-//                    alleles.add(altAllele2);
-//                }
+        Set<Variant.FromTo> extendedTrueAlleles = new ObjectArraySet<>(trueAlleles);
 
-                //handle true genotype extended further than necessary with insertions
-                //eg: true: A--TGTG -> ATGTGTG, genotype : A--TG -> ATGTG
-                if (fromSequence.contains("-") && allele.getFrom().length() > fromSequence.length() && allele.getTo().length() > toSequence.length() && fromSequence.equals(allele.getFrom().substring(0,fromSequence.length())) && toSequence.equals(allele.getTo().substring(0,toSequence.length()))){
-                    extendedTrueAlleles.add(new Variant.FromTo(allele.getFrom().substring(0,fromSequence.length()),allele.getTo().substring(0,toSequence.length())));
-                }
-
+        for (Variant.FromTo allele : trueAlleles) {
+            //handle true genotype extended further than necessary with insertions
+            //eg: true: A--TGTG -> ATGTGTG, genotype : A--TG -> ATGTG
+            if (fromSequence.contains("-") && allele.getFrom().length() > fromSequence.length() && allele.getTo().length() > toSequence.length() && fromSequence.equals(allele.getFrom().substring(0, fromSequence.length())) && toSequence.equals(allele.getTo().substring(0, toSequence.length()))) {
+                extendedTrueAlleles.add(new Variant.FromTo(allele.getFrom().substring(0, fromSequence.length()), allele.getTo().substring(0, toSequence.length())));
+            }
 
         }
+
         for (Variant.FromTo oneTrueAllele : extendedTrueAlleles) {
+            String fromSequenceForCandidate = fromSequence;
+            String toSequenceForCandidate = toSequence;
+            // if from to have a common tail, first remove the tail (i.e., C-A AA/ CAA AA would yield from=C-A to =CAA)
+            // this can happen because the equivalent indel calculator may add a longer tail to remove ambiguities
+            if (fromSequence.length() == toSequence.length()) {
+                int length = fromSequence.length();
+                if (length > oneTrueAllele.getFrom().length()) {
+                    for (int i = length - 1; i >= oneTrueAllele.getFrom().length(); i--) {
+                        if (fromSequence.charAt(i) == toSequence.charAt(i)) {
+                            length--;
+                        }
+                    }
+                    if (length != fromSequence.length()) {
+                        fromSequenceForCandidate = fromSequence.substring(0, length);
+                        toSequenceForCandidate = toSequence.substring(0, length);
+                    }
+                }
+
+            }
+            Variant.FromTo candidate = new Variant.FromTo(fromSequenceForCandidate, toSequenceForCandidate);
             hasTo |= (oneTrueAllele.equals(candidate));
         }
         return hasTo;
@@ -311,15 +312,15 @@ public class GenotypeHelper {
         *extend true allele to match length of its ref. eg: ATC A -> ATC A--
         * This is a required step before using observeIndels, which requires placeholder dashes
          */
-        void padTrueAndRef(){
+        void padTrueAndRef() {
             int maxLen = Math.max(trueTo.length(), ref.length());
-            trueTo = pad(trueTo,maxLen);
-            ref = pad(ref,maxLen);
+            trueTo = pad(trueTo, maxLen);
+            ref = pad(ref, maxLen);
         }
 
-        void trueToToEquivalent(){
+        void trueToToEquivalent() {
 
-            if (trueTo.length() < 2 || ref.length() < 2){
+            if (trueTo.length() < 2 || ref.length() < 2) {
                 //snp encountered, in an indel case one will be longer and the other should have been padded.
                 return;
             }
@@ -329,7 +330,6 @@ public class GenotypeHelper {
 
             ObservedIndel indel = new ObservedIndel(posRef, posRef, refAffix, "T");
             EquivalentIndelRegion result = equivalentIndelRegionCalculator.determine(3, indel);
-
 
 
 //            assertEquals(3, result.referenceIndex);
@@ -344,6 +344,7 @@ public class GenotypeHelper {
         }
 
     }
+
     private EquivalentIndelRegionCalculator equivalentIndelRegionCalculator;
 
 
