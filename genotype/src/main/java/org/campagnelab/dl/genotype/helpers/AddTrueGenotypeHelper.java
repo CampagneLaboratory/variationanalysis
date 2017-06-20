@@ -284,6 +284,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
             boolean skip = false;
             boolean inMap = false;
             boolean isIndel = false;
+            boolean isSNP = false;
             // The map contains Goby positions (zero-based).
             Variant variant = varMap.getVariant(chrom,position);
             if (variant != null) {
@@ -291,21 +292,23 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
             }
             if (inMap) {
 
-                isIndel = variant.isIndel;
+                isIndel = variant.isIndel();
+                isSNP= variant.isSNP();
                 trueAlleles = variant.trueAlleles;
-                if (!GenotypeHelper.isNoCall(GenotypeHelper.fromAlleles(GenotypeHelper.fromTosToAlleles(variant.trueAlleles)))) {
-                    isVariant = GenotypeHelper.isVariant(variant.trueAlleles);
+                if (!GenotypeHelper.isNoCall(GenotypeHelper.fromAlleles(GenotypeHelper.fromTosToAlleles(trueAlleles)))) {
+                    isVariant = GenotypeHelper.isVariant(trueAlleles);
                     if (isVariant) {
-                        if (variant.isIndel) {
+                        if (isIndel) {
                             //indel is in map and is considered
                             numIndelsAdded++;
-                        } else {
+                        }
+                        if (isSNP) {
                             //snp is in map
                             numSnpsAdded++;
                         }
                         //we have a snp or indel
                         numVariantsAdded++;
-                        if (trueAlleles.size()==2) {
+                        if (!variant.isHomozygous()) {
                             numHeterozygousAdded++;
                         } else {
                             numHomozygousAdded++;
@@ -315,7 +318,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                         numInMapAddedAsReference++;
                     }
                 }
-                if (variant.isIndel && indelsAsRef && (!considerIndels)) {
+                if (isIndel && indelsAsRef && (!considerIndels)) {
                     //indel in map but added as ref
                     numIndelsAddedAsRef++;
                 }
@@ -329,7 +332,7 @@ public class AddTrueGenotypeHelper implements AddTrueGenotypeHelperI {
                 referenceBase = referenceBase.toUpperCase();
                 trueAlleles = new ObjectArraySet<Variant.FromTo>(1);
                 trueAlleles.add(new Variant.FromTo(referenceBase,referenceBase));
-            } else if (isVariant && variant.isIndel && (!indelsAsRef) && (!considerIndels)){
+            } else if (isVariant && variant.isIndel() && (!indelsAsRef) && (!considerIndels)){
                 numIndelsIgnored++;
                 skip = true;
             }
