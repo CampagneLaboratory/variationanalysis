@@ -96,6 +96,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
 
 
     }
+
     private CacheHelper<RecordType> cacheHelper = new CacheHelper<>();
     protected DomainDescriptor<RecordType> domainDescriptor;
 
@@ -144,20 +145,21 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
                 return FilenameUtils.getBaseName(args().testSet);
             }
         };
-        MultiDataSetIterator adapterCached = cacheHelper.cache(domainDescriptor,
-                adapter, adapter.getBasename(),
-                args().scoreN, args().miniBatchSize);
+        MultiDataSetIterator adapterCached = args().noCache ? adapter :
+                cacheHelper.cache(domainDescriptor,
+                        adapter, adapter.getBasename(),
+                        args().scoreN, args().miniBatchSize);
         List<RecordType> records = new ObjectArrayList<RecordType>(miniBatchSize);
         Iterator<RecordType> recordIterator = recordsIterable.iterator();
         int index = 0;
-        int adapterIndex=0;
+        int adapterIndex = 0;
         ProgressLogger pgReadWrite = new ProgressLogger(LOG);
         pgReadWrite.itemsName = "sites";
         final long totalRecords = domainDescriptor.getNumRecords(new String[]{args().testSet});
         pgReadWrite.expectedUpdates = Math.min(args().scoreN,
                 totalRecords);
         pgReadWrite.displayFreeMemory = false;
-        pgReadWrite.displayLocalSpeed=true;
+        pgReadWrite.displayLocalSpeed = true;
         pgReadWrite.start();
         while (adapterCached.hasNext() && recordIterator.hasNext()) {
 
@@ -172,7 +174,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
                 records.add(recordIterator.next());
             }
 
-            if (records.size()==datasetSize) {
+            if (records.size() == datasetSize) {
                 index = predictor.makePredictions(dataset,
                         records, model,
                         recordPredictions -> {
@@ -182,7 +184,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
                 /* stop if */ nProcessed -> nProcessed > args().scoreN, index
                 );
                 pgReadWrite.update(records.size());
-            } else{
+            } else {
                 System.out.printf("dataset #examples %d and # records (%d) must match. Unable to obtain records for some examples in minibatch. Aborting. ",
                         datasetSize, records.size());
                 break;
