@@ -36,7 +36,7 @@ cat refs.txt | while read -r line
        echo "samtools view -u ${BAM_INPUT} ${line} > slice_${nLine}.bam && \
          samtools index slice_${nLine}.bam && \
          java -Xmx${MEMORY_PER_THREAD} -jar ${GATK_JAR} -T HaplotypeCaller -R ${GENOME_FA} -I slice_${nLine}.bam \
-                                           ${GATK_ARGS} -o hc_variants.vcf  -bamout realigned_slice_${nLine}.bam && \
+                                           ${GATK_ARGS} -o hc_variants_${nLine}.vcf  -bamout realigned_slice_${nLine}.bam && \
          rm -f slice_${nLine}.bam && \
          rm -f slice_${nLine}.bam.bai && \
          samtools calmd -E -u realigned_slice_${nLine}.bam ${GENOME_FA} > realigned_slice_md_${nLine}.bam 2>&- && \
