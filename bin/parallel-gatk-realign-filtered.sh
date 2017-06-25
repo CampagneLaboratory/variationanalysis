@@ -27,28 +27,26 @@ if [ ! -f ${BAM_INPUT}.bai ]; then
     samtools index ${BAM_INPUT}
 fi
 
-samtools idxstats ${BAM_INPUT} | cut -f 1 | head -n -1 |grep -v GL | sort -r > refs.txt
+samtools idxstats ${BAM_INPUT} | cut -f 1 | head -n -1 |grep -v GL | sort -ur > refs.txt
 
 rm -rf calmd-and-convert-commands.txt
 nLine=0
 cat refs.txt | while read -r line
     do
-       echo "samtools view -u ${BAM_INPUT} ${line} > slice_${nLine}.bam && \
-         samtools index slice_${nLine}.bam && \
-         java -Xmx${MEMORY_PER_THREAD} -jar ${GATK_JAR} -T HaplotypeCaller -R ${GENOME_FA} -I slice_${nLine}.bam \
+       echo "java -Xmx${MEMORY_PER_THREAD} -jar ${GATK_JAR} -L ${line} -T HaplotypeCaller -R ${GENOME_FA} -I ${BAM_INPUT} \
                                            ${GATK_ARGS} -o hc_variants_${nLine}.vcf  -bamout realigned_slice_${nLine}.bam && \
+         rm -f hc_variants_${nLine}.vcf* && \
          rm -f slice_${nLine}.bam && \
          rm -f slice_${nLine}.bam.bai && \
-         samtools calmd -E -u realigned_slice_${nLine}.bam ${GENOME_FA} > realigned_slice_md_${nLine}.bam 2>&- && \
-         samtools index realigned_slice_md_${nLine}.bam && \
+         samtools calmd -b -E realigned_slice_${nLine}.bam ${GENOME_FA} > realigned_slice_md_${nLine}.bam 2>&- && \
+         samtools index  realigned_slice_md_${nLine}.bam && \
          rm -f realigned_slice_${nLine}.bam && \
-         rm -f realigned_slice_${nLine}.bam.bai
-       " >> calmd-and-convert-commands.txt
+         rm -f realigned_slice_${nLine}.bam.bai " >> calmd-and-convert-commands.txt
        nLine=$((nLine+1))
 done
 
 parallel --bar -j${NUM_THREADS} --progress --eta :::: calmd-and-convert-commands.txt
-
+rm -fr ${BAM_OUTPUT}
 samtools merge ${BAM_OUTPUT} realigned_slice_md_*.bam &&
 
 rm realigned_md_slice_*
