@@ -39,7 +39,7 @@ public class GenotypeMapperV30 extends GenotypeMapperV11 {
 
         String genomicContextLengthString = sbiProperties.getProperty("stats.genomicContextSize.min");
         assert genomicContextLengthString != null : "property must exist: stats.genomicContextSize.min";
-        int genomicContextLength = Integer.parseInt(genomicContextLengthString);
+        int genomicContextLength = (int)Float.parseFloat(genomicContextLengthString);
         FeatureNameMapper[] countMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
         FeatureNameMapper[] readIndexMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
         FeatureNameMapper[] readMappingQualityMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
