@@ -157,7 +157,7 @@
     <orderEntry type="library" name="Maven: uk.co.real-logic:sbe-all:1.5.4" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-parameter-server-client:0.8.0" level="project" />
     <orderEntry type="module" module-name="somatic" />
-    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.2.5" level="project" />
+    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.2.7-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.icb:icb-utils:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.ibm.icu:icu4j:3.4.4" level="project" />
     <orderEntry type="library" name="Maven: commons-beanutils:commons-beanutils:1.8.3" level="project" />
