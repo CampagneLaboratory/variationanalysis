@@ -42,7 +42,7 @@ public class GenotypeTrainingArguments extends TrainingArguments {
 
     @Parameter(names = "--num-lstm-nodes-indels",
             description = "The number of LSTM hidden nodes per layer used for the indel LSTM subnetwork. ")
-    public int numLSTMHiddenNodesIndels = 12;
+    public int numLSTMHiddenNodesIndels = 3;
 
     @Parameter(names = "--num-lstm-nodes-true-genotype",
             description = "The number of LSTM hidden nodes per layer used for the true genotype LSTM subnetwork. ")
