@@ -45,29 +45,37 @@ public class GenomicContextMapper extends NoMaskFeatureMapper<BaseInformationRec
     /**
      * Trim a larger context to remain centered on the base of interest, but have only up to trimLength bases.
      *
-     * @param trimLength                  target context size.
+     * @param trimLength                   target context size.
      * @param recordGenomicSequenceContext the genomic context from the sbi file, may be larger than trimLength
      * @return
      */
     String trim(int trimLength, String recordGenomicSequenceContext) {
-       assert trimLength<=recordGenomicSequenceContext.length() :
-               String.format("The trim length (%d) must be smaller than the .sbi context length (%d).",
-               trimLength,  recordGenomicSequenceContext.length()) ;
+        assert trimLength <= recordGenomicSequenceContext.length() :
+                String.format("The trim length (%d) must be smaller than the .sbi context length (%d).",
+                        trimLength, recordGenomicSequenceContext.length());
         if (recordGenomicSequenceContext.length() == trimLength) {
             return recordGenomicSequenceContext;
         }
-        int clipLength=(recordGenomicSequenceContext.length()-trimLength)/2;
-        String result= recordGenomicSequenceContext.substring(clipLength,trimLength+clipLength);
+        int clipLength = (recordGenomicSequenceContext.length() - trimLength) / 2;
+        String result = recordGenomicSequenceContext.substring(clipLength, trimLength + clipLength);
         return result;
     }
 
+
     public GenomicContextMapper(int contextSize, Function<BaseInformationRecords.BaseInformationOrBuilder, String> function) {
+        this(contextSize, function, false);
+    }
+
+    public GenomicContextMapper(int contextSize, Function<BaseInformationRecords.BaseInformationOrBuilder, String> function,
+                                boolean silent) {
         OneHotBaseFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>[] refContext = new OneHotBaseFeatureMapper[contextSize];
         for (int i = 0; i < contextSize; i++) {
             refContext[i] = new OneHotBaseFeatureMapper<>(i, function);
+            if (silent) refContext[i].setIgnoreOutOfRangeIndices(true);
         }
         delegate = new ConcatFeatureMapper<>(refContext);
     }
+
 
     @Override
     public int numberOfFeatures() {
@@ -83,7 +91,8 @@ public class GenomicContextMapper extends NoMaskFeatureMapper<BaseInformationRec
     int[] indices = new int[]{0, 0};
 
     @Override
-    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs, int indexOfRecord) {
+    public void mapFeatures(BaseInformationRecords.BaseInformationOrBuilder record, INDArray inputs,
+                            int indexOfRecord) {
         delegate.mapFeatures(record, inputs, indexOfRecord);
     }
 

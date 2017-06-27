@@ -21,13 +21,13 @@ import java.util.function.Function;
  * but other mappings can be specified using the constructor with the recordStringAtBaseToInteger
  * function parameter, which takes in a string representation of a record and a base index,
  * and returns the one-hot encoding integer at that position.
- *
+ * <p>
  * Created by rct66 on 10/25/16.
  */
 public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<RecordType> {
     static private Logger LOG = LoggerFactory.getLogger(OneHotBaseFeatureMapper.class);
     private final int numFeatures;
-
+    private boolean ignoreOutOfRangeIndices = false;
     private Function<RecordType, String> recordToString;
     private BiFunction<String, Integer, Integer> recordStringAtBaseToInteger;
     private int baseIndex;
@@ -35,21 +35,27 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
 
     /**
      * Constructs a OneHotBaseFeatureMapper that can be used to encode DNA sequences
-     * @param baseIndex base index that this OneHotBaseFeatureMapper looks at
+     *
+     * @param baseIndex      base index that this OneHotBaseFeatureMapper looks at
      * @param recordToString function that converts a sequence record into a string
      */
     public OneHotBaseFeatureMapper(int baseIndex, Function<RecordType, String> recordToString) {
-        this(baseIndex, recordToString, OneHotBaseFeatureMapper::getIntegerOfBase, 6);
+        this(baseIndex, recordToString, OneHotBaseFeatureMapper::getIntegerOfBase, 7);
+    }
+
+    public void setIgnoreOutOfRangeIndices(boolean ignoreOutOfRangeIndices) {
+        this.ignoreOutOfRangeIndices = ignoreOutOfRangeIndices;
     }
 
     /**
      * Constructs a OneHotBaseFeatureMapper that can be used to encode arbitrary sequences
-     * @param baseIndex base index that this OneHotBaseFeatureMapper looks at
-     * @param recordToString function that converts a sequence record into a string
+     *
+     * @param baseIndex                   base index that this OneHotBaseFeatureMapper looks at
+     * @param recordToString              function that converts a sequence record into a string
      * @param recordStringAtBaseToInteger function that takes in a record string (i.e., that
      *                                    converted by recordToString) and an integer representing
      *                                    a base index, and returns a one-hot encoding integer
-     * @param numFeatures number of possible features returned by recordStringAtBaseToInteger
+     * @param numFeatures                 number of possible features returned by recordStringAtBaseToInteger
      */
     public OneHotBaseFeatureMapper(int baseIndex, Function<RecordType, String> recordToString,
                                    BiFunction<String, Integer, Integer> recordStringAtBaseToInteger,
@@ -86,6 +92,13 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
     @Override
     public float produceFeature(RecordType record, int featureIndex) {
         int value = recordStringAtBaseToInteger.apply(cachedString, baseIndex);
+        if (value==0) {
+            if (!ignoreOutOfRangeIndices) {
+                counter.warn(LOG, String.format("incompatible character index: %d for context: %s of length %d",
+                        baseIndex, cachedString, cachedString.length()));
+            }
+
+        }
         return value == featureIndex ? 1F : 0F;
     }
 
@@ -112,35 +125,37 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
 
     public static int getIntegerOfBase(String context, int baseIndex) {
         if (baseIndex < 0 || baseIndex >= context.length()) {
-            counter.warn(LOG,String.format("incompatible character index: {} for context: {} of length {}",
-                    baseIndex, context, context.length()));
-            return 5;
+
+            return 0;
         }
         Character base = context.charAt(baseIndex);
         int baseInt;
         switch (base) {
             case 'a':
             case 'A':
-                baseInt = 0;
+                baseInt = 1;
                 break;
             case 't':
             case 'T':
-                baseInt = 1;
+                baseInt = 2;
                 break;
             case 'c':
             case 'C':
-                baseInt = 2;
+                baseInt = 3;
                 break;
             case 'g':
             case 'G':
-                baseInt = 3;
+                baseInt = 4;
                 break;
             case 'n':
             case 'N':
-                baseInt = 4;
+                baseInt = 5;
+                break;
+            case '-':
+                baseInt = 6;
                 break;
             default:
-                baseInt = 5;
+                baseInt = 0;
                 break;
         }
         return baseInt;
