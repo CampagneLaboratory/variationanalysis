@@ -24,6 +24,8 @@ public class FeedForwardDenseLayerAssembler {
     private static final double LAYER_EPSILON = 0.1;
     private static final WeightInit WEIGHT_INIT = WeightInit.XAVIER;
     private static final float REDUCTION = 1f;
+    private double modelCapacity=1;
+    private double reductionRate=1;
 
     public FeedForwardDenseLayerAssembler(TrainingArguments args) {
         this.args = args;
@@ -54,6 +56,8 @@ public class FeedForwardDenseLayerAssembler {
             graphBuilder.dropOut(args().dropoutRate);
             graphBuilder.setUseDropConnect(true);
         }
+        modelCapacity=args().modelCapacity;
+        reductionRate=args().reductionRate;
         build = graphBuilder.graphBuilder().addInputs(inputNames);
     }
 
@@ -65,17 +69,18 @@ public class FeedForwardDenseLayerAssembler {
         assert numHiddenNodes > 0 : "model capacity is too small. At least some hidden nodes must be created.";
         WeightInit WEIGHT_INIT = WeightInit.XAVIER;
         float reduction = 1f;
-        int minimum = (int) (numHiddenNodes * Math.pow(reduction, 4));
+        int minimum = (int) (numHiddenNodes * Math.pow(reduction, numLayers));
         assert minimum > 2 : "Too much reduction, not enough outputs: ";
         int numIn = numInputs;
-        int numOut = numHiddenNodes;
+        int numOut = (int) (numHiddenNodes * modelCapacity);
         String previousLayerName;
         String lastDenseLayerName = "no layers";
         for (int i = startingIndex; i < startingIndex + numLayers; i++) {
-            numOut = numHiddenNodes;
+
             //     System.out.printf("layer %d numIn=%d numOut=%d%n", i, numIn, numOut);
             lastDenseLayerName = "dense" + i;
             previousLayerName = i == startingIndex ? baseLayer : "dense" + (i - 1);
+            numOut = (int) (numHiddenNodes * Math.pow(reductionRate, i) * modelCapacity);
             build.addLayer(lastDenseLayerName, new DenseLayer.Builder().nIn(numIn).nOut(numOut)
                     .weightInit(WEIGHT_INIT)
                     .activation("relu").learningRateDecayPolicy(learningRatePolicy).epsilon(LAYER_EPSILON)
