@@ -198,7 +198,7 @@ RTG_ROCPLOT_OPTIONS="--scores"
 rtg rocplot ${RTG_OUTPUT_FOLDER}/snp/snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/snp/SNP-ROC.svg ${RTG_ROCPLOT_OPTIONS} --title="SNPs, model ${MODEL_TIME}"
 dieIfError "Unable to generate SNP ROC plot."
 
-rtg rocplot ${RTG_OUTPUT_FOLDER}/snp/snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/snp/SNP-PrecisionRecall.svg ${RTG_ROCPLOT_OPTIONS} ${RTG_ROCPLOT_OPTIONS} --title="SNPs, model ${MODEL_TIME}"
+rtg rocplot ${RTG_OUTPUT_FOLDER}/snp/snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/snp/SNP-PrecisionRecall.svg ${RTG_ROCPLOT_OPTIONS} --title="SNPs, model ${MODEL_TIME}"
 dieIfError "Unable to generate SNP Precision Recall plot."
 
 RTG_ROCPLOT_OPTIONS="--scores"
