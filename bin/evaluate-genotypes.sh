@@ -205,7 +205,7 @@ RTG_ROCPLOT_OPTIONS="--scores"
 rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/non_snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/indel/INDEL-PrecisionRecall.svg ${RTG_ROCPLOT_OPTIONS} --title="INDELs, model ${MODEL_TIME}"
 dieIfError "Unable to generate indel Precision Recall plot."
 
-rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/non_snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/indel/INDEL-ROC.svg ${RTG_ROCPLOT_OPTIONS} ${RTG_ROCPLOT_OPTIONS} --title="INDELs, model ${MODEL_TIME}"
+rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/non_snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/indel/INDEL-ROC.svg  ${RTG_ROCPLOT_OPTIONS} --title="INDELs, model ${MODEL_TIME}"
 dieIfError "Unable to generate indel ROC plot."
 
 # Following is currently disabled.
