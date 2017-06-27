@@ -185,21 +185,26 @@ dieIfError "Failed to run rtg vcfeval."
 
 cp ${VCF_OUTPUT_SORTED}-indels.vcf.gz  ${RTG_OUTPUT_FOLDER}/indel/
 
+MODEL_TIME=`basename ${MODEL_DIR}`
 cp ${MODEL_DIR}/config.properties ${RTG_OUTPUT_FOLDER}
 cp ${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz ${RTG_OUTPUT_FOLDER}
 echo "See rtg vcfeval detailed output in ${RTG_OUTPUT_FOLDER}"
 
-rtg rocplot ${RTG_OUTPUT_FOLDER}/snp/snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/snp/SNP-ROC.svg
+RTG_ROCPLOT_OPTIONS="--scores --title=\"SNPs, model ${MODEL_TIME}\" "
+rtg rocplot ${RTG_OUTPUT_FOLDER}/snp/snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/snp/SNP-ROC.svg ${RTG_ROCPLOT_OPTIONS}
 dieIfError "Unable to generate SNP ROC plot."
 
-rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/non_snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/indel/INDEL-ROC.svg
-dieIfError "Unable to generate indel ROC plot."
-
-rtg rocplot ${RTG_OUTPUT_FOLDER}/snp/snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/snp/SNP-PrecisionRecall.svg
+rtg rocplot ${RTG_OUTPUT_FOLDER}/snp/snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/snp/SNP-PrecisionRecall.svg ${RTG_ROCPLOT_OPTIONS}
 dieIfError "Unable to generate SNP Precision Recall plot."
 
-rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/non_snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/indel/INDEL-PrecisionRecall.svg
+RTG_ROCPLOT_OPTIONS="--scores --title=\"INDELs, model ${MODEL_TIME}\" "
+rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/non_snp_roc.tsv.gz -P --svg ${RTG_OUTPUT_FOLDER}/indel/INDEL-PrecisionRecall.svg ${RTG_ROCPLOT_OPTIONS}
 dieIfError "Unable to generate indel Precision Recall plot."
+
+rtg rocplot ${RTG_OUTPUT_FOLDER}/indel/non_snp_roc.tsv.gz --svg ${RTG_OUTPUT_FOLDER}/indel/INDEL-ROC.svg ${RTG_ROCPLOT_OPTIONS} ${RTG_ROCPLOT_OPTIONS}
+dieIfError "Unable to generate indel ROC plot."
+grep ${MODEL_TIME} model-conditions.txt >${RTG_OUTPUT_FOLDER}/mode-conditions.txt
+grep ${MODEL_TIME} predict-statistics.tsv   >${RTG_OUTPUT_FOLDER}/predict-statistics.tsv
 
 # Following is currently disabled.
 exit 0
