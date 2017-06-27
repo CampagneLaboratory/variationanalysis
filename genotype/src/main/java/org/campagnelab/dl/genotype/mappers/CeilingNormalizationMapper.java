@@ -18,6 +18,7 @@ public class CeilingNormalizationMapper<RecordType> extends AbstractFeatureMappe
 
     public CeilingNormalizationMapper(FeatureNameMapper delegate, float ceiling) {
         this.delegate = delegate;
+        this.ceiling=ceiling;
     }
 
     @Override
