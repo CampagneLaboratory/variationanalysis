@@ -39,5 +39,5 @@ ls -1 ${SBI_INPUTS} >files
 parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress `cat command.txt`  :::: files
 
 cat ${MODEL}-${MODEL_LABEL}-*.vcf | vcf-sort >sorted-${MODEL}-${MODEL_LABEL}.vcf
-bgzip sorted-${MODEL}-${MODEL_LABEL}.vcf
-tabix sorted-${MODEL}-${MODEL_LABEL}.vcf.gz
+bgzip -f sorted-${MODEL}-${MODEL_LABEL}.vcf
+tabix -f sorted-${MODEL}-${MODEL_LABEL}.vcf.gz
