@@ -22,6 +22,17 @@ if [ "$#" -lt 2 ]; then
    echo "Argument missing. You must provide a feature mapper classname to use in the iteration."
    exit 1;
 fi
+
+if [ -z "${RANDOM_SEED+set}" ]; then
+    RANDOM_SEED="32434"
+    echo "RANDOM_SEED set to ${RANDOM_SEED}. Change the variable to switch the learning rate."
+fi
+
+if [ -z "${EARLY_STOPPING_NUM_EPOCHS+set}" ]; then
+    EARLY_STOPPING_NUM_EPOCHS="10"
+    echo "EARLY_STOPPING_NUM_EPOCHS set to ${EARLY_STOPPING_NUM_EPOCHS}. Change the variable to switch the learning rate."
+fi
+
 if [ -z "${LEARNING_RATE+set}" ]; then
     LEARNING_RATE="50"
     echo "LEARNING_RATE set to ${LEARNING_RATE}. Change the variable to switch the learning rate."
@@ -90,9 +101,9 @@ train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX
           --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
           ${TRAINING_OPTIONS} \
           --feature-mapper ${FEATURE_MAPPER} \
-          --random-seed 32434 \
+          --random-seed ${RANDOM_SEED} \
           --early-stopping-measure ${EVALUATION_METRIC_NAME} \
-          --early-stopping-num-epochs 10 --gpu-device ${GPU} \
+          --early-stopping-num-epochs ${EARLY_STOPPING_NUM_EPOCHS} --gpu-device ${GPU} \
           ${NETWORK_ARCHITECTURE_OPTION} | tee ${OUTPUT_FILE}
 dieIfError "Failed to train model with CUDA GPU build."
 set -x
