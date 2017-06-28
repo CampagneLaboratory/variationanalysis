@@ -337,6 +337,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         int domainHashcode = id.hashCode();
         domainHashcode ^= ploidy;
         domainHashcode ^= genomicContextSize;
+        domainHashcode ^= indelSequenceLength;
         domainHashcode ^= Float.hashCode(args().labelSmoothingEpsilon);
         return Integer.toHexString(domainHashcode);
     }
@@ -352,6 +353,11 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             genomicContextSize = args().genomicContextLength;
             modelProperties.setProperty("stats.genomicContextSize.min", Integer.toString(args().genomicContextLength));
             modelProperties.setProperty("stats.genomicContextSize.max", Integer.toString(args().genomicContextLength));
+        }
+        if (args().indelSequenceLength != Integer.MAX_VALUE) {
+            // override the .sbi context size only if the argument was used on the command line:
+            indelSequenceLength = args().indelSequenceLength;
+            modelProperties.setProperty("indelSequenceLength", Integer.toString(args().indelSequenceLength));
         }
         modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
         modelProperties.setProperty("variantLossWeight", Double.toString(variantLossWeight));
