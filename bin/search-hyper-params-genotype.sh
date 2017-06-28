@@ -20,10 +20,25 @@ categorical
 128
 2048
 
+--indel-sequence-length
+int
+1
+20
+
 --num-lstm-layers
 int
 1
-3
+5
+
+--num-lstm-nodes-indels
+int
+2
+20
+
+--reduction-rate
+uniform
+0.3
+1.3
 
 --model-capacity
 uniform
@@ -46,11 +61,11 @@ log-uniform
 
 --early-stopping-num-epochs
 categorical
-1
+2
 
 --feature-mapper
 categorical
-org.campagnelab.dl.genotype.mappers.GenotypeMapperV28
+org.campagnelab.dl.genotype.mappers.GenotypeMapperV34
 
 --genomic-context-length
 int
@@ -64,12 +79,13 @@ uniform
 
 --decision-threshold
 uniform
-0.3
-0.7
+0.4
+0.6
 
 --net-architecture
 categorical
 org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2
+org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersWithIndelLSTM
 
 EOF
     echo "SBI_SEARCH_PARAM_CONFIG not set. Using default hyper parameters. Change the variable a file with an arg-generator config file to customize the search."
@@ -100,7 +116,7 @@ cat build-cache-commands.txt |parallel -j${NUM_GPUS} --progress --eta  --bar
 echo "Training.."
 unset FORCE_PLATFORM
 parallel echo `cat main-command.txt` \
-        --memory-cache none  --max-epochs 20 \
+        --memory-cache none  --max-epochs 40 \
         :::: gen-args.txt \
 >commands.txt
 
