@@ -90,7 +90,7 @@ train-genotype.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX
           --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
           ${TRAINING_OPTIONS} \
           --feature-mapper ${FEATURE_MAPPER} \
-          --random-seed 90129 \
+          --random-seed 32434 \
           --early-stopping-measure ${EVALUATION_METRIC_NAME} \
           --early-stopping-num-epochs 10 --gpu-device ${GPU} \
           ${NETWORK_ARCHITECTURE_OPTION} | tee ${OUTPUT_FILE}
