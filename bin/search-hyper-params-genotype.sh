@@ -65,7 +65,7 @@ categorical
 
 --feature-mapper
 categorical
-org.campagnelab.dl.genotype.mappers.GenotypeMapperV34
+org.campagnelab.dl.genotype.mappers.GenotypeMapperV35
 
 --genomic-context-length
 int
@@ -85,7 +85,6 @@ uniform
 --net-architecture
 categorical
 org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2
-org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersWithIndelLSTM
 
 EOF
     echo "SBI_SEARCH_PARAM_CONFIG not set. Using default hyper parameters. Change the variable a file with an arg-generator config file to customize the search."
