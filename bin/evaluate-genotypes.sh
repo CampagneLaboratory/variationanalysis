@@ -186,7 +186,7 @@ dieIfError "Failed to run rtg vcfeval."
 cp ${VCF_OUTPUT_SORTED}-indels.vcf.gz  ${RTG_OUTPUT_FOLDER}/indel/
 
 MODEL_TIME=`basename ${MODEL_DIR}`
-grep ${MODEL_TIME} model-conditions.txt >${RTG_OUTPUT_FOLDER}/mode-conditions.txt
+grep ${MODEL_TIME} model-conditions.txt >${RTG_OUTPUT_FOLDER}/model-conditions.txt
 grep ${MODEL_TIME} predict-statistics.tsv   >${RTG_OUTPUT_FOLDER}/predict-statistics.tsv
 
 
