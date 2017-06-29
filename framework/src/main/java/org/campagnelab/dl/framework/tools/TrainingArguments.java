@@ -15,8 +15,12 @@ import java.util.List;
  */
 @Parameters(commandDescription = "Train a model given training files and a validation file.")
 
-public abstract class  TrainingArguments extends RecordingToolArguments {
-
+public abstract class TrainingArguments extends RecordingToolArguments {
+    /**
+     * This boolean is true when these arguments were parsed from command line, false otherwise, in which case
+     * you should assume default values for all arguments.
+     */
+    public boolean parsedFromCommandLine = true;
     @Parameter(required = true, names = {"-t", "--training-sets"}, variableArity = true, description = "Training set filenames- for example, could be provided in .sbi/.sbip format (produced with Goby3). When more than one dataset is provided (multiple -t options), the " +
             "datasets are concatenated.")
     public List<String> trainingSets = new ArrayList<>();
@@ -75,7 +79,7 @@ public abstract class  TrainingArguments extends RecordingToolArguments {
     public String memoryCache = "validation";
 
     @Parameter(names = "--label-smoothing-epsilon", description = "Value of epsilon for label smoothing. Zero (default) is no smoothing. Try small values (<0.1).")
-    public float labelSmoothingEpsilon=0;
+    public float labelSmoothingEpsilon = 0;
 
     public boolean memoryCacheTraining() {
         // do not cache in memory if just build a cache on disk:
@@ -149,7 +153,7 @@ public abstract class  TrainingArguments extends RecordingToolArguments {
     @Parameter(names = "--previous-model-pretraining", description = "If true, previous model was pretrained, and adjust graph accordingly. ")
     public boolean previousModelPretraining = false;
 
-    @Parameter(names = {"-amp","--advanced-model-properties"}, description = "Path to a properties file with advanced " +
+    @Parameter(names = {"-amp", "--advanced-model-properties"}, description = "Path to a properties file with advanced " +
             "model configuration properties. Advanced model properties are used by the computation graph architecture " +
             "in an architecture dependent manner. Property keys must follow the convention: " +
             "advancedModelProperties.classname.*, where classname is the fully qualified name of the class that needs " +
@@ -161,7 +165,7 @@ public abstract class  TrainingArguments extends RecordingToolArguments {
 
     @Parameter(names = "--model-capacity", description = "A floating number that controls model capacity (i.e., number of hidden " +
             "nodes in the neural network). Use a c >=1 to control how many hidden nodes are created (#hiddenNodes=c*#inputs).")
-    public float modelCapacity= defaultModelCapacity();
+    public float modelCapacity = defaultModelCapacity();
 
     public float defaultModelCapacity() {
         return 1f;

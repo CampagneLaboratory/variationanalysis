@@ -78,6 +78,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     public GenotypeDomainDescriptor(String modelPath) {
 
         this.arguments = new GenotypeTrainingArguments();
+        this.args().parsedFromCommandLine = false;
         super.loadProperties(modelPath);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
@@ -348,28 +349,28 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
      * @param modelProperties
      */
     void decorateProperties(Properties modelProperties) {
-        if (args().genomicContextLength != Integer.MAX_VALUE) {
+        // transfer arguments to properties when we know we started from command line arguments, otherwise the
+        // arguments are already in properties:
+        if (args().parsedFromCommandLine) {
+
             // override the .sbi context size only if the argument was used on the command line:
             genomicContextSize = args().genomicContextLength;
             modelProperties.setProperty("stats.genomicContextSize.min", Integer.toString(args().genomicContextLength));
             modelProperties.setProperty("stats.genomicContextSize.max", Integer.toString(args().genomicContextLength));
-        }
-        if (args().indelSequenceLength != args().defaultIndelSequenceLength()) {
+
             // override the .sbi context size only if the argument was used on the command line:
             indelSequenceLength = args().indelSequenceLength;
             modelProperties.setProperty("indelSequenceLength", Integer.toString(args().indelSequenceLength));
-        }
-        if (args().modelCapacity != args().defaultModelCapacity()) {
+
             // override the .sbi context size only if the argument was used on the command line:
             modelCapacity = args().modelCapacity;
             modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
-        }
-        if (args().addTrueGenotypeLabels != args().defaultTrueGenotypeLabels()) {
             modelProperties.setProperty("addTrueGenotypeLabels", Boolean.toString(args().addTrueGenotypeLabels));
+
+            modelProperties.setProperty("variantLossWeight", Double.toString(variantLossWeight));
+            modelProperties.setProperty("labelSmoothing.epsilon", Double.toString(args().labelSmoothingEpsilon));
+            modelProperties.setProperty("trueGenotypeLength", Integer.toString(args().trueGenotypeLength));
         }
-        modelProperties.setProperty("variantLossWeight", Double.toString(variantLossWeight));
-        modelProperties.setProperty("labelSmoothing.epsilon", Double.toString(args().labelSmoothingEpsilon));
-        modelProperties.setProperty("trueGenotypeLength", Integer.toString(args().trueGenotypeLength));
     }
 
     @Override
