@@ -161,7 +161,11 @@ public abstract class  TrainingArguments extends RecordingToolArguments {
 
     @Parameter(names = "--model-capacity", description = "A floating number that controls model capacity (i.e., number of hidden " +
             "nodes in the neural network). Use a c >=1 to control how many hidden nodes are created (#hiddenNodes=c*#inputs).")
-    public float modelCapacity=1f;
+    public float modelCapacity= defaultModelCapacity();
+
+    public float defaultModelCapacity() {
+        return 1f;
+    }
 
     @Parameter(names = "--genomic-context-length", description = "The length of the genomic context. Must be an odd number. " +
             "When this number is smaller than the length of context included in the .sbi file, the context is trimmed while keeping the " +

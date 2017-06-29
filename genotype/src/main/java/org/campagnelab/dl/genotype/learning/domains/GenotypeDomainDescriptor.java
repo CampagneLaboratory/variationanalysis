@@ -359,12 +359,17 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             indelSequenceLength = args().indelSequenceLength;
             modelProperties.setProperty("indelSequenceLength", Integer.toString(args().indelSequenceLength));
         }
-        modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
+        if (args().modelCapacity != args().defaultModelCapacity()) {
+            // override the .sbi context size only if the argument was used on the command line:
+            modelCapacity = args().modelCapacity;
+            modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
+        }
+        if (args().addTrueGenotypeLabels != args().defaultTrueGenotypeLabels()) {
+            modelProperties.setProperty("addTrueGenotypeLabels", Boolean.toString(args().addTrueGenotypeLabels));
+        }
         modelProperties.setProperty("variantLossWeight", Double.toString(variantLossWeight));
         modelProperties.setProperty("labelSmoothing.epsilon", Double.toString(args().labelSmoothingEpsilon));
-        modelProperties.setProperty("indelSequenceLength", Integer.toString(args().indelSequenceLength));
         modelProperties.setProperty("trueGenotypeLength", Integer.toString(args().trueGenotypeLength));
-        modelProperties.setProperty("addTrueGenotypeLabels", Boolean.toString(args().addTrueGenotypeLabels));
     }
 
     @Override

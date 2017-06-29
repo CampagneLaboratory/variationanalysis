@@ -74,5 +74,9 @@ public class GenotypeTrainingArguments extends TrainingArguments {
     public int ploidy = 2;
 
     @Parameter(names = "--add-true-genotype-labels", description = "If true, add true genotype label mapper as output")
-    public boolean addTrueGenotypeLabels;
+    public boolean addTrueGenotypeLabels=defaultTrueGenotypeLabels();
+
+    public boolean defaultTrueGenotypeLabels() {
+        return false;
+    }
 }
