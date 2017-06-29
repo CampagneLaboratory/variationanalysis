@@ -12,7 +12,7 @@ import java.util.Properties;
 /**
  * Same as V34, but configurable indelSequenceLength
  */
-public class GenotypeMapperV35 extends GenotypeMapperV11 {
+public class GenotypeMapperV35 extends GenotypeMapperV34 {
 
 
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
