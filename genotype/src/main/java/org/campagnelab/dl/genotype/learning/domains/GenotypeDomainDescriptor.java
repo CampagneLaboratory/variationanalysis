@@ -354,7 +354,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             modelProperties.setProperty("stats.genomicContextSize.min", Integer.toString(args().genomicContextLength));
             modelProperties.setProperty("stats.genomicContextSize.max", Integer.toString(args().genomicContextLength));
         }
-        if (args().indelSequenceLength != Integer.MAX_VALUE) {
+        if (args().indelSequenceLength != args().defaultIndelSequenceLength()) {
             // override the .sbi context size only if the argument was used on the command line:
             indelSequenceLength = args().indelSequenceLength;
             modelProperties.setProperty("indelSequenceLength", Integer.toString(args().indelSequenceLength));

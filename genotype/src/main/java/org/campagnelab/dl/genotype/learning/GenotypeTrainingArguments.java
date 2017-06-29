@@ -27,7 +27,11 @@ public class GenotypeTrainingArguments extends TrainingArguments {
 
     @Parameter(names = "--indel-sequence-length", description = "Maximum length of indel sequences to use as LSTM input." +
             " If sequences are longer than this length, they will be clipped. ")
-    public int indelSequenceLength = 7;
+    public int indelSequenceLength = defaultIndelSequenceLength();
+
+    public int defaultIndelSequenceLength() {
+        return 7;
+    }
 
     @Parameter(names = "--true-genotype-length", description = "Maximum length of true genotype to use when mapping" +
             "true genotype as an output. ")
