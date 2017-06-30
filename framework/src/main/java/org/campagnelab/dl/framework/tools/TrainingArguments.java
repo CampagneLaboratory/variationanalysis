@@ -176,7 +176,7 @@ public abstract class TrainingArguments extends RecordingToolArguments {
             "base of interest in the center. Values between 21 and 61 are recommended." +
             " Since it is not clear what length of context provides best performance for a specific sequencing platform,  " +
             "this value should be included in a hyper-parameter search. ")
-    public int genomicContextLength = Integer.MAX_VALUE;
+    public int genomicContextLength = 29;
 
 
 }

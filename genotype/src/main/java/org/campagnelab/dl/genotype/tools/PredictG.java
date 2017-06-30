@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.framework.tools.Predict;
@@ -78,7 +79,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         if (args().outputFormat == PredictGArguments.OutputFormat.VCF) {
             vcfWriter.append(String.format(VCF_HEADER,
                     VersionUtils.getImplementationVersion(PredictG.class),
-                    args().modelPath, args().modelName));
+                    args().modelPath, args().modelName, FilenameUtils.getBaseName(args().testSet)));
             try {
                 bedHelper = new BEDHelper(bedBasename);
             } catch (IOException e) {
@@ -125,7 +126,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
             "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n" +
             "##FORMAT=<ID=MC,Number=1,Type=String,Description=\"Model Calls.\">\n" +
             "##FORMAT=<ID=P,Number=1,Type=Float,Description=\"Model proability.\">\n" +
-            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tNA12878\n"; //TODO: make vcf sample name dependent on input
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
 
     private static final String VCF_LINE = "%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
 
