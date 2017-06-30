@@ -20,21 +20,24 @@ public class RNNFeatureMapperTest {
         String sequence2 = "ATCG";
         String sequence3 = "AT";
         String expectedFeatures =
-                "[[[1.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
+                "[[[0.00, 0.00, 0.00, 0.00, 0.00, 1.00],\n" +
+                "  [1.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 1.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 1.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 1.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 0.00, 1.00, 0.00],\n" +
-                "  [0.00, 0.00, 0.00, 0.00, 0.00, 1.00]],\n" +
+                "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00]],\n" +
                 "\n" +
-                " [[1.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
+                " [[0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
+                "  [1.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 1.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 1.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 1.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00]],\n" +
                 "\n" +
-                " [[1.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
+                " [[0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
+                "  [1.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 1.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
@@ -46,7 +49,7 @@ public class RNNFeatureMapperTest {
                 " [1.00, 1.00, 0.00, 0.00, 0.00, 0.00]]";
         RNNFeatureMapper<String> rnnFeatureMapper = new RNNFeatureMapper<>(6, Function.identity(), String::length);
 
-        INDArray inputs = Nd4j.zeros(3, 6, 6);
+        INDArray inputs = Nd4j.zeros(3, 7, 6);
         INDArray mask = Nd4j.zeros(3, 6);
 
         rnnFeatureMapper.prepareToNormalize(sequence1, 0);
@@ -55,8 +58,8 @@ public class RNNFeatureMapperTest {
 
         INDArray sequence1Features = inputs.getRow(0);
         for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 6; j++) {
-                int featureIndex = i * 6 + j;
+            for (int j = 0; j < 7; j++) {
+                int featureIndex = i * 7 + j;
                 assertEquals(sequence1Features.getFloat(j, i), rnnFeatureMapper.produceFeature(sequence1, featureIndex), 1e-9);
             }
         }
@@ -67,7 +70,7 @@ public class RNNFeatureMapperTest {
 
         INDArray sequence2Mask = mask.getRow(1);
         for (int i = 0; i < 6; i++) {
-            assertEquals(sequence2Mask.getInt(i) == 1, rnnFeatureMapper.isMasked(sequence2, i * 6));
+            assertEquals(sequence2Mask.getInt(i) == 1, rnnFeatureMapper.isMasked(sequence2, i * 7));
         }
 
         rnnFeatureMapper.prepareToNormalize(sequence3, 2);

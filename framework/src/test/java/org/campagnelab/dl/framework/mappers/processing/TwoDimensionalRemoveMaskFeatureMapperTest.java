@@ -20,7 +20,8 @@ public class TwoDimensionalRemoveMaskFeatureMapperTest {
         String sequence2 = "GN";
         String sequence3 = "J";
         String expectedFeatures =
-                "[[[1.00, 0.00, 0.00, 1.00, 0.00, 0.00, 1.00, 0.00, 0.00],\n" +
+                "[[[0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
+                "  [1.00, 0.00, 0.00, 1.00, 0.00, 0.00, 1.00, 0.00, 0.00],\n" +
                 "  [0.00, 1.00, 0.00, 0.00, 1.00, 0.00, 0.00, 1.00, 0.00],\n" +
                 "  [0.00, 0.00, 1.00, 0.00, 0.00, 1.00, 0.00, 0.00, 1.00],\n" +
                 "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
@@ -30,16 +31,18 @@ public class TwoDimensionalRemoveMaskFeatureMapperTest {
                 " [[0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
+                "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [1.00, 0.00, 1.00, 0.00, 1.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 1.00, 0.00, 1.00, 0.00, 1.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00]],\n" +
                 "\n" +
-                " [[0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
+                " [[1.00, 1.00, 1.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
                 "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
-                "  [1.00, 1.00, 1.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00]]]";
+                "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n" +
+                "  [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00]]]";
         String expectedMask =
                 "[[1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00],\n" +
                 " [1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 0.00, 0.00, 0.00],\n" +
@@ -50,7 +53,7 @@ public class TwoDimensionalRemoveMaskFeatureMapperTest {
         TwoDimensionalConcatFeatureMapper<String> twoDConcatFMapper = new TwoDimensionalConcatFeatureMapper<>(rnnFeatureMapper1, rnnFeatureMapper2, rnnFeatureMapper3);
         TwoDimensionalRemoveMaskFeatureMapper<String> twoDFilterFMapper = new TwoDimensionalRemoveMaskFeatureMapper<>(twoDConcatFMapper);
 
-        INDArray inputs = Nd4j.zeros(3, 6, 9);
+        INDArray inputs = Nd4j.zeros(3, 7, 9);
         INDArray mask = Nd4j.zeros(3, 9);
 
         twoDFilterFMapper.prepareToNormalize(sequence1, 0);
@@ -59,8 +62,8 @@ public class TwoDimensionalRemoveMaskFeatureMapperTest {
 
         INDArray sequence1Features = inputs.getRow(0);
         for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 6; j++) {
-                int featureIndex = i * 6 + j;
+            for (int j = 0; j < 7; j++) {
+                int featureIndex = i * 7 + j;
                 assertEquals(sequence1Features.getFloat(j, i), twoDFilterFMapper.produceFeature(sequence1, featureIndex), 1e-9);
             }
         }
@@ -71,7 +74,7 @@ public class TwoDimensionalRemoveMaskFeatureMapperTest {
 
         INDArray sequence2Mask = mask.getRow(1);
         for (int i = 0; i < 9; i++) {
-            assertEquals(sequence2Mask.getInt(i) == 1, twoDFilterFMapper.isMasked(sequence2, i * 6));
+            assertEquals(sequence2Mask.getInt(i) == 1, twoDFilterFMapper.isMasked(sequence2, i * 7));
         }
 
         twoDFilterFMapper.prepareToNormalize(sequence3, 2);
