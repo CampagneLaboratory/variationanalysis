@@ -161,11 +161,13 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void processPredictions(PrintWriter resultWriter, BaseInformationRecords.BaseInformation record, List<Prediction> predictionList) {
-
-        if (coverage(record) < args().minimumCoverage) {
+        int coverage = coverage(record);
+        if (coverage<=0 || coverage < args().minimumCoverage) {
+            // we do not write the genotype if the sample has no counts, because some models won't be able
+            // to predict the reference base so it is best not to make a call in this case:
             return;
         }
-        GenotypePrediction fullPred = (GenotypePrediction) domainDescriptor.aggregatePredictions(record,predictionList);
+        GenotypePrediction fullPred = (GenotypePrediction) domainDescriptor.aggregatePredictions(record, predictionList);
         fullPred.inspectRecord(record);
 
         if (GenotypeHelper.isNoCall(fullPred.predictedGenotype)) {
@@ -203,10 +205,9 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                 case VCF:
                     //generated vcf formatted indel
                     FormatIndelVCF format = null;
-                    assert fullPred!=null: "fullPref must not be null";
-                    assert fullPred.predictedFrom!=null: "predictedFrom must not be null";
+                    assert fullPred != null : "fullPref must not be null";
+                    assert fullPred.predictedFrom != null : "predictedFrom must not be null";
                     format = new FormatIndelVCF(fullPred.predictedFrom, fullPred.predictedAlleles(), fullPred.predictedFrom.charAt(0));
-
 
                     //get max allele length for bed file
                     int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
