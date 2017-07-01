@@ -18,8 +18,8 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
     private boolean useNumAlleles = false;
 
     public NumDistinctAlleleGenotypePrediction(BaseInformationRecords.BaseInformation record, double decisionThreshold, List<Prediction> predictionList) {
-        this.DECISION_THRESHOLD=decisionThreshold;
-        this.record=record;
+        this.DECISION_THRESHOLD = decisionThreshold;
+        this.record = record;
         set(predictionList);
     }
 
@@ -32,6 +32,7 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
                 (MetadataPrediction) predictionList.get(11));
 
     }
+
     private double DECISION_THRESHOLD = 0.5d;
 
     public void set(NumDistinctAllelesOutputLayerPrediction numDistinctAlleles, SingleGenotypePrediction[] singleGenotypePredictions, MetadataPrediction metaData) {
@@ -44,23 +45,29 @@ public class NumDistinctAlleleGenotypePrediction extends GenotypePrediction {
         double predProbability = numDistinctAlleles.probability;
 
         StringBuffer hetGenotype = new StringBuffer();
-        isPredictedIndel=false;
+        isPredictedIndel = false;
+        int indexFirstNotCalled = numAlleles + 1;
+        // will hold the probability of the called allele with lowest probability
+        double weakestProbabilityCalled = Double.POSITIVE_INFINITY;
         for (SingleGenotypePrediction element : list.subList(0, numAlleles)) {
             if (hetGenotype.length() > 0) {
                 hetGenotype.append("/");
             }
-            hetGenotype.append(element.predictedSingleGenotype(record,metaData));
-            final boolean alleleIsIndel = element.isPredictedIndel(record,metaData);
-            this.isPredictedIndel|= alleleIsIndel;
+            hetGenotype.append(element.predictedSingleGenotype(record, metaData));
+            final boolean alleleIsIndel = element.isPredictedIndel(record, metaData);
+            this.isPredictedIndel |= alleleIsIndel;
             predProbability += Math.max(element.probabilityIsCalled, 1 - element.probabilityIsCalled);
+            weakestProbabilityCalled = Math.min(weakestProbabilityCalled, element.probabilityIsCalled);
         }
-        this.trueGenotype = extractTrueGenotype(record, singleGenotypePredictions,metaData);
-        overallProbability = predProbability / (double) (numAlleles + 1);
+        this.trueGenotype = extractTrueGenotype(record, singleGenotypePredictions, metaData);
+        double largestProbabilityNotCalled = list.get(indexFirstNotCalled).probabilityIsCalled;
+        double confidenceInPrediction = weakestProbabilityCalled - largestProbabilityNotCalled;
+        overallProbability = confidenceInPrediction;
         this.isVariantProbability = overallProbability;
         predictedGenotype = hetGenotype.toString();
         this.isIndel = metaData.isIndel;
         this.isVariant = metaData.isVariant;
-        this.referenceGobyIndex=metaData.referenceGobyIndex;
+        this.referenceGobyIndex = metaData.referenceGobyIndex;
     }
 
     private int calculateNumAlleles(double threshold, ObjectArrayList<SingleGenotypePrediction> list) {

@@ -199,7 +199,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                     resultWriter.printf("%d\t%d\t%s\t%s\t%f\t%s\t%s:%s\t%s\t\n",
                             fullPred.index, (correct ? 1 : 0),
                             fullPred.trueGenotype, fullPred.predictedGenotype,
-                            fullPred.isVariantProbability, correctness, record.getReferenceId(), record.getPosition() + 1,
+                            fullPred.overallProbability, correctness, record.getReferenceId(), record.getPosition() + 1,
                             isVariant ? "variant" : "-");
                     break;
                 case VCF:
@@ -230,7 +230,8 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                         // only append to VCF if there is at least one alternate allele:
                         // NB: VCF format is one-based.
                         vcfWriter.printf(VCF_LINE, record.getReferenceId(), record.getPosition() + 1,
-                                format.fromVCF, altField, codeGT(format.toVCF, format.fromVCF, sortedAltSet), toColumn, fullPred.isVariantProbability);
+                                format.fromVCF, altField, codeGT(format.toVCF, format.fromVCF, sortedAltSet), toColumn,
+                                fullPred.overallProbability);
                     }
                     // NB: bed format is zero-based.
                     bedHelper.add(record.getReferenceId(), record.getPosition(), record.getPosition() + maxLength, fullPred.index,

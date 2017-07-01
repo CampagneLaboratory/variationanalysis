@@ -10,6 +10,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.2.7-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-platform:0.8.0" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:0.8.0" level="project" />
