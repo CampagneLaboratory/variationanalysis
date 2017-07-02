@@ -80,10 +80,10 @@ public class GenotypePrediction extends Prediction {
         Set<Variant.FromTo> trueFromTos = new ObjectArraySet<>(2);
         for (BaseInformationRecords.CountInfo c : currentRecord.getSamples(0).getCountsList()) {
             if (predictedAlleles().contains(c.getToSequence())) {
-                predictedFromTos.add(new Variant.FromTo(c.getFromSequence(),c.getToSequence()));
+                predictedFromTos.add(new Variant.FromTo(c.getFromSequence(), c.getToSequence()));
             }
-            if (c.getIsCalled()){
-                trueFromTos.add(new Variant.FromTo(c.getFromSequence(),c.getToSequence()));
+            if (c.getIsCalled()) {
+                trueFromTos.add(new Variant.FromTo(c.getFromSequence(), c.getToSequence()));
             }
         }
         MergeIndelFrom mergedTrue = new MergeIndelFrom(trueFromTos);
@@ -91,7 +91,7 @@ public class GenotypePrediction extends Prediction {
         trueGenotype = GenotypeHelper.fromAlleles(mergedTrue.getTos());
         predictedGenotype = GenotypeHelper.fromAlleles(mergedPrediction.getTos());
         trueFrom = mergedTrue.getFrom();
-        if (predictedGenotype.equals(".|.")){
+        if (predictedGenotype.equals(".|.")) {
             predictedFrom = currentRecord.getReferenceBase();
         } else {
             predictedFrom = mergedPrediction.getFrom();
@@ -166,6 +166,13 @@ public class GenotypePrediction extends Prediction {
         return result;
     }
 
+
+
+    public void set(MetadataPrediction metaData) {
+        this.isIndel = metaData.isIndel;
+        this.isVariant = metaData.isVariant;
+        this.referenceGobyIndex = metaData.referenceGobyIndex;
+    }
 
     public static String DECISION_THRESHOLD_PROPERTY = "genotypes.decisionThreshold";
 }

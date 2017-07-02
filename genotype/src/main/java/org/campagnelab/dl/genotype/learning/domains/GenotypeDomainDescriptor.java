@@ -264,6 +264,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new HomozygousLabelsMapper(sortCounts, args().labelSmoothingEpsilon);
             case "numDistinctAlleles":
                 return new NumDistinctAllelesLabelMapper(sortCounts, ploidy, args().labelSmoothingEpsilon);
+            case "softmaxGenotype":
+                return new SoftmaxLabelMapper(sortCounts,ploidy, args().labelSmoothingEpsilon);
             case "combined":
                 return new CombinedLabelsMapper(args().labelSmoothingEpsilon);
             case "combinedRef":
@@ -299,6 +301,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     private boolean withCombinedLayerRef() {
         final GenotypeFeatureMapper featureMapper = (GenotypeFeatureMapper) getFeatureMapper("input");
         return featureMapper.withCombinedLayerRef;
+    }
+    private boolean withSoftmaxGenotype() {
+        final GenotypeFeatureMapper featureMapper = (GenotypeFeatureMapper) getFeatureMapper("input");
+        return featureMapper.withSoftmaxGenotype;
     }
 
     private boolean withIsVariantLabelMapper() {
@@ -405,6 +411,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 return new CombinedOutputLayerInterpreter();
             case "combinedRef":
                 return new CombinedOutputLayerRefInterpreter();
+            case "softmaxGenotype":
+                return new SoftmaxGenotypeInterpreter(ploidy);
             case "numDistinctAlleles":
                 return new NumDistinctAllelesInterpreter(ploidy);
             case "isVariant":
@@ -528,7 +536,16 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     @Override
     public ComputationGraphAssembler getComputationalGraph() {
         ComputationGraphAssembler assembler;
-        if (withDistinctAllele()) {
+        if (withSoftmaxGenotype()) {
+            if (isLstmIndelModel) {
+              throw new IllegalArgumentException("isLstmIndelModel not supported with softmax label");
+            } else if (isLstmIndelAggregateModel) {
+                throw new IllegalArgumentException("isLstmIndelAggregateModel not supported with softmax label");
+            } else {
+                assembler = new SoftmaxAlleleLabelAssembler(withIsVariantLabelMapper());
+            }
+        }
+        else if (withDistinctAllele()) {
             if (isLstmIndelModel) {
                 assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.DISTINCT_ALLELES,
                         withIsVariantLabelMapper(), withCombinedLayerRef(), addTrueGenotypeLabels);
@@ -611,6 +628,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     public ILossFunction getOutputLoss(String outputName) {
         switch (outputName) {
             case "homozygous":
+            case "softmaxGenotype":
             case "numDistinctAlleles":
             case "combined":
                 return new LossMCXENT();
@@ -637,7 +655,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public GenotypePrediction aggregatePredictions(BaseInformationRecords.BaseInformation record, List<Prediction> individualOutputPredictions) {
-        if (addTrueGenotypeLabels) {
+        if (withSoftmaxGenotype()) {
+            return new AggregatedSoftmaxGenotypePrediction( record, individualOutputPredictions);
+        }
+        else if (addTrueGenotypeLabels) {
             return new TrueGenotypePrediction(record, individualOutputPredictions, withDistinctAllele(),
                     withCombinedLayer(), withIsVariantLabelMapper(), decisionThreshold);
         } else if (withDistinctAllele()) {

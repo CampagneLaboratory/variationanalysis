@@ -8,7 +8,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
- * Interprets the outout of NumDistinctAllelesLabelMapper.
+ * Interprets the output of NumDistinctAllelesLabelMapper.
  * Created by fac2003 on 12/20/16.
  */
 public class NumDistinctAllelesInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation,
