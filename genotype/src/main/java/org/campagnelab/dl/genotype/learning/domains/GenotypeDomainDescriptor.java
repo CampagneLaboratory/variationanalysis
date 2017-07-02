@@ -538,8 +538,9 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         ComputationGraphAssembler assembler;
         if (withSoftmaxGenotype()) {
             if (isLstmIndelModel) {
-              throw new IllegalArgumentException("isLstmIndelModel not supported with softmax label");
-            } else if (isLstmIndelAggregateModel) {
+                assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.SOFTMAX_GENOTYPE,
+                        withIsVariantLabelMapper(), withCombinedLayerRef(), addTrueGenotypeLabels);
+             } else if (isLstmIndelAggregateModel) {
                 throw new IllegalArgumentException("isLstmIndelAggregateModel not supported with softmax label");
             } else {
                 assembler = new SoftmaxAlleleLabelAssembler(withIsVariantLabelMapper());

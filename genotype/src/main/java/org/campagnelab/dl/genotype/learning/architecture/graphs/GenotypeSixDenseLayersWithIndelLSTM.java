@@ -39,7 +39,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
     public enum OutputType {
         HOMOZYGOUS,
         DISTINCT_ALLELES,
-        COMBINED,
+        COMBINED, SOFTMAX_GENOTYPE,
     }
 
     private GenotypeTrainingArguments arguments;
@@ -57,6 +57,13 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         basicOutputNames.addAll(Arrays.asList(basicOutputNamesArray));
         combined = fixRef ? "combinedRef" : "combined";
         switch (outputType) {
+            case SOFTMAX_GENOTYPE:
+                if (hasIsVariant) {
+                    outputNames = new String[]{"softmaxGenotype", "metaData", "isVariant"};
+                } else {
+                    outputNames = new String[]{"softmaxGenotype", "metaData",};
+                }
+                break;
             case DISTINCT_ALLELES:
                 if (hasIsVariant) {
                     if (addTrueGenotypeLabels) {
@@ -132,8 +139,17 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
     private void addOutputLayers(ComputationGraphConfiguration.GraphBuilder build, DomainDescriptor domainDescriptor,
                                  String lastDenseLayerName, int numIn, int numLSTMLayers, int numLSTMTrueGenotypeHiddenNodes,
                                  int numLSTMDecoderInputs, int numReductionLayers, float reductionRate) {
-        if (outputType == OutputType.HOMOZYGOUS || outputType == OutputType.DISTINCT_ALLELES) {
-            if (outputType == OutputType.DISTINCT_ALLELES) {
+        LearningRatePolicy learningRatePolicy = LearningRatePolicy.Poly;
+        switch (outputType) {
+            case SOFTMAX_GENOTYPE:
+                build.addLayer("softmaxGenotype", new OutputLayer.Builder(
+                        domainDescriptor.getOutputLoss("softmaxGenotype"))
+                        .weightInit(WEIGHT_INIT)
+                        .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
+                        .nIn(numIn)
+                        .nOut(domainDescriptor.getNumOutputs("softmaxGenotype")[0]).build(), lastDenseLayerName).addInputs();
+                break;
+            case DISTINCT_ALLELES:
                 build.addLayer("numDistinctAlleles", new OutputLayer.Builder(domainDescriptor.getOutputLoss("homozygous"))
                         .weightInit(WEIGHT_INIT)
                         .activation("softmax").weightInit(WEIGHT_INIT)
@@ -141,27 +157,30 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
                         .nIn(numIn)
                         .nOut(domainDescriptor.getNumOutputs("numDistinctAlleles")[0])
                         .build(), lastDenseLayerName);
-            } else {
+                break;
+            case HOMOZYGOUS:
                 build.addLayer("homozygous", new OutputLayer.Builder(domainDescriptor.getOutputLoss("homozygous"))
                         .weightInit(WEIGHT_INIT)
                         .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
                         .nIn(numIn).nOut(11).build(), lastDenseLayerName);
-            }
-            for (String outputName : outputNames) {
-                if (basicOutputNames.contains(outputName)) {
-                    build.addLayer(outputName, new OutputLayer.Builder(domainDescriptor.getOutputLoss(outputName))
-                            .weightInit(WEIGHT_INIT)
-                            .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
-                            .nIn(numIn).nOut(2).build(), lastDenseLayerName);
-                }
-            }
-        } else if (outputType == OutputType.COMBINED) {
-            build.addLayer(combined, new OutputLayer.Builder(domainDescriptor.getOutputLoss(combined))
-                    .weightInit(WEIGHT_INIT)
-                    .activation(combined).weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
-                    .nIn(numIn)
-                    .nOut(domainDescriptor.getNumOutputs(combined)[0]).build(), lastDenseLayerName);
+                break;
+            case COMBINED:
+                build.addLayer(combined, new OutputLayer.Builder(domainDescriptor.getOutputLoss(combined))
+                        .weightInit(WEIGHT_INIT)
+                        .activation(combined).weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
+                        .nIn(numIn)
+                        .nOut(domainDescriptor.getNumOutputs(combined)[0]).build(), lastDenseLayerName);
+                break;
         }
+        for (String outputName : outputNames) {
+            if (basicOutputNames.contains(outputName)) {
+                build.addLayer(outputName, new OutputLayer.Builder(domainDescriptor.getOutputLoss(outputName))
+                        .weightInit(WEIGHT_INIT)
+                        .activation("softmax").weightInit(WEIGHT_INIT).learningRateDecayPolicy(LEARNING_RATE_POLICY)
+                        .nIn(numIn).nOut(2).build(), lastDenseLayerName);
+            }
+        }
+
         appendMetaDataLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         appendIsVariantLayer(domainDescriptor, LEARNING_RATE_POLICY, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         appendTrueGenotypeLayers(build, addTrueGenotypeLabels, lastDenseLayerName, domainDescriptor, WEIGHT_INIT,
@@ -194,11 +213,11 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
                 String lstmPreviousLayerName = i == 0 ? lstmInputName : "lstm" + lstmInputName + "_" + (i - 1);
                 int numLSTMInputNodes = i == 0 ? numLSTMInputs : numLSTMIndelHiddenNodes;
                 build.addLayer(lstmLayerName, new GravesLSTM.Builder()
-                    .nIn(numLSTMInputNodes)
-                    .nOut(numLSTMIndelHiddenNodes)
-                    .activation("softsign")
-                    .weightInit(WEIGHT_INIT)
-                    .build(), lstmPreviousLayerName);
+                        .nIn(numLSTMInputNodes)
+                        .nOut(numLSTMIndelHiddenNodes)
+                        .activation("softsign")
+                        .weightInit(WEIGHT_INIT)
+                        .build(), lstmPreviousLayerName);
             }
             build.addVertex("lstm" + lstmInputName + "LastTimeStepVertex", new LastTimeStepVertex(lstmInputName),
                     lstmLayerName);
@@ -209,7 +228,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         }
         mergeInputs[lstmInputNames.length] = "input";
         build.addVertex("lstmFeedForwardMerge", new MergeVertex(), mergeInputs);
-        int numInputsToDenseAfterMerge = numInputs + (lstmInputNames.length  * numLSTMIndelHiddenNodes);
+        int numInputsToDenseAfterMerge = numInputs + (lstmInputNames.length * numLSTMIndelHiddenNodes);
         assembler.assemble(numInputsToDenseAfterMerge, numHiddenNodes,
                 numLayers, "lstmFeedForwardMerge", 1);
         String lastDenseLayerName = assembler.lastLayerName();
@@ -219,7 +238,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         ComputationGraphConfiguration conf = build
                 .setOutputs(outputNames)
                 .build();
-       // System.out.println(conf);
+        // System.out.println(conf);
         return new ComputationGraph(conf);
     }
 
@@ -247,7 +266,7 @@ public class GenotypeSixDenseLayersWithIndelLSTM extends GenotypeAssembler imple
         String[] inputNames = getInputNames();
         InputType[] inputTypes = new InputType[inputNames.length];
         for (int i = 0; i < inputNames.length; i++) {
-            switch(inputNames[i]) {
+            switch (inputNames[i]) {
                 case "input":
                     inputTypes[i] = InputType.feedForward(domainDescriptor.getNumInputs(inputNames[i])[0]);
                     break;
