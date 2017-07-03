@@ -25,12 +25,12 @@ fi
 
 if [ -z "${RANDOM_SEED+set}" ]; then
     RANDOM_SEED="32434"
-    echo "RANDOM_SEED set to ${RANDOM_SEED}. Change the variable to switch the learning rate."
+    echo "RANDOM_SEED set to ${RANDOM_SEED}. Change the variable to switch the random seed."
 fi
 
 if [ -z "${EARLY_STOPPING_NUM_EPOCHS+set}" ]; then
     EARLY_STOPPING_NUM_EPOCHS="10"
-    echo "EARLY_STOPPING_NUM_EPOCHS set to ${EARLY_STOPPING_NUM_EPOCHS}. Change the variable to switch the learning rate."
+    echo "EARLY_STOPPING_NUM_EPOCHS set to ${EARLY_STOPPING_NUM_EPOCHS}. Change the variable to switch the number of epochs where metric may not improve before stopping."
 fi
 
 if [ -z "${LEARNING_RATE+set}" ]; then
