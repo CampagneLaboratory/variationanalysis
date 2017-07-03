@@ -13,13 +13,17 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class SoftmaxGenotypeInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation,
         SoftmaxGenotypePrediction> {
 
-    int ploidy;
+    int maxCalledAlleles;
     private double maxProbability;
     private int numBits;
 
-    public SoftmaxGenotypeInterpreter(int ploidy) {
-        this.ploidy = ploidy;
-        numBits = (int) Math.pow(2, ploidy);
+    /**
+     * Construct the interpreter.
+     * @param maxCalledAlleles The maximum number of possible called alleles.
+     */
+    public SoftmaxGenotypeInterpreter(int maxCalledAlleles) {
+        this.maxCalledAlleles = maxCalledAlleles;
+        numBits = (int) Math.pow(2, maxCalledAlleles);
     }
 
     @Override

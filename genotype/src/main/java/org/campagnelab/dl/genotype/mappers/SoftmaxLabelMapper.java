@@ -1,11 +1,9 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
-import org.campagnelab.dl.framework.mappers.OneHotBaseFeatureMapper;
-import org.campagnelab.dl.framework.mappers.OneHotBaseLabelMapper;
-import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.datavec.api.transform.transform.categorical.CategoricalToOneHotTransform;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -18,18 +16,19 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
 
 
     private final float epsilon;
-    public int ploidy;
+    public int maxCalledAlleles;
+    static private Logger LOG = LoggerFactory.getLogger(SoftmaxLabelMapper.class);
 
     /**
      * @param sortCounts
-     * @param ploidy
-     * @param epsilon    amount of label smoothing to apply.
+     * @param maxCalledAlleles
+     * @param epsilon          amount of label smoothing to apply.
      */
-    public SoftmaxLabelMapper(boolean sortCounts, int ploidy, float epsilon) {
+    public SoftmaxLabelMapper(boolean sortCounts, int maxCalledAlleles, float epsilon) {
 
         super(sortCounts);
-        assert sortCounts : "SoftmaxLabelMapper requires sorted counts.";
-        this.ploidy = ploidy;
+        if (!sortCounts) LOG.warn("You should only useSoftmaxLabelMapper with unsorted counts in tests. ");
+        this.maxCalledAlleles = maxCalledAlleles;
         this.epsilon = epsilon;
     }
 
@@ -40,7 +39,7 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
 
     @Override
     public int numberOfLabels() {
-        return (int) Math.pow(2, ploidy);
+        return (int) Math.pow(2, maxCalledAlleles);
     }
 
     private int cachedValue;
@@ -56,12 +55,15 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
-        super.prepareToNormalize(record,indexOfRecord);
+        super.prepareToNormalize(record, indexOfRecord);
         cachedValue = 0;
         int index = 0;
         for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(0).getCountsList()) {
             cachedValue |= (count.getIsCalled() ? 1 : 0) << index;
             index++;
+            if (index > maxCalledAlleles) {
+   //             break;
+            }
         }
     }
 
@@ -80,7 +82,7 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
 
         String value = readerProperties.getProperty(PLOIDY_PROPERTY);
         try {
-            ploidy = Integer.parseInt(value);
+            maxCalledAlleles = Integer.parseInt(value) + 1;
         } catch (NumberFormatException e) {
             throw new RuntimeException("Unable to read ploidy from sbi properties file.");
         }

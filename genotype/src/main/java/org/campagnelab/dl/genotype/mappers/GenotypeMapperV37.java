@@ -38,6 +38,12 @@ public class GenotypeMapperV37 extends GenotypeMapperV11 {
      * Configure the feature mapper to map a specific sampleIndex
      */
     public void configure(Properties sbiProperties) {
+        String ploidyString = sbiProperties.getProperty("genotypes.ploidy");
+        if (ploidyString==null) {
+            MAX_GENOTYPES=3;
+        }else{
+            MAX_GENOTYPES= Integer.parseInt(ploidyString)+1;
+        }
 
         String genomicContextLengthString = sbiProperties.getProperty("stats.genomicContextSize.min");
         assert genomicContextLengthString != null : "property must exist: stats.genomicContextSize.min";

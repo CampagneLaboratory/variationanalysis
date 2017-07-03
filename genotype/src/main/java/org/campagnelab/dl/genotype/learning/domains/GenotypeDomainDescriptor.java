@@ -265,7 +265,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "numDistinctAlleles":
                 return new NumDistinctAllelesLabelMapper(sortCounts, ploidy, args().labelSmoothingEpsilon);
             case "softmaxGenotype":
-                return new SoftmaxLabelMapper(sortCounts,ploidy, args().labelSmoothingEpsilon);
+                return new SoftmaxLabelMapper(sortCounts,ploidy+1, args().labelSmoothingEpsilon);
             case "combined":
                 return new CombinedLabelsMapper(args().labelSmoothingEpsilon);
             case "combinedRef":
@@ -359,16 +359,13 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         // arguments are already in properties:
         if (args().parsedFromCommandLine) {
 
-            // override the .sbi context size only if the argument was used on the command line:
             genomicContextSize = args().genomicContextLength;
             modelProperties.setProperty("stats.genomicContextSize.min", Integer.toString(args().genomicContextLength));
             modelProperties.setProperty("stats.genomicContextSize.max", Integer.toString(args().genomicContextLength));
 
-            // override the .sbi context size only if the argument was used on the command line:
             indelSequenceLength = args().indelSequenceLength;
             modelProperties.setProperty("indelSequenceLength", Integer.toString(args().indelSequenceLength));
 
-            // override the .sbi context size only if the argument was used on the command line:
             modelCapacity = args().modelCapacity;
             modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
             modelProperties.setProperty("addTrueGenotypeLabels", Boolean.toString(args().addTrueGenotypeLabels));
@@ -376,6 +373,11 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             modelProperties.setProperty("variantLossWeight", Double.toString(variantLossWeight));
             modelProperties.setProperty("labelSmoothing.epsilon", Double.toString(args().labelSmoothingEpsilon));
             modelProperties.setProperty("trueGenotypeLength", Integer.toString(args().trueGenotypeLength));
+
+            ploidy = args().ploidy;
+            modelProperties.setProperty("genotypes.ploidy", Integer.toString(args().ploidy));
+            modelProperties.setProperty("genotypes.ploidy", Integer.toString(args().ploidy));
+
         }
     }
 
@@ -412,7 +414,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "combinedRef":
                 return new CombinedOutputLayerRefInterpreter();
             case "softmaxGenotype":
-                return new SoftmaxGenotypeInterpreter(ploidy);
+                return new SoftmaxGenotypeInterpreter(ploidy+1);
             case "numDistinctAlleles":
                 return new NumDistinctAllelesInterpreter(ploidy);
             case "isVariant":
