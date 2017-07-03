@@ -38,8 +38,6 @@ if [ ! -e "${RTG_TEMPLATE}" ]; then
  exit 10;
 fi
 
-
-
 function assertRTGInstalled {
     echo no | rtg version >/dev/null 2>&1 || { echo >&2 "This script requires rtg but it's not installed. Aborting. Install rtg (see https://github.com/genome-in-a-bottle/giab_FAQ) and add the rtg executable to your path, then try again."; exit 1; }
 }
@@ -126,7 +124,8 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
 
     echo "Running predict-genotypes to create VCF and observed region bed.."
     predict-genotypes.sh 20g -m ${MODEL_DIR} -l ${MODEL_PREFIX} -f -i ${DATASET_SBI} \
-        --format VCF --mini-batch-size ${MINI_BATCH_SIZE}  ${PREDICT_OPTIONS}  --no-cache
+        --format VCF --mini-batch-size ${MINI_BATCH_SIZE}  ${PREDICT_OPTIONS}  --no-cache \
+         ${PREDICT_MAX_RECORDS}
     dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
     echo "Evaluation with rtg vcfeval starting.."
 
