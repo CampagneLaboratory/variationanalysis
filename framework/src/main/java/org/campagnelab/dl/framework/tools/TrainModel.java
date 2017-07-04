@@ -404,8 +404,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 } else {
                     notImproved++;
                 }
-                if (notImproved > args().stopWhenEpochsWithoutImprovement) {
-                    // we have not improved after earlyStopCondition epoch, time to stop.
+                if (Double.isNaN(bestValue)|| notImproved > args().stopWhenEpochsWithoutImprovement) {
+                    // we have not improved after earlyStopCondition epoch, or got NaN, time to stop.
                     break;
                 }
             }
