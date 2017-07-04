@@ -8,6 +8,7 @@ import org.campagnelab.dl.somatic.utils.ProtoPredictor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.predictions.ProtoHelper;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -254,9 +255,9 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         {
             //forward Quality
-            List<BaseInformationRecords.NumberWithFrequency> forwardQualitySource = somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList();
-            List<BaseInformationRecords.NumberWithFrequency> forwardQualityDest = somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList();
-            mutateNumWithFreqLists(fMutCount,forwardQualitySource,forwardQualityDest);
+            List<BaseInformationRecords.NumberWithFrequency> forwardQualitySource = modifiable(somaticBuild.getCounts(oldBase).getQualityScoresForwardStrandList());
+            List<BaseInformationRecords.NumberWithFrequency> forwardQualityDest = modifiable(somaticBuild.getCounts(newBase).getQualityScoresForwardStrandList());
+            mutateNumWithFreqLists(fMutCount, forwardQualitySource, forwardQualityDest);
             sourceBuild.clearQualityScoresForwardStrand();
             destBuild.clearQualityScoresForwardStrand();
             sourceBuild.addAllQualityScoresForwardStrand(forwardQualitySource);
@@ -266,8 +267,8 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         {
             //reverse Quality
-            List<BaseInformationRecords.NumberWithFrequency> reverseQualitySource = somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList();
-            List<BaseInformationRecords.NumberWithFrequency> reverseQualityDest = somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList();
+            List<BaseInformationRecords.NumberWithFrequency> reverseQualitySource = modifiable(somaticBuild.getCounts(oldBase).getQualityScoresReverseStrandList());
+            List<BaseInformationRecords.NumberWithFrequency> reverseQualityDest = modifiable(somaticBuild.getCounts(newBase).getQualityScoresReverseStrandList());
             mutateNumWithFreqLists(bMutCount, reverseQualitySource, reverseQualityDest);
             sourceBuild.clearQualityScoresReverseStrand();
             destBuild.clearQualityScoresReverseStrand();
@@ -278,8 +279,8 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         {
 
             //forward readIndices
-            List<BaseInformationRecords.NumberWithFrequency> forwardReadIndicesSource = somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList();
-            List<BaseInformationRecords.NumberWithFrequency> forwardReadIndicesDest = somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList();
+            List<BaseInformationRecords.NumberWithFrequency> forwardReadIndicesSource = modifiable(somaticBuild.getCounts(oldBase).getReadIndicesForwardStrandList());
+            List<BaseInformationRecords.NumberWithFrequency> forwardReadIndicesDest = modifiable(somaticBuild.getCounts(newBase).getReadIndicesForwardStrandList());
             mutateNumWithFreqLists(fMutCount, forwardReadIndicesSource, forwardReadIndicesDest);
             sourceBuild.clearReadIndicesForwardStrand();
             destBuild.clearReadIndicesForwardStrand();
@@ -290,9 +291,9 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         {
             //reverse readIndices
-            List<BaseInformationRecords.NumberWithFrequency> reverseReadIndicesSource = somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList();
-            List<BaseInformationRecords.NumberWithFrequency> reverseReadIndicesDest = somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList();
-            mutateNumWithFreqLists(bMutCount,reverseReadIndicesSource, reverseReadIndicesDest);
+            List<BaseInformationRecords.NumberWithFrequency> reverseReadIndicesSource = modifiable(somaticBuild.getCounts(oldBase).getReadIndicesReverseStrandList());
+            List<BaseInformationRecords.NumberWithFrequency> reverseReadIndicesDest = modifiable(somaticBuild.getCounts(newBase).getReadIndicesReverseStrandList());
+            mutateNumWithFreqLists(bMutCount, reverseReadIndicesSource, reverseReadIndicesDest);
             sourceBuild.clearReadIndicesReverseStrand();
             destBuild.clearReadIndicesReverseStrand();
             sourceBuild.addAllReadIndicesReverseStrand(reverseReadIndicesSource);
@@ -300,12 +301,11 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         }
 
 
-
         {
             //forward mapping quality
-            List<BaseInformationRecords.NumberWithFrequency> forwardMQualitySource = somaticBuild.getCounts(oldBase).getReadMappingQualityForwardStrandList();
-            List<BaseInformationRecords.NumberWithFrequency> forwardMQualityDest = somaticBuild.getCounts(newBase).getReadMappingQualityForwardStrandList();
-            mutateNumWithFreqLists(fMutCount,forwardMQualitySource,forwardMQualityDest);
+            List<BaseInformationRecords.NumberWithFrequency> forwardMQualitySource = modifiable(somaticBuild.getCounts(oldBase).getReadMappingQualityForwardStrandList());
+            List<BaseInformationRecords.NumberWithFrequency> forwardMQualityDest = modifiable(somaticBuild.getCounts(newBase).getReadMappingQualityForwardStrandList());
+            mutateNumWithFreqLists(fMutCount, forwardMQualitySource, forwardMQualityDest);
             sourceBuild.clearReadMappingQualityForwardStrand();
             destBuild.clearReadMappingQualityForwardStrand();
             sourceBuild.addAllReadMappingQualityForwardStrand(forwardMQualitySource);
@@ -315,9 +315,9 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         {
             //reverse mapping quality
-            List<BaseInformationRecords.NumberWithFrequency> reverseMQualitySource = somaticBuild.getCounts(oldBase).getReadMappingQualityReverseStrandList();
-            List<BaseInformationRecords.NumberWithFrequency> reverseMQualityDest = somaticBuild.getCounts(newBase).getReadMappingQualityReverseStrandList();
-            mutateNumWithFreqLists(bMutCount,reverseMQualitySource,reverseMQualityDest);
+            List<BaseInformationRecords.NumberWithFrequency> reverseMQualitySource = modifiable(somaticBuild.getCounts(oldBase).getReadMappingQualityReverseStrandList());
+            List<BaseInformationRecords.NumberWithFrequency> reverseMQualityDest = modifiable(somaticBuild.getCounts(newBase).getReadMappingQualityReverseStrandList());
+            mutateNumWithFreqLists(bMutCount, reverseMQualitySource, reverseMQualityDest);
             sourceBuild.clearReadMappingQualityReverseStrand();
             destBuild.clearReadMappingQualityReverseStrand();
             sourceBuild.addAllReadMappingQualityReverseStrand(reverseMQualitySource);
@@ -327,9 +327,9 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         {
             //numvariationinread read
-            List<BaseInformationRecords.NumberWithFrequency> numVariationSource = somaticBuild.getCounts(oldBase).getNumVariationsInReadsList();
-            List<BaseInformationRecords.NumberWithFrequency> numVariationDest = somaticBuild.getCounts(newBase).getNumVariationsInReadsList();
-            mutateNumWithFreqLists(fMutCount+bMutCount,numVariationSource,numVariationDest);
+            List<BaseInformationRecords.NumberWithFrequency> numVariationSource = modifiable(somaticBuild.getCounts(oldBase).getNumVariationsInReadsList());
+            List<BaseInformationRecords.NumberWithFrequency> numVariationDest =modifiable( somaticBuild.getCounts(newBase).getNumVariationsInReadsList());
+            mutateNumWithFreqLists(fMutCount + bMutCount, numVariationSource, numVariationDest);
             sourceBuild.clearNumVariationsInReads();
             destBuild.clearNumVariationsInReads();
             sourceBuild.addAllNumVariationsInReads(numVariationSource);
@@ -339,9 +339,9 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         {
             //target aligned length
-            List<BaseInformationRecords.NumberWithFrequency> targetLengthsSource = somaticBuild.getCounts(oldBase).getTargetAlignedLengthsList();
-            List<BaseInformationRecords.NumberWithFrequency> targetLengthsDest = somaticBuild.getCounts(newBase).getTargetAlignedLengthsList();
-            mutateNumWithFreqLists(fMutCount+bMutCount,targetLengthsSource,targetLengthsDest);
+            List<BaseInformationRecords.NumberWithFrequency> targetLengthsSource = modifiable(somaticBuild.getCounts(oldBase).getTargetAlignedLengthsList());
+            List<BaseInformationRecords.NumberWithFrequency> targetLengthsDest = modifiable(somaticBuild.getCounts(newBase).getTargetAlignedLengthsList());
+            mutateNumWithFreqLists(fMutCount + bMutCount, targetLengthsSource, targetLengthsDest);
             sourceBuild.clearTargetAlignedLengths();
             destBuild.clearTargetAlignedLengths();
             sourceBuild.addAllTargetAlignedLengths(targetLengthsSource);
@@ -350,9 +350,9 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         {
             //query aligned length
-            List<BaseInformationRecords.NumberWithFrequency> queryLengthsSource = somaticBuild.getCounts(oldBase).getTargetAlignedLengthsList();
-            List<BaseInformationRecords.NumberWithFrequency> queryLengthsDest = somaticBuild.getCounts(newBase).getTargetAlignedLengthsList();
-            mutateNumWithFreqLists(fMutCount+bMutCount,queryLengthsSource,queryLengthsDest);
+            List<BaseInformationRecords.NumberWithFrequency> queryLengthsSource = modifiable(somaticBuild.getCounts(oldBase).getTargetAlignedLengthsList());
+            List<BaseInformationRecords.NumberWithFrequency> queryLengthsDest = modifiable(somaticBuild.getCounts(newBase).getTargetAlignedLengthsList());
+            mutateNumWithFreqLists(fMutCount + bMutCount, queryLengthsSource, queryLengthsDest);
             sourceBuild.clearQueryAlignedLengths();
             destBuild.clearQueryAlignedLengths();
             sourceBuild.addAllQueryAlignedLengths(queryLengthsSource);
@@ -362,9 +362,9 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         {
             //distances to forward read vars
-            List<BaseInformationRecords.NumberWithFrequency> distToVarsForwardSource = somaticBuild.getCounts(oldBase).getDistancesToReadVariationsForwardStrandList();
-            List<BaseInformationRecords.NumberWithFrequency> distToVarsForwardDest = somaticBuild.getCounts(newBase).getDistancesToReadVariationsForwardStrandList();
-            mutateNumWithFreqLists(fMutCount,distToVarsForwardSource,distToVarsForwardDest);
+            List<BaseInformationRecords.NumberWithFrequency> distToVarsForwardSource = modifiable(somaticBuild.getCounts(oldBase).getDistancesToReadVariationsForwardStrandList());
+            List<BaseInformationRecords.NumberWithFrequency> distToVarsForwardDest = modifiable(somaticBuild.getCounts(newBase).getDistancesToReadVariationsForwardStrandList());
+            mutateNumWithFreqLists(fMutCount, distToVarsForwardSource, distToVarsForwardDest);
             sourceBuild.clearDistancesToReadVariationsForwardStrand();
             destBuild.clearDistancesToReadVariationsForwardStrand();
             sourceBuild.addAllDistancesToReadVariationsForwardStrand(distToVarsForwardSource);
@@ -374,9 +374,9 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         {
             //distances to reverse read vars Reverse
-            List<BaseInformationRecords.NumberWithFrequency> distToVarsReverseSource = somaticBuild.getCounts(oldBase).getDistancesToReadVariationsReverseStrandList();
-            List<BaseInformationRecords.NumberWithFrequency> distToVarsReverseDest = somaticBuild.getCounts(newBase).getDistancesToReadVariationsReverseStrandList();
-            mutateNumWithFreqLists(bMutCount,distToVarsReverseSource,distToVarsReverseDest);
+            List<BaseInformationRecords.NumberWithFrequency> distToVarsReverseSource = modifiable(somaticBuild.getCounts(oldBase).getDistancesToReadVariationsReverseStrandList());
+            List<BaseInformationRecords.NumberWithFrequency> distToVarsReverseDest = modifiable(somaticBuild.getCounts(newBase).getDistancesToReadVariationsReverseStrandList());
+            mutateNumWithFreqLists(bMutCount, distToVarsReverseSource, distToVarsReverseDest);
             sourceBuild.clearDistancesToReadVariationsReverseStrand();
             destBuild.clearDistancesToReadVariationsReverseStrand();
             sourceBuild.addAllDistancesToReadVariationsReverseStrand(distToVarsReverseSource);
@@ -386,9 +386,9 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         {
             //pairFlags
-            List<BaseInformationRecords.NumberWithFrequency> pairFlagsSource = somaticBuild.getCounts(oldBase).getPairFlagsList();
-            List<BaseInformationRecords.NumberWithFrequency> pairFlagsDest = somaticBuild.getCounts(newBase).getPairFlagsList();
-            mutateNumWithFreqLists(fMutCount+bMutCount,pairFlagsSource,pairFlagsDest);
+            List<BaseInformationRecords.NumberWithFrequency> pairFlagsSource = modifiable(somaticBuild.getCounts(oldBase).getPairFlagsList());
+            List<BaseInformationRecords.NumberWithFrequency> pairFlagsDest =modifiable(somaticBuild.getCounts(newBase).getPairFlagsList());
+            mutateNumWithFreqLists(fMutCount + bMutCount, pairFlagsSource, pairFlagsDest);
             sourceBuild.clearPairFlags();
             destBuild.clearPairFlags();
             sourceBuild.addAllPairFlags(pairFlagsSource);
@@ -398,9 +398,9 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         {
             //query positions
-            List<BaseInformationRecords.NumberWithFrequency> queryPositionsSource = somaticBuild.getCounts(oldBase).getQueryPositionsList();
-            List<BaseInformationRecords.NumberWithFrequency> queryPositionsDest = somaticBuild.getCounts(newBase).getQueryPositionsList();
-            mutateNumWithFreqLists(fMutCount+bMutCount,queryPositionsSource,queryPositionsDest);
+            List<BaseInformationRecords.NumberWithFrequency> queryPositionsSource = modifiable(somaticBuild.getCounts(oldBase).getQueryPositionsList());
+            List<BaseInformationRecords.NumberWithFrequency> queryPositionsDest =modifiable( somaticBuild.getCounts(newBase).getQueryPositionsList());
+            mutateNumWithFreqLists(fMutCount + bMutCount, queryPositionsSource, queryPositionsDest);
             sourceBuild.clearQueryPositions();
             destBuild.clearQueryPositions();
             sourceBuild.addAllQueryPositions(queryPositionsSource);
@@ -409,9 +409,9 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
         {
             //insert sizes
-            List<BaseInformationRecords.NumberWithFrequency> insertSizesSource = somaticBuild.getCounts(oldBase).getInsertSizesList();
-            List<BaseInformationRecords.NumberWithFrequency> insertSizesDest = somaticBuild.getCounts(newBase).getInsertSizesList();
-            mutateNumWithFreqLists(fMutCount+bMutCount,insertSizesSource,insertSizesDest);
+            List<BaseInformationRecords.NumberWithFrequency> insertSizesSource = modifiable(somaticBuild.getCounts(oldBase).getInsertSizesList());
+            List<BaseInformationRecords.NumberWithFrequency> insertSizesDest = modifiable(somaticBuild.getCounts(newBase).getInsertSizesList());
+            mutateNumWithFreqLists(fMutCount + bMutCount, insertSizesSource, insertSizesDest);
             sourceBuild.clearInsertSizes();
             destBuild.clearInsertSizes();
             sourceBuild.addAllInsertSizes(insertSizesSource);
@@ -419,14 +419,12 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         }
 
 
-
-
         String mutatedAllele = "?";
 
 
         i = 0;
         for (BaseInformationRecords.CountInfo count : somaticBuild.getCountsList()) {
-            if (i==newBase){
+            if (i == newBase) {
                 mutatedAllele = count.getToSequence();
                 baseBuild.setMutatedBase(count.getToSequence());
             }
@@ -447,14 +445,19 @@ public class FirstSimulationStrategy implements SimulationStrategy {
         return baseBuild.build();
     }
 
+    private List<BaseInformationRecords.NumberWithFrequency> modifiable(List<BaseInformationRecords.NumberWithFrequency> qualityScoresForwardStrandList) {
+        ObjectArrayList list = new ObjectArrayList();
+        list.addAll(qualityScoresForwardStrandList);
+        return list;
+    }
+
     @Override
     public void setSeed(long seed) {
         rand = new XorShift1024StarRandom(seed);
     }
 
 
-
-    private void mutateNumWithFreqLists(int fMutCount, List<BaseInformationRecords.NumberWithFrequency> source, List<BaseInformationRecords.NumberWithFrequency> dest){
+    private void mutateNumWithFreqLists(int fMutCount, List<BaseInformationRecords.NumberWithFrequency> source, List<BaseInformationRecords.NumberWithFrequency> dest) {
         List<Integer> from = new ObjectArrayList<Integer>();
         List<Integer> to = new ObjectArrayList<Integer>();
         if (source.size() > 0) {
@@ -475,8 +478,9 @@ public class FirstSimulationStrategy implements SimulationStrategy {
 
     private void mutateIntegerLists(int fMutCount, List<Integer> source, List<Integer> dest) {
         Collections.shuffle(source, rand);
-        dest.addAll(source.subList(0, fMutCount));
-        List<Integer> tmp = new IntArrayList(source.subList(fMutCount, source.size()));
+        int bound = Math.min(fMutCount, source.size());
+        dest.addAll(source.subList(0, bound));
+        List<Integer> tmp = new IntArrayList(source.subList(bound, source.size()));
         source.clear();
         source.addAll(tmp);
 
