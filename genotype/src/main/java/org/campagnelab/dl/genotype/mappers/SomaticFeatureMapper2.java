@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * A somatic feature mapper that reuses GenotypeMapperV28 and adds somatic specific features.
  */
-public class SomaticFeatureMapper1 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
+public class SomaticFeatureMapper2 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
         implements ConfigurableFeatureMapper {
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
 
@@ -30,13 +30,13 @@ public class SomaticFeatureMapper1 extends NamingConcatFeatureMapper<BaseInforma
     int somaticIndex;
 
 
-    public SomaticFeatureMapper1() {
+    public SomaticFeatureMapper2() {
         this(0, 1);
         System.out.println("Somatic Feature Mapper instantiated with defaults:\n" +
                 "germline = sample 0 in sbi/protobuf, somatic = sample 1 in sbi/protobuf");
     }
 
-    public SomaticFeatureMapper1(int germlineIndex, int somaticIndex) {
+    public SomaticFeatureMapper2(int germlineIndex, int somaticIndex) {
         super();
         this.germlineIndex = germlineIndex;
         this.somaticIndex = somaticIndex;
@@ -91,13 +91,19 @@ public class SomaticFeatureMapper1 extends NamingConcatFeatureMapper<BaseInforma
             originalGobyCountIndexMappers[i] = new OriginalGobyCountIndexMapper(somaticIndex, constantGenotypeIndex);
         }
 
-        final OneSampleMapperUnsortedV1 a = new OneSampleMapperUnsortedV1(germlineIndex);
-        final OneSampleMapperUnsortedV1 b = new OneSampleMapperUnsortedV1(somaticIndex);
+        final OneSampleMapperUnsortedV2 a = new OneSampleMapperUnsortedV2(germlineIndex);
+        final OneSampleMapperUnsortedV2 b = new OneSampleMapperUnsortedV2(somaticIndex);
         a.configure(sbiProperties);
         b.configure(sbiProperties);
         delegate = new CountReorderingMapper(somaticIndex, new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                 a,
                 b,
+                /** Map the from sequence for genotypeIndex=0: */
+                new GenomicContextMapper(indelMappedLength,
+                        record -> {
+                            final String fromSequence = record.getSamples(0).getCounts(0).getFromSequence();
+                            return fromSequence.substring(0, Math.min(indelMappedLength,fromSequence.length()));
+                        },true /* no warning if index outside of context, needed since indels have variable lengths */), //same
                 new GenomicContextMapper(sbiProperties),
                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(originalGobyCountIndexMappers),
