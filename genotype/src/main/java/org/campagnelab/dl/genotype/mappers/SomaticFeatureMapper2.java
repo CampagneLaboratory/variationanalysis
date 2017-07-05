@@ -52,22 +52,21 @@ public class SomaticFeatureMapper2 extends NamingConcatFeatureMapper<BaseInforma
      * @param sbiProperties properties from an sbi reader.
      */
     public void configure(Properties sbiProperties) {
-
         String ploidyString = sbiProperties.getProperty("genotypes.ploidy");
-        if (ploidyString==null) {
-            MAX_GENOTYPES=3;
-        }else{
-            MAX_GENOTYPES= Integer.parseInt(ploidyString)+1;
+        if (ploidyString == null) {
+            MAX_GENOTYPES = 4;
+        } else {
+            MAX_GENOTYPES = Integer.parseInt(ploidyString) + 2;
         }
 
         String genomicContextLengthString = sbiProperties.getProperty("stats.genomicContextSize.min");
         assert genomicContextLengthString != null : "property must exist: stats.genomicContextSize.min";
-        int genomicContextLength = (int)Float.parseFloat(genomicContextLengthString);
+        int genomicContextLength = (int) Float.parseFloat(genomicContextLengthString);
 
-        String indelSequenceLengthString=sbiProperties.getProperty("indelSequenceLength");
+        String indelSequenceLengthString = sbiProperties.getProperty("indelSequenceLength");
         assert genomicContextLengthString != null : "property must exist: indelSequenceLength";
         int indelSequenceLength = Integer.parseInt(indelSequenceLengthString);
-        final int indelMappedLength= indelSequenceLength;
+        final int indelMappedLength = indelSequenceLength;
 
         Set<Integer> sampleIndices = new ObjectArraySet<>();
         sampleIndices.add(germlineIndex);
@@ -86,8 +85,8 @@ public class SomaticFeatureMapper2 extends NamingConcatFeatureMapper<BaseInforma
             firstBaseMappers[i] = new GenomicContextMapper(indelMappedLength,
                     record -> {
                         final String toSequence = record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence();
-                        return toSequence.substring(0, Math.min(indelMappedLength,toSequence.length()));
-                    },true /* no warning if index outside of context, needed since indels have variable lengths */);
+                        return toSequence.substring(0, Math.min(indelMappedLength, toSequence.length()));
+                    }, true /* no warning if index outside of context, needed since indels have variable lengths */);
             originalGobyCountIndexMappers[i] = new OriginalGobyCountIndexMapper(somaticIndex, constantGenotypeIndex);
         }
 
@@ -102,8 +101,8 @@ public class SomaticFeatureMapper2 extends NamingConcatFeatureMapper<BaseInforma
                 new GenomicContextMapper(indelMappedLength,
                         record -> {
                             final String fromSequence = record.getSamples(0).getCounts(0).getFromSequence();
-                            return fromSequence.substring(0, Math.min(indelMappedLength,fromSequence.length()));
-                        },true /* no warning if index outside of context, needed since indels have variable lengths */), //same
+                            return fromSequence.substring(0, Math.min(indelMappedLength, fromSequence.length()));
+                        }, true /* no warning if index outside of context, needed since indels have variable lengths */), //same
                 new GenomicContextMapper(sbiProperties),
                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(originalGobyCountIndexMappers),
@@ -147,6 +146,7 @@ public class SomaticFeatureMapper2 extends NamingConcatFeatureMapper<BaseInforma
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
+        assert record.getSamplesCount() >= 2 : "A minimum of two samples is needed in the .sbi file for the somatic mapper.";
         delegate.prepareToNormalize(record, indexOfRecord);
     }
 

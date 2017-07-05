@@ -1,6 +1,5 @@
 package org.campagnelab.dl.somatic.learning.domains;
 
-import htsjdk.variant.vcf.VCFUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;

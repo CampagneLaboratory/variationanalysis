@@ -13,7 +13,7 @@ import static junit.framework.TestCase.assertEquals;
 public class IsBaseMutatedMapperTest {
     @Test
     public void testLabelMapper() throws TextFormat.ParseException {
-        IsBaseMutatedMapper mapper = new IsBaseMutatedMapper();
+        IsBaseMutatedMapper mapper = new IsBaseMutatedMapper(2);
         final BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
       TextFormat.getParser().merge(proto, builder);
         BaseInformationRecords.BaseInformation record =builder.build();

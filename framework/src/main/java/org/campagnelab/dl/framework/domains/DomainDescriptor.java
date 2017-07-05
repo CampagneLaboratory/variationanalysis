@@ -336,7 +336,6 @@ public abstract class DomainDescriptor<RecordType> {
             props.put(outputName + ".predictionInterpreter", getPredictionInterpreter(outputName).getClass().getCanonicalName());
         }
 
-
     }
 
     public Iterable<RecordType> getRecordIterable(List<String> sbiFilenames, int maxRecords) {

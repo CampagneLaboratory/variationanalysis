@@ -14,15 +14,27 @@ import java.util.List;
  * Created by fac2003 on 5/12/2016.
  */
 public class IsBaseMutatedMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
+    private final int MAX_GENOTYPES;
     int[] indices = new int[]{0, 0};
+    int ploidy;
 
-    private float[] labels = new float[numberOfLabels()];
+    public IsBaseMutatedMapper(int ploidy) {
+        this.ploidy = ploidy;
+        MAX_GENOTYPES = ploidy + 2;
+    }
+
+    private float[] labels = null;
 
     private ArrayList<BaseInformationRecords.CountInfo> sortedCounts;
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
         int numLabels = numberOfLabels();
+        if (labels == null) {
+            labels = new float[numberOfLabels()];
+        } else {
+            Arrays.fill(labels, 0f);
+        }
         final List<BaseInformationRecords.CountInfo> counts = record.getSamples(record.getSamplesCount() - 1).getCountsList();
         ArrayList<BaseInformationRecords.CountInfo> sorted = new ArrayList<>();
         sorted.addAll(counts);
@@ -30,21 +42,22 @@ public class IsBaseMutatedMapper extends NoMasksLabelMapper<BaseInformationRecor
                 (o2.getGenotypeCountForwardStrand() + o2.getGenotypeCountReverseStrand()) - (o1.getGenotypeCountForwardStrand() + o1.getGenotypeCountReverseStrand())
         );
         sortedCounts = sorted;
-        Arrays.fill(labels, 0f);
+
         labels[0] = record.getMutated() ? 0 : 1;
         // mutated = label[0] && not mutated = 1-label[0]
         if (record.getMutated()) {
-            for (int i = 1; i < numLabels; i++) {
+            for (int i = 1; i < Math.min(sorted.size(), numLabels); i++) {
                 labels[i] = sorted.get(i - 1).getToSequence().equals(record.getMutatedBase()) ? 1 : 0;
             }
         }
-    /* labels must sum to 1.
-    float sum = 0;
+        /*   labels must sum to 1.
+        float sum = 0;
         for (int i = 0; i < numLabels; i++) {
             sum += labels[i];
         }
         System.out.println("sum labels=" + sum);
-   */
+*/
+
     }
 
 
@@ -59,7 +72,7 @@ public class IsBaseMutatedMapper extends NoMasksLabelMapper<BaseInformationRecor
 
     @Override
     public int numberOfLabels() {
-        return AbstractFeatureMapper.MAX_GENOTYPES + 1;
+        return MAX_GENOTYPES + 1;
     }
 
 
