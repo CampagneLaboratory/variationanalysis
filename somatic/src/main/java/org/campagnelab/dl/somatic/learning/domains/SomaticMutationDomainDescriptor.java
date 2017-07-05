@@ -350,5 +350,9 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         }
         return 0;
     }
-
+    @Override
+    public void putProperties(Properties props) {
+        super.putProperties(props);
+        decorateProperties(props);
+    }
 }
