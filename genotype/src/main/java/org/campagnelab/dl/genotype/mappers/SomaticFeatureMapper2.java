@@ -64,7 +64,7 @@ public class SomaticFeatureMapper2 extends NamingConcatFeatureMapper<BaseInforma
         int genomicContextLength = (int) Float.parseFloat(genomicContextLengthString);
 
         String indelSequenceLengthString = sbiProperties.getProperty("indelSequenceLength");
-        assert genomicContextLengthString != null : "property must exist: indelSequenceLength";
+        assert indelSequenceLengthString != null : "property must exist: indelSequenceLength";
         int indelSequenceLength = Integer.parseInt(indelSequenceLengthString);
         final int indelMappedLength = indelSequenceLength;
 
