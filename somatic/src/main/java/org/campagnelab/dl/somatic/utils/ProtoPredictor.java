@@ -6,6 +6,7 @@ import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelOutputHelper;
 import org.campagnelab.dl.somatic.learning.domains.SomaticFrequencyInterpreter;
+import org.campagnelab.dl.somatic.learning.domains.predictions.IsMutatedBasePrediction;
 import org.campagnelab.dl.somatic.learning.domains.predictions.IsMutatedPrediction;
 import org.campagnelab.dl.somatic.learning.domains.predictions.IsSomaticMutationInterpreter;
 import org.campagnelab.dl.somatic.learning.domains.predictions.SomaticFrequencyPrediction;
@@ -101,6 +102,10 @@ public class ProtoPredictor {
 
                prediction.setPredictedSomaticFrequency(somaticFrequencyPrediction.predictedValue);
            }
+           if (isSomaticPrediction instanceof IsMutatedBasePrediction) {
+               String predictedSomaticAllele=((IsMutatedBasePrediction)isSomaticPrediction).predictedMutatedAllele;
+               prediction.setPredictedSomaticAllele(predictedSomaticAllele);
+           }
         }
 
         return prediction;
@@ -116,6 +121,8 @@ public class ProtoPredictor {
         public float negProb;
         public float predictedSomaticFrequency;
         public boolean hasSomaticFrequency;
+        public String predictedSomaticAllele;
+        public boolean hasPredictedSomaticAllele;
 
         public boolean isMutated() {
             return posProb > negProb;
@@ -141,6 +148,12 @@ public class ProtoPredictor {
 
         public boolean isCorrect(boolean isPositiveTrueLabel) {
             return isMutated() && isPositiveTrueLabel || (!isMutated() && !isPositiveTrueLabel);
+        }
+
+        public void setPredictedSomaticAllele(String predictedSomaticAllele) {
+            this.predictedSomaticAllele=predictedSomaticAllele;
+            this.hasPredictedSomaticAllele=true;
+
         }
     }
 }
