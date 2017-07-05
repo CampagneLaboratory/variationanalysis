@@ -43,8 +43,6 @@ rm -rf tmp
 mkdir -p tmp
 
 export OUTPUT_BASENAME=tmp/genotype_full_called.sbi
-export REF_SAMPLING_RATE=1
-unset SBI_GENOTYPE_VARMAP
 
 parallel-genotype-sbi.sh 10g ${ALIGNMENTS} 2>&1 | tee parallel-genotype-sbi.log
 dieIfError "Failed to generate .sbi file"

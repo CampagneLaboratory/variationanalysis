@@ -68,12 +68,22 @@ if [ ! -e "${DATASET}test.sbi" ]; then
            exit 1;
 fi
 
+if [ -z "${MAX_RECORDS+set}" ]; then
+  export TRAIN_MAX_RECORDS=""
+  export PREDICT_MAX_RECORDS=""
+  echo "MAX_RECORDS not set. Use it to limit how many records are used to training, validation and testing. Set to 10,000 or 100,000 for quick iterations."
+else
+export TRAIN_MAX_RECORDS="-n ${MAX_RECORDS} -x ${MAX_RECORDS}"
+export PREDICT_MAX_RECORDS="-n ${MAX_RECORDS}"
+fi
+
 echo "Iteration for FEATURE_MAPPER=${FEATURE_MAPPER}"
 
 export FORCE_PLATFORM=native
 #rm ${DATASET}${TRAIN_SUFFIX}.sbi ${DATASET}${VAL_SUFFIX}*cf
 train-somatic.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
        --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} ${TRAINING_OPTIONS} \
+       ${TRAIN_MAX_RECORDS} \
        --feature-mapper ${FEATURE_MAPPER}  ${NETWORK_ARCHITECTURE_OPTION} \
        --build-cache-then-stop
 dieIfError "Failed to map features with CPU build."
@@ -88,6 +98,7 @@ resetPlatform
           ${TRAINING_OPTIONS} \
           --feature-mapper ${FEATURE_MAPPER} \
           --random-seed 90129 \
+          ${TRAIN_MAX_RECORDS} \
           --early-stopping-measure ${EVALUATION_METRIC_NAME} \
           --early-stopping-num-epochs 10 --gpu-device ${GPU} \
           ${NETWORK_ARCHITECTURE_OPTION} | tee ${OUTPUT_FILE}
@@ -99,5 +110,6 @@ rm ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}*-genotypes.vcf
 rm ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}-*.bed
 
 predict.sh 10g -m ${MODEL_DIR} -l best${EVALUATION_METRIC_NAME} -f \
-    -i ${DATASET}test.sbi ${PREDICT_OPTIONS} --mini-batch-size ${MINI_BATCH_SIZE}
+    -i ${DATASET}test.sbi ${PREDICT_OPTIONS} --mini-batch-size ${MINI_BATCH_SIZE} \
+    --no-cache ${PREDICT_MAX_RECORDS}
 dieIfError "Failed to predict statistics."
