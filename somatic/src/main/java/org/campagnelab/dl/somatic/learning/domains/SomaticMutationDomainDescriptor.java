@@ -87,6 +87,9 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
             modelCapacity = args().modelCapacity;
             modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
 
+            reductionRate = args().reductionRate;
+            modelProperties.setProperty("reductionRate", Float.toString(args().reductionRate));
+
             modelProperties.setProperty("labelSmoothing.epsilon", Double.toString(args().labelSmoothingEpsilon));
 
             ploidy = args().ploidy;
