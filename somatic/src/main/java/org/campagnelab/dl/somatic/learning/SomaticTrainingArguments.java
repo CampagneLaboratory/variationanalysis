@@ -26,4 +26,9 @@ public class SomaticTrainingArguments extends TrainingArguments {
     protected String defaultFeatureMapperClassname() {
         return FeatureMapperV25.class.getCanonicalName();
     }
+
+    @Override
+    public float defaultModelCapacity() {
+        return 4.0f;
+    }
 }

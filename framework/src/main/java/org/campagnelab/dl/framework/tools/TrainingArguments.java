@@ -28,6 +28,8 @@ public abstract class TrainingArguments extends RecordingToolArguments {
     @Parameter(required = true, names = {"-v", "--validation-set"}, description = "Validation set filename- for example, could be provided in .parquet/.info format.")
     public String validationSet = null;
 
+    @Parameter(names = "--ploidy", description = "The organism ploidy (2 for humans, more for some plants). ")
+    public int ploidy = 2;
 
     @Parameter(names = {"-n", "--num-training"}, description = "The maximum number of training samples to train with. ")
     public int numTraining = Integer.MAX_VALUE;
@@ -178,6 +180,14 @@ public abstract class TrainingArguments extends RecordingToolArguments {
             "this value should be included in a hyper-parameter search. ")
     public int genomicContextLength = 29;
 
+
+    @Parameter(names = "--indel-sequence-length", description = "Maximum length of indel sequences to use as LSTM input." +
+            " If sequences are longer than this length, they will be clipped. ")
+    public int indelSequenceLength = defaultIndelSequenceLength();
+
+    public int defaultIndelSequenceLength() {
+        return 7;
+    }
 
 }
 

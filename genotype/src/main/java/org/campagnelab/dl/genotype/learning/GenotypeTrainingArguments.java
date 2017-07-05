@@ -25,14 +25,6 @@ public class GenotypeTrainingArguments extends TrainingArguments {
     public double variantLossWeight = 50;
 
 
-    @Parameter(names = "--indel-sequence-length", description = "Maximum length of indel sequences to use as LSTM input." +
-            " If sequences are longer than this length, they will be clipped. ")
-    public int indelSequenceLength = defaultIndelSequenceLength();
-
-    public int defaultIndelSequenceLength() {
-        return 7;
-    }
-
     @Parameter(names = "--true-genotype-length", description = "Maximum length of true genotype to use when mapping" +
             "true genotype as an output. ")
     public int trueGenotypeLength = 30;
@@ -70,8 +62,7 @@ public class GenotypeTrainingArguments extends TrainingArguments {
         return GenotypeMapperV24.class.getCanonicalName();
     }
 
-    @Parameter(names = "--ploidy", description = "The organism ploidy (2 for humans, more for some plants). ")
-    public int ploidy = 2;
+
 
     @Parameter(names = "--add-true-genotype-labels", description = "If true, add true genotype label mapper as output")
     public boolean addTrueGenotypeLabels=defaultTrueGenotypeLabels();

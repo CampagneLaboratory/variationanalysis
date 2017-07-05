@@ -13,7 +13,7 @@ import java.util.Set;
 
 
 /**
- * A somatic feature mapper that reuses GenotypeMapperV28 and adds somatic specific features.
+ * A somatic feature mapper that reuses GenotypeMapperV37 and adds somatic specific features.
  */
 public class SomaticFeatureMapper2 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
         implements ConfigurableFeatureMapper {

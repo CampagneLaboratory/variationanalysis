@@ -36,7 +36,11 @@ import java.util.stream.Collectors;
 public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInformationRecords.BaseInformation> {
 
 
+    private float reductionRate;
     private int genomicContextSize;
+    private int indelSequenceLength;
+    private float modelCapacity;
+    private int ploidy;
 
     public SomaticMutationDomainDescriptor(SomaticTrainingArguments arguments) {
         this.arguments = arguments;
@@ -54,6 +58,11 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         super.loadProperties(modelPath);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
+        this.ploidy=Integer.parseInt(modelProperties.getProperty("genotypes.ploidy"));
+        this.genomicContextSize=Integer.parseInt(modelProperties.getProperty("stats.genomicContextSize.min"));
+        this.indelSequenceLength=Integer.parseInt(modelProperties.getProperty("indelSequenceLength"));
+        this.modelCapacity=Float.parseFloat(modelProperties.getProperty("modelCapacity"));
+        this.reductionRate=Float.parseFloat(modelProperties.getProperty("reductionRate"));
         initializeArchitecture();
 
     }
@@ -64,14 +73,26 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
      * @param modelProperties
      */
     void decorateProperties(Properties modelProperties) {
-        if (args().genomicContextLength != Integer.MAX_VALUE) {
-            // override the .sbi context size only if the argument was used on the command line:
+        // transfer arguments to properties when we know we started from command line arguments, otherwise the
+        // arguments are already in properties:
+        if (args().parsedFromCommandLine) {
+
             genomicContextSize = args().genomicContextLength;
             modelProperties.setProperty("stats.genomicContextSize.min", Integer.toString(args().genomicContextLength));
             modelProperties.setProperty("stats.genomicContextSize.max", Integer.toString(args().genomicContextLength));
+
+            indelSequenceLength = args().indelSequenceLength;
+            modelProperties.setProperty("indelSequenceLength", Integer.toString(args().indelSequenceLength));
+
+            modelCapacity = args().modelCapacity;
+            modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
+
+            modelProperties.setProperty("labelSmoothing.epsilon", Double.toString(args().labelSmoothingEpsilon));
+
+            ploidy = args().ploidy;
+            modelProperties.setProperty("genotypes.ploidy", Integer.toString(args().ploidy));
+            modelProperties.setProperty("genotypes.ploidy", Integer.toString(args().ploidy));
         }
-        modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
-        modelProperties.setProperty("reductionRate", Float.toString(args().reductionRate));
     }
 
     /**
@@ -159,6 +180,8 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         int domainHashcode = id.hashCode();
         domainHashcode ^= genomicContextSize;
         domainHashcode ^= Float.hashCode(args().labelSmoothingEpsilon);
+        domainHashcode ^= Float.hashCode(args().indelSequenceLength);
+        domainHashcode ^= Float.hashCode(args().ploidy);
         return Integer.toHexString(domainHashcode);
     }
 
@@ -289,7 +312,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
     @Override
     public int getNumHiddenNodes(String componentName) {
-        return getNumInputs("input")[0] * 4;
+        return (int) (getNumInputs("input")[0] *modelCapacity);
     }
 
     @Override
