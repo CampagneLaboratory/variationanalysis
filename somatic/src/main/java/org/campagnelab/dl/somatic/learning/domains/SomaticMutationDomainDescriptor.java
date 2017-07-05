@@ -183,8 +183,8 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         int domainHashcode = id.hashCode();
         domainHashcode ^= genomicContextSize;
         domainHashcode ^= Float.hashCode(args().labelSmoothingEpsilon);
-        domainHashcode ^= Float.hashCode(args().indelSequenceLength);
-        domainHashcode ^= Float.hashCode(args().ploidy);
+        domainHashcode ^= Integer.hashCode(args().indelSequenceLength);
+        domainHashcode ^= Integer.hashCode(args().ploidy);
         return Integer.toHexString(domainHashcode);
     }
 
@@ -195,7 +195,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
             case "isMutated":
                 return new IsSomaticMutationMapper();
             case "isBaseMutated":
-                return new IsBaseMutatedMapper();
+                return new IsBaseMutatedMapper(ploidy);
             case "somaticFrequency":
                 return new SomaticFrequencyLabelMapper();
             default:
