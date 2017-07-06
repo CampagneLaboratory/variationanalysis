@@ -8,6 +8,8 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
  */
 public class IsMutatedPrediction extends BinaryClassPrediction {
 
+
+
     public <BaseInformation> void inspectRecord(BaseInformationRecords.BaseInformation currentRecord) {
         if (currentRecord != null) {
             trueLabelYes = currentRecord.hasMutated() ? (currentRecord.getMutated() ? 1.0 : 0.0) : null;

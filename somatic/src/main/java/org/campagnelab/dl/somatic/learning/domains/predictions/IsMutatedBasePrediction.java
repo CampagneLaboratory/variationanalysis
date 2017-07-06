@@ -6,6 +6,9 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
  * Created by fac2003 on 12/5/16.
  */
 public class IsMutatedBasePrediction extends IsMutatedPrediction {
+    public int sortedBaseIndex;
+    public String predictedMutatedAllele;
+    public String trueMutatedAllele;
     public <BaseInformation> void inspectRecord(BaseInformationRecords.BaseInformation currentRecord) {
         super.inspectRecord(currentRecord);
 

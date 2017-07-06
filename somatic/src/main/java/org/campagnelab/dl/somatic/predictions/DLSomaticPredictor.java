@@ -1,6 +1,7 @@
 package org.campagnelab.dl.somatic.predictions;
 
 import org.campagnelab.dl.framework.models.ModelLoader;
+import org.campagnelab.dl.somatic.learning.domains.predictions.IsMutatedBasePrediction;
 import org.campagnelab.dl.somatic.utils.ProtoPredictor;
 import org.campagnelab.goby.algorithmic.dsv.DiscoverVariantPositionData;
 import org.campagnelab.goby.algorithmic.dsv.SampleCountInfo;
@@ -76,5 +77,15 @@ public class DLSomaticPredictor implements SomaticPredictor {
     @Override
     public boolean hasSomaticFrequency() {
         return prediction.hasSomaticFrequency;
+    }
+
+    @Override
+    public boolean hasSomaticAllele() {
+        return prediction.hasPredictedSomaticAllele;
+    }
+
+    @Override
+    public String getSomaticAllele() {
+        return prediction.predictedSomaticAllele;
     }
 }

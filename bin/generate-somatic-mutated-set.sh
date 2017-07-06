@@ -37,14 +37,24 @@ else
     export SBI_SPLIT_OVERRIDE_DESTINATION_OPTION=" --destination-override test:${SBI_SPLIT_OVERRIDE_DESTINATION} "
     echo "Using SBI_SPLIT_OVERRIDE_DESTINATION=${SBI_SPLIT_OVERRIDE_DESTINATION} to put chromosomes ${SBI_SPLIT_OVERRIDE_DESTINATION} into test set."
 fi
+if [ -z "${SBI_GENOTYPE_VARMAP+set}" ]; then
+  echo "You may provide a varmap to include specific sites in the result. Set SBI_GENOTYPE_VARMAP to the path of a varmap (use goby vcf-to-genotype-map to create)."
+fi
+
+if [ -z "${REF_SAMPLING_RATE+set}" ]; then
+    # We keep only 1% of sites to create a training set. If a varmap is provided, sites in the varmap are always included, irrespective of
+    # sampling rate.
+    REF_SAMPLING_RATE="0.01"
+    echo "REF_SAMPLING_RATE set to ${REF_SAMPLING_RATE}. Change the variable to influence what percent of reference sites are sampled."
+else
+ echo "REF_SAMPLING_RATE set to ${REF_SAMPLING_RATE}."
+fi
 
 export SBI_GENOME=${GENOME}
 rm -rf tmp
 mkdir -p tmp
 
 export OUTPUT_BASENAME=tmp/genotype_full_called.sbi
-export REF_SAMPLING_RATE=1
-unset SBI_GENOTYPE_VARMAP
 
 parallel-genotype-sbi.sh 10g ${ALIGNMENTS} 2>&1 | tee parallel-genotype-sbi.log
 dieIfError "Failed to generate .sbi file"

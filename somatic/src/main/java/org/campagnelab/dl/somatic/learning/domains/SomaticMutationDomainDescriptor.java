@@ -1,6 +1,5 @@
 package org.campagnelab.dl.somatic.learning.domains;
 
-import htsjdk.variant.vcf.VCFUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
@@ -86,6 +85,9 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
             modelCapacity = args().modelCapacity;
             modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
+
+            reductionRate = args().reductionRate;
+            modelProperties.setProperty("reductionRate", Float.toString(args().reductionRate));
 
             modelProperties.setProperty("labelSmoothing.epsilon", Double.toString(args().labelSmoothingEpsilon));
 
@@ -180,8 +182,8 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         int domainHashcode = id.hashCode();
         domainHashcode ^= genomicContextSize;
         domainHashcode ^= Float.hashCode(args().labelSmoothingEpsilon);
-        domainHashcode ^= Float.hashCode(args().indelSequenceLength);
-        domainHashcode ^= Float.hashCode(args().ploidy);
+        domainHashcode ^= Integer.hashCode(args().indelSequenceLength);
+        domainHashcode ^= Integer.hashCode(args().ploidy);
         return Integer.toHexString(domainHashcode);
     }
 
@@ -192,7 +194,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
             case "isMutated":
                 return new IsSomaticMutationMapper();
             case "isBaseMutated":
-                return new IsBaseMutatedMapper();
+                return new IsBaseMutatedMapper(ploidy);
             case "somaticFrequency":
                 return new SomaticFrequencyLabelMapper();
             default:
@@ -350,5 +352,9 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         }
         return 0;
     }
-
+    @Override
+    public void putProperties(Properties props) {
+        super.putProperties(props);
+        decorateProperties(props);
+    }
 }
