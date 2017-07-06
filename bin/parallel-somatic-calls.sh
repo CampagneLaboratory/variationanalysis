@@ -34,6 +34,6 @@ if [ -z "${SOMATIC_P_THRESHOLD+set}" ]; then
     echo "Set variable SOMATIC_P_THRESHOLD to a P value threshold to adjust threshold. Currently using threshold=${SOMATIC_P_THRESHOLD}"
 fi
 
-export GOBY_DSV_OTHER_OPTIONS=" ${FOCUS_VARMAP_OPTION} --covariates ${GOBY_DSV_COVARIATES} -x SomaticVariationOutputFormat:model-p-mutated-threshold=${SOMATIC_P_THRESHOLD} -x SomaticVariationOutputFormat:model-path=${SOMATIC_MODEL_PATH} "
+export GOBY_DSV_OTHER_OPTIONS=" ${FOCUS_VARMAP_OPTION} --call-indels true --covariates ${GOBY_DSV_COVARIATES} -x SomaticVariationOutputFormat:model-p-mutated-threshold=${SOMATIC_P_THRESHOLD} -x SomaticVariationOutputFormat:model-path=${SOMATIC_MODEL_PATH} "
 export GOBY_GENOTYPE_FORMAT="SOMATIC_VARIATIONS"
 parallel-calls.sh ${memory_requirement} ${GENOTYPE_MODEL_PATH} ${ALIGNMENTS}
