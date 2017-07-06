@@ -6,6 +6,11 @@ assertParallelInstalled
 assertBctftoolsInstalled
 . ./configure.sh
 
+if [ ! "$#" -eq 5 ]; then
+    echo "Usage parallel-somatic-call.sh 8g GOBY_DSV_COVARIATES SOMATIC_MODEL_PATH GENOTYPE_MODEL_PATH alignments+"
+    exit 1
+fi
+
 # Call somatic variations across one or more alignments, using DL variationanalysis models and Goby3:
 # Usage: parallel-somatic-calls.sh 10g covariates.tsv somatic_model genotype_model alignment.entries [alignment.entries]+
 GOBY_DSV_COVARIATES="$1"
