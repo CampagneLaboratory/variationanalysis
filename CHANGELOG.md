@@ -1,6 +1,6 @@
 ##CHANGE LOG
 
-### 3.2.7 (July 2017)
+### 1.3.2 (July 2017)
 
 * parallel-gatk-realign.sh: add MD tags after realignment so that import to Goby or use with can proceed directly.
 * parallel-gatk-realign.sh: optimizations to improve parallel processing speed.
