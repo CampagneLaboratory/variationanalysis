@@ -350,7 +350,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         }
 
         Trainer trainer = args().parallel ? new ParallelTrainerOnGPU(computationGraph, args().miniBatchSize,
-                (int) domainDescriptor.getNumRecords(args().getTrainingSets())) :
+                (int) numRecords) :
                 new SequentialTrainer();
         trainer.setLogSpeed(args().trackingStyle == TrainingArguments.TrackStyle.SPEED);
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {
