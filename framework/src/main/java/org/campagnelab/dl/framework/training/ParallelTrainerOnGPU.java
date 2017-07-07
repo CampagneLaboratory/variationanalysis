@@ -37,7 +37,7 @@ public class ParallelTrainerOnGPU implements Trainer {
     public int train(ComputationGraph graph, MultiDataSetIterator iterator, ProgressLogger pg) {
         wrapper.fit(iterator);
         if (logSpeed) {
-            pg.update(numExamplesPerIterator);
+            pg.update(numExamplesPerIterator/miniBatchSize);
         }
         return numExamplesPerIterator;
     }
