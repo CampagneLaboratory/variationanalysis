@@ -79,8 +79,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             System.err.println("You must provide training datasets.");
         }
         domainDescriptor = domainDescriptor();
-        if (args().advancedModelConfiguration!=null) {
-           domainDescriptor.loadAdvancedModelProperties(args().advancedModelConfiguration);
+        if (args().advancedModelConfiguration != null) {
+            domainDescriptor.loadAdvancedModelProperties(args().advancedModelConfiguration);
         }
         try {
             featureMapper = domainDescriptor.getFeatureMapper("input");
@@ -111,8 +111,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         time = new Date().getTime();
 
         System.out.println("epochs: " + args().maxEpochs);
-        System.out.println("FeatureMapper:"+featureCalculator.getClass().getTypeName());
-        System.out.println("ComputationGraphAssembler:"+args().architectureClassname);
+        System.out.println("FeatureMapper:" + featureCalculator.getClass().getTypeName());
+        System.out.println("ComputationGraphAssembler:" + args().architectureClassname);
         directory = "models/" + Long.toString(time);
         FileUtils.forceMkdir(new File(directory));
         System.out.println("model directory: " + new File(directory).getAbsolutePath());
@@ -175,7 +175,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             if (vertex instanceof LayerVertex) {
                 final int numParams = vertex.getLayer().numParams();
                 System.out.println("Number of parameters in layer " + vertex.getVertexName() + ": " + numParams);
-                totalNumParams+=numParams;
+                totalNumParams += numParams;
             }
         }
         System.out.println("Total number of network parameters: " + totalNumParams);
@@ -193,10 +193,10 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         EarlyStoppingResult<ComputationGraph> result = train();
 
         //Print out the results:
-         System.out.println("Total epochs: " + result.getTotalEpochs());
+        System.out.println("Total epochs: " + result.getTotalEpochs());
         System.out.println("Best epoch number: " + result.getBestModelEpoch());
-        System.out.println("FeatureMapper:"+featureCalculator.getClass().getTypeName());
-        System.out.println("ComputationGraphAssembler:"+args().architectureClassname);
+        System.out.println("FeatureMapper:" + featureCalculator.getClass().getTypeName());
+        System.out.println("ComputationGraphAssembler:" + args().architectureClassname);
 
         for (String metricName : perfDescriptor.performanceMetrics()) {
             System.out.println(metricName + " at best epoch: " + performanceLogger.getBest(metricName));
@@ -350,7 +350,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         }
 
         Trainer trainer = args().parallel ? new ParallelTrainerOnGPU(computationGraph, args().miniBatchSize,
-                (int) domainDescriptor.getNumRecords(args().getTrainingSets())) :
+                (int) numRecords) :
                 new SequentialTrainer();
         trainer.setLogSpeed(args().trackingStyle == TrainingArguments.TrackStyle.SPEED);
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {
@@ -404,7 +404,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 } else {
                     notImproved++;
                 }
-                if (Double.isNaN(bestValue)|| notImproved > args().stopWhenEpochsWithoutImprovement) {
+                if (Double.isNaN(bestValue) || notImproved > args().stopWhenEpochsWithoutImprovement) {
                     // we have not improved after earlyStopCondition epoch, or got NaN, time to stop.
                     break;
                 }
@@ -413,7 +413,10 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 pg.stop();
                 pgEpoch.updateAndDisplay();
             }
-            iterator.reset();    //Reset iterator for another epoch
+            if (!args().parallel) {
+                // don't reset when running in parallel. ParallelWrapper takes care of this.
+                iterator.reset();    //Reset iterator for another epoch
+            }
             performanceLogger.write();
             //addCustomOption("--error-enrichment", args().errorEnrichment);
             //addCustomOption("--num-errors-added", args().numErrorsAdded);

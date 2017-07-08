@@ -18,14 +18,18 @@ public class ParallelTrainerOnGPU implements Trainer {
     private boolean logSpeed;
 
     public ParallelTrainerOnGPU(ComputationGraph graph, int miniBatchSize, int totalExamplesPerIterator) {
+        String numWorkersString = System.getProperty("framework.parallelWrapper.numWorkers");
+        int numWorkers = numWorkersString != null ? Integer.parseInt(numWorkersString) : 4;
+
+        String averagingFrequencyString = System.getProperty("framework.parallelWrapper.averagingFrequency");
+        int averagingFrequency = averagingFrequencyString != null ? Integer.parseInt(averagingFrequencyString) : 3;
 
         wrapper = new ParallelWrapper.Builder(graph)
-                .prefetchBuffer(8)
-                .workers(4)
-                .averagingFrequency(2)
+                .prefetchBuffer(numWorkers)
+                .workers(numWorkers)
+                .averagingFrequency(averagingFrequency)
                 .reportScoreAfterAveraging(false)
-                .useLegacyAveraging(false)
-                .useMQ(true)
+                .useLegacyAveraging(true)
                 .build();
         wrapper.setListeners(new PerformanceListener(1){
          private int numNanEncounteredConsecutively;
@@ -49,14 +53,14 @@ public class ParallelTrainerOnGPU implements Trainer {
     @Override
     public int train(ComputationGraph graph, MultiDataSetIterator iterator, ProgressLogger pg) {
         wrapper.fit(iterator);
-       if (logSpeed) {
-           pg.update(numExamplesPerIterator);
-       }
+        if (logSpeed) {
+            pg.update(numExamplesPerIterator/miniBatchSize);
+        }
         return numExamplesPerIterator;
     }
 
     @Override
     public void setLogSpeed(boolean logSpeed) {
-        this.logSpeed=logSpeed;
+        this.logSpeed = logSpeed;
     }
 }
