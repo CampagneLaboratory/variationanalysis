@@ -115,8 +115,6 @@ public class Simplify extends AbstractTool<SimplifyArguments> {
             builder.clearDistancesToReadVariationsReverseStrand();
             builder.clearDistanceToEndOfRead();
             builder.clearDistanceToStartOfRead();
-            builder.clearGenotypeCountForwardStrand();
-            builder.clearGenotypeCountReverseStrand();
             builder.clearInsertSizes();
             builder.clearQueryAlignedLengths();
             builder.clearTargetAlignedLengths();
