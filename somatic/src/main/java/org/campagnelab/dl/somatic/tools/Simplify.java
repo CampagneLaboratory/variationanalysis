@@ -107,13 +107,34 @@ public class Simplify extends AbstractTool<SimplifyArguments> {
     }
 
     private BaseInformationRecords.CountInfo simplify(int outputComplexityLevel, BaseInformationRecords.CountInfo count) {
-        if (outputComplexityLevel >= 2) {
 
-            System.err.printf("output complexity level %d is not supported at this time.%n", outputComplexityLevel);
-            System.exit(1);
+        BaseInformationRecords.CountInfo.Builder builder = count.toBuilder();
+        if (outputComplexityLevel == 2) {
+            // level 2 removes all frequencies:
+            builder.clearDistancesToReadVariationsForwardStrand();
+            builder.clearDistancesToReadVariationsReverseStrand();
+            builder.clearDistanceToEndOfRead();
+            builder.clearDistanceToStartOfRead();
+            builder.clearGenotypeCountForwardStrand();
+            builder.clearGenotypeCountReverseStrand();
+            builder.clearInsertSizes();
+            builder.clearQueryAlignedLengths();
+            builder.clearTargetAlignedLengths();
+            builder.clearQualityScoresForwardStrand();
+            builder.clearQualityScoresReverseStrand();
+            builder.clearNumVariationsInReads();
+            builder.clearReadMappingQualityForwardStrand();
+            builder.clearReadMappingQualityReverseStrand();
+        } else {
+            if (outputComplexityLevel >= 3) {
 
+                System.err.printf("output complexity level %d is not supported at this time.%n", outputComplexityLevel);
+                System.exit(1);
+
+            }
         }
-        return null;
+        return builder.build();
+
     }
 
 
