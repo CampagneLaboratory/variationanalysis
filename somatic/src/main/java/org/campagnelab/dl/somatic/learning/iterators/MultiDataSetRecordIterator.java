@@ -115,6 +115,11 @@ public abstract class MultiDataSetRecordIterator<RecordType> implements MultiDat
         this.preProcessor = preProcessor;
     }
 
+    @Override
+    public MultiDataSetPreProcessor getPreProcessor() {
+        return this.preProcessor;
+    }
+
     abstract long remainingExamples();
 
     @Override

@@ -162,6 +162,11 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
     }
 
     @Override
+    public MultiDataSetPreProcessor getPreProcessor() {
+        return this.preProcessor;
+    }
+
+    @Override
     public boolean resetSupported() {
         return true;
     }

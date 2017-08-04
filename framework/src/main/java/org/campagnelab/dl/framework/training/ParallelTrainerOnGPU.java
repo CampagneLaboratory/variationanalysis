@@ -24,12 +24,12 @@ public class ParallelTrainerOnGPU implements Trainer {
         String averagingFrequencyString = System.getProperty("framework.parallelWrapper.averagingFrequency");
         int averagingFrequency = averagingFrequencyString != null ? Integer.parseInt(averagingFrequencyString) : 3;
 
-        wrapper = new ParallelWrapper.Builder(graph)
+        wrapper = new ParallelWrapper.Builder<>(graph)
                 .prefetchBuffer(numWorkers)
                 .workers(numWorkers)
                 .averagingFrequency(averagingFrequency)
                 .reportScoreAfterAveraging(false)
-                .useLegacyAveraging(true)
+                // .useLegacyAveraging(true)
                 .build();
         wrapper.setListeners(new PerformanceListener(1){
          private int numNanEncounteredConsecutively;
