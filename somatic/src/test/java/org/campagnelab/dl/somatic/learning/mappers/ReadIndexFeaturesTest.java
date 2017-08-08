@@ -275,5 +275,5 @@ public class ReadIndexFeaturesTest {
             "    }\n" +
             "  }\n" +
             "} "};
-    String[] expectedFeatures = {"[0.20, 0.20, 0.20, 0.20, 0.20, 0.33, 0.33, 0.33, 0.33, 0.33]"};
+    String[] expectedFeatures = {"[0.20,  0.20,  0.20,  0.20,  0.20,  0.33,  0.33,  0.33,  0.33,  0.33]"};
 }

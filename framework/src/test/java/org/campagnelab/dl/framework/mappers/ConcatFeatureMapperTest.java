@@ -15,7 +15,7 @@ public class ConcatFeatureMapperTest {
     @Test
     public void concatFeatures() {
         String record = "012";
-        String expectedLabels = "[1.00, 0.00, 0.00, 0.00, 1.00, 0.00, 0.00, 0.00, 1.00]";
+        String expectedLabels = "[1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00]";
         FeatureMapper<String>[] calculators = new FeatureMapper[record.length()];
         for (int i = 0; i < record.length(); i++) {
             calculators[i] = new OneHotBaseFeatureMapper<>(i, Function.identity(),

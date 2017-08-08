@@ -1074,5 +1074,5 @@ public class IndelFeatureCalculatorTest {
             "reference_id: \"chr21\"\n" +
             "trueFrom: \"CAGTCAGTCAGTCAGTCAGTCAGT\"\n" +
             "genomicSequenceContext: \"CAGTCAGTCACTCTTTGAGGCAGTCAGTCAGTCAGTCAGTC\""};
-    String[] expectedFeatures = {"[0.00, 1.00]"};
+    String[] expectedFeatures = {"[0.00,  1.00]"};
 }
