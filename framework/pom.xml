@@ -225,7 +225,7 @@
         </dependency>
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-ui_2.10</artifactId>
+            <artifactId>deeplearning4j-ui_2.11</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
         <dependency> <!--Uncomment when version is 0.7.2-->
