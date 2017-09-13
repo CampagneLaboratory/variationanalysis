@@ -149,8 +149,8 @@
                 <!-- Classe names that end with the suffix are disabled. -->
                 <GPUSpecificSuffix>XXXXXXXXX</GPUSpecificSuffix>
                 <nd4j.backend>nd4j-cuda-8.0</nd4j.backend>
-                <dl4j.version>0.8.1-SNAPSHOT</dl4j.version>
-                <nd4j.version>0.8.1-SNAPSHOT</nd4j.version>
+                <dl4j.version>0.9.1-SNAPSHOT</dl4j.version>
+                <nd4j.version>0.9.1-SNAPSHOT</nd4j.version>
                 <jar.classifier>cuda</jar.classifier>
             </properties>
             <dependencies> <!-- enable below for CUDNN : -->
