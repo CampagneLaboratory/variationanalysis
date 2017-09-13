@@ -132,5 +132,5 @@ public class IndelFeatureCalculatorTest {
             "    isIndel: true\n" +
             "  }\n" +
             "} "};
-    String[] expectedFeatures = {"[0.00, 0.00, 1.00, 0.00, 0.00]"};
+    String[] expectedFeatures = {"[0.00,  0.00,  1.00,  0.00,  0.00]"};
 }

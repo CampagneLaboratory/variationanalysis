@@ -42,6 +42,11 @@ public class FullyInMemoryCache implements MultiDataSetIterator {
     }
 
     @Override
+    public MultiDataSetPreProcessor getPreProcessor() {
+        return source.getPreProcessor();
+    }
+
+    @Override
     public boolean resetSupported() {
         return true;
     }

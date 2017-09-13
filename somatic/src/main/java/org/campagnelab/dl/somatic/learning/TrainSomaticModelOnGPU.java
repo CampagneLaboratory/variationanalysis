@@ -97,7 +97,7 @@ public class TrainSomaticModelOnGPU extends SomaticTrainer {
                 .workers(4)
                 .averagingFrequency(1)
                 .reportScoreAfterAveraging(false)
-                .useLegacyAveraging(false)
+                // .useLegacyAveraging(false)
                 .build();
 
         //Do training, and then generate and print samples from network

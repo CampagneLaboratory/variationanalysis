@@ -1,7 +1,9 @@
 package org.campagnelab.dl.framework.training;
 
 import it.unimi.dsi.logging.ProgressLogger;
+import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
@@ -22,13 +24,28 @@ public class ParallelTrainerOnGPU implements Trainer {
         String averagingFrequencyString = System.getProperty("framework.parallelWrapper.averagingFrequency");
         int averagingFrequency = averagingFrequencyString != null ? Integer.parseInt(averagingFrequencyString) : 3;
 
-        wrapper = new ParallelWrapper.Builder(graph)
+        wrapper = new ParallelWrapper.Builder<>(graph)
                 .prefetchBuffer(numWorkers)
                 .workers(numWorkers)
                 .averagingFrequency(averagingFrequency)
                 .reportScoreAfterAveraging(false)
-                .useLegacyAveraging(true)
+                // .useLegacyAveraging(true)
                 .build();
+        wrapper.setListeners(new PerformanceListener(1){
+         private int numNanEncounteredConsecutively;
+            @Override
+            public void iterationDone(Model model, int iteration) {
+                double score = model.score();
+                if (score!=score) {
+                    numNanEncounteredConsecutively++;
+                }else{
+                    numNanEncounteredConsecutively=0;
+                }
+                if (numNanEncounteredConsecutively>100) {
+                    wrapper.stopFit();
+                }
+            }
+        });
         this.numExamplesPerIterator = totalExamplesPerIterator;
         this.miniBatchSize = miniBatchSize;
     }

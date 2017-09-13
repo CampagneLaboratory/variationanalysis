@@ -66,6 +66,9 @@ public class MultiDatasetMappedFeaturesIterator implements MultiDataSetIterator 
     }
 
     @Override
+    public MultiDataSetPreProcessor getPreProcessor() { return this.preProcessor; }
+
+    @Override
     public boolean resetSupported() {
         return true;
     }
