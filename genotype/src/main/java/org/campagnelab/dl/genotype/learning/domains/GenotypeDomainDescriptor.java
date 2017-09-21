@@ -1,5 +1,6 @@
 package org.campagnelab.dl.genotype.learning.domains;
 
+import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
@@ -50,6 +51,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     private int trueGenotypeLength;
     private float modelCapacity;
     private boolean isPredicting;
+    private int extraGenotypes=5;
 
 
     public GenotypeDomainDescriptor(GenotypeTrainingArguments arguments) {
@@ -64,6 +66,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         indelSequenceLength = args().indelSequenceLength;
         trueGenotypeLength = args().trueGenotypeLength;
         modelCapacity = args().modelCapacity;
+        extraGenotypes = args().extraGenotypes;
         addTrueGenotypeLabels = args().addTrueGenotypeLabels;
         if (modelCapacity < 0) {
             throw new RuntimeException("Model capacity cannot be negative. Typical values are >=1 (1-5)");
@@ -265,7 +268,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "numDistinctAlleles":
                 return new NumDistinctAllelesLabelMapper(sortCounts, ploidy, args().labelSmoothingEpsilon);
             case "softmaxGenotype":
-                return new SoftmaxLabelMapper(sortCounts,ploidy+1, args().labelSmoothingEpsilon);
+                return new SoftmaxLabelMapper(sortCounts,ploidy+extraGenotypes, args().labelSmoothingEpsilon);
             case "combined":
                 return new CombinedLabelsMapper(args().labelSmoothingEpsilon);
             case "combinedRef":
@@ -329,9 +332,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         }
 
         String variantLossWeightProperty = modelProperties.getProperty("variantLossWeight");
+
         variantLossWeight = Double.parseDouble(variantLossWeightProperty);
         String modelCapacityProperty = modelProperties.getProperty("modelCapacity");
         modelCapacity = Float.parseFloat(modelCapacityProperty);
+        String extraGenotypesProperty = modelProperties.getProperty("extraGenotypes");
+        extraGenotypes= Integer.parseInt(extraGenotypesProperty);
         indelSequenceLength = Integer.parseInt(modelProperties.getProperty("indelSequenceLength"));
         trueGenotypeLength = Integer.parseInt(modelProperties.getProperty("trueGenotypeLength"));
         addTrueGenotypeLabels = Boolean.parseBoolean(modelProperties.getProperty("addTrueGenotypeLabels"));
@@ -345,6 +351,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         domainHashcode ^= ploidy;
         domainHashcode ^= genomicContextSize;
         domainHashcode ^= indelSequenceLength;
+        domainHashcode ^= extraGenotypes;
         domainHashcode ^= Float.hashCode(args().labelSmoothingEpsilon);
         return Integer.toHexString(domainHashcode);
     }
@@ -368,6 +375,9 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             modelCapacity = args().modelCapacity;
             modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
+
+            extraGenotypes = args().extraGenotypes;
+            modelProperties.setProperty("extraGenotypes",Integer.toString(args().extraGenotypes));
             modelProperties.setProperty("addTrueGenotypeLabels", Boolean.toString(args().addTrueGenotypeLabels));
 
             modelProperties.setProperty("variantLossWeight", Double.toString(variantLossWeight));
@@ -414,7 +424,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "combinedRef":
                 return new CombinedOutputLayerRefInterpreter();
             case "softmaxGenotype":
-                return new SoftmaxGenotypeInterpreter(ploidy+1);
+                return new SoftmaxGenotypeInterpreter(ploidy+extraGenotypes);
             case "numDistinctAlleles":
                 return new NumDistinctAllelesInterpreter(ploidy);
             case "isVariant":

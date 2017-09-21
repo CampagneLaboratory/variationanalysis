@@ -189,5 +189,9 @@ public abstract class TrainingArguments extends RecordingToolArguments {
         return 7;
     }
 
+    @Parameter(names = "--extra-genotypes", description = "Number of genotypes considered after accounting for ploidy."
+            )
+    public int extraGenotypes = 1;
+
 }
 

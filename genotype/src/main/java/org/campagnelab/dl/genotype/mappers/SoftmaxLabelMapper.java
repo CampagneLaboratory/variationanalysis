@@ -28,7 +28,9 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
 
         super(sortCounts);
         if (!sortCounts) LOG.warn("You should only useSoftmaxLabelMapper with unsorted counts in tests. ");
+       // this.maxCalledAlleles = 8;
         this.maxCalledAlleles = maxCalledAlleles;
+    //    this.maxCalledAlleles = 8;
         this.epsilon = epsilon;
     }
 
@@ -53,6 +55,7 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
         }
     }
 
+
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
         super.prepareToNormalize(record, indexOfRecord);
@@ -61,9 +64,7 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
         for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(0).getCountsList()) {
             cachedValue |= (count.getIsCalled() ? 1 : 0) << index;
             index++;
-            if (index > maxCalledAlleles) {
-   //             break;
-            }
+
         }
     }
 
