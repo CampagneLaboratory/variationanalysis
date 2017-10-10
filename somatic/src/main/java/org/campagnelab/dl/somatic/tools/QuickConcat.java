@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Properties;
 
 /**
@@ -22,7 +24,7 @@ import java.util.Properties;
  * concatenates the bytes and add up the number of records.
  */
 public class QuickConcat extends AbstractTool<QuickConcatArguments> {
-   static private Logger LOG = LoggerFactory.getLogger(QuickConcat.class);
+    static private Logger LOG = LoggerFactory.getLogger(QuickConcat.class);
 
     @Override
     public QuickConcatArguments createArguments() {
@@ -46,7 +48,7 @@ public class QuickConcat extends AbstractTool<QuickConcatArguments> {
 
     /**
      * This version does a quick concat. It does NO filtering. It gathers no stats,
-     * but, will quickly concat multiple compact-reads files together using NIO.
+     * but, will quickly concat multiple files together using NIO.
      * It should be noted that this method is >MUCH< faster.
      * Copy all of the input files except the last MessageChunksWriter.DELIMITER_LENGTH
      * bytes of the first n-1 input files and the entire last input file
@@ -58,9 +60,11 @@ public class QuickConcat extends AbstractTool<QuickConcatArguments> {
      */
     private void performQuickConcat(String[] inputFilenames, String outputBasename) {
         if (outputBasename.endsWith(".sbi")) {
-            outputBasename= FilenameUtils.removeExtension(outputBasename);
+            outputBasename = FilenameUtils.removeExtension(outputBasename);
         }
         System.out.println("quick concatenating files");
+        inputFilenames = reorderFilenames(inputFilenames);
+
         File outputFile = new File(outputBasename);
         if (outputFile.exists()) {
             System.err.println("The output file already exists. Please delete it before running concat.");
@@ -71,6 +75,7 @@ public class QuickConcat extends AbstractTool<QuickConcatArguments> {
         } catch (IOException e) {
             throw new RuntimeException("Unable to create destination file", e);
         }
+
         //set up logger
         ProgressLogger progressLogger = new ProgressLogger(LOG);
         progressLogger.itemsName = "files";
@@ -97,6 +102,7 @@ public class QuickConcat extends AbstractTool<QuickConcatArguments> {
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Unable to write properties", e);
         }
+
         try {
             output = new FileOutputStream(outputFile + ".sbi").getChannel();
             int lastFileNumToCopy = inputFilenames.length - 1;
@@ -136,6 +142,55 @@ public class QuickConcat extends AbstractTool<QuickConcatArguments> {
             IOUtils.closeQuietly(input);
             IOUtils.closeQuietly(output);
         }
+    }
+
+    private String[] reorderFilenames(String[] inputFilenames) {
+        Integer[] order = new Integer[inputFilenames.length];
+        int index = 0;
+        boolean hasOrder = false;
+        for (String inputFilename : inputFilenames) {
+            String[] tokens = inputFilename.split("[\\-]");
+            if ((tokens.length >= 2)) {
+                try {
+                    String lastToken = tokens[tokens.length - 1];
+                    lastToken=lastToken.replace(".sbi","");
+                    int value = Integer.parseInt(lastToken);
+                    order[index] = value;
+                    hasOrder |= true;
+                } catch (NumberFormatException e) {
+                    order[index] = null;
+                    hasOrder = false;
+                }
+                index++;
+            } else {
+                hasOrder = false;
+            }
+        }
+        if (hasOrder) {
+            System.out.println("Filenames follow pattern *-int.sbi. Concat will be in the increasing order of the integer values.");
+            Comparator<? super String> compareFilenames = new Comparator<String>() {
+                @Override
+                public int compare(String filename1, String filename2) {
+                    String[] tokens1 = filename1.split("[\\-]");
+                    String[] tokens2 = filename2.split("[\\-]");
+                    String lastToken1 = tokens1[tokens1.length - 1];
+                    lastToken1=lastToken1.replace(".sbi","");
+
+                    String lastToken2 = tokens2[tokens2.length - 1];
+                    lastToken2=lastToken2.replace(".sbi","");
+
+                    int value1 = Integer.parseInt(lastToken1);
+                    int value2 = Integer.parseInt(lastToken2);
+                    return Integer.compare(value1, value2);
+
+                }
+            };
+            Arrays.sort(inputFilenames, compareFilenames);
+            System.out.println("Sorted filename order:" + ObjectArrayList.wrap(inputFilenames).toString());
+        } else{
+            System.out.println("Filenames do not follow the pattern *-int.sbi, concat in the order provided on the command line.");
+        }
+        return inputFilenames;
     }
 
 
