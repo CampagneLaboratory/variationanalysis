@@ -1,39 +1,32 @@
 package org.campagnelab.dl.somatic.storage;
 
-
-import org.apache.commons.io.FilenameUtils;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
+import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
+import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
 
 import java.io.Closeable;
 import java.io.IOException;
 
 /**
- * A writer for base information records in protobuf format.
+ * A writer for sequence segment information records in protobuf format.
  *
  * @author manuele simi
  */
-public class RecordWriter implements Closeable {
+public class SegmentWriter implements Closeable {
 
-    private SequenceBaseInformationWriter writer;
+    private SequenceSegmentInformationWriter writer;
 
-    public RecordWriter(String file, int numEntriesPerChunk) throws IOException {
-        writer = new SequenceBaseInformationWriter(file);
+    public SegmentWriter(String file, int numEntriesPerChunk) throws IOException {
+        writer = new SequenceSegmentInformationWriter(file);
         writer.setNumEntriesPerChunk(numEntriesPerChunk);
     }
 
-    public RecordWriter(String file) throws IOException {
-        writer = new SequenceBaseInformationWriter(file);
+    public SegmentWriter(String file) throws IOException {
+        writer = new SequenceSegmentInformationWriter(file);
     }
 
-    public void writeRecord(BaseInformationRecords.BaseInformation record) throws IOException {
+    public void writeRecord(SegmentInformationRecords.SegmentInformation record) throws IOException {
         writer.appendEntry(record);
     }
-
-    public static String addParqExtension(String path) {
-        return FilenameUtils.removeExtension(path) + ".parquet";
-    }
-
     /**
      * Closes this stream and releases any system resources associated
      * with it. If the stream is already closed then invoking this
@@ -49,8 +42,6 @@ public class RecordWriter implements Closeable {
      */
     @Override
     public void close() throws IOException {
-
-        writer.close();
+         writer.close();
     }
-
 }
