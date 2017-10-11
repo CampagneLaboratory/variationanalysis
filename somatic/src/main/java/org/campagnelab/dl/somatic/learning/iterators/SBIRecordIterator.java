@@ -3,7 +3,9 @@ package org.campagnelab.dl.somatic.learning.iterators;
 import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.baseinfo.BasenameUtils;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
+import org.campagnelab.goby.util.FileExtensionHelper;
 
 import java.io.IOException;
 
@@ -16,7 +18,7 @@ public class SBIRecordIterator extends MultiDataSetRecordIterator<BaseInformatio
 
     public SBIRecordIterator(String inputFilename, int batchSize, DomainDescriptor domainDescriptor) throws IOException {
         super(inputFilename, batchSize, domainDescriptor);
-        this.basename = SequenceBaseInformationReader.getBasename(inputFilename);
+        this.basename = BasenameUtils.getBasename(inputFilename, FileExtensionHelper.COMPACT_SEQUENCE_BASE_INFORMATION);
         reader = new SequenceBaseInformationReader(inputFilename);
     }
 
