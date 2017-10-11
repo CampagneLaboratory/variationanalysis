@@ -17,12 +17,12 @@ import java.util.function.Consumer;
  *
  * @author manuele simi
  */
-public class RecordReader implements Closeable, RecordIterable, RecordReaderI<BaseInformationRecords.BaseInformation> {
+public class RecordReader implements Closeable, RecordIterable<BaseInformationRecords.BaseInformation>,
+        RecordReaderI<BaseInformationRecords.BaseInformation> {
 
     private SequenceBaseInformationReader reader;
 
     public RecordReader(String filepath) throws IOException {
-
         reader = new SequenceBaseInformationReader(filepath);
     }
 
@@ -37,7 +37,9 @@ public class RecordReader implements Closeable, RecordIterable, RecordReaderI<Ba
         try {
             if (reader.hasNext()) return reader.next();
             else return null;
-        } catch (GobyRuntimeException e) {return null;}
+        } catch (GobyRuntimeException e) {
+            return null;
+        }
     }
 
     /**

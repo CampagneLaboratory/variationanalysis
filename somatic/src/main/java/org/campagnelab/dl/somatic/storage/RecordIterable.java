@@ -1,13 +1,13 @@
 package org.campagnelab.dl.somatic.storage;
 
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import com.google.protobuf.GeneratedMessage;
 
 
 /**
  *
- * {@link Iterable} extension for @{link {@link org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords.BaseInformation}}.
+ * {@link Iterable} extension for @{link {@link com.google.protobuf.GeneratedMessage}}.
  *
  * @author Manuele Simi
  */
-public interface RecordIterable extends Iterable<BaseInformationRecords.BaseInformation> {
+public interface RecordIterable<RecordType extends GeneratedMessage>  {
 }
