@@ -7,7 +7,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 /**
- * A writer for sequence segment information records in protobuf format.
+ * A writer for sequence segment information records in protobuf format (files with .ssi extensions).
  *
  * @author manuele simi
  */
