@@ -65,16 +65,50 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     }
 
     private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) {
-        int position = record.getPosition();
         if (segmentList == null) {
             segmentList = new SegmentList(record, this.writer, null);
         } else {
-            if (position - segmentList.getCurrentLocation() > gap || segmentList.getCurrentReferenceIndex()!=record.getReferenceIndex()) {
-                segmentList.newSegment(record);
+            if (this.isValid(record)) {
+                if (!this.isSameSegment(record,gap)) {
+                    segmentList.newSegment(record);
+                } else {
+                    segmentList.add(record);
+                }
             } else {
-                segmentList.add(record);
+                segmentList.setCurrentLocation(record.getPosition());
+                segmentList.setLastReferenceId(record.getReferenceId());
+                segmentList.setLastReferenceIndex(record.getReferenceIndex());
             }
         }
+    }
+
+    /**
+     * Checks if this record should be considered.
+     * @param record
+     * @return
+     */
+    private boolean isValid(BaseInformationRecords.BaseInformation record) {
+        final int[] sum = {0};
+        record.getSamplesList().forEach(sample -> {
+                    sample.getCountsList().forEach(counts -> {
+                        sum[0] += counts.getGenotypeCountForwardStrand();
+                        sum[0] += counts.getGenotypeCountReverseStrand();
+                    });
+                }
+        );
+        System.out.println("Sum for the counts is " + sum[0]);
+        return !(sum[0] == 0);
+    }
+
+    /**
+     * Checks if the record belongs to the current segment.
+     * @param record
+     * @param gap
+     * @return
+     */
+    private boolean isSameSegment(BaseInformationRecords.BaseInformation record, int gap) {
+         return ((record.getPosition() - segmentList.getCurrentLocation() <= gap) &&
+                 (record.getReferenceId().equalsIgnoreCase(segmentList.getCurrentLastReferenceId())) );
     }
 
     private void closeOutput() {
