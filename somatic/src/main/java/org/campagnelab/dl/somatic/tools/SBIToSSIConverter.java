@@ -21,7 +21,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     SequenceSegmentInformationWriter writer = null;
 
     final SegmentHolder currentSegment = new SegmentHolder();
-
+    
     @Override
     public SBIToSSIConverterArguments createArguments() {
         return new SBIToSSIConverterArguments();
@@ -34,19 +34,18 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         }
         int gap = args().gap;
         try {
-            if (!args().ssiPrefix.isEmpty())
+            if (args().ssiPrefix != null)
                 writer = new SequenceSegmentInformationWriter(args().ssiPrefix);
             else
                 writer = new SequenceSegmentInformationWriter(BasenameUtils.getBasename(args().inputFile,
                         FileExtensionHelper.COMPACT_SEQUENCE_BASE_INFORMATION));
             RecordReader sbiReader = new RecordReader(new File(args().inputFile).getAbsolutePath());
-            sbiReader.forEach(sbiRecord -> {
-                if (sbiRecord == null) {
-                    closeOutput();
-                } else {
-                    manageRecord(sbiRecord, gap);
-                }
-            });
+            BaseInformationRecords.BaseInformation sbiRecord = sbiReader.nextRecord();
+            while (sbiRecord!=null) {
+                manageRecord(sbiRecord, gap);
+                sbiRecord = sbiReader.nextRecord();
+            }
+            closeOutput();
         } catch (IOException e) {
             System.err.println("Failed to parse " + args().inputFile);
             e.printStackTrace();
@@ -57,6 +56,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) {
         int position = record.getPosition();
         if (position - currentSegment.getCurrentLastLocation() > gap) {
+            //
            currentSegment.newSegment(record);
         }
         currentSegment.add(record);
@@ -87,6 +87,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
          */
         protected void newSegment(BaseInformationRecords.BaseInformation first) {
             this.close();
+            System.out.println("Open a new segment at position " + Integer.toString(first.getPosition()));
             builder = SegmentInformationRecords.SegmentInformation.newBuilder();
             SegmentInformationRecords.ReferencePosition.Builder refBuilder = SegmentInformationRecords.ReferencePosition.newBuilder();
             refBuilder.setLocation(first.getPosition());
@@ -99,6 +100,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         protected void close() {
             if (builder != null) {
                 //close the previous segment
+                System.out.println("Close the segment.");
                 try {
                     writer.appendEntry(builder.build());
                     //set the current* as end position
@@ -116,6 +118,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                     currentLastReferenceId = "";
                     currentLastReferenceIndex = 0;
                 }
+                //create statistics here.
             }
         }
 
