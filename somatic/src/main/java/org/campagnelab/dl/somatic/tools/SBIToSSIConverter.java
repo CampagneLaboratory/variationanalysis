@@ -21,6 +21,12 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     SequenceSegmentInformationWriter writer = null;
 
     final SegmentHolder currentSegment = new SegmentHolder();
+
+    public static void main(String[] args) {
+        SBIToSSIConverter tool = new SBIToSSIConverter();
+        tool.parseArguments(args, "SBIToSSIConverter", tool.createArguments());
+        tool.execute();
+    }
     
     @Override
     public SBIToSSIConverterArguments createArguments() {
