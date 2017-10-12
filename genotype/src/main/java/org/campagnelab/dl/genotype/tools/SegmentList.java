@@ -41,7 +41,7 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
 
     public void closeSegment() {
        currentSegment.close();
-       currentSegment.printStats();
+       System.out.println(currentSegment);
     }
 
     public void add(BaseInformationRecords.BaseInformation record) {
@@ -117,11 +117,6 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
             //}
         }
 
-        protected void printStats() {
-            System.out.println("Start position:" + startPosition);
-            System.out.println("End position:" + endPosition);
-            System.out.println("Length:" + (endPosition - startPosition + 1));
-        }
 
         /**
          * Adds a record to the current segment
@@ -145,6 +140,15 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
             refBuilder.setReferenceId(record.getReferenceId()); */
             this.endPosition = record.getPosition();
 
+        }
+
+        @Override
+        public String toString() {
+            return "Segment{" +
+                    "startPosition=" + startPosition +
+                    ", endPosition=" + endPosition +
+                    ", length=" + (endPosition - startPosition + 1) +
+                    '}';
         }
     }
 }
