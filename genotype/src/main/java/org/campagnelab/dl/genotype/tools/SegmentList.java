@@ -15,10 +15,9 @@ import java.util.function.Function;
  */
 public class SegmentList implements Iterable<SegmentList.Segment>{
 
-    private final Function<Segment, Segment> fuction;
+    private final Function<Segment, Segment> function;
     private final SequenceSegmentInformationWriter writer;
     private Segment currentSegment;
-    private final List<Segment> segments = new ArrayList<>();
     private int currentLastPosition = 0;
     private int currentLastReferenceIndex = 0;
     private String currentLastReferenceId = "";
@@ -26,7 +25,7 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
 
     protected SegmentList(BaseInformationRecords.BaseInformation from, SequenceSegmentInformationWriter writer, Function<Segment, Segment> function) {
         this.newSegment(from);
-        this.fuction = function;
+        this.function = function;
         this.writer = writer;
     }
 
@@ -48,14 +47,12 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
     }
 
     public void closeSegment() {
-        if (this.fuction != null) {
-            Segment processed = this.fuction.apply(currentSegment);
-            processed.close();
-            segments.add(processed);
+        if (this.function != null) {
+            Segment processed = this.function.apply(currentSegment);
+            processed.flush(writer);
             System.out.println(processed);
         } else {
-            currentSegment.close();
-            segments.add(currentSegment);
+            currentSegment.flush(writer);
             System.out.println(currentSegment);
         }
     }
@@ -109,7 +106,7 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
             this.records.add(first);
         }
 
-        protected void close() {
+        protected void flush(SequenceSegmentInformationWriter writer) {
             //if (builder != null) {
                 //close the previous segment
                 System.out.println("Close the segment.");
