@@ -65,16 +65,20 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     }
 
     private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) {
-        int position = record.getPosition();
         if (segmentList == null) {
             segmentList = new SegmentList(record, this.writer, null);
         } else {
-            if (position - segmentList.getCurrentLocation() > gap) {
+            if (!this.isSameSegment(record,gap)) {
                 segmentList.newSegment(record);
             } else {
                 segmentList.add(record);
             }
         }
+    }
+
+    private boolean isSameSegment(BaseInformationRecords.BaseInformation record, int gap) {
+         return ((record.getPosition() - segmentList.getCurrentLocation() <= gap) &&
+                 (record.getReferenceId().equalsIgnoreCase(segmentList.getCurrentLastReferenceId())) );
     }
 
     private void closeOutput() {

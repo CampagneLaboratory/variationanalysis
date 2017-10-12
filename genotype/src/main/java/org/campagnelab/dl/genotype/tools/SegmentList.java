@@ -34,6 +34,10 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
         return currentLastPosition;
     }
 
+    public void setCurrentLocation(int location) {
+        this.currentLastPosition = location;
+    }
+
     /**
      * Opens a new segment from the record.
      * @param from
@@ -91,6 +95,10 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
         
     }
 
+    public String getCurrentLastReferenceId() {
+        return currentLastReferenceId;
+    }
+
     /**
      * Holds the current open segment before it is stored in the list.
      */
@@ -100,7 +108,7 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
         List<BaseInformationRecords.BaseInformation> records = new ArrayList<>();
 
         Segment(BaseInformationRecords.BaseInformation first) {
-            System.out.println("Open a new segment at position " + Integer.toString(first.getPosition()));
+            System.out.println("Open a new segment at ref " + first.getReferenceId() + " position " + Integer.toString(first.getPosition()));
             this.startPosition = first.getPosition();
             this.endPosition = first.getPosition();
             this.records.add(first);
