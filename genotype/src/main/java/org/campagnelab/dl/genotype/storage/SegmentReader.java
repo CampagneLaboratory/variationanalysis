@@ -1,6 +1,8 @@
-package org.campagnelab.dl.somatic.storage;
+package org.campagnelab.dl.genotype.storage;
 
 import org.apache.commons.io.IOUtils;
+import org.campagnelab.dl.somatic.storage.RecordIterable;
+import org.campagnelab.dl.somatic.storage.RecordReaderI;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationReader;
 import org.campagnelab.goby.exception.GobyRuntimeException;
@@ -11,7 +13,7 @@ import java.util.Iterator;
 import java.util.Properties;
 
 /**
- * A reader for segment information records stored in protobuf format.
+ * A reader for segment information records stored in protobuf format (files with .ssi extensions).
  *
  * @author manuele
  */

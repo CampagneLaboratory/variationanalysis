@@ -10,9 +10,9 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.Properties;
 
 /**
- * Same as V35, but with softmax genotype output layer.
+ * Based on V37, but restricted to a single base of genotype and indel context.
  */
-public class GenotypeMapperV37 extends GenotypeMapperV11 {
+public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
 
 
 
@@ -20,11 +20,11 @@ public class GenotypeMapperV37 extends GenotypeMapperV11 {
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;
 
-    public GenotypeMapperV37() {
+    public SingleBaseGenotypeMapperV1() {
         this(0);
     }
 
-    public GenotypeMapperV37(int sampleIndex) {
+    public SingleBaseGenotypeMapperV1(int sampleIndex) {
         super();
         this.sampleIndex = sampleIndex;
         sortCounts = true;
@@ -48,10 +48,13 @@ public class GenotypeMapperV37 extends GenotypeMapperV11 {
         String genomicContextLengthString = sbiProperties.getProperty("stats.genomicContextSize.min");
         assert genomicContextLengthString != null : "property must exist: stats.genomicContextSize.min";
         int genomicContextLength = (int)Float.parseFloat(genomicContextLengthString);
+        assert genomicContextLength==1:"Single base genotype mapper requires genomicContextLength property=1";
 
         String indelSequenceLengthString=sbiProperties.getProperty("indelSequenceLength");
         assert indelSequenceLengthString != null : "property must exist: indelSequenceLength";
         int indelSequenceLength = Integer.parseInt(indelSequenceLengthString);
+        assert indelSequenceLength==1:"Single base genotype mapper requires indelSequenceLength property=1";
+
         final int indelMappedLength= indelSequenceLength;
         FeatureNameMapper[] matchesRefMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] countMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
