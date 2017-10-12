@@ -67,12 +67,13 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) {
         int position = record.getPosition();
         if (segmentList == null) {
-            segmentList = new SegmentList(record);
+            segmentList = new SegmentList(record, this.writer, null);
         } else {
             if (position - segmentList.getCurrentLocation() > gap) {
                 segmentList.newSegment(record);
+            } else {
+                segmentList.add(record);
             }
-            segmentList.add(record);
         }
     }
 

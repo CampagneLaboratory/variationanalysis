@@ -1,8 +1,12 @@
 package org.campagnelab.dl.genotype.tools;
 
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Segment list for SSI.
@@ -11,15 +15,19 @@ import java.util.Iterator;
  */
 public class SegmentList implements Iterable<SegmentList.Segment>{
 
+    private final Function<Segment, Segment> fuction;
+    private final SequenceSegmentInformationWriter writer;
     private Segment currentSegment;
-
+    private final List<Segment> segments = new ArrayList<>();
     private int currentLastPosition = 0;
     private int currentLastReferenceIndex = 0;
     private String currentLastReferenceId = "";
 
 
-    protected SegmentList(BaseInformationRecords.BaseInformation from) {
+    protected SegmentList(BaseInformationRecords.BaseInformation from, SequenceSegmentInformationWriter writer, Function<Segment, Segment> function) {
         this.newSegment(from);
+        this.fuction = function;
+        this.writer = writer;
     }
 
 
@@ -40,8 +48,16 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
     }
 
     public void closeSegment() {
-       currentSegment.close();
-       System.out.println(currentSegment);
+        if (this.fuction != null) {
+            Segment processed = this.fuction.apply(currentSegment);
+            processed.close();
+            segments.add(processed);
+            System.out.println(processed);
+        } else {
+            currentSegment.close();
+            segments.add(currentSegment);
+            System.out.println(currentSegment);
+        }
     }
 
     public void add(BaseInformationRecords.BaseInformation record) {
@@ -81,14 +97,16 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
     /**
      * Holds the current open segment before it is stored in the list.
      */
-    class Segment {
+    public class Segment {
         private int startPosition = 0;
         private int endPosition = 0;
+        List<BaseInformationRecords.BaseInformation> records = new ArrayList<>();
 
         Segment(BaseInformationRecords.BaseInformation first) {
             System.out.println("Open a new segment at position " + Integer.toString(first.getPosition()));
             this.startPosition = first.getPosition();
             this.endPosition = first.getPosition();
+            this.records.add(first);
         }
 
         protected void close() {
@@ -138,8 +156,8 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
             refBuilder.setLocation(record.getPosition());
             refBuilder.setReferenceIndex(record.getReferenceIndex());
             refBuilder.setReferenceId(record.getReferenceId()); */
+            this.records.add(record);
             this.endPosition = record.getPosition();
-
         }
 
         @Override
