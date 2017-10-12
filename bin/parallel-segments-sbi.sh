@@ -12,8 +12,11 @@ if [ -z "${OUTPUT_BASENAME+set}" ]; then
        case ${ALIGNMENTS} in *.bam) OUTPUT_BASENAME=`basename ${ALIGNMENTS} .bam`;; esac
        case ${ALIGNMENTS} in *.sam) OUTPUT_BASENAME=`basename ${ALIGNMENTS} .sam`;; esac
        case ${ALIGNMENTS} in *.cram) OUTPUT_BASENAME=`basename ${ALIGNMENTS} .cram`;; esac
+       case ${ALIGNMENTS} in *.entries) OUTPUT_BASENAME=`basename ${ALIGNMENTS} .entries`;; esac
+       case ${ALIGNMENTS} in *.index) OUTPUT_BASENAME=`basename ${ALIGNMENTS} .index`;; esac
+       case ${ALIGNMENTS} in *.header) OUTPUT_BASENAME=`basename ${ALIGNMENTS} .header`;; esac
     else
-        OUTPUT_BASENAME="out-concat"
+        OUTPUT_BASENAME="${OUTPUT_PREFIX}-${DATE}"
     fi
 
     echo "OUTPUT_BASENAME set to ${OUTPUT_BASENAME}. Change the variable to influence the output basename."
@@ -83,4 +86,10 @@ parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby 12g  `cat comm
 # keep a log of the commands that were used to generate this dataset:
 cp command.txt command-`date +%h_%d_%H_%M`.txt
 
-concat.sh ${memory_requirement} -i out-part-*.sbi -o ${OUTPUT_BASENAME}
+cat boundaries| grep -v -e chr19 -e chr20 -e chr21 -e chr22 -e chrX -e chrY | cut -d " " ""-f 6 |awk '{print $1".sbi"}' >training-parts
+cat boundaries| grep -v -e chr19  |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >validation-parts
+cat boundaries| grep -e chr20 -e chr21 -e chr22 -e chrX -e chrY |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >testing-parts
+
+concat.sh ${memory_requirement} -i `cat training-parts`  -o ${OUTPUT_BASENAME}-train
+concat.sh ${memory_requirement} -i `cat testing-parts` -o ${OUTPUT_BASENAME}-test
+concat.sh ${memory_requirement} -i `cat validation-parts` -o ${OUTPUT_BASENAME}-validation
