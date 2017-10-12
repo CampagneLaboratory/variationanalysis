@@ -69,7 +69,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         if (segmentList == null) {
             segmentList = new SegmentList(record, this.writer, null);
         } else {
-            if (position - segmentList.getCurrentLocation() > gap) {
+            if (position - segmentList.getCurrentLocation() > gap || segmentList.getCurrentReferenceIndex()!=record.getReferenceIndex()) {
                 segmentList.newSegment(record);
             } else {
                 segmentList.add(record);

@@ -13,7 +13,7 @@ import java.util.function.Function;
  *
  * @author manuele
  */
-public class SegmentList implements Iterable<SegmentList.Segment>{
+public class SegmentList implements Iterable<SegmentList.Segment> {
 
     private final Function<Segment, Segment> fuction;
     private final SequenceSegmentInformationWriter writer;
@@ -37,6 +37,7 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
 
     /**
      * Opens a new segment from the record.
+     *
      * @param from
      */
     public void newSegment(BaseInformationRecords.BaseInformation from) {
@@ -48,25 +49,25 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
     }
 
     public void closeSegment() {
-        if (this.fuction != null) {
+       if (this.fuction != null) {
             Segment processed = this.fuction.apply(currentSegment);
             processed.close();
-            segments.add(processed);
+       segments.add(processed);
             System.out.println(processed);
-        } else {
-            currentSegment.close();
+        } else {currentSegment.close();
             segments.add(currentSegment);
             System.out.println(currentSegment);
         }
     }
 
     public void add(BaseInformationRecords.BaseInformation record) {
-       currentSegment.add(record);
-       setAsLast(record);
+        currentSegment.add(record);
+        setAsLast(record);
     }
 
     /**
      * Sets the record as the last one in the current segment.
+     *
      * @param record
      */
     private void setAsLast(BaseInformationRecords.BaseInformation record) {
@@ -91,28 +92,43 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
     }
 
     private void printStats() {
-        
+
+    }
+
+    public int getCurrentReferenceIndex() {
+        if (currentSegment == null) {
+            return -1;
+        } else {
+            return currentSegment.referenceIndex;
+        }
+
     }
 
     /**
      * Holds the current open segment before it is stored in the list.
      */
     public class Segment {
+        private String referenceId;
+        private int referenceIndex = 0;
         private int startPosition = 0;
         private int endPosition = 0;
         List<BaseInformationRecords.BaseInformation> records = new ArrayList<>();
 
         Segment(BaseInformationRecords.BaseInformation first) {
-            System.out.println("Open a new segment at position " + Integer.toString(first.getPosition()));
+
             this.startPosition = first.getPosition();
             this.endPosition = first.getPosition();
+            this.referenceId = first.getReferenceId();
+            this.referenceIndex = first.getReferenceIndex();
+            System.out.printf("Open a new segment at ref=%s position %d%n", referenceId, startPosition);
+
             this.records.add(first);
         }
 
         protected void close() {
             //if (builder != null) {
-                //close the previous segment
-                System.out.println("Close the segment.");
+            //close the previous segment
+            System.out.println("Close the segment.");
                  /*try {
                    writer.appendEntry(builder.build());
                     //set the current* as end position
@@ -131,13 +147,14 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
                     currentLastReferenceId = "";
                     currentLastReferenceIndex = 0;
                 }   */
-                //create statistics here.
+            //create statistics here.
             //}
         }
 
 
         /**
          * Adds a record to the current segment
+         *
          * @param record
          */
         protected void add(BaseInformationRecords.BaseInformation record) {
