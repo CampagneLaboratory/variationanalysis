@@ -4,7 +4,9 @@ import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
+import org.campagnelab.goby.baseinfo.BasenameUtils;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
+import org.campagnelab.goby.util.FileExtensionHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +18,7 @@ import java.io.IOException;
  */
 public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> {
 
-    SequenceSegmentInformationWriter writer;
+    SequenceSegmentInformationWriter writer = null;
 
     final SegmentHolder currentSegment = new SegmentHolder();
 
@@ -32,8 +34,12 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         }
         int gap = args().gap;
         try {
+            if (!args().ssiPrefix.isEmpty())
+                writer = new SequenceSegmentInformationWriter(args().ssiPrefix);
+            else
+                writer = new SequenceSegmentInformationWriter(BasenameUtils.getBasename(args().inputFile,
+                        FileExtensionHelper.COMPACT_SEQUENCE_BASE_INFORMATION));
             RecordReader sbiReader = new RecordReader(new File(args().inputFile).getAbsolutePath());
-
             sbiReader.forEach(sbiRecord -> {
                 if (sbiRecord == null) {
                     closeOutput();
@@ -63,6 +69,8 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         } catch (IOException e) {
             System.err.println("Failed to close the SSI file");
             e.printStackTrace();
+        } finally {
+            writer = null;
         }
     }
 
