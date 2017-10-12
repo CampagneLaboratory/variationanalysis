@@ -22,6 +22,6 @@ public class SBIToSSIConverterArguments implements ToolArguments {
     @Parameter(names = {"-g", "--gap"}, description = "Gap between two segments The default is 1.")
     public int gap = 1;
 
-    @Parameter(names = "--output-prefix", description = "Prefix for the output saved files. ")
+    @Parameter(names = "--output-basename", description = "Prefix for the output saved file. If not specified, the input basename is used.")
     public String ssiPrefix = null;
 }
