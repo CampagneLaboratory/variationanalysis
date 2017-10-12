@@ -18,9 +18,9 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
     private final Function<Segment, Segment> function;
     private final SequenceSegmentInformationWriter writer;
     private Segment currentSegment;
-    private int currentLastPosition = 0;
-    private int currentLastReferenceIndex = 0;
-    private String currentLastReferenceId = "";
+    private int lastPosition = 0;
+    private int lastReferenceIndex = 0;
+    private String lastReferenceId = "";
 
 
     protected SegmentList(BaseInformationRecords.BaseInformation from, SequenceSegmentInformationWriter writer, Function<Segment, Segment> function) {
@@ -31,11 +31,11 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
 
 
     public int getCurrentLocation() {
-        return currentLastPosition;
+        return lastPosition;
     }
 
     public void setCurrentLocation(int location) {
-        this.currentLastPosition = location;
+        this.lastPosition = location;
     }
 
     /**
@@ -71,9 +71,9 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
      * @param record
      */
     private void setAsLast(BaseInformationRecords.BaseInformation record) {
-        currentLastPosition = record.getPosition();
-        currentLastReferenceIndex = record.getReferenceIndex();
-        currentLastReferenceId = record.getReferenceId();
+        lastPosition = record.getPosition();
+        lastReferenceIndex = record.getReferenceIndex();
+        lastReferenceId = record.getReferenceId();
     }
 
     /**
@@ -96,7 +96,15 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
     }
 
     public String getCurrentLastReferenceId() {
-        return currentLastReferenceId;
+        return lastReferenceId;
+    }
+
+    public void setLastReferenceId(String lastReferenceId) {
+        this.lastReferenceId = lastReferenceId;
+    }
+
+    public void setLastReferenceIndex(int lastReferenceIndex) {
+        this.lastReferenceIndex = lastReferenceIndex;
     }
 
     /**
