@@ -1,4 +1,4 @@
-package org.campagnelab.dl.somatic.storage;
+package org.campagnelab.dl.genotype.storage;
 
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
