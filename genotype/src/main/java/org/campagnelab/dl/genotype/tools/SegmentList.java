@@ -120,7 +120,7 @@ public class SegmentList implements Iterable<SegmentList.Segment>{
         protected void printStats() {
             System.out.println("Start position:" + startPosition);
             System.out.println("End position:" + endPosition);
-            System.out.println("Length:" + (startPosition - endPosition + 1));
+            System.out.println("Length:" + (endPosition - startPosition + 1));
         }
 
         /**
