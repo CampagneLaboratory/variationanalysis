@@ -22,6 +22,7 @@ public class SegmentWriter implements Closeable {
 
     public SegmentWriter(String file) throws IOException {
         writer = new SequenceSegmentInformationWriter(file);
+        writer.setNumEntriesPerChunk(1000);
     }
 
     public void writeRecord(SegmentInformationRecords.SegmentInformation record) throws IOException {
