@@ -6,19 +6,23 @@ import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
+import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSegmentsLSTM;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
 import org.campagnelab.dl.genotype.mappers.SingleBaseFeatureMapperV1;
 import org.campagnelab.dl.genotype.mappers.SingleBaseLabelMapperV1;
 import org.campagnelab.dl.genotype.tools.SegmentTrainingArguments;
+import org.campagnelab.dl.genotype.storage.SegmentReader;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
+import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
 
-/** A domain descriptor for the task of predicting genotypes for segments/blocks of the genome.
+/**
+ * A domain descriptor for the task of predicting genotypes for segments/blocks of the genome.
  */
 public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInformationRecords.SegmentInformation> {
     private final SegmentTrainingArguments arguments;
@@ -29,6 +33,7 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
         initializeArchitecture(arguments.architectureClassname);
         this.ploidy = arguments.ploidy;
     }
+
     @Override
     public void putProperties(Properties props) {
         super.putProperties(props);
@@ -103,16 +108,22 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
     public Function<String, ? extends Iterable<SegmentInformationRecords.SegmentInformation>> getRecordIterable() {
         return inputFilename -> {
             try {
-                return new SegmentBaseInformationReader(inputFilename);
+                return new SegmentReader(inputFilename);
             } catch (IOException e) {
                 throw new RuntimeException("Unable to read records from " + inputFilename, e);
             }
         };
     }
 
+    private ComputationGraphAssembler assembler = null;
+
     @Override
-    public ComputationGraphAssembler getComputationalGraph() {
-        return null;
+    public synchronized ComputationGraphAssembler getComputationalGraph() {
+        if (assembler == null) {
+            assembler = new GenotypeSegmentsLSTM();
+            assembler.setArguments(arguments);
+        }
+        return assembler;
     }
 
     @Override
@@ -136,6 +147,7 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
         // same as input size.
         return getNumOutputs(outputName);
     }
+
     @Override
     public int getNumHiddenNodes(String componentName) {
         return 1024;
@@ -143,11 +155,20 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
 
     @Override
     public ILossFunction getOutputLoss(String outputName) {
-        return null;
+        return new LossMCXENT();
     }
 
     @Override
     public long getNumRecords(String[] recordFiles) {
-        return 0;
+        long count = 0;
+        for (String recordFile : recordFiles) {
+
+            try (SegmentReader reader = new SegmentReader(recordFile)) {
+                count += reader.getTotalRecords();
+            } catch (IOException e) {
+                return 0;
+            }
+        }
+        return count;
     }
 }
