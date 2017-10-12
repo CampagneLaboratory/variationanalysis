@@ -67,7 +67,7 @@ fi
 
 echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
 
-goby 8g suggest-position-slices ${ALIGNMENTS} --modulo 1000 --number-of-slices ${GOBY_NUM_SLICES} -o slices.tsv
+goby 8g suggest-position-slices ${ALIGNMENTS} --modulo 1000 --number-of-slices ${GOBY_NUM_SLICES} --restrict-per-chromosome -o slices.tsv
 grep -v targetIdStart slices.tsv >slices
 
 
@@ -87,8 +87,8 @@ parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby 12g  `cat comm
 cp command.txt command-`date +%h_%d_%H_%M`.txt
 
 cat boundaries| grep -v -e chr19 -e chr20 -e chr21 -e chr22 -e chrX -e chrY | cut -d " " ""-f 6 |awk '{print $1".sbi"}' >training-parts
-cat boundaries| grep -v -e chr19  |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >validation-parts
-cat boundaries| grep -e chr20 -e chr21 -e chr22 -e chrX -e chrY |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >testing-parts
+cat boundaries| grep -e chr19  |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >validation-parts
+cat boundaries| grep -v -e chr19 | grep -e chr20 -e chr21 -e chr22 -e chrX -e chrY |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >testing-parts
 
 concat.sh ${memory_requirement} -i `cat training-parts`  -o ${OUTPUT_BASENAME}-train
 concat.sh ${memory_requirement} -i `cat testing-parts` -o ${OUTPUT_BASENAME}-test
