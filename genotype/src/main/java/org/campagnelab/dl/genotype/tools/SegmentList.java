@@ -20,6 +20,7 @@ public class SegmentList {
     private final Function<Segment, Segment> function;
     private final SequenceSegmentInformationWriter writer;
     private Segment currentSegment;
+    private Statistics statistics = new Statistics();
 
     /**
      * Creates a new list and a first segment starting from the given record.
@@ -68,7 +69,7 @@ public class SegmentList {
     }
 
     private void printStats() {
-       //TODO
+       System.out.println(statistics);
     }
 
     public int getCurrentReferenceIndex() {
@@ -80,6 +81,24 @@ public class SegmentList {
         return this.currentSegment.getLastPosition();
     }
 
+    /**
+     * Statistics on the list
+     */
+    class Statistics {
+        protected int numOfSegments = 0;
+        protected int totalLength = 0;
+        protected int minLength = 0;
+        protected int maxLength = 0;
+
+        @Override
+        public String toString() {
+            return "Statistics{" +
+                    "averageLength=" + Math.round(totalLength/numOfSegments) +
+                    ", minLength=" + minLength +
+                    ", maxLength=" + maxLength +
+                    '}';
+        }
+    }
     /**
      * Holds the current open segment before it is stored in the list.
      */
@@ -142,6 +161,13 @@ public class SegmentList {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            int length = this.actualLength();
+            statistics.totalLength += length;
+            if (length > statistics.maxLength)
+                statistics.maxLength = length;
+            if (length < statistics.minLength || statistics.minLength == 0)
+                statistics.minLength = length;
+            statistics.numOfSegments++;
         }
 
 
