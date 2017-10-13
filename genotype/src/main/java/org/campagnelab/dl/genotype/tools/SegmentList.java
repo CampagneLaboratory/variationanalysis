@@ -18,6 +18,7 @@ import java.util.function.Function;
 public class SegmentList {
 
     private final Function<Segment, Segment> function;
+    private final Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures;
     private final SequenceSegmentInformationWriter writer;
     private Segment currentSegment;
     private Statistics statistics = new Statistics();
@@ -30,10 +31,12 @@ public class SegmentList {
      * @param function the function applied to the records when the segment is completed.
      */
     protected SegmentList(BaseInformationRecords.BaseInformation from,
-                          SequenceSegmentInformationWriter writer, Function<Segment, Segment> function) {
+                          SequenceSegmentInformationWriter writer, Function<Segment, Segment> function,
+                          Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures) {
         this.newSegment(from);
         this.function = function;
         this.writer = writer;
+        this.fillInFeatures=fillInFeatures;
     }
 
     /**
@@ -61,7 +64,7 @@ public class SegmentList {
             Objects.requireNonNull(this.function);
             Segment processed = this.function.apply(currentSegment);
             processed.flush(writer);
-            System.out.println(processed);
+            //System.out.println(processed);
         } catch (NullPointerException npe) {
             currentSegment.flush(writer);
             System.out.println(currentSegment);
@@ -172,16 +175,12 @@ public class SegmentList {
             builder.setEndPosition(refBuilder.build());
             builder.setLength(actualLength());
             recordList.forEach(record -> {
-                record.getSamplesList().forEach(sample -> {
-                    SegmentInformationRecords.Sample.Builder sampleBuilder = SegmentInformationRecords.Sample.newBuilder();
-                    SegmentInformationRecords.Base.Builder baseBuilder = SegmentInformationRecords.Base.newBuilder();
-                    //TODO: set real values here
-                    baseBuilder.addFeatures(1f);
-                    baseBuilder.addLabels(2f);
-                    baseBuilder.addTrueLabel("foo");
-                    sampleBuilder.addBase(baseBuilder);
-                    builder.addSample(sampleBuilder);
-                });
+                    record.getSamplesList().forEach(sample -> {
+                        SegmentInformationRecords.Sample.Builder sampleBuilder = SegmentInformationRecords.Sample.newBuilder();
+
+                        sampleBuilder.addBase(fillInFeatures.apply(record));
+                        builder.addSample(sampleBuilder);
+                    });
             });
             try {
                 writer.appendEntry(builder.build());

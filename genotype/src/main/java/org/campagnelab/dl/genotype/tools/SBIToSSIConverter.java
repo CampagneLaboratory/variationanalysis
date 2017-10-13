@@ -1,17 +1,21 @@
 package org.campagnelab.dl.genotype.tools;
 
-import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
+import it.unimi.dsi.fastutil.floats.FloatList;
+import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
-import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSegmentsLSTM;
 import org.campagnelab.dl.genotype.learning.domains.GenotypeDomainDescriptor;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.BasenameUtils;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
 import org.campagnelab.goby.util.FileExtensionHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,10 +30,12 @@ import java.util.function.Function;
  */
 public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> {
 
+    static private Logger LOG = LoggerFactory.getLogger(SBIToSSIConverter.class);
     SequenceSegmentInformationWriter writer = null;
 
     SegmentList segmentList;
     private Function<SegmentList.Segment, SegmentList.Segment> function;
+    private Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeaturesFunction;
 
     public static void main(String[] args) {
         SBIToSSIConverter tool = new SBIToSSIConverter();
@@ -48,37 +54,47 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             System.err.println("You must provide input SBI files.");
         }
         int gap = args().gap;
-        GenotypeDomainDescriptor domainDescriptor=null;
+        GenotypeDomainDescriptor domainDescriptor = null;
         try {
             RecordReader sbiReader = new RecordReader(new File(args().inputFile).getAbsolutePath());
 
             Properties sbiProperties = sbiReader.getProperties();
-            Properties domainProperties=new Properties();
+            Properties domainProperties = new Properties();
             domainProperties.put("net.architecture.classname", GenotypeSegmentsLSTM.class.getCanonicalName());
             domainProperties.put(NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY, Integer.toString(args().ploidy));
             domainProperties.put("input.featureMapper", args().featureMapperClassName);
             domainProperties.put("genomicContextLength", "1");
             domainProperties.put("indelSequenceLength", "1");
 
-            domainDescriptor =  new GenotypeDomainDescriptor(domainProperties,  sbiProperties);
-        }catch (IOException e) {
+            domainDescriptor = new GenotypeDomainDescriptor(domainProperties, sbiProperties);
+        } catch (IOException e) {
             System.err.println("Unable to initialized genotype domain descriptor.");
             e.printStackTrace();
         }
 
 
-        FeatureMapper featureMapper=domainDescriptor.getFeatureMapper("input");
+        FeatureMapper featureMapper = domainDescriptor.getFeatureMapper("input");
         //LabelMapper labelMapper=domainDescriptor.getFeatureMapper("input");
 
-        function=segment -> {
-            for (BaseInformationRecords.BaseInformation record: segment.records) {
-                featureMapper.prepareToNormalize(record, 0);
-             //   System.out.println("Number of features:"+featureMapper.numberOfFeatures());
-                for (int featureIndex=0;featureIndex<featureMapper.numberOfFeatures(); featureIndex++) {
-                    featureMapper.produceFeature(record,featureIndex);
-                }
+        function = segment -> {
+            for (BaseInformationRecords.BaseInformation record : segment.records) {
+
             }
             return segment;
+        };
+        FloatList features = new FloatArrayList();
+        fillInFeaturesFunction = baseInformation -> {
+            SegmentInformationRecords.Base.Builder builder = SegmentInformationRecords.Base.newBuilder();
+            featureMapper.prepareToNormalize(baseInformation, 0);
+            if (baseInformation.getTrueGenotype().length() > 3) {
+                System.out.println("Indel:" + baseInformation.getTrueGenotype());
+            }
+            features.clear();
+            for (int featureIndex = 0; featureIndex < featureMapper.numberOfFeatures(); featureIndex++) {
+                features.add(featureMapper.produceFeature(baseInformation, featureIndex));
+            }
+            builder.addAllFeatures(features);
+            return builder;
         };
 
         try {
@@ -88,11 +104,15 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                 writer = new SequenceSegmentInformationWriter(BasenameUtils.getBasename(args().inputFile,
                         FileExtensionHelper.COMPACT_SEQUENCE_BASE_INFORMATION));
             RecordReader sbiReader = new RecordReader(new File(args().inputFile).getAbsolutePath());
-            BaseInformationRecords.BaseInformation sbiRecord = sbiReader.nextRecord();
-            while (sbiRecord != null) {
+            ProgressLogger pg = new ProgressLogger(LOG);
+            pg.expectedUpdates = sbiReader.getTotalRecords();
+            pg.itemsName="records";
+            pg.start();
+            for (BaseInformationRecords.BaseInformation sbiRecord : sbiReader) {
                 manageRecord(sbiRecord, gap);
-                sbiRecord = sbiReader.nextRecord();
+                pg.lightUpdate();
             }
+            pg.stop();
             closeOutput();
         } catch (IOException e) {
             System.err.println("Failed to parse " + args().inputFile);
@@ -103,7 +123,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
 
     private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) {
         if (segmentList == null) {
-            segmentList = new SegmentList(record, this.writer, function);
+            segmentList = new SegmentList(record, this.writer, function, fillInFeaturesFunction);
         } else {
             if (this.isValid(record)) {
                 if (!this.isSameSegment(record, gap)) {
@@ -111,7 +131,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                 } else {
                     segmentList.add(record);
                 }
-            } 
+            }
         }
     }
 
