@@ -220,7 +220,7 @@ public class SegmentList {
             return this.firstPosition;
         }
 
-        private int getFirstReferenceIndex() {
+        public int getFirstReferenceIndex() {
             return this.firstReferenceIndex;
         }
 
