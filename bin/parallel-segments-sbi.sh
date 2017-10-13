@@ -4,6 +4,8 @@
 assertGobyInstalled
 assertParallelInstalled
 
+. configure.sh
+
 
 ALIGNMENTS="$*"
 if [ -z "${OUTPUT_BASENAME+set}" ]; then
@@ -38,10 +40,7 @@ if [ -z "${GOBY_NUM_SLICES+set}" ]; then
     GOBY_NUM_SLICES="50"
     echo "GOBY_NUM_SLICES set to ${GOBY_NUM_SLICES}. Change the variable to influence whether how many slices to use when processing an alignment."
 fi
-if [ -z "${INCLUDE_INDELS+set}" ]; then
-    INCLUDE_INDELS="false"
-    echo "INCLUDE_INDELS set to ${INCLUDE_INDELS}. Change the variable to influence whether indels are included in the SBI file."
-fi
+
 if [ -z "${SBI_GENOME+set}" ]; then
     SBI_GENOME="/data/genomes/Homo_sapiens.ucsc.hg19"
     echo "SBI_GENOME set to ${SBI_GENOME}. Change the variable to influence the genome used (must be indexed with goby build-sequence-cache)."
@@ -72,7 +71,7 @@ grep -v targetIdStart slices.tsv >slices
 
 
 echo " discover-sequence-variants -n -1 -t -1 --genome  ${SBI_GENOME} --format  SEQUENCE_BASE_INFORMATION  ${ALIGNMENTS} \
-    --call-indels  ${INCLUDE_INDELS} ${REALIGNMENT_OPTION} \
+    --call-indels  true ${REALIGNMENT_OPTION} \
     --max-coverage-per-site 1000 -x HTSJDKReaderImpl:force-sorted=true \
     -x SequenceBaseInformationOutputFormat:genomic-context-length=1 \
     ${VARMAP_OPTION} " >command.txt
