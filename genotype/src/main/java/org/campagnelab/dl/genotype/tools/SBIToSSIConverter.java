@@ -78,22 +78,26 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
 
         function = segment -> {
             for (BaseInformationRecords.BaseInformation record : segment.recordList) {
-
+                if (record.getTrueGenotype().length() > 3) {
+                    System.out.println("Indel: " + record.getTrueGenotype());
+                }
             }
             return segment;
         };
         FloatList features = new FloatArrayList();
         fillInFeaturesFunction = baseInformation -> {
             SegmentInformationRecords.Base.Builder builder = SegmentInformationRecords.Base.newBuilder();
-            featureMapper.prepareToNormalize(baseInformation, 0);
-            if (baseInformation.getTrueGenotype().length() > 3) {
-                System.out.println("Indel:" + baseInformation.getTrueGenotype());
+            if (args().mapFeatures) {
+                featureMapper.prepareToNormalize(baseInformation, 0);
+                if (baseInformation.getTrueGenotype().length() > 3) {
+                    System.out.println("Indel:" + baseInformation.getTrueGenotype());
+                }
+                features.clear();
+                for (int featureIndex = 0; featureIndex < featureMapper.numberOfFeatures(); featureIndex++) {
+                    features.add(featureMapper.produceFeature(baseInformation, featureIndex));
+                }
+                builder.addAllFeatures(features);
             }
-            features.clear();
-            for (int featureIndex = 0; featureIndex < featureMapper.numberOfFeatures(); featureIndex++) {
-                features.add(featureMapper.produceFeature(baseInformation, featureIndex));
-            }
-            builder.addAllFeatures(features);
             return builder;
         };
 
@@ -106,7 +110,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             RecordReader sbiReader = new RecordReader(new File(args().inputFile).getAbsolutePath());
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.expectedUpdates = sbiReader.getTotalRecords();
-            pg.itemsName="records";
+            pg.itemsName = "records";
             pg.start();
             for (BaseInformationRecords.BaseInformation sbiRecord : sbiReader) {
                 manageRecord(sbiRecord, gap);

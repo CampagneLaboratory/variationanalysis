@@ -28,4 +28,7 @@ public class SBIToSSIConverterArguments implements ToolArguments {
 
     @Parameter(names = "--feature-mapper", description = "Name of the class for the feature mapper. Used to convert an SBI record to features for storage in the SSI base.")
     public String featureMapperClassName = SingleBaseGenotypeMapperV1.class.getCanonicalName();
+
+    @Parameter(names = "--map-features", description = "Use to map features.")
+    public boolean mapFeatures=false;
 }
