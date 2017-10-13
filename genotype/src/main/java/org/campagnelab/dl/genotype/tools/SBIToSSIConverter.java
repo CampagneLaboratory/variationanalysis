@@ -77,7 +77,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         //LabelMapper labelMapper=domainDescriptor.getFeatureMapper("input");
 
         function = segment -> {
-            for (BaseInformationRecords.BaseInformation record : segment.records) {
+            for (BaseInformationRecords.BaseInformation record : segment.recordList) {
 
             }
             return segment;

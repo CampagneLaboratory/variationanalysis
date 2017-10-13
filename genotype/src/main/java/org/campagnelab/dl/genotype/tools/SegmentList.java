@@ -139,7 +139,7 @@ public class SegmentList {
         private int lastPosition = 0;
         private String lastReferenceId = "";
         private int lastReferenceIndex = 0;
-        private RecordList recordList = new RecordList();
+        public RecordList recordList = new RecordList();
 
         Segment(BaseInformationRecords.BaseInformation first) {
             //System.out.println("Open a new segment at ref " + first.getReferenceId() + " position " + Integer.toString(first.getPosition()));
