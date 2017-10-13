@@ -1,5 +1,6 @@
 package org.campagnelab.dl.genotype.tools;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
@@ -70,8 +71,8 @@ public class SegmentList {
 
     }
 
-    public String getCurrentLastReferenceId() {
-        return this.currentSegment.getLastReferenceId();
+    public int getCurrentLastReferenceIndex() {
+        return this.currentSegment.getLastReferenceIndex();
     }
 
     /**
@@ -80,7 +81,7 @@ public class SegmentList {
     public class Segment {
         private int startPosition = 0;
         private int endPosition = 0;
-        List<BaseInformationRecords.BaseInformation> records = new ArrayList<>();
+        List<BaseInformationRecords.BaseInformation> records = new ObjectArrayList<>();
 
         Segment(BaseInformationRecords.BaseInformation first) {
             //System.out.println("Open a new segment at ref " + first.getReferenceId() + " position " + Integer.toString(first.getPosition()));
@@ -152,11 +153,8 @@ public class SegmentList {
 
         @Override
         public String toString() {
-            return "Segment{" +
-                    "startPosition=" + this.getFirstPosition() +
-                    ", endPosition=" + this.getLastPosition() +
-                    ", length=" + actualLength() +
-                    '}';
+            return String.format("Segment{start=%s:%d end=%s:%d length=%d}%n", getFirstReferenceId(), getFirstPosition(),
+                    getLastReferenceId(), getLastPosition(),actualLength());
         }
 
         private int actualLength() {
@@ -166,16 +164,22 @@ public class SegmentList {
                 return (this.getLastPosition() - this.getFirstPosition()) + 1;
         }
 
-        public int getLastPosition() {
-            return records.get(records.size() - 1).getPosition();
+        public String getFirstReferenceId() {
+            return records.get(0).getReferenceId();
         }
-
         public int getFirstPosition() {
             return records.get(0).getPosition();
         }
 
         public String getLastReferenceId() {
             return records.get(records.size() - 1).getReferenceId();
+        }
+        public int getLastPosition() {
+            return records.get(records.size() - 1).getPosition();
+        }
+
+        public int getLastReferenceIndex() {
+            return records.get(records.size() - 1).getReferenceIndex();
         }
     }
 }

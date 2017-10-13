@@ -101,8 +101,13 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
      * @return
      */
     private boolean isSameSegment(BaseInformationRecords.BaseInformation record, int gap) {
-        return ((record.getPosition() - segmentList.getCurrentLocation() <= gap) &&
-                (record.getReferenceId().equalsIgnoreCase(segmentList.getCurrentLastReferenceId())));
+        final boolean valid = (record.getPosition() - segmentList.getCurrentLocation() <= gap) &&
+                record.getReferenceIndex() == segmentList.getCurrentLastReferenceIndex();
+    if (!valid) {
+        System.out.printf("not valid, actual gap=%d%n",record.getPosition() - segmentList.getCurrentLocation());
+    }
+        return valid;
+
     }
 
     /**
