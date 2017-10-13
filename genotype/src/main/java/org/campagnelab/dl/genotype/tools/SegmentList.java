@@ -21,17 +21,17 @@ public class SegmentList {
     private final SequenceSegmentInformationWriter writer;
     private Segment currentSegment;
 
-
+    /**
+     * Creates a new list and a first segment starting from the given record.
+     * @param from
+     * @param writer
+     * @param function the function applied to the records when the segment is completed.
+     */
     protected SegmentList(BaseInformationRecords.BaseInformation from,
                           SequenceSegmentInformationWriter writer, Function<Segment, Segment> function) {
         this.newSegment(from);
         this.function = function;
         this.writer = writer;
-    }
-
-
-    public int getCurrentLocation() {
-        return this.currentSegment.getLastPosition();
     }
 
     /**
@@ -68,24 +68,42 @@ public class SegmentList {
     }
 
     private void printStats() {
-
+       //TODO
     }
 
-    public int getCurrentLastReferenceIndex() {
+    public int getCurrentReferenceIndex() {
         return this.currentSegment.getLastReferenceIndex();
+    }
+
+
+    public int getCurrentLocation() {
+        return this.currentSegment.getLastPosition();
     }
 
     /**
      * Holds the current open segment before it is stored in the list.
      */
     public class Segment {
-        private int startPosition = 0;
-        private int endPosition = 0;
+        private int firstPosition = 0;
+        private int firstReferenceIndex = 0;
+        private String firstReferenceId = "";
+        private int lastPosition = 0;
+        private String lastReferenceId= "";
+        private int lastReferenceIndex = 0;
         List<BaseInformationRecords.BaseInformation> records = new ObjectArrayList<>();
 
         Segment(BaseInformationRecords.BaseInformation first) {
             //System.out.println("Open a new segment at ref " + first.getReferenceId() + " position " + Integer.toString(first.getPosition()));
-            this.records.add(first);
+            this.add(first);
+            this.firstPosition = first.getPosition();
+            this.firstReferenceIndex = first.getReferenceIndex();
+            this.firstReferenceId = first.getReferenceId();
+        }
+
+        private void setAsLast(BaseInformationRecords.BaseInformation record) {
+            this.lastPosition = record.getPosition();
+            this.lastReferenceId = record.getReferenceId();
+            this.lastReferenceIndex = record.getReferenceIndex();
         }
 
         /**
@@ -133,22 +151,8 @@ public class SegmentList {
          * @param record
          */
         protected void add(BaseInformationRecords.BaseInformation record) {
-            record.getSamplesList().forEach(sampleInfo -> {
-                        /*SegmentInformationRecords.Sample.Builder sampleBuilder = SegmentInformationRecords.Sample.newBuilder();
-                        SegmentInformationRecords.Base.Builder baseBuilder = SegmentInformationRecords.Base.newBuilder();
-                        //TODO: set real values here
-                        baseBuilder.addFeatures(1f);
-                        baseBuilder.addLabels(2f);
-                        baseBuilder.addTrueLabel("foo");
-                        sampleBuilder.addBase(baseBuilder);
-                        builder.addSample(sampleBuilder);*/
-                    }
-            );
-            /*SegmentInformationRecords.ReferencePosition.Builder refBuilder = SegmentInformationRecords.ReferencePosition.newBuilder();
-            refBuilder.setLocation(record.getPosition());
-            refBuilder.setReferenceIndex(record.getReferenceIndex());
-            refBuilder.setReferenceId(record.getReferenceId()); */
             this.records.add(record);
+            this.setAsLast(record);
         }
 
         @Override
@@ -165,21 +169,21 @@ public class SegmentList {
         }
 
         public String getFirstReferenceId() {
-            return records.get(0).getReferenceId();
+            return this.firstReferenceId;
         }
         public int getFirstPosition() {
-            return records.get(0).getPosition();
+            return this.firstPosition;
         }
 
         public String getLastReferenceId() {
-            return records.get(records.size() - 1).getReferenceId();
+            return this.lastReferenceId;
         }
         public int getLastPosition() {
-            return records.get(records.size() - 1).getPosition();
+            return this.lastPosition;
         }
 
         public int getLastReferenceIndex() {
-            return records.get(records.size() - 1).getReferenceIndex();
+            return this.lastReferenceIndex;
         }
     }
 }

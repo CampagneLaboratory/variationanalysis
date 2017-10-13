@@ -3,7 +3,6 @@ package org.campagnelab.dl.genotype.tools;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.BasenameUtils;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
 import org.campagnelab.goby.util.FileExtensionHelper;
@@ -102,7 +101,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
      */
     private boolean isSameSegment(BaseInformationRecords.BaseInformation record, int gap) {
         final boolean valid = (record.getPosition() - segmentList.getCurrentLocation() <= gap) &&
-                record.getReferenceIndex() == segmentList.getCurrentLastReferenceIndex();
+                record.getReferenceIndex() == segmentList.getCurrentReferenceIndex();
     if (!valid) {
         System.out.printf("not valid, actual gap=%d%n",record.getPosition() - segmentList.getCurrentLocation());
     }
