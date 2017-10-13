@@ -6,8 +6,7 @@ import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -24,6 +23,7 @@ public class SegmentList {
 
     /**
      * Creates a new list and a first segment starting from the given record.
+     *
      * @param from
      * @param writer
      * @param function the function applied to the records when the segment is completed.
@@ -45,7 +45,7 @@ public class SegmentList {
             this.closeSegment();
             if (from.getPosition() - currentSegment.getLastPosition() < statistics.minDistance
                     || statistics.minDistance == 0)
-                statistics.minDistance =  from.getPosition() - currentSegment.getLastPosition();
+                statistics.minDistance = from.getPosition() - currentSegment.getLastPosition();
         }
         currentSegment = new Segment(from);
         this.add(from);
@@ -56,15 +56,17 @@ public class SegmentList {
      * Closes the current segment.
      */
     private void closeSegment() {
-        if (this.function != null) {
+        try {
+            Objects.requireNonNull(this.function);
             Segment processed = this.function.apply(currentSegment);
             processed.flush(writer);
             System.out.println(processed);
-        } else {
+        } catch (NullPointerException npe) {
             currentSegment.flush(writer);
             System.out.println(currentSegment);
+        } finally {
+            this.updateStats();
         }
-        this.updateStats();
     }
 
     public void add(BaseInformationRecords.BaseInformation record) {
@@ -80,7 +82,7 @@ public class SegmentList {
     }
 
     private void printStats() {
-       System.out.println(statistics);
+        System.out.println(statistics);
     }
 
     public int getCurrentReferenceIndex() {
@@ -101,6 +103,7 @@ public class SegmentList {
             statistics.minLength = length;
         statistics.numOfSegments++;
     }
+
     /**
      * Statistics on the list
      */
@@ -114,13 +117,14 @@ public class SegmentList {
         @Override
         public String toString() {
             return "Statistics{" +
-                    "averageLength=" + Math.round(totalLength/numOfSegments) +
+                    "averageLength=" + Math.round(totalLength / numOfSegments) +
                     ", minLength=" + minLength +
                     ", maxLength=" + maxLength +
                     ", minDistance=" + minDistance +
                     '}';
         }
     }
+
     /**
      * Holds the current open segment before it is stored in the list.
      */
@@ -129,9 +133,9 @@ public class SegmentList {
         private int firstReferenceIndex = 0;
         private String firstReferenceId = "";
         private int lastPosition = 0;
-        private String lastReferenceId= "";
+        private String lastReferenceId = "";
         private int lastReferenceIndex = 0;
-        List<BaseInformationRecords.BaseInformation> records = new ObjectArrayList<>();
+        private RecordList recordList = new RecordList();
 
         Segment(BaseInformationRecords.BaseInformation first) {
             //System.out.println("Open a new segment at ref " + first.getReferenceId() + " position " + Integer.toString(first.getPosition()));
@@ -156,27 +160,27 @@ public class SegmentList {
 
             SegmentInformationRecords.SegmentInformation.Builder builder = SegmentInformationRecords.SegmentInformation.newBuilder();
             SegmentInformationRecords.ReferencePosition.Builder refBuilder = SegmentInformationRecords.ReferencePosition.newBuilder();
-            refBuilder.setLocation(records.get(0).getPosition());
-            refBuilder.setReferenceIndex(records.get(0).getReferenceIndex());
-            refBuilder.setReferenceId(records.get(0).getReferenceId());
+            refBuilder.setLocation(this.getFirstPosition());
+            refBuilder.setReferenceIndex(this.getFirstReferenceIndex());
+            refBuilder.setReferenceId(this.getFirstReferenceId());
             builder.setStartPosition(refBuilder.build());
             refBuilder = SegmentInformationRecords.ReferencePosition.newBuilder();
-            refBuilder.setLocation(records.get(records.size() - 1).getPosition());
-            refBuilder.setReferenceIndex(records.get(records.size() - 1).getReferenceIndex());
-            refBuilder.setReferenceId(records.get(records.size() - 1).getReferenceId());
+            refBuilder.setLocation(this.getLastPosition());
+            refBuilder.setReferenceIndex(this.getLastReferenceIndex());
+            refBuilder.setReferenceId(this.getLastReferenceId());
             builder.setEndPosition(refBuilder.build());
             builder.setLength(actualLength());
-            records.forEach(record -> {
-                    record.getSamplesList().forEach(sample -> {
-                        SegmentInformationRecords.Sample.Builder sampleBuilder = SegmentInformationRecords.Sample.newBuilder();
-                        SegmentInformationRecords.Base.Builder baseBuilder = SegmentInformationRecords.Base.newBuilder();
-                        //TODO: set real values here
-                        baseBuilder.addFeatures(1f);
-                        baseBuilder.addLabels(2f);
-                        baseBuilder.addTrueLabel("foo");
-                        sampleBuilder.addBase(baseBuilder);
-                        builder.addSample(sampleBuilder);
-                    });
+            recordList.forEach(record -> {
+                record.getSamplesList().forEach(sample -> {
+                    SegmentInformationRecords.Sample.Builder sampleBuilder = SegmentInformationRecords.Sample.newBuilder();
+                    SegmentInformationRecords.Base.Builder baseBuilder = SegmentInformationRecords.Base.newBuilder();
+                    //TODO: set real values here
+                    baseBuilder.addFeatures(1f);
+                    baseBuilder.addLabels(2f);
+                    baseBuilder.addTrueLabel("foo");
+                    sampleBuilder.addBase(baseBuilder);
+                    builder.addSample(sampleBuilder);
+                });
             });
             try {
                 writer.appendEntry(builder.build());
@@ -185,25 +189,24 @@ public class SegmentList {
             }
         }
 
-
         /**
          * Adds a record to the current segment
          *
          * @param record
          */
         protected void add(BaseInformationRecords.BaseInformation record) {
-            this.records.add(record);
+            this.recordList.add(record);
             this.setAsLast(record);
         }
 
         @Override
         public String toString() {
             return String.format("Segment{start=%s:%d end=%s:%d length=%d}%n", getFirstReferenceId(), getFirstPosition(),
-                    getLastReferenceId(), getLastPosition(),actualLength());
+                    getLastReferenceId(), getLastPosition(), actualLength());
         }
 
         private int actualLength() {
-            if (records.size() == 0)
+            if (recordList.size() == 0)
                 return 0;
             else
                 return (this.getLastPosition() - this.getFirstPosition()) + 1;
@@ -212,19 +215,50 @@ public class SegmentList {
         public String getFirstReferenceId() {
             return this.firstReferenceId;
         }
+
         public int getFirstPosition() {
             return this.firstPosition;
         }
 
+        private int getFirstReferenceIndex() {
+            return this.firstReferenceIndex;
+        }
+
+
         public String getLastReferenceId() {
             return this.lastReferenceId;
         }
+
         public int getLastPosition() {
             return this.lastPosition;
         }
 
         public int getLastReferenceIndex() {
             return this.lastReferenceIndex;
+        }
+
+        class RecordList implements Iterable<BaseInformationRecords.BaseInformation> {
+
+            List<BaseInformationRecords.BaseInformation> records = new ObjectArrayList<>();
+
+            /**
+             * Returns an iterator over elements of type {@code T}.
+             *
+             * @return an Iterator.
+             */
+            @Override
+            public Iterator<BaseInformationRecords.BaseInformation> iterator() {
+                return records.iterator();
+            }
+
+
+            public int size() {
+                return records.size();
+            }
+
+            public void add(BaseInformationRecords.BaseInformation record) {
+                records.add(record);
+            }
         }
     }
 }
