@@ -3,10 +3,11 @@ package org.campagnelab.dl.genotype.tools;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
+import org.campagnelab.dl.genotype.mappers.SingleBaseGenotypeMapperV1;
 
 /**
- *
  * Arguments for the {@link SBIToSSIConverter} tool.
+ *
  * @author manuele
  */
 @Parameters(commandDescription = "Convert a set of Single Base Information data to Sequence Segment Information structures.")
@@ -19,6 +20,12 @@ public class SBIToSSIConverterArguments implements ToolArguments {
     @Parameter(names = {"-g", "--gap"}, description = "Gap between two segments The default is 1.")
     public int gap = 1;
 
-    @Parameter(names = "--output-basename", description = "Prefix for the output saved file. If not specified, the input basename is used.")
+    @Parameter(names = {"-o", "--output-basename"}, description = "Prefix for the output saved file. If not specified, the input basename is used.")
     public String ssiPrefix = null;
+
+    @Parameter(names = "--ploidy", description = "Ploidy of the organism. This parameter determines the maximum number of alleles that can be called in the organism.")
+    int ploidy = 2;
+
+    @Parameter(names = "--feature-mapper", description = "Name of the class for the feature mapper. Used to convert an SBI record to features for storage in the SSI base.")
+    public String featureMapperClassName = SingleBaseGenotypeMapperV1.class.getCanonicalName();
 }
