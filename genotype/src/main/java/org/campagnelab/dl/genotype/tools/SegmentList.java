@@ -41,8 +41,12 @@ public class SegmentList {
      * @param from
      */
     public void newSegment(BaseInformationRecords.BaseInformation from) {
-        if (currentSegment != null)
+        if (currentSegment != null) {
             this.closeSegment();
+            if (from.getPosition() - currentSegment.getLastPosition() < statistics.minDistance
+                    || statistics.minDistance == 0)
+                statistics.minDistance =  from.getPosition() - currentSegment.getLastPosition();
+        }
         currentSegment = new Segment(from);
         this.add(from);
 
@@ -105,6 +109,7 @@ public class SegmentList {
         protected int totalLength = 0;
         protected int minLength = 0;
         protected int maxLength = 0;
+        protected int minDistance = 0;
 
         @Override
         public String toString() {
@@ -112,6 +117,7 @@ public class SegmentList {
                     "averageLength=" + Math.round(totalLength/numOfSegments) +
                     ", minLength=" + minLength +
                     ", maxLength=" + maxLength +
+                    ", minDistance=" + minDistance +
                     '}';
         }
     }
