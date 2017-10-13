@@ -116,10 +116,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         super.loadProperties(domainProperties, sbiProperties);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
+        args().genomicContextLength=Integer.parseInt(domainProperties.getProperty("genomicContextLength"));
+        args().indelSequenceLength=Integer.parseInt(domainProperties.getProperty("indelSequenceLength"));
         isLstmIndelModel = netArchitectureHasIndelLSTM(domainProperties.getProperty("net.architecture.classname"));
         isLstmIndelAggregateModel = netArchitectureHasIndelAggregateLSTM(domainProperties.getProperty("net.architecture.classname"));
         addTrueGenotypeLabels = Boolean.parseBoolean(domainProperties.getProperty("addTrueGenotypeLabels"));
-        configure(modelProperties);
+        configure(domainProperties);
         initializeArchitecture();
     }
 
@@ -332,16 +334,16 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             decisionThreshold = Double.parseDouble(property);
         }
 
-        String variantLossWeightProperty = modelProperties.getProperty("variantLossWeight");
+        String variantLossWeightProperty = modelProperties.getProperty("variantLossWeight","0");
 
         variantLossWeight = Double.parseDouble(variantLossWeightProperty);
-        String modelCapacityProperty = modelProperties.getProperty("modelCapacity");
+        String modelCapacityProperty = modelProperties.getProperty("modelCapacity","1.0");
         modelCapacity = Float.parseFloat(modelCapacityProperty);
-        String extraGenotypesProperty = modelProperties.getProperty("extraGenotypes");
+        String extraGenotypesProperty = modelProperties.getProperty("extraGenotypes","2");
         extraGenotypes= Integer.parseInt(extraGenotypesProperty);
-        indelSequenceLength = Integer.parseInt(modelProperties.getProperty("indelSequenceLength"));
-        trueGenotypeLength = Integer.parseInt(modelProperties.getProperty("trueGenotypeLength"));
-        addTrueGenotypeLabels = Boolean.parseBoolean(modelProperties.getProperty("addTrueGenotypeLabels"));
+        indelSequenceLength = Integer.parseInt(modelProperties.getProperty("indelSequenceLength","10"));
+        trueGenotypeLength = Integer.parseInt(modelProperties.getProperty("trueGenotypeLength","10"));
+        addTrueGenotypeLabels = Boolean.parseBoolean(modelProperties.getProperty("addTrueGenotypeLabels","false"));
 
     }
 
