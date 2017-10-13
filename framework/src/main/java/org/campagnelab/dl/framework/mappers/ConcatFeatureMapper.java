@@ -18,21 +18,41 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
 
     @SafeVarargs
     public ConcatFeatureMapper(FeatureMapper<RecordType>... featureMappers) {
+        if (featureMappers.length == 0) {
+            numFeatures = 0;
+            return;
+        }
         IntArraySet dimensions = new IntArraySet();
 
-        this.mappers = featureMappers;
         int offset = 0;
         int i = 1;
-        offsets = new int[featureMappers.length + 1];
+        int numMappers=0;
+        for (FeatureMapper<RecordType> calculator : featureMappers) {
+            if (calculator.numberOfFeatures() > 0) {
+                numMappers += 1;
+            }
+        }
+        this.mappers = new FeatureMapper[numMappers];
+        i=0;
+        for (FeatureMapper<RecordType> calculator : featureMappers) {
+            if (calculator.numberOfFeatures() > 0) {
+                mappers[i++] = calculator;
+            }
+        }
+        offsets = new int[numMappers+1];
         offsets[0] = 0;
+        i = 1;
         for (FeatureMapper<RecordType> calculator : mappers) {
+
             numFeatures += calculator.numberOfFeatures();
             offsets[i] = numFeatures;
             final MappedDimensions dims = calculator.dimensions();
             dimensions.add(dims.numDimensions());
             i++;
         }
-        assert featureMappers.length==0 || dimensions.size()==1: "All feature mappers must have the same dimensions to be concatenated.";
+        if (numMappers >= 1) {
+            assert featureMappers.length == 0 || dimensions.size() == 1 : "All feature mappers must have the same dimensions to be concatenated.";
+        }
     }
 
     @Override
