@@ -1,6 +1,5 @@
 package org.campagnelab.dl.genotype.tools;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -11,28 +10,25 @@ import org.campagnelab.goby.util.FileExtensionHelper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
 
 /**
  * Tool to convert from SBI to SSI format.
- * 
+ *
  * @author manuele
  */
 public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> {
 
     SequenceSegmentInformationWriter writer = null;
 
-    SegmentList segmentList ;
+    SegmentList segmentList;
 
     public static void main(String[] args) {
         SBIToSSIConverter tool = new SBIToSSIConverter();
         tool.parseArguments(args, "SBIToSSIConverter", tool.createArguments());
         tool.execute();
     }
-    
+
     @Override
     public SBIToSSIConverterArguments createArguments() {
         return new SBIToSSIConverterArguments();
@@ -52,7 +48,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                         FileExtensionHelper.COMPACT_SEQUENCE_BASE_INFORMATION));
             RecordReader sbiReader = new RecordReader(new File(args().inputFile).getAbsolutePath());
             BaseInformationRecords.BaseInformation sbiRecord = sbiReader.nextRecord();
-            while (sbiRecord!=null) {
+            while (sbiRecord != null) {
                 manageRecord(sbiRecord, gap);
                 sbiRecord = sbiReader.nextRecord();
             }
@@ -61,7 +57,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             System.err.println("Failed to parse " + args().inputFile);
             e.printStackTrace();
         }
-        
+
     }
 
     private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) {
@@ -69,21 +65,18 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             segmentList = new SegmentList(record, this.writer, null);
         } else {
             if (this.isValid(record)) {
-                if (!this.isSameSegment(record,gap)) {
+                if (!this.isSameSegment(record, gap)) {
                     segmentList.newSegment(record);
                 } else {
                     segmentList.add(record);
                 }
-            } else {
-                segmentList.setCurrentLocation(record.getPosition());
-                segmentList.setLastReferenceId(record.getReferenceId());
-                segmentList.setLastReferenceIndex(record.getReferenceIndex());
-            }
+            } 
         }
     }
 
     /**
      * Checks if this record should be considered.
+     *
      * @param record
      * @return
      */
@@ -96,21 +89,25 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                     });
                 }
         );
-        System.out.println("Sum for the counts is " + sum[0]);
-        return !(sum[0] == 0);
+        //System.out.println("Sum for the counts is " + sum[0]);
+        return (sum[0] > 0);
     }
 
     /**
      * Checks if the record belongs to the current segment.
+     *
      * @param record
      * @param gap
      * @return
      */
     private boolean isSameSegment(BaseInformationRecords.BaseInformation record, int gap) {
-         return ((record.getPosition() - segmentList.getCurrentLocation() <= gap) &&
-                 (record.getReferenceId().equalsIgnoreCase(segmentList.getCurrentLastReferenceId())) );
+        return ((record.getPosition() - segmentList.getCurrentLocation() <= gap) &&
+                (record.getReferenceId().equalsIgnoreCase(segmentList.getCurrentLastReferenceId())));
     }
 
+    /**
+     * Closes the list and serializes the output SSI.
+     */
     private void closeOutput() {
         segmentList.close();
         try {
@@ -122,7 +119,6 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             writer = null;
         }
     }
-
 
 
 }
