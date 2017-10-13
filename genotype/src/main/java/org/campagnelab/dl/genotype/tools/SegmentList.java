@@ -48,7 +48,10 @@ public class SegmentList {
 
     }
 
-    public void closeSegment() {
+    /**
+     * Closes the current segment.
+     */
+    private void closeSegment() {
         if (this.function != null) {
             Segment processed = this.function.apply(currentSegment);
             processed.flush(writer);
@@ -57,12 +60,16 @@ public class SegmentList {
             currentSegment.flush(writer);
             System.out.println(currentSegment);
         }
+        this.updateStats();
     }
 
     public void add(BaseInformationRecords.BaseInformation record) {
         currentSegment.add(record);
     }
 
+    /**
+     * Close the list and print the statistics.
+     */
     public void close() {
         this.closeSegment();
         this.printStats();
@@ -81,6 +88,15 @@ public class SegmentList {
         return this.currentSegment.getLastPosition();
     }
 
+    private void updateStats() {
+        int length = currentSegment.actualLength();
+        statistics.totalLength += length;
+        if (length > statistics.maxLength)
+            statistics.maxLength = length;
+        if (length < statistics.minLength || statistics.minLength == 0)
+            statistics.minLength = length;
+        statistics.numOfSegments++;
+    }
     /**
      * Statistics on the list
      */
@@ -161,13 +177,6 @@ public class SegmentList {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            int length = this.actualLength();
-            statistics.totalLength += length;
-            if (length > statistics.maxLength)
-                statistics.maxLength = length;
-            if (length < statistics.minLength || statistics.minLength == 0)
-                statistics.minLength = length;
-            statistics.numOfSegments++;
         }
 
 
