@@ -18,4 +18,8 @@ public class QuickConcatArguments implements ToolArguments {
 
     @Parameter(required = false, names = {"-b", "--buffer-size"}, description = "Size of the copy buffer. Should be large enough to be efficient, but small enough that quick concat can be interrupted by ^C. ")
     public int copyBufferSize = 100*1024*1024;
+
+    @Parameter(names={"-f","--force"}, description = "Frorce overidde the output if it already exists.")
+    public
+    boolean force=false;
 }

@@ -66,14 +66,16 @@ public class QuickConcat extends AbstractTool<QuickConcatArguments> {
         inputFilenames = reorderFilenames(inputFilenames);
 
         File outputFile = new File(outputBasename);
-        if (outputFile.exists()) {
-            System.err.println("The output file already exists. Please delete it before running concat.");
-            return;
-        }
-        try {
-            outputFile.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to create destination file", e);
+        if (!args().force) {
+            if (outputFile.exists()) {
+                System.err.println("The output file already exists. Please delete it before running concat.");
+                return;
+            }
+            try {
+                outputFile.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to create destination file", e);
+            }
         }
 
         //set up logger
@@ -153,7 +155,7 @@ public class QuickConcat extends AbstractTool<QuickConcatArguments> {
             if ((tokens.length >= 2)) {
                 try {
                     String lastToken = tokens[tokens.length - 1];
-                    lastToken=lastToken.replace(".sbi","");
+                    lastToken = lastToken.replace(".sbi", "");
                     int value = Integer.parseInt(lastToken);
                     order[index] = value;
                     hasOrder |= true;
@@ -174,10 +176,10 @@ public class QuickConcat extends AbstractTool<QuickConcatArguments> {
                     String[] tokens1 = filename1.split("[\\-]");
                     String[] tokens2 = filename2.split("[\\-]");
                     String lastToken1 = tokens1[tokens1.length - 1];
-                    lastToken1=lastToken1.replace(".sbi","");
+                    lastToken1 = lastToken1.replace(".sbi", "");
 
                     String lastToken2 = tokens2[tokens2.length - 1];
-                    lastToken2=lastToken2.replace(".sbi","");
+                    lastToken2 = lastToken2.replace(".sbi", "");
 
                     int value1 = Integer.parseInt(lastToken1);
                     int value2 = Integer.parseInt(lastToken2);
@@ -187,7 +189,7 @@ public class QuickConcat extends AbstractTool<QuickConcatArguments> {
             };
             Arrays.sort(inputFilenames, compareFilenames);
             System.out.println("Sorted filename order:" + ObjectArrayList.wrap(inputFilenames).toString());
-        } else{
+        } else {
             System.out.println("Filenames do not follow the pattern *-int.sbi, concat in the order provided on the command line.");
         }
         return inputFilenames;
