@@ -174,16 +174,24 @@ public class SegmentList {
             refBuilder.setReferenceId(this.getLastReferenceId());
             builder.setEndPosition(refBuilder.build());
             builder.setLength(actualLength());
+            final long[] segmentStats = {0L, 0L ,0L};
             recordList.forEach(record -> {
                     record.getSamplesList().forEach(sample -> {
                         SegmentInformationRecords.Sample.Builder sampleBuilder = SegmentInformationRecords.Sample.newBuilder();
-
-                        sampleBuilder.addBase(fillInFeatures.apply(record));
+                        SegmentInformationRecords.Base.Builder base = fillInFeatures.apply(record);
+                        sampleBuilder.addBase(base);
                         builder.addSample(sampleBuilder);
+                        segmentStats[0]++;
+                        //System.out.println("New base " + segmentStats[0] );
+                        segmentStats[1] = base.getFeaturesCount();
+                        segmentStats[2] = base.getLabelsCount();
                     });
             });
             try {
                 writer.appendEntry(builder.build());
+                writer.setEntryBases(segmentStats[0]);
+                writer.setEntryLabels(segmentStats[1]);
+                writer.setEntryFeatures(segmentStats[2]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
