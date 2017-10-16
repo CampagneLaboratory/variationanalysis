@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSegmentsLSTM;
 import org.campagnelab.dl.genotype.learning.domains.GenotypeDomainDescriptor;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Function;
 
 
@@ -34,7 +36,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     SequenceSegmentInformationWriter writer = null;
 
     SegmentList segmentList;
-    private Function<SegmentList.Segment, SegmentList.Segment> function;
+    private Function<SegmentList.Segment, SegmentList.Segment> processSegmentFunction;
     private Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeaturesFunction;
 
     public static void main(String[] args) {
@@ -76,11 +78,34 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         FeatureMapper featureMapper = domainDescriptor.getFeatureMapper("input");
         //LabelMapper labelMapper=domainDescriptor.getFeatureMapper("input");
 
-        function = segment -> {
+        processSegmentFunction = segment -> {
+            BaseInformationRecords.BaseInformation previous = null;
+            BaseInformationRecords.BaseInformation buildFrom = null;
             for (BaseInformationRecords.BaseInformation record : segment.recordList) {
-                if (record.getTrueGenotype().length() > 3) {
-                    System.out.println("Indel: " + record.getTrueGenotype());
+                int reference_index = record.getReferenceIndex();
+                int position = record.getPosition();
+                if (segment.hasTrueGenotype("A|ACC")) {
+                    System.out.printf("refId: %s position: %d genotype: %s %n", record.getReferenceId(), position, record.getTrueGenotype());
                 }
+                buildFrom=record;
+                if (record.getTrueGenotype().length() > 3) {
+                    Set<String> alleles = GenotypeHelper.getAlleles(record.getTrueGenotype());
+                    for (String allele : alleles) {
+                        if (allele.length() > 1) {
+                            String insertionOrDeletion = getInsertedDeleted(allele);
+                            int offset=1;
+                            for (char insertedDeleted: insertionOrDeletion.toCharArray()) {
+                               previous= segment.recordList.insertAfter(previous, buildFrom, insertedDeleted,offset++);
+                            }
+                        }
+                    }
+                }
+                previous = record;
+            }
+
+
+            for (BaseInformationRecords.BaseInformation record : segment.recordList) {
+
             }
             return segment;
         };
@@ -125,9 +150,29 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
 
     }
 
+    private String getInsertedDeleted(String allele) {
+
+        if (allele.charAt(1) == '-') {
+            // number of deletions in allele.
+            int deletionCount = 0;
+            // a certain number of bases are deleted in this allele.
+            for (int i = 1; i < allele.length(); i++) {
+                if (allele.charAt(i) == '-') {
+                    deletionCount++;
+                }else {
+                    break;
+                }
+            }
+            return allele.substring(1,deletionCount);
+        } else {
+            int insertionCount = allele.length() - 1;
+            return allele.substring(1, allele.length() - 2);
+        }
+    }
+
     private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) {
         if (segmentList == null) {
-            segmentList = new SegmentList(record, this.writer, function, fillInFeaturesFunction);
+            segmentList = new SegmentList(record, this.writer, processSegmentFunction, fillInFeaturesFunction);
         } else {
             if (this.isValid(record)) {
                 if (!this.isSameSegment(record, gap)) {
