@@ -9,7 +9,8 @@ import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSegmentsLSTM;
 import org.campagnelab.dl.genotype.learning.domains.GenotypeDomainDescriptor;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
-import org.campagnelab.dl.genotype.segments.SegmentList;
+import org.campagnelab.dl.genotype.segments.Segment;
+import org.campagnelab.dl.genotype.segments.SegmentHelper;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
@@ -36,8 +37,8 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     static private Logger LOG = LoggerFactory.getLogger(SBIToSSIConverter.class);
     SequenceSegmentInformationWriter writer = null;
 
-    SegmentList segmentList;
-    private Function<SegmentList.Segment, SegmentList.Segment> processSegmentFunction;
+    SegmentHelper segmentList;
+    private Function<Segment, Segment> processSegmentFunction;
     private Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeaturesFunction;
 
     public static void main(String[] args) {
@@ -123,8 +124,8 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                 }
                 for (int offset = 1; offset < longestIndelLength; offset++) {
                     BaseInformationRecords.BaseInformation.Builder copy = record.toBuilder();
-                //    System.out.printf("record position: %d %n",record.getPosition());
-                    copy=segment.recordList.adjustCounts(copy, offset);
+                    //    System.out.printf("record position: %d %n",record.getPosition());
+                    copy = segment.recordList.adjustCounts(copy, offset);
                     segment.insertAfter(record, copy);
                 }
                 recordIndex++;
@@ -137,7 +138,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             if (args().mapFeatures) {
                 featureMapper.prepareToNormalize(baseInformation, 0);
                 if (baseInformation.getTrueGenotype().length() > 3) {
-                //    System.out.println("Indel:" + baseInformation.getTrueGenotype());
+                    //    System.out.println("Indel:" + baseInformation.getTrueGenotype());
                 }
                 features.clear();
                 for (int featureIndex = 0; featureIndex < featureMapper.numberOfFeatures(); featureIndex++) {
@@ -187,14 +188,13 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             }
             return allele.substring(1, deletionCount);
         } else {
-            int insertionCount = allele.length() - 1;
             return allele.substring(1, allele.length() - 2);
         }
     }
 
     private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) {
         if (segmentList == null) {
-            segmentList = new SegmentList(record, this.writer, processSegmentFunction, fillInFeaturesFunction);
+            segmentList = new SegmentHelper(this.writer, processSegmentFunction, fillInFeaturesFunction);
         } else {
             if (this.isValid(record)) {
                 if (!this.isSameSegment(record, gap)) {
@@ -233,6 +233,9 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
      * @return
      */
     private boolean isSameSegment(BaseInformationRecords.BaseInformation record, int gap) {
+        if (segmentList == null) {
+            return false;
+        }
         final boolean valid = (record.getPosition() - segmentList.getCurrentLocation() <= gap) &&
                 record.getReferenceIndex() == segmentList.getCurrentReferenceIndex();
     /*if (!valid) {
