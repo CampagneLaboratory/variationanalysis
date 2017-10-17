@@ -88,7 +88,7 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
     }
 
 
-    protected int getNumValues(int ploidy, int numAlleles) {
+    public static int getNumValues(int ploidy, int numAlleles) {
         if (ploidy == 0) {
             return numAlleles;
         }
