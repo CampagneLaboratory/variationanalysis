@@ -90,8 +90,8 @@ public class Segment {
         try {
             writer.appendEntry(builder.build());
             writer.setEntryBases(segmentStats[0]);
-            writer.setEntryLabels(segmentStats[1]);
-            writer.setEntryFeatures(segmentStats[2]);
+            writer.setEntryLabels(segmentStats[2]);
+            writer.setEntryFeatures(segmentStats[1]);
         } catch (IOException e) {
             e.printStackTrace();
         }
