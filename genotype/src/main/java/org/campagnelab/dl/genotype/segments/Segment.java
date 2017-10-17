@@ -2,7 +2,7 @@ package org.campagnelab.dl.genotype.segments;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.*;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
@@ -10,6 +10,7 @@ import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -62,13 +63,22 @@ public class Segment {
         builder.setEndPosition(refBuilder.build());
         builder.setLength(actualLength());
         final long[] segmentStats = {0L, 0L, 0L};
-        Spliterator<BaseInformationRecords.BaseInformation> allRecords=getAllRecordsSplit();
 
-        allRecords.forEachRemaining(record -> {
+        final Object2ObjectMap<BaseInformationRecords.BaseInformation,
+                SegmentInformationRecords.Base.Builder> cache = new Object2ObjectOpenHashMap<>();
+
+        getAllRecordsSplit().parallel().forEach(record -> {
+                    SegmentInformationRecords.Base.Builder base = fillInFeatures.apply(record);
+                    synchronized (cache) {
+                        cache.put(record, base);
+                    }
+                }
+        );
+        getAllRecords().forEach(record -> {
             record.getSamplesList().forEach(sample -> {
                 SegmentInformationRecords.Sample.Builder sampleBuilder = SegmentInformationRecords.Sample.newBuilder();
 
-                SegmentInformationRecords.Base.Builder base = fillInFeatures.apply(record);
+                SegmentInformationRecords.Base.Builder base = cache.get(record);
                 sampleBuilder.addBase(base);
                 builder.addSample(sampleBuilder);
                 segmentStats[0]++;
@@ -107,7 +117,7 @@ public class Segment {
         if (recordList.size() == 0)
             return 0;
         else
-            return recordList.size()+recordList.afterRecord.size();
+            return recordList.size() + recordList.afterRecord.size();
     }
 
     public String getFirstReferenceId() {
@@ -188,13 +198,13 @@ public class Segment {
 
         return list;
     }
-    public Spliterator<BaseInformationRecords.BaseInformation> getAllRecordsSplit() {
+
+    public Stream<BaseInformationRecords.BaseInformation> getAllRecordsSplit() {
         ArrayList<BaseInformationRecords.BaseInformation> list = new ArrayList<>();
         for (BaseInformationRecords.BaseInformation record : recordList) {
             list.add(record);
             list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
         }
-
-       return list.parallelStream().spliterator();
+        return list.parallelStream();
     }
 }

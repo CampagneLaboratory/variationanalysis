@@ -134,8 +134,9 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         SegmentLabelMapper labelMapper = new SegmentLabelMapper(args().ploidy);
 
 
-        FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
+
         fillInFeaturesFunction = baseInformation -> {
+            FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
             SegmentInformationRecords.Base.Builder builder = SegmentInformationRecords.Base.newBuilder();
             String trueGenotype = baseInformation.getTrueGenotype();
             if (args().mapFeatures) {
