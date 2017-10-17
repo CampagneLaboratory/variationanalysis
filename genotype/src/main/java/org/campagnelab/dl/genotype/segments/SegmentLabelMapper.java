@@ -4,11 +4,15 @@ package org.campagnelab.dl.genotype.segments;
 import edu.cornell.med.icb.identifier.IndexedIdentifier;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.lang.MutableString;
-import org.campagnelab.dl.genotype.mappers.SingleBaseLabelMapperV1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 
 
@@ -25,7 +29,17 @@ public class SegmentLabelMapper {
     static private Logger LOG = LoggerFactory.getLogger(SegmentLabelMapper.class);
 
     public static void main(String[] args) {
-        new SegmentLabelMapper(3);
+        SegmentLabelMapper mapper = new SegmentLabelMapper(3);
+        Properties props = new Properties();
+        mapper.writeMap(props);
+        try(OutputStream output = new FileOutputStream("indexedLabels.properties")) {
+            props.store(output, null);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public SegmentLabelMapper(int ploidy) {
@@ -70,7 +84,13 @@ public class SegmentLabelMapper {
             }
         return combinedLabels;
     }
-    
+
+    public void writeMap(final Properties properties) {
+        for (Map.Entry<MutableString, Integer> entry : this.indexedLabels.entrySet()) {
+            properties.put(Integer.toString(entry.getValue()), entry.getKey().toString());
+        }
+    }
+
     /**
      * Sorts the chars in the list in alphabetic order.
      * @param toSort
