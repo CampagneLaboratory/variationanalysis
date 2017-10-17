@@ -29,7 +29,9 @@ public class SegmentLabelMapper {
     static private Logger LOG = LoggerFactory.getLogger(SegmentLabelMapper.class);
 
     public static void main(String[] args) {
-        SegmentLabelMapper mapper = new SegmentLabelMapper(3);
+        SegmentLabelMapper mapper = new SegmentLabelMapper(Integer.valueOf(args[0]));
+        float[] position = mapper.map(args[1]);
+        System.out.println(Arrays.toString(position));
         Properties props = new Properties();
         mapper.writeMap(props);
         try(OutputStream output = new FileOutputStream("indexedLabels.properties")) {
@@ -85,10 +87,31 @@ public class SegmentLabelMapper {
         return combinedLabels;
     }
 
+    /**
+     * Maps the given chromosome sequence.
+     * @param chromosomes
+     * @return a float array of zeros, except for the position of the sequence (which is equals to 1).
+     */
+    public float[] map(String chromosomes) {
+        float[] position = new float[this.numberOfLabelsPerBase];
+        String clean = chromosomes.replace("/", "");
+        if (clean.length() != ploidy)
+            throw new IllegalArgumentException(chromosomes + " is not of the expected length (" + this.ploidy +")");
+        final MutableString toFind = new MutableString(sortAlphabetically(clean)).compact();
+        int foundAt = this.indexedLabels.getInt(toFind);
+        if (foundAt < position.length -1 && foundAt >= 0)
+            position[foundAt] = 1L;
+        return position;
+    }
+    /**
+     * Add the indexes and labels to the properties.
+     * @param properties
+     */
     public void writeMap(final Properties properties) {
         for (Map.Entry<MutableString, Integer> entry : this.indexedLabels.entrySet()) {
-            properties.put(Integer.toString(entry.getValue()), entry.getKey().toString());
+            properties.put("genotype.segment.label." + Integer.toString(entry.getValue()), entry.getKey().toString());
         }
+        properties.put("genotype.segment.label.numOfEntries", Integer.toString(this.indexedLabels.entrySet().size()));
     }
 
     /**
@@ -96,7 +119,7 @@ public class SegmentLabelMapper {
      * @param toSort
      * @return
      */
-    private String sortAlphabetically(String toSort) {
+    private String sortAlphabetically(final String toSort) {
         char[] elements = toSort.toCharArray();
         Arrays.sort(elements);
         return new String(elements);
