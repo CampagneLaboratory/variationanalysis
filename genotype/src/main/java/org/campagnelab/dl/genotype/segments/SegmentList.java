@@ -1,5 +1,8 @@
 package org.campagnelab.dl.genotype.segments;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
@@ -7,7 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -112,6 +116,8 @@ public class SegmentList {
         statistics.numOfSegments++;
     }
 
+
+
     /**
      * Statistics on the list
      */
@@ -179,7 +185,7 @@ public class SegmentList {
             builder.setEndPosition(refBuilder.build());
             builder.setLength(actualLength());
             final long[] segmentStats = {0L, 0L, 0L};
-            recordList.forEach(record -> {
+            getAllRecords().forEach(record -> {
                 record.getSamplesList().forEach(sample -> {
                     SegmentInformationRecords.Sample.Builder sampleBuilder = SegmentInformationRecords.Sample.newBuilder();
 
@@ -260,7 +266,48 @@ public class SegmentList {
             return false;
         }
 
+        private Int2ObjectMap positionsToTrueGenotypes = new Int2ObjectOpenHashMap();
 
+        public void populateTrueGenotypes() {
+            positionsToTrueGenotypes.clear();
+            for (BaseInformationRecords.BaseInformation record : recordList) {
+                String trueGenotype = record.getTrueGenotype();
+                if (trueGenotype.length() == 3) {
+                    // no indel, simple A/B genotype:
+                    positionsToTrueGenotypes.put(record.getPosition(), trueGenotype);
+                }
+            }
+        }
+
+        public String getTrueGenotype(int position) {
+            return (String) positionsToTrueGenotypes.getOrDefault(position, "-");
+        }
+
+        /**
+         * Insert a copy after a record. The copy has the same position as the record, but follows in order (usually
+         * representing a position contributing to an indel).
+         *
+         * @param record after which copy will be inserted
+         * @param copy   to insert.
+         */
+        public void insertAfter(BaseInformationRecords.BaseInformation record, BaseInformationRecords.BaseInformation.Builder copy) {
+
+            recordList.addToFollowing(record, copy.build());
+        }
+
+        /**
+         * Returns the complete list of records, including those interleaved with genomic positions (for insertion/deletion).
+         * @return
+         */
+        public Iterable<BaseInformationRecords.BaseInformation> getAllRecords() {
+            ObjectArrayList<BaseInformationRecords.BaseInformation> list=new ObjectArrayList<>();
+            for (BaseInformationRecords.BaseInformation record : recordList){
+                list.add(record);
+                list.addAll(recordList.afterRecord.getOrDefault(record,Collections.emptyList()));
+            }
+
+            return list;
+        }
     }
 
 }

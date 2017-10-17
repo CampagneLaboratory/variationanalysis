@@ -1,18 +1,25 @@
 package org.campagnelab.dl.genotype.segments;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
 public class RecordList implements Iterable<BaseInformationRecords.BaseInformation> {
     static private Logger LOG = LoggerFactory.getLogger(RecordList.class);
 
     ObjectArrayList<BaseInformationRecords.BaseInformation> records = new ObjectArrayList<>();
+    /*
+     * A map that contains list of records following a specific record. Use to combine indel position that are interleaved with
+     * original records. When we need the full list of record, we combine record a in records with the records following a in
+     * afterRecord.
+     */
+    Object2ObjectOpenHashMap<BaseInformationRecords.BaseInformation, List<BaseInformationRecords.BaseInformation>> afterRecord = new Object2ObjectOpenHashMap<>();
 
     /**
      * Returns an iterator over elements of type {@code T}.
@@ -45,12 +52,17 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
             copy.setTrueFrom("");
         }
         copy.setTrueGenotype(Character.toString(insertedDeleted));
-        copy = adjustCounts(copy, offset);
         final BaseInformationRecords.BaseInformation builtCopy = copy.build();
-
-        records.add(records.indexOf(previous) + 1, builtCopy);
+        addToFollowing(previous, builtCopy);
+        //records.add(records.indexOf(previous) + 1, builtCopy);
         return previous;
 
+    }
+
+    void addToFollowing(BaseInformationRecords.BaseInformation previous, BaseInformationRecords.BaseInformation builtCopy) {
+        List<BaseInformationRecords.BaseInformation> list = afterRecord.getOrDefault(previous, new ObjectArrayList<>());
+        list.add(builtCopy);
+        afterRecord.put(previous, list);
     }
 
     /**
@@ -61,58 +73,61 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
      * @param offset offset inside the indel sequence, which identifies the base to increment.
      * @return a builder where the adjustment has been made.
      */
-    private BaseInformationRecords.BaseInformation.Builder adjustCounts(BaseInformationRecords.BaseInformation.Builder copy, int offset) {
+    public BaseInformationRecords.BaseInformation.Builder adjustCounts(BaseInformationRecords.BaseInformation.Builder copy, int offset) {
         // we store counts in a map for easy access (map keyed on to sequence of the count):
-        Map<String, BaseInformationRecords.CountInfo.Builder> counts = new Object2ObjectArrayMap<>();
         // we know we may need a gap count, so we add one, because none in the sbi:
 
         int sampleIndex = 0;
         int countIndex = 0;
-        boolean needsGap = true;
-        for (BaseInformationRecords.SampleInfo.Builder sample : copy.getSamplesBuilderList()) {
-            for (BaseInformationRecords.CountInfo.Builder count : sample.getCountsBuilderList()) {
-                String originalTo = count.getToSequence();
-                if (needsGap) {
-                    String from = count.getFromSequence();
-                    counts.put("-", BaseInformationRecords.CountInfo.newBuilder().setFromSequence(from)
-                            .setToSequence("-").setMatchesReference(from.charAt(0) == '-')
-                            .setGenotypeCountForwardStrand(0).setGenotypeCountReverseStrand(0));
-                    needsGap = false;
-                }
-                if (count.getToSequence().length() == 1) {
 
-                    counts.put(count.getToSequence(), count);
-                } else {
+
+        for (BaseInformationRecords.SampleInfo.Builder sample : copy.getSamplesBuilderList()) {
+            ObjectArrayList<BaseInformationRecords.CountInfo.Builder> countsToKeep = new ObjectArrayList();
+
+            for (BaseInformationRecords.CountInfo.Builder count : sample.getCountsBuilderList()) {
+
+                if (count.getToSequence().length() != 1) {
                     if (count.getIsIndel()) {
                         // count is an indel count.
                         String adjustedTo = count.getToSequence();
-                        if (adjustedTo.length() > offset) {
+                        String adjustedFrom = count.getFromSequence();
+                        if (adjustedTo.length() > offset && adjustedFrom.length() > offset) {
+                            adjustedFrom = adjustedFrom.substring(offset, offset + 1);
                             adjustedTo = adjustedTo.substring(offset, offset + 1);
+                            count.setFromSequence(adjustedFrom);
+                            count.setToSequence(adjustedTo);
+                            countsToKeep.add(count);
                         } else {
-                            LOG.warn(String.format("offset %d outside of to sequence %s.", offset, count.getToSequence()));
-                            adjustedTo = "-";
-                        }
-                        BaseInformationRecords.CountInfo.Builder countForBase = counts.get(adjustedTo);
+                            // this indel does not contribute to the counts at this offset:
+                            makeEmptyCount(countsToKeep, count);
 
-                        // add the count the count of the indel to the count of the base:
-                        countForBase.setGenotypeCountForwardStrand(countForBase.getGenotypeCountForwardStrand() + count.getGenotypeCountForwardStrand());
-                        countForBase.setGenotypeCountReverseStrand(countForBase.getGenotypeCountReverseStrand() + count.getGenotypeCountReverseStrand());
+                        }
+                    } else {
+                        // this base does not occur at this offset:
+                        makeEmptyCount(countsToKeep, count);
                     }
+
+                } else {
+                    makeEmptyCount(countsToKeep, count);
                 }
-                countIndex++;
+
             }
-            // save counts back in copy:
             sample.clearCounts();
-            sample.addCounts(counts.get("A"));
-            sample.addCounts(counts.get("C"));
-            sample.addCounts(counts.get("T"));
-            sample.addCounts(counts.get("G"));
-            sample.addCounts(counts.get("-"));
-            sample.addCounts(counts.get("N"));
+            for (BaseInformationRecords.CountInfo.Builder count : countsToKeep) {
+                sample.addCounts(count);
+
+            }
             copy.setSamples(sampleIndex, sample);
             sampleIndex++;
+
         }
         return copy;
+    }
+
+    private void makeEmptyCount(ObjectArrayList<BaseInformationRecords.CountInfo.Builder> countsToKeep, BaseInformationRecords.CountInfo.Builder count) {
+        count.setGenotypeCountForwardStrand(0);
+        count.setGenotypeCountReverseStrand(0);
+        countsToKeep.add(count);
     }
 
 

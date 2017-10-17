@@ -80,33 +80,54 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         //LabelMapper labelMapper=domainDescriptor.getFeatureMapper("input");
 
         processSegmentFunction = segment -> {
+            segment.populateTrueGenotypes();
             BaseInformationRecords.BaseInformation previous = null;
             BaseInformationRecords.BaseInformation buildFrom = null;
+
             for (BaseInformationRecords.BaseInformation record : segment.recordList) {
+
                 int reference_index = record.getReferenceIndex();
                 int position = record.getPosition();
-                if (segment.hasTrueGenotype("A|ACC")) {
+              /*  if (segment.hasTrueGenotype("A|ACC")) {
                     System.out.printf("refId: %s position: %d genotype: %s %n", record.getReferenceId(), position, record.getTrueGenotype());
-                }
-                buildFrom=record;
+                }*/
+                buildFrom = record;
                 if (record.getTrueGenotype().length() > 3) {
                     Set<String> alleles = GenotypeHelper.getAlleles(record.getTrueGenotype());
                     for (String allele : alleles) {
                         if (allele.length() > 1) {
                             String insertionOrDeletion = getInsertedDeleted(allele);
-                            int offset=1;
-                            for (char insertedDeleted: insertionOrDeletion.toCharArray()) {
-                               previous= segment.recordList.insertAfter(previous, buildFrom, insertedDeleted,offset++);
+                            int offset = 1;
+                            for (char insertedDeleted : insertionOrDeletion.toCharArray()) {
+                                previous = segment.recordList.insertAfter(previous, buildFrom, insertedDeleted, offset++);
                             }
                         }
                     }
                 }
+
                 previous = record;
             }
 
-
+            int recordIndex = 0;
+            int longestIndelLength = 0;
             for (BaseInformationRecords.BaseInformation record : segment.recordList) {
+                longestIndelLength = 0;
+                for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()) {
+                    for (BaseInformationRecords.CountInfo count : sample.getCountsList()) {
+                        if (count.getIsIndel()) {
+                            longestIndelLength = Math.max(longestIndelLength, count.getFromSequence().length());
+                            longestIndelLength = Math.max(longestIndelLength, count.getToSequence().length());
+                        }
+                    }
 
+                }
+                for (int offset = 1; offset < longestIndelLength; offset++) {
+                    BaseInformationRecords.BaseInformation.Builder copy = record.toBuilder();
+                //    System.out.printf("record position: %d %n",record.getPosition());
+                    copy=segment.recordList.adjustCounts(copy, offset);
+                    segment.insertAfter(record, copy);
+                }
+                recordIndex++;
             }
             return segment;
         };
@@ -116,7 +137,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             if (args().mapFeatures) {
                 featureMapper.prepareToNormalize(baseInformation, 0);
                 if (baseInformation.getTrueGenotype().length() > 3) {
-                    System.out.println("Indel:" + baseInformation.getTrueGenotype());
+                //    System.out.println("Indel:" + baseInformation.getTrueGenotype());
                 }
                 features.clear();
                 for (int featureIndex = 0; featureIndex < featureMapper.numberOfFeatures(); featureIndex++) {
@@ -160,11 +181,11 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             for (int i = 1; i < allele.length(); i++) {
                 if (allele.charAt(i) == '-') {
                     deletionCount++;
-                }else {
+                } else {
                     break;
                 }
             }
-            return allele.substring(1,deletionCount);
+            return allele.substring(1, deletionCount);
         } else {
             int insertionCount = allele.length() - 1;
             return allele.substring(1, allele.length() - 2);
