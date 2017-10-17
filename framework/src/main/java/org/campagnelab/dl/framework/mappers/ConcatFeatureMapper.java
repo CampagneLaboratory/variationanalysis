@@ -15,6 +15,7 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
     protected int numFeatures = 0;
     protected int[] offsets;
     private boolean normalizedCalled;
+    private boolean requiresMask;
 
     @SafeVarargs
     public ConcatFeatureMapper(FeatureMapper<RecordType>... featureMappers) {
@@ -26,20 +27,21 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
 
         int offset = 0;
         int i = 1;
-        int numMappers=0;
+        int numMappers = 0;
         for (FeatureMapper<RecordType> calculator : featureMappers) {
             if (calculator.numberOfFeatures() > 0) {
                 numMappers += 1;
             }
         }
         this.mappers = new FeatureMapper[numMappers];
-        i=0;
+        i = 0;
         for (FeatureMapper<RecordType> calculator : featureMappers) {
             if (calculator.numberOfFeatures() > 0) {
                 mappers[i++] = calculator;
+                requiresMask |= calculator.hasMask();
             }
         }
-        offsets = new int[numMappers+1];
+        offsets = new int[numMappers + 1];
         offsets[0] = 0;
         i = 1;
         for (FeatureMapper<RecordType> calculator : mappers) {
@@ -94,10 +96,7 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
 
     @Override
     public boolean hasMask() {
-        boolean requiresMask = false;
-        for (FeatureMapper<RecordType> calculator : mappers) {
-            requiresMask |= calculator.hasMask();
-        }
+
         return requiresMask;
     }
 
@@ -121,6 +120,7 @@ public class ConcatFeatureMapper<RecordType> implements FeatureMapper<RecordType
 
     @Override
     public boolean isMasked(RecordType record, int featureIndex) {
+        if (!requiresMask) {return false;}
         int indexOfDelegate = Arrays.binarySearch(offsets, featureIndex);
         if (indexOfDelegate < 0) {
             indexOfDelegate = -(indexOfDelegate + 1) - 1;
