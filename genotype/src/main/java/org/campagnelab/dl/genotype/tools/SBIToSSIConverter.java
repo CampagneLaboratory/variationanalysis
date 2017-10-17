@@ -11,6 +11,7 @@ import org.campagnelab.dl.genotype.learning.domains.GenotypeDomainDescriptor;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
 import org.campagnelab.dl.genotype.segments.Segment;
 import org.campagnelab.dl.genotype.segments.SegmentHelper;
+import org.campagnelab.dl.genotype.segments.SegmentLabelMapper;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
@@ -87,11 +88,6 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
 
             for (BaseInformationRecords.BaseInformation record : segment.recordList) {
 
-                int reference_index = record.getReferenceIndex();
-                int position = record.getPosition();
-              /*  if (segment.hasTrueGenotype("A|ACC")) {
-                    System.out.printf("refId: %s position: %d genotype: %s %n", record.getReferenceId(), position, record.getTrueGenotype());
-                }*/
                 buildFrom = record;
                 if (record.getTrueGenotype().length() > 3) {
                     Set<String> alleles = GenotypeHelper.getAlleles(record.getTrueGenotype());
@@ -104,6 +100,8 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                             }
                         }
                     }
+                    // long genotypes need to be trimmed to the first base after this point. We don't do it here because
+                    // it would modify the data structure currently traversed.
                 }
 
                 previous = record;
@@ -128,16 +126,24 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                     segment.insertAfter(record, copy);
                 }
 
+
             });
 
             return segment;
         };
+        SegmentLabelMapper labelMapper = new SegmentLabelMapper(args().ploidy);
+        // TODO: connect the two:
+        Properties props=new Properties();
+        labelMapper.writeMap(props);
+        //writer.addCustomProperties(props);
+
         FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
         fillInFeaturesFunction = baseInformation -> {
             SegmentInformationRecords.Base.Builder builder = SegmentInformationRecords.Base.newBuilder();
+            String trueGenotype = baseInformation.getTrueGenotype();
             if (args().mapFeatures) {
                 featureMapper.prepareToNormalize(baseInformation, 0);
-                if (baseInformation.getTrueGenotype().length() > 3) {
+                if (trueGenotype.length() > 3) {
                     //    System.out.println("Indel:" + baseInformation.getTrueGenotype());
                 }
                 features.clear();
@@ -146,6 +152,19 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                 }
                 builder.clearFeatures();
                 builder.addAllFeatures(features);
+            }
+            if (args().mapLabels) {
+                if (trueGenotype.length()==1) {
+                    trueGenotype=trueGenotype+"|"+trueGenotype;
+                }
+                if (trueGenotype.length()>3) {
+                    trueGenotype=trimTrueGenotype(trueGenotype);
+                }
+                float[] labels = labelMapper.map(trueGenotype.replaceAll("\\|","/"));
+                builder.clearLabels();
+                for (float labelValue : labels) {
+                    builder.addLabels(labelValue);
+                }
             }
             return builder;
         };
@@ -172,6 +191,12 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             e.printStackTrace();
         }
 
+    }
+
+    private String trimTrueGenotype(String trueGenotype) {
+        int secondBaseIndex=trueGenotype.indexOf("|");
+        final String trimmed = trueGenotype.charAt(0) + "|" + trueGenotype.charAt(secondBaseIndex - 1);
+        return trimmed;
     }
 
     private String getInsertedDeleted(String allele) {
