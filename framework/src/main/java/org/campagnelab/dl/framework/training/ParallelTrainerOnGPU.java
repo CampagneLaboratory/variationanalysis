@@ -21,27 +21,31 @@ public class ParallelTrainerOnGPU implements Trainer {
         String numWorkersString = System.getProperty("framework.parallelWrapper.numWorkers");
         int numWorkers = numWorkersString != null ? Integer.parseInt(numWorkersString) : 4;
 
+        String prefetchBufferString = System.getProperty("framework.parallelWrapper.prefetchBuffer");
+        int prefetchBuffer = prefetchBufferString != null ? Integer.parseInt(prefetchBufferString) : 12 * numWorkers;
+
         String averagingFrequencyString = System.getProperty("framework.parallelWrapper.averagingFrequency");
         int averagingFrequency = averagingFrequencyString != null ? Integer.parseInt(averagingFrequencyString) : 3;
 
         wrapper = new ParallelWrapper.Builder<>(graph)
-                .prefetchBuffer(numWorkers)
+                .prefetchBuffer(prefetchBuffer)
                 .workers(numWorkers)
                 .averagingFrequency(averagingFrequency)
                 .reportScoreAfterAveraging(false)
                 // .useLegacyAveraging(true)
                 .build();
-        wrapper.setListeners(new PerformanceListener(1){
-         private int numNanEncounteredConsecutively;
+        wrapper.setListeners(new PerformanceListener(1) {
+            private int numNanEncounteredConsecutively;
+
             @Override
             public void iterationDone(Model model, int iteration) {
                 double score = model.score();
-                if (score!=score) {
+                if (score != score) {
                     numNanEncounteredConsecutively++;
-                }else{
-                    numNanEncounteredConsecutively=0;
+                } else {
+                    numNanEncounteredConsecutively = 0;
                 }
-                if (numNanEncounteredConsecutively>100) {
+                if (numNanEncounteredConsecutively > 100) {
                     wrapper.stopFit();
                 }
             }
