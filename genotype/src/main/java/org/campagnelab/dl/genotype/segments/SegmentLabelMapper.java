@@ -21,7 +21,7 @@ public class SegmentLabelMapper {
     private final int numberOfLabelsPerBase; // Combinations of  A,C,T,G,-
     private final Set<String> labels;
     private final char[] alleles = new char[]{'A','C','T','G','-'};
-
+    private final IndexedIdentifier indexedLabels;
     static private Logger LOG = LoggerFactory.getLogger(SegmentLabelMapper.class);
 
     public static void main(String[] args) {
@@ -30,18 +30,24 @@ public class SegmentLabelMapper {
 
     public SegmentLabelMapper(int ploidy) {
         this.ploidy = ploidy;
-        numberOfLabelsPerBase = SingleBaseLabelMapperV1.getNumValues(ploidy, alleles.length);
-        labels = new ObjectArraySet<>(numberOfLabelsPerBase);
+        this.labels = new ObjectArraySet<>();
         this.labels.addAll(this.buildLabels(ploidy));
-        this.buildLabelMap();
-        //IndexedIdentifier elementLabels = new IndexedIdentifier(numberOfLabelsPerBase);
-       // final MutableString elementLabel = new MutableString(label).compact();
-       // final int elementIndex = elementLabels.registerIdentifier(elementLabel);
-
+        this.numberOfLabelsPerBase = this.labels.size();
+        this.indexedLabels = this.buildLabelMap();
     }
 
-    private void buildLabelMap() {
-
+    /**
+     * Creates a map <index, label>
+     * @return
+     */
+    private IndexedIdentifier buildLabelMap() {
+        IndexedIdentifier indexedLabels = new IndexedIdentifier(numberOfLabelsPerBase);
+        for (String label : this.labels) {
+            final MutableString elementLabel = new MutableString(label).compact();
+            final int elementIndex = indexedLabels.registerIdentifier(elementLabel);
+            System.out.println(String.format("%d -> %s", elementIndex, label));
+        }
+        return indexedLabels;
     }
 
     /**
@@ -62,10 +68,14 @@ public class SegmentLabelMapper {
 
                 }
             }
-
         return combinedLabels;
     }
-
+    
+    /**
+     * Sorts the chars in the list in alphabetic order.
+     * @param toSort
+     * @return
+     */
     private String sortAlphabetically(String toSort) {
         char[] elements = toSort.toCharArray();
         Arrays.sort(elements);
