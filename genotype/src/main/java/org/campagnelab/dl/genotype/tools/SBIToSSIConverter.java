@@ -132,7 +132,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             }
             return segment;
         };
-        FloatList features = new FloatArrayList();
+        FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
         fillInFeaturesFunction = baseInformation -> {
             SegmentInformationRecords.Base.Builder builder = SegmentInformationRecords.Base.newBuilder();
             if (args().mapFeatures) {
@@ -144,6 +144,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                 for (int featureIndex = 0; featureIndex < featureMapper.numberOfFeatures(); featureIndex++) {
                     features.add(featureMapper.produceFeature(baseInformation, featureIndex));
                 }
+                builder.clearFeatures();
                 builder.addAllFeatures(features);
             }
             return builder;
