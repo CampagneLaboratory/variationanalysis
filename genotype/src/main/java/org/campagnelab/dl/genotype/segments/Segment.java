@@ -8,8 +8,11 @@ import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Spliterator;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * Holds the current open segment before it is stored in the list.
@@ -59,7 +62,9 @@ public class Segment {
         builder.setEndPosition(refBuilder.build());
         builder.setLength(actualLength());
         final long[] segmentStats = {0L, 0L, 0L};
-        getAllRecords().forEach(record -> {
+        Spliterator<BaseInformationRecords.BaseInformation> allRecords=getAllRecordsSplit();
+
+        allRecords.forEachRemaining(record -> {
             record.getSamplesList().forEach(sample -> {
                 SegmentInformationRecords.Sample.Builder sampleBuilder = SegmentInformationRecords.Sample.newBuilder();
 
@@ -182,5 +187,14 @@ public class Segment {
         }
 
         return list;
+    }
+    public Spliterator<BaseInformationRecords.BaseInformation> getAllRecordsSplit() {
+        ArrayList<BaseInformationRecords.BaseInformation> list = new ArrayList<>();
+        for (BaseInformationRecords.BaseInformation record : recordList) {
+            list.add(record);
+            list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
+        }
+
+       return list.parallelStream().spliterator();
     }
 }

@@ -37,7 +37,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     static private Logger LOG = LoggerFactory.getLogger(SBIToSSIConverter.class);
     SequenceSegmentInformationWriter writer = null;
 
-    SegmentHelper segmentList;
+    SegmentHelper segmentHelper;
     private Function<Segment, Segment> processSegmentFunction;
     private Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeaturesFunction;
 
@@ -109,10 +109,9 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                 previous = record;
             }
 
-            int recordIndex = 0;
-            int longestIndelLength = 0;
-            for (BaseInformationRecords.BaseInformation record : segment.recordList) {
-                longestIndelLength = 0;
+
+            segment.recordList.spliterator().forEachRemaining(record -> {
+                int longestIndelLength = 0;
                 for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()) {
                     for (BaseInformationRecords.CountInfo count : sample.getCountsList()) {
                         if (count.getIsIndel()) {
@@ -128,8 +127,9 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                     copy = segment.recordList.adjustCounts(copy, offset);
                     segment.insertAfter(record, copy);
                 }
-                recordIndex++;
-            }
+
+            });
+
             return segment;
         };
         FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
@@ -194,14 +194,14 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     }
 
     private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) {
-        if (segmentList == null) {
-            segmentList = new SegmentHelper(this.writer, processSegmentFunction, fillInFeaturesFunction);
+        if (segmentHelper == null) {
+            segmentHelper = new SegmentHelper(this.writer, processSegmentFunction, fillInFeaturesFunction);
         } else {
             if (this.isValid(record)) {
                 if (!this.isSameSegment(record, gap)) {
-                    segmentList.newSegment(record);
+                    segmentHelper.newSegment(record);
                 } else {
-                    segmentList.add(record);
+                    segmentHelper.add(record);
                 }
             }
         }
@@ -234,11 +234,11 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
      * @return
      */
     private boolean isSameSegment(BaseInformationRecords.BaseInformation record, int gap) {
-        if (segmentList == null) {
+        if (segmentHelper == null) {
             return false;
         }
-        final boolean valid = (record.getPosition() - segmentList.getCurrentLocation() <= gap) &&
-                record.getReferenceIndex() == segmentList.getCurrentReferenceIndex();
+        final boolean valid = (record.getPosition() - segmentHelper.getCurrentLocation() <= gap) &&
+                record.getReferenceIndex() == segmentHelper.getCurrentReferenceIndex();
     /*if (!valid) {
         System.out.printf("not valid, actual gap=%d%n",record.getPosition() - segmentList.getCurrentLocation());
     }*/
@@ -250,7 +250,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
      * Closes the list and serializes the output SSI.
      */
     private void closeOutput() {
-        segmentList.close();
+        segmentHelper.close();
         try {
             writer.close();
         } catch (IOException e) {

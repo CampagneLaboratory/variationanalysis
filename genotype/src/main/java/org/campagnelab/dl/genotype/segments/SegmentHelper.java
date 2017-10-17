@@ -97,6 +97,9 @@ public class SegmentHelper {
 
 
     public int getCurrentLocation() {
+        if (currentSegment==null) {
+            return -1;
+        }
         return this.currentSegment.getLastPosition();
     }
 
@@ -110,6 +113,9 @@ public class SegmentHelper {
         statistics.numOfSegments++;
     }
 
+    public static boolean isValid(Object record) {
+        return false;
+    }
 
 
     /**

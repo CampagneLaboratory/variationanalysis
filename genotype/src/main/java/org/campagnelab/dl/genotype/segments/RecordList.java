@@ -7,13 +7,20 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
 
 public class RecordList implements Iterable<BaseInformationRecords.BaseInformation> {
     static private Logger LOG = LoggerFactory.getLogger(RecordList.class);
 
-    ObjectArrayList<BaseInformationRecords.BaseInformation> records = new ObjectArrayList<>();
+    @Override
+    public Spliterator<BaseInformationRecords.BaseInformation> spliterator() {
+        return records.parallelStream().spliterator();
+    }
+
+    ArrayList<BaseInformationRecords.BaseInformation> records = new ArrayList<>();
     /*
      * A map that contains list of records following a specific record. Use to combine indel position that are interleaved with
      * original records. When we need the full list of record, we combine record a in records with the records following a in
