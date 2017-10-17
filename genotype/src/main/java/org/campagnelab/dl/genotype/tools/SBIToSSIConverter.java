@@ -132,10 +132,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             return segment;
         };
         SegmentLabelMapper labelMapper = new SegmentLabelMapper(args().ploidy);
-        // TODO: connect the two:
-        Properties props=new Properties();
-        labelMapper.writeMap(props);
-        //writer.addCustomProperties(props);
+
 
         FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
         fillInFeaturesFunction = baseInformation -> {
@@ -175,6 +172,9 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             else
                 writer = new SequenceSegmentInformationWriter(BasenameUtils.getBasename(args().inputFile,
                         FileExtensionHelper.COMPACT_SEQUENCE_BASE_INFORMATION));
+            Properties props=new Properties();
+            labelMapper.writeMap(props);
+            writer.appendProperties(props);
             RecordReader sbiReader = new RecordReader(new File(args().inputFile).getAbsolutePath());
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.expectedUpdates = sbiReader.getTotalRecords();
