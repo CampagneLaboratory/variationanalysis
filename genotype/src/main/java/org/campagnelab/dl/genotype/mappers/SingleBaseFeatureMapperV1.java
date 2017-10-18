@@ -3,7 +3,9 @@ package org.campagnelab.dl.genotype.mappers;
 import org.campagnelab.dl.framework.mappers.*;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import scala.Array;
 
+import java.util.Arrays;
 import java.util.Properties;
 
 /**
@@ -14,12 +16,11 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
 
     public SingleBaseFeatureMapperV1(int sampleIndex) {
         this.sampleIndex = sampleIndex;
-
     }
 
     @Override
     public int numberOfFeatures() {
-        return numberOfFeaturesPerBase; // determine by the mapper used to produce the .ssi
+        return numberOfFeaturesPerBase*maxSequenceLength; // determine by the mapper used to produce the .ssi
     }
 
     private int maxSequenceLength = -1;
@@ -27,7 +28,7 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
 
     @Override
     public MappedDimensions dimensions() {
-        return new MappedDimensions(maxSequenceLength, numberOfFeaturesPerBase);
+        return new MappedDimensions( numberOfFeaturesPerBase,maxSequenceLength);
     }
 
     int[] indices = new int[]{0, 0, 0};
@@ -39,16 +40,18 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
 
         indices[0] = indexOfRecord;
         for (int k = 0; k < numberOfFeatures(); k++) {
-            indices[1] = k / numberOfFeaturesPerBase;
-            indices[2] = k % numberOfFeaturesPerBase;
+            indices[1] = k % numberOfFeaturesPerBase;
+            indices[2] = k / numberOfFeaturesPerBase;
             labels.putScalar(indices, produceFeature(record, k));
         }
 
     }
 
     @Override
-    public float produceFeature(SegmentInformationRecords.SegmentInformation record, int labelIndex) {
-        return data[labelIndex / numberOfFeaturesPerBase][labelIndex % numberOfFeaturesPerBase];
+    public float produceFeature(SegmentInformationRecords.SegmentInformation record, int featureIndex) {
+        int colIndex = featureIndex % numberOfFeaturesPerBase;
+        int rowIndex = featureIndex / numberOfFeaturesPerBase;
+        return data[colIndex][rowIndex];
     }
 
 
@@ -59,15 +62,16 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
 
     @Override
     public void maskFeatures(SegmentInformationRecords.SegmentInformation record, INDArray mask, int indexOfRecord) {
-        for (int i = 0; i < record.getLength(); i++) {
-            mask.putScalar(i, 1.0);
+        for (int i = 0; i < maxSequenceLength; i++) {
+            mask.putScalar(indexOfRecord, i, (double)i<record.getLength()?1:0);
         }
+
     }
 
     @Override
     public boolean isMasked(SegmentInformationRecords.SegmentInformation record, int featureIndex) {
         int i = featureIndex / numberOfFeaturesPerBase;
-        return i <= record.getLength();
+        return i < record.getLength();
     }
 
     float[][] data;
@@ -75,22 +79,27 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
     @Override
     public void prepareToNormalize(SegmentInformationRecords.SegmentInformation record, int indexOfRecord) {
 
-        final int length = record.getLength();
         if (data == null) {
-            data = new float[length][numberOfFeaturesPerBase];
+            data = new float[numberOfFeaturesPerBase][maxSequenceLength];
+        }else {
+            for (int baseIndex = 0; baseIndex < maxSequenceLength; baseIndex++) {
+                for (int floatPerBaseIndex = 0; floatPerBaseIndex < numberOfFeaturesPerBase; floatPerBaseIndex++) {
+                    data[floatPerBaseIndex][baseIndex] =0;
+                }
+            }
         }
         SegmentInformationRecords.Sample sample = record.getSample(sampleIndex);
-        for (int i = 0; i < length; i++) {
-            SegmentInformationRecords.Base base = sample.getBase(i);
+        for (int baseIndex = 0; baseIndex < sample.getBaseCount(); baseIndex++) {
+            SegmentInformationRecords.Base base = sample.getBase(baseIndex);
             assert base.getFeaturesCount() == numberOfFeaturesPerBase :
                     String.format(
                             "the number of features per base must match between protobuf content and " +
                                     "genotypes.segments.numFeaturesPerBase property (in .ssip). " +
                                     "Found %d at base index=%d", base.getFeaturesCount(),
-                            i);
+                            baseIndex);
 
-            for (int j = 0; j < numberOfFeaturesPerBase; j++) {
-                data[i][j] = base.getFeatures(j);
+            for (int floatPerBaseIndex = 0; floatPerBaseIndex < numberOfFeaturesPerBase; floatPerBaseIndex++) {
+                data[floatPerBaseIndex][baseIndex] = base.getFeatures(floatPerBaseIndex);
             }
         }
     }
@@ -98,9 +107,11 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
     @Override
     public void configure(Properties readerProperties) {
         String nfpbString = readerProperties.getProperty("genotypes.segments.numFeaturesPerBase");
+        assert nfpbString != null : "The .ssip file must define property: genotypes.segments.numFeaturesPerBase";
 
         numberOfFeaturesPerBase = Integer.parseInt(nfpbString);
         String maxSequenceLengthString = readerProperties.getProperty("genotypes.segments.maxSequenceLength");
+        assert maxSequenceLengthString != null : "The .ssip file must define property: genotypes.segments.maxSequenceLength";
 
         this.maxSequenceLength = Integer.parseInt(maxSequenceLengthString);
         System.out.printf("numFeaturesPerBase=%d, maxSequenceLength=%d %n", numberOfFeaturesPerBase, maxSequenceLength);

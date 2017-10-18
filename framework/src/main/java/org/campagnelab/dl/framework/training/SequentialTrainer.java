@@ -1,5 +1,6 @@
 package org.campagnelab.dl.framework.training;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.tools.TrainModel;
 import org.deeplearning4j.nn.graph.ComputationGraph;
@@ -23,8 +24,16 @@ public class SequentialTrainer implements Trainer {
         while (iterator.hasNext()) {
 
             MultiDataSet ds = iterator.next();
+            System.out.printf("Feature input shape: %s%n",IntArrayList.wrap(ds.getFeatures(0).shape()));
+            System.out.printf("Label input shape: %s%n",IntArrayList.wrap(ds.getLabels(0).shape()));
+            System.out.printf("Feature input mask shape: %s%n",IntArrayList.wrap(ds.getFeaturesMaskArray(0).shape()));
+            System.out.printf("Feature label mask shape: %s%n",IntArrayList.wrap(ds.getLabelsMaskArray(0).shape()));
+            System.out.println(computationGraph.summary());
+            System.out.flush();
+
             // fit the computationGraph:
             computationGraph.fit(ds);
+
             double score = computationGraph.score();
             if (score != score) {
                 // NaN

@@ -8,16 +8,18 @@ import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.performance.BEDHelper;
+import org.campagnelab.dl.genotype.tools.SegmentTrainingArguments;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
+import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.graph.MergeVertex;
 import org.deeplearning4j.nn.conf.graph.rnn.LastTimeStepVertex;
 import org.deeplearning4j.nn.conf.inputs.InputType;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
-import org.deeplearning4j.nn.conf.layers.LSTM;
-import org.deeplearning4j.nn.conf.layers.OutputLayer;
+import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.deeplearning4j.nn.graph.vertex.impl.InputVertex;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.activations.impl.ActivationSoftmax;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 
@@ -35,7 +37,7 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
     private static final WeightInit WEIGHT_INIT = WeightInit.XAVIER;
     private static final LearningRatePolicy LEARNING_RATE_POLICY = LearningRatePolicy.Poly;
     private static final GenotypeSixDenseLayersWithIndelLSTM.OutputType DEFAULT_OUTPUT_TYPE = GenotypeSixDenseLayersWithIndelLSTM.OutputType.DISTINCT_ALLELES;
-    private TrainingArguments arguments;
+    private SegmentTrainingArguments arguments;
     private int numLayers;
     private FeedForwardDenseLayerAssembler layerAssembler;
     LearningRatePolicy learningRatePolicy = LearningRatePolicy.Poly;
@@ -47,15 +49,15 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
 
     }
 
-    private GenotypeTrainingArguments args() {
-        return (GenotypeTrainingArguments) arguments;
+    private SegmentTrainingArguments args() {
+        return (SegmentTrainingArguments) arguments;
     }
 
 
     @Override
     public void setArguments(TrainingArguments arguments) {
-        this.arguments = arguments;
-        this.numLayers = ((GenotypeTrainingArguments) arguments).numLayers;
+        this.arguments = (SegmentTrainingArguments) arguments;
+        this.numLayers = this.arguments.numLayers;
         layerAssembler = new FeedForwardDenseLayerAssembler(arguments);
 
     }
@@ -65,52 +67,70 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
     public ComputationGraph createComputationalGraph(DomainDescriptor domainDescriptor) {
         // the number of elements per time-step (# mapped features for each base):
         final int[] numInputs = domainDescriptor.getNumInputs("input");
-        int numLSTMInputs = numInputs[1];
-        System.out.printf("GenotypeSegmentsLSTM getNumInputs: sequence-length=%d, num-float-per-base=%d%n",
-                numInputs[0], numInputs[1]);
-        int numHiddenNodes = domainDescriptor.getNumHiddenNodes("lstm");
-        int numLSTMLayers = Math.max(1, args().numLSTMLayers);
 
+        final MappedDimensions dimensions = domainDescriptor.getFeatureMapper("input").dimensions();
+        int numTimeSteps = dimensions.dimensions[1];
+        int numLSTMInputs = dimensions.dimensions[0];
+        System.out.printf("GenotypeSegmentsLSTM getNumInputs: sequence-length=%d, num-float-per-base=%d%n",
+                dimensions.dimensions[0], dimensions.dimensions[1]);
+        int numHiddenNodes = domainDescriptor.getNumHiddenNodes("lstm");
+        int numLSTMLayers = Math.max(1, args().numLayers);
         FeedForwardDenseLayerAssembler assembler = new FeedForwardDenseLayerAssembler(args());
         assembler.setLearningRatePolicy(LEARNING_RATE_POLICY);
         assembler.initializeBuilder(getInputNames());
-        assembler.setInputTypes(getInputTypes(domainDescriptor));
+        //  assembler.setInputTypes(getInputTypes(domainDescriptor));
+
         ComputationGraphConfiguration.GraphBuilder build = assembler.getBuild();
+        build.setInputTypes(InputType.recurrent(numLSTMInputs, numTimeSteps));
         String lstmInputName = "input";
         String lstmLayerName = "no layer";
+        String topLayerName = "n/a";
+        int countInput=numLSTMInputs;
+        componentNames.add("input");
         for (int i = 0; i < numLSTMLayers; i++) {
             lstmLayerName = "lstm_" + lstmInputName + "_" + i;
-            String lstmPreviousLayerName = i == 0 ? lstmInputName : "lstm" + lstmInputName + "_" + (i - 1);
-            int numLSTMInputNodes = i == 0 ? numLSTMInputs : numHiddenNodes;
-            build.addLayer(lstmLayerName, new LSTM.Builder()
-                    .nIn(numLSTMInputNodes)
+            String lstmPreviousLayerName = i == 0 ? lstmInputName : "lstm_" + lstmInputName + "_" + (i - 1);
+            int numLSTMInputConditional = i == 0 ? numLSTMInputs : numHiddenNodes;
+
+            build.addLayer(lstmLayerName, new GravesBidirectionalLSTM.Builder()
+                    .nIn(numLSTMInputConditional)
+                    .updater(Updater.RMSPROP)
                     .nOut(numHiddenNodes)
-                    .weightInit(WEIGHT_INIT)
+                    .activation(Activation.TANH)
                     .build(), lstmPreviousLayerName);
+            countInput+=numHiddenNodes;
             componentNames.add(lstmLayerName);
+            topLayerName = lstmLayerName;
+            lstmLayerName = lstmPreviousLayerName;
         }
 
-        String lastDenseLayerName = assembler.lastLayerName();
-        int numIn = assembler.getNumOutputs();
-        build.addLayer("softmaxGenotype", new OutputLayer.Builder(
-                domainDescriptor.getOutputLoss("Genotype"))
-                .weightInit(WEIGHT_INIT)
-                .activation(new ActivationSoftmax()).weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                .nIn(numIn)
-                .nOut(domainDescriptor.getNumOutputs("Genotype")[0]).build(), lastDenseLayerName).addInputs();
+        final int genotypeNumOutputs = domainDescriptor.getNumOutputs("genotype")[0];
+        build.addLayer("genotype", new RnnOutputLayer.Builder(
+                        domainDescriptor.getOutputLoss("genotype"))
+                        .weightInit(WEIGHT_INIT)
+                        .nIn(countInput)
+                        .activation(new ActivationSoftmax()).weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
+                        .updater(Updater.RMSPROP)
+                        .nOut(genotypeNumOutputs).build(),
+                // feed in inputs from all previous layers:
+                componentNames.toArray(new String[componentNames.size()]))        ;
 
         ComputationGraphConfiguration conf = build
                 .setOutputs(outputNames)
+
                 .build();
-        // System.out.println(conf);
-        return new ComputationGraph(conf);
+        conf.validate();
+
+        final ComputationGraph computationGraph = new ComputationGraph(conf);
+
+        return computationGraph;
     }
 
     private InputType getInputTypes(DomainDescriptor domainDescriptor) {
         final MappedDimensions inputDimensions = domainDescriptor.getFeatureMapper("input").dimensions();
         System.out.printf("GenotypeSegmentsLSTM dimensions: sequence-length=%d, num-float-per-base=%d%n",
-                inputDimensions.numElements(0), inputDimensions.numElements());
-        return InputType.recurrent(inputDimensions.numElements(0), inputDimensions.numElements());
+                inputDimensions.numElements(1), inputDimensions.numElements(2));
+        return InputType.recurrent(inputDimensions.numElements(1), inputDimensions.numElements(2));
     }
 
     @Override

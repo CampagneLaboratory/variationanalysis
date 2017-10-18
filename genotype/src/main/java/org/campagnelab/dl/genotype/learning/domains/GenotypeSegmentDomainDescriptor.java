@@ -3,16 +3,24 @@ package org.campagnelab.dl.genotype.learning.domains;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
+import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
+import org.campagnelab.dl.framework.mappers.ConfigurableLabelMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSegmentsLSTM;
+import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
 import org.campagnelab.dl.genotype.mappers.SingleBaseFeatureMapperV1;
 import org.campagnelab.dl.genotype.mappers.SingleBaseLabelMapperV1;
 import org.campagnelab.dl.genotype.tools.SegmentTrainingArguments;
 import org.campagnelab.dl.genotype.storage.SegmentReader;
+import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
+import org.campagnelab.goby.baseinfo.SequenceSegmentInformationReader;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
 
@@ -68,16 +76,41 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
 
     @Override
     public FeatureMapper getFeatureMapper(String inputName) {
-
+        ConfigurableFeatureMapper mapper;
         if (cachedFeatureMappers.containsKey(inputName)) {
             return cachedFeatureMappers.get(inputName);
         } else {
             switch (inputName) {
                 case "input":
-                    return new SingleBaseFeatureMapperV1(0);
+                    mapper = new SingleBaseFeatureMapperV1(0);
+                    break;
                 default:
                     throw new RuntimeException("Unsupported input name: " + inputName);
             }
+            if (mapper != null) {
+                try {
+
+                    Properties properties = getReaderProperties(args().trainingSets.get(0));
+                    decorateProperties(properties);
+                    mapper.configure(properties);
+                    cachedFeatureMappers.put(inputName, (FeatureMapper) mapper);
+                    return (FeatureMapper) mapper;
+                } catch (IOException e) {
+                    throw new RuntimeException("IO exception, perhaps .sbip file not found?", e);
+                }
+
+            } else {
+                return null;
+
+            }
+
+        }
+    }
+    public static Properties getReaderProperties(String trainingSet) throws IOException {
+        try (SequenceSegmentInformationReader reader = new SequenceSegmentInformationReader(trainingSet)) {
+            final Properties properties = reader.getProperties();
+            reader.close();
+            return properties;
         }
     }
 
@@ -92,7 +125,16 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
         } else {
             switch (outputName) {
                 case "genotype":
-                    return new SingleBaseLabelMapperV1(0);
+                    try {
+                        ConfigurableLabelMapper mapper = new SingleBaseLabelMapperV1(0);
+                        final Properties readerProperties = getReaderProperties(args().trainingSets.get(0));
+                        decorateProperties(readerProperties);
+                        mapper.configure(readerProperties);
+                        cachedLabelMappers.put(outputName,(LabelMapper) mapper);
+                        return (LabelMapper) mapper;
+                    } catch(IOException e) {
+                        throw new InternalError("Unable to load properties and initialize label mapper.",e);
+                    }
                 default:
                     throw new RuntimeException("Unsupported output name: " + outputName);
             }
@@ -101,7 +143,8 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
 
     @Override
     public PredictionInterpreter getPredictionInterpreter(String outputName) {
-        return null;
+        // TODO: change this to the correct interpreter for this domain
+        return new HomozygousInterpreter(false);
     }
 
     @Override
@@ -138,19 +181,23 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
 
     @Override
     public int[] getNumMaskInputs(String inputName) {
-        // same as input size.
-        return getNumInputs(inputName);
+        // drop the last dimension:
+        int[] dimensions=new int[1];
+        dimensions[0]=getNumInputs(inputName)[1];
+        return dimensions;
     }
 
     @Override
     public int[] getNumMaskOutputs(String outputName) {
-        // same as input size.
-        return getNumOutputs(outputName);
+        // drop the last dimension:
+        int[] dimensions=new int[1];
+        dimensions[0]=getNumOutputs(outputName)[1];
+        return dimensions;
     }
 
     @Override
     public int getNumHiddenNodes(String componentName) {
-        return 1024;
+        return args().numHiddenNodes;
     }
 
     @Override

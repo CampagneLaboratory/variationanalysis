@@ -47,11 +47,7 @@ public class TrainModelGS extends TrainModel<SegmentInformationRecords.SegmentIn
     @Override
     public Properties getReaderProperties(String trainingSet) throws IOException {
 
-        SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSet);
-        final Properties properties = reader.getProperties();
-        reader.close();
-        return properties;
-
+        return GenotypeSegmentDomainDescriptor.getReaderProperties(trainingSet);
     }
 
 

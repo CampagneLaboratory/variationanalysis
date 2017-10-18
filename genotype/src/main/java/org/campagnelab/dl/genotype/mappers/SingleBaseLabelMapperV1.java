@@ -9,7 +9,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.Properties;
 
 /**
- *  Simply reads labels from the .ssi and expose to DL4J as 2D tensor with mask.
+ * Simply reads labels from the .ssi and expose to DL4J as 2D tensor with mask.
  */
 public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRecords.SegmentInformation>, ConfigurableLabelMapper {
     private final int sampleIndex;
@@ -20,7 +20,7 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
 
     @Override
     public int numberOfLabels() {
-        return numberOfLabelsPerBase; // Combinations of  A,C,T,G,-
+        return numberOfLabelsPerBase * maxSequenceLength; // Combinations of  A,C,T,G,-
     }
 
     private int ploidy = 2;
@@ -29,7 +29,7 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
 
     @Override
     public MappedDimensions dimensions() {
-        return new MappedDimensions(maxSequenceLength, numberOfLabels());
+        return new MappedDimensions(numberOfLabelsPerBase, maxSequenceLength);
     }
 
     int[] indices = new int[]{0, 0, 0};
@@ -38,8 +38,8 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
     public void mapLabels(SegmentInformationRecords.SegmentInformation record, INDArray labels, int indexOfRecord) {
         indices[0] = indexOfRecord;
         for (int k = 0; k < numberOfLabels(); k++) {
-            indices[1] = k / numberOfLabelsPerBase;
             indices[2] = k % numberOfLabelsPerBase;
+            indices[1] = k / numberOfLabelsPerBase;
             labels.putScalar(indices, produceLabel(record, k));
         }
 
@@ -47,7 +47,7 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
 
     @Override
     public float produceLabel(SegmentInformationRecords.SegmentInformation record, int labelIndex) {
-        return data[labelIndex / numberOfLabelsPerBase][labelIndex % numberOfLabelsPerBase];
+        return data[labelIndex % numberOfLabelsPerBase][labelIndex / numberOfLabelsPerBase];
     }
 
 
@@ -58,16 +58,17 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
 
     @Override
     public void maskLabels(SegmentInformationRecords.SegmentInformation record, INDArray mask, int indexOfRecord) {
-        for (int i = 0; i < record.getLength(); i++) {
-            mask.putScalar(i, 1.0);
+        for (int i = 0; i < maxSequenceLength; i++) {
+            mask.putScalar(indexOfRecord, i, (double) i < record.getLength() ? 1 : 0);
         }
+
     }
 
     @Override
     public boolean isMasked(SegmentInformationRecords.SegmentInformation record, int featureIndex) {
         int i = featureIndex / numberOfLabelsPerBase;
         int j = featureIndex % numberOfLabelsPerBase;
-        return i <= record.getLength();
+        return i < record.getLength();
     }
 
     float[][] data;
@@ -76,13 +77,19 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
     public void prepareToNormalize(SegmentInformationRecords.SegmentInformation record, int indexOfRecord) {
         final int length = record.getLength();
         if (data == null) {
-            data = new float[length][numberOfLabelsPerBase];
+            data = new float[numberOfLabelsPerBase][maxSequenceLength];
+        } else {
+            for (int baseIndex = 0; baseIndex < maxSequenceLength; baseIndex++) {
+                for (int floatPerBaseIndex = 0; floatPerBaseIndex < numberOfLabelsPerBase; floatPerBaseIndex++) {
+                    data[floatPerBaseIndex][baseIndex] = 0;
+                }
+            }
         }
         SegmentInformationRecords.Sample sample = record.getSample(sampleIndex);
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < sample.getBaseCount(); i++) {
             SegmentInformationRecords.Base base = sample.getBase(i);
             for (int j = 0; j < numberOfLabelsPerBase; j++) {
-                data[i][j] = base.getLabels(j);
+                data[j][i] = base.getLabels(j);
             }
         }
     }
@@ -104,12 +111,15 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
     public void configure(Properties readerProperties) {
         String ploidyString = readerProperties.getProperty("genotypes.ploidy");
         ploidy = Integer.parseInt(ploidyString);
-        numberOfLabelsPerBase = getNumValues(ploidy, 5);
+        String maxNumberLabelsString = readerProperties.getProperty("maxNumOfLabels");
+
+        this.numberOfLabelsPerBase = Integer.parseInt(maxNumberLabelsString);
+
         String maxSequenceLengthString = readerProperties.getProperty("genotypes.segments.maxSequenceLength");
 
         this.maxSequenceLength = Integer.parseInt(maxSequenceLengthString);
 
         System.out.printf("Ploidy=%d, Number of alleles per base=%d maxSequenceLength=%d %n", ploidy,
-                numberOfLabelsPerBase,maxSequenceLengthString);
+                numberOfLabelsPerBase, maxSequenceLength);
     }
 }

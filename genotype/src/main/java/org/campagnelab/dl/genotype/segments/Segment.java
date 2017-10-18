@@ -67,7 +67,7 @@ public class Segment {
         final Object2ObjectMap<BaseInformationRecords.BaseInformation,
                 SegmentInformationRecords.Base.Builder> cache = new Object2ObjectOpenHashMap<>();
 
-        getAllRecordsSplit().parallel().forEach(record -> {
+        getAllRecordsSplit().forEachRemaining(record -> {
                     SegmentInformationRecords.Base.Builder base = fillInFeatures.apply(record);
                     synchronized (cache) {
                         cache.put(record, base);
@@ -200,12 +200,12 @@ public class Segment {
         return list;
     }
 
-    public Stream<BaseInformationRecords.BaseInformation> getAllRecordsSplit() {
+    public Spliterator<BaseInformationRecords.BaseInformation> getAllRecordsSplit() {
         ArrayList<BaseInformationRecords.BaseInformation> list = new ArrayList<>();
         for (BaseInformationRecords.BaseInformation record : recordList) {
             list.add(record);
             list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
         }
-        return list.parallelStream();
+        return list.parallelStream().spliterator();
     }
 }
