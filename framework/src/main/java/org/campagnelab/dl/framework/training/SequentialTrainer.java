@@ -24,13 +24,6 @@ public class SequentialTrainer implements Trainer {
         while (iterator.hasNext()) {
 
             MultiDataSet ds = iterator.next();
-            System.out.printf("Feature input shape: %s%n",IntArrayList.wrap(ds.getFeatures(0).shape()));
-            System.out.printf("Label input shape: %s%n",IntArrayList.wrap(ds.getLabels(0).shape()));
-            System.out.printf("Feature input mask shape: %s%n",IntArrayList.wrap(ds.getFeaturesMaskArray(0).shape()));
-            System.out.printf("Feature label mask shape: %s%n",IntArrayList.wrap(ds.getLabelsMaskArray(0).shape()));
-            System.out.println(computationGraph.summary());
-            System.out.flush();
-
             // fit the computationGraph:
             computationGraph.fit(ds);
 
