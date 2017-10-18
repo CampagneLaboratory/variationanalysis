@@ -6,7 +6,8 @@ import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSegments
 import org.campagnelab.dl.genotype.mappers.SingleBaseFeatureMapperV1;
 
 public class SegmentTrainingArguments extends TrainingArguments {
-    public int numHiddenNodes=16;
+    @Parameter(names = "--num-hidden-nodes", description = "The number of LSTM hidden nodes per layer.")
+    public int numHiddenNodes=1024;
 
     @Override
     protected String defaultArchitectureClassname() {
