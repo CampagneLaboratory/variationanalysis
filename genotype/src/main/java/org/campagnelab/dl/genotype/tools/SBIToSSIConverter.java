@@ -178,6 +178,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             writer.appendProperties(props);
             RecordReader sbiReader = new RecordReader(new File(args().inputFile).getAbsolutePath());
             ProgressLogger pg = new ProgressLogger(LOG);
+            pg.displayFreeMemory=true;
             pg.expectedUpdates = sbiReader.getTotalRecords();
             pg.itemsName = "records";
             pg.start();
