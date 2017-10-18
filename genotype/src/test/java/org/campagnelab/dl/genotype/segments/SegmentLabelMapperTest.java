@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -24,15 +25,17 @@ public class SegmentLabelMapperTest {
 
     @Test
     public void map() throws Exception {
-        float[] label = labelMapper.map("A/G/T");
+        float[] mapped = labelMapper.map("A/G/T");
+        System.out.println(Arrays.toString(mapped));
         boolean found = false;
-        for (float p : label) {
+        for (float p : mapped) {
            if (p == 1L)
                if (!found)
                 found = true;
            else
                assertTrue("More than one position is marked with 1",false);
         }
+        assertTrue("Unable to map",found);
     }
 
     @Test
