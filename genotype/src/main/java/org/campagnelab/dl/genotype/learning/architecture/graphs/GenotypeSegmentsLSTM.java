@@ -12,6 +12,7 @@ import org.campagnelab.dl.genotype.tools.SegmentTrainingArguments;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.graph.MergeVertex;
 import org.deeplearning4j.nn.conf.graph.rnn.LastTimeStepVertex;
 import org.deeplearning4j.nn.conf.inputs.InputType;
@@ -81,11 +82,12 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
         //  assembler.setInputTypes(getInputTypes(domainDescriptor));
 
         ComputationGraphConfiguration.GraphBuilder build = assembler.getBuild();
+
         build.setInputTypes(InputType.recurrent(numLSTMInputs, numTimeSteps));
         String lstmInputName = "input";
         String lstmLayerName = "no layer";
         String topLayerName = "n/a";
-        int countInput=numLSTMInputs;
+        int countInput = numLSTMInputs;
         componentNames.add("input");
         for (int i = 0; i < numLSTMLayers; i++) {
             lstmLayerName = "lstm_" + lstmInputName + "_" + i;
@@ -98,7 +100,7 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
                     .nOut(numHiddenNodes)
                     .activation(Activation.TANH)
                     .build(), lstmPreviousLayerName);
-            countInput+=numHiddenNodes;
+            countInput += numHiddenNodes;
             componentNames.add(lstmLayerName);
             topLayerName = lstmLayerName;
             lstmLayerName = lstmPreviousLayerName;
@@ -113,12 +115,13 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
                         .updater(Updater.RMSPROP)
                         .nOut(genotypeNumOutputs).build(),
                 // feed in inputs from all previous layers:
-                componentNames.toArray(new String[componentNames.size()]))        ;
+                componentNames.toArray(new String[componentNames.size()]));
 
-        ComputationGraphConfiguration conf = build
-                .setOutputs(outputNames)
 
-                .build();
+        ComputationGraphConfiguration conf = build.setOutputs(outputNames).build();
+        // use workspaces for both training and inference phases:
+        conf.setTrainingWorkspaceMode(WorkspaceMode.SEPARATE);
+        conf.setInferenceWorkspaceMode(WorkspaceMode.SEPARATE);
         conf.validate();
 
         final ComputationGraph computationGraph = new ComputationGraph(conf);
