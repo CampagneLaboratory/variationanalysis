@@ -93,7 +93,8 @@ public class Segment {
             writer.setEntryLabels(segmentStats[2]);
             writer.setEntryFeatures(segmentStats[1]);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new InternalError("Unable to write entry.",e);
+
         }
     }
 
