@@ -85,18 +85,22 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
                 inputShape[1]++;
             }
             inputs[index] = Nd4j.create(inputShape,'f');
+            inputs[index].detach();
             featureMappers[index] = domainDescriptor.getFeatureMapper(input);
             boolean needMask = featureMappers[index].hasMask();
             inputMasks[index] = needMask ? Nd4j.create(domainDescriptor.getInputMaskShape(size, input),'f') : null;
+            inputMasks[index].detach();
             index += 1;
             hasFeatureMask |= needMask;
         }
         index = 0;
         for (String label : domainDescriptor.getComputationalGraph().getOutputNames()) {
             labels[index] = Nd4j.create(domainDescriptor.getLabelShape(size, label),'f');
+            labels[index].detach();
             labelMappers[index] = domainDescriptor.getLabelMapper(label);
             boolean needMask = labelMappers[index].hasMask();
             labelMasks[index] = needMask ? Nd4j.create(domainDescriptor.getLabelMaskShape(size, label),'f') : null;
+            labelMasks[index].detach();
             index++;
             hasLabelMask |= needMask;
         }
