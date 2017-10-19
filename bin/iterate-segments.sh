@@ -70,16 +70,16 @@ if [ -z "${PREDICT_OPTIONS+set}" ]; then
       PREDICT_OPTIONS=" "
       echo "PREDICT_OPTIONS set to ${PREDICT_OPTIONS}. Change the variable to switch the options for predict."
 fi
-if [ ! -e "${DATASET}${VAL_SUFFIX}.sbi" ]; then
-    echo "The validation set was not found: ${DATASET}${VAL_SUFFIX}.sbi  "
+if [ ! -e "${DATASET}${VAL_SUFFIX}.ssi" ]; then
+    echo "The validation set was not found: ${DATASET}${VAL_SUFFIX}.ssi  "
        exit 1;
 fi
-if [ ! -e "${DATASET}${TRAIN_SUFFIX}.sbi" ]; then
-    echo "The training set was not found: ${DATASET}${TRAIN_SUFFIX}.sbi  "
+if [ ! -e "${DATASET}${TRAIN_SUFFIX}.ssi" ]; then
+    echo "The training set was not found: ${DATASET}${TRAIN_SUFFIX}.ssi  "
        exit 1;
 fi
-if [ ! -e "${DATASET}test.sbi" ]; then
-        echo "The test set was not found: ${DATASET}test.sbi  "
+if [ ! -e "${DATASET}test.ssi" ]; then
+        echo "The test set was not found: ${DATASET}test.ssi  "
            exit 1;
 fi
 
@@ -95,8 +95,8 @@ fi
 echo "Iteration for FEATURE_MAPPER=${FEATURE_MAPPER}"
 
 export FORCE_PLATFORM=native
-#rm ${DATASET}${TRAIN_SUFFIX}.sbi ${DATASET}${VAL_SUFFIX}*cf
-train-segments.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+#rm ${DATASET}${TRAIN_SUFFIX}.ssi ${DATASET}${VAL_SUFFIX}*cf
+train-segments.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.ssi -v ${DATASET}${VAL_SUFFIX}.ssi \
        --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} ${TRAINING_OPTIONS} \
        ${TRAIN_MAX_RECORDS} \
        --feature-mapper ${FEATURE_MAPPER} ${NETWORK_ARCHITECTURE} \
@@ -107,7 +107,7 @@ OUTPUT_FILE=output-${RANDOM}.log
 unset FORCE_PLATFORM
 resetPlatform
 
-train-segments.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.sbi -v ${DATASET}${VAL_SUFFIX}.sbi \
+train-segments.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.ssi -v ${DATASET}${VAL_SUFFIX}.ssi \
           --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
           ${TRAINING_OPTIONS} ${TRAIN_MAX_RECORDS} \
           --feature-mapper ${FEATURE_MAPPER} \
