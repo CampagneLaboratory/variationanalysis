@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.tools.TrainModel;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ public class SequentialTrainer implements Trainer {
         while (iterator.hasNext()) {
 
             MultiDataSet ds = iterator.next();
+            attach(ds);
             // fit the computationGraph:
             computationGraph.fit(ds);
 
@@ -37,7 +39,7 @@ public class SequentialTrainer implements Trainer {
 
             final int numExamples = ds.getFeatures(0).size(0);
             numExamplesUsed += numExamples;
-
+            ds.detach();
             if (logSpeed) {
                 progressLogger.update();
             }
@@ -45,10 +47,40 @@ public class SequentialTrainer implements Trainer {
                 LOG.error("Nan score encountered too many consecutive times");
                 return numExamples;
             }
+
         }
         return numExamplesUsed;
     }
+    private void attach(MultiDataSet ds) {
+        int e;
+        INDArray[] features = ds.getFeatures();
+        if(features != null) {
+            for(e = 0; e < features.length; ++e) {
+                features[e] = features[e].detach();
+            }
+        }
 
+        INDArray[] labels = ds.getLabels();
+        if(labels != null) {
+            for(e = 0; e < labels.length; ++e) {
+                labels[e] = labels[e].detach();
+            }
+        }
+
+        INDArray[] featuresMaskArrays = ds.getFeaturesMaskArrays();
+        if(featuresMaskArrays != null) {
+            for(e = 0; e < featuresMaskArrays.length; ++e) {
+                featuresMaskArrays[e] = featuresMaskArrays[e].detach();
+            }
+        }
+
+        INDArray[] labelsMaskArrays = ds.getLabelsMaskArrays();
+        if(labelsMaskArrays != null) {
+            for(e = 0; e < labelsMaskArrays.length; ++e) {
+                labelsMaskArrays[e] =labelsMaskArrays[e].detach();
+            }
+        }
+    }
     @Override
     public void setLogSpeed(boolean logSpeed) {
         this.logSpeed = logSpeed;
