@@ -53,7 +53,6 @@ public class SegmentHelper {
                 statistics.minDistance = from.getPosition() - currentSegment.getLastPosition();
         }
         currentSegment = new Segment(fillInFeatures,from);
-        this.add(from);
 
     }
 
@@ -65,7 +64,11 @@ public class SegmentHelper {
             Objects.requireNonNull(this.function);
             Segment processed = this.function.apply(currentSegment);
             processed.flush(writer);
-            //System.out.println(processed);
+
+            if (processed.actualLength()>300) {
+                System.out.println(processed);
+                System.out.println("STOP");
+            }
         } catch (NullPointerException npe) {
             LOG.error("Failed to process segments: ", npe);
             currentSegment.flush(writer);
