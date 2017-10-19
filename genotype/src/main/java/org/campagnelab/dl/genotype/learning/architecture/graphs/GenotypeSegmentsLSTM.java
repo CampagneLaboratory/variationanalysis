@@ -94,7 +94,7 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
             String lstmPreviousLayerName = i == 0 ? lstmInputName : "lstm_" + lstmInputName + "_" + (i - 1);
             int numLSTMInputConditional = i == 0 ? numLSTMInputs : numHiddenNodes;
 
-            build.addLayer(lstmLayerName, new GravesBidirectionalLSTM.Builder()
+            build.addLayer(lstmLayerName, new LSTM.Builder()
                     .nIn(numLSTMInputConditional)
                     .updater(Updater.RMSPROP)
                     .nOut(numHiddenNodes)
@@ -120,7 +120,7 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
 
         ComputationGraphConfiguration conf = build.setOutputs(outputNames).build();
         // use workspaces for both training and inference phases:
-        conf.setTrainingWorkspaceMode(WorkspaceMode.SEPARATE);
+        conf.setTrainingWorkspaceMode(WorkspaceMode.SINGLE);
         conf.setInferenceWorkspaceMode(WorkspaceMode.SEPARATE);
         conf.validate();
 
