@@ -78,8 +78,8 @@ if [ ! -e "${DATASET}${TRAIN_SUFFIX}.ssi" ]; then
     echo "The training set was not found: ${DATASET}${TRAIN_SUFFIX}.ssi  "
        exit 1;
 fi
-if [ ! -e "${DATASET}test.ssi" ]; then
-        echo "The test set was not found: ${DATASET}test.ssi  "
+if [ ! -e "${DATASET}${TEST_SUFFIX}.ssi" ]; then
+        echo "The test set was not found: ${DATASET}${TEST_SUFFIX}.ssi  "
            exit 1;
 fi
 
@@ -107,12 +107,11 @@ OUTPUT_FILE=output-${RANDOM}.log
 unset FORCE_PLATFORM
 resetPlatform
 
-train-segments.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.ssi -v ${DATASET}${VAL_SUFFIX}.ssi \
+train-segments.sh 100g -t ${DATASET}${TRAIN_SUFFIX}.ssi -v ${DATASET}${VAL_SUFFIX}.ssi \
           --mini-batch-size ${MINI_BATCH_SIZE} -r ${LEARNING_RATE} \
           ${TRAINING_OPTIONS} ${TRAIN_MAX_RECORDS} \
           --feature-mapper ${FEATURE_MAPPER} \
           --random-seed ${RANDOM_SEED} \
-          --early-stopping-measure ${EVALUATION_METRIC_NAME} \
           --early-stopping-num-epochs ${EARLY_STOPPING_NUM_EPOCHS} --gpu-device ${GPU} \
           ${NETWORK_ARCHITECTURE_OPTION} | tee ${OUTPUT_FILE}
 dieIfError "Failed to train model with CUDA GPU build."
