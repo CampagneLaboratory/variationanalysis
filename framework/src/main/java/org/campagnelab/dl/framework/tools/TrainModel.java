@@ -369,7 +369,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             saver.saveLatestModel(computationGraph, trainingScore);
             writeProperties();
             writeBestScoreFile();
-            if (epoch % args().validateEvery == 0) {
+            if ((epoch+1) % args().validateEvery == 0) {
 
                 // estimate all performance metrics. Note that we do a pass over the validation set for each metric:
                 // (avoid using several metrics).
