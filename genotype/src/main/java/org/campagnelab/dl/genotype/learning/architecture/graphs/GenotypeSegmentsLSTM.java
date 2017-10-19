@@ -73,7 +73,7 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
         int numTimeSteps = dimensions.dimensions[1];
         int numLSTMInputs = dimensions.dimensions[0];
         System.out.printf("GenotypeSegmentsLSTM getNumInputs: sequence-length=%d, num-float-per-base=%d%n",
-                dimensions.dimensions[0], dimensions.dimensions[1]);
+                numTimeSteps, numLSTMInputs);
         int numHiddenNodes = domainDescriptor.getNumHiddenNodes("lstm");
         int numLSTMLayers = Math.max(1, args().numLayers);
         FeedForwardDenseLayerAssembler assembler = new FeedForwardDenseLayerAssembler(args());
