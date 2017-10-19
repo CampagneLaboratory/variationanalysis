@@ -3,9 +3,12 @@ package org.campagnelab.dl.somatic.storage;
 import org.apache.commons.io.IOUtils;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
+import org.campagnelab.goby.compression.ChunkCodec;
+import org.campagnelab.goby.compression.MessageChunksReader;
 import org.campagnelab.goby.exception.GobyRuntimeException;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
@@ -20,10 +23,22 @@ import java.util.function.Consumer;
 public class RecordReader implements Closeable, RecordIterable<BaseInformationRecords.BaseInformation>,
         RecordReaderI<BaseInformationRecords.BaseInformation> {
 
-    private SequenceBaseInformationReader reader;
+    private final SequenceBaseInformationReader reader;
 
     public RecordReader(String filepath) throws IOException {
         reader = new SequenceBaseInformationReader(filepath);
+    }
+
+    /**
+     * Creates a reader for the specified range.
+     * @param filepath
+     * @param startFrom offset in the file to start from (bytes)
+     * @param upTo last bytes to read
+     * @throws IOException
+     */
+    public RecordReader(String filepath, long startFrom, long upTo) throws IOException {
+        reader = new SequenceBaseInformationReader(startFrom,upTo,filepath);
+
     }
 
 
@@ -78,6 +93,23 @@ public class RecordReader implements Closeable, RecordIterable<BaseInformationRe
         return reader.getTotalRecords();
     }
 
+    /**
+     * Gets an estimated size of a chunk.
+     * @return the size, in bytes
+     */
+    public long getChunkSize() {
+        long fileSize = new File(this.reader.getSourceSbiPath()).length();
+        return Math.round( (fileSize / this.getTotalRecords()) * 10000); //10000 is the default number of records per chunk         
+    }
+
+    /**
+     * Gets an estimated size of a record.
+     * @return the size, in bytes
+     */
+    public long getRecordSize() {
+        long fileSize = new File(this.reader.getSourceSbiPath()).length();
+        return Math.round(fileSize / this.getTotalRecords()); //10000 is the default number of records per chunk
+    }
 
     @Override
     public Iterator<BaseInformationRecords.BaseInformation> iterator() {
@@ -103,9 +135,9 @@ public class RecordReader implements Closeable, RecordIterable<BaseInformationRe
      */
     @Override
     public Spliterator<BaseInformationRecords.BaseInformation> spliterator() {
-        return null;
+        long length = new File(this.reader.getSourceSbiPath()).length();
+        return new RecordSpliterator(reader.getSourceSbiPath(), 1, length, length);
     }
-
 
     public Properties getProperties() {
         return reader.getProperties();
@@ -115,5 +147,10 @@ public class RecordReader implements Closeable, RecordIterable<BaseInformationRe
     @Override
     public long numRecords() {
         return getTotalRecords();
+    }
+
+
+    public void readUpTo(long endIndex) {
+        this.reader.resetEndOffset(endIndex);
     }
 }
