@@ -26,6 +26,7 @@ import org.campagnelab.dl.framework.training.ParallelTrainerOnGPU;
 import org.campagnelab.dl.framework.training.SequentialTrainer;
 import org.campagnelab.dl.framework.training.Trainer;
 import org.deeplearning4j.api.storage.StatsStorage;
+import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
@@ -314,6 +315,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 adapter, adapter.getBasename(),
                 args().numTraining, args().miniBatchSize) :
                 adapter;
+
         if (args().memoryCacheTraining()) {
             iterator = new FullyInMemoryCache(iterator);
             // force loading immediately:
@@ -321,7 +323,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             iterator.reset();
             LOG.warn("Done.");
         }
-        // MultiDataSetIterator iterator=adapter;
+
         final long numRecords = Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);

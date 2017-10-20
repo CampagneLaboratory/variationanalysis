@@ -3,6 +3,7 @@ package org.campagnelab.dl.framework.training;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.tools.TrainModel;
+import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -22,6 +23,11 @@ public class SequentialTrainer implements Trainer {
     public int train(ComputationGraph computationGraph, MultiDataSetIterator iterator, ProgressLogger progressLogger) {
         int numExamplesUsed = 0;
         int numNanFoundConsecutively = 0;
+        //wrap in an async iterator to speed up loading of minibatches to keep the GPU utilized:
+        String prefetchBufferString = System.getProperty("framework.parallelWrapper.prefetchBuffer");
+        int prefetchBuffer = prefetchBufferString != null ? Integer.parseInt(prefetchBufferString) : 12;
+        iterator= new AsyncMultiDataSetIterator(iterator,prefetchBuffer);
+
         while (iterator.hasNext()) {
 
             MultiDataSet ds = iterator.next();

@@ -60,7 +60,6 @@ public class SegmentLabelMapper {
         for (String label : this.labels) {
             final MutableString elementLabel = new MutableString(label).compact();
             final int elementIndex = indexedLabels.registerIdentifier(elementLabel);
-            System.out.println(String.format("%d -> %s", elementIndex, label));
         }
         return indexedLabels;
     }
