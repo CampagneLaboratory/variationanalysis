@@ -6,7 +6,12 @@ import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -52,6 +57,7 @@ public class SegmentHelper {
                 if (from.getPosition() - currentSegment.getLastPosition() < statistics.minDistance
                         || statistics.minDistance == 0)
                     statistics.minDistance = from.getPosition() - currentSegment.getLastPosition();
+                statistics.addSegment(this.currentSegment.getFirstPosition(), this.currentSegment.getLastPosition());
             }
         }
         currentSegment = new Segment(fillInFeatures,from);
@@ -85,15 +91,28 @@ public class SegmentHelper {
     }
 
     /**
-     * Close the list and print the statistics.
+     * Close the list.
      */
     public void close() {
         this.closeSegment();
-        this.printStats();
     }
 
-    private void printStats() {
+    public void printStats() {
+
         System.out.println(statistics);
+        Path file = Paths.get(System.currentTimeMillis() + "-segments.tsv");
+        List<String> lines = new ArrayList<>();
+        List<Long> sortedKeys=new ArrayList<>(statistics.ranges.keySet());
+        Collections.sort(sortedKeys);
+        int i = 0;
+        for (Long start : sortedKeys )
+            lines.add(++i + ": " + statistics.ranges.get(start)) ;
+        try {
+            Files.write(file, lines, Charset.forName("UTF-8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //statistics.ranges.clear();
     }
 
     public int getCurrentReferenceIndex() {
@@ -134,6 +153,7 @@ public class SegmentHelper {
         protected int minLength = 0;
         protected int maxLength = 0;
         protected int minDistance = 0;
+        protected static Map<Long, String> ranges = new HashMap<>();
 
         @Override
         public String toString() {
@@ -143,6 +163,12 @@ public class SegmentHelper {
                     ", maxLength=" + maxLength +
                     ", minDistance=" + minDistance +
                     '}';
+        }
+
+        protected void addSegment(long startIndex, long endIndex) {
+            synchronized (ranges) {
+                this.ranges.put(startIndex, String.format("%d\t%d", startIndex, endIndex));
+            }
         }
     }
 

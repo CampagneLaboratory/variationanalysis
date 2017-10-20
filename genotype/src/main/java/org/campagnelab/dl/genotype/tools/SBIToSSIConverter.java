@@ -297,6 +297,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         } finally {
             writer = null;
         }
+        segmentHelper.get().printStats();
     }
 
 
