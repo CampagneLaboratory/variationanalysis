@@ -323,8 +323,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             iterator.reset();
             LOG.warn("Done.");
         }
-        iterator= new AsyncMultiDataSetIterator(iterator);
-        // MultiDataSetIterator iterator=adapter;
+
         final long numRecords = Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
