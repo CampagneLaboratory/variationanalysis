@@ -35,7 +35,6 @@ public class RecordSpliterator implements Spliterator<BaseInformationRecords.Bas
         this.minLength = (maxLength / 10);
         this.startIndex = startIndex;
         this.endIndex = endIndex;
-        System.out.println("new record spliterator from " + startIndex + " to " + endIndex);
     }
 
     /**
@@ -113,11 +112,8 @@ public class RecordSpliterator implements Spliterator<BaseInformationRecords.Bas
         if ( ((endIndex - startIndex < 0) || (endIndex - startIndex < 100000000)))
             return null;
         long splitPosition = ((endIndex - startIndex) / 2) + this.startIndex; //we try to split halfway
-        System.out.println(this.toString() + ": This boundaries: " + this.startIndex + " - " + this.endIndex);
-        System.out.println(this.toString() + ": split pos " + splitPosition);
         Spliterator<BaseInformationRecords.BaseInformation> newSp = new RecordSpliterator(sourceSBI,splitPosition,endIndex,maxLength);
         this.endIndex = splitPosition - 1;
-        System.out.println(this.toString() + ": This new  boundaries: " + this.startIndex + " - " + this.endIndex);
         this.reader.readUpTo(endIndex);
         return newSp;
     }
