@@ -20,6 +20,9 @@ public class SBIToSSIConverterArguments implements ToolArguments {
     @Parameter(names = {"-g", "--gap"}, description = "Gap between two segments The default is 1.")
     public int gap = 1;
 
+    @Parameter(names = {"--parallel-sbi"}, description = "Enable parallel processing of the input SBI.", arity = 1)
+    public boolean parallelSBI = true;
+
     @Parameter(names = {"-o", "--output-basename"}, description = "Prefix for the output saved file. If not specified, the input basename is used.")
     public String ssiPrefix = null;
 

@@ -188,7 +188,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             pg.itemsName = "records";
             pg.start();
             final int[] totalRecords = {0};
-            StreamSupport.stream(sbiReader.spliterator(), true).forEach(sbiRecord -> {
+            StreamSupport.stream(sbiReader.spliterator(), args().parallelSBI).forEach(sbiRecord -> {
                 manageRecord(sbiRecord, gap);
                 pg.lightUpdate();
                 totalRecords[0]++;
