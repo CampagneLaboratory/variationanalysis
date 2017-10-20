@@ -3,6 +3,7 @@ package org.campagnelab.dl.genotype.mappers;
 import org.campagnelab.dl.framework.mappers.*;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 import scala.Array;
 
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.Properties;
  */
 public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformationRecords.SegmentInformation>, ConfigurableFeatureMapper {
     private final int sampleIndex;
+    private float[] mask;
 
     public SingleBaseFeatureMapperV1(int sampleIndex) {
         this.sampleIndex = sampleIndex;
@@ -20,7 +22,7 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
 
     @Override
     public int numberOfFeatures() {
-        return numberOfFeaturesPerBase*maxSequenceLength; // determine by the mapper used to produce the .ssi
+        return numberOfFeaturesPerBase * maxSequenceLength; // determine by the mapper used to produce the .ssi
     }
 
     private int maxSequenceLength = -1;
@@ -28,7 +30,7 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
 
     @Override
     public MappedDimensions dimensions() {
-        return new MappedDimensions( numberOfFeaturesPerBase,maxSequenceLength);
+        return new MappedDimensions(numberOfFeaturesPerBase, maxSequenceLength);
     }
 
     int[] indices = new int[]{0, 0, 0};
@@ -39,11 +41,10 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
         assert numberOfFeaturesPerBase > 0 : "numberOfFeaturesPerBase must be positive";
 
         indices[0] = indexOfRecord;
-        for (int k = 0; k < numberOfFeatures(); k++) {
-            indices[1] = k % numberOfFeaturesPerBase;
-            indices[2] = k / numberOfFeaturesPerBase;
-            labels.putScalar(indices, produceFeature(record, k));
-        }
+        INDArray dataCopy = Nd4j.create(data);
+        dataCopy.detach();
+        INDArray row = labels.tensorAlongDimension(indexOfRecord, 1, 2);
+        row.assign(dataCopy);
 
     }
 
@@ -62,16 +63,16 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
 
     @Override
     public void maskFeatures(SegmentInformationRecords.SegmentInformation record, INDArray mask, int indexOfRecord) {
-        for (int i = 0; i < maxSequenceLength; i++) {
-            mask.putScalar(indexOfRecord, i, (double)i<record.getLength()?1:0);
-        }
+        INDArray recordMask=Nd4j.create(this.mask);
+        recordMask.detach();
+        INDArray row = mask.tensorAlongDimension(indexOfRecord, 1);
+        row.assign(recordMask);
 
     }
 
     @Override
     public boolean isMasked(SegmentInformationRecords.SegmentInformation record, int featureIndex) {
-        int i = featureIndex / numberOfFeaturesPerBase;
-        return i < record.getLength();
+        return this.mask[featureIndex]>0;
     }
 
     float[][] data;
@@ -81,16 +82,18 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
 
         if (data == null) {
             data = new float[numberOfFeaturesPerBase][maxSequenceLength];
-        }else {
-            for (int baseIndex = 0; baseIndex < maxSequenceLength; baseIndex++) {
-                for (int floatPerBaseIndex = 0; floatPerBaseIndex < numberOfFeaturesPerBase; floatPerBaseIndex++) {
-                    data[floatPerBaseIndex][baseIndex] =0;
-                }
+            mask = new float[maxSequenceLength];
+        } else {
+            for (int floatPerBaseIndex = 0; floatPerBaseIndex < numberOfFeaturesPerBase; floatPerBaseIndex++) {
+                Arrays.fill(data[floatPerBaseIndex], 0);
             }
+            Arrays.fill(mask,0);
         }
         SegmentInformationRecords.Sample sample = record.getSample(sampleIndex);
-        for (int baseIndex = 0; baseIndex < sample.getBaseCount(); baseIndex++) {
+        final int numberOfBases = sample.getBaseCount();
+        for (int baseIndex = 0; baseIndex < numberOfBases; baseIndex++) {
             SegmentInformationRecords.Base base = sample.getBase(baseIndex);
+            mask[baseIndex] = 1;
             assert base.getFeaturesCount() == numberOfFeaturesPerBase :
                     String.format(
                             "the number of features per base must match between protobuf content and " +
