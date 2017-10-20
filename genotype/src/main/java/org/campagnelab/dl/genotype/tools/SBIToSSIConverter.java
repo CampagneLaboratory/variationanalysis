@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.StreamSupport;
 
 
 /**
@@ -36,11 +37,15 @@ import java.util.function.Function;
 public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> {
 
     static private Logger LOG = LoggerFactory.getLogger(SBIToSSIConverter.class);
-    SequenceSegmentInformationWriter writer = null;
-
-    SegmentHelper segmentHelper;
-    private Function<Segment, Segment> processSegmentFunction;
-    private Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeaturesFunction;
+    private static SequenceSegmentInformationWriter writer;
+    private static Function<Segment, Segment> processSegmentFunction;
+    private static Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeaturesFunction;
+    private static final ThreadLocal<SegmentHelper> segmentHelper = new ThreadLocal<SegmentHelper>(){
+        @Override
+        protected SegmentHelper initialValue() {
+            return new SegmentHelper(writer, processSegmentFunction, fillInFeaturesFunction);
+        }
+    };
 
     public static void main(String[] args) {
         SBIToSSIConverter tool = new SBIToSSIConverter();
@@ -182,10 +187,14 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             pg.expectedUpdates = sbiReader.getTotalRecords();
             pg.itemsName = "records";
             pg.start();
-            for (BaseInformationRecords.BaseInformation sbiRecord : sbiReader) {
+            final int[] totalRecords = {0};
+            StreamSupport.stream(sbiReader.spliterator(), true).forEach(sbiRecord -> {
                 manageRecord(sbiRecord, gap);
                 pg.lightUpdate();
-            }
+                totalRecords[0]++;
+            });
+
+            System.out.printf("Total record managed: %d %n", totalRecords[0]);
             pg.stop();
             closeOutput();
         } catch (IOException e) {
@@ -221,17 +230,19 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     }
 
     private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) {
-        if (segmentHelper == null) {
-            segmentHelper = new SegmentHelper(this.writer, processSegmentFunction, fillInFeaturesFunction);
-        } else {
-            if (this.isValid(record)) {
-                if (!this.isSameSegment(record, gap)) {
-                    segmentHelper.newSegment(record);
-                } else {
-                    segmentHelper.add(record);
+       // if (segmentHelper == null) {
+       //     segmentHelper = new SegmentHelper(this.writer, processSegmentFunction, fillInFeaturesFunction);
+        //} else {
+            synchronized (segmentHelper) {
+                if (this.isValid(record)) {
+                    if (!this.isSameSegment(record, gap)) {
+                        segmentHelper.get().newSegment(record);
+                    } else {
+                        segmentHelper.get().add(record);
+                    }
                 }
             }
-        }
+        //}
     }
 
     /**
@@ -264,8 +275,8 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         if (segmentHelper == null) {
             return false;
         }
-        final boolean valid = (record.getPosition() - segmentHelper.getCurrentLocation() <= gap) &&
-                record.getReferenceIndex() == segmentHelper.getCurrentReferenceIndex();
+        final boolean valid = (record.getPosition() - segmentHelper.get().getCurrentLocation() <= gap) &&
+                record.getReferenceIndex() == segmentHelper.get().getCurrentReferenceIndex();
     /*if (!valid) {
         System.out.printf("not valid, actual gap=%d%n",record.getPosition() - segmentList.getCurrentLocation());
     }*/
@@ -277,7 +288,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
      * Closes the list and serializes the output SSI.
      */
     private void closeOutput() {
-        segmentHelper.close();
+        segmentHelper.get().close();
         try {
             writer.close();
         } catch (IOException e) {

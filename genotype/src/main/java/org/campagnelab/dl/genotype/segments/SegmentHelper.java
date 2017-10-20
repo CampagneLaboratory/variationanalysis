@@ -20,7 +20,7 @@ public class SegmentHelper {
     private final Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures;
     private final SequenceSegmentInformationWriter writer;
     private Segment currentSegment;
-    private Statistics statistics = new Statistics();
+    private static  Statistics statistics = new Statistics();
     static private Logger LOG = LoggerFactory.getLogger(SegmentHelper.class);
 
     /**
@@ -48,9 +48,11 @@ public class SegmentHelper {
     public void newSegment(BaseInformationRecords.BaseInformation from) {
         if (currentSegment != null) {
             this.closeSegment();
-            if (from.getPosition() - currentSegment.getLastPosition() < statistics.minDistance
-                    || statistics.minDistance == 0)
-                statistics.minDistance = from.getPosition() - currentSegment.getLastPosition();
+            synchronized (statistics) {
+                if (from.getPosition() - currentSegment.getLastPosition() < statistics.minDistance
+                        || statistics.minDistance == 0)
+                    statistics.minDistance = from.getPosition() - currentSegment.getLastPosition();
+            }
         }
         currentSegment = new Segment(fillInFeatures,from);
 
@@ -107,13 +109,15 @@ public class SegmentHelper {
     }
 
     private void updateStats() {
-        int length = currentSegment.actualLength();
-        statistics.totalLength += length;
-        if (length > statistics.maxLength)
-            statistics.maxLength = length;
-        if (length < statistics.minLength || statistics.minLength == 0)
-            statistics.minLength = length;
-        statistics.numOfSegments++;
+        synchronized (statistics) {
+            int length = currentSegment.actualLength();
+            statistics.totalLength += length;
+            if (length > statistics.maxLength)
+                statistics.maxLength = length;
+            if (length < statistics.minLength || statistics.minLength == 0)
+                statistics.minLength = length;
+            statistics.numOfSegments++;
+        }
     }
 
     public static boolean isValid(Object record) {
@@ -124,7 +128,7 @@ public class SegmentHelper {
     /**
      * Statistics on the list
      */
-    class Statistics {
+    static class Statistics {
         protected int numOfSegments = 0;
         protected int totalLength = 0;
         protected int minLength = 0;

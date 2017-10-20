@@ -49,7 +49,6 @@ public class Segment {
      * @param writer
      */
     protected void flush(SequenceSegmentInformationWriter writer) {
-
         SegmentInformationRecords.SegmentInformation.Builder builder = SegmentInformationRecords.SegmentInformation.newBuilder();
         SegmentInformationRecords.ReferencePosition.Builder refBuilder = SegmentInformationRecords.ReferencePosition.newBuilder();
         refBuilder.setLocation(this.getFirstPosition());
@@ -88,10 +87,13 @@ public class Segment {
             });
         });
         try {
-            writer.appendEntry(builder.build());
-            writer.setEntryBases(segmentStats[0]);
-            writer.setEntryLabels(segmentStats[2]);
-            writer.setEntryFeatures(segmentStats[1]);
+            synchronized (writer) {
+                writer.appendEntry(builder.build());
+                writer.setEntryBases(segmentStats[0]);
+                writer.setEntryLabels(segmentStats[2]);
+                writer.setEntryFeatures(segmentStats[1]);
+            }
+
         } catch (IOException e) {
             throw new InternalError("Unable to write entry.",e);
 
