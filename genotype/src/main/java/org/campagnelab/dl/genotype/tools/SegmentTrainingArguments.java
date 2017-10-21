@@ -8,6 +8,13 @@ import org.campagnelab.dl.genotype.mappers.SingleBaseFeatureMapperV1;
 public class SegmentTrainingArguments extends TrainingArguments {
     @Parameter(names = "--num-hidden-nodes", description = "The number of LSTM hidden nodes per layer.")
     public int numHiddenNodes=1024;
+    public enum RNNKind{
+        CUDNN_LSTM,
+        DL4J_Graves,
+        DL4J_BidirectionalGraves
+    }
+    @Parameter(names = "--rnn-kind", description = "Kind of RNN layer: CUDNN_LSTM, DL4J_Graves or DL4J_BidirectionalGraves.")
+    public RNNKind rnnKind;
 
     @Override
     protected String defaultArchitectureClassname() {

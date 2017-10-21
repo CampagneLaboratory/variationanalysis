@@ -26,6 +26,8 @@ import org.nd4j.linalg.lossfunctions.ILossFunction;
 
 import java.util.Set;
 
+import static org.deeplearning4j.nn.conf.inputs.InputType.Type.RNN;
+
 /**
  * A computational graph with an LSTM over bases in a genomic segment [input is 2D].
  * <p>
@@ -94,16 +96,32 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
             String lstmPreviousLayerName = i == 0 ? lstmInputName : "lstm_" + lstmInputName + "_" + (i - 1);
             int numLSTMInputConditional = i == 0 ? numLSTMInputs : numHiddenNodes;
 
-            build.addLayer(lstmLayerName, new LSTM.Builder()
+            BaseRecurrentLayer.Builder rnnBuilder;
+            switch (arguments.rnnKind) {
+                case CUDNN_LSTM:
+                    rnnBuilder= new LSTM.Builder();
+                    ((LSTM.Builder)rnnBuilder)   .nOut(numHiddenNodes);
+                    break;
+                case DL4J_BidirectionalGraves:
+                    rnnBuilder= new GravesBidirectionalLSTM.Builder();
+                    ((GravesBidirectionalLSTM.Builder)rnnBuilder)   .nOut(numHiddenNodes);
+
+                    break;
+                case DL4J_Graves:
+                    rnnBuilder= new GravesLSTM.Builder();
+                    ((GravesLSTM.Builder)rnnBuilder)   .nOut(numHiddenNodes);
+                    break;
+                default:
+                    throw new InternalError("RNN kind not supported: "+arguments.rnnKind);
+            }
+
+            build.addLayer(lstmLayerName, rnnBuilder
                     .nIn(numLSTMInputConditional)
                     .updater(Updater.RMSPROP)
-                    .nOut(numHiddenNodes)
                     .activation(Activation.TANH)
                     .build(), lstmPreviousLayerName);
             countInput += numHiddenNodes;
             componentNames.add(lstmLayerName);
-            topLayerName = lstmLayerName;
-            lstmLayerName = lstmPreviousLayerName;
         }
 
         final int genotypeNumOutputs = domainDescriptor.getNumOutputs("genotype")[0];
