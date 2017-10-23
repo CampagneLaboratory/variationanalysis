@@ -79,9 +79,11 @@ public class Segment {
                 segmentStats[2] = base.getLabelsCount();
             });
         });
+        final SegmentInformationRecords.SegmentInformation built = builder.build();
         try {
             synchronized (writer) {
-                writer.appendEntry(builder.build());
+
+                writer.appendEntry(built);
                 writer.setEntryBases(segmentStats[0]);
                 writer.setEntryLabels(segmentStats[2]);
                 writer.setEntryFeatures(segmentStats[1]);

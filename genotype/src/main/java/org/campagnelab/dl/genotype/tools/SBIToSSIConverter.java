@@ -115,8 +115,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                 previous = record;
             }
 
-
-            segment.recordList.spliterator().forEachRemaining(record -> {
+            segment.recordList.forEach(record -> {
                 int longestIndelLength = 0;
                 for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()) {
                     for (BaseInformationRecords.CountInfo count : sample.getCountsList()) {
@@ -256,10 +255,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     }
 
     private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) {
-        // if (segmentHelper == null) {
-        //     segmentHelper = new SegmentHelper(this.writer, processSegmentFunction, fillInFeaturesFunction);
-        //} else {
-        //synchronized (segmentHelper) {
+
         if (this.isValid(record)) {
             final SegmentHelper segmentHelper = SBIToSSIConverter.segmentHelper.get();
             if (!this.isSameSegment(record, gap)) {
@@ -268,8 +264,6 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                 segmentHelper.add(record);
             }
         }
-        // }
-        //}
     }
 
     /**
