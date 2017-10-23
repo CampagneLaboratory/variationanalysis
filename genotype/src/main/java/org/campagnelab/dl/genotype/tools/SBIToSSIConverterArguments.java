@@ -35,4 +35,7 @@ public class SBIToSSIConverterArguments implements ToolArguments {
     @Parameter(names = "--map-features", description = "Use to map features.")
     public boolean mapFeatures=false;
     public boolean mapLabels=true;
+
+    @Parameter(names = "--collect-statistics", description = "Collect and display statistics.")
+    public boolean collectStatistics=false;
 }

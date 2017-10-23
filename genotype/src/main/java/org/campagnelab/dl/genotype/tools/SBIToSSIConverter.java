@@ -40,12 +40,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     private static SequenceSegmentInformationWriter writer;
     private static Function<Segment, Segment> processSegmentFunction;
     private static Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeaturesFunction;
-    private static final ThreadLocal<SegmentHelper> segmentHelper = new ThreadLocal<SegmentHelper>() {
-        @Override
-        protected SegmentHelper initialValue() {
-            return new SegmentHelper(writer, processSegmentFunction, fillInFeaturesFunction);
-        }
-    };
+    private static ThreadLocal<SegmentHelper> segmentHelper;
 
     // any genomic site that has strictly more indel supporting reads than the below threshold will be marked has candidateIndel.
     private int candidateIndelThreshold = 0;
@@ -66,6 +61,12 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         if (args().inputFile.isEmpty()) {
             System.err.println("You must provide input SBI files.");
         }
+        segmentHelper= new ThreadLocal<SegmentHelper>() {
+            @Override
+            protected SegmentHelper initialValue() {
+                return new SegmentHelper(writer, processSegmentFunction, fillInFeaturesFunction,args().collectStatistics);
+            }
+        };
         int gap = args().gap;
         GenotypeDomainDescriptor domainDescriptor = null;
         try {
