@@ -40,7 +40,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     private static SequenceSegmentInformationWriter writer;
     private static Function<Segment, Segment> processSegmentFunction;
     private static Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeaturesFunction;
-    private static final ThreadLocal<SegmentHelper> segmentHelper = new ThreadLocal<SegmentHelper>(){
+    private static final ThreadLocal<SegmentHelper> segmentHelper = new ThreadLocal<SegmentHelper>() {
         @Override
         protected SegmentHelper initialValue() {
             return new SegmentHelper(writer, processSegmentFunction, fillInFeaturesFunction);
@@ -150,7 +150,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             builder.setHasTrueIndel(
                     GenotypeHelper.isIndel(baseInformation.getReferenceBase(), baseInformation.getTrueGenotype()));
             builder.setIsVariant(
-                    GenotypeHelper.isVariant( baseInformation.getTrueGenotype(),baseInformation.getReferenceBase()));
+                    GenotypeHelper.isVariant(baseInformation.getTrueGenotype(), baseInformation.getReferenceBase()));
 
             if (args().mapFeatures) {
                 featureMapper.prepareToNormalize(baseInformation, 0);
@@ -196,9 +196,12 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             pg.itemsName = "records";
             pg.start();
             final int[] totalRecords = {0};
+
             StreamSupport.stream(sbiReader.spliterator(), args().parallel).forEach(sbiRecord -> {
                 manageRecord(sbiRecord, gap);
-                pg.lightUpdate();
+                synchronized (pg) {
+                    pg.lightUpdate();
+                }
                 totalRecords[0]++;
             });
 
@@ -253,18 +256,19 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     }
 
     private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) {
-       // if (segmentHelper == null) {
-       //     segmentHelper = new SegmentHelper(this.writer, processSegmentFunction, fillInFeaturesFunction);
+        // if (segmentHelper == null) {
+        //     segmentHelper = new SegmentHelper(this.writer, processSegmentFunction, fillInFeaturesFunction);
         //} else {
-            synchronized (segmentHelper) {
-                if (this.isValid(record)) {
-                    if (!this.isSameSegment(record, gap)) {
-                        segmentHelper.get().newSegment(record);
-                    } else {
-                        segmentHelper.get().add(record);
-                    }
-                }
+        //synchronized (segmentHelper) {
+        if (this.isValid(record)) {
+            final SegmentHelper segmentHelper = SBIToSSIConverter.segmentHelper.get();
+            if (!this.isSameSegment(record, gap)) {
+                segmentHelper.newSegment(record);
+            } else {
+                segmentHelper.add(record);
             }
+        }
+        // }
         //}
     }
 
