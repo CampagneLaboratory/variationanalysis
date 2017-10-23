@@ -14,10 +14,12 @@ import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterp
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
 import org.campagnelab.dl.genotype.mappers.SingleBaseFeatureMapperV1;
 import org.campagnelab.dl.genotype.mappers.SingleBaseLabelMapperV1;
+import org.campagnelab.dl.genotype.predictions.SegmentPredictionInterpreter;
 import org.campagnelab.dl.genotype.tools.SegmentTrainingArguments;
 import org.campagnelab.dl.genotype.storage.SegmentReader;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
+import org.campagnelab.goby.baseinfo.BasenameUtils;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -68,7 +70,7 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
             modelProperties.setProperty("genotypes.ploidy", Integer.toString(args().ploidy));
             modelProperties.setProperty("genotypes.ploidy", Integer.toString(args().ploidy));
         }
-        modelProperties.setProperty("genoypes.segments.rnn.kind",args().rnnKind.toString());
+        modelProperties.setProperty("genoypes.segments.rnn.kind", args().rnnKind.toString());
     }
 
     private SegmentTrainingArguments args() {
@@ -107,6 +109,7 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
 
         }
     }
+
     public static Properties getReaderProperties(String trainingSet) throws IOException {
         try (SequenceSegmentInformationReader reader = new SequenceSegmentInformationReader(trainingSet)) {
             final Properties properties = reader.getProperties();
@@ -131,10 +134,10 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
                         final Properties readerProperties = getReaderProperties(args().trainingSets.get(0));
                         decorateProperties(readerProperties);
                         mapper.configure(readerProperties);
-                        cachedLabelMappers.put(outputName,(LabelMapper) mapper);
+                        cachedLabelMappers.put(outputName, (LabelMapper) mapper);
                         return (LabelMapper) mapper;
-                    } catch(IOException e) {
-                        throw new InternalError("Unable to load properties and initialize label mapper.",e);
+                    } catch (IOException e) {
+                        throw new InternalError("Unable to load properties and initialize label mapper.", e);
                     }
                 default:
                     throw new RuntimeException("Unsupported output name: " + outputName);
@@ -144,8 +147,15 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
 
     @Override
     public PredictionInterpreter getPredictionInterpreter(String outputName) {
-        // TODO: change this to the correct interpreter for this domain
-        return new HomozygousInterpreter(false);
+        switch (outputName) {
+            case "genotype":
+                final String segmentPropertiesFilename = args().trainingSets.get(0);
+                String basename=BasenameUtils.getBasename(segmentPropertiesFilename,".ssi",".ssip");
+                return new SegmentPredictionInterpreter(basename+".ssip");
+            default:
+                throw new InternalError("Output name not recognized: " + outputName);
+        }
+
     }
 
     @Override
@@ -183,16 +193,16 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
     @Override
     public int[] getNumMaskInputs(String inputName) {
         // drop the last dimension:
-        int[] dimensions=new int[1];
-        dimensions[0]=getNumInputs(inputName)[1];
+        int[] dimensions = new int[1];
+        dimensions[0] = getNumInputs(inputName)[1];
         return dimensions;
     }
 
     @Override
     public int[] getNumMaskOutputs(String outputName) {
         // drop the last dimension:
-        int[] dimensions=new int[1];
-        dimensions[0]=getNumOutputs(outputName)[1];
+        int[] dimensions = new int[1];
+        dimensions[0] = getNumOutputs(outputName)[1];
         return dimensions;
     }
 
