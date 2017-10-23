@@ -14,7 +14,7 @@ public class SegmentTrainingArguments extends TrainingArguments {
         DL4J_BidirectionalGraves
     }
     @Parameter(names = "--rnn-kind", description = "Kind of RNN layer: CUDNN_LSTM, DL4J_Graves or DL4J_BidirectionalGraves.")
-    public RNNKind rnnKind;
+    public RNNKind rnnKind=RNNKind.CUDNN_LSTM;
 
     @Override
     protected String defaultArchitectureClassname() {
