@@ -147,7 +147,10 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             SegmentInformationRecords.Base.Builder builder = SegmentInformationRecords.Base.newBuilder();
             String trueGenotype = baseInformation.getTrueGenotype();
             builder.setHasCandidateIndel(hasCandidateIndel(baseInformation));
-            builder.setHasTrueIndel(GenotypeHelper.isIndel(baseInformation.getReferenceBase(), baseInformation.getTrueGenotype()));
+            builder.setHasTrueIndel(
+                    GenotypeHelper.isIndel(baseInformation.getReferenceBase(), baseInformation.getTrueGenotype()));
+            builder.setIsVariant(
+                    GenotypeHelper.isVariant( baseInformation.getTrueGenotype(),baseInformation.getReferenceBase()));
 
             if (args().mapFeatures) {
                 featureMapper.prepareToNormalize(baseInformation, 0);
@@ -193,7 +196,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             pg.itemsName = "records";
             pg.start();
             final int[] totalRecords = {0};
-            StreamSupport.stream(sbiReader.spliterator(), args().parallelSBI).forEach(sbiRecord -> {
+            StreamSupport.stream(sbiReader.spliterator(), args().parallel).forEach(sbiRecord -> {
                 manageRecord(sbiRecord, gap);
                 pg.lightUpdate();
                 totalRecords[0]++;
