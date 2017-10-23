@@ -47,6 +47,9 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         }
     };
 
+    // any genomic site that has strictly more indel supporting reads than the below threshold will be marked has candidateIndel.
+    private int candidateIndelThreshold = 0;
+
     public static void main(String[] args) {
         SBIToSSIConverter tool = new SBIToSSIConverter();
         tool.parseArguments(args, "SBIToSSIConverter", tool.createArguments());
@@ -139,11 +142,13 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         SegmentLabelMapper labelMapper = new SegmentLabelMapper(args().ploidy);
 
 
-
         fillInFeaturesFunction = baseInformation -> {
             FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
             SegmentInformationRecords.Base.Builder builder = SegmentInformationRecords.Base.newBuilder();
             String trueGenotype = baseInformation.getTrueGenotype();
+            builder.setHasCandidateIndel(hasCandidateIndel(baseInformation));
+            builder.setHasTrueIndel(GenotypeHelper.isIndel(baseInformation.getReferenceBase(), baseInformation.getTrueGenotype()));
+
             if (args().mapFeatures) {
                 featureMapper.prepareToNormalize(baseInformation, 0);
                 if (trueGenotype.length() > 3) {
@@ -157,13 +162,13 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                 builder.addAllFeatures(features);
             }
             if (args().mapLabels) {
-                if (trueGenotype.length()==1) {
-                    trueGenotype=trueGenotype+"|"+trueGenotype;
+                if (trueGenotype.length() == 1) {
+                    trueGenotype = trueGenotype + "|" + trueGenotype;
                 }
-                if (trueGenotype.length()>3) {
-                    trueGenotype=trimTrueGenotype(trueGenotype);
+                if (trueGenotype.length() > 3) {
+                    trueGenotype = trimTrueGenotype(trueGenotype);
                 }
-                float[] labels = labelMapper.map(trueGenotype.replaceAll("\\|","/"));
+                float[] labels = labelMapper.map(trueGenotype.replaceAll("\\|", "/"));
                 builder.clearLabels();
                 for (float labelValue : labels) {
                     builder.addLabels(labelValue);
@@ -178,12 +183,12 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             else
                 writer = new SequenceSegmentInformationWriter(BasenameUtils.getBasename(args().inputFile,
                         FileExtensionHelper.COMPACT_SEQUENCE_BASE_INFORMATION));
-            Properties props=new Properties();
+            Properties props = new Properties();
             labelMapper.writeMap(props);
             writer.appendProperties(props);
             RecordReader sbiReader = new RecordReader(new File(args().inputFile).getAbsolutePath());
             ProgressLogger pg = new ProgressLogger(LOG);
-            pg.displayFreeMemory=true;
+            pg.displayFreeMemory = true;
             pg.expectedUpdates = sbiReader.getTotalRecords();
             pg.itemsName = "records";
             pg.start();
@@ -204,8 +209,23 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
 
     }
 
+    private boolean hasCandidateIndel(BaseInformationRecords.BaseInformation baseInformation) {
+        // determine if a genomic site has some reads that suggest an indel.
+        for (BaseInformationRecords.SampleInfo sample : baseInformation.getSamplesList()) {
+            for (BaseInformationRecords.CountInfo count : sample.getCountsList()) {
+                if (count.getIsIndel()) {
+                    if (count.getGenotypeCountForwardStrand() > candidateIndelThreshold || count.getGenotypeCountReverseStrand() > candidateIndelThreshold) {
+
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     private String trimTrueGenotype(String trueGenotype) {
-        int secondBaseIndex=trueGenotype.indexOf("|");
+        int secondBaseIndex = trueGenotype.indexOf("|");
         final String trimmed = trueGenotype.charAt(0) + "|" + trueGenotype.charAt(secondBaseIndex - 1);
         return trimmed;
     }
