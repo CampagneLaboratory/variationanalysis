@@ -38,11 +38,13 @@ public class SegmentPrediction extends Prediction {
 
     public int numPredictionsWhere(SegmentGenotypePredictionTest isTrueForBaseIndex) {
         int count = 0;
-        for (int baseIndex = 0; baseIndex < numBases(); baseIndex++) {
+        final int numBases = numBases();
+        for (int baseIndex = 0; baseIndex < numBases; baseIndex++) {
             if (isTrueForBaseIndex.test(this.genotypes,baseIndex)) {
-                count++;
+                count+=1;
             }
         }
+
         return count;
     }
 
