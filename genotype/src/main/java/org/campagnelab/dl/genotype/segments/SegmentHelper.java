@@ -60,15 +60,10 @@ public class SegmentHelper {
                     if (from.getPosition() - currentSegment.getLastPosition() < statistics.minDistance
                             || statistics.minDistance == 0)
                         statistics.minDistance = from.getPosition() - currentSegment.getLastPosition();
-                    statistics.addSegment(this.currentSegment.getFirstPosition(), this.currentSegment.getLastPosition());
+                    statistics.addSegment(
+                            this.currentSegment.getFirstPosition(), this.currentSegment.getFirstReferenceId(),
+                            this.currentSegment.getLastReferenceId(), this.currentSegment.getLastPosition());
                 }
-            synchronized (statistics) {
-                if (from.getPosition() - currentSegment.getLastPosition() < statistics.minDistance
-                        || statistics.minDistance == 0)
-                    statistics.minDistance = from.getPosition() - currentSegment.getLastPosition();
-                statistics.addSegment(
-                        this.currentSegment.getFirstPosition(), this.currentSegment.getFirstReferenceId(),
-                        this.currentSegment.getLastReferenceId(), this.currentSegment.getLastPosition());
             }
         }
         currentSegment = new Segment(fillInFeatures, from);
