@@ -38,6 +38,14 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
         return records.iterator();
     }
 
+    /**
+     * Get the first record, if there is one, or null otherwise.
+     * @return
+     */
+    public BaseInformationRecords.BaseInformation first() {
+        if (records.isEmpty()) return null;
+        return records.get(0);
+    }
 
     public int size() {
         return records.size();

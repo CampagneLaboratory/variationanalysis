@@ -79,10 +79,7 @@ public class SegmentHelper {
             Segment processed = this.function.apply(currentSegment);
             processed.flush(writer);
 
-            if (processed.actualLength()>300) {
-                System.out.println(processed);
-                System.out.println("STOP");
-            }
+
         } catch (NullPointerException npe) {
             LOG.error("Failed to process segments: ", npe);
             currentSegment.flush(writer);
