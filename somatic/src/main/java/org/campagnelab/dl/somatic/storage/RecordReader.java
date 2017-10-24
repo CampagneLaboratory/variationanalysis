@@ -111,7 +111,16 @@ public class RecordReader implements Closeable, RecordIterable<BaseInformationRe
         return Math.round(fileSize / this.getTotalRecords()); //10000 is the default number of records per chunk
     }
 
-    @Override
+
+    /**
+     * Gets the current position of the reader.
+     * @return the offset of the position, in bytes.
+     */
+    public long getCurrentReadPosition() {
+        return this.reader.getCurrentReadPosition();
+    }
+
+        @Override
     public Iterator<BaseInformationRecords.BaseInformation> iterator() {
         return reader.iterator();
     }

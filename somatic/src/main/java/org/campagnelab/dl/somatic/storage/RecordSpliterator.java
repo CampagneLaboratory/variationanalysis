@@ -108,10 +108,13 @@ public class RecordSpliterator implements Spliterator<BaseInformationRecords.Bas
      */
     @Override
     public Spliterator<BaseInformationRecords.BaseInformation> trySplit() {
-        //if (endIndex - startIndex < (this.minLength))
         if ( ((endIndex - startIndex < 0) || (endIndex - startIndex < 100000000)))
             return null;
         long splitPosition = ((endIndex - startIndex) / 2) + this.startIndex; //we try to split halfway
+        if (splitPosition > this.reader.getCurrentReadPosition()) {
+            //if we passed the current position of the reader, we don't further split
+            return null;
+        }
         Spliterator<BaseInformationRecords.BaseInformation> newSp = new RecordSpliterator(sourceSBI,splitPosition,endIndex,maxLength);
         this.endIndex = splitPosition - 1;
         this.reader.readUpTo(endIndex);
