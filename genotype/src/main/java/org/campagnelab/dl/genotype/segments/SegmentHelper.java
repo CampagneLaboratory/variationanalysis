@@ -57,7 +57,9 @@ public class SegmentHelper {
                 if (from.getPosition() - currentSegment.getLastPosition() < statistics.minDistance
                         || statistics.minDistance == 0)
                     statistics.minDistance = from.getPosition() - currentSegment.getLastPosition();
-                statistics.addSegment(this.currentSegment.getFirstPosition(), this.currentSegment.getLastPosition());
+                statistics.addSegment(
+                        this.currentSegment.getFirstPosition(), this.currentSegment.getFirstReferenceId(),
+                        this.currentSegment.getLastReferenceId(), this.currentSegment.getLastPosition());
             }
         }
         currentSegment = new Segment(fillInFeatures,from);
@@ -165,9 +167,9 @@ public class SegmentHelper {
                     '}';
         }
 
-        protected void addSegment(long startIndex, long endIndex) {
+        protected void addSegment(long startIndex, String firstReferenceId, String lastReferenceId, long endIndex) {
             synchronized (ranges) {
-                this.ranges.put(startIndex, String.format("%d\t%d", startIndex, endIndex));
+                this.ranges.put(startIndex, String.format("%s: %d\t %s:%d", firstReferenceId, startIndex, lastReferenceId, endIndex));
             }
         }
     }
