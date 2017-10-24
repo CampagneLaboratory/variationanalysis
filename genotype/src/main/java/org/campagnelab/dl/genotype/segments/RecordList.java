@@ -17,7 +17,7 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
 
     @Override
     public Spliterator<BaseInformationRecords.BaseInformation> spliterator() {
-        return records.parallelStream().spliterator();
+        return records.spliterator();
     }
 
     ArrayList<BaseInformationRecords.BaseInformation> records = new ArrayList<>();

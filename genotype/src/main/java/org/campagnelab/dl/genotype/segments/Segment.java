@@ -66,18 +66,11 @@ public class Segment {
         final Object2ObjectMap<BaseInformationRecords.BaseInformation,
                 SegmentInformationRecords.Base.Builder> cache = new Object2ObjectOpenHashMap<>();
 
-        getAllRecordsSplit().forEachRemaining(record -> {
-                    SegmentInformationRecords.Base.Builder base = fillInFeatures.apply(record);
-                    synchronized (cache) {
-                        cache.put(record, base);
-                    }
-                }
-        );
         getAllRecords().forEach(record -> {
             record.getSamplesList().forEach(sample -> {
                 SegmentInformationRecords.Sample.Builder sampleBuilder = SegmentInformationRecords.Sample.newBuilder();
+                SegmentInformationRecords.Base.Builder base = fillInFeatures.apply(record);
 
-                SegmentInformationRecords.Base.Builder base = cache.get(record);
                 sampleBuilder.addBase(base);
                 builder.addSample(sampleBuilder);
                 segmentStats[0]++;
@@ -86,9 +79,11 @@ public class Segment {
                 segmentStats[2] = base.getLabelsCount();
             });
         });
+        final SegmentInformationRecords.SegmentInformation built = builder.build();
         try {
             synchronized (writer) {
-                writer.appendEntry(builder.build());
+
+                writer.appendEntry(built);
                 writer.setEntryBases(segmentStats[0]);
                 writer.setEntryLabels(segmentStats[2]);
                 writer.setEntryFeatures(segmentStats[1]);

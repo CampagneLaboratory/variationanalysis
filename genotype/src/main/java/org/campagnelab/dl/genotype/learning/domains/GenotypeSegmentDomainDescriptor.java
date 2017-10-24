@@ -68,6 +68,7 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
             modelProperties.setProperty("genotypes.ploidy", Integer.toString(args().ploidy));
             modelProperties.setProperty("genotypes.ploidy", Integer.toString(args().ploidy));
         }
+        modelProperties.setProperty("genoypes.segments.rnn.kind",args().rnnKind.toString());
     }
 
     private SegmentTrainingArguments args() {
