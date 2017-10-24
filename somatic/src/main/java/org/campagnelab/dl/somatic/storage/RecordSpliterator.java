@@ -111,7 +111,8 @@ public class RecordSpliterator implements Spliterator<BaseInformationRecords.Bas
         if ( ((endIndex - startIndex < 0) || (endIndex - startIndex < 100000000)))
             return null;
         long splitPosition = ((endIndex - startIndex) / 2) + this.startIndex; //we try to split halfway
-        if (splitPosition > this.reader.getCurrentReadPosition()) {
+        long readPosition = this.reader.getCurrentReadPosition();
+        if (splitPosition < readPosition ) {
             //if we passed the current position of the reader, we don't further split
             return null;
         }
