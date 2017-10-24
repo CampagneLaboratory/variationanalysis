@@ -9,24 +9,27 @@ import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.ConfigurableLabelMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
+import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
+import org.campagnelab.dl.genotype.performance.SegmentPerformanceMetricDescriptor;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSegmentsLSTM;
-import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousInterpreter;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
 import org.campagnelab.dl.genotype.mappers.SingleBaseFeatureMapperV1;
 import org.campagnelab.dl.genotype.mappers.SingleBaseLabelMapperV1;
+import org.campagnelab.dl.genotype.predictions.SegmentGenotypePrediction;
+import org.campagnelab.dl.genotype.predictions.SegmentPrediction;
 import org.campagnelab.dl.genotype.predictions.SegmentPredictionInterpreter;
 import org.campagnelab.dl.genotype.tools.SegmentTrainingArguments;
 import org.campagnelab.dl.genotype.storage.SegmentReader;
-import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.BasenameUtils;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationReader;
-import org.nd4j.linalg.api.ndarray.INDArray;
+import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
@@ -159,6 +162,18 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
     }
 
     @Override
+    public Prediction aggregatePredictions(SegmentInformationRecords.SegmentInformation record, List<Prediction> individualOutputPredictions) {
+      if (record==null) {
+        // no record during training from cache.
+          return new SegmentPrediction(null, null,(SegmentGenotypePrediction)individualOutputPredictions.get(0));
+
+      }else{
+          return new SegmentPrediction(record.getStartPosition(), record.getEndPosition(),(SegmentGenotypePrediction)individualOutputPredictions.get(0));
+
+      }
+     }
+
+    @Override
     public Function<String, ? extends Iterable<SegmentInformationRecords.SegmentInformation>> getRecordIterable() {
         return inputFilename -> {
             try {
@@ -178,6 +193,19 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
             assembler.setArguments(arguments);
         }
         return assembler;
+    }
+
+    @Override
+    public PerformanceMetricDescriptor<SegmentInformationRecords.SegmentInformation> performanceDescritor() {
+        return new SegmentPerformanceMetricDescriptor(this) {
+            @Override
+            public double estimateMetric(ComputationGraph graph, String metricName, MultiDataSetIterator dataSetIterator, long scoreN) {
+                if ("score".equals(metricName)) {
+                    return estimateScore(graph, metricName, dataSetIterator, scoreN);
+                }
+                else return super.estimateMetric(graph,metricName,dataSetIterator,scoreN);
+            }
+        };
     }
 
     @Override

@@ -185,9 +185,10 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         performanceLogger = new PerformanceLogger(directory);
         PerformanceMetricDescriptor<RecordType> perfDescriptor = domainDescriptor.performanceDescritor();
 
-        Metric[] metrics = new Metric[perfDescriptor.performanceMetrics().length];
+        final String[] metricNames = perfDescriptor.performanceMetrics();
+        Metric[] metrics = new Metric[metricNames.length];
         for (int i = 0; i < metrics.length; i++) {
-            String metricName = perfDescriptor.performanceMetrics()[i];
+            String metricName = metricNames[i];
             metrics[i] = new Metric(metricName, perfDescriptor.largerValueIsBetterPerformance(metricName));
         }
         performanceLogger.definePerformances(metrics);
@@ -199,7 +200,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         System.out.println("FeatureMapper:" + featureCalculator.getClass().getTypeName());
         System.out.println("ComputationGraphAssembler:" + args().architectureClassname);
 
-        for (String metricName : perfDescriptor.performanceMetrics()) {
+        for (String metricName : metricNames) {
             System.out.println(metricName + " at best epoch: " + performanceLogger.getBest(metricName));
         }
         writeProperties();
