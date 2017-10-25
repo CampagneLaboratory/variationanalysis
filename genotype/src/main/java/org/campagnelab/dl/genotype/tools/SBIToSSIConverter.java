@@ -9,9 +9,7 @@ import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSegmentsLSTM;
 import org.campagnelab.dl.genotype.learning.domains.GenotypeDomainDescriptor;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
-import org.campagnelab.dl.genotype.segments.Segment;
-import org.campagnelab.dl.genotype.segments.SegmentHelper;
-import org.campagnelab.dl.genotype.segments.SegmentLabelMapper;
+import org.campagnelab.dl.genotype.segments.*;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
@@ -41,6 +39,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     private static Function<Segment, Segment> processSegmentFunction;
     private static Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeaturesFunction;
     private static ThreadLocal<SegmentHelper> segmentHelper;
+    private static SplitStrategy splitStrategy = new NoSplitStrategy();
 
     // any genomic site that has strictly more indel supporting reads than the below threshold will be marked has candidateIndel.
     private int candidateIndelThreshold = 0;
@@ -64,7 +63,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         segmentHelper= new ThreadLocal<SegmentHelper>() {
             @Override
             protected SegmentHelper initialValue() {
-                return new SegmentHelper(writer, processSegmentFunction, fillInFeaturesFunction,args().collectStatistics);
+                return new SegmentHelper(writer, processSegmentFunction, fillInFeaturesFunction, splitStrategy, args().collectStatistics);
             }
         };
         int gap = args().gap;
