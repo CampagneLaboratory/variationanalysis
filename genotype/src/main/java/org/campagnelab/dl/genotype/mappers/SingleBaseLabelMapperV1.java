@@ -32,6 +32,8 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
 
     @Override
     public MappedDimensions dimensions() {
+
+        // +1 is for EOS/unknown prediction:
         return new MappedDimensions(numberOfLabelsPerBase, maxSequenceLength);
     }
 
@@ -84,8 +86,14 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
         } else {
             for (int floatPerBaseIndex = 0; floatPerBaseIndex < numberOfLabelsPerBase; floatPerBaseIndex++) {
                 Arrays.fill(data[floatPerBaseIndex], 0);
+
             }
+
             Arrays.fill(mask,0);
+        }
+        // mark EOS as present by default:
+        for (int baseIndex=length;baseIndex<maxSequenceLength;baseIndex++) {
+            data[0][baseIndex] = 1;
         }
         SegmentInformationRecords.Sample sample = record.getSample(sampleIndex);
         int baseCount = Math.min(maxSequenceLength, sample.getBaseCount());
@@ -93,14 +101,16 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
         for (int baseIndex = 0; baseIndex < baseCount; baseIndex++) {
             SegmentInformationRecords.Base base = sample.getBase(baseIndex);
             mask[baseIndex] = 1;
-            assert base.getLabelsCount() == numberOfLabelsPerBase :
+            // NB: one less label is stored in protobuf than used in the model. The extra one in the model is for EOS
+            assert base.getLabelsCount() == numberOfLabelsPerBase-1 :
                     String.format(
                             "the number of labels per base must match between protobuf content and " +
                                     "genotypes.segments.numLabelsPerBase property (in .ssip). " +
                                     "Found %d at base index=%d", base.getLabelsCount(),
                             baseIndex);
-            for (int j = 0; j < numberOfLabelsPerBase; j++) {
-                data[j][baseIndex] = base.getLabels(j);
+            for (int j = 0; j < numberOfLabelsPerBase-1; j++) {
+                // NB: we add 1 to labels to use 0 as unknown/end of string label:
+                data[j+1][baseIndex] = base.getLabels(j);
             }
         }
     }
@@ -113,7 +123,7 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
         ploidy = Integer.parseInt(ploidyString);
         String maxNumberLabelsString = readerProperties.getProperty("maxNumOfLabels");
 
-        this.numberOfLabelsPerBase = Integer.parseInt(maxNumberLabelsString);
+        this.numberOfLabelsPerBase = Integer.parseInt(maxNumberLabelsString)+1;
 
         String maxSequenceLengthString = readerProperties.getProperty("genotypes.segments.maxSequenceLength");
 
