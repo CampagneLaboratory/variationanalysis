@@ -38,4 +38,8 @@ public class SBIToSSIConverterArguments implements ToolArguments {
 
     @Parameter(names = "--collect-statistics", description = "Collect and display statistics.")
     public boolean collectStatistics=false;
+
+    @Parameter(names = "--snp-only", description = "Do not write indel genotypes to the output. This makes for a much simpler prediction problem to help diagnose problems.")
+    public boolean snpOnly;
+
 }

@@ -49,7 +49,7 @@ public class SegmentAdapter implements Iterable<Segment> {
 
         @Override
         public boolean hasNext() {
-            try {
+
                 BaseInformationRecords.BaseInformation record = reader.nextRecord();
                 boolean newSegment = false;
                 if (record != null) {
@@ -67,10 +67,7 @@ public class SegmentAdapter implements Iterable<Segment> {
                 } else {
                     return false;
                 }
-            } catch (IOException e) {
-                LOG.error("Unable to load another record from reader: ", e);
-                throw new InternalError("Unable to load another record from reader: ",e);
-            }
+
         }
 
         @Override

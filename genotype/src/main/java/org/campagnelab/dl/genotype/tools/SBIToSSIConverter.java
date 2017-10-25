@@ -61,10 +61,10 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         if (args().inputFile.isEmpty()) {
             System.err.println("You must provide input SBI files.");
         }
-        segmentHelper= new ThreadLocal<SegmentHelper>() {
+        segmentHelper = new ThreadLocal<SegmentHelper>() {
             @Override
             protected SegmentHelper initialValue() {
-                return new SegmentHelper(writer, processSegmentFunction, fillInFeaturesFunction,args().collectStatistics);
+                return new SegmentHelper(writer, processSegmentFunction, fillInFeaturesFunction, args().collectStatistics);
             }
         };
         int gap = args().gap;
@@ -89,56 +89,63 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
 
         FeatureMapper featureMapper = domainDescriptor.getFeatureMapper("input");
         //LabelMapper labelMapper=domainDescriptor.getFeatureMapper("input");
+        if (args().snpOnly) {
+            processSegmentFunction = segment -> {
+                // remove all indesl
+                segment.recordList.removeWhere(record -> record.getTrueGenotype().length() > 3);
+                return segment;
+            };
+        } else {
+            processSegmentFunction = segment -> {
+                segment.populateTrueGenotypes();
+                BaseInformationRecords.BaseInformation previous = null;
+                BaseInformationRecords.BaseInformation buildFrom = null;
 
-        processSegmentFunction = segment -> {
-            segment.populateTrueGenotypes();
-            BaseInformationRecords.BaseInformation previous = null;
-            BaseInformationRecords.BaseInformation buildFrom = null;
+                for (BaseInformationRecords.BaseInformation record : segment.recordList) {
 
-            for (BaseInformationRecords.BaseInformation record : segment.recordList) {
-
-                buildFrom = record;
-                if (record.getTrueGenotype().length() > 3) {
-                    Set<String> alleles = GenotypeHelper.getAlleles(record.getTrueGenotype());
-                    for (String allele : alleles) {
-                        if (allele.length() > 1) {
-                            String insertionOrDeletion = getInsertedDeleted(allele);
-                            int offset = 1;
-                            for (char insertedDeleted : insertionOrDeletion.toCharArray()) {
-                                previous = segment.recordList.insertAfter(previous, buildFrom, insertedDeleted, offset++);
+                    buildFrom = record;
+                    if (record.getTrueGenotype().length() > 3) {
+                        Set<String> alleles = GenotypeHelper.getAlleles(record.getTrueGenotype());
+                        for (String allele : alleles) {
+                            if (allele.length() > 1) {
+                                String insertionOrDeletion = getInsertedDeleted(allele);
+                                int offset = 1;
+                                for (char insertedDeleted : insertionOrDeletion.toCharArray()) {
+                                    previous = segment.recordList.insertAfter(previous, buildFrom, insertedDeleted, offset++);
+                                }
                             }
                         }
+                        // long genotypes need to be trimmed to the first base after this point. We don't do it here because
+                        // it would modify the data structure currently traversed.
                     }
-                    // long genotypes need to be trimmed to the first base after this point. We don't do it here because
-                    // it would modify the data structure currently traversed.
+
+                    previous = record;
                 }
 
-                previous = record;
-            }
-
-            segment.recordList.forEach(record -> {
-                int longestIndelLength = 0;
-                for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()) {
-                    for (BaseInformationRecords.CountInfo count : sample.getCountsList()) {
-                        if (count.getIsIndel()) {
-                            longestIndelLength = Math.max(longestIndelLength, count.getFromSequence().length());
-                            longestIndelLength = Math.max(longestIndelLength, count.getToSequence().length());
+                segment.recordList.forEach(record -> {
+                    int longestIndelLength = 0;
+                    for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()) {
+                        for (BaseInformationRecords.CountInfo count : sample.getCountsList()) {
+                            if (count.getIsIndel()) {
+                                longestIndelLength = Math.max(longestIndelLength, count.getFromSequence().length());
+                                longestIndelLength = Math.max(longestIndelLength, count.getToSequence().length());
+                            }
                         }
+
+                    }
+                    for (int offset = 1; offset < longestIndelLength; offset++) {
+                        BaseInformationRecords.BaseInformation.Builder copy = record.toBuilder();
+                        //    System.out.printf("record position: %d %n",record.getPosition());
+                        copy = segment.recordList.adjustCounts(copy, offset);
+                        segment.insertAfter(record, copy);
                     }
 
-                }
-                for (int offset = 1; offset < longestIndelLength; offset++) {
-                    BaseInformationRecords.BaseInformation.Builder copy = record.toBuilder();
-                    //    System.out.printf("record position: %d %n",record.getPosition());
-                    copy = segment.recordList.adjustCounts(copy, offset);
-                    segment.insertAfter(record, copy);
-                }
 
+                });
 
-            });
-
-            return segment;
-        };
+                return segment;
+            };
+        }
         SegmentLabelMapper labelMapper = new SegmentLabelMapper(args().ploidy);
 
 
@@ -146,6 +153,8 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
             SegmentInformationRecords.Base.Builder builder = SegmentInformationRecords.Base.newBuilder();
             String trueGenotype = baseInformation.getTrueGenotype();
+            builder.addAllTrueLabel(GenotypeHelper.getAlleles(trueGenotype));
+
             builder.setHasCandidateIndel(hasCandidateIndel(baseInformation));
             builder.setHasTrueIndel(
                     GenotypeHelper.isIndel(baseInformation.getReferenceBase(), baseInformation.getTrueGenotype()));

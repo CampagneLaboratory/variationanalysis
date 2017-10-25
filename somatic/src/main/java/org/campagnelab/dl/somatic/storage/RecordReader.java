@@ -48,7 +48,7 @@ public class RecordReader implements Closeable, RecordIterable<BaseInformationRe
      * @return the record
      * @throws IOException
      */
-    public BaseInformationRecords.BaseInformation nextRecord() throws IOException {
+    public BaseInformationRecords.BaseInformation nextRecord()  {
         try {
             if (reader.hasNext()) return reader.next();
             else return null;
