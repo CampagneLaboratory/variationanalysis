@@ -39,6 +39,7 @@ public class SegmentTrainingPerformanceHelper extends PredictWithModel<SegmentIn
                                     ComputationGraph graph,
                                     Predicate<Integer> stopIfTrue) {
         validationScore = 0;
+        n=0;
         return estimateWithGraph(iterator, graph, stopIfTrue, genotypePrediction -> {
         }, score -> {
             validationScore += score;
