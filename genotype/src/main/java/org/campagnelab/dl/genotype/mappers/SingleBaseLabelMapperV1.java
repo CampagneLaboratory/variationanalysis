@@ -5,7 +5,9 @@ import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
+import java.util.Arrays;
 import java.util.Properties;
 
 /**
@@ -13,6 +15,7 @@ import java.util.Properties;
  */
 public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRecords.SegmentInformation>, ConfigurableLabelMapper {
     private final int sampleIndex;
+    private float[] mask;
 
     public SingleBaseLabelMapperV1(int sampleIndex) {
         this.sampleIndex = sampleIndex;
@@ -32,22 +35,22 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
         return new MappedDimensions(numberOfLabelsPerBase, maxSequenceLength);
     }
 
-    int[] indices = new int[]{0, 0, 0};
 
     @Override
     public void mapLabels(SegmentInformationRecords.SegmentInformation record, INDArray labels, int indexOfRecord) {
-        indices[0] = indexOfRecord;
-        for (int k = 0; k < numberOfLabels(); k++) {
-            indices[2] = k % numberOfLabelsPerBase;
-            indices[1] = k / numberOfLabelsPerBase;
-            labels.putScalar(indices, produceLabel(record, k));
-        }
+        INDArray dataCopy = Nd4j.create(data);
+        dataCopy.detach();
+        INDArray row = labels.tensorAlongDimension(indexOfRecord, 1, 2);
+        row.assign(dataCopy);
+
 
     }
 
     @Override
     public float produceLabel(SegmentInformationRecords.SegmentInformation record, int labelIndex) {
-        return data[labelIndex % numberOfLabelsPerBase][labelIndex / numberOfLabelsPerBase];
+        int colIndex = labelIndex % numberOfLabelsPerBase;
+        int rowIndex = labelIndex / numberOfLabelsPerBase;
+        return data[colIndex][rowIndex];
     }
 
 
@@ -58,17 +61,16 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
 
     @Override
     public void maskLabels(SegmentInformationRecords.SegmentInformation record, INDArray mask, int indexOfRecord) {
-        for (int i = 0; i < maxSequenceLength; i++) {
-            mask.putScalar(indexOfRecord, i, (double) i < record.getLength() ? 1 : 0);
-        }
+        INDArray recordMask=Nd4j.create(this.mask);
+        recordMask.detach();
+        INDArray row = mask.tensorAlongDimension(indexOfRecord, 1);
+        row.assign(recordMask);
 
     }
 
     @Override
     public boolean isMasked(SegmentInformationRecords.SegmentInformation record, int featureIndex) {
-        int i = featureIndex / numberOfLabelsPerBase;
-        int j = featureIndex % numberOfLabelsPerBase;
-        return i < record.getLength();
+        return this.mask[featureIndex]>0;
     }
 
     float[][] data;
@@ -78,35 +80,32 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
         final int length = record.getLength();
         if (data == null) {
             data = new float[numberOfLabelsPerBase][maxSequenceLength];
+            mask = new float[maxSequenceLength];
         } else {
-            for (int baseIndex = 0; baseIndex < maxSequenceLength; baseIndex++) {
-                for (int floatPerBaseIndex = 0; floatPerBaseIndex < numberOfLabelsPerBase; floatPerBaseIndex++) {
-                    data[floatPerBaseIndex][baseIndex] = 0;
-                }
+            for (int floatPerBaseIndex = 0; floatPerBaseIndex < numberOfLabelsPerBase; floatPerBaseIndex++) {
+                Arrays.fill(data[floatPerBaseIndex], 0);
             }
+            Arrays.fill(mask,0);
         }
         SegmentInformationRecords.Sample sample = record.getSample(sampleIndex);
         int baseCount = Math.min(maxSequenceLength, sample.getBaseCount());
-        for (int i = 0; i < baseCount; i++) {
-            SegmentInformationRecords.Base base = sample.getBase(i);
+
+        for (int baseIndex = 0; baseIndex < baseCount; baseIndex++) {
+            SegmentInformationRecords.Base base = sample.getBase(baseIndex);
+            mask[baseIndex] = 1;
+            assert base.getLabelsCount() == numberOfLabelsPerBase :
+                    String.format(
+                            "the number of labels per base must match between protobuf content and " +
+                                    "genotypes.segments.numLabelsPerBase property (in .ssip). " +
+                                    "Found %d at base index=%d", base.getLabelsCount(),
+                            baseIndex);
             for (int j = 0; j < numberOfLabelsPerBase; j++) {
-                data[j][i] = base.getLabels(j);
+                data[j][baseIndex] = base.getLabels(j);
             }
         }
     }
 
 
-    public static int getNumValues(int ploidy, int numAlleles) {
-        if (ploidy == 0) {
-            return numAlleles;
-        }
-        int increment = getNumValues(ploidy - 1, numAlleles);
-        int count = 0;
-        for (int i = 0; i < numAlleles; i++) {
-            count += (--increment);
-        }
-        return count;
-    }
 
     @Override
     public void configure(Properties readerProperties) {
