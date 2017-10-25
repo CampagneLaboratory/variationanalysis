@@ -31,5 +31,7 @@ public class SSIRandomizerArguments implements ToolArguments {
     @Parameter(required=false, names = { "--random-seed"}, description = "Seed for random generator used to randomizing entries.")
     long randomSeed=232323;
 
+    @Parameter(required=false, names = { "--read-N"}, description = "read up to N segments per input file.")
+    long readN=Long.MAX_VALUE;
 
 }
