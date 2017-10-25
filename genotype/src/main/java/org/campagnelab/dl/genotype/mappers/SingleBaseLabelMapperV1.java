@@ -86,7 +86,8 @@ public class SingleBaseLabelMapperV1 implements LabelMapper<SegmentInformationRe
             }
         }
         SegmentInformationRecords.Sample sample = record.getSample(sampleIndex);
-        for (int i = 0; i < sample.getBaseCount(); i++) {
+        int baseCount = Math.min(maxSequenceLength, sample.getBaseCount());
+        for (int i = 0; i < baseCount; i++) {
             SegmentInformationRecords.Base base = sample.getBase(i);
             for (int j = 0; j < numberOfLabelsPerBase; j++) {
                 data[j][i] = base.getLabels(j);

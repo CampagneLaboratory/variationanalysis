@@ -90,7 +90,7 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
             Arrays.fill(mask,0);
         }
         SegmentInformationRecords.Sample sample = record.getSample(sampleIndex);
-        final int numberOfBases = sample.getBaseCount();
+        final int numberOfBases = Math.min(maxSequenceLength, sample.getBaseCount());
         for (int baseIndex = 0; baseIndex < numberOfBases; baseIndex++) {
             SegmentInformationRecords.Base base = sample.getBase(baseIndex);
             mask[baseIndex] = 1;
