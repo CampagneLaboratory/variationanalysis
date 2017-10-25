@@ -309,7 +309,13 @@ public class PerformanceLogger {
                 String result = "";
                 int index = 0;
                 for (double value : performanceValues) {
-                    result += String.format("%f", value);
+                    if (Math.round(value) == value) {
+                        // it's an integer, print it as such:
+                        result += String.format("%d", (int)Math.round(value));
+                    } else {
+
+                        result += String.format("%f", value);
+                    }
                     index += 1;
                     if (index < performanceValues.length) {
                         result += "\t";
