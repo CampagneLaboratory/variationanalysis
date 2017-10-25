@@ -43,21 +43,22 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
     public SegmentGenotypePrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
         SegmentGenotypePrediction prediction = new SegmentGenotypePrediction();
         prediction.index = predictionIndex;
-        final int size = output.size(1);
-        prediction.probabilities = new float[size];
+        //final int numLabels = output.size(1);
+        final int sequenceLength=output.size(2);
+        prediction.probabilities = new float[sequenceLength];
         INDArray predictedRow = output.getRow(predictionIndex);
         INDArray trueLabelRow = trueLabels.getRow(predictionIndex);
         INDArray predictedMaxIndices = Nd4j.argMax(predictedRow, 0);
         INDArray trueMaxIndices = Nd4j.argMax(trueLabelRow, 0);
-        prediction.predictedGenotypes=new String[size];
-        prediction.trueGenotypes=new String[size];
-        for (int i = 0; i < size; i++) {
+        prediction.predictedGenotypes=new String[sequenceLength];
+        prediction.trueGenotypes=new String[sequenceLength];
+        for (int baseIndex = 0; baseIndex < sequenceLength; baseIndex++) {
 
-            final int predictedMaxIndex = predictedMaxIndices.getInt(i);
-            final int trueMaxIndex = trueMaxIndices.getInt(i);
-            prediction.probabilities[i] = predictedRow.getFloat(predictedMaxIndex);
-            prediction.predictedGenotypes[i] = indicesToGenotypesMap.get(predictedMaxIndex);
-            prediction.trueGenotypes[i]=indicesToGenotypesMap.get(trueMaxIndex);
+            final int predictedMaxIndex = predictedMaxIndices.getInt(baseIndex);
+            final int trueMaxIndex = trueMaxIndices.getInt(baseIndex);
+            prediction.probabilities[baseIndex] = predictedRow.getFloat(predictedMaxIndex);
+            prediction.predictedGenotypes[baseIndex] = indicesToGenotypesMap.get(predictedMaxIndex);
+            prediction.trueGenotypes[baseIndex]=indicesToGenotypesMap.get(trueMaxIndex);
         }
         return prediction;
     }
