@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * Holds the current open segment before it is stored in the list.
  */
 public class Segment {
-    protected final Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures;
+    public final Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures;
     private int firstPosition = 0;
     private int firstReferenceIndex = 0;
     private String firstReferenceId = "";
@@ -28,7 +28,7 @@ public class Segment {
     private int lastReferenceIndex = 0;
     public RecordList recordList = new RecordList();
 
-    Segment(Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures, BaseInformationRecords.BaseInformation first) {
+    public Segment(Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures, BaseInformationRecords.BaseInformation first) {
         //System.out.println("Open a new segment at ref " + first.getReferenceId() + " position " + Integer.toString(first.getPosition()));
         this.add(first);
         this.firstPosition = first.getPosition();
@@ -48,7 +48,7 @@ public class Segment {
      *
      * @param writer
      */
-    public void writeTo(SequenceSegmentInformationWriter writer) throws IOException { {
+    public void writeTo(SequenceSegmentInformationWriter writer) throws IOException {
         SegmentInformationRecords.SegmentInformation.Builder builder = SegmentInformationRecords.SegmentInformation.newBuilder();
         SegmentInformationRecords.ReferencePosition.Builder refBuilder = SegmentInformationRecords.ReferencePosition.newBuilder();
         refBuilder.setLocation(this.getFirstPosition());
@@ -85,8 +85,6 @@ public class Segment {
             }
         });
         for (int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
-
-
             builder.addSample(  sampleBuilder[sampleIndex] );
         }
 
@@ -105,7 +103,7 @@ public class Segment {
      *
      * @param record
      */
-    protected void add(BaseInformationRecords.BaseInformation record) {
+    public void add(BaseInformationRecords.BaseInformation record) {
         this.recordList.add(record);
         this.setAsLast(record);
     }
