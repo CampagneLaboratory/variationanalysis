@@ -1,16 +1,12 @@
 package org.campagnelab.dl.genotype.tools;
 
-import it.unimi.dsi.fastutil.floats.FloatArrayList;
-import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
-import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSegmentsLSTM;
 import org.campagnelab.dl.genotype.learning.domains.GenotypeDomainDescriptor;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
 import org.campagnelab.dl.genotype.segments.*;
-import org.campagnelab.dl.genotype.segments.splitting.NoSplitStrategy;
 import org.campagnelab.dl.genotype.segments.splitting.SingleCandidateIndelSplitStrategy;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -24,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.StreamSupport;
@@ -62,12 +57,10 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         if (args().inputFile.isEmpty()) {
             System.err.println("You must provide input SBI files.");
         }
-        Consumer<Segment> segmentConsumer= segment -> {
-            try {
-                segment.writeTo(writer);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer= segment -> {
+
+                writer.appendEntry(segment);
+
         };
 
         segmentHelper = new ThreadLocal<SegmentHelper>() {
