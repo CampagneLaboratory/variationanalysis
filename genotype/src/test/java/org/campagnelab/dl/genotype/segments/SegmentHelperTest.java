@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.segments;
 
 
+import org.campagnelab.dl.genotype.segments.splitting.NoSplitStrategy;
 import org.campagnelab.dl.genotype.tools.SBIToSSIConverterArguments;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
