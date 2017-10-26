@@ -28,7 +28,7 @@ public class AccuracySegmentAccumulator extends SegmentStatsAccumulator {
         correct += fullPred.numPredictionsWhere(
                 (segmentGenotypePrediction, baseIndex) ->
                         segmentGenotypePrediction.trueGenotypes[baseIndex]!=null &&
-                                segmentGenotypePrediction.predictedGenotypes[baseIndex].equals(segmentGenotypePrediction.trueGenotypes[baseIndex]) );
+                                segmentGenotypePrediction.trueGenotypes[baseIndex].equals(segmentGenotypePrediction.predictedGenotypes[baseIndex]));
         n += fullPred.numBases();
 
     }
