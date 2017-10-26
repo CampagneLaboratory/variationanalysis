@@ -178,11 +178,8 @@ public class BaseInformationIterator implements NamedDataSetIterator, Closeable 
         if (nextPosRecord != null) {
             return true;
         }
-        try {
-            this.nextPosRecord = reader.nextRecord();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.nextPosRecord = reader.nextRecord();
+
         return nextPosRecord != null;
     }
 
@@ -203,11 +200,8 @@ public class BaseInformationIterator implements NamedDataSetIterator, Closeable 
         if (nextPosRecord != null) {
             return true;
         }
-        try {
-            this.nextPosRecord = reader.nextRecord();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
+           this.nextPosRecord = reader.nextRecord();
         return nextPosRecord != null;
     }
 

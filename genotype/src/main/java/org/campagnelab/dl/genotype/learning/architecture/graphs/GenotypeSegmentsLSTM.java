@@ -6,27 +6,18 @@ import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
-import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
-import org.campagnelab.dl.genotype.performance.BEDHelper;
 import org.campagnelab.dl.genotype.tools.SegmentTrainingArguments;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
-import org.deeplearning4j.nn.conf.graph.MergeVertex;
-import org.deeplearning4j.nn.conf.graph.rnn.LastTimeStepVertex;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.graph.vertex.impl.InputVertex;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.activations.impl.ActivationSoftmax;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
-
-import java.util.Set;
-
-import static org.deeplearning4j.nn.conf.inputs.InputType.Type.RNN;
 
 /**
  * A computational graph with an LSTM over bases in a genomic segment [input is 2D].
@@ -89,8 +80,10 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
         String lstmInputName = "input";
         String lstmLayerName = "no layer";
         String topLayerName = "n/a";
-        int countInput = numLSTMInputs;
-        componentNames.add("input");
+        int countInput = args().useInputLink ? numLSTMInputs : 0;
+        if (args().useInputLink) {
+            componentNames.add("input");
+        }
         for (int i = 0; i < numLSTMLayers; i++) {
             lstmLayerName = "lstm_" + lstmInputName + "_" + i;
             String lstmPreviousLayerName = i == 0 ? lstmInputName : "lstm_" + lstmInputName + "_" + (i - 1);
@@ -99,20 +92,20 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
             BaseRecurrentLayer.Builder rnnBuilder;
             switch (arguments.rnnKind) {
                 case CUDNN_LSTM:
-                    rnnBuilder= new LSTM.Builder();
-                    ((LSTM.Builder)rnnBuilder)   .nOut(numHiddenNodes);
+                    rnnBuilder = new LSTM.Builder();
+                    ((LSTM.Builder) rnnBuilder).nOut(numHiddenNodes);
                     break;
                 case DL4J_BidirectionalGraves:
-                    rnnBuilder= new GravesBidirectionalLSTM.Builder();
-                    ((GravesBidirectionalLSTM.Builder)rnnBuilder)   .nOut(numHiddenNodes);
+                    rnnBuilder = new GravesBidirectionalLSTM.Builder();
+                    ((GravesBidirectionalLSTM.Builder) rnnBuilder).nOut(numHiddenNodes);
 
                     break;
                 case DL4J_Graves:
-                    rnnBuilder= new GravesLSTM.Builder();
-                    ((GravesLSTM.Builder)rnnBuilder)   .nOut(numHiddenNodes);
+                    rnnBuilder = new GravesLSTM.Builder();
+                    ((GravesLSTM.Builder) rnnBuilder).nOut(numHiddenNodes);
                     break;
                 default:
-                    throw new InternalError("RNN kind not supported: "+arguments.rnnKind);
+                    throw new InternalError("RNN kind not supported: " + arguments.rnnKind);
             }
 
             build.addLayer(lstmLayerName, rnnBuilder
@@ -122,6 +115,7 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
                     .build(), lstmPreviousLayerName);
             countInput += numHiddenNodes;
             componentNames.add(lstmLayerName);
+
         }
 
         final int genotypeNumOutputs = domainDescriptor.getNumOutputs("genotype")[0];

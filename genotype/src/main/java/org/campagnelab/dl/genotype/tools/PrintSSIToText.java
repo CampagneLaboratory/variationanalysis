@@ -24,6 +24,7 @@ public class PrintSSIToText extends AbstractTool<PrintSSIToTextArguments> {
         tool.parseArguments(args, "PrintSSIToText", tool.createArguments());
         tool.execute();
     }
+
     @Override
     public PrintSSIToTextArguments createArguments() {
         return new PrintSSIToTextArguments();
@@ -39,8 +40,32 @@ public class PrintSSIToText extends AbstractTool<PrintSSIToTextArguments> {
 
             source = new SegmentReader(args().inputFile);
 
-            for (SegmentInformationRecords.SegmentInformation segment : source)
+            for (SegmentInformationRecords.SegmentInformation segment : source) {
+                if (args().removeFeatures || args().removeLabels) {
+                    SegmentInformationRecords.SegmentInformation.Builder segBuilder = segment.toBuilder();
+                    int sampleIndex = 0;
+                    for (SegmentInformationRecords.Sample sample : segBuilder.getSampleList()) {
+                        SegmentInformationRecords.Sample.Builder sampleBuilder = sample.toBuilder();
+                        int baseIndex = 0;
+
+                        for (SegmentInformationRecords.Base base : sample.getBaseList()) {
+                            SegmentInformationRecords.Base.Builder baseBuilder = base.toBuilder();
+                            if (args().removeFeatures) {
+                                baseBuilder.clearFeatures();
+                            }
+                            if (args().removeLabels) {
+                                baseBuilder.clearLabels();
+                            }
+                            sampleBuilder.setBase(baseIndex, baseBuilder);
+                            baseIndex++;
+                        }
+                        segBuilder.setSample(sampleIndex, sampleBuilder);
+                    }
+                    segment=segBuilder.build();
+                }
                 TextFormat.print(segment, System.out);
+
+            }
             source.close();
             System.out.println("Total records: " + totalRecords);
 

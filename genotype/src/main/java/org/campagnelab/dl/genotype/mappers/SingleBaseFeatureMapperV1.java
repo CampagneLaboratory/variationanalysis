@@ -36,15 +36,16 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
     int[] indices = new int[]{0, 0, 0};
 
     @Override
-    public void mapFeatures(SegmentInformationRecords.SegmentInformation record, INDArray labels, int indexOfRecord) {
+    public void mapFeatures(SegmentInformationRecords.SegmentInformation record, INDArray features, int indexOfRecord) {
         assert maxSequenceLength > 0 : "maxSequenceLength must be positive";
         assert numberOfFeaturesPerBase > 0 : "numberOfFeaturesPerBase must be positive";
 
-        indices[0] = indexOfRecord;
         INDArray dataCopy = Nd4j.create(data);
         dataCopy.detach();
-        INDArray row = labels.tensorAlongDimension(indexOfRecord, 1, 2);
+        INDArray row = features.tensorAlongDimension(indexOfRecord, 1, 2);
         row.assign(dataCopy);
+  //      System.out.printf("indexOfRecord: %d features:\n%s",indexOfRecord,features);
+    //    System.out.println("---");
 
     }
 
@@ -90,7 +91,7 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
             Arrays.fill(mask,0);
         }
         SegmentInformationRecords.Sample sample = record.getSample(sampleIndex);
-        final int numberOfBases = sample.getBaseCount();
+        final int numberOfBases = Math.min(maxSequenceLength, sample.getBaseCount());
         for (int baseIndex = 0; baseIndex < numberOfBases; baseIndex++) {
             SegmentInformationRecords.Base base = sample.getBase(baseIndex);
             mask[baseIndex] = 1;

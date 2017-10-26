@@ -62,23 +62,34 @@ public class Segment {
         builder.setEndPosition(refBuilder.build());
         builder.setLength(actualLength());
         final long[] segmentStats = {0L, 0L, 0L};
+        int numSamples = recordList.first().getSamplesCount();
+        SegmentInformationRecords.Sample.Builder sampleBuilder[] = new SegmentInformationRecords.Sample.Builder[numSamples];
+        for (int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
 
-        final Object2ObjectMap<BaseInformationRecords.BaseInformation,
-                SegmentInformationRecords.Base.Builder> cache = new Object2ObjectOpenHashMap<>();
+            sampleBuilder[sampleIndex] = SegmentInformationRecords.Sample.newBuilder();
+
+        }
 
         getAllRecords().forEach(record -> {
-            record.getSamplesList().forEach(sample -> {
-                SegmentInformationRecords.Sample.Builder sampleBuilder = SegmentInformationRecords.Sample.newBuilder();
+
+            for (int sampleIndex=0; sampleIndex<numSamples;sampleIndex++)
+            {
                 SegmentInformationRecords.Base.Builder base = fillInFeatures.apply(record);
 
-                sampleBuilder.addBase(base);
-                builder.addSample(sampleBuilder);
+                sampleBuilder[sampleIndex].addBase(base);
                 segmentStats[0]++;
                 //System.out.println("New base " + segmentStats[0] );
                 segmentStats[1] = base.getFeaturesCount();
                 segmentStats[2] = base.getLabelsCount();
-            });
+
+            }
         });
+        for (int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
+
+
+            builder.addSample(  sampleBuilder[sampleIndex] );
+        }
+
         final SegmentInformationRecords.SegmentInformation built = builder.build();
         try {
             synchronized (writer) {
@@ -90,7 +101,7 @@ public class Segment {
             }
 
         } catch (IOException e) {
-            throw new InternalError("Unable to write entry.",e);
+            throw new InternalError("Unable to write entry.", e);
 
         }
     }

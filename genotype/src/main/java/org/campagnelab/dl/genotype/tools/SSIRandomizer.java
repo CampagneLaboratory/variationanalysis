@@ -4,10 +4,12 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import org.apache.commons.io.FileUtils;
+import org.apache.tools.ant.taskdefs.Basename;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.genotype.storage.SegmentReader;
 import org.campagnelab.dl.genotype.storage.SegmentWriter;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
+import org.campagnelab.goby.baseinfo.BasenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +49,7 @@ public class SSIRandomizer extends AbstractTool<SSIRandomizerArguments> {
             long totalRecords = 0;
             for (String filename : args().inputFiles) {
                 SegmentReader source = new SegmentReader(filename);
-                totalRecords += source.getTotalRecords();
+                totalRecords += Math.min(args().readN,source.getTotalRecords());
                 source.close();
             }
             int numBuckets = (int) (totalRecords / arguments.recordsPerBucket) + 1;
@@ -69,10 +71,14 @@ public class SSIRandomizer extends AbstractTool<SSIRandomizerArguments> {
             System.out.println("Filling " + numBuckets + " temp buckets randomly");
             for (String filename : args().inputFiles) {
                 SegmentReader source = new SegmentReader(filename);
+                long count=0;
                 for (SegmentInformationRecords.SegmentInformation rec : source) {
                     int bucket = rand.nextInt(numBuckets);
                     bucketWriters.get(bucket).writeRecord(rec);
                     pgRead.lightUpdate();
+                    count++;
+                    if (count>args().readN) break;
+
                 }
                 source.close();
                 System.gc();
@@ -112,7 +118,10 @@ public class SSIRandomizer extends AbstractTool<SSIRandomizerArguments> {
             }
             pgTempBucket.stop();
             allWriter.close();
-
+            final String sourceFilename = args().inputFiles.get(0);
+            String sourceBasename = BasenameUtils.getBasename(sourceFilename,".ssi",".ssip");
+            String destBasename = BasenameUtils.getBasename(args().outputFile,".ssi",".ssip");
+            FileUtils.copyFile(new File(sourceBasename + ".ssip"), new File(destBasename + ".ssip"));
             //delete temp files
             FileUtils.deleteDirectory(new File((workingDir + "/tmp")));
 

@@ -17,6 +17,7 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
 
     /**
      * Create a SegmentPredictionInterpreter to interpret the "genotype" output.
+     *
      * @param segmentPropertiesFilename Path the .ssip file where the mapping between genotypes and integer is defined.
      */
     public SegmentPredictionInterpreter(String segmentPropertiesFilename) {
@@ -28,8 +29,8 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
             assert numString != null : "property genotype.segment.label.numOfEntries must exist in .ssip";
             int numGenotypes = Integer.parseInt(numString);
             for (int i = 0; i < numGenotypes; i++) {
-                String genotype=ssip.getProperty(String.format("genotype.segment.label.%d",i));
-                indicesToGenotypesMap.put(i,genotype);
+                String genotype = ssip.getProperty(String.format("genotype.segment.label.%d", i));
+                indicesToGenotypesMap.put(i + 1, genotype);
             }
         } catch (IOException e) {
             throw new InternalError("Unable to load genotype mapping from ssip: " + segmentPropertiesFilename);
@@ -43,21 +44,26 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
     public SegmentGenotypePrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
         SegmentGenotypePrediction prediction = new SegmentGenotypePrediction();
         prediction.index = predictionIndex;
-        final int size = output.size(1);
-        prediction.probabilities = new float[size];
+        //final int numLabels = output.size(1);
+        final int sequenceLength = output.size(2);
+        prediction.probabilities = new float[sequenceLength];
         INDArray predictedRow = output.getRow(predictionIndex);
         INDArray trueLabelRow = trueLabels.getRow(predictionIndex);
         INDArray predictedMaxIndices = Nd4j.argMax(predictedRow, 0);
         INDArray trueMaxIndices = Nd4j.argMax(trueLabelRow, 0);
-        prediction.predictedGenotypes=new String[size];
-        prediction.trueGenotypes=new String[size];
-        for (int i = 0; i < size; i++) {
+        prediction.predictedGenotypes = new String[sequenceLength];
+        prediction.trueGenotypes = new String[sequenceLength];
+        for (int baseIndex = 0; baseIndex < sequenceLength; baseIndex++) {
 
-            final int predictedMaxIndex = predictedMaxIndices.getInt(i);
-            final int trueMaxIndex = trueMaxIndices.getInt(i);
-            prediction.probabilities[i] = predictedRow.getFloat(predictedMaxIndex);
-            prediction.predictedGenotypes[i] = indicesToGenotypesMap.get(predictedMaxIndex);
-            prediction.trueGenotypes[i]=indicesToGenotypesMap.get(trueMaxIndex);
+            final int predictedMaxIndex = predictedMaxIndices.getInt(baseIndex);
+            final int trueMaxIndex = trueMaxIndices.getInt(baseIndex);
+            prediction.probabilities[baseIndex] = predictedRow.getFloat(predictedMaxIndex);
+            prediction.predictedGenotypes[baseIndex] = predictedMaxIndex == 0 ? null : indicesToGenotypesMap.get(predictedMaxIndex);
+            prediction.trueGenotypes[baseIndex] = trueMaxIndex == 0 ? null : indicesToGenotypesMap.get(trueMaxIndex);
+          /*  if (prediction.predictedGenotypes[baseIndex] != null ||
+                    prediction.trueGenotypes[baseIndex]!=null) prediction.length += 1;*/
+            // assume we know the length of the sequence (we do, since it is the number of features we collected.)
+            if (prediction.trueGenotypes[baseIndex] != null) prediction.length += 1;
         }
         return prediction;
     }

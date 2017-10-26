@@ -26,8 +26,12 @@ public class SSIRandomizerArguments implements ToolArguments {
     public String outputFile;
 
     @Parameter(required = false, names = {"-c", "--chunk-size"}, description = "Size of chunks for each bucket writer.")
-    public int chunkSizePerWriter = 1000;
+    public int chunkSizePerWriter = 100;
 
     @Parameter(required=false, names = { "--random-seed"}, description = "Seed for random generator used to randomizing entries.")
     long randomSeed=232323;
+
+    @Parameter(required=false, names = { "--read-N"}, description = "read up to N segments per input file.")
+    long readN=Long.MAX_VALUE;
+
 }

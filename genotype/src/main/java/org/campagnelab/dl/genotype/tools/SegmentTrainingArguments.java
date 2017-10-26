@@ -29,4 +29,7 @@ public class SegmentTrainingArguments extends TrainingArguments {
 
     @Parameter(names = "--num-layers", description = "The number of LSTM  layers in the model.")
     public int numLayers = 1;
+
+    @Parameter(names = "--add-input-link", description = "Add a direct link between the input and genotype output.")
+    public boolean useInputLink =false;
 }

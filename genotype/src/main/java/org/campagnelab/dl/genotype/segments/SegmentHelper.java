@@ -32,7 +32,8 @@ public class SegmentHelper {
 
     /**
      * Creates a new list and a first segment starting from the given record.
-     *  @param writer         Where the segments will be written when completed.
+     *
+     * @param writer         Where the segments will be written when completed.
      * @param function       the function applied to process the records when the segment is completed.
      * @param fillInFeatures The function used to fill in features and labels for a post-processed SSI segment.
      * @param splitStrategy
@@ -84,19 +85,18 @@ public class SegmentHelper {
                 Segment processed = this.function.apply(segment);
                 processed.flush(writer);
 
-                if (processed.actualLength()>300) {
-                    //System.out.println(processed);
-                    //System.out.println("STOP");
+                if (processed.actualLength() > 300) {
+                    System.out.println(processed);
+                    System.out.println("STOP");
                 }
             } catch (NullPointerException npe) {
                 LOG.error("Failed to process segments: ", npe);
-                segment.flush(writer);
-                //System.out.println(segment);
+                currentSegment.flush(writer);
+                System.out.println(currentSegment);
             } finally {
                 this.updateStats();
             }
         }
-
     }
 
     public void add(BaseInformationRecords.BaseInformation record) {

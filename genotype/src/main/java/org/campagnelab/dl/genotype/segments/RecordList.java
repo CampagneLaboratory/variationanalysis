@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
+import java.util.function.Predicate;
 
 public class RecordList implements Iterable<BaseInformationRecords.BaseInformation> {
     static private Logger LOG = LoggerFactory.getLogger(RecordList.class);
@@ -38,6 +39,14 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
         return records.iterator();
     }
 
+    /**
+     * Get the first record, if there is one, or null otherwise.
+     * @return
+     */
+    public BaseInformationRecords.BaseInformation first() {
+        if (records.isEmpty()) return null;
+        return records.get(0);
+    }
 
     public int size() {
         return records.size();
@@ -138,4 +147,8 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
     }
 
 
+    public void removeWhere(Predicate<BaseInformationRecords.BaseInformation> predicateIsTrue) {
+        records.removeIf(predicateIsTrue);
+
+    }
 }
