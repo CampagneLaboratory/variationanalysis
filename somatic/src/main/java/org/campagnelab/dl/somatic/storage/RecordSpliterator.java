@@ -20,14 +20,16 @@ public class RecordSpliterator implements Spliterator<BaseInformationRecords.Bas
     private final RecordReader reader;
     private final long startIndex; // the index of the first byte to read
     private final String sourceSBI;
+    private int maxSplits;
     private long endIndex; // the index of the last byte to read
     private final long maxLength; //length in bytes of the input SBI
     private final long minLength; // minimun number of bytes assigned to a single spliterator
 
-    public RecordSpliterator(String sourceSBI, long startIndex, long endIndex, long maxLength) {
+    public RecordSpliterator(String sourceSBI, long startIndex, long endIndex, long maxLength, int maxSplits) {
         this.sourceSBI = sourceSBI;
         try {
             this.reader = new RecordReader(sourceSBI, startIndex, endIndex);
+            System.out.println(Thread.currentThread().getId() +  " - New Record Reader");
         } catch (IOException e) {
             throw new RuntimeException("unable to open the source sbi " + sourceSBI);
         }
@@ -35,6 +37,7 @@ public class RecordSpliterator implements Spliterator<BaseInformationRecords.Bas
         this.minLength = (maxLength / 10);
         this.startIndex = startIndex;
         this.endIndex = endIndex;
+        this.maxSplits = maxSplits;
     }
 
     /**
@@ -105,6 +108,9 @@ public class RecordSpliterator implements Spliterator<BaseInformationRecords.Bas
      */
     @Override
     public Spliterator<BaseInformationRecords.BaseInformation> trySplit() {
+        if (maxSplits == 0 ) {
+          return null;
+        }
         if (((endIndex - startIndex < 0) || (endIndex - startIndex < 100000000)))
             return null;
         long splitPosition = ((endIndex - startIndex) / 2) + this.startIndex; //we try to split halfway
@@ -113,7 +119,8 @@ public class RecordSpliterator implements Spliterator<BaseInformationRecords.Bas
             //if we passed the current position of the reader, we don't further split
             return null;
         }
-        Spliterator<BaseInformationRecords.BaseInformation> newSp = new RecordSpliterator(sourceSBI, splitPosition, endIndex, maxLength);
+        Spliterator<BaseInformationRecords.BaseInformation> newSp = new RecordSpliterator(sourceSBI, splitPosition, endIndex, maxLength, (maxSplits -1)/2);
+        this.maxSplits = (maxSplits -1)/2;
         this.endIndex = splitPosition - 1;
         this.reader.readUpTo(endIndex);
         return newSp;
