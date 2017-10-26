@@ -1,5 +1,7 @@
-package org.campagnelab.dl.genotype.segments;
+package org.campagnelab.dl.genotype.segments.splitting;
 
+import org.campagnelab.dl.genotype.segments.Segment;
+import org.campagnelab.dl.genotype.segments.SegmentUtil;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.*;

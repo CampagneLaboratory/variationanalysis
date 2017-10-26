@@ -1,8 +1,8 @@
 package org.campagnelab.dl.genotype.segments;
 
+import org.campagnelab.dl.genotype.segments.splitting.SplitStrategy;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
-import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

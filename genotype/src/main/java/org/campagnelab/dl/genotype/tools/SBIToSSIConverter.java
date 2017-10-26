@@ -10,6 +10,7 @@ import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSegments
 import org.campagnelab.dl.genotype.learning.domains.GenotypeDomainDescriptor;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
 import org.campagnelab.dl.genotype.segments.*;
+import org.campagnelab.dl.genotype.segments.splitting.NoSplitStrategy;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
