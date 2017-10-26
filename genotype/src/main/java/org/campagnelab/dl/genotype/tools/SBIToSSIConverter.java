@@ -122,7 +122,10 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                                 String insertionOrDeletion = getInsertedDeleted(allele);
                                 int offset = 1;
                                 for (char insertedDeleted : insertionOrDeletion.toCharArray()) {
-                                    previous = segment.recordList.insertAfter(previous, buildFrom, insertedDeleted, offset++);
+                                    if (previous == null)
+                                        previous = buildFrom;
+                                    else
+                                        previous = segment.recordList.insertAfter(previous, buildFrom, insertedDeleted, offset++);
                                 }
                             }
                         }
