@@ -1,5 +1,7 @@
 package org.campagnelab.dl.genotype.tools;
 
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
+import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
@@ -9,6 +11,7 @@ import org.campagnelab.dl.genotype.learning.domains.GenotypeDomainDescriptor;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
 import org.campagnelab.dl.genotype.segments.*;
 import org.campagnelab.dl.genotype.segments.splitting.NoSplitStrategy;
+import org.campagnelab.dl.genotype.segments.splitting.SingleCandidateIndelSplitStrategy;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
@@ -40,6 +43,8 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     private static FillInFeaturesFunction fillInFeaturesFunction;
     private static ThreadLocal<SegmentHelper> segmentHelper;
 
+    // any genomic site that has strictly more indel supporting reads than the below threshold will be marked has candidateIndel.
+    private static int candidateIndelThreshold = 0;
 
     public static void main(String[] args) {
         SBIToSSIConverter tool = new SBIToSSIConverter();
@@ -57,17 +62,20 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         if (args().inputFile.isEmpty()) {
             System.err.println("You must provide input SBI files.");
         }
-        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segment -> {
-            writer.appendEntry(segment);
-
-          };
+        Consumer<Segment> segmentConsumer= segment -> {
+            try {
+                segment.writeTo(writer);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        };
 
         segmentHelper = new ThreadLocal<SegmentHelper>() {
             @Override
             protected SegmentHelper initialValue() {
-                return new SegmentHelper(processSegmentFunction, fillInFeaturesFunction, segmentConsumer,
-                        new NoSplitStrategy(),
-                        args().collectStatistics);
+                return new SegmentHelper( processSegmentFunction, fillInFeaturesFunction, segmentConsumer ,
+                        new SingleCandidateIndelSplitStrategy(100,candidateIndelThreshold),
+                        args().collectStatistics );
             }
         };
         int gap = args().gap;
@@ -191,6 +199,15 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
 
     }
 
+    private boolean hasCandidateIndel(BaseInformationRecords.BaseInformation baseInformation) {
+        return SegmentUtil.hasCandidateIndel(baseInformation, candidateIndelThreshold);
+    }
+
+    private String trimTrueGenotype(String trueGenotype) {
+        int secondBaseIndex = trueGenotype.indexOf("|");
+        final String trimmed = trueGenotype.charAt(0) + "|" + trueGenotype.charAt(secondBaseIndex - 1);
+        return trimmed;
+    }
 
     private String getInsertedDeleted(String allele) {
 

@@ -18,15 +18,12 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
 
     private final int candidateIndelThreshold;
 
-    private final SizedBaseMap beforeQueue;
-    private final SizedBaseMap afterQueue;
+    private final SizedBaseMap beforeIndel;
 
     public SingleCandidateIndelSplitStrategy(long windowSize, int candidateIndelThreshold) {
         this.windowSize = windowSize;
         this.candidateIndelThreshold = candidateIndelThreshold;
-        this.beforeQueue = new SizedBaseMap(windowSize);
-        this.afterQueue = new SizedBaseMap(windowSize);
-
+        this.beforeIndel = new SizedBaseMap(windowSize);
     }
 
     /**
@@ -37,63 +34,38 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
      */
     @Override
     public List<Segment> apply(final Segment segment) {
-        List<Segment> subSegments = new ArrayList<>();
+        List<SubSegment> subSegments = new ArrayList<>();
 
         for (BaseInformationRecords.BaseInformation record : segment.getAllRecords()) {
             this.addToBeforeList(record); //keep the before list active
             if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold)) {
-                System.out.println(String.format("************** Found candidate indel at position %d", record.getPosition()));
                 SubSegment newSubSegment = this.createSubSegment(segment,record);
-                subSegments.add(newSubSegment.asSegment());
+                subSegments.add(newSubSegment);
             }
             this.addToBeforeList(record); //keep the before list active for the next subsegments
-            //TODO: loop on the subsegments and check if theu need the record in the after list.
-             //each subSegment must have its own after list
-            this.addToAfterList(record);
+            //complete the sub-segments that are still open
+            for (SubSegment subSegment : subSegments) {
+                if (subSegment.isOpen())
+                    subSegment.add(record);
+            }
 
         }
          //Subsegment as segments
-        return subSegments;
-    }
-
-    /**
-     * Closes the current subsegment.
-     *
-     * @return true if the subsegment has been closed, false otherwise.
-     */
-    private SubSegment buildSubSegment(Segment parent) {
-        //check if the last position in the After Queue has reached the window size.
-        if (this.afterQueue.hasReachedWindowSize()) {
-           //return this.createSubSegment(parent);
+        List<Segment> segments = new ArrayList<>();
+        for (SubSegment subSegment : subSegments){
+           segments.add(subSegment.asSegment());
+            //System.out.println(String.format("New subsegment around candidate indel at %d (%d-%d)", subSegment.getIndelPosition(),
+            //        subSegment.getFirstPosition(), subSegment.getLastPosition()));
         }
-        return null;
+        return segments;
     }
 
     private SubSegment createSubSegment(Segment parent,BaseInformationRecords.BaseInformation record) {
-        return new SubSegment(this.beforeQueue,parent,record);
-        /*
-
-
-
-        if (!this.afterQueue.isEmpty()) {
-            Iterator<BaseInformationRecords.BaseInformation> it = this.afterQueue.values().iterator();
-            while (it.hasNext()) {
-                subSegment.add(it.next());
-            }
-        }
-        this.beforeQueue.clear();
-        this.afterQueue.clear();
-        candidateIndel = null;
-        return subSegment;*/
-    }
-
-    private void addToAfterList(BaseInformationRecords.BaseInformation record) {
-        this.afterQueue.put(record.getPosition(), record);
-
+        return new SubSegment(this.beforeIndel,parent,record, this.windowSize);
     }
 
     private void addToBeforeList(BaseInformationRecords.BaseInformation record) {
-        this.beforeQueue.put(record.getPosition(), record);
+        this.beforeIndel.put(record.getPosition(), record);
     }
 
     /**
