@@ -12,7 +12,8 @@ import java.util.Properties;
 /**
  * Simply reads features from the .ssi and expose to DL4J as 2D tensor with mask.
  */
-public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformationRecords.SegmentInformation>, ConfigurableFeatureMapper {
+public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformationRecords.SegmentInformation>, ConfigurableFeatureMapper
+{
     private final int sampleIndex;
     private float[] mask;
 

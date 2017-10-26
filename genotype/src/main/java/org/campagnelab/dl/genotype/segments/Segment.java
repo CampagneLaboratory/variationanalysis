@@ -3,6 +3,8 @@ package org.campagnelab.dl.genotype.segments;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.lang.MutableString;
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
@@ -12,7 +14,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Spliterator;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -46,9 +50,9 @@ public class Segment {
     /**
      * Write the segment to an SBI writer.
      *
-     * @param writer
+     * @param segmentConsumer
      */
-    public void writeTo(SequenceSegmentInformationWriter writer) throws IOException {
+    public void construct(Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer) {
         SegmentInformationRecords.SegmentInformation.Builder builder = SegmentInformationRecords.SegmentInformation.newBuilder();
         SegmentInformationRecords.ReferencePosition.Builder refBuilder = SegmentInformationRecords.ReferencePosition.newBuilder();
         refBuilder.setLocation(this.getFirstPosition());
@@ -72,29 +76,23 @@ public class Segment {
 
         getAllRecords().forEach(record -> {
 
-            for (int sampleIndex=0; sampleIndex<numSamples;sampleIndex++)
-            {
+            for (int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
                 SegmentInformationRecords.Base.Builder base = fillInFeatures.apply(record);
 
                 sampleBuilder[sampleIndex].addBase(base);
-                segmentStats[0]++;
+
                 //System.out.println("New base " + segmentStats[0] );
-                segmentStats[1] = base.getFeaturesCount();
-                segmentStats[2] = base.getLabelsCount();
+
 
             }
         });
         for (int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
-            builder.addSample(  sampleBuilder[sampleIndex] );
+            builder.addSample(sampleBuilder[sampleIndex]);
         }
 
         final SegmentInformationRecords.SegmentInformation built = builder.build();
-                writer.appendEntry(built);
-                writer.setEntryBases(segmentStats[0]);
-                writer.setEntryLabels(segmentStats[2]);
-                writer.setEntryFeatures(segmentStats[1]);
 
-
+        segmentConsumer.accept(built);
 
     }
 
@@ -191,7 +189,7 @@ public class Segment {
      * @return
      */
     public Iterable<BaseInformationRecords.BaseInformation> getAllRecords() {
-        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(recordList.size()*3/2);
+        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(recordList.size() * 3 / 2);
         for (BaseInformationRecords.BaseInformation record : recordList) {
             list.add(record);
             list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
@@ -207,5 +205,23 @@ public class Segment {
             list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
         }
         return list.parallelStream().spliterator();
+    }
+
+    public static String showGenotypes(SegmentInformationRecords.SegmentInformation segmentInformation) {
+        MutableString result = new MutableString();
+        // for (int sampleIndex = 0; sampleIndex < segmentInformation.getSampleCount(); sampleIndex++) {
+        int sampleIndex = 0;
+        for (SegmentInformationRecords.Base base : segmentInformation.getSample(sampleIndex).getBaseList()) {
+            ArrayList<String> alleles = new ArrayList<>();
+            for (String allele : base.getTrueLabelList()) {
+                alleles.add(allele);
+            }
+
+            result.append(String.format("ref=%s\ttrueGenotype=%s\tcounts=%s%n", base.getReferenceAllele(),
+                    alleles.stream().collect(Collectors.joining("/")),
+                    base.getFormattedCounts()));
+        }
+        return result.toString();
+
     }
 }

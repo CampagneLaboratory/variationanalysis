@@ -25,7 +25,7 @@ public class SegmentHelper {
     private final Function<Segment, Segment> function;
     private final Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures;
     private final SplitStrategy splitStrategy;
-    private final Consumer<Segment> segmentConsumer;
+    private final Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer;
     private Segment currentSegment;
     private static Statistics statistics = new Statistics();
     static private Logger LOG = LoggerFactory.getLogger(SegmentHelper.class);
@@ -41,7 +41,8 @@ public class SegmentHelper {
      */
     public SegmentHelper(
             Function<Segment, Segment> function,
-            Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures, Consumer<Segment> segmentConsumer,
+            Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures,
+            Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer,
             SplitStrategy splitStrategy, boolean collectStatistics) {
 
         this.function = function;
@@ -57,7 +58,7 @@ public class SegmentHelper {
      *
      * @param from
      */
-    public void newSegment(BaseInformationRecords.BaseInformation from) throws IOException {
+    public void newSegment(BaseInformationRecords.BaseInformation from)  {
         if (currentSegment != null) {
             this.closeSegment();
             if (collectStatistics) {
@@ -78,14 +79,15 @@ public class SegmentHelper {
     /**
      * Closes the current segment.
      */
-    private void closeSegment() throws IOException {
+    private void closeSegment()  {
         List<Segment> subSegments = this.splitStrategy.apply(this.currentSegment);
         for (Segment segment : subSegments) {
             //System.out.println(String.format("Processing sub-segment from %d to %d",segment.getFirstPosition(), segment.getLastPosition()));
             try {
                 Objects.requireNonNull(this.function);
                 Segment processed = this.function.apply(segment);
-                segmentConsumer.accept(processed);
+                processed.construct(segmentConsumer);
+
 
             } catch (NullPointerException npe) {
                 LOG.error("Failed to process segments: ", npe);
@@ -99,13 +101,17 @@ public class SegmentHelper {
     }
 
     public void add(BaseInformationRecords.BaseInformation record) {
-        currentSegment.add(record);
+        if (currentSegment == null) {
+            newSegment(record);
+        } else {
+            currentSegment.add(record);
+        }
     }
 
     /**
      * Close the list.
      */
-    public void close() throws IOException {
+    public void close()  {
         this.closeSegment();
     }
 

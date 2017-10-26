@@ -1,7 +1,5 @@
 package org.campagnelab.dl.genotype.tools;
 
-import it.unimi.dsi.fastutil.floats.FloatArrayList;
-import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
@@ -39,11 +37,9 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     static private Logger LOG = LoggerFactory.getLogger(SBIToSSIConverter.class);
     private static SequenceSegmentInformationWriter writer;
     private static Function<Segment, Segment> processSegmentFunction;
-    private static Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeaturesFunction;
+    private static FillInFeaturesFunction fillInFeaturesFunction;
     private static ThreadLocal<SegmentHelper> segmentHelper;
 
-    // any genomic site that has strictly more indel supporting reads than the below threshold will be marked has candidateIndel.
-    private int candidateIndelThreshold = 0;
 
     public static void main(String[] args) {
         SBIToSSIConverter tool = new SBIToSSIConverter();
@@ -61,20 +57,17 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         if (args().inputFile.isEmpty()) {
             System.err.println("You must provide input SBI files.");
         }
-        Consumer<Segment> segmentConsumer= segment -> {
-            try {
-                segment.writeTo(writer);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        };
+        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segment -> {
+            writer.appendEntry(segment);
+
+          };
 
         segmentHelper = new ThreadLocal<SegmentHelper>() {
             @Override
             protected SegmentHelper initialValue() {
-                return new SegmentHelper( processSegmentFunction, fillInFeaturesFunction, segmentConsumer ,
+                return new SegmentHelper(processSegmentFunction, fillInFeaturesFunction, segmentConsumer,
                         new NoSplitStrategy(),
-                        args().collectStatistics );
+                        args().collectStatistics);
             }
         };
         int gap = args().gap;
@@ -101,7 +94,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         //LabelMapper labelMapper=domainDescriptor.getFeatureMapper("input");
         if (args().snpOnly) {
             processSegmentFunction = segment -> {
-                // remove all indesl
+                // remove all indels
                 segment.recordList.removeWhere(record -> record.getTrueGenotype().length() > 3);
                 return segment;
             };
@@ -159,45 +152,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         SegmentLabelMapper labelMapper = new SegmentLabelMapper(args().ploidy);
 
 
-        fillInFeaturesFunction = baseInformation -> {
-            FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
-            SegmentInformationRecords.Base.Builder builder = SegmentInformationRecords.Base.newBuilder();
-            String trueGenotype = baseInformation.getTrueGenotype();
-            builder.addAllTrueLabel(GenotypeHelper.getAlleles(trueGenotype));
-
-            builder.setHasCandidateIndel(hasCandidateIndel(baseInformation));
-            builder.setHasTrueIndel(
-                    GenotypeHelper.isIndel(baseInformation.getReferenceBase(), baseInformation.getTrueGenotype()));
-            builder.setIsVariant(
-                    GenotypeHelper.isVariant(baseInformation.getTrueGenotype(), baseInformation.getReferenceBase()));
-
-            if (args().mapFeatures) {
-                featureMapper.prepareToNormalize(baseInformation, 0);
-                if (trueGenotype.length() > 3) {
-                    //    System.out.println("Indel:" + baseInformation.getTrueGenotype());
-                }
-                features.clear();
-                for (int featureIndex = 0; featureIndex < featureMapper.numberOfFeatures(); featureIndex++) {
-                    features.add(featureMapper.produceFeature(baseInformation, featureIndex));
-                }
-                builder.clearFeatures();
-                builder.addAllFeatures(features);
-            }
-            if (args().mapLabels) {
-                if (trueGenotype.length() == 1) {
-                    trueGenotype = trueGenotype + "|" + trueGenotype;
-                }
-                if (trueGenotype.length() > 3) {
-                    trueGenotype = trimTrueGenotype(trueGenotype);
-                }
-                float[] labels = labelMapper.map(trueGenotype.replaceAll("\\|", "/"));
-                builder.clearLabels();
-                for (float labelValue : labels) {
-                    builder.addLabels(labelValue);
-                }
-            }
-            return builder;
-        };
+        fillInFeaturesFunction = new MyFillInFeaturesFunction(featureMapper, labelMapper, arguments);
 
         try {
             if (args().ssiPrefix != null)
@@ -236,15 +191,6 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
 
     }
 
-    private boolean hasCandidateIndel(BaseInformationRecords.BaseInformation baseInformation) {
-        return SegmentUtil.hasCandidateIndel(baseInformation, candidateIndelThreshold);
-    }
-
-    private String trimTrueGenotype(String trueGenotype) {
-        int secondBaseIndex = trueGenotype.indexOf("|");
-        final String trimmed = trueGenotype.charAt(0) + "|" + trueGenotype.charAt(secondBaseIndex - 1);
-        return trimmed;
-    }
 
     private String getInsertedDeleted(String allele) {
 

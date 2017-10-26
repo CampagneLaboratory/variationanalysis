@@ -25,7 +25,7 @@ public class SegmentWriter implements Closeable {
         writer.setNumEntriesPerChunk(1000);
     }
 
-    public void writeRecord(SegmentInformationRecords.SegmentInformation record) throws IOException {
+    public void writeRecord(SegmentInformationRecords.SegmentInformation record)  {
         writer.appendEntry(record);
     }
     /**
