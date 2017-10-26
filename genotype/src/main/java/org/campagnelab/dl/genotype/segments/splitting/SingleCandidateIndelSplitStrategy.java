@@ -54,8 +54,8 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
         List<Segment> segments = new ArrayList<>();
         for (SubSegment subSegment : subSegments){
            segments.add(subSegment.asSegment());
-            //System.out.println(String.format("New subsegment around candidate indel at %d (%d-%d)", subSegment.getIndelPosition(),
-            //        subSegment.getFirstPosition(), subSegment.getLastPosition()));
+            System.out.println(String.format("New subsegment around candidate indel at %d (%d-%d)", subSegment.getIndelPosition(),
+                    subSegment.getFirstPosition(), subSegment.getLastPosition()));
         }
         return segments;
     }
