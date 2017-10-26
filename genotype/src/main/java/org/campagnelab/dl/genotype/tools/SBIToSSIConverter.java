@@ -210,10 +210,12 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             final int[] totalRecords = {0};
 
             StreamSupport.stream(sbiReader.spliterator(), args().parallel).forEach(sbiRecord -> {
-                manageRecord(sbiRecord, gap);
-                synchronized (pg) {
-                    pg.lightUpdate();
+                try {
+                    manageRecord(sbiRecord, gap);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
+                pg.lightUpdate();
                 totalRecords[0]++;
             });
 
@@ -256,7 +258,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         }
     }
 
-    private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) {
+    private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) throws IOException {
 
         if (this.isValid(record)) {
             final SegmentHelper segmentHelper = SBIToSSIConverter.segmentHelper.get();
@@ -310,7 +312,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     /**
      * Closes the list and serializes the output SSI.
      */
-    private void closeOutput() {
+    private void closeOutput() throws IOException {
         segmentHelper.get().close();
         try {
             writer.close();

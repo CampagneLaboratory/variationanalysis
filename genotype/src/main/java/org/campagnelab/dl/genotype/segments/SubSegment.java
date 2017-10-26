@@ -13,7 +13,7 @@ public class SubSegment {
     private final int candidateIndelPosition;
 
     protected SubSegment(SingleCandidateIndelSplitStrategy.SizedBaseMap before, Segment parent, BaseInformationRecords.BaseInformation indel) {
-            synchronized (before) {
+           // synchronized (before) {
                 Iterator<BaseInformationRecords.BaseInformation> it = before.values().iterator();
                 segment = new Segment(parent.fillInFeatures, it.next());
                 while (it.hasNext()) {
@@ -22,7 +22,7 @@ public class SubSegment {
                 }
                 segment.add(indel);
 
-            }
+            //}
             this.candidateIndelPosition = indel.getPosition();
     }
 

@@ -57,7 +57,7 @@ public class SegmentHelper {
      *
      * @param from
      */
-    public void newSegment(BaseInformationRecords.BaseInformation from) {
+    public void newSegment(BaseInformationRecords.BaseInformation from) throws IOException {
         if (currentSegment != null) {
             this.closeSegment();
             if (collectStatistics) {
@@ -78,7 +78,7 @@ public class SegmentHelper {
     /**
      * Closes the current segment.
      */
-    private void closeSegment() {
+    private void closeSegment() throws IOException {
         List<Segment> subSegments = this.splitStrategy.apply(this.currentSegment);
         for (Segment segment : subSegments) {
             //System.out.println(String.format("Processing sub-segment from %d to %d",segment.getFirstPosition(), segment.getLastPosition()));
@@ -105,7 +105,7 @@ public class SegmentHelper {
     /**
      * Close the list.
      */
-    public void close() {
+    public void close() throws IOException {
         this.closeSegment();
     }
 
