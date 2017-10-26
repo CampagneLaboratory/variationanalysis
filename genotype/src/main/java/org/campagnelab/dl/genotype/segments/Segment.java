@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -191,7 +192,9 @@ public class Segment {
     public Iterable<BaseInformationRecords.BaseInformation> getAllRecords() {
         ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(recordList.size() * 3 / 2);
         for (BaseInformationRecords.BaseInformation record : recordList) {
-            list.add(record);
+            if (!recordList.hideSet.contains(record)) {
+                list.add(record);
+            }
             list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
         }
 
@@ -223,5 +226,13 @@ public class Segment {
         }
         return result.toString();
 
+    }
+
+    public void remove(BaseInformationRecords.BaseInformation record) {
+        recordList.records.remove(record);
+    }
+
+    public void removeWhere(Predicate<BaseInformationRecords.BaseInformation> predicateIsTrue) {
+        recordList.records.removeIf(predicateIsTrue);
     }
 }

@@ -13,13 +13,20 @@ import java.util.function.Function;
 import static org.junit.Assert.assertEquals;
 
 public class SegmentHelperTest {
-    String expected1 = "ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n" +
+    String expectedSnps = "ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n" +
             "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A)\n" +
-            "ref=C\ttrueGenotype=C\tcounts= C=15  (from: C)\n" ;
+            "ref=C\ttrueGenotype=C\tcounts= C=15  (from: C)\n";
+
+    String expectedInsertionCC = "ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n" +
+            "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A)\n" +
+            "ref=A\ttrueGenotype=A\tcounts= A=7  A=7  (from: A)\n" +
+            "ref=-\ttrueGenotype=-/C\tcounts= C=7  -=7  (from: -)\n" +
+            "ref=-\ttrueGenotype=-/C\tcounts= C=7  -=7  (from: -)\n" +
+            "ref=A\ttrueGenotype=A\tcounts= A=7  A=7  (from: A)\n";
 
 
     @Test
-    public void testHelper1() {
+    public void testHelperSnps() {
         Function<Segment, Segment> function = segment -> segment;
         SBIToSSIConverterArguments args = new SBIToSSIConverterArguments();
         args.mapFeatures = false;
@@ -28,16 +35,40 @@ public class SegmentHelperTest {
 
 
         Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
-            assertEquals(expected1, Segment.showGenotypes(segmentInfoo));
+            assertEquals(expectedSnps, Segment.showGenotypes(segmentInfoo));
         };
         SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new NoSplitStrategy(),
                 false);
-        int refIndex=0;
-        int position=0;
-        helper.add(makeRecord(refIndex,position,"A/A", "A/A=12+10"));
-        helper.add(makeRecord(refIndex,position+1,"A/T", "A/A=20+12", "A/T=10+23"));
-    //    helper.add(makeRecord(refIndex,position+2,"AA/A--A", "AA/A--A=2+5","AA/AA=2+5"));
-        helper.add(makeRecord(refIndex,position+3,"C/C", "C/C=10+5"));
+        int refIndex = 0;
+        int position = 0;
+        helper.add(makeRecord(refIndex, position, "A/A", "A/A=12+10"));
+        helper.add(makeRecord(refIndex, position + 1, "A/T", "A/A=20+12", "A/T=10+23"));
+
+        helper.add(makeRecord(refIndex, position + 3, "C/C", "C/C=10+5"));
+        helper.close();
+
+    }
+
+    @Test
+    public void testHelperInsertion() {
+        Function<Segment, Segment> function = new WithIndelsPostProcessSegmentFunction();
+        SBIToSSIConverterArguments args = new SBIToSSIConverterArguments();
+        args.mapFeatures = false;
+        args.mapLabels = false;
+        FillInFeaturesFunction fillInFeatures = new MyFillInFeaturesFunction(null, null, args);
+
+
+        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
+            assertEquals(expectedInsertionCC, Segment.showGenotypes(segmentInfoo));
+        };
+        SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new NoSplitStrategy(),
+                false);
+        int refIndex = 0;
+        int position = 0;
+        helper.add(makeRecord(refIndex, position, "A/A", "A/A=12+10"));
+        helper.add(makeRecord(refIndex, position + 1, "A/T", "A/A=20+12", "A/T=10+23"));
+        helper.add(makeRecord(refIndex, position + 2, "A--A/ACCA", "A--A/ACCA=2+5", "A--A/A--A=2+5"));
+        //  helper.add(makeRecord(refIndex, position + 3, "C/C", "C/C=10+5"));
         helper.close();
 
     }
@@ -54,13 +85,18 @@ public class SegmentHelperTest {
             BaseInformationRecords.CountInfo.Builder countBuilder = BaseInformationRecords.CountInfo.newBuilder();
             String tokens[] = countCreationInstruction.split("[/=+]");
             assert tokens.length == 4 :
-                    "count creation instruction must have four arguments: ref/to=forward+reverse, was "+countCreationInstruction;
-            countBuilder.setFromSequence(tokens[0]);
-            builder.setReferenceBase(Character.toString(tokens[0].charAt(0)));
-            countBuilder.setToSequence(tokens[1]);
-            countBuilder.setMatchesReference(tokens[0].equals(tokens[1]));
+                    "count creation instruction must have four arguments: ref/to=forward+reverse, was " + countCreationInstruction;
+            final String from = tokens[0];
+            countBuilder.setFromSequence(from);
+            builder.setReferenceBase(Character.toString(from.charAt(0)));
+            final String token = tokens[1];
+            countBuilder.setToSequence(token);
+            countBuilder.setMatchesReference(from.equals(token));
             countBuilder.setGenotypeCountForwardStrand(Integer.parseInt(tokens[2]));
             countBuilder.setGenotypeCountReverseStrand(Integer.parseInt(tokens[3]));
+            if (from.contains("-") || token.contains("-")) {
+                countBuilder.setIsIndel(true);
+            }
 
             sample.addCounts(countBuilder);
         }

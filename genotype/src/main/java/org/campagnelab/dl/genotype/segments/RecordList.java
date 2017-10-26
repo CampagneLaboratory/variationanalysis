@@ -3,6 +3,9 @@ package org.campagnelab.dl.genotype.segments;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class RecordList implements Iterable<BaseInformationRecords.BaseInformation> {
     static private Logger LOG = LoggerFactory.getLogger(RecordList.class);
@@ -41,6 +45,7 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
 
     /**
      * Get the first record, if there is one, or null otherwise.
+     *
      * @return
      */
     public BaseInformationRecords.BaseInformation first() {
@@ -69,6 +74,7 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
         }
         copy.setTrueGenotype(Character.toString(insertedDeleted));
         final BaseInformationRecords.BaseInformation builtCopy = copy.build();
+      //  System.out.println("Adding builtCopy:"+FormatterCountHelper.format(builtCopy.getSamples(0)));
         addToFollowing(previous, builtCopy);
         //records.add(records.indexOf(previous) + 1, builtCopy);
         return previous;
@@ -95,7 +101,7 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
 
         int sampleIndex = 0;
         int countIndex = 0;
-
+        String recordTrueGenotype = copy.getTrueGenotype();
 
         for (BaseInformationRecords.SampleInfo.Builder sample : copy.getSamplesBuilderList()) {
             ObjectArrayList<BaseInformationRecords.CountInfo.Builder> countsToKeep = new ObjectArrayList();
@@ -107,12 +113,17 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
                         // count is an indel count.
                         String adjustedTo = count.getToSequence();
                         String adjustedFrom = count.getFromSequence();
+                        String adjustedTrueGenotype = recordTrueGenotype;
                         if (adjustedTo.length() > offset && adjustedFrom.length() > offset) {
                             adjustedFrom = adjustedFrom.substring(offset, offset + 1);
                             adjustedTo = adjustedTo.substring(offset, offset + 1);
+                            adjustedTrueGenotype = adjusteTrueGenotype(adjustedTrueGenotype,offset);
                             count.setFromSequence(adjustedFrom);
+                            copy.setReferenceBase(adjustedFrom);
                             count.setToSequence(adjustedTo);
                             countsToKeep.add(count);
+                            sample.setTrueGenotype(adjustedTrueGenotype);
+                            copy.setTrueGenotype(adjustedTrueGenotype);
                         } else {
                             // this indel does not contribute to the counts at this offset:
                             makeEmptyCount(countsToKeep, count);
@@ -140,6 +151,15 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
         return copy;
     }
 
+    private String adjusteTrueGenotype(String adjustedTrueGenotype, int offset) {
+        ArrayList<String> alleles=new ArrayList();
+        for (String allele : GenotypeHelper.getAlleles(adjustedTrueGenotype)) {
+            alleles.add( allele.substring(offset, offset + 1));
+        }
+       return alleles.stream().collect(Collectors.joining("/"));
+
+    }
+
     private void makeEmptyCount(ObjectArrayList<BaseInformationRecords.CountInfo.Builder> countsToKeep, BaseInformationRecords.CountInfo.Builder count) {
         count.setGenotypeCountForwardStrand(0);
         count.setGenotypeCountReverseStrand(0);
@@ -150,5 +170,9 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
     public void removeWhere(Predicate<BaseInformationRecords.BaseInformation> predicateIsTrue) {
         records.removeIf(predicateIsTrue);
 
+    }
+    ObjectSet<BaseInformationRecords.BaseInformation> hideSet=new ObjectOpenHashSet<>();
+    public void hideRecord(BaseInformationRecords.BaseInformation record) {
+        hideSet.add(record);
     }
 }

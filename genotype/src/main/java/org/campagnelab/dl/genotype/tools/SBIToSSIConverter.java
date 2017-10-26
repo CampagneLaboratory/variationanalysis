@@ -101,64 +101,10 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         FeatureMapper featureMapper = domainDescriptor.getFeatureMapper("input");
         //LabelMapper labelMapper=domainDescriptor.getFeatureMapper("input");
         if (args().snpOnly) {
-            processSegmentFunction = segment -> {
-                // remove all indels
-                segment.recordList.removeWhere(record -> record.getTrueGenotype().length() > 3);
-                return segment;
-            };
+            processSegmentFunction = new SnpOnlyPostProcessSegmentFunction();
         } else {
-            processSegmentFunction = segment -> {
-                segment.populateTrueGenotypes();
-                BaseInformationRecords.BaseInformation previous = null;
-                BaseInformationRecords.BaseInformation buildFrom = null;
+            processSegmentFunction = new WithIndelsPostProcessSegmentFunction();
 
-                for (BaseInformationRecords.BaseInformation record : segment.recordList) {
-
-                    buildFrom = record;
-                    if (record.getTrueGenotype().length() > 3) {
-                        Set<String> alleles = GenotypeHelper.getAlleles(record.getTrueGenotype());
-                        for (String allele : alleles) {
-                            if (allele.length() > 1) {
-                                String insertionOrDeletion = getInsertedDeleted(allele);
-                                int offset = 1;
-                                for (char insertedDeleted : insertionOrDeletion.toCharArray()) {
-                                    if (previous == null)
-                                        previous = buildFrom;
-                                    else
-                                        previous = segment.recordList.insertAfter(previous, buildFrom, insertedDeleted, offset++);
-                                }
-                            }
-                        }
-                        // long genotypes need to be trimmed to the first base after this point. We don't do it here because
-                        // it would modify the data structure currently traversed.
-                    }
-
-                    previous = record;
-                }
-
-                segment.recordList.forEach(record -> {
-                    int longestIndelLength = 0;
-                    for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()) {
-                        for (BaseInformationRecords.CountInfo count : sample.getCountsList()) {
-                            if (count.getIsIndel()) {
-                                longestIndelLength = Math.max(longestIndelLength, count.getFromSequence().length());
-                                longestIndelLength = Math.max(longestIndelLength, count.getToSequence().length());
-                            }
-                        }
-
-                    }
-                    for (int offset = 1; offset < longestIndelLength; offset++) {
-                        BaseInformationRecords.BaseInformation.Builder copy = record.toBuilder();
-                        //    System.out.printf("record position: %d %n",record.getPosition());
-                        copy = segment.recordList.adjustCounts(copy, offset);
-                        segment.insertAfter(record, copy);
-                    }
-
-
-                });
-
-                return segment;
-            };
         }
         SegmentLabelMapper labelMapper = new SegmentLabelMapper(args().ploidy);
 
@@ -210,25 +156,6 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         int secondBaseIndex = trueGenotype.indexOf("|");
         final String trimmed = trueGenotype.charAt(0) + "|" + trueGenotype.charAt(secondBaseIndex - 1);
         return trimmed;
-    }
-
-    private String getInsertedDeleted(String allele) {
-
-        if (allele.charAt(1) == '-') {
-            // number of deletions in allele.
-            int deletionCount = 0;
-            // a certain number of bases are deleted in this allele.
-            for (int i = 1; i < allele.length(); i++) {
-                if (allele.charAt(i) == '-') {
-                    deletionCount++;
-                } else {
-                    break;
-                }
-            }
-            return allele.substring(1, deletionCount);
-        } else {
-            return allele.substring(1, allele.length() - 2);
-        }
     }
 
     private void manageRecord(BaseInformationRecords.BaseInformation record, int gap) throws IOException {
