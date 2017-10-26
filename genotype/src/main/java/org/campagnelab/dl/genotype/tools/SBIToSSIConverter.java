@@ -39,11 +39,10 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     private static Function<Segment, Segment> processSegmentFunction;
     private static Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeaturesFunction;
     private static ThreadLocal<SegmentHelper> segmentHelper;
-    private static SplitStrategy splitStrategy = new NoSplitStrategy();
-
     // any genomic site that has strictly more indel supporting reads than the below threshold will be marked has candidateIndel.
-    private int candidateIndelThreshold = 0;
-
+    private static int candidateIndelThreshold = 0;
+    //private static SplitStrategy splitStrategy = new SingleCandidateIndelSplitStrategy(100, candidateIndelThreshold);
+    
     public static void main(String[] args) {
         SBIToSSIConverter tool = new SBIToSSIConverter();
         tool.parseArguments(args, "SBIToSSIConverter", tool.createArguments());
@@ -63,7 +62,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         segmentHelper= new ThreadLocal<SegmentHelper>() {
             @Override
             protected SegmentHelper initialValue() {
-                return new SegmentHelper(writer, processSegmentFunction, fillInFeaturesFunction, splitStrategy, args().collectStatistics);
+                return new SegmentHelper(writer, processSegmentFunction, fillInFeaturesFunction,new NoSplitStrategy(), args().collectStatistics);
             }
         };
         int gap = args().gap;
@@ -104,7 +103,10 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
                             String insertionOrDeletion = getInsertedDeleted(allele);
                             int offset = 1;
                             for (char insertedDeleted : insertionOrDeletion.toCharArray()) {
-                                previous = segment.recordList.insertAfter(previous, buildFrom, insertedDeleted, offset++);
+                                if (previous == null)
+                                    previous = buildFrom;
+                                else
+                                    previous = segment.recordList.insertAfter(previous, buildFrom, insertedDeleted, offset++);
                             }
                         }
                     }
@@ -215,18 +217,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
     }
 
     private boolean hasCandidateIndel(BaseInformationRecords.BaseInformation baseInformation) {
-        // determine if a genomic site has some reads that suggest an indel.
-        for (BaseInformationRecords.SampleInfo sample : baseInformation.getSamplesList()) {
-            for (BaseInformationRecords.CountInfo count : sample.getCountsList()) {
-                if (count.getIsIndel()) {
-                    if (count.getGenotypeCountForwardStrand() > candidateIndelThreshold || count.getGenotypeCountReverseStrand() > candidateIndelThreshold) {
-
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+        return SegmentUtil.hasCandidateIndel(baseInformation, candidateIndelThreshold);
     }
 
     private String trimTrueGenotype(String trueGenotype) {

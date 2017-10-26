@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * Holds the current open segment before it is stored in the list.
  */
 public class Segment {
-    private final Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures;
+    protected final Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures;
     private int firstPosition = 0;
     private int firstReferenceIndex = 0;
     private String firstReferenceId = "";

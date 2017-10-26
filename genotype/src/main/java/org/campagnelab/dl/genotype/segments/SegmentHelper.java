@@ -78,20 +78,20 @@ public class SegmentHelper {
     private void closeSegment() {
         List<Segment> subSegments = this.splitStrategy.apply(this.currentSegment);
         for (Segment segment : subSegments) {
-            System.out.println(String.format("Processing sub-segment from %d to %d",segment.getFirstPosition(), segment.getLastPosition()));
+            //System.out.println(String.format("Processing sub-segment from %d to %d",segment.getFirstPosition(), segment.getLastPosition()));
             try {
                 Objects.requireNonNull(this.function);
                 Segment processed = this.function.apply(segment);
                 processed.flush(writer);
 
                 if (processed.actualLength()>300) {
-                    System.out.println(processed);
-                    System.out.println("STOP");
+                    //System.out.println(processed);
+                    //System.out.println("STOP");
                 }
             } catch (NullPointerException npe) {
                 LOG.error("Failed to process segments: ", npe);
                 segment.flush(writer);
-                System.out.println(segment);
+                //System.out.println(segment);
             } finally {
                 this.updateStats();
             }
