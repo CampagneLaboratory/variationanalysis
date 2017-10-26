@@ -19,19 +19,19 @@ public class SSIRandomizerArguments implements ToolArguments {
     @Parameter(required = true, variableArity = true, names = {"-i", "--input-files"}, description = "Input files in .ssi/.ssip format.")
     public List<String> inputFiles = new ArrayList<>();
 
-    @Parameter(required = false, names = {"-b", "--records-per-bucket"}, description = "Number of records to store in each bucket.")
+    @Parameter(names = {"-b", "--records-per-bucket"}, description = "Number of records to store in each bucket.")
     int recordsPerBucket = 20000;
 
     @Parameter(required = true, names = {"-o", "--output-prefix"}, description = "Prefix for the output filenames.")
     public String outputFile;
 
-    @Parameter(required = false, names = {"-c", "--chunk-size"}, description = "Size of chunks for each bucket writer.")
+    @Parameter(names = {"-c", "--chunk-size"}, description = "Size of chunks for each bucket writer.")
     public int chunkSizePerWriter = 100;
 
-    @Parameter(required=false, names = { "--random-seed"}, description = "Seed for random generator used to randomizing entries.")
+    @Parameter( names = { "--random-seed"}, description = "Seed for random generator used to randomizing entries.")
     long randomSeed=232323;
 
-    @Parameter(required=false, names = { "--read-N"}, description = "read up to N segments per input file.")
+    @Parameter( names = { "--read-N"}, description = "read up to N segments per input file.")
     long readN=Long.MAX_VALUE;
 
 }

@@ -44,11 +44,11 @@ public class Segment {
     }
 
     /**
-     * Flushes the segment in the SBI writer.
+     * Write the segment to an SBI writer.
      *
      * @param writer
      */
-    protected void flush(SequenceSegmentInformationWriter writer) {
+    public void writeTo(SequenceSegmentInformationWriter writer) {
         SegmentInformationRecords.SegmentInformation.Builder builder = SegmentInformationRecords.SegmentInformation.newBuilder();
         SegmentInformationRecords.ReferencePosition.Builder refBuilder = SegmentInformationRecords.ReferencePosition.newBuilder();
         refBuilder.setLocation(this.getFirstPosition());
@@ -92,13 +92,13 @@ public class Segment {
 
         final SegmentInformationRecords.SegmentInformation built = builder.build();
         try {
-            synchronized (writer) {
+           // synchronized (writer) {
 
                 writer.appendEntry(built);
                 writer.setEntryBases(segmentStats[0]);
                 writer.setEntryLabels(segmentStats[2]);
                 writer.setEntryFeatures(segmentStats[1]);
-            }
+           // }
 
         } catch (IOException e) {
             throw new InternalError("Unable to write entry.", e);
@@ -199,7 +199,7 @@ public class Segment {
      * @return
      */
     public Iterable<BaseInformationRecords.BaseInformation> getAllRecords() {
-        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList<>();
+        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(recordList.size()*3/2);
         for (BaseInformationRecords.BaseInformation record : recordList) {
             list.add(record);
             list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));

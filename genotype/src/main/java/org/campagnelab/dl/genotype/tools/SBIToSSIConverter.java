@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.StreamSupport;
 
@@ -59,10 +60,14 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         if (args().inputFile.isEmpty()) {
             System.err.println("You must provide input SBI files.");
         }
+        Consumer<Segment> segmentConsumer= segment -> segment.writeTo(writer);
+
         segmentHelper = new ThreadLocal<SegmentHelper>() {
             @Override
             protected SegmentHelper initialValue() {
-                return new SegmentHelper(writer, processSegmentFunction, fillInFeaturesFunction,new NoSplitStrategy(), args().collectStatistics);
+                return new SegmentHelper( processSegmentFunction, fillInFeaturesFunction, segmentConsumer ,
+                        new NoSplitStrategy(),
+                        args().collectStatistics );
             }
         };
         int gap = args().gap;

@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -24,7 +25,7 @@ public class SegmentHelper {
     private final Function<Segment, Segment> function;
     private final Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures;
     private final SplitStrategy splitStrategy;
-    private final SequenceSegmentInformationWriter writer;
+    private final Consumer<Segment> segmentConsumer;
     private Segment currentSegment;
     private static Statistics statistics = new Statistics();
     static private Logger LOG = LoggerFactory.getLogger(SegmentHelper.class);
@@ -33,21 +34,22 @@ public class SegmentHelper {
     /**
      * Creates a new list and a first segment starting from the given record.
      *
-     * @param writer         Where the segments will be written when completed.
-     * @param function       the function applied to process the records when the segment is completed.
-     * @param fillInFeatures The function used to fill in features and labels for a post-processed SSI segment.
+     * @param function        the function applied to process the records when the segment is completed.
+     * @param fillInFeatures  The function used to fill in features and labels for a post-processed SSI segment.
+     * @param segmentConsumer the function called when the segment is completed.
      * @param splitStrategy
      */
-    public SegmentHelper(SequenceSegmentInformationWriter writer,
+    public SegmentHelper(
                          Function<Segment, Segment> function,
-                         Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures,
-                         SplitStrategy splitStrategy, boolean collectStatistics) {
+                         Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures,Consumer<Segment> segmentConsumer,
+                         SplitStrategy splitStrategy,boolean collectStatistics) {
 
         this.function = function;
-        this.writer = writer;
+
         this.fillInFeatures = fillInFeatures;
         this.splitStrategy = splitStrategy;
         this.collectStatistics = collectStatistics;
+        this.segmentConsumer=segmentConsumer;
     }
 
     /**
@@ -79,23 +81,17 @@ public class SegmentHelper {
     private void closeSegment() {
         List<Segment> subSegments = this.splitStrategy.apply(this.currentSegment);
         for (Segment segment : subSegments) {
-            //System.out.println(String.format("Processing sub-segment from %d to %d",segment.getFirstPosition(), segment.getLastPosition()));
-            try {
-                Objects.requireNonNull(this.function);
-                Segment processed = this.function.apply(segment);
-                processed.flush(writer);
+            //System.out.println(String.format("Processing sub-segment from %d to %d",segment.getFirstPosition(), segment.getLastPosition()));try {
+            Objects.requireNonNull(this.function);
+            Segment processed = this.function.apply(segment);
+            segmentConsumer.accept(processed);
 
-                if (processed.actualLength() > 300) {
-                    System.out.println(processed);
-                    System.out.println("STOP");
-                }
-            } catch (NullPointerException npe) {
-                LOG.error("Failed to process segments: ", npe);
-                currentSegment.flush(writer);
-                System.out.println(currentSegment);
-            } finally {
-                this.updateStats();
-            }
+        } catch (NullPointerException npe) {
+            LOG.error("Failed to process segments: ", npe);
+
+            System.out.println(currentSegment);
+        } finally {
+            this.updateStats();}
         }
     }
 
