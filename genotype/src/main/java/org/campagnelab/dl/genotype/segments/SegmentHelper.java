@@ -40,16 +40,16 @@ public class SegmentHelper {
      * @param splitStrategy
      */
     public SegmentHelper(
-                         Function<Segment, Segment> function,
-                         Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures,Consumer<Segment> segmentConsumer,
-                         SplitStrategy splitStrategy,boolean collectStatistics) {
+            Function<Segment, Segment> function,
+            Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures, Consumer<Segment> segmentConsumer,
+            SplitStrategy splitStrategy, boolean collectStatistics) {
 
         this.function = function;
 
         this.fillInFeatures = fillInFeatures;
         this.splitStrategy = splitStrategy;
         this.collectStatistics = collectStatistics;
-        this.segmentConsumer=segmentConsumer;
+        this.segmentConsumer = segmentConsumer;
     }
 
     /**
@@ -81,17 +81,20 @@ public class SegmentHelper {
     private void closeSegment() {
         List<Segment> subSegments = this.splitStrategy.apply(this.currentSegment);
         for (Segment segment : subSegments) {
-            //System.out.println(String.format("Processing sub-segment from %d to %d",segment.getFirstPosition(), segment.getLastPosition()));try {
-            Objects.requireNonNull(this.function);
-            Segment processed = this.function.apply(segment);
-            segmentConsumer.accept(processed);
+            //System.out.println(String.format("Processing sub-segment from %d to %d",segment.getFirstPosition(), segment.getLastPosition()));
+            try {
+                Objects.requireNonNull(this.function);
+                Segment processed = this.function.apply(segment);
+                segmentConsumer.accept(processed);
 
-        } catch (NullPointerException npe) {
-            LOG.error("Failed to process segments: ", npe);
+            } catch (NullPointerException npe) {
+                LOG.error("Failed to process segments: ", npe);
+                //TODO: throw back this NPE when testing is complete.
+                System.out.println(currentSegment);
 
-            System.out.println(currentSegment);
-        } finally {
-            this.updateStats();}
+            } finally {
+                this.updateStats();
+            }
         }
     }
 
