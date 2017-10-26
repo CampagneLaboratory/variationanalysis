@@ -61,7 +61,13 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         if (args().inputFile.isEmpty()) {
             System.err.println("You must provide input SBI files.");
         }
-        Consumer<Segment> segmentConsumer= segment -> segment.writeTo(writer);
+        Consumer<Segment> segmentConsumer= segment -> {
+            try {
+                segment.writeTo(writer);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        };
 
         segmentHelper = new ThreadLocal<SegmentHelper>() {
             @Override
