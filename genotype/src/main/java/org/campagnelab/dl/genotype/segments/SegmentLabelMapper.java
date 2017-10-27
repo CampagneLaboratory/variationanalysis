@@ -23,7 +23,7 @@ public class SegmentLabelMapper {
     private final int ploidy;
     private final int numberOfLabelsPerBase; // Combinations of  A,C,T,G,-
     private final Set<String> labels;
-    private final char[] alleles = new char[]{'A','C','T','G','-'};
+    private final char[] alleles = new char[]{'A', 'C', 'T', 'G', '-'};
     private final IndexedIdentifier indexedLabels;
     static private Logger LOG = LoggerFactory.getLogger(SegmentLabelMapper.class);
 
@@ -33,7 +33,7 @@ public class SegmentLabelMapper {
         System.out.println(Arrays.toString(position));
         Properties props = new Properties();
         mapper.writeMap(props);
-        try(OutputStream output = new FileOutputStream("indexedLabels.properties")) {
+        try (OutputStream output = new FileOutputStream("indexedLabels.properties")) {
             props.store(output, null);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -53,6 +53,7 @@ public class SegmentLabelMapper {
 
     /**
      * Creates a map <index, label>
+     *
      * @return
      */
     private IndexedIdentifier buildLabelMap() {
@@ -69,24 +70,25 @@ public class SegmentLabelMapper {
      */
     private List<String> buildLabels(int deep) {
         List<String> combinedLabels = new ObjectArrayList<>();
-            for (int from = 0; from < alleles.length; from++) {
-                if (deep == 2) {
-                    for (int index = from; index < alleles.length ; index++) {
-                        combinedLabels.add(sortAlphabetically(String.format("%c%c", alleles[from], alleles[index])));
-                    }
-                }  else {
-                    int finalFrom = from;
-                    buildLabels(deep-1).forEach(label -> {
-                        combinedLabels.add(sortAlphabetically(String.format("%c%s",alleles[finalFrom],label)));
-                    });
-
+        for (int from = 0; from < alleles.length; from++) {
+            if (deep == 2) {
+                for (int index = from; index < alleles.length; index++) {
+                    combinedLabels.add(sortAlphabetically(String.format("%c%c", alleles[from], alleles[index])));
                 }
+            } else {
+                int finalFrom = from;
+                buildLabels(deep - 1).forEach(label -> {
+                    combinedLabels.add(sortAlphabetically(String.format("%c%s", alleles[finalFrom], label)));
+                });
+
             }
+        }
         return combinedLabels;
     }
 
     /**
      * Maps the given chromosome sequence.
+     *
      * @param chromosomes
      * @return a float array of zeros, except for the position of the sequence (which is equals to 1).
      */
@@ -94,15 +96,22 @@ public class SegmentLabelMapper {
         float[] position = new float[this.numberOfLabelsPerBase];
         String clean = chromosomes.replace("/", "");
         if (clean.length() != ploidy)
-            throw new IllegalArgumentException(chromosomes + " is not of the expected length (" + this.ploidy +")");
+            throw new IllegalArgumentException(chromosomes + " is not of the expected length (" + this.ploidy + ")");
         final MutableString toFind = new MutableString(sortAlphabetically(clean)).compact();
         int foundAt = this.indexedLabels.getInt(toFind);
-        if (foundAt < position.length -1 && foundAt >= 0)
-            position[foundAt] = 1L;
+        assert foundAt >= 0 : String.format("genotype %s not found in map", toFind);
+        if (foundAt < position.length - 1 && foundAt >= 0) {
+            position[foundAt] = 1;
+        }
+        else {
+            position[foundAt]=-1;
+        }
         return position;
     }
+
     /**
      * Add the indexes and labels to the properties.
+     *
      * @param properties
      */
     public void writeMap(final Properties properties) {
@@ -114,6 +123,7 @@ public class SegmentLabelMapper {
 
     /**
      * Sorts the chars in the list in alphabetic order.
+     *
      * @param toSort
      * @return
      */
@@ -122,7 +132,7 @@ public class SegmentLabelMapper {
         Arrays.sort(elements);
         return new String(elements);
     }
-    
+
     public int numberOfLabels() {
         return numberOfLabelsPerBase;
     }
