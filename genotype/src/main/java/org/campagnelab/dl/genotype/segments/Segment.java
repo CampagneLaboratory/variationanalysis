@@ -42,10 +42,20 @@ public class Segment {
         this.fillInFeatures = fillInFeatures;
     }
 
+    protected Segment(Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures) {
+        this.fillInFeatures = fillInFeatures;
+    }
+
     private void setAsLast(BaseInformationRecords.BaseInformation record) {
         this.lastPosition = record.getPosition();
         this.lastReferenceId = record.getReferenceId();
         this.lastReferenceIndex = record.getReferenceIndex();
+    }
+
+    private void setAsFirst(BaseInformationRecords.BaseInformation base) {
+        this.firstPosition = base.getPosition();
+        this.firstReferenceIndex = base.getReferenceIndex();
+        this.firstReferenceId = base.getReferenceId();
     }
 
     /**
@@ -104,6 +114,8 @@ public class Segment {
      */
     public void add(BaseInformationRecords.BaseInformation record) {
         this.recordList.add(record);
+        if (this.recordList.size() == 1)
+            this.setAsFirst(record);
         this.setAsLast(record);
     }
 

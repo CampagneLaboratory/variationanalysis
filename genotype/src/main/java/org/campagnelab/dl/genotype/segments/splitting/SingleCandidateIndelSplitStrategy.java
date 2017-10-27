@@ -33,31 +33,31 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
      * @return the segment resulting from the splitting.
      */
     @Override
-    public List<Segment> apply(final Segment segment) {
+    public List<SubSegment> apply(final Segment segment) {
         List<SubSegment> subSegments = new ArrayList<>();
 
         for (BaseInformationRecords.BaseInformation record : segment.getAllRecords()) {
             this.addToBeforeList(record); //keep the before list active
-            if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold)) {
-                SubSegment newSubSegment = this.createSubSegment(segment,record);
-                subSegments.add(newSubSegment);
-            }
-            this.addToBeforeList(record); //keep the before list active for the next subsegments
             //complete the sub-segments that are still open
             for (SubSegment subSegment : subSegments) {
                 if (subSegment.isOpen())
                     subSegment.add(record);
             }
+            if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold)) {
+                SubSegment newSubSegment = this.createSubSegment(segment,record);
+                subSegments.add(newSubSegment);
+            }
+        }
 
+        if (subSegments.size() == 0 ) {
+            System.out.println(String.format("No candindate indel found in this segment %d-%d", segment.getFirstPosition(), segment.getLastPosition()));
         }
          //Subsegment as segments
-        List<Segment> segments = new ArrayList<>();
         for (SubSegment subSegment : subSegments){
-           segments.add(subSegment.asSegment());
             System.out.println(String.format("New subsegment around candidate indel at %d (%d-%d)", subSegment.getIndelPosition(),
                     subSegment.getFirstPosition(), subSegment.getLastPosition()));
         }
-        return segments;
+        return subSegments;
     }
 
     private SubSegment createSubSegment(Segment parent,BaseInformationRecords.BaseInformation record) {

@@ -17,5 +17,5 @@ public interface SplitStrategy{
      * @param segment the function argument
      * @return the segment resulting from the splitting.
      */
-    List<Segment> apply(Segment segment);
+     <T extends Segment> List<T> apply(Segment segment);
 }
