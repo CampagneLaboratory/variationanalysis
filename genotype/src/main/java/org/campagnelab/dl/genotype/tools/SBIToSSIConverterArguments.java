@@ -42,4 +42,6 @@ public class SBIToSSIConverterArguments implements ToolArguments {
     @Parameter(names = "--snp-only", description = "Do not write indel genotypes to the output. This makes for a much simpler prediction problem to help diagnose problems.")
     public boolean snpOnly;
 
+    @Parameter(names = "--verbose", description = "Be more verbose.")
+    public boolean verbose;
 }

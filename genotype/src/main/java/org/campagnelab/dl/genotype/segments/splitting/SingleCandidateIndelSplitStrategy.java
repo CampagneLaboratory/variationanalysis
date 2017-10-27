@@ -19,11 +19,13 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
     private final int candidateIndelThreshold;
 
     private final SizedBaseMap beforeIndel;
+    private boolean verbose;
 
-    public SingleCandidateIndelSplitStrategy(long windowSize, int candidateIndelThreshold) {
+    public SingleCandidateIndelSplitStrategy(long windowSize, int candidateIndelThreshold, boolean versbose) {
         this.windowSize = windowSize;
         this.candidateIndelThreshold = candidateIndelThreshold;
         this.beforeIndel = new SizedBaseMap(windowSize);
+        this.verbose=versbose;
     }
 
     /**
@@ -39,7 +41,7 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
         for (BaseInformationRecords.BaseInformation record : segment.getAllRecords()) {
             this.addToBeforeList(record); //keep the before list active
             if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold)) {
-                SubSegment newSubSegment = this.createSubSegment(segment,record);
+                SubSegment newSubSegment = this.createSubSegment(segment, record);
                 subSegments.add(newSubSegment);
             }
             this.addToBeforeList(record); //keep the before list active for the next subsegments
@@ -50,18 +52,20 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
             }
 
         }
-         //Subsegment as segments
+        //Subsegment as segments
         List<Segment> segments = new ArrayList<>();
-        for (SubSegment subSegment : subSegments){
-           segments.add(subSegment.asSegment());
-            System.out.println(String.format("New subsegment around candidate indel at %d (%d-%d)", subSegment.getIndelPosition(),
-                    subSegment.getFirstPosition(), subSegment.getLastPosition()));
+        for (SubSegment subSegment : subSegments) {
+            segments.add(subSegment.asSegment());
+            if (verbose) {
+                System.out.println(String.format("New subsegment around candidate indel at %d (%d-%d)", subSegment.getIndelPosition(),
+                        subSegment.getFirstPosition(), subSegment.getLastPosition()));
+            }
         }
         return segments;
     }
 
-    private SubSegment createSubSegment(Segment parent,BaseInformationRecords.BaseInformation record) {
-        return new SubSegment(this.beforeIndel,parent,record, this.windowSize);
+    private SubSegment createSubSegment(Segment parent, BaseInformationRecords.BaseInformation record) {
+        return new SubSegment(this.beforeIndel, parent, record, this.windowSize);
     }
 
     private void addToBeforeList(BaseInformationRecords.BaseInformation record) {
