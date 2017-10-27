@@ -1,5 +1,6 @@
 package org.campagnelab.dl.genotype.segments.splitting;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.genotype.segments.Segment;
 import org.campagnelab.dl.genotype.segments.SegmentUtil;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -36,7 +37,7 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
      */
     @Override
     public List<SubSegment> apply(final Segment segment) {
-        List<SubSegment> subSegments = new ArrayList<>();
+        ObjectArrayList<SubSegment> subSegments = new ObjectArrayList<>();
 
         for (BaseInformationRecords.BaseInformation record : segment.getAllRecords()) {
             this.addToBeforeList(record); //keep the before list active
