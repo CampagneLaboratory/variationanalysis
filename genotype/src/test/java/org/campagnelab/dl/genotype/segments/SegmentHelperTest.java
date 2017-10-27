@@ -13,18 +13,35 @@ import java.util.function.Function;
 import static org.junit.Assert.assertEquals;
 
 public class SegmentHelperTest {
-    String expectedSnps = "ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n" +
+    String expectedSnps =
+            "ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n" +
             "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A)\n" +
             "ref=C\ttrueGenotype=C\tcounts= C=15  (from: C)\n";
 
-    String expectedInsertionCC = "ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n" +
-            "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A)\n" +
-            "ref=A\ttrueGenotype=A\tcounts= A=7  A=7  (from: A)\n" +
-            "ref=-\ttrueGenotype=-/C\tcounts= C=7  -=7  (from: -)\n" +
-            "ref=-\ttrueGenotype=-/C\tcounts= C=7  -=7  (from: -)\n" +
-            "ref=A\ttrueGenotype=A\tcounts= A=7  A=7  (from: A)\n";
+    String expectedHetInsertionCC =
+            "ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n" +
+                    "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A)\n" +
+                    "ref=A\ttrueGenotype=A\tcounts= A=14  (from: A)\n" +
+                    "ref=-\ttrueGenotype=-/C\tcounts= -=7  C=7  (from: -)\n" +
+                    "ref=-\ttrueGenotype=-/C\tcounts= -=7  C=7  (from: -)\n" +
+                    "ref=A\ttrueGenotype=A\tcounts= A=14  (from: A)\n";
 
-   String expectedDeletionTT = "ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n" +
+    String expectedHomInsertionCC =
+            "ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n" +
+        "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A)\n" +
+        "ref=A\ttrueGenotype=A\tcounts= A=14  (from: A)\n" +
+        "ref=-\ttrueGenotype=C\tcounts= C=14  (from: -)\n" +
+        "ref=-\ttrueGenotype=C\tcounts= C=14  (from: -)\n" +
+        "ref=A\ttrueGenotype=A\tcounts= A=14  (from: A)\n";
+
+    String expectedHetDeletionTT =
+            "ref=A\ttrueGenotype=A\tcounts= A=14  (from: A)\n" +
+            "ref=T\ttrueGenotype=-/T\tcounts= -=7  T=7  (from: T)\n" +
+            "ref=T\ttrueGenotype=-/T\tcounts= -=7  T=7  (from: T)\n" +
+            "ref=A\ttrueGenotype=A\tcounts= A=14  (from: A)\n";
+
+    String expectedHomDeletionTT =
+            "ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n" +
            "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A)\n" +
            "ref=A\ttrueGenotype=A\tcounts= A=7  (from: A)\n" +
            "ref=T\ttrueGenotype=-\tcounts= -=7  (from: T)\n" +
@@ -67,7 +84,7 @@ public class SegmentHelperTest {
 
 
         Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
-            assertEquals(expectedInsertionCC, Segment.showGenotypes(segmentInfoo));
+            assertEquals(expectedHetInsertionCC, Segment.showGenotypes(segmentInfoo));
         };
         SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new NoSplitStrategy(),
                 false);
@@ -82,8 +99,8 @@ public class SegmentHelperTest {
     }
 
     @Test
-    // homozygous deletion
-    public void testHelperDeletion() {
+    // hom insertion
+    public void testHelperHomInsertion() {
         Function<Segment, Segment> function = new WithIndelsPostProcessSegmentFunction();
         SBIToSSIConverterArguments args = new SBIToSSIConverterArguments();
         args.mapFeatures = false;
@@ -92,7 +109,32 @@ public class SegmentHelperTest {
 
 
         Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
-            assertEquals(expectedDeletionTT, Segment.showGenotypes(segmentInfoo));
+            assertEquals(expectedHomInsertionCC, Segment.showGenotypes(segmentInfoo));
+        };
+        SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new NoSplitStrategy(),
+                false);
+        int refIndex = 0;
+        int position = 0;
+        helper.add(makeRecord(refIndex, position, "A/A", "A/A=12+10"));
+        helper.add(makeRecord(refIndex, position + 1, "A/T", "A/A=20+12", "A/T=10+23"));
+        helper.add(makeRecord(refIndex, position + 2, "ACCA/ACCA", "A--A/ACCA=2+5", "A--A/ACCA=2+5"));
+        //  helper.add(makeRecord(refIndex, position + 3, "C/C", "C/C=10+5"));
+        helper.close();
+
+    }
+
+    @Test
+    // homozygous deletion
+    public void testHelperHomDeletion() {
+        Function<Segment, Segment> function = new WithIndelsPostProcessSegmentFunction();
+        SBIToSSIConverterArguments args = new SBIToSSIConverterArguments();
+        args.mapFeatures = false;
+        args.mapLabels = false;
+        FillInFeaturesFunction fillInFeatures = new MyFillInFeaturesFunction(null, null, args);
+
+
+        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
+            assertEquals(expectedHomDeletionTT, Segment.showGenotypes(segmentInfoo));
         };
         SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new NoSplitStrategy(),
                 false);
@@ -105,6 +147,32 @@ public class SegmentHelperTest {
         helper.close();
 
     }
+
+    @Test
+    // het deletion
+    public void testHelperHetDeletion() {
+        Function<Segment, Segment> function = new WithIndelsPostProcessSegmentFunction();
+        SBIToSSIConverterArguments args = new SBIToSSIConverterArguments();
+        args.mapFeatures = false;
+        args.mapLabels = false;
+        FillInFeaturesFunction fillInFeatures = new MyFillInFeaturesFunction(null, null, args);
+//TODO fix test
+
+        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
+            assertEquals(expectedHetDeletionTT, Segment.showGenotypes(segmentInfoo));
+        };
+        SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new NoSplitStrategy(),
+                false);
+        int refIndex = 0;
+        int position = 0;
+     //   helper.add(makeRecord(refIndex, position, "A/A", "A/A=12+10"));
+      //  helper.add(makeRecord(refIndex, position + 1, "A/T", "A/A=20+12", "A/T=10+23"));
+        helper.add(makeRecord(refIndex, position + 2, "A--A/ATTA", "ATTA/A--A=2+5","ATTA/ATTA=2+5"));
+        //  helper.add(makeRecord(refIndex, position + 3, "C/C", "C/C=10+5"));
+        helper.close();
+
+    }
+
 
     // format of count creation instruction is from/to=10+12
     private BaseInformationRecords.BaseInformation makeRecord(int refIndex, int position, String genotype, String... countCreations) {
