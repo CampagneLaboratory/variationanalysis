@@ -81,7 +81,7 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
         list.add(builtCopy);
         afterRecord.put(previous, list);
     }
-
+    private ObjectArrayList<BaseInformationRecords.CountInfo.Builder> countsToKeep = new ObjectArrayList();
     /**
      * Adjust counts to reduce indels to a single base, using offset and the current indel sequences to determine where
      * to increase the base count.
@@ -99,7 +99,7 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
         String recordTrueGenotype = copy.getTrueGenotype();
 
         for (BaseInformationRecords.SampleInfo.Builder sample : copy.getSamplesBuilderList()) {
-            ObjectArrayList<BaseInformationRecords.CountInfo.Builder> countsToKeep = new ObjectArrayList();
+           countsToKeep.clear();
 
             for (BaseInformationRecords.CountInfo.Builder count : sample.getCountsBuilderList()) {
 
@@ -135,7 +135,7 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
 
             }
             sample.clearCounts();
-            countsToKeep= aggregateCounts(countsToKeep);
+            countsToKeep = aggregateCounts(countsToKeep);
             for (BaseInformationRecords.CountInfo.Builder count : countsToKeep) {
                 sample.addCounts(count);
 
@@ -147,7 +147,6 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
         return copy;
     }
 
-    ObjectSet<BaseInformationRecords.CountInfo.Builder> accumulator = new ObjectArraySet<>();
     Comparator<BaseInformationRecords.CountInfo.Builder> comparator = new Comparator<BaseInformationRecords.CountInfo.Builder>() {
         @Override
         public int compare(BaseInformationRecords.CountInfo.Builder o1, BaseInformationRecords.CountInfo.Builder o2) {
@@ -159,33 +158,32 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
             return 0;
         }
     };
+    private ObjectSet<BaseInformationRecords.CountInfo.Builder> toRemove = new ObjectArraySet();
 
     // this method aggregates forward and reverse counts when the from/to matches across count instances.
     // it keeps only one instance, with the sum of counts over redundant instances.
     private ObjectArrayList<BaseInformationRecords.CountInfo.Builder> aggregateCounts(ObjectArrayList<BaseInformationRecords.CountInfo.Builder> countsToKeep) {
 
-        accumulator.clear();
+        toRemove.clear();
         Collections.sort(countsToKeep, comparator);
-        IntList indicesToRemove=new IntArrayList();
+
 
         BaseInformationRecords.CountInfo.Builder previous = null;
         for (BaseInformationRecords.CountInfo.Builder count : countsToKeep) {
             if (previous != null) {
-                if (comparator.compare(previous, count) == 0){
+                if (comparator.compare(previous, count) == 0) {
                     int sumForward = previous.getGenotypeCountForwardStrand() + count.getGenotypeCountForwardStrand();
                     int sumReverse = previous.getGenotypeCountReverseStrand() + count.getGenotypeCountReverseStrand();
                     previous.setGenotypeCountForwardStrand(sumForward);
                     previous.setGenotypeCountReverseStrand(sumReverse);
                     previous.setMatchesReference(previous.getFromSequence().equals(previous.getToSequence()));
-                    indicesToRemove.add(countsToKeep.indexOf(count));
+                    toRemove.add(count);
                 }
             }
-            previous=count;
+            previous = count;
 
         }
-        for (int index: indicesToRemove) {
-            countsToKeep.remove(index);
-        }
+        countsToKeep.removeAll(toRemove);
         return countsToKeep;
     }
 
@@ -215,7 +213,7 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
 
     }
 
-    ObjectSet<BaseInformationRecords.BaseInformation> hideSet = new ObjectOpenHashSet<>();
+    protected ObjectSet<BaseInformationRecords.BaseInformation> hideSet = new ObjectOpenHashSet<>();
 
     public void hideRecord(BaseInformationRecords.BaseInformation record) {
         hideSet.add(record);
