@@ -24,6 +24,13 @@ public class SegmentHelperTest {
             "ref=-\ttrueGenotype=-/C\tcounts= C=7  -=7  (from: -)\n" +
             "ref=A\ttrueGenotype=A\tcounts= A=7  A=7  (from: A)\n";
 
+   String expectedDeletionTT = "ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n" +
+           "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A)\n" +
+           "ref=A\ttrueGenotype=A\tcounts= A=7  (from: A)\n" +
+           "ref=T\ttrueGenotype=-\tcounts= -=7  (from: T)\n" +
+           "ref=T\ttrueGenotype=-\tcounts= -=7  (from: T)\n" +
+           "ref=A\ttrueGenotype=A\tcounts= A=7  (from: A)\n";
+
 
     @Test
     public void testHelperSnps() {
@@ -50,6 +57,7 @@ public class SegmentHelperTest {
     }
 
     @Test
+    // het insertion
     public void testHelperInsertion() {
         Function<Segment, Segment> function = new WithIndelsPostProcessSegmentFunction();
         SBIToSSIConverterArguments args = new SBIToSSIConverterArguments();
@@ -68,6 +76,31 @@ public class SegmentHelperTest {
         helper.add(makeRecord(refIndex, position, "A/A", "A/A=12+10"));
         helper.add(makeRecord(refIndex, position + 1, "A/T", "A/A=20+12", "A/T=10+23"));
         helper.add(makeRecord(refIndex, position + 2, "A--A/ACCA", "A--A/ACCA=2+5", "A--A/A--A=2+5"));
+        //  helper.add(makeRecord(refIndex, position + 3, "C/C", "C/C=10+5"));
+        helper.close();
+
+    }
+
+    @Test
+    // homozygous deletion
+    public void testHelperDeletion() {
+        Function<Segment, Segment> function = new WithIndelsPostProcessSegmentFunction();
+        SBIToSSIConverterArguments args = new SBIToSSIConverterArguments();
+        args.mapFeatures = false;
+        args.mapLabels = false;
+        FillInFeaturesFunction fillInFeatures = new MyFillInFeaturesFunction(null, null, args);
+
+
+        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
+            assertEquals(expectedDeletionTT, Segment.showGenotypes(segmentInfoo));
+        };
+        SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new NoSplitStrategy(),
+                false);
+        int refIndex = 0;
+        int position = 0;
+        helper.add(makeRecord(refIndex, position, "A/A", "A/A=12+10"));
+        helper.add(makeRecord(refIndex, position + 1, "A/T", "A/A=20+12", "A/T=10+23"));
+        helper.add(makeRecord(refIndex, position + 2, "A--A/A--A", "ATTA/A--A=2+5"));
         //  helper.add(makeRecord(refIndex, position + 3, "C/C", "C/C=10+5"));
         helper.close();
 
