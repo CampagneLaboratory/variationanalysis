@@ -21,11 +21,11 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
     private final SizedBaseMap beforeIndel;
     private boolean verbose;
 
-    public SingleCandidateIndelSplitStrategy(long windowSize, int candidateIndelThreshold, boolean versbose) {
+    public SingleCandidateIndelSplitStrategy(long windowSize, int candidateIndelThreshold, boolean verbose) {
         this.windowSize = windowSize;
         this.candidateIndelThreshold = candidateIndelThreshold;
         this.beforeIndel = new SizedBaseMap(windowSize);
-        this.verbose=versbose;
+        this.verbose = verbose;
     }
 
     /**
@@ -46,18 +46,20 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
                     subSegment.add(record);
             }
             if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold)) {
-                SubSegment newSubSegment = this.createSubSegment(segment,record);
+                SubSegment newSubSegment = this.createSubSegment(segment, record);
                 subSegments.add(newSubSegment);
             }
         }
 
-        if (subSegments.size() == 0 ) {
+        if (verbose && subSegments.size() == 0) {
             System.out.println(String.format("No candindate indel found in this segment %d-%d", segment.getFirstPosition(), segment.getLastPosition()));
         }
-         //Subsegment as segments
-        for (SubSegment subSegment : subSegments){
-            System.out.println(String.format("New subsegment around candidate indel at %d (%d-%d)", subSegment.getIndelPosition(),
-                    subSegment.getFirstPosition(), subSegment.getLastPosition()));
+        //Subsegment as segments
+        if (verbose) {
+            for (SubSegment subSegment : subSegments) {
+                System.out.println(String.format("New subsegment around candidate indel at %d (%d-%d)", subSegment.getIndelPosition(),
+                        subSegment.getFirstPosition(), subSegment.getLastPosition()));
+            }
         }
         return subSegments;
     }
