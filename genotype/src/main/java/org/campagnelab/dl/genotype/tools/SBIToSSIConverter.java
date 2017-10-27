@@ -67,7 +67,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             @Override
             protected SegmentHelper initialValue() {
                 return new SegmentHelper( processSegmentFunction, fillInFeaturesFunction, segmentConsumer ,
-                        new SingleCandidateIndelSplitStrategy(100,candidateIndelThreshold),
+                        new SingleCandidateIndelSplitStrategy(100,candidateIndelThreshold, args().verbose),
                         args().collectStatistics );
             }
         };

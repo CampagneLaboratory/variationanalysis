@@ -19,11 +19,13 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
     private final int candidateIndelThreshold;
 
     private final SizedBaseMap beforeIndel;
+    private boolean verbose;
 
-    public SingleCandidateIndelSplitStrategy(long windowSize, int candidateIndelThreshold) {
+    public SingleCandidateIndelSplitStrategy(long windowSize, int candidateIndelThreshold, boolean versbose) {
         this.windowSize = windowSize;
         this.candidateIndelThreshold = candidateIndelThreshold;
         this.beforeIndel = new SizedBaseMap(windowSize);
+        this.verbose=versbose;
     }
 
     /**
@@ -60,8 +62,8 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
         return subSegments;
     }
 
-    private SubSegment createSubSegment(Segment parent,BaseInformationRecords.BaseInformation record) {
-        return new SubSegment(this.beforeIndel,parent,record, this.windowSize);
+    private SubSegment createSubSegment(Segment parent, BaseInformationRecords.BaseInformation record) {
+        return new SubSegment(this.beforeIndel, parent, record, this.windowSize);
     }
 
     private void addToBeforeList(BaseInformationRecords.BaseInformation record) {

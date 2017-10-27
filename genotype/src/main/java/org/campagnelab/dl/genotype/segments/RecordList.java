@@ -155,7 +155,7 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
 
         ArrayList<String> alleles=new ArrayList();
         for (String allele : GenotypeHelper.getAlleles(adjustedTrueGenotype)) {
-          if (allele.length()>1) {
+          if (allele.length()>offset) {
               alleles.add(allele.substring(offset, offset + 1));
           } else {
                 alleles.add("-");
