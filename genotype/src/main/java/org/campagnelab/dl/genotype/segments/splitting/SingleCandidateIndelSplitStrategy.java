@@ -1,5 +1,6 @@
 package org.campagnelab.dl.genotype.segments.splitting;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.genotype.segments.Segment;
 import org.campagnelab.dl.genotype.segments.SegmentUtil;
@@ -18,6 +19,8 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
     private final long windowSize;
 
     private final int candidateIndelThreshold;
+
+    private int previousCandidateIndel;
 
     private final SizedBaseMap beforeIndel;
     private boolean verbose;
@@ -38,7 +41,6 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
     @Override
     public List<SubSegment> apply(final Segment segment) {
         ObjectArrayList<SubSegment> subSegments = new ObjectArrayList<>();
-
         for (BaseInformationRecords.BaseInformation record : segment.getAllRecords()) {
             this.addToBeforeList(record); //keep the before list active
             //complete the sub-segments that are still open
@@ -47,8 +49,11 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
                     subSegment.add(record);
             }
             if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold)) {
-                SubSegment newSubSegment = this.createSubSegment(segment, record);
-                subSegments.add(newSubSegment);
+                if (record.getPosition() - previousCandidateIndel != 1) { //if they are not consecutive, we open a new subsegment
+                    SubSegment newSubSegment = this.createSubSegment(segment, record);
+                    subSegments.add(newSubSegment);
+                }
+                previousCandidateIndel = record.getPosition();
             }
         }
 
@@ -61,7 +66,9 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
                 System.out.println(String.format("New subsegment around candidate indel at %d (%d-%d)", subSegment.getIndelPosition(),
                         subSegment.getFirstPosition(), subSegment.getLastPosition()));
             }
+            System.out.println(String.format("Subsegments found %d", subSegments.size()));
         }
+
         return subSegments;
     }
 
@@ -111,15 +118,7 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
             }
 
         }
-
-        /**
-         * Checks if the list has reached the window size.
-         *
-         * @return
-         */
-        protected boolean hasReachedWindowSize() {
-            return (lastElementPosition - firstElementPosition >= windowSize);
-        }
+        
 
         /**
          * Associates the specified value with the specified key in this map.
