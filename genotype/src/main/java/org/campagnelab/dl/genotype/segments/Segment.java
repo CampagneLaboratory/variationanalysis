@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
 import it.unimi.dsi.lang.MutableString;
-import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationWriter;
@@ -46,13 +45,13 @@ public class Segment {
         this.fillInFeatures = fillInFeatures;
     }
 
-    private void setAsLast(BaseInformationRecords.BaseInformation record) {
+    protected void setAsLast(BaseInformationRecords.BaseInformation record) {
         this.lastPosition = record.getPosition();
         this.lastReferenceId = record.getReferenceId();
         this.lastReferenceIndex = record.getReferenceIndex();
     }
 
-    private void setAsFirst(BaseInformationRecords.BaseInformation base) {
+    protected void setAsFirst(BaseInformationRecords.BaseInformation base) {
         this.firstPosition = base.getPosition();
         this.firstReferenceIndex = base.getReferenceIndex();
         this.firstReferenceId = base.getReferenceId();
@@ -77,7 +76,7 @@ public class Segment {
         builder.setEndPosition(refBuilder.build());
         builder.setLength(actualLength());
         final long[] segmentStats = {0L, 0L, 0L};
-        int numSamples = recordList.first().getSamplesCount();
+        int numSamples = getFirstRecord().getSamplesCount();
         SegmentInformationRecords.Sample.Builder sampleBuilder[] = new SegmentInformationRecords.Sample.Builder[numSamples];
         for (int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
 
@@ -105,6 +104,14 @@ public class Segment {
 
         segmentConsumer.accept(built);
 
+    }
+
+    /**
+     * First record in the segment.
+     * @return
+     */
+    public BaseInformationRecords.BaseInformation getFirstRecord() {
+        return recordList.first();
     }
 
     /**
@@ -202,8 +209,7 @@ public class Segment {
      * @return
      */
     public Iterable<BaseInformationRecords.BaseInformation> getAllRecords() {
-
-          ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(recordList.size() * 3 / 2);
+        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(recordList.size() * 3 / 2);
         for (BaseInformationRecords.BaseInformation record : recordList) {
             if (!recordList.hideSet.contains(record)) {
                 list.add(record);
@@ -214,7 +220,26 @@ public class Segment {
         return list;
     }
 
+    public Iterable<BaseInformationRecords.BaseInformation> getAllRecordsWithPosition(ObjectArrayList<Integer> positions) {
+        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(recordList.size() * 3 / 2);
+        for (BaseInformationRecords.BaseInformation record : recordList) {
+            if (!recordList.hideSet.contains(record) && positions.contains(record.getPosition())) {
+                list.add(record);
+            }
+            list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
+        }
 
+        return list;
+    }
+
+    public Spliterator<BaseInformationRecords.BaseInformation> getAllRecordsSplit() {
+        ArrayList<BaseInformationRecords.BaseInformation> list = new ArrayList<>();
+        for (BaseInformationRecords.BaseInformation record : recordList) {
+            list.add(record);
+            list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
+        }
+        return list.parallelStream().spliterator();
+    }
 
     public static String showGenotypes(SegmentInformationRecords.SegmentInformation segmentInformation) {
         MutableString result = new MutableString();
@@ -240,5 +265,24 @@ public class Segment {
 
     public void removeWhere(Predicate<BaseInformationRecords.BaseInformation> predicateIsTrue) {
         recordList.records.removeIf(predicateIsTrue);
+    }
+
+    public BaseInformationRecords.BaseInformation getRecordAt(int position) {
+        for (BaseInformationRecords.BaseInformation record : recordList) {
+            if (record.getPosition() == position)
+                return record;
+        }
+        return null;
+    }
+
+    public Iterable<BaseInformationRecords.BaseInformation> getAllRecords(int startPosition, int endPosition) {
+        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(endPosition - startPosition);
+        for (BaseInformationRecords.BaseInformation record : recordList) {
+            if (record.getPosition() >= startPosition)
+                list.add(record);
+            else if (record.getPosition() <= endPosition)
+                list.add(record);
+        }
+        return list;
     }
 }
