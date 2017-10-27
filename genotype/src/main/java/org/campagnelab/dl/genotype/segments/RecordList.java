@@ -152,9 +152,14 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
     }
 
     private String adjusteTrueGenotype(String adjustedTrueGenotype, int offset) {
+
         ArrayList<String> alleles=new ArrayList();
         for (String allele : GenotypeHelper.getAlleles(adjustedTrueGenotype)) {
-            alleles.add( allele.substring(offset, offset + 1));
+          if (allele.length()>1) {
+              alleles.add(allele.substring(offset, offset + 1));
+          } else {
+                alleles.add("-");
+            }
         }
        return alleles.stream().collect(Collectors.joining("/"));
 
