@@ -202,7 +202,8 @@ public class Segment {
      * @return
      */
     public Iterable<BaseInformationRecords.BaseInformation> getAllRecords() {
-        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(recordList.size() * 3 / 2);
+
+          ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(recordList.size() * 3 / 2);
         for (BaseInformationRecords.BaseInformation record : recordList) {
             if (!recordList.hideSet.contains(record)) {
                 list.add(record);
@@ -213,14 +214,7 @@ public class Segment {
         return list;
     }
 
-    public Spliterator<BaseInformationRecords.BaseInformation> getAllRecordsSplit() {
-        ArrayList<BaseInformationRecords.BaseInformation> list = new ArrayList<>();
-        for (BaseInformationRecords.BaseInformation record : recordList) {
-            list.add(record);
-            list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
-        }
-        return list.parallelStream().spliterator();
-    }
+
 
     public static String showGenotypes(SegmentInformationRecords.SegmentInformation segmentInformation) {
         MutableString result = new MutableString();

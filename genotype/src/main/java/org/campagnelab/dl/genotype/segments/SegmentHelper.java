@@ -91,6 +91,7 @@ public class SegmentHelper {
 
             } catch (NullPointerException npe) {
                 LOG.error("Failed to process segments: ", npe);
+                npe.printStackTrace();
                 //TODO: throw back this NPE when testing is complete.
                 System.out.println(currentSegment);
 

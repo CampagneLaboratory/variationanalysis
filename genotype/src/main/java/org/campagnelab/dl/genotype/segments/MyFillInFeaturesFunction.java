@@ -2,9 +2,9 @@ package org.campagnelab.dl.genotype.segments;
 
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.floats.FloatList;
+import it.unimi.dsi.fastutil.floats.FloatListIterator;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
-import org.campagnelab.dl.genotype.mappers.SingleBaseMapper;
 import org.campagnelab.dl.genotype.tools.SBIToSSIConverterArguments;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
@@ -52,7 +52,12 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
                 features.add(featureMapper.produceFeature(baseInformation, featureIndex));
             }
             builder.clearFeatures();
-            builder.addAllFeatures(features);
+            for (FloatListIterator iterator = features.iterator(); iterator.hasNext(); ) {
+                float next =  iterator.nextFloat();
+                builder.addFeatures(next);
+            }
+
+
         }
         if (args().mapLabels) {
             if (trueGenotype.length() == 1) {
@@ -63,6 +68,7 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
             }
             float[] labels = labelMapper.map(trueGenotype.replaceAll("\\|", "/"));
             builder.clearLabels();
+
             for (float labelValue : labels) {
                 builder.addLabels(labelValue);
             }
