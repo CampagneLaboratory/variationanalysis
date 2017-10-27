@@ -4,6 +4,9 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
 import org.campagnelab.dl.genotype.mappers.SingleBaseGenotypeMapperV1;
+import org.campagnelab.dl.genotype.segments.splitting.NoSplitStrategy;
+import org.campagnelab.dl.genotype.segments.splitting.SingleCandidateIndelSplitStrategy;
+import org.campagnelab.dl.genotype.segments.splitting.SplitStrategy;
 
 /**
  * Arguments for the {@link SBIToSSIConverter} tool.
@@ -33,15 +36,37 @@ public class SBIToSSIConverterArguments implements ToolArguments {
     public String featureMapperClassName = SingleBaseGenotypeMapperV1.class.getCanonicalName();
 
     @Parameter(names = "--map-features", description = "Use to map features.")
-    public boolean mapFeatures=false;
-    public boolean mapLabels=true;
+    public boolean mapFeatures = false;
+    public boolean mapLabels = true;
 
     @Parameter(names = "--collect-statistics", description = "Collect and display statistics.")
-    public boolean collectStatistics=false;
+    public boolean collectStatistics = false;
 
     @Parameter(names = "--snp-only", description = "Do not write indel genotypes to the output. This makes for a much simpler prediction problem to help diagnose problems.")
     public boolean snpOnly;
 
     @Parameter(names = "--verbose", description = "Be more verbose.")
     public boolean verbose;
+
+    enum Strategy {
+        NO_SPLIT,
+        INDEL1
+    }
+
+    @Parameter(names = {"-s", "--split-strategy"}, description = "Strategy used to split segments that are too long. One of NO_SPLIT, or INDEL1")
+
+    public Strategy strategy = Strategy.NO_SPLIT;
+
+    public SplitStrategy getStrategy() {
+        switch (strategy) {
+
+            case INDEL1:
+                return new SingleCandidateIndelSplitStrategy(windowFlankSize, 0, verbose);
+            case NO_SPLIT:
+            default:
+                return new NoSplitStrategy();
+        }
+    }
+
+    int windowFlankSize = 100;
 }
