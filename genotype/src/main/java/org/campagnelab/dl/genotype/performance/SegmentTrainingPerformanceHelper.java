@@ -32,7 +32,7 @@ public class SegmentTrainingPerformanceHelper extends PredictWithModel<SegmentIn
 
     public SegmentTrainingPerformanceHelper(DomainDescriptor<SegmentInformationRecords.SegmentInformation> domainDescriptor) {
         super(domainDescriptor);
-        accumulator=new  SegmentStatsAccumulator(new AccuracySegmentAccumulator());
+        accumulator = new SegmentStatsAccumulator(new AccuracySegmentAccumulator(), new IndelAccuracySegmentAccumulator());
     }
 
     public double estimateWithGraph(MultiDataSetIterator iterator,
@@ -52,7 +52,6 @@ public class SegmentTrainingPerformanceHelper extends PredictWithModel<SegmentIn
                                     Predicate<Integer> stopIfTrue,
                                     Consumer<SegmentPrediction> observer, Consumer<Double> scoreObserver) {
         iterator.reset();
-        accumulator = new SegmentStatsAccumulator(new AccuracySegmentAccumulator());
         accumulator.initializeStats();
         int index = 0;
         int nProcessed = 0;
