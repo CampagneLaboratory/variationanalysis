@@ -23,7 +23,7 @@ public class SegmentLabelMapper {
     private final int ploidy;
     private final int numberOfLabelsPerBase; // Combinations of  A,C,T,G,-
     private final Set<String> labels;
-    private final char[] alleles = new char[]{'A', 'C', 'T', 'G', '-'};
+    private final char[] alleles = new char[]{'A', 'C', 'T', 'G', '-', 'N'};
     private final IndexedIdentifier indexedLabels;
     static private Logger LOG = LoggerFactory.getLogger(SegmentLabelMapper.class);
 
@@ -102,9 +102,8 @@ public class SegmentLabelMapper {
         assert foundAt >= 0 : String.format("genotype %s not found in map", toFind);
         if (foundAt < position.length - 1 && foundAt >= 0) {
             position[foundAt] = 1;
-        }
-        else {
-            position[foundAt]=-1;
+        } else {
+            position[foundAt] = -1;
         }
         return position;
     }
