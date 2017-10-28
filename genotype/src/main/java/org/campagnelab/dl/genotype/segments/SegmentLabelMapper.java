@@ -87,16 +87,16 @@ public class SegmentLabelMapper {
     }
 
     /**
-     * Maps the given chromosome sequence.
+     * Maps the given chromosome sequence to one hot encoding.
      *
-     * @param chromosomes
+     * @param alleles set of alleles in the format A/B/C where A,B or C are one of A,C,T,G,-
      * @return a float array of zeros, except for the position of the sequence (which is equals to 1).
      */
-    public float[] map(String chromosomes) {
+    public float[] map(String alleles) {
         float[] position = new float[this.numberOfLabelsPerBase];
-        String clean = chromosomes.replace("/", "");
+        String clean = alleles.replace("/", "");
         if (clean.length() != ploidy)
-            throw new IllegalArgumentException(chromosomes + " is not of the expected length (" + this.ploidy + ")");
+            throw new IllegalArgumentException(alleles + " is not of the expected length (" + this.ploidy + ")");
         final MutableString toFind = new MutableString(sortAlphabetically(clean)).compact();
         int foundAt = this.indexedLabels.getInt(toFind);
         assert foundAt >= 0 : String.format("genotype %s not found in map", toFind);
