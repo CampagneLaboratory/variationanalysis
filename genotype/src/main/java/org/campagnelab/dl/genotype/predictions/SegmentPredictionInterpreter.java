@@ -63,7 +63,12 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
           /*  if (prediction.predictedGenotypes[baseIndex] != null ||
                     prediction.trueGenotypes[baseIndex]!=null) prediction.length += 1;*/
             // assume we know the length of the sequence (we do, since it is the number of features we collected.)
-            if (prediction.trueGenotypes[baseIndex] != null) prediction.length += 1;
+            if (prediction.trueGenotypes[baseIndex] != null) {
+                prediction.length += 1;
+            }
+            else {
+                break;
+            }
         }
         return prediction;
     }
