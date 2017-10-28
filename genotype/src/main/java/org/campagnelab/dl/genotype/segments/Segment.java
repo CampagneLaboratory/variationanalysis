@@ -105,6 +105,7 @@ public class Segment {
 
     /**
      * First record in the segment.
+     *
      * @return
      */
     public BaseInformationRecords.BaseInformation getFirstRecord() {
@@ -205,38 +206,46 @@ public class Segment {
      *
      * @return
      */
+    public Iterable<BaseInformationRecords.BaseInformation> getAllRecords(int startPosition, int endPosition) {
+        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(recordList.size() * 3 / 2);
+        for (BaseInformationRecords.BaseInformation record : recordList) {
+            if (record.getPosition() >= startPosition && record.getPosition() < endPosition) {
+                if (!recordList.hideSet.contains(record)) {
+                    list.add(record);
+                }
+                list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
+            }
+        }
+
+        return list;
+    }
+
+    /**
+     * Determine the length of this segment between start and end position, including the number of afterRecord
+     * included in the range.
+     *
+     * @param startPosition start position, inclusive
+     * @param endPosition   end position, inclusive
+     * @return the number of records such that startPosition<=record.position=endPosition
+     */
+    public int actualLength(int startPosition, int endPosition) {
+        int count = 0;
+        for (BaseInformationRecords.BaseInformation record : recordList) {
+            if (record.getPosition() >= startPosition && record.getPosition() < endPosition) {
+                if (!recordList.hideSet.contains(record)) {
+                    count += 1;
+                }
+                count += recordList.afterRecord.getOrDefault(record, Collections.emptyList()).size();
+            }
+        }
+        return count;
+    }
+
     public Iterable<BaseInformationRecords.BaseInformation> getAllRecords() {
-        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(recordList.size() * 3 / 2);
-        for (BaseInformationRecords.BaseInformation record : recordList) {
-            if (!recordList.hideSet.contains(record)) {
-                list.add(record);
-            }
-            list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
-        }
+        return getAllRecords(-1, Integer.MAX_VALUE);
 
-        return list;
     }
 
-    public Iterable<BaseInformationRecords.BaseInformation> getAllRecordsWithPosition(ObjectArrayList<Integer> positions) {
-        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(recordList.size() * 3 / 2);
-        for (BaseInformationRecords.BaseInformation record : recordList) {
-            if (!recordList.hideSet.contains(record) && positions.contains(record.getPosition())) {
-                list.add(record);
-            }
-            list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
-        }
-
-        return list;
-    }
-
-    public Spliterator<BaseInformationRecords.BaseInformation> getAllRecordsSplit() {
-        ArrayList<BaseInformationRecords.BaseInformation> list = new ArrayList<>();
-        for (BaseInformationRecords.BaseInformation record : recordList) {
-            list.add(record);
-            list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
-        }
-        return list.parallelStream().spliterator();
-    }
 
     public static String showGenotypes(SegmentInformationRecords.SegmentInformation segmentInformation) {
         MutableString result = new MutableString();
@@ -272,14 +281,5 @@ public class Segment {
         return null;
     }
 
-    public Iterable<BaseInformationRecords.BaseInformation> getAllRecords(int startPosition, int endPosition) {
-        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(endPosition - startPosition);
-        for (BaseInformationRecords.BaseInformation record : recordList) {
-            if (record.getPosition() >= startPosition)
-                list.add(record);
-            else if (record.getPosition() <= endPosition)
-                list.add(record);
-        }
-        return list;
-    }
+
 }

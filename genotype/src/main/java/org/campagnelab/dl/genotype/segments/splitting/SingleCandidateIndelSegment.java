@@ -3,6 +3,8 @@ package org.campagnelab.dl.genotype.segments.splitting;
 import org.campagnelab.dl.genotype.segments.Segment;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
+import java.util.Iterator;
+
 
 /**
  * Split result of the {@link SingleCandidateIndelSplitStrategy}
@@ -11,7 +13,7 @@ public class SingleCandidateIndelSegment extends Segment {
     private final String candidateReferenceId;
     private final int candidateIndelPosition;
     private final int startPosition;
-    private  int endPosition;
+    private int endPosition;
     private final int windowSize;
     private final Segment parent;
 
@@ -26,7 +28,7 @@ public class SingleCandidateIndelSegment extends Segment {
         startPosition = this.detectStartPosition(beforePositions);
         this.add(indel);
         BaseInformationRecords.BaseInformation base = parent.getRecordAt(startPosition);
-        if (base == null){
+        if (base == null) {
             System.out.println("Null start base???");
         }
         this.setAsFirst(parent.getRecordAt(startPosition));
@@ -34,10 +36,11 @@ public class SingleCandidateIndelSegment extends Segment {
 
     /**
      * Detects the start position of this segment.
+     *
      * @param beforePositions
      * @return
      */
-    private int detectStartPosition(SingleCandidateIndelSplitStrategy.BasePositionList beforePositions){
+    private int detectStartPosition(SingleCandidateIndelSplitStrategy.BasePositionList beforePositions) {
         for (int position : beforePositions) {
             //the first one in the window
             if (this.candidateIndelPosition - position <= this.windowSize
@@ -66,10 +69,12 @@ public class SingleCandidateIndelSegment extends Segment {
         return parent.getAllRecords(startPosition, endPosition);
 
     }
+
     @Override
     public BaseInformationRecords.BaseInformation getFirstRecord() {
         return parent.getRecordAt(startPosition);
     }
+
     /**
      * Decides if the base belongs to this subsegment
      *
@@ -100,5 +105,10 @@ public class SingleCandidateIndelSegment extends Segment {
 
     public int getIndelPosition() {
         return this.candidateIndelPosition;
+    }
+
+    public int actualLength() {
+        return parent.actualLength(startPosition,endPosition);
+
     }
 }
