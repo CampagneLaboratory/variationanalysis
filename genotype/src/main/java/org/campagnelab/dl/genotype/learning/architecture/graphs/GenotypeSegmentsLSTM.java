@@ -29,7 +29,7 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
 
     private final String[] outputNames;
     private static final WeightInit WEIGHT_INIT = WeightInit.XAVIER;
-    private static final LearningRatePolicy LEARNING_RATE_POLICY = LearningRatePolicy.Poly;
+    private static final LearningRatePolicy LEARNING_RATE_POLICY = LearningRatePolicy.Score;
     private static final GenotypeSixDenseLayersWithIndelLSTM.OutputType DEFAULT_OUTPUT_TYPE = GenotypeSixDenseLayersWithIndelLSTM.OutputType.DISTINCT_ALLELES;
     private SegmentTrainingArguments arguments;
     private int numLayers;
@@ -93,16 +93,16 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
             switch (arguments.rnnKind) {
                 case CUDNN_LSTM:
                     rnnBuilder = new LSTM.Builder();
-                    ((LSTM.Builder) rnnBuilder).nOut(numHiddenNodes);
+                    ((LSTM.Builder) rnnBuilder).nOut(numHiddenNodes).learningRateDecayPolicy(LEARNING_RATE_POLICY);
                     break;
                 case DL4J_BidirectionalGraves:
                     rnnBuilder = new GravesBidirectionalLSTM.Builder();
-                    ((GravesBidirectionalLSTM.Builder) rnnBuilder).nOut(numHiddenNodes);
+                    ((GravesBidirectionalLSTM.Builder) rnnBuilder).nOut(numHiddenNodes).learningRateDecayPolicy(LEARNING_RATE_POLICY);
 
                     break;
                 case DL4J_Graves:
                     rnnBuilder = new GravesLSTM.Builder();
-                    ((GravesLSTM.Builder) rnnBuilder).nOut(numHiddenNodes);
+                    ((GravesLSTM.Builder) rnnBuilder).nOut(numHiddenNodes).learningRateDecayPolicy(LEARNING_RATE_POLICY);
                     break;
                 default:
                     throw new InternalError("RNN kind not supported: " + arguments.rnnKind);
@@ -110,8 +110,8 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
 
             build.addLayer(lstmLayerName, rnnBuilder
                     .nIn(numLSTMInputConditional)
-                    .updater(Updater.RMSPROP)
-                    .activation(Activation.TANH)
+                    .updater(Updater.ADAM)
+                    .activation(Activation.TANH).learningRateDecayPolicy(LEARNING_RATE_POLICY)
                     .build(), lstmPreviousLayerName);
             countInput += numHiddenNodes;
             componentNames.add(lstmLayerName);
@@ -124,7 +124,7 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
                         .weightInit(WEIGHT_INIT)
                         .nIn(countInput)
                         .activation(new ActivationSoftmax()).weightInit(WEIGHT_INIT).learningRateDecayPolicy(learningRatePolicy)
-                        .updater(Updater.RMSPROP)
+                        .updater(Updater.ADAM).learningRateDecayPolicy(LEARNING_RATE_POLICY)
                         .nOut(genotypeNumOutputs).build(),
                 // feed in inputs from all previous layers:
                 componentNames.toArray(new String[componentNames.size()]));
