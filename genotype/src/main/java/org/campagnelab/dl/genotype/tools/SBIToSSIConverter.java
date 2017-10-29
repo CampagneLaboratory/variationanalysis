@@ -121,7 +121,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             pg.start();
             final int[] totalRecords = {0};
 
-            StreamSupport.stream(sbiReader.spliterator(), args().parallel).forEach(sbiRecord -> {
+            StreamSupport.stream(sbiReader.spliterator(), args().parallel).limit(args().readN).forEach(sbiRecord -> {
                 try {
                     manageRecord(sbiRecord, gap);
                 } catch (IOException e) {

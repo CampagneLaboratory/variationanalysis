@@ -48,6 +48,9 @@ public class SBIToSSIConverterArguments implements ToolArguments {
     @Parameter(names = "--verbose", description = "Be more verbose.")
     public boolean verbose;
 
+    @Parameter(names = "--read-N", description = "Read at most N records from the SBI input, then stop.")
+    public long readN=Long.MAX_VALUE;
+
     enum Strategy {
         NO_SPLIT,
         INDEL1
