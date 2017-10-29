@@ -12,4 +12,10 @@ public interface Trainer {
     int train(ComputationGraph graph, MultiDataSetIterator iterator, ProgressLogger pg);
 
     void setLogSpeed(boolean logSpeed);
+
+    /**
+     * Get the score observed over the last call to train.
+     * @return training score.
+     */
+    double getScore();
 }

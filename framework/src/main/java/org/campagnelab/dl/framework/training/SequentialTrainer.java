@@ -18,15 +18,19 @@ import org.slf4j.LoggerFactory;
 public class SequentialTrainer implements Trainer {
     private boolean logSpeed;
     static private Logger LOG = LoggerFactory.getLogger(SequentialTrainer.class);
+    double score;
+    int n;
 
     @Override
     public int train(ComputationGraph computationGraph, MultiDataSetIterator iterator, ProgressLogger progressLogger) {
         int numExamplesUsed = 0;
         int numNanFoundConsecutively = 0;
+        score = 0;
+        n=0;
         //wrap in an async iterator to speed up loading of minibatches to keep the GPU utilized:
         String prefetchBufferString = System.getProperty("framework.parallelWrapper.prefetchBuffer");
         int prefetchBuffer = prefetchBufferString != null ? Integer.parseInt(prefetchBufferString) : 12;
-        iterator= new AsyncMultiDataSetIterator(iterator,prefetchBuffer);
+        iterator = new AsyncMultiDataSetIterator(iterator, prefetchBuffer);
 
         while (iterator.hasNext()) {
 
@@ -41,6 +45,8 @@ public class SequentialTrainer implements Trainer {
                 numNanFoundConsecutively++;
             } else {
                 numNanFoundConsecutively = 0;
+                this.score += score;
+                this.n++;
             }
 
             final int numExamples = ds.getFeatures(0).size(0);
@@ -57,38 +63,44 @@ public class SequentialTrainer implements Trainer {
         }
         return numExamplesUsed;
     }
+
     private void attach(MultiDataSet ds) {
         int e;
         INDArray[] features = ds.getFeatures();
-        if(features != null) {
-            for(e = 0; e < features.length; ++e) {
+        if (features != null) {
+            for (e = 0; e < features.length; ++e) {
                 features[e] = features[e].detach();
             }
         }
 
         INDArray[] labels = ds.getLabels();
-        if(labels != null) {
-            for(e = 0; e < labels.length; ++e) {
+        if (labels != null) {
+            for (e = 0; e < labels.length; ++e) {
                 labels[e] = labels[e].detach();
             }
         }
 
         INDArray[] featuresMaskArrays = ds.getFeaturesMaskArrays();
-        if(featuresMaskArrays != null) {
-            for(e = 0; e < featuresMaskArrays.length; ++e) {
+        if (featuresMaskArrays != null) {
+            for (e = 0; e < featuresMaskArrays.length; ++e) {
                 featuresMaskArrays[e] = featuresMaskArrays[e].detach();
             }
         }
 
         INDArray[] labelsMaskArrays = ds.getLabelsMaskArrays();
-        if(labelsMaskArrays != null) {
-            for(e = 0; e < labelsMaskArrays.length; ++e) {
-                labelsMaskArrays[e] =labelsMaskArrays[e].detach();
+        if (labelsMaskArrays != null) {
+            for (e = 0; e < labelsMaskArrays.length; ++e) {
+                labelsMaskArrays[e] = labelsMaskArrays[e].detach();
             }
         }
     }
+
     @Override
     public void setLogSpeed(boolean logSpeed) {
         this.logSpeed = logSpeed;
+    }
+
+    public double getScore() {
+        return score / (double) n;
     }
 }

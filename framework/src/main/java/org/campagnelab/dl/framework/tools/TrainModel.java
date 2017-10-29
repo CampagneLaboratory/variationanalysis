@@ -368,7 +368,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             numExamplesUsed += trainer.train(computationGraph, iterator, pg);
 
             //save latest after the end of an epoch:
-            double trainingScore = computationGraph.score();
+            double trainingScore = trainer.getScore();
             saver.saveLatestModel(computationGraph, trainingScore);
             writeProperties();
             writeBestScoreFile();
