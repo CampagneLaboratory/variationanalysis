@@ -12,6 +12,7 @@ public class IndelAccuracySegmentAccumulator extends SegmentStatsAccumulator {
     private int correct;
     private int predictedIndel;
     private int trueIndel;
+    private int trueOrPredictedIndel;
 
     @Override
     public ObjectList<String> metricNames() {
@@ -22,6 +23,7 @@ public class IndelAccuracySegmentAccumulator extends SegmentStatsAccumulator {
 
         trueIndel=0;
         predictedIndel=0;
+        trueOrPredictedIndel=0;
         correct=0;
         estimates.clear();
 
@@ -51,6 +53,18 @@ public class IndelAccuracySegmentAccumulator extends SegmentStatsAccumulator {
 
                     return isTrueIndel;
                 });
+        trueOrPredictedIndel += fullPred.numPredictionsWhere(
+                (segmentGenotypePrediction, baseIndex) -> {
+                    String trueGenotype = segmentGenotypePrediction.trueGenotypes[baseIndex];
+                    String predGenotype = segmentGenotypePrediction.predictedGenotypes[baseIndex];
+
+                    boolean isTrueIndel =
+                            (trueGenotype != null && trueGenotype.contains("-"));
+                    boolean isIndelPredicted =
+                            (predGenotype != null && predGenotype.contains("-"));
+
+                    return isTrueIndel||isIndelPredicted;
+                });
         correct += fullPred.numPredictionsWhere(
                 (segmentGenotypePrediction, baseIndex) -> {
                     String trueGenotype = segmentGenotypePrediction.trueGenotypes[baseIndex];
@@ -67,7 +81,7 @@ public class IndelAccuracySegmentAccumulator extends SegmentStatsAccumulator {
 
     @Override
     DoubleList estimates() {
-        double accuracy = ((double) correct) / ((double) trueIndel+predictedIndel);
+        double accuracy = ((double) correct) / ((double) trueOrPredictedIndel);
         estimates.clear();
         estimates.add(accuracy);
         estimates.add(correct);
