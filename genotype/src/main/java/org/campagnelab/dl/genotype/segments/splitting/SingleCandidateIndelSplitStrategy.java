@@ -47,7 +47,8 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
                 if (singleCandidateIndelSegment.isOpen())
                     singleCandidateIndelSegment.add(record);
             }
-            if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold)) {
+            if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold) ||
+                    SegmentUtil.hasTrueIndel(record)) {
                 if (record.getPosition() - previousCandidateIndel != 1) { //if they are not consecutive, we open a new subsegment
                     SingleCandidateIndelSegment newSingleCandidateIndelSegment = this.createSubSegment(segment, record);
                     singleCandidateIndelSegments.add(newSingleCandidateIndelSegment);
@@ -57,7 +58,7 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
         }
 
         if (verbose && singleCandidateIndelSegments.size() == 0) {
-            System.out.println(String.format("No candindate indel found in this segment %d-%d", segment.getFirstPosition(), segment.getLastPosition()));
+            System.out.println(String.format("No candidate indel found in this segment %d-%d", segment.getFirstPosition(), segment.getLastPosition()));
         }
         //Subsegment as segments
         if (verbose) {
@@ -105,11 +106,11 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
          * Removes the entries outside the current window.
          */
         private void removeEntries() {
-           for (int i : this) {
-               if (lastElementPosition -i > windowSize) {
-                this.rem(i);
-               }
-           }
+            for (int i : this) {
+                if (lastElementPosition - i > windowSize) {
+                    this.rem(i);
+                }
+            }
         }
 
         /**
