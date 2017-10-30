@@ -34,6 +34,8 @@ public class SegmentPerformanceMetricDescriptor extends PerformanceMetricDescrip
             case "validationScore":
                 return false;
             case "accuracy":
+            case "indelAccuracy":
+            case "indelF1":
                 return true;
             default:
                 System.out.println("ordering not set for metric: "+metricName);
