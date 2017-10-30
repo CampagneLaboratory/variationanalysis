@@ -73,7 +73,7 @@ public class SplitStrategyTest {
         assertEquals("Invalid number of subsegments returned by NoSplitStrategy", 1, subsegments.size());
     }
 
-    @Test
+    //@Test
     public void testSingleCandidateIndelSplitStrategy() {
 
         Iterable<BaseInformationRecords.BaseInformation> it = segment.getAllRecords();
