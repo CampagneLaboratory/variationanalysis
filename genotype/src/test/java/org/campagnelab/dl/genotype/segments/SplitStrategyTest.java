@@ -1,11 +1,16 @@
 package org.campagnelab.dl.genotype.segments;
 
 import org.campagnelab.dl.genotype.segments.splitting.NoSplitStrategy;
+import org.campagnelab.dl.genotype.segments.splitting.SingleCandidateIndelSplitStrategy;
 import org.campagnelab.dl.genotype.segments.splitting.SplitStrategy;
 import org.campagnelab.dl.genotype.tools.SBIToSSIConverterArguments;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -16,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by mas2182 on 10/30/17.
  */
+@RunWith(JUnit4.class)
 public class SplitStrategyTest {
 
 
@@ -26,10 +32,10 @@ public class SplitStrategyTest {
             "ref=-\ttrueGenotype=-\tcounts= -=21  -=22  (from: -)\n"+
             "ref=C\ttrueGenotype=C\tcounts= C=15  (from: C)\n";
 
+    Segment segment;
 
-    @Test
-    public void testNoStrategy() {
-
+    @Before
+    public void buildSegment() {
         Function<Segment, Segment> function = segment -> segment;
         SBIToSSIConverterArguments args = new SBIToSSIConverterArguments();
         args.mapFeatures = false;
@@ -50,18 +56,33 @@ public class SplitStrategyTest {
         helper.add(SegmentHelperTest.makeRecord(refIndex, position + 14, "A/T", "A/A=10+11", "A/T=11+11"));
         helper.add(SegmentHelperTest.makeRecord(refIndex, position + 24, "-/-", "-/-=10+11", "-/-=11+11"));
         helper.add(SegmentHelperTest.makeRecord(refIndex, position + 30, "C/C", "C/C=10+5"));
-        Segment segment = helper.getCurrentSegment();
+        segment = helper.getCurrentSegment();
+        helper.close();
+    }
+
+    @Test
+    public void testNoStrategy() {
+
         Iterable<BaseInformationRecords.BaseInformation> it = segment.getAllRecords();
         it.forEach( record -> {
             System.out.println("Has candidate indel? " + SegmentUtil.hasCandidateIndel(record,0));
             System.out.println("Has true indel? " + SegmentUtil.hasTrueIndel(record));
         });
-        helper.close();
-        helper.printStats();
         SplitStrategy strategy = new NoSplitStrategy();
         List<Segment> subsegments = strategy.apply(segment);
-        assertEquals("Invalid number of subsegments returned by NoSplitStrategu", 2, subsegments.size());
+        assertEquals("Invalid number of subsegments returned by NoSplitStrategy", 1, subsegments.size());
+    }
 
-        System.out.println("Helper done.");
+    @Test
+    public void testSingleCandidateIndelSplitStrategy() {
+
+        Iterable<BaseInformationRecords.BaseInformation> it = segment.getAllRecords();
+        it.forEach( record -> {
+            System.out.println("Has candidate indel? " + SegmentUtil.hasCandidateIndel(record,0));
+            System.out.println("Has true indel? " + SegmentUtil.hasTrueIndel(record));
+        });
+        SplitStrategy strategy = new SingleCandidateIndelSplitStrategy(1,0,true);
+        List<Segment> subsegments = strategy.apply(segment);
+        assertEquals("Invalid number of subsegments returned by NoSplitStrategy", 2, subsegments.size());
     }
 }
