@@ -109,6 +109,14 @@ public class SegmentHelper {
         }
     }
 
+
+    /**
+     * Gets the current open segment.
+     */
+    protected Segment getCurrentSegment()  {
+        return this.currentSegment;
+    }
+
     /**
      * Close the list.
      */

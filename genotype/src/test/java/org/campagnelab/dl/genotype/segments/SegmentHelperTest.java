@@ -175,7 +175,7 @@ public class SegmentHelperTest {
 
 
     // format of count creation instruction is from/to=10+12
-    private BaseInformationRecords.BaseInformation makeRecord(int refIndex, int position, String genotype, String... countCreations) {
+    protected static BaseInformationRecords.BaseInformation makeRecord(int refIndex, int position, String genotype, String... countCreations) {
         BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
         builder.setTrueGenotype(genotype);
         builder.setReferenceIndex(refIndex);
