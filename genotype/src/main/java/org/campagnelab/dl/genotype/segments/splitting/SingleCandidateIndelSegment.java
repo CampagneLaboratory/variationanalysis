@@ -44,7 +44,7 @@ public class SingleCandidateIndelSegment extends Segment {
         for (int position : beforePositions) {
             //the first one in the window
             if (this.candidateIndelPosition - position <= this.windowSize
-                    && this.parent.getFirstPosition() < position) {
+                    && this.parent.getFirstPosition() <= position) {
                 return position;
             }
         }
