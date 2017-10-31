@@ -60,11 +60,32 @@ public class SplitStrategyTest {
 
     }
 
+    private void buildSBI(String sequence) {
+        int position = 1;
+        for (char c : sequence.toCharArray()){
+            switch (c) {
+                case 'S':
+                    if (position==1)
+                        helper.newSegment(makeSnp(position));
+                    else
+                        helper.add(makeSnp(position));
+
+                    break;
+                case 'I':
+                    if (position==1)
+                        helper.newSegment(makeIndel(position));
+                    else
+                        helper.add(makeIndel(position));
+
+                    break;
+            }
+          position++;
+        }
+    }
+
     @Test
     public void testNoStrategy() {
-        helper.newSegment(makeIndel(1));
-        helper.add(makeSnp(2));
-        helper.add(makeIndel(3));
+        buildSBI("SIS");
         this.printCurrentIndels();
         SplitStrategy strategy = new NoSplitStrategy();
         List<Segment> subsegments = strategy.apply(helper.getCurrentSegment());
@@ -73,11 +94,7 @@ public class SplitStrategyTest {
 
     @Test
     public void testSingleCandidateIndelSSISS() {
-        helper.newSegment(makeSnp(1));
-        helper.add(makeSnp(2));
-        helper.add(makeIndel(3));
-        helper.add(makeSnp(4));
-        helper.add(makeSnp(5));
+        buildSBI("SSISS");
         this.printCurrentIndels();
         SplitStrategy strategy = new SingleCandidateIndelSplitStrategy(1,0,true);
         List<SingleCandidateIndelSegment> subsegments = strategy.apply(helper.getCurrentSegment());
@@ -90,12 +107,7 @@ public class SplitStrategyTest {
 
     @Test
     public void testSingleCandidateIndelSSIISS() {
-        helper.newSegment(makeSnp(1));
-        helper.add(makeSnp(2));
-        helper.add(makeIndel(3));
-        helper.add(makeIndel(4));
-        helper.add(makeSnp(5));
-        helper.add(makeSnp(6));
+        buildSBI("SSIISS");
         this.printCurrentIndels();
         SplitStrategy strategy = new SingleCandidateIndelSplitStrategy(1,0,true);
         List<SingleCandidateIndelSegment> subsegments = strategy.apply(helper.getCurrentSegment());
