@@ -16,6 +16,7 @@ public class SingleCandidateIndelSegment extends Segment {
     private int endPosition;
     private final int windowSize;
     private final Segment parent;
+    private boolean closed = false;
 
     protected SingleCandidateIndelSegment(final SingleCandidateIndelSplitStrategy.BasePositionList beforePositions,
                                           final Segment parent, final BaseInformationRecords.BaseInformation indel,
@@ -95,7 +96,7 @@ public class SingleCandidateIndelSegment extends Segment {
      * @return
      */
     protected boolean isOpen() {
-        return (this.getLastPosition() - this.candidateIndelPosition <= this.windowSize);
+        return (this.getLastPosition() - this.candidateIndelPosition <= this.windowSize) && !closed;
     }
 
 
@@ -108,16 +109,21 @@ public class SingleCandidateIndelSegment extends Segment {
     }
 
     public int actualLength() {
-        return parent.actualLength(startPosition,endPosition);
+        return parent.actualLength(startPosition, endPosition);
 
     }
 
     /**
      * Extends this segment considering the new indel position
-     * @param position  the position of the last indel
+     *
+     * @param position the position of the last indel
      */
     public void newIndel(int position) {
         //this.endPosition = position + windowSize;
         this.candidateIndelPosition = position;
+    }
+
+    public void forceClose() {
+        this.closed = true;
     }
 }
