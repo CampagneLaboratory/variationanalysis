@@ -95,7 +95,7 @@ public class SingleCandidateIndelSegment extends Segment {
      * @return
      */
     protected boolean isOpen() {
-        return (this.getLastPosition() - this.candidateIndelPosition < this.windowSize);
+        return (this.getLastPosition() - this.candidateIndelPosition <= this.windowSize);
     }
 
 
