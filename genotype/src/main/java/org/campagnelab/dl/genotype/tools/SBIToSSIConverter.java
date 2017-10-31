@@ -57,18 +57,20 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
         if (args().inputFile.isEmpty()) {
             System.err.println("You must provide input SBI files.");
         }
-        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer= segment -> {
+        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segment -> {
 
-                writer.appendEntry(segment);
+            writer.appendEntry(segment);
 
         };
 
         segmentHelper = new ThreadLocal<SegmentHelper>() {
             @Override
             protected SegmentHelper initialValue() {
-                return new SegmentHelper( processSegmentFunction, fillInFeaturesFunction, segmentConsumer ,
+                SegmentHelper helper = new SegmentHelper(processSegmentFunction, fillInFeaturesFunction, segmentConsumer,
                         args().getStrategy(),
-                        args().collectStatistics );
+                        args().collectStatistics);
+                helper.setSamplingRate(args().samplingRate);
+                return helper;
             }
         };
         int gap = args().gap;

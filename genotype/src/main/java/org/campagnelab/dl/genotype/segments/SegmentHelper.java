@@ -15,6 +15,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import it.unimi.dsi.util.XorShift1024StarRandom;
+
 /**
  * Class to help convert sbi records into segments.
  *
@@ -30,6 +32,10 @@ public class SegmentHelper {
     private static Statistics statistics = new Statistics();
     static private Logger LOG = LoggerFactory.getLogger(SegmentHelper.class);
     private boolean collectStatistics;
+    private XorShift1024StarRandom random = new XorShift1024StarRandom(28392839);
+    private double samplingRate = 0.01;
+    int segmentsWithCandidateIndel = 0;
+    int segmentsWithTrueIndel = 0;
 
     /**
      * Creates a new list and a first segment starting from the given record.
@@ -53,12 +59,16 @@ public class SegmentHelper {
         this.segmentConsumer = segmentConsumer;
     }
 
+    public void setSamplingRate(double samplingRate) {
+        this.samplingRate = samplingRate;
+    }
+
     /**
      * Opens a new segment from the record.
      *
      * @param from
      */
-    public void newSegment(BaseInformationRecords.BaseInformation from)  {
+    public void newSegment(BaseInformationRecords.BaseInformation from) {
         if (currentSegment != null) {
             this.closeSegment();
             if (collectStatistics) {
@@ -79,9 +89,28 @@ public class SegmentHelper {
     /**
      * Closes the current segment.
      */
-    private void closeSegment()  {
+    private void closeSegment() {
         List<Segment> subSegments = this.splitStrategy.apply(this.currentSegment);
+
         for (Segment segment : subSegments) {
+            //sample segments to remove some candidates
+            boolean segmentHasCandidateIndel = false;
+            boolean segmentHasTrueIndel = false;
+            for (BaseInformationRecords.BaseInformation record : segment.getAllRecords()) {
+                segmentHasCandidateIndel |= SegmentUtil.hasCandidateIndel(record, 0);
+                segmentHasTrueIndel |= SegmentUtil.hasTrueIndel(record);
+
+            }
+
+            if (segmentHasCandidateIndel && !segmentHasTrueIndel) {
+                // only include some sample of candidates:
+                if (random.nextDouble() > samplingRate) {
+                    continue;
+                }
+            }
+            segmentsWithCandidateIndel+=segmentHasCandidateIndel?1:0;
+            segmentsWithTrueIndel+=segmentHasTrueIndel?1:0;
+
             //System.out.println(String.format("Processing sub-segment from %d to %d",segment.getFirstPosition(), segment.getLastPosition()));
             try {
                 Objects.requireNonNull(this.function);
@@ -113,18 +142,20 @@ public class SegmentHelper {
     /**
      * Gets the current open segment.
      */
-    protected Segment getCurrentSegment()  {
+    protected Segment getCurrentSegment() {
         return this.currentSegment;
     }
 
     /**
      * Close the list.
      */
-    public void close()  {
+    public void close() {
         this.closeSegment();
     }
 
     public void printStats() {
+        System.out.printf("Segments with candidate indels: %d%n" +
+                "Segments with true indels: %d%n",segmentsWithCandidateIndel,segmentsWithTrueIndel);
         if (!collectStatistics) {
             return;
         }

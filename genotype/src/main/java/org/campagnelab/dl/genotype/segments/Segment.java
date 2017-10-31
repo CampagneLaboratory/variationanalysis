@@ -2,6 +2,7 @@ package org.campagnelab.dl.genotype.segments;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.*;
 import it.unimi.dsi.lang.MutableString;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
