@@ -57,30 +57,23 @@ public class SplitStrategyTest {
         helper.add(SegmentHelperTest.makeRecord(refIndex, position + 24, "-/-", "-/-=10+11", "-/-=11+11"));
         helper.add(SegmentHelperTest.makeRecord(refIndex, position + 30, "C/C", "C/C=10+5"));
         segment = helper.getCurrentSegment();
+        Iterable<BaseInformationRecords.BaseInformation> it = segment.getAllRecords();
+        it.forEach( record -> {
+            System.out.println("Has candidate indel? " + SegmentUtil.hasCandidateIndel(record,0));
+            System.out.println("Has true indel? " + SegmentUtil.hasTrueIndel(record));
+        });
         helper.close();
     }
 
     @Test
     public void testNoStrategy() {
-
-        Iterable<BaseInformationRecords.BaseInformation> it = segment.getAllRecords();
-        it.forEach( record -> {
-            System.out.println("Has candidate indel? " + SegmentUtil.hasCandidateIndel(record,0));
-            System.out.println("Has true indel? " + SegmentUtil.hasTrueIndel(record));
-        });
         SplitStrategy strategy = new NoSplitStrategy();
         List<Segment> subsegments = strategy.apply(segment);
         assertEquals("Invalid number of subsegments returned by NoSplitStrategy", 1, subsegments.size());
     }
 
-    //@Test
+    @Test
     public void testSingleCandidateIndelSplitStrategy() {
-
-        Iterable<BaseInformationRecords.BaseInformation> it = segment.getAllRecords();
-        it.forEach( record -> {
-            System.out.println("Has candidate indel? " + SegmentUtil.hasCandidateIndel(record,0));
-            System.out.println("Has true indel? " + SegmentUtil.hasTrueIndel(record));
-        });
         SplitStrategy strategy = new SingleCandidateIndelSplitStrategy(1,0,true);
         List<Segment> subsegments = strategy.apply(segment);
         assertEquals("Invalid number of subsegments returned by NoSplitStrategy", 2, subsegments.size());
