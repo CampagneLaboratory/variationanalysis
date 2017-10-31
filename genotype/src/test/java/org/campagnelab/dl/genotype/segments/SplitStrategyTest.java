@@ -118,6 +118,28 @@ public class SplitStrategyTest {
         helper.close();
     }
 
+    @Test
+    public void testSingleCandidateIndelSISISI() {
+        buildSBI("SISISI");
+        this.printCurrentIndels();
+        SplitStrategy strategy = new SingleCandidateIndelSplitStrategy(1,0,true);
+        List<SingleCandidateIndelSegment> subsegments = strategy.apply(helper.getCurrentSegment());
+        assertEquals("Invalid number of subsegments returned by SingleCandidateIndelSplitStrategy", 3, subsegments.size());
+        //first subsegment
+        assertEquals("Invalid limits for the subsegment", "1-3", String.format("%d-%d",subsegments.get(0).getFirstPosition(),
+                subsegments.get(0).getLastPosition()));
+        assertEquals("Invalid indel position in the subsegment", 2, subsegments.get(0).getIndelPosition());
+        //second subsegment
+        assertEquals("Invalid limits for the subsegment", "3-5", String.format("%d-%d",subsegments.get(1).getFirstPosition(),
+                subsegments.get(1).getLastPosition()));
+        assertEquals("Invalid indel position in the subsegment", 4, subsegments.get(1).getIndelPosition());
+        // third subsegment
+        assertEquals("Invalid limits for the subsegment", "5-6", String.format("%d-%d",subsegments.get(2).getFirstPosition(),
+                subsegments.get(2).getLastPosition()));
+        assertEquals("Invalid indel position in the subsegment", 6, subsegments.get(2).getIndelPosition());
+        helper.close();
+    }
+
     private void printCurrentIndels() {
         Segment segment = helper.getCurrentSegment();
         Iterable<BaseInformationRecords.BaseInformation> it = segment.getAllRecords();
