@@ -49,7 +49,7 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
             }
             if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold) ||
                     SegmentUtil.hasTrueIndel(record)) {
-                if (record.getPosition() - previousCandidateIndel != 1) { //if they are not consecutive, we open a new subsegment
+                if ((record.getPosition() - previousCandidateIndel != 1) || (previousCandidateIndel == 0)) { //if they are not consecutive, we open a new subsegment
                     SingleCandidateIndelSegment newSingleCandidateIndelSegment = this.createSubSegment(segment, record);
                     singleCandidateIndelSegments.add(newSingleCandidateIndelSegment);
                 }
