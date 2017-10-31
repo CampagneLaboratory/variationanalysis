@@ -24,14 +24,6 @@ import static org.junit.Assert.assertEquals;
 @RunWith(JUnit4.class)
 public class SplitStrategyTest {
 
-
-    String expectedSnps ="ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n"+
-            "ref=A\ttrueGenotype=A/-\tcounts= A=32  -=33  (from: A)\n"+
-            "ref=A\ttrueGenotype=A/T\tcounts= A=21  T=22  (from: A)\n"+
-            "ref=A\ttrueGenotype=A/T\tcounts= A=21  T=22  (from: A)\n"+
-            "ref=-\ttrueGenotype=-\tcounts= -=21  -=22  (from: -)\n"+
-            "ref=C\ttrueGenotype=C\tcounts= C=15  (from: C)\n";
-
     SegmentHelper helper;
 
     @Before
@@ -120,7 +112,7 @@ public class SplitStrategyTest {
 
     @Test
     public void testSingleCandidateIndelSISISI() {
-        buildSBI("SISISI");
+        buildSBI("SISISI"); //expecr SIS (1-3), SIS (3-5), IS (5-6)
         this.printCurrentIndels();
         SplitStrategy strategy = new SingleCandidateIndelSplitStrategy(1,0,true);
         List<SingleCandidateIndelSegment> subsegments = strategy.apply(helper.getCurrentSegment());
@@ -143,7 +135,7 @@ public class SplitStrategyTest {
 
     @Test
     public void testSingleCandidateIndelSSIIIIISSS() {
-        buildSBI("SSIIIIISSS");
+        buildSBI("SSIIIIISSS"); //expect SIIIIIS (2-8)
         this.printCurrentIndels();
         SplitStrategy strategy = new SingleCandidateIndelSplitStrategy(1,0,true);
         List<SingleCandidateIndelSegment> subsegments = strategy.apply(helper.getCurrentSegment());
@@ -151,6 +143,42 @@ public class SplitStrategyTest {
         assertEquals("Invalid limits for the subsegment", "2-8", String.format("%d-%d",subsegments.get(0).getFirstPosition(),
                 subsegments.get(0).getLastPosition()));
         assertEquals("Invalid indel position in the subsegment", 7, subsegments.get(0).getIndelPosition());
+        helper.close();
+    }
+
+    @Test
+    public void testSingleCandidateIndelSSIIISIISS() {
+        buildSBI("SSIIISIISS"); //expect SIIIS (2-6), SIIS (6-9)
+        this.printCurrentIndels();
+        SplitStrategy strategy = new SingleCandidateIndelSplitStrategy(1,0,true);
+        List<SingleCandidateIndelSegment> subsegments = strategy.apply(helper.getCurrentSegment());
+        assertEquals("Invalid number of subsegments returned by SingleCandidateIndelSplitStrategy", 2, subsegments.size());
+        //first
+        assertEquals("Invalid limits for the subsegment", "2-6", String.format("%d-%d",subsegments.get(0).getFirstPosition(),
+                subsegments.get(0).getLastPosition()));
+        assertEquals("Invalid indel position in the subsegment", 5, subsegments.get(0).getIndelPosition());
+        //second
+        assertEquals("Invalid limits for the subsegment", "6-9", String.format("%d-%d",subsegments.get(1).getFirstPosition(),
+                subsegments.get(1).getLastPosition()));
+        assertEquals("Invalid indel position in the subsegment", 8, subsegments.get(1).getIndelPosition());
+        helper.close();
+    }
+
+    @Test
+    public void testSingleCandidateIndelSSIIISIISS_Size2() {
+        buildSBI("SSIIISIISS"); //expect SSIIIS (1-6), SIISS (6-10)
+        this.printCurrentIndels();
+        SplitStrategy strategy = new SingleCandidateIndelSplitStrategy(2,0,true);
+        List<SingleCandidateIndelSegment> subsegments = strategy.apply(helper.getCurrentSegment());
+        assertEquals("Invalid number of subsegments returned by SingleCandidateIndelSplitStrategy", 2, subsegments.size());
+        //first
+        assertEquals("Invalid limits for the subsegment", "1-6", String.format("%d-%d",subsegments.get(0).getFirstPosition(),
+                subsegments.get(0).getLastPosition()));
+        assertEquals("Invalid indel position in the subsegment", 5, subsegments.get(0).getIndelPosition());
+        //second
+        assertEquals("Invalid limits for the subsegment", "6-10", String.format("%d-%d",subsegments.get(1).getFirstPosition(),
+                subsegments.get(1).getLastPosition()));
+        assertEquals("Invalid indel position in the subsegment", 8, subsegments.get(1).getIndelPosition());
         helper.close();
     }
     
