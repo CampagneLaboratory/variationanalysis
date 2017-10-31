@@ -41,7 +41,6 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
     public List<SingleCandidateIndelSegment> apply(final Segment segment) {
         ObjectArrayList<SingleCandidateIndelSegment> singleCandidateIndelSegments = new ObjectArrayList<>();
         for (BaseInformationRecords.BaseInformation record : segment.getAllRecords()) {
-            this.addToBeforeList(record); //keep the before list active
             //complete the sub-segments that are still open
             if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold) ||
                     SegmentUtil.hasTrueIndel(record)) {
@@ -63,6 +62,7 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
                     if (singleCandidateIndelSegment.isOpen())
                         singleCandidateIndelSegment.add(record);
                 }
+                this.addToBeforeList(record); //keep the before list of non-indel records active
             }
 
         }
