@@ -55,8 +55,8 @@ public class SingleCandidateIndelSegment extends Segment {
     public void add(final BaseInformationRecords.BaseInformation base) {
         if (this.accept(base)) {
             this.endPosition = base.getPosition();
+            this.setAsLast(base);
         }
-        this.setAsLast(base);
     }
 
     /**
