@@ -11,7 +11,7 @@ import java.util.Iterator;
  */
 public class SingleCandidateIndelSegment extends Segment {
     private final String candidateReferenceId;
-    private final int candidateIndelPosition;
+    private int candidateIndelPosition;
     private final int startPosition;
     private int endPosition;
     private final int windowSize;
@@ -110,5 +110,14 @@ public class SingleCandidateIndelSegment extends Segment {
     public int actualLength() {
         return parent.actualLength(startPosition,endPosition);
 
+    }
+
+    /**
+     * Extends this segment considering the new indel position
+     * @param position  the position of the last indel
+     */
+    public void newIndel(int position) {
+        //this.endPosition = position + windowSize;
+        this.candidateIndelPosition = position;
     }
 }

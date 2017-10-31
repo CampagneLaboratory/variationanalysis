@@ -43,18 +43,25 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
         for (BaseInformationRecords.BaseInformation record : segment.getAllRecords()) {
             this.addToBeforeList(record); //keep the before list active
             //complete the sub-segments that are still open
-            for (SingleCandidateIndelSegment singleCandidateIndelSegment : singleCandidateIndelSegments) {
-                if (singleCandidateIndelSegment.isOpen())
-                    singleCandidateIndelSegment.add(record);
-            }
             if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold) ||
                     SegmentUtil.hasTrueIndel(record)) {
                 if ((record.getPosition() - previousCandidateIndel != 1) || (previousCandidateIndel == 0)) { //if they are not consecutive, we open a new subsegment
                     SingleCandidateIndelSegment newSingleCandidateIndelSegment = this.createSubSegment(segment, record);
                     singleCandidateIndelSegments.add(newSingleCandidateIndelSegment);
+                } else {
+                    //newIndel the previous subsegment end
+                    SingleCandidateIndelSegment previous = singleCandidateIndelSegments.get(singleCandidateIndelSegments.size()-1);
+                    previous.newIndel(record.getPosition());
+                    previous.add(record);
                 }
                 previousCandidateIndel = record.getPosition();
+            } else {
+                for (SingleCandidateIndelSegment singleCandidateIndelSegment : singleCandidateIndelSegments) {
+                    if (singleCandidateIndelSegment.isOpen())
+                        singleCandidateIndelSegment.add(record);
+                }
             }
+
         }
 
         if (verbose && singleCandidateIndelSegments.size() == 0) {
