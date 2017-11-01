@@ -164,7 +164,7 @@ public class Segment {
     }
 
     public boolean hasTrueGenotype(String trueGenotype) {
-        for (BaseInformationRecords.BaseInformation record : recordList) {
+        for (BaseInformationRecords.BaseInformation record : getAllRecords()) {
             if (record.getTrueGenotype().equals(trueGenotype)) {
                 return true;
             }
@@ -177,7 +177,8 @@ public class Segment {
 
     public void populateTrueGenotypes() {
         positionsToTrueGenotypes.clear();
-        for (BaseInformationRecords.BaseInformation record : recordList) {
+        Iterable<BaseInformationRecords.BaseInformation> records = getAllRecords();
+        for (BaseInformationRecords.BaseInformation record : records) {
             String trueGenotype = record.getTrueGenotype();
             if (trueGenotype.length() == 3) {
                 // no indel, simple A/B genotype:
@@ -208,7 +209,7 @@ public class Segment {
      * @return
      */
     public Iterable<BaseInformationRecords.BaseInformation> getAllRecords(int startPosition, int endPosition) {
-        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(recordList.size() * 3 / 2);
+        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(this.actualLength() * 3 / 2);
         for (BaseInformationRecords.BaseInformation record : recordList) {
             if (record.getPosition() >= startPosition && record.getPosition() < endPosition) {
                 if (!recordList.hideSet.contains(record)) {
@@ -244,7 +245,6 @@ public class Segment {
 
     public Iterable<BaseInformationRecords.BaseInformation> getAllRecords() {
         return getAllRecords(-1, Integer.MAX_VALUE);
-
     }
 
 
@@ -275,7 +275,7 @@ public class Segment {
     }
 
     public BaseInformationRecords.BaseInformation getRecordAt(int position) {
-        for (BaseInformationRecords.BaseInformation record : recordList) {
+        for (BaseInformationRecords.BaseInformation record : getAllRecords()) {
             if (record.getPosition() == position)
                 return record;
         }

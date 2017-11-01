@@ -8,8 +8,8 @@ public class WithIndelsPostProcessSegmentFunction implements java.util.function.
     public Segment apply(Segment segment) {
 
         segment.populateTrueGenotypes();
-
-        segment.recordList.forEach(record -> {
+        Iterable<BaseInformationRecords.BaseInformation> records = segment.getAllRecords();
+        records.forEach(record -> {
             int longestIndelLength = 0;
             for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()) {
                 for (BaseInformationRecords.CountInfo count : sample.getCountsList()) {

@@ -26,7 +26,7 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
      * original records. When we need the full list of record, we combine record a in records with the records following a in
      * afterRecord.
      */
-    Object2ObjectOpenHashMap<BaseInformationRecords.BaseInformation, List<BaseInformationRecords.BaseInformation>> afterRecord = new Object2ObjectOpenHashMap<>();
+    public Object2ObjectOpenHashMap<BaseInformationRecords.BaseInformation, List<BaseInformationRecords.BaseInformation>> afterRecord = new Object2ObjectOpenHashMap<>();
 
     /**
      * Returns an iterator over elements of type {@code T}.
@@ -213,7 +213,7 @@ public class RecordList implements Iterable<BaseInformationRecords.BaseInformati
 
     }
 
-    protected ObjectSet<BaseInformationRecords.BaseInformation> hideSet = new ObjectOpenHashSet<>();
+    public ObjectSet<BaseInformationRecords.BaseInformation> hideSet = new ObjectOpenHashSet<>();
 
     public void hideRecord(BaseInformationRecords.BaseInformation record) {
         hideSet.add(record);

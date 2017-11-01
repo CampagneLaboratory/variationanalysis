@@ -1,8 +1,10 @@
 package org.campagnelab.dl.genotype.segments.splitting;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.genotype.segments.Segment;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
+import java.util.Collections;
 import java.util.Iterator;
 
 
@@ -67,10 +69,29 @@ public class SingleCandidateIndelSegment extends Segment {
      */
     @Override
     public Iterable<BaseInformationRecords.BaseInformation> getAllRecords() {
-        return parent.getAllRecords(startPosition, endPosition);
+        return getAllRecords(startPosition, endPosition);
 
     }
 
+    /**
+     * Returns the complete list of records, including those interleaved with genomic positions (for insertion/deletion).
+     *
+     * @return
+     */
+    @Override
+    public Iterable<BaseInformationRecords.BaseInformation> getAllRecords(int startPosition, int endPosition) {
+        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(this.actualLength() * 3 / 2);
+        for (BaseInformationRecords.BaseInformation record : parent.recordList) {
+            if (record.getPosition() >= startPosition && record.getPosition() <= endPosition) {
+                if (!parent.recordList.hideSet.contains(record)) {
+                    list.add(record);
+                }
+                list.addAll(parent.recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
+            }
+        }
+
+        return list;
+    }
     @Override
     public BaseInformationRecords.BaseInformation getFirstRecord() {
         return parent.getRecordAt(startPosition);

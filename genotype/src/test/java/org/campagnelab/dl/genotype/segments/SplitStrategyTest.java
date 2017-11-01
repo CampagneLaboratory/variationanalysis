@@ -26,6 +26,14 @@ public class SplitStrategyTest {
 
     SegmentHelper helper;
 
+    String expectedHetInsertionCC =
+            "ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n" +
+                    "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A)\n" +
+                    "ref=A\ttrueGenotype=A\tcounts= A=14  (from: A)\n" +
+                    "ref=-\ttrueGenotype=-/C\tcounts= -=7  C=7  (from: -)\n" +
+                    "ref=-\ttrueGenotype=-/C\tcounts= -=7  C=7  (from: -)\n" +
+                    "ref=A\ttrueGenotype=A\tcounts= A=14  (from: A)\n";
+
     @Before
     public void buildSegmentHelper() {
         Function<Segment, Segment> function = segment -> segment;
@@ -180,6 +188,39 @@ public class SplitStrategyTest {
                 subsegments.get(1).getLastPosition()));
         assertEquals("Invalid indel position in the subsegment", 8, subsegments.get(1).getIndelPosition());
         helper.close();
+    }
+
+
+    @Test
+    // het insertion
+    public void testHelperInsertion() {
+        Function<Segment, Segment> function = new WithIndelsPostProcessSegmentFunction();
+        SBIToSSIConverterArguments args = new SBIToSSIConverterArguments();
+        args.mapFeatures = false;
+        args.mapLabels = false;
+        FillInFeaturesFunction fillInFeatures = new MyFillInFeaturesFunction(null, null, args);
+
+
+        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
+            assertEquals(expectedHetInsertionCC, Segment.showGenotypes(segmentInfoo));
+        };
+        // TODO: make another test with the split strategy. The result must be the same because the split
+        // should keep one segment, and processing should be unaffected.
+        SingleCandidateIndelSplitStrategy strategy = new SingleCandidateIndelSplitStrategy(2,0,false);
+
+        helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, strategy,
+                false);
+        int refIndex = 0;
+        int position = 0;
+        helper.add(SegmentHelperTest.makeRecord(refIndex, position, "A/A", "A/A=12+10"));
+        helper.add(SegmentHelperTest.makeRecord(refIndex, position + 1, "A/T", "A/A=20+12", "A/T=10+23"));
+        helper.add(SegmentHelperTest.makeRecord(refIndex, position + 2, "A--A/ACCA", "A--A/ACCA=2+5", "A--A/A--A=2+5"));
+        Segment segment = helper.getCurrentSegment();
+        assertEquals("Invalid limits for the subsegment", "0-2", String.format("%d-%d",segment.getFirstPosition(),
+                segment.getLastPosition()));
+        printCurrentIndels();
+        helper.close();
+
     }
     
     private void printCurrentIndels() {

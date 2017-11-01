@@ -92,11 +92,11 @@ public class SegmentHelper {
     private void closeSegment() {
         List<Segment> subSegments = this.splitStrategy.apply(this.currentSegment);
 
-        for (Segment segment : subSegments) {
+        for (Segment subSegment : subSegments) {
             //sample segments to remove some candidates
             boolean segmentHasCandidateIndel = false;
             boolean segmentHasTrueIndel = false;
-            for (BaseInformationRecords.BaseInformation record : segment.getAllRecords()) {
+            for (BaseInformationRecords.BaseInformation record : subSegment.getAllRecords()) {
                 segmentHasCandidateIndel |= SegmentUtil.hasCandidateIndel(record, 0);
                 segmentHasTrueIndel |= SegmentUtil.hasTrueIndel(record);
 
@@ -114,7 +114,7 @@ public class SegmentHelper {
             //System.out.println(String.format("Processing sub-segment from %d to %d",segment.getFirstPosition(), segment.getLastPosition()));
             try {
                 Objects.requireNonNull(this.function);
-                Segment processed = this.function.apply(segment);
+                Segment processed = this.function.apply(subSegment);
                 processed.construct(segmentConsumer);
 
 
