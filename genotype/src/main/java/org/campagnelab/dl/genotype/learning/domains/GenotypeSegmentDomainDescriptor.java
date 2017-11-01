@@ -10,11 +10,10 @@ import org.campagnelab.dl.framework.mappers.ConfigurableLabelMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
+import org.campagnelab.dl.genotype.mappers.*;
 import org.campagnelab.dl.genotype.performance.SegmentPerformanceMetricDescriptor;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSegmentsLSTM;
-import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
-import org.campagnelab.dl.genotype.mappers.SingleBaseFeatureMapperV1;
-import org.campagnelab.dl.genotype.mappers.SingleBaseLabelMapperV1;
+import org.campagnelab.dl.genotype.predictions.MetaDataInterpreter;
 import org.campagnelab.dl.genotype.predictions.SegmentGenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.SegmentPrediction;
 import org.campagnelab.dl.genotype.predictions.SegmentPredictionInterpreter;
@@ -24,9 +23,13 @@ import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.BasenameUtils;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationReader;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
+import org.nd4j.linalg.lossfunctions.impl.LossBinaryXENT;
 import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
+import org.nd4j.linalg.lossfunctions.impl.LossMSE;
 
 import java.io.IOException;
 import java.util.List;
@@ -130,20 +133,27 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
         if (cachedLabelMappers.containsKey(outputName)) {
             return cachedLabelMappers.get(outputName);
         } else {
+            ConfigurableLabelMapper mapper = null;
+
             switch (outputName) {
                 case "genotype":
-                    try {
-                        ConfigurableLabelMapper mapper = new SingleBaseLabelMapperV1(0);
-                        final Properties readerProperties = getReaderProperties(args().trainingSets.get(0));
-                        decorateProperties(readerProperties);
-                        mapper.configure(readerProperties);
-                        cachedLabelMappers.put(outputName, (LabelMapper) mapper);
-                        return (LabelMapper) mapper;
-                    } catch (IOException e) {
-                        throw new InternalError("Unable to load properties and initialize label mapper.", e);
-                    }
+
+                    mapper = new SingleBaseLabelMapperV1(0);
+                    break;
+                case "metadata":
+                    mapper = new SegmentMetaDataLabelMapper();
+                    break;
                 default:
                     throw new RuntimeException("Unsupported output name: " + outputName);
+            }
+            try {
+                final Properties readerProperties = getReaderProperties(args().trainingSets.get(0));
+                decorateProperties(readerProperties);
+                mapper.configure(readerProperties);
+                cachedLabelMappers.put(outputName, (LabelMapper) mapper);
+                return (LabelMapper) mapper;
+            } catch (IOException e) {
+                throw new InternalError("Unable to load properties and initialize label mapper.", e);
             }
         }
     }
@@ -153,8 +163,10 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
         switch (outputName) {
             case "genotype":
                 final String segmentPropertiesFilename = args().trainingSets.get(0);
-                String basename=BasenameUtils.getBasename(segmentPropertiesFilename,".ssi",".ssip");
-                return new SegmentPredictionInterpreter(basename+".ssip");
+                String basename = BasenameUtils.getBasename(segmentPropertiesFilename, ".ssi", ".ssip");
+                return new SegmentPredictionInterpreter(basename + ".ssip");
+            case "metadata":
+                return new SegmentMetaDataInterpreter();
             default:
                 throw new InternalError("Output name not recognized: " + outputName);
         }
@@ -162,16 +174,17 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
     }
 
     @Override
-    public Prediction aggregatePredictions(SegmentInformationRecords.SegmentInformation record, List<Prediction> individualOutputPredictions) {
-      if (record==null) {
-        // no record during training from cache.
-          return new SegmentPrediction(null, null,(SegmentGenotypePrediction)individualOutputPredictions.get(0));
+    public Prediction aggregatePredictions(SegmentInformationRecords.SegmentInformation
+                                                   record, List<Prediction> individualOutputPredictions) {
+        if (record == null) {
+            // no record during training from cache.
+            return new SegmentPrediction(null, null, (SegmentGenotypePrediction) individualOutputPredictions.get(0));
 
-      }else{
-          return new SegmentPrediction(record.getStartPosition(), record.getEndPosition(),(SegmentGenotypePrediction)individualOutputPredictions.get(0));
+        } else {
+            return new SegmentPrediction(record.getStartPosition(), record.getEndPosition(), (SegmentGenotypePrediction) individualOutputPredictions.get(0));
 
-      }
-     }
+        }
+    }
 
     @Override
     public Function<String, ? extends Iterable<SegmentInformationRecords.SegmentInformation>> getRecordIterable() {
@@ -202,8 +215,7 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
             public double estimateMetric(ComputationGraph graph, String metricName, MultiDataSetIterator dataSetIterator, long scoreN) {
                 if ("score".equals(metricName)) {
                     return estimateScore(graph, metricName, dataSetIterator, scoreN);
-                }
-                else return super.estimateMetric(graph,metricName,dataSetIterator,scoreN);
+                } else return super.estimateMetric(graph, metricName, dataSetIterator, scoreN);
             }
         };
     }
@@ -241,7 +253,16 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
 
     @Override
     public ILossFunction getOutputLoss(String outputName) {
-        return new LossMCXENT();
+        switch (outputName) {
+            case "genotype":
+                return new LossMCXENT();
+            case "metadata":
+                // no loss for metaData. These labels are virtual.
+                int sequenceLength = getLabelMapper("metadata").dimensions().numElements(2);
+                INDArray zeros = Nd4j.zeros(sequenceLength);
+                return new LossBinaryXENT(zeros);
+        }
+        throw new InternalError("no loss defined for output " + outputName);
     }
 
     @Override

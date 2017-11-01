@@ -90,7 +90,9 @@ public class SequentialTrainer implements Trainer {
         INDArray[] labelsMaskArrays = ds.getLabelsMaskArrays();
         if (labelsMaskArrays != null) {
             for (e = 0; e < labelsMaskArrays.length; ++e) {
-                labelsMaskArrays[e] = labelsMaskArrays[e].detach();
+                if (labelsMaskArrays[e]!=null) {
+                    labelsMaskArrays[e] = labelsMaskArrays[e].detach();
+                }
             }
         }
     }

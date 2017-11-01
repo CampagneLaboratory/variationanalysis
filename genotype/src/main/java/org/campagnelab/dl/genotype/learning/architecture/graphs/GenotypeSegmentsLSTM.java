@@ -39,7 +39,7 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
 
     public GenotypeSegmentsLSTM() {
 
-        outputNames = new String[]{"genotype"};
+        outputNames = new String[]{"genotype","metadata"};
 
     }
 
@@ -129,6 +129,13 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
                 // feed in inputs from all previous layers:
                 componentNames.toArray(new String[componentNames.size()]));
 
+        int metadataOutputSize = domainDescriptor.getNumOutputs("metadata")[0];
+        build.addLayer("metadata", new OutputLayer.Builder(
+                domainDescriptor.getOutputLoss("metadata"))
+                .weightInit(WEIGHT_INIT)
+                .activation("identity").learningRateDecayPolicy(learningRatePolicy)
+                .nIn(countInput)
+                .nOut(metadataOutputSize).build(), componentNames.toArray(new String[componentNames.size()]));
 
         ComputationGraphConfiguration conf = build.setOutputs(outputNames).build();
         // use workspaces for both training and inference phases:

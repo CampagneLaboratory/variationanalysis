@@ -84,23 +84,25 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
                 }
                 inputShape[1]++;
             }
-            inputs[index] = Nd4j.create(inputShape,'f');
+            inputs[index] = Nd4j.create(inputShape, 'f');
             inputs[index].detach();
             featureMappers[index] = domainDescriptor.getFeatureMapper(input);
             boolean needMask = featureMappers[index].hasMask();
-            inputMasks[index] = needMask ? Nd4j.create(domainDescriptor.getInputMaskShape(size, input),'f') : null;
+            inputMasks[index] = needMask ? Nd4j.create(domainDescriptor.getInputMaskShape(size, input), 'f') : null;
             inputMasks[index].detach();
             index += 1;
             hasFeatureMask |= needMask;
         }
         index = 0;
         for (String label : domainDescriptor.getComputationalGraph().getOutputNames()) {
-            labels[index] = Nd4j.create(domainDescriptor.getLabelShape(size, label),'f');
+            labels[index] = Nd4j.create(domainDescriptor.getLabelShape(size, label), 'f');
             labels[index].detach();
             labelMappers[index] = domainDescriptor.getLabelMapper(label);
             boolean needMask = labelMappers[index].hasMask();
-            labelMasks[index] = needMask ? Nd4j.create(domainDescriptor.getLabelMaskShape(size, label),'f') : null;
-            labelMasks[index].detach();
+            if (needMask) {
+                labelMasks[index] = Nd4j.create(domainDescriptor.getLabelMaskShape(size, label), 'f');
+                labelMasks[index].detach();
+            }
             index++;
             hasLabelMask |= needMask;
         }
@@ -130,6 +132,7 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
                 if (inputMasks[i] == null) {
                     int[] inputShape = inputs[i].shape();
                     if (inputShape.length == 3) {
+                        //     inputMasks[i] = Nd4j.ones(inputShape[0], 1,inputShape[2]);
                         throw new RuntimeException("3D features should have masks");
                     } else if (inputShape.length == 2 || inputShape.length == 1) {
                         inputMasks[i] = Nd4j.ones(inputShape[0], 1);
@@ -144,7 +147,8 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
                 if (labelMasks[i] == null) {
                     int[] labelShape = labels[i].shape();
                     if (labelShape.length == 3) {
-                        throw new RuntimeException("3D labels should have masks");
+                      //  labelMasks[i] = Nd4j.ones(labelShape[0], labelShape[2], 1);
+                        //throw new RuntimeException("3D labels should have masks");
                     } else if (labelShape.length == 2 || labelShape.length == 1) {
                         labelMasks[i] = Nd4j.ones(labelShape[0], 1);
                     } else {
