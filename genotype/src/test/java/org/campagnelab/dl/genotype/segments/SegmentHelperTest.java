@@ -2,6 +2,7 @@ package org.campagnelab.dl.genotype.segments;
 
 
 import org.campagnelab.dl.genotype.segments.splitting.NoSplitStrategy;
+import org.campagnelab.dl.genotype.segments.splitting.SingleCandidateIndelSplitStrategy;
 import org.campagnelab.dl.genotype.tools.SBIToSSIConverterArguments;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
@@ -86,7 +87,10 @@ public class SegmentHelperTest {
         Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
             assertEquals(expectedHetInsertionCC, Segment.showGenotypes(segmentInfoo));
         };
-        SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new NoSplitStrategy(),
+        // TODO: make another test with the split strategy. The result must be the same because the split
+        // should keep one segment, and processing should be unaffected.
+        SingleCandidateIndelSplitStrategy strategy = new SingleCandidateIndelSplitStrategy(2,0,false);
+        SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, strategy,
                 false);
         int refIndex = 0;
         int position = 0;
