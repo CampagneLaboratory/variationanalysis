@@ -9,7 +9,7 @@ public class WithIndelsPostProcessSegmentFunction implements java.util.function.
 
         segment.populateTrueGenotypes();
         Iterable<BaseInformationRecords.BaseInformation> records = segment.getAllRecords();
-        records.forEach(record -> {
+        records.forEach((BaseInformationRecords.BaseInformation record) -> {
             int longestIndelLength = 0;
             for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()) {
                 for (BaseInformationRecords.CountInfo count : sample.getCountsList()) {
@@ -27,8 +27,7 @@ public class WithIndelsPostProcessSegmentFunction implements java.util.function.
                     copy = segment.recordList.adjustCounts(copy, offset);
                     segment.insertAfter(record, copy);
                 }
-
-                segment.recordList.hideRecord(record);
+                segment.hideRecord(record);
             }
         });
 

@@ -282,5 +282,7 @@ public class Segment {
         return null;
     }
 
-
+    public void hideRecord(BaseInformationRecords.BaseInformation record) {
+        this.recordList.hideRecord(record);
+    }
 }

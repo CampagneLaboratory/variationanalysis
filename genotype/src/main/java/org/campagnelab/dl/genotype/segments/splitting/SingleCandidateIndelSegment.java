@@ -97,6 +97,11 @@ public class SingleCandidateIndelSegment extends Segment {
         return parent.getRecordAt(startPosition);
     }
 
+
+    @Override
+    public void hideRecord(BaseInformationRecords.BaseInformation record) {
+        this.parent.recordList.hideRecord(record);
+    }
     /**
      * Decides if the base belongs to this subsegment
      *
