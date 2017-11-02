@@ -26,6 +26,8 @@ public class SplitStrategyTest {
 
     SegmentHelper helper;
 
+    boolean verbose = false;
+    
     String expectedHetInsertionCC =
             "ref=A\ttrueGenotype=A\tcounts= A=22  (from: A)\n" +
                     "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A)\n" +
@@ -224,11 +226,13 @@ public class SplitStrategyTest {
     }
     
     private void printCurrentIndels() {
-        Segment segment = helper.getCurrentSegment();
-        Iterable<BaseInformationRecords.BaseInformation> it = segment.getAllRecords();
-        it.forEach( record -> {
-            System.out.println("Has candidate indel? " + SegmentUtil.hasCandidateIndel(record,0));
-            System.out.println("Has true indel? " + SegmentUtil.hasTrueIndel(record));
-        });
+        if (verbose) {
+            Segment segment = helper.getCurrentSegment();
+            Iterable<BaseInformationRecords.BaseInformation> it = segment.getAllRecords();
+            it.forEach(record -> {
+                System.out.println("Has candidate indel? " + SegmentUtil.hasCandidateIndel(record, 0));
+                System.out.println("Has true indel? " + SegmentUtil.hasTrueIndel(record));
+            });
+        }
     }
 }
