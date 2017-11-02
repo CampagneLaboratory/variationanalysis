@@ -332,9 +332,9 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
         MultiDataSetIterator validationIterator = readValidationSet();
-       // if (args().mixupAlpha != null) {
-       //     validationIterator.setPreProcessor(new MixupMultiDataSetPreProcessor(args().seed, args().mixupAlpha));
-       // }
+        if (args().mixupAlpha != null) {
+            validationIterator.setPreProcessor(new MixupMultiDataSetPreProcessor(args().seed, args().mixupAlpha));
+        }
         System.out.println("Finished loading validation records.");
 
 
