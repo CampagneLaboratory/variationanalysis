@@ -6,6 +6,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
+import org.nd4j.linalg.factory.Nd4j;
 
 /**
  * Implements mixup as a preprocessor on a multi-dataset.
@@ -50,31 +51,34 @@ public class MixupMultiDataSetPreProcessor implements MultiDataSetPreProcessor {
             // to mix labels and mask appropriately.
             randomIndex1[exampleIndex] = random.nextInt(minibatchSize);
             randomIndex2[exampleIndex] = random.nextInt(minibatchSize);
+           // System.out.printf("exampleIndex %d randomIndex1: %d randomIndex2: %d %n",exampleIndex, randomIndex1[exampleIndex], randomIndex2[exampleIndex]);
         }
-        for (INDArray feature : features) shuffle(minibatchSize, alm, feature, tmpBuffer, randomIndex1, randomIndex2);
+        for (INDArray feature : features) shuffle(minibatchSize, alm, feature, randomIndex1, randomIndex2);
 
-        for (INDArray label : labels) shuffle(minibatchSize, alm, label, tmpBuffer, randomIndex1, randomIndex2);
+        for (INDArray label : labels) shuffle(minibatchSize, alm, label, randomIndex1, randomIndex2);
 
         for (INDArray featureMask : featureMasks)
-            keepLongestMask(minibatchSize, featureMask, tmpBuffer, randomIndex1, randomIndex2);
-
+            keepLongestMask(minibatchSize, featureMask, randomIndex1, randomIndex2);
         for (INDArray labelMask : labelMasks)
-            keepLongestMask(minibatchSize, labelMask, tmpBuffer, randomIndex1, randomIndex2);
+            keepLongestMask(minibatchSize, labelMask, randomIndex1, randomIndex2);
     }
 
-    private void keepLongestMask(int minibatchSize,  INDArray mask, INDArray[] tmpBuffer, int[] randomIndex1, int[] randomIndex2) {
+    private void keepLongestMask(int minibatchSize,  INDArray mask, int[] randomIndex1, int[] randomIndex2) {
      if (mask==null ) return;
+        INDArray[] tmpBuffer = new INDArray[minibatchSize];
+
         // Find the longest mask and keep it as mixup ask:
         for (int exampleIndex = 0; exampleIndex < minibatchSize; exampleIndex++) {
             int random1 = randomIndex1[exampleIndex];
             int random2 = randomIndex2[exampleIndex];
             final INDArray mask1 = mask.getRow(random1);
             final INDArray mask2 = mask.getRow(random2);
+            tmpBuffer[exampleIndex]=Nd4j.create(mask1.shape());
             if (mask1.sub(mask2).sumNumber().doubleValue() < 0) {
                 // mask2 has more 1s than mask1, use mask2:
-                tmpBuffer[exampleIndex] = mask2;
+                Nd4j.copy(mask2,tmpBuffer[exampleIndex]);
             } else {
-                tmpBuffer[exampleIndex] = mask1;
+                Nd4j.copy(mask1,tmpBuffer[exampleIndex]);
             }
 
         }
@@ -85,14 +89,17 @@ public class MixupMultiDataSetPreProcessor implements MultiDataSetPreProcessor {
         }
     }
 
-    private void shuffle(int minibatchSize, double alm, INDArray features, INDArray[] tmpBuffer, int[] randomIndex1, int[] randomIndex2) {
+    private void shuffle(int minibatchSize, double alm, INDArray features, int[] randomIndex1, int[] randomIndex2) {
+        INDArray[] tmpBuffer = new INDArray[minibatchSize];
         for (int exampleIndex = 0; exampleIndex < minibatchSize; exampleIndex++) {
             int random1 = randomIndex1[exampleIndex];
             int random2 = randomIndex2[exampleIndex];
             final INDArray example1 = features.getRow(random1);
             final INDArray example2 = features.getRow(random2);
             // new example is linear combination of example 1 and example2:
-            tmpBuffer[exampleIndex] = example1.mul(alm).addi(example2.mul(1.0 - alm));
+            tmpBuffer[exampleIndex]=Nd4j.create(example1.shape());
+            Nd4j.copy(example1.mul(alm).add(example2.mul(1.0 - alm)), tmpBuffer[exampleIndex]);
+         //   tmpBuffer[exampleIndex] = example1.mul(alm).add(example2.mul(1.0 - alm));
         }
         for (int exampleIndex = 0; exampleIndex < minibatchSize; exampleIndex++) {
 
