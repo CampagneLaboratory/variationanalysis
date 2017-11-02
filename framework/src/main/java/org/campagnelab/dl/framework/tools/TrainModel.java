@@ -15,6 +15,7 @@ import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.iterators.cache.FullyInMemoryCache;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
+import org.campagnelab.dl.framework.mixup.MixupMultiDataSetPreProcessor;
 import org.campagnelab.dl.framework.models.ComputationGraphSaver;
 import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
@@ -324,11 +325,16 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             iterator.reset();
             LOG.warn("Done.");
         }
-
+        if (args().mixupAlpha != null) {
+            iterator.setPreProcessor(new MixupMultiDataSetPreProcessor(args().seed, args().mixupAlpha));
+        }
         final long numRecords = Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
         MultiDataSetIterator validationIterator = readValidationSet();
+       // if (args().mixupAlpha != null) {
+       //     validationIterator.setPreProcessor(new MixupMultiDataSetPreProcessor(args().seed, args().mixupAlpha));
+       // }
         System.out.println("Finished loading validation records.");
 
 
@@ -372,7 +378,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             saver.saveLatestModel(computationGraph, trainingScore);
             writeProperties();
             writeBestScoreFile();
-            if ((epoch+1) % args().validateEvery == 0) {
+            if ((epoch + 1) % args().validateEvery == 0) {
 
                 // estimate all performance metrics. Note that we do a pass over the validation set for each metric:
                 // (avoid using several metrics).

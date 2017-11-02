@@ -189,9 +189,11 @@ public abstract class TrainingArguments extends RecordingToolArguments {
         return 7;
     }
 
-    @Parameter(names = "--extra-genotypes", description = "Number of genotypes considered after accounting for ploidy."
-            )
+    @Parameter(names = "--extra-genotypes", description = "Number of genotypes considered after accounting for ploidy.")
     public int extraGenotypes = 1;
+
+    @Parameter(names = "--mixup-alpha", description = "When provided, enable mixup with alpha value in argument.")
+    public Double mixupAlpha;
 
 }
 
