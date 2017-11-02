@@ -9,6 +9,7 @@ import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -132,7 +133,7 @@ public class Segment {
         if (recordList.size() == 0)
             return 0;
         else
-            return recordList.size() + recordList.afterRecord.size();
+            return recordList.size() + getAfterRecords().size();
     }
 
     public String getFirstReferenceId() {
@@ -212,7 +213,7 @@ public class Segment {
                 if (!getHiddenRecords().contains(record)) {
                     list.add(record);
                 }
-                list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
+                list.addAll(getAfterRecords().getOrDefault(record, Collections.emptyList()));
             }
         }
 
@@ -234,7 +235,7 @@ public class Segment {
                 if (!getHiddenRecords().contains(record)) {
                     count += 1;
                 }
-                count += recordList.afterRecord.getOrDefault(record, Collections.emptyList()).size();
+                count += getAfterRecords().getOrDefault(record, Collections.emptyList()).size();
             }
         }
         return count;
@@ -285,5 +286,9 @@ public class Segment {
 
     public ObjectSet<BaseInformationRecords.BaseInformation> getHiddenRecords() {
         return this.recordList.hideSet;
+    }
+
+    public Object2ObjectOpenHashMap<BaseInformationRecords.BaseInformation, List<BaseInformationRecords.BaseInformation>> getAfterRecords() {
+        return this.recordList.afterRecord;
     }
 }

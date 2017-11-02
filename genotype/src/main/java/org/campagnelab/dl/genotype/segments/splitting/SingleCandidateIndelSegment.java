@@ -1,5 +1,6 @@
 package org.campagnelab.dl.genotype.segments.splitting;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
@@ -8,6 +9,7 @@ import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -22,7 +24,7 @@ public class SingleCandidateIndelSegment extends Segment {
     private final Segment parent;
     private boolean closed = false;
     public ObjectSet<BaseInformationRecords.BaseInformation> hideSet = new ObjectOpenHashSet<>();
-
+    public Object2ObjectOpenHashMap<BaseInformationRecords.BaseInformation, List<BaseInformationRecords.BaseInformation>> afterRecord = new Object2ObjectOpenHashMap<>();
 
     protected SingleCandidateIndelSegment(final SingleCandidateIndelSplitStrategy.BasePositionList beforePositions,
                                           final Segment parent, final BaseInformationRecords.BaseInformation indel,
@@ -90,12 +92,17 @@ public class SingleCandidateIndelSegment extends Segment {
                 if (!getHiddenRecords().contains(record)) {
                     list.add(record);
                 }
-                list.addAll(parent.recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
+                list.addAll(getAfterRecords().getOrDefault(record, Collections.emptyList()));
             }
         }
 
         return list;
     }
+    @Override
+    public Object2ObjectOpenHashMap<BaseInformationRecords.BaseInformation, List<BaseInformationRecords.BaseInformation>> getAfterRecords() {
+        return this.afterRecord;
+    }
+
     @Override
     public BaseInformationRecords.BaseInformation getFirstRecord() {
         return parent.getRecordAt(startPosition);
@@ -107,11 +114,18 @@ public class SingleCandidateIndelSegment extends Segment {
         this.hideSet.add(record);
     }
 
-
     @Override
     public ObjectSet<BaseInformationRecords.BaseInformation> getHiddenRecords() {
         return this.hideSet;
     }
+
+
+    @Override
+    public void insertAfter(BaseInformationRecords.BaseInformation record, BaseInformationRecords.BaseInformation.Builder copy) {
+        List<BaseInformationRecords.BaseInformation> list = afterRecord.getOrDefault(record, new ObjectArrayList<>());
+        list.add(copy.build());
+        afterRecord.put(record, list);    }
+
     /**
      * Decides if the base belongs to this subsegment
      *
