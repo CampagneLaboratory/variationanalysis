@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.fastutil.floats.FloatListIterator;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
+import org.campagnelab.dl.genotype.mappers.SingleBaseGenotypeMapperV1;
 import org.campagnelab.dl.genotype.tools.SBIToSSIConverterArguments;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
@@ -40,9 +41,13 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
                 GenotypeHelper.isVariant(baseInformation.getTrueGenotype(), baseInformation.getReferenceBase()));
         builder.setReferenceAllele(baseInformation.getReferenceBase());
         builder.setFormattedCounts(FormatterCountHelper.format(baseInformation.getSamples(0)));
+        builder.setPrePostProcessingGenotype(baseInformation.getSamples(0).getPrePostProcessingGenotype());
+        final int offset = baseInformation.getSamples(0).getOffset();
+        builder.setOffset(offset);
         if (args().mapFeatures) {
             FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
-
+            //  todo: get rid of cast.
+         //   ((SingleBaseGenotypeMapperV1)featureMapper).setOffset(offset);
             featureMapper.prepareToNormalize(baseInformation, 0);
             if (trueGenotype.length() > 3) {
                 //    System.out.println("Indel:" + baseInformation.getTrueGenotype());

@@ -263,7 +263,8 @@ public class Segment {
 
         for (BaseInformationRecords.SampleInfo.Builder sample : copy.getSamplesBuilderList()) {
             countsToKeep.clear();
-
+            sample.setPrePostProcessingGenotype(recordTrueGenotype);
+            sample.setOffset(-1);
             for (BaseInformationRecords.CountInfo.Builder count : sample.getCountsBuilderList()) {
 
                 if (count.getToSequence().length() != 1) {
@@ -276,12 +277,14 @@ public class Segment {
                         if (adjustedTo.length() > offset && adjustedFrom.length() > offset) {
                             adjustedFrom = adjustedFrom.substring(offset, offset + 1);
                             adjustedTo = adjustedTo.substring(offset, offset + 1);
-                            adjustedTrueGenotype = adjusteTrueGenotype(adjustedTrueGenotype, offset);
+                            adjustedTrueGenotype = adjustTrueGenotype(adjustedTrueGenotype, offset);
                             count.setFromSequence(adjustedFrom);
                             copy.setReferenceBase(adjustedFrom);
                             count.setToSequence(adjustedTo);
                             countsToKeep.add(count);
                             sample.setTrueGenotype(adjustedTrueGenotype);
+                            sample.setPrePostProcessingGenotype(recordTrueGenotype);
+                            sample.setOffset(offset);
                             copy.setTrueGenotype(adjustedTrueGenotype);
                         } else {
                             // this indel does not contribute to the counts at this offset:
@@ -310,14 +313,14 @@ public class Segment {
         return copy;
     }
 
-    private String adjusteTrueGenotype(String adjustedTrueGenotype, int offset) {
+    private String adjustTrueGenotype(String adjustedTrueGenotype, int offset) {
 
         ArrayList<String> alleles = new ArrayList();
         for (String allele : GenotypeHelper.getAlleles(adjustedTrueGenotype)) {
             if (allele.length() > offset) {
                 alleles.add(allele.substring(offset, offset + 1));
             } else {
-                alleles.add("-");
+                alleles.add("N");
             }
         }
         return alleles.stream().collect(Collectors.joining("/"));

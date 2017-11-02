@@ -1,6 +1,9 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
+import org.campagnelab.dl.framework.mappers.NamedWrapper;
+import org.campagnelab.dl.framework.mappers.OneHotBaseFeatureMapper;
+import org.campagnelab.dl.framework.mappers.OneHotHashModuloMapper;
 import org.campagnelab.dl.somatic.mappers.*;
 import org.campagnelab.dl.somatic.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -19,6 +22,7 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;
+    private OneHotBaseFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> offsetMapper;
 
     public SingleBaseGenotypeMapperV1() {
         this(0);
@@ -32,6 +36,11 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
         withCombinedLayer = false;
         MAX_GENOTYPES = 3;
         withSoftmaxGenotype =true;
+    }
+    int offset;
+
+    public void setOffset(int offset) {
+        this.offset = offset;
     }
 
     /**
@@ -162,8 +171,18 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
             genotypeIndex++;
         }
 
+        final OneHotHashModuloMapper<BaseInformationRecords.BaseInformationOrBuilder> oneHotOffsetMapper =
+                new OneHotHashModuloMapper<>(50,record-> record.getSamples(sampleIndex).getOffset());
+
         delegate =
                 new CountReorderingMapper(sampleIndex, new NamingConcatFeatureMapper<>(
+                        new NamedWrapper<BaseInformationRecords.BaseInformationOrBuilder>(oneHotOffsetMapper){
+
+                            @Override
+                            public String getFeatureName(int featureIndex) {
+                                return "offset";
+                            }
+                        },
                         /** Map the from sequence for genotypeIndex=0: */
                         new GenomicContextMapper(indelMappedLength,
                                 record -> {
