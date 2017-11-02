@@ -96,7 +96,7 @@ echo "Iteration for FEATURE_MAPPER=${FEATURE_MAPPER}"
 
 export FORCE_PLATFORM=native
 #rm ${DATASET}${TRAIN_SUFFIX}.ssi ${DATASET}${VAL_SUFFIX}*cf
-train-segments.sh 10g -t ${DATASET}${TRAIN_SUFFIX}.ssi -v ${DATASET}${VAL_SUFFIX}.ssi \
+train-segments.sh 100g -t ${DATASET}${TRAIN_SUFFIX}.ssi -v ${DATASET}${VAL_SUFFIX}.ssi \
        --mini-batch-size ${MINI_BATCH_SIZE}  -r ${LEARNING_RATE} ${TRAINING_OPTIONS} \
        ${TRAIN_MAX_RECORDS} \
        --feature-mapper ${FEATURE_MAPPER} ${NETWORK_ARCHITECTURE} \
