@@ -1,7 +1,6 @@
 package org.campagnelab.dl.genotype.segments;
 
 import org.campagnelab.dl.genotype.segments.splitting.NoSplitStrategy;
-import org.campagnelab.dl.genotype.segments.splitting.SingleCandidateIndelSegment;
 import org.campagnelab.dl.genotype.segments.splitting.SingleCandidateIndelSplitStrategy;
 import org.campagnelab.dl.genotype.segments.splitting.SplitStrategy;
 import org.campagnelab.dl.genotype.tools.SBIToSSIConverterArguments;

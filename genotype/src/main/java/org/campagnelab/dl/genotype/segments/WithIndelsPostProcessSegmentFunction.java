@@ -24,7 +24,7 @@ public class WithIndelsPostProcessSegmentFunction implements java.util.function.
                 for (int offset = 0; offset < longestIndelLength; offset++) {
                     BaseInformationRecords.BaseInformation.Builder copy = record.toBuilder();
                     //    System.out.printf("record position: %d %n",record.getPosition());
-                    copy = segment.recordList.adjustCounts(copy, offset);
+                    copy = segment.adjustCounts(copy, offset);
                     segment.insertAfter(record, copy);
                 }
                 segment.hideRecord(record);

@@ -1,10 +1,11 @@
-package org.campagnelab.dl.genotype.segments.splitting;
+package org.campagnelab.dl.genotype.segments;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.campagnelab.dl.genotype.segments.Segment;
+import org.campagnelab.dl.genotype.segments.splitting.SingleCandidateIndelSplitStrategy;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Collections;
@@ -26,7 +27,7 @@ public class SingleCandidateIndelSegment extends Segment {
     public ObjectSet<BaseInformationRecords.BaseInformation> hideSet = new ObjectOpenHashSet<>();
     public Object2ObjectOpenHashMap<BaseInformationRecords.BaseInformation, List<BaseInformationRecords.BaseInformation>> afterRecord = new Object2ObjectOpenHashMap<>();
 
-    protected SingleCandidateIndelSegment(final SingleCandidateIndelSplitStrategy.BasePositionList beforePositions,
+    public SingleCandidateIndelSegment(final SingleCandidateIndelSplitStrategy.BasePositionList beforePositions,
                                           final Segment parent, final BaseInformationRecords.BaseInformation indel,
                                           int windowSize) {
         super(parent.fillInFeatures);
@@ -145,7 +146,7 @@ public class SingleCandidateIndelSegment extends Segment {
      *
      * @return
      */
-    protected boolean isOpen() {
+    public boolean isOpen() {
         return (this.getLastPosition() - this.candidateIndelPosition <= this.windowSize) && !closed;
     }
 

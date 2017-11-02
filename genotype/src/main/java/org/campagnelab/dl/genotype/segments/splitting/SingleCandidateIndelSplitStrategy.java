@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.genotype.segments.Segment;
 import org.campagnelab.dl.genotype.segments.SegmentUtil;
+import org.campagnelab.dl.genotype.segments.SingleCandidateIndelSegment;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.*;
@@ -93,7 +94,7 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
     /**
      * A list that maintains a sized distance between the first and last elements.
      */
-    class BasePositionList extends IntArrayList {
+    public class BasePositionList extends IntArrayList {
         private final long windowSize;
         private int firstElementPosition = 0;
         private int lastElementPosition = 0;
