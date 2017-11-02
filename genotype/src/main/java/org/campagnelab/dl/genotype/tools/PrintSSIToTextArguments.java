@@ -13,9 +13,9 @@ public class PrintSSIToTextArguments implements ToolArguments {
     @Parameter(required = true,  names = {"-i", "--input-file"}, description = "Input file in .ssi/.ssip format.")
     public String inputFile;
 
-    @Parameter(required = true,  names = { "--no-features"}, description = "Do not show features.")
+    @Parameter(names = { "--no-features"}, description = "Do not show features.")
     public boolean removeFeatures;
 
-    @Parameter(required = true,  names = { "--no-labels"}, description = "Do not show labels.")
+    @Parameter(names = { "--no-labels"}, description = "Do not show labels.")
     public boolean removeLabels;
 }
