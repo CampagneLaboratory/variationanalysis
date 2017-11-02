@@ -1,6 +1,8 @@
 package org.campagnelab.dl.genotype.segments.splitting;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.campagnelab.dl.genotype.segments.Segment;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
@@ -19,6 +21,8 @@ public class SingleCandidateIndelSegment extends Segment {
     private final int windowSize;
     private final Segment parent;
     private boolean closed = false;
+    public ObjectSet<BaseInformationRecords.BaseInformation> hideSet = new ObjectOpenHashSet<>();
+
 
     protected SingleCandidateIndelSegment(final SingleCandidateIndelSplitStrategy.BasePositionList beforePositions,
                                           final Segment parent, final BaseInformationRecords.BaseInformation indel,
@@ -83,7 +87,7 @@ public class SingleCandidateIndelSegment extends Segment {
         ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(this.actualLength() * 3 / 2);
         for (BaseInformationRecords.BaseInformation record : parent.recordList) {
             if (record.getPosition() >= startPosition && record.getPosition() <= endPosition) {
-                if (!parent.recordList.hideSet.contains(record)) {
+                if (!getHiddenRecords().contains(record)) {
                     list.add(record);
                 }
                 list.addAll(parent.recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
@@ -100,7 +104,13 @@ public class SingleCandidateIndelSegment extends Segment {
 
     @Override
     public void hideRecord(BaseInformationRecords.BaseInformation record) {
-        this.parent.recordList.hideRecord(record);
+        this.hideSet.add(record);
+    }
+
+
+    @Override
+    public ObjectSet<BaseInformationRecords.BaseInformation> getHiddenRecords() {
+        return this.hideSet;
     }
     /**
      * Decides if the base belongs to this subsegment

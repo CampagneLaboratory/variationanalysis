@@ -2,7 +2,6 @@ package org.campagnelab.dl.genotype.segments;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.*;
 import it.unimi.dsi.lang.MutableString;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -10,8 +9,6 @@ import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -212,7 +209,7 @@ public class Segment {
         ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(this.actualLength() * 3 / 2);
         for (BaseInformationRecords.BaseInformation record : recordList) {
             if (record.getPosition() >= startPosition && record.getPosition() < endPosition) {
-                if (!recordList.hideSet.contains(record)) {
+                if (!getHiddenRecords().contains(record)) {
                     list.add(record);
                 }
                 list.addAll(recordList.afterRecord.getOrDefault(record, Collections.emptyList()));
@@ -234,7 +231,7 @@ public class Segment {
         int count = 0;
         for (BaseInformationRecords.BaseInformation record : recordList) {
             if (record.getPosition() >= startPosition && record.getPosition() < endPosition) {
-                if (!recordList.hideSet.contains(record)) {
+                if (!getHiddenRecords().contains(record)) {
                     count += 1;
                 }
                 count += recordList.afterRecord.getOrDefault(record, Collections.emptyList()).size();
@@ -284,5 +281,9 @@ public class Segment {
 
     public void hideRecord(BaseInformationRecords.BaseInformation record) {
         this.recordList.hideRecord(record);
+    }
+
+    public ObjectSet<BaseInformationRecords.BaseInformation> getHiddenRecords() {
+        return this.recordList.hideSet;
     }
 }
