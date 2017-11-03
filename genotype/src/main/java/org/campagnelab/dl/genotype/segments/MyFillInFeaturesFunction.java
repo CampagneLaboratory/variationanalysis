@@ -31,17 +31,19 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
     public SegmentInformationRecords.Base.Builder apply(BaseInformationRecords.BaseInformation baseInformation) {
 
         SegmentInformationRecords.Base.Builder builder = SegmentInformationRecords.Base.newBuilder();
+        final String prePostProcessingGenotype = baseInformation.getSamples(0).getPrePostProcessingGenotype();
+
         String trueGenotype = baseInformation.getTrueGenotype();
         builder.addAllTrueLabel(GenotypeHelper.getAlleles(trueGenotype));
 
         builder.setHasCandidateIndel(hasCandidateIndel(baseInformation));
         builder.setHasTrueIndel(
-                GenotypeHelper.isIndel(baseInformation.getReferenceBase(), baseInformation.getTrueGenotype()));
+                GenotypeHelper.isIndel(baseInformation.getReferenceBase(), prePostProcessingGenotype));
         builder.setIsVariant(
                 GenotypeHelper.isVariant(baseInformation.getTrueGenotype(), baseInformation.getReferenceBase()));
         builder.setReferenceAllele(baseInformation.getReferenceBase());
         builder.setFormattedCounts(FormatterCountHelper.format(baseInformation.getSamples(0)));
-        builder.setPrePostProcessingGenotype(baseInformation.getSamples(0).getPrePostProcessingGenotype());
+        builder.setPrePostProcessingGenotype(prePostProcessingGenotype);
 
         if (args().mapFeatures) {
             FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
