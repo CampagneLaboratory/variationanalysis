@@ -264,9 +264,9 @@ public class Segment {
         for (BaseInformationRecords.SampleInfo.Builder sample : copy.getSamplesBuilderList()) {
             countsToKeep.clear();
             sample.setPrePostProcessingGenotype(recordTrueGenotype);
-            sample.setOffset(-1);
-            for (BaseInformationRecords.CountInfo.Builder count : sample.getCountsBuilderList()) {
 
+            for (BaseInformationRecords.CountInfo.Builder count : sample.getCountsBuilderList()) {
+                count.setOffset(0);
                 if (count.getToSequence().length() != 1) {
                     if (count.getIsIndel() || count.getToSequence().length() > 1) {
 
@@ -284,7 +284,7 @@ public class Segment {
                             countsToKeep.add(count);
                             sample.setTrueGenotype(adjustedTrueGenotype);
                             sample.setPrePostProcessingGenotype(recordTrueGenotype);
-                            sample.setOffset(offset);
+                            count.setOffset(offset);
                             copy.setTrueGenotype(adjustedTrueGenotype);
                         } else {
                             // this indel does not contribute to the counts at this offset:

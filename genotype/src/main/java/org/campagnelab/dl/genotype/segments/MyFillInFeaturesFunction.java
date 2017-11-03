@@ -42,12 +42,9 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
         builder.setReferenceAllele(baseInformation.getReferenceBase());
         builder.setFormattedCounts(FormatterCountHelper.format(baseInformation.getSamples(0)));
         builder.setPrePostProcessingGenotype(baseInformation.getSamples(0).getPrePostProcessingGenotype());
-        final int offset = baseInformation.getSamples(0).getOffset();
-        builder.setOffset(offset);
+
         if (args().mapFeatures) {
             FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
-            //  todo: get rid of cast.
-         //   ((SingleBaseGenotypeMapperV1)featureMapper).setOffset(offset);
             featureMapper.prepareToNormalize(baseInformation, 0);
             if (trueGenotype.length() > 3) {
                 //    System.out.println("Indel:" + baseInformation.getTrueGenotype());
@@ -61,8 +58,6 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
                 float next =  iterator.nextFloat();
                 builder.addFeatures(next);
             }
-
-
         }
         if (args().mapLabels) {
             if (trueGenotype.length() == 1) {

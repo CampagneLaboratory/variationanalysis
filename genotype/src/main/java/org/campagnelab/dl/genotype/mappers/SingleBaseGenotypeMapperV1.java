@@ -1,9 +1,6 @@
 package org.campagnelab.dl.genotype.mappers;
 
-import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
-import org.campagnelab.dl.framework.mappers.NamedWrapper;
-import org.campagnelab.dl.framework.mappers.OneHotBaseFeatureMapper;
-import org.campagnelab.dl.framework.mappers.OneHotHashModuloMapper;
+import org.campagnelab.dl.framework.mappers.*;
 import org.campagnelab.dl.somatic.mappers.*;
 import org.campagnelab.dl.somatic.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -16,7 +13,6 @@ import java.util.Properties;
  * Based on V37, but restricted to a single base of genotype and indel context.
  */
 public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
-
 
 
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
@@ -35,8 +31,9 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
         withDistinctAlleleCounts = true;
         withCombinedLayer = false;
         MAX_GENOTYPES = 3;
-        withSoftmaxGenotype =true;
+        withSoftmaxGenotype = true;
     }
+
     int offset;
 
     public void setOffset(int offset) {
@@ -48,23 +45,23 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
      */
     public void configure(Properties sbiProperties) {
         String ploidyString = sbiProperties.getProperty("genotypes.ploidy");
-        if (ploidyString==null) {
-            MAX_GENOTYPES=3;
-        }else{
-            MAX_GENOTYPES= Integer.parseInt(ploidyString)+1;
+        if (ploidyString == null) {
+            MAX_GENOTYPES = 3;
+        } else {
+            MAX_GENOTYPES = Integer.parseInt(ploidyString) + 1;
         }
 
         String genomicContextLengthString = sbiProperties.getProperty("stats.genomicContextSize.min");
         assert genomicContextLengthString != null : "property must exist: stats.genomicContextSize.min";
-        int genomicContextLength = (int)Float.parseFloat(genomicContextLengthString);
-        assert genomicContextLength==1:"Single base genotype mapper requires genomicContextLength property=1";
+        int genomicContextLength = (int) Float.parseFloat(genomicContextLengthString);
+        assert genomicContextLength == 1 : "Single base genotype mapper requires genomicContextLength property=1";
 
-        String indelSequenceLengthString=sbiProperties.getProperty("indelSequenceLength");
+        String indelSequenceLengthString = sbiProperties.getProperty("indelSequenceLength");
         assert indelSequenceLengthString != null : "property must exist: indelSequenceLength";
         int indelSequenceLength = Integer.parseInt(indelSequenceLengthString);
-        assert indelSequenceLength==1:"Single base genotype mapper requires indelSequenceLength property=1";
+        assert indelSequenceLength == 1 : "Single base genotype mapper requires indelSequenceLength property=1";
 
-        final int indelMappedLength= indelSequenceLength;
+        final int indelMappedLength = indelSequenceLength;
         FeatureNameMapper[] matchesRefMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] countMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
         FeatureNameMapper[] readIndexMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
@@ -82,6 +79,7 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
         FeatureNameMapper[] bamFlagMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] originalGobyCountIndexMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] queryPositions = new FeatureNameMapper[MAX_GENOTYPES];
+        FeatureNameMapper[] countOffsets = new FeatureNameMapper[MAX_GENOTYPES];
 
 
         int genotypeIndex = 0;
@@ -91,12 +89,25 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
             countMappers[i] = (new SingleGenoTypeCountMapper(sampleIndex, i, true));
             readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex, i, true));
             matchesRefMappers[i] = (new MatchesReferenceMapper(sampleIndex, i));
+            FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> oneHotOffsetMapper =
+                    new OneHotIntegerMapper<>(50,
+                            record -> record.getSamples(sampleIndex).getCounts(constantGenotypeIndex).getOffset()
+                    );
+            countOffsets[i] =
+                    new NamedWrapper<BaseInformationRecords.BaseInformationOrBuilder>(oneHotOffsetMapper) {
+
+                        @Override
+                        public String getFeatureName(int featureIndex) {
+                            return "offset";
+                        }
+                    };
+
 
             firstBaseMappers[i] = new GenomicContextMapper(indelMappedLength,
                     record -> {
-                        final String toSequence = record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence();
-                        return toSequence.substring(0, Math.min(indelMappedLength,toSequence.length()));
-                    },true /* no warning if index outside of context, needed since indels have variable lengths */);
+                        final String toSequence = record.getSamples(sampleIndex).getCounts(constantGenotypeIndex).getToSequence();
+                        return toSequence.substring(0, Math.min(indelMappedLength, toSequence.length()));
+                    }, true /* no warning if index outside of context, needed since indels have variable lengths */);
 
             queryPositions[i] = new DensityMapper("queryPosition",
                     10, sbiProperties,
@@ -171,31 +182,23 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
             genotypeIndex++;
         }
 
-        final OneHotHashModuloMapper<BaseInformationRecords.BaseInformationOrBuilder> oneHotOffsetMapper =
-                new OneHotHashModuloMapper<>(50,record-> record.getSamples(sampleIndex).getOffset());
 
         delegate =
                 new CountReorderingMapper(sampleIndex, new NamingConcatFeatureMapper<>(
-                        new NamedWrapper<BaseInformationRecords.BaseInformationOrBuilder>(oneHotOffsetMapper){
 
-                            @Override
-                            public String getFeatureName(int featureIndex) {
-                                return "offset";
-                            }
-                        },
                         /** Map the from sequence for genotypeIndex=0: */
                         new GenomicContextMapper(indelMappedLength,
                                 record -> {
                                     final String fromSequence = record.getSamples(0).getCounts(0).getFromSequence();
-                                    return fromSequence.substring(0, Math.min(indelMappedLength,fromSequence.length()));
-                                },true /* no warning if index outside of context, needed since indels have variable lengths */),
+                                    return fromSequence.substring(0, Math.min(indelMappedLength, fromSequence.length()));
+                                }, true /* no warning if index outside of context, needed since indels have variable lengths */),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(originalGobyCountIndexMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),
                         new InverseNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),
                         new CeilingNormalizationMapper<>(
-                                new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers),30),
+                                new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers), 30),
                         new InverseNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readIndexMappers)),
                         new GenomicContextMapper(sbiProperties),
