@@ -170,7 +170,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         FeatureMapper result;
 
         if (isLSTMInput(inputName)) {
-            result = new GenotypeMapperLSTM();
+            result = new GenotypeMapperLSTM(needSortCounts());
             GenotypeMapperLSTM glMapper = (GenotypeMapperLSTM) result;
             Properties glMapperProperties = new Properties();
             decorateProperties(glMapperProperties);
