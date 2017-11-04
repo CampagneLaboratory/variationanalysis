@@ -2,6 +2,8 @@ package org.campagnelab.dl.framework.training;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
+import org.campagnelab.dl.framework.iterators.AttachMultiDataSetIterator;
+import org.campagnelab.dl.framework.iterators.MDSHelper;
 import org.campagnelab.dl.framework.tools.TrainModel;
 import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.deeplearning4j.nn.graph.ComputationGraph;
@@ -27,15 +29,17 @@ public class SequentialTrainer implements Trainer {
         int numNanFoundConsecutively = 0;
         score = 0;
         n=0;
-        //wrap in an async iterator to speed up loading of minibatches to keep the GPU utilized:
         String prefetchBufferString = System.getProperty("framework.parallelWrapper.prefetchBuffer");
         int prefetchBuffer = prefetchBufferString != null ? Integer.parseInt(prefetchBufferString) : 12;
+        // put an attach iterator in front of the async to attach data to the GPU for all queued mds
+        iterator=new AttachMultiDataSetIterator(iterator);
+        //wrap in an async iterator to speed up loading of minibatches to keep the GPU utilized:
         iterator = new AsyncMultiDataSetIterator(iterator, prefetchBuffer);
 
         while (iterator.hasNext()) {
 
             MultiDataSet ds = iterator.next();
-            attach(ds);
+            MDSHelper.attach(ds);
             // fit the computationGraph:
             computationGraph.fit(ds);
 
@@ -64,38 +68,6 @@ public class SequentialTrainer implements Trainer {
         return numExamplesUsed;
     }
 
-    private void attach(MultiDataSet ds) {
-        int e;
-        INDArray[] features = ds.getFeatures();
-        if (features != null) {
-            for (e = 0; e < features.length; ++e) {
-                features[e] = features[e].detach();
-            }
-        }
-
-        INDArray[] labels = ds.getLabels();
-        if (labels != null) {
-            for (e = 0; e < labels.length; ++e) {
-                labels[e] = labels[e].detach();
-            }
-        }
-
-        INDArray[] featuresMaskArrays = ds.getFeaturesMaskArrays();
-        if (featuresMaskArrays != null) {
-            for (e = 0; e < featuresMaskArrays.length; ++e) {
-                featuresMaskArrays[e] = featuresMaskArrays[e].detach();
-            }
-        }
-
-        INDArray[] labelsMaskArrays = ds.getLabelsMaskArrays();
-        if (labelsMaskArrays != null) {
-            for (e = 0; e < labelsMaskArrays.length; ++e) {
-                if (labelsMaskArrays[e]!=null) {
-                    labelsMaskArrays[e] = labelsMaskArrays[e].detach();
-                }
-            }
-        }
-    }
 
     @Override
     public void setLogSpeed(boolean logSpeed) {
