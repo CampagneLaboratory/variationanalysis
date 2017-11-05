@@ -1,6 +1,5 @@
 package org.campagnelab.dl.genotype.learning.domains;
 
-import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
@@ -41,8 +40,8 @@ import java.util.stream.Collectors;
 public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRecords.BaseInformation> {
 
 
-    private  boolean isLstmIndelModel;
-    private  boolean isLstmIndelAggregateModel;
+    private final boolean isLstmIndelModel;
+    private final boolean isLstmIndelAggregateModel;
     private boolean addTrueGenotypeLabels;
     private int ploidy;
     private double decisionThreshold;
@@ -86,7 +85,9 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         super.loadProperties(modelPath);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
-
+        isLstmIndelModel = netArchitectureHasIndelLSTM(domainProperties.getProperty("net.architecture.classname"));
+        isLstmIndelAggregateModel = netArchitectureHasIndelAggregateLSTM(domainProperties.getProperty("net.architecture.classname"));
+        addTrueGenotypeLabels = Boolean.parseBoolean(domainProperties.getProperty("addTrueGenotypeLabels"));
         configure(modelProperties);
         initializeArchitecture();
     }
@@ -340,11 +341,9 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         modelCapacity = Float.parseFloat(modelCapacityProperty);
         String extraGenotypesProperty = modelProperties.getProperty("extraGenotypes", "2");
         extraGenotypes = Integer.parseInt(extraGenotypesProperty);
-        indelSequenceLength = Integer.parseInt(modelProperties.getProperty("indelSequenceLength","60"));
+        indelSequenceLength = Integer.parseInt(modelProperties.getProperty("indelSequenceLength", "10"));
+        trueGenotypeLength = Integer.parseInt(modelProperties.getProperty("trueGenotypeLength", "10"));
         addTrueGenotypeLabels = Boolean.parseBoolean(modelProperties.getProperty("addTrueGenotypeLabels", "false"));
-        isLstmIndelModel = netArchitectureHasIndelLSTM(domainProperties.getProperty("net.architecture.classname"));
-        isLstmIndelAggregateModel = netArchitectureHasIndelAggregateLSTM(domainProperties.getProperty("net.architecture.classname"));
-        addTrueGenotypeLabels = Boolean.parseBoolean(domainProperties.getProperty("addTrueGenotypeLabels"));
 
     }
 
@@ -392,15 +391,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             modelProperties.setProperty("genotypes.ploidy", Integer.toString(args().ploidy));
             modelProperties.setProperty("genotypes.ploidy", Integer.toString(args().ploidy));
 
-        }else {
+        } else {
             modelProperties.setProperty("indelSequenceLength", Integer.toString(indelSequenceLength));
-            modelProperties.setProperty("stats.genomicContextSize.min", Integer.toString(genomicContextSize));
-            modelProperties.setProperty("stats.genomicContextSize.max", Integer.toString(genomicContextSize));
-            modelProperties.setProperty("trueGenotypeLength", Integer.toString(trueGenotypeLength));
-            modelProperties.setProperty("extraGenotypes", Integer.toString(extraGenotypes));
-            modelProperties.setProperty("ploidy", Integer.toString(ploidy));
-            modelProperties.setProperty("modelCapacity",Float.toString( modelCapacity));
-
         }
     }
 
