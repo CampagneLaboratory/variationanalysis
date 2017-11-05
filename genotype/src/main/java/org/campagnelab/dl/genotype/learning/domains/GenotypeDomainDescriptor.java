@@ -41,8 +41,8 @@ import java.util.stream.Collectors;
 public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRecords.BaseInformation> {
 
 
-    private final boolean isLstmIndelModel;
-    private final boolean isLstmIndelAggregateModel;
+    private  boolean isLstmIndelModel;
+    private  boolean isLstmIndelAggregateModel;
     private boolean addTrueGenotypeLabels;
     private int ploidy;
     private double decisionThreshold;
@@ -52,7 +52,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     private int trueGenotypeLength;
     private float modelCapacity;
     private boolean isPredicting;
-    private int extraGenotypes=5;
+    private int extraGenotypes = 5;
 
 
     public GenotypeDomainDescriptor(GenotypeTrainingArguments arguments) {
@@ -86,9 +86,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         super.loadProperties(modelPath);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
-        isLstmIndelModel = netArchitectureHasIndelLSTM(domainProperties.getProperty("net.architecture.classname"));
-        isLstmIndelAggregateModel = netArchitectureHasIndelAggregateLSTM(domainProperties.getProperty("net.architecture.classname"));
-        addTrueGenotypeLabels = Boolean.parseBoolean(domainProperties.getProperty("addTrueGenotypeLabels"));
+
         configure(modelProperties);
         initializeArchitecture();
     }
@@ -116,8 +114,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         super.loadProperties(domainProperties, sbiProperties);
         // force loading the feature mappers from properties.
         args().featureMapperClassname = null;
-        args().genomicContextLength=Integer.parseInt(domainProperties.getProperty("genomicContextLength"));
-        args().indelSequenceLength=Integer.parseInt(domainProperties.getProperty("indelSequenceLength"));
+        args().genomicContextLength = Integer.parseInt(domainProperties.getProperty("genomicContextLength"));
+        args().indelSequenceLength = Integer.parseInt(domainProperties.getProperty("indelSequenceLength"));
         isLstmIndelModel = netArchitectureHasIndelLSTM(domainProperties.getProperty("net.architecture.classname"));
         isLstmIndelAggregateModel = netArchitectureHasIndelAggregateLSTM(domainProperties.getProperty("net.architecture.classname"));
         addTrueGenotypeLabels = Boolean.parseBoolean(domainProperties.getProperty("addTrueGenotypeLabels"));
@@ -271,7 +269,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "numDistinctAlleles":
                 return new NumDistinctAllelesLabelMapper(sortCounts, ploidy, args().labelSmoothingEpsilon);
             case "softmaxGenotype":
-                return new SoftmaxLabelMapper(sortCounts,ploidy+extraGenotypes, args().labelSmoothingEpsilon);
+                return new SoftmaxLabelMapper(sortCounts, ploidy + extraGenotypes, args().labelSmoothingEpsilon);
             case "combined":
                 return new CombinedLabelsMapper(args().labelSmoothingEpsilon);
             case "combinedRef":
@@ -308,6 +306,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         final GenotypeFeatureMapper featureMapper = (GenotypeFeatureMapper) getFeatureMapper("input");
         return featureMapper.withCombinedLayerRef;
     }
+
     private boolean withSoftmaxGenotype() {
         final GenotypeFeatureMapper featureMapper = (GenotypeFeatureMapper) getFeatureMapper("input");
         return featureMapper.withSoftmaxGenotype;
@@ -334,16 +333,18 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             decisionThreshold = Double.parseDouble(property);
         }
 
-        String variantLossWeightProperty = modelProperties.getProperty("variantLossWeight","0");
+        String variantLossWeightProperty = modelProperties.getProperty("variantLossWeight", "0");
 
         variantLossWeight = Double.parseDouble(variantLossWeightProperty);
-        String modelCapacityProperty = modelProperties.getProperty("modelCapacity","1.0");
+        String modelCapacityProperty = modelProperties.getProperty("modelCapacity", "1.0");
         modelCapacity = Float.parseFloat(modelCapacityProperty);
-        String extraGenotypesProperty = modelProperties.getProperty("extraGenotypes","2");
-        extraGenotypes= Integer.parseInt(extraGenotypesProperty);
-        indelSequenceLength = Integer.parseInt(modelProperties.getProperty("indelSequenceLength","10"));
-        trueGenotypeLength = Integer.parseInt(modelProperties.getProperty("trueGenotypeLength","10"));
-        addTrueGenotypeLabels = Boolean.parseBoolean(modelProperties.getProperty("addTrueGenotypeLabels","false"));
+        String extraGenotypesProperty = modelProperties.getProperty("extraGenotypes", "2");
+        extraGenotypes = Integer.parseInt(extraGenotypesProperty);
+        indelSequenceLength = Integer.parseInt(modelProperties.getProperty("indelSequenceLength","60"));
+        addTrueGenotypeLabels = Boolean.parseBoolean(modelProperties.getProperty("addTrueGenotypeLabels", "false"));
+        isLstmIndelModel = netArchitectureHasIndelLSTM(domainProperties.getProperty("net.architecture.classname"));
+        isLstmIndelAggregateModel = netArchitectureHasIndelAggregateLSTM(domainProperties.getProperty("net.architecture.classname"));
+        addTrueGenotypeLabels = Boolean.parseBoolean(domainProperties.getProperty("addTrueGenotypeLabels"));
 
     }
 
@@ -380,7 +381,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             modelProperties.setProperty("modelCapacity", Float.toString(args().modelCapacity));
 
             extraGenotypes = args().extraGenotypes;
-            modelProperties.setProperty("extraGenotypes",Integer.toString(args().extraGenotypes));
+            modelProperties.setProperty("extraGenotypes", Integer.toString(args().extraGenotypes));
             modelProperties.setProperty("addTrueGenotypeLabels", Boolean.toString(args().addTrueGenotypeLabels));
 
             modelProperties.setProperty("variantLossWeight", Double.toString(variantLossWeight));
@@ -390,6 +391,15 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             ploidy = args().ploidy;
             modelProperties.setProperty("genotypes.ploidy", Integer.toString(args().ploidy));
             modelProperties.setProperty("genotypes.ploidy", Integer.toString(args().ploidy));
+
+        }else {
+            modelProperties.setProperty("indelSequenceLength", Integer.toString(indelSequenceLength));
+            modelProperties.setProperty("stats.genomicContextSize.min", Integer.toString(genomicContextSize));
+            modelProperties.setProperty("stats.genomicContextSize.max", Integer.toString(genomicContextSize));
+            modelProperties.setProperty("trueGenotypeLength", Integer.toString(trueGenotypeLength));
+            modelProperties.setProperty("extraGenotypes", Integer.toString(extraGenotypes));
+            modelProperties.setProperty("ploidy", Integer.toString(ploidy));
+            modelProperties.setProperty("modelCapacity",Float.toString( modelCapacity));
 
         }
     }
@@ -427,7 +437,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "combinedRef":
                 return new CombinedOutputLayerRefInterpreter();
             case "softmaxGenotype":
-                return new SoftmaxGenotypeInterpreter(ploidy+extraGenotypes);
+                return new SoftmaxGenotypeInterpreter(ploidy + extraGenotypes);
             case "numDistinctAlleles":
                 return new NumDistinctAllelesInterpreter(ploidy);
             case "isVariant":
@@ -555,13 +565,12 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             if (isLstmIndelModel) {
                 assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.SOFTMAX_GENOTYPE,
                         withIsVariantLabelMapper(), withCombinedLayerRef(), addTrueGenotypeLabels);
-             } else if (isLstmIndelAggregateModel) {
+            } else if (isLstmIndelAggregateModel) {
                 throw new IllegalArgumentException("isLstmIndelAggregateModel not supported with softmax label");
             } else {
                 assembler = new SoftmaxAlleleLabelAssembler(withIsVariantLabelMapper());
             }
-        }
-        else if (withDistinctAllele()) {
+        } else if (withDistinctAllele()) {
             if (isLstmIndelModel) {
                 assembler = new GenotypeSixDenseLayersWithIndelLSTM(GenotypeSixDenseLayersWithIndelLSTM.OutputType.DISTINCT_ALLELES,
                         withIsVariantLabelMapper(), withCombinedLayerRef(), addTrueGenotypeLabels);
@@ -672,9 +681,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     @Override
     public GenotypePrediction aggregatePredictions(BaseInformationRecords.BaseInformation record, List<Prediction> individualOutputPredictions) {
         if (withSoftmaxGenotype()) {
-            return new AggregatedSoftmaxGenotypePrediction( record, individualOutputPredictions);
-        }
-        else if (addTrueGenotypeLabels) {
+            return new AggregatedSoftmaxGenotypePrediction(record, individualOutputPredictions);
+        } else if (addTrueGenotypeLabels) {
             return new TrueGenotypePrediction(record, individualOutputPredictions, withDistinctAllele(),
                     withCombinedLayer(), withIsVariantLabelMapper(), decisionThreshold);
         } else if (withDistinctAllele()) {
