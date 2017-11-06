@@ -1,0 +1,23 @@
+package org.campagnelab.dl.genotype.tools;
+
+import com.beust.jcommander.Parameter;
+import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
+
+/**
+ * Created by mas2182 on 11/3/17.
+ */
+public class SBISimulatorArguments implements ToolArguments {
+
+    @Parameter(required = true, names = {"-o", "--output-filename"}, description = "Output filename for the sbi.")
+    public String outputFilename;
+
+    @Parameter(required = true, names = {"-i", "--input-file"}, variableArity = true,
+            description = "Input file with the variant map, must be provided in .varmap format (produced with Goby3).")
+    public String inputFile = null;
+
+    @Parameter(required = false, names = {"-c", "--chromosome"}, variableArity = true,
+            description = "Ovverride the chromosome information in the varmap.")
+    public String chromosome = null;
+
+}
+
