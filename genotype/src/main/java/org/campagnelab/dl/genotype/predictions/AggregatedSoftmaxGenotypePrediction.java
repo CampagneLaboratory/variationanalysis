@@ -29,6 +29,7 @@ public class AggregatedSoftmaxGenotypePrediction extends GenotypePrediction {
     private void set(BaseInformationRecords.BaseInformation record,
                      SoftmaxGenotypePrediction softmaxGenotype, MetadataPrediction metaData) {
         int numBits = softmaxGenotype.numBits;
+        boolean isTrueAllele = false;
         for (int i = 0; i < numBits; i++) {
             // we decode the sorted allele index:
             boolean alleleIsCalled = ((softmaxGenotype.predictedGenotypeIndex >> i) & 0x1) != 0;
@@ -42,17 +43,14 @@ public class AggregatedSoftmaxGenotypePrediction extends GenotypePrediction {
                 String allele = pred.predictedSingleGenotype(record, metaData);
                 if (alleleIsCalled) predictedAlleles.add(allele);
                 if (alleleIsInTrueGenotype) trueAlleles.add(allele);
+
             }
 
         }
         set(metaData);
         this.overallProbability = softmaxGenotype.probability;
         this.isVariantProbability = 0.001;
-        this.trueGenotype= GenotypeHelper.fromAlleles(trueAlleles);
-        this.predictedGenotype= GenotypeHelper.fromAlleles(predictedAlleles);
-
-        int value=1;
-        value+=1;
-
+        this.trueGenotype = GenotypeHelper.fromAlleles(trueAlleles);
+        this.predictedGenotype = GenotypeHelper.fromAlleles(predictedAlleles);
     }
 }
