@@ -497,9 +497,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     case "Concordance":
                     case "iTP":
                     case "iTN":
+                        return true;
                     case "iFP":
                     case "iFN":
-                        return true;
+                        return false;
                     default:
                         throw new IllegalArgumentException("metric not recognized: " + metricName);
                 }
