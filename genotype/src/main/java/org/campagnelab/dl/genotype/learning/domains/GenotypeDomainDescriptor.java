@@ -1,5 +1,7 @@
 package org.campagnelab.dl.genotype.learning.domains;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.apache.commons.compress.utils.IOUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
@@ -31,6 +33,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.impl.LossBinaryXENT;
 import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
+import sun.awt.shell.ShellFolder;
 
 import java.io.IOException;
 import java.util.*;
@@ -52,6 +55,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     private float modelCapacity;
     private boolean isPredicting;
     private int extraGenotypes = 5;
+    private Object2ObjectMap<String,LabelMapper> cachedLabelMaper=new Object2ObjectOpenHashMap<>();
 
 
     public GenotypeDomainDescriptor(GenotypeTrainingArguments arguments) {
@@ -242,6 +246,16 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
     @Override
     public LabelMapper getLabelMapper(String outputName) {
+        LabelMapper cached = cachedLabelMaper.get(outputName);
+        if (cached!=null) {
+            return cached;
+        }else{
+            cached=getInternalLabelMapper(outputName);
+            cachedLabelMaper.put(outputName, cached);
+            return cached;
+        }
+    }
+    public LabelMapper getInternalLabelMapper(String outputName) {
         boolean sortCounts = needSortCounts();
 
         switch (outputName) {
