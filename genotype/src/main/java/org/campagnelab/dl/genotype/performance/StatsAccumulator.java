@@ -142,12 +142,12 @@ public class StatsAccumulator {
         numFalseNegative = numSnpsFalseNegative + numIndelsFalseNegative;
         numFalsePositive = numSnpsFalsePositive + numIndelsFalsePositive;
 
-        double recall = numTruePositive / ((double) numTruePositive + numFalseNegative);
-        double precision = numTruePositive / ((double) (numTruePositive + numFalsePositive));
+        double recall = ((double)numTruePositive) / ((double) numTruePositive + numFalseNegative);
+        double precision = ((double)numTruePositive) / ((double) (numTruePositive + numFalsePositive));
 
         double F1 = 2 * precision * recall / (precision + recall);
-        double indelRecall = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalseNegative);
-        double indelPrecision = numIndelsTruePositive / ((double) numIndelsTruePositive + numIndelsFalsePositive);
+        double indelRecall = ((double)numIndelsTruePositive) / ((double) numIndelsTruePositive + numIndelsFalseNegative);
+        double indelPrecision = ((double)numIndelsTruePositive) / ((double) numIndelsTruePositive + numIndelsFalsePositive);
      //        System.out.printf("indels: TP %d FP %d FN %d  TN %d numPredictedIndels: %d %n", numIndelsTruePositive,
      //        numIndelsFalsePositive, numIndelsFalseNegative, numIndelsTrueNegative,numPredictedIndels);
      //        System.out.printf("SNPs:   TP %d FP %d FN %d  TN %d %n", numSnpsTruePositive, numSnpsFalsePositive, numSnpsFalseNegative, numSnpsTrueNegative);
@@ -160,7 +160,7 @@ public class StatsAccumulator {
         return new double[]{recall, precision, F1, numVariants,
                 indelRecall, indelPrecision, indelF1,
                 snpRecall, snpPrecision, snpF1, numIndels,
-                het_hom_ratio, numTruePositive, numTrueNegative};
+                het_hom_ratio, numIndelsTruePositive, numIndelsTrueNegative, numIndelsFalsePositive, numIndelsFalseNegative};
     }
 
     public double[] createOutputStatistics(String... metrics) {
@@ -190,7 +190,7 @@ public class StatsAccumulator {
         return new String[]{"Recall", "Precision", "F1", "NumVariants",
                 "Recall_Indels", "Precision_Indels", "F1_Indels",
                 "Recall_SNPs", "Precision_SNPs", "F1_SNPs",
-                "numIndels", "Het_Hom_Ratio", "TP", "TN"
+                "numIndels", "Het_Hom_Ratio", "iTP", "iTN", "iFP", "iFN"
         };
     }
 
