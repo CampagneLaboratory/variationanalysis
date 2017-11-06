@@ -31,8 +31,8 @@ public class SoftmaxGenotypeInterpreter implements PredictionInterpreter<BaseInf
         SoftmaxGenotypePrediction result = new SoftmaxGenotypePrediction();
 
         result.predictedGenotypeIndex = readPredicted(output, result, predictionIndex);
-        result.trueGenotypeIndex = readPredicted(trueLabels, result, predictionIndex);
         result.probability = maxProbability;
+        result.trueGenotypeIndex = readPredicted(trueLabels, result, predictionIndex);
         result.numBits=numBits;
         return result;
     }

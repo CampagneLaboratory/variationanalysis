@@ -3,6 +3,7 @@ package org.campagnelab.dl.genotype.learning.domains.predictions;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.genotype.predictions.MetadataPrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.algorithmic.dsv.SampleCountInfo;
 
 /**
  * Stores information about the call for a single allele.
@@ -14,7 +15,7 @@ public class SingleGenotypePrediction extends Prediction {
      * The allele called/predicted to be present in the sample. e.g., "A" or "A--"
      */
     public String predictedSingleGenotype(BaseInformationRecords.BaseInformationOrBuilder record, MetadataPrediction metaData) {
-        if (sortedCountIndex>= metaData.sorted2OriginalCountIndices.length) {
+        if (sortedCountIndex >= metaData.sorted2OriginalCountIndices.length) {
             // ONLY 3 sorted genotypes.
             return ".";
         }
@@ -25,7 +26,7 @@ public class SingleGenotypePrediction extends Prediction {
             return Integer.toString(originalCountIndex);
         } else {
             final BaseInformationRecords.SampleInfo sample = record.getSamples(0);
-            if (originalCountIndex >= sample.getCountsCount()|| originalCountIndex==-1 ) {
+            if (originalCountIndex >= sample.getCountsCount() || originalCountIndex == -1) {
                 return ".";
             } else {
                 return sample.getCountsOrBuilder(originalCountIndex).getToSequence();
@@ -48,7 +49,7 @@ public class SingleGenotypePrediction extends Prediction {
     public int sortedCountIndex;
 
     public boolean isPredictedIndel(BaseInformationRecords.BaseInformation record, MetadataPrediction metaData) {
-        return sortedCountIndex < metaData.sorted2OriginalCountIndices.length && (metaData.sorted2OriginalCountIndices[sortedCountIndex] > 4);
+        return sortedCountIndex < metaData.sorted2OriginalCountIndices.length && (metaData.sorted2OriginalCountIndices[sortedCountIndex] > SampleCountInfo.BASE_MAX_INDEX);
     }
 }
 
