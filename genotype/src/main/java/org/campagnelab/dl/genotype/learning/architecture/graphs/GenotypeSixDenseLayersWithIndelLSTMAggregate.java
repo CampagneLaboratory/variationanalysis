@@ -10,7 +10,7 @@ import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.graph.MergeVertex;
 import org.deeplearning4j.nn.conf.graph.rnn.LastTimeStepVertex;
 import org.deeplearning4j.nn.conf.inputs.InputType;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
+import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -192,11 +192,9 @@ public class GenotypeSixDenseLayersWithIndelLSTMAggregate extends GenotypeAssemb
             lstmLayerName = "lstmindel_" + i;
             String lstmPreviousLayerName = i == 0 ? "indel" : "lstmindel_" + (i - 1);
             int numLSTMInputNodes = i == 0 ? numLSTMInputs : numLSTMIndelHiddenNodes;
-            build.addLayer(lstmLayerName, new GravesLSTM.Builder()
-                    .weightInit(WEIGHT_INIT)
+            build.addLayer(lstmLayerName, new LSTM.Builder()
                     .nIn(numLSTMInputNodes)
                     .nOut(numLSTMIndelHiddenNodes)
-                    .activation("softsign")
                     .build(), lstmPreviousLayerName);
         }
         build.addVertex("lstmindelLastTimeStepVertex", new LastTimeStepVertex("indel"),

@@ -163,33 +163,7 @@ public class Segment {
         return this.lastReferenceIndex;
     }
 
-    public boolean hasTrueGenotype(String trueGenotype) {
-        for (BaseInformationRecords.BaseInformation record : getAllRecords()) {
-            if (record.getTrueGenotype().equals(trueGenotype)) {
-                return true;
-            }
 
-        }
-        return false;
-    }
-
-    private Int2ObjectMap positionsToTrueGenotypes = new Int2ObjectOpenHashMap();
-
-    public void populateTrueGenotypes() {
-        positionsToTrueGenotypes.clear();
-        Iterable<BaseInformationRecords.BaseInformation> records = getAllRecords();
-        for (BaseInformationRecords.BaseInformation record : records) {
-            String trueGenotype = record.getTrueGenotype();
-            if (trueGenotype.length() == 3) {
-                // no indel, simple A/B genotype:
-                positionsToTrueGenotypes.put(record.getPosition(), trueGenotype);
-            }
-        }
-    }
-
-    public String getTrueGenotype(int position) {
-        return (String) positionsToTrueGenotypes.getOrDefault(position, "-");
-    }
 
     /**
      * Insert a copy after a record. The copy has the same position as the record, but follows in order (usually
@@ -251,21 +225,23 @@ public class Segment {
      *
      * @param copy   record that needs to have counts adjusted.
      * @param offset offset inside the indel sequence, which identifies the base to increment.
+     * @param longestReference
      * @return a builder where the adjustment has been made.
      */
-    public BaseInformationRecords.BaseInformation.Builder adjustCounts(BaseInformationRecords.BaseInformation.Builder copy, int offset) {
+    public BaseInformationRecords.BaseInformation.Builder adjustCounts(BaseInformationRecords.BaseInformation.Builder copy, int offset, String longestReference) {
         // we store counts in a map for easy access (map keyed on to sequence of the count):
         // we know we may need a gap count, so we add one, because none in the sbi:
 
         int sampleIndex = 0;
         int countIndex = 0;
-        String recordTrueGenotype = copy.getTrueGenotype();
+        String recordTrueGenotype = expand(copy.getTrueGenotype(),longestReference);
 
         for (BaseInformationRecords.SampleInfo.Builder sample : copy.getSamplesBuilderList()) {
             countsToKeep.clear();
+            sample.setPrePostProcessingGenotype(recordTrueGenotype);
 
             for (BaseInformationRecords.CountInfo.Builder count : sample.getCountsBuilderList()) {
-
+                count.setOffset(0);
                 if (count.getToSequence().length() != 1) {
                     if (count.getIsIndel() || count.getToSequence().length() > 1) {
 
@@ -276,12 +252,14 @@ public class Segment {
                         if (adjustedTo.length() > offset && adjustedFrom.length() > offset) {
                             adjustedFrom = adjustedFrom.substring(offset, offset + 1);
                             adjustedTo = adjustedTo.substring(offset, offset + 1);
-                            adjustedTrueGenotype = adjusteTrueGenotype(adjustedTrueGenotype, offset);
+                            adjustedTrueGenotype = adjustTrueGenotype(adjustedTrueGenotype, offset);
                             count.setFromSequence(adjustedFrom);
                             copy.setReferenceBase(adjustedFrom);
                             count.setToSequence(adjustedTo);
                             countsToKeep.add(count);
                             sample.setTrueGenotype(adjustedTrueGenotype);
+                            sample.setPrePostProcessingGenotype(recordTrueGenotype);
+                            count.setOffset(offset);
                             copy.setTrueGenotype(adjustedTrueGenotype);
                         } else {
                             // this indel does not contribute to the counts at this offset:
@@ -295,7 +273,6 @@ public class Segment {
                 } else {
                     makeEmptyCount(countsToKeep, count);
                 }
-
             }
             sample.clearCounts();
             countsToKeep = aggregateCounts(countsToKeep);
@@ -310,14 +287,25 @@ public class Segment {
         return copy;
     }
 
-    private String adjusteTrueGenotype(String adjustedTrueGenotype, int offset) {
+    private String expand(String trueGenotype, String longestReference) {
+        String result="";
+        for (String allele: GenotypeHelper.getAlleles(trueGenotype)) {
+            if (longestReference.startsWith(allele)) {
+                allele=longestReference;
+            }
+            result+=allele+"/";
+        }
+        return result.substring(0, result.length()-1);
+    }
+
+    private String adjustTrueGenotype(String adjustedTrueGenotype, int offset) {
 
         ArrayList<String> alleles = new ArrayList();
         for (String allele : GenotypeHelper.getAlleles(adjustedTrueGenotype)) {
             if (allele.length() > offset) {
                 alleles.add(allele.substring(offset, offset + 1));
             } else {
-                alleles.add("-");
+                alleles.add("N");
             }
         }
         return alleles.stream().collect(Collectors.joining("/"));

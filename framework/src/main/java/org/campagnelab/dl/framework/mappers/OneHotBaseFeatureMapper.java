@@ -91,15 +91,17 @@ public class OneHotBaseFeatureMapper<RecordType> implements FeatureMapper<Record
 
     @Override
     public float produceFeature(RecordType record, int featureIndex) {
-        int value = recordStringAtBaseToInteger.apply(cachedString, baseIndex);
-        if (value==0) {
+        if (baseIndex >= cachedString.length()) {
             if (!ignoreOutOfRangeIndices) {
                 counter.warn(LOG, String.format("incompatible character index: %d for context: %s of length %d",
                         baseIndex, cachedString, cachedString.length()));
             }
-
+            return 0;
+        } else {
+            int value = recordStringAtBaseToInteger.apply(cachedString, baseIndex);
+            return value == featureIndex ? 1F : 0F;
         }
-        return value == featureIndex ? 1F : 0F;
+
     }
 
     @Override

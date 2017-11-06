@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.fastutil.floats.FloatListIterator;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
+import org.campagnelab.dl.genotype.mappers.SingleBaseGenotypeMapperV1;
 import org.campagnelab.dl.genotype.tools.SBIToSSIConverterArguments;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
@@ -30,19 +31,22 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
     public SegmentInformationRecords.Base.Builder apply(BaseInformationRecords.BaseInformation baseInformation) {
 
         SegmentInformationRecords.Base.Builder builder = SegmentInformationRecords.Base.newBuilder();
+        final String prePostProcessingGenotype = baseInformation.getSamples(0).getPrePostProcessingGenotype();
+
         String trueGenotype = baseInformation.getTrueGenotype();
         builder.addAllTrueLabel(GenotypeHelper.getAlleles(trueGenotype));
 
         builder.setHasCandidateIndel(hasCandidateIndel(baseInformation));
         builder.setHasTrueIndel(
-                GenotypeHelper.isIndel(baseInformation.getReferenceBase(), baseInformation.getTrueGenotype()));
+                GenotypeHelper.isIndel(baseInformation.getReferenceBase(), prePostProcessingGenotype));
         builder.setIsVariant(
                 GenotypeHelper.isVariant(baseInformation.getTrueGenotype(), baseInformation.getReferenceBase()));
         builder.setReferenceAllele(baseInformation.getReferenceBase());
         builder.setFormattedCounts(FormatterCountHelper.format(baseInformation.getSamples(0)));
+        builder.setPrePostProcessingGenotype(prePostProcessingGenotype);
+
         if (args().mapFeatures) {
             FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
-
             featureMapper.prepareToNormalize(baseInformation, 0);
             if (trueGenotype.length() > 3) {
                 //    System.out.println("Indel:" + baseInformation.getTrueGenotype());
@@ -56,8 +60,6 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
                 float next =  iterator.nextFloat();
                 builder.addFeatures(next);
             }
-
-
         }
         if (args().mapLabels) {
             if (trueGenotype.length() == 1) {

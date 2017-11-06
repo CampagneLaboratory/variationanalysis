@@ -13,32 +13,36 @@ cat << EOF | cat> config.txt
 --num-layers
 int
 3
-15
+5
 
 --mini-batch-size
 categorical
+64
 128
+256
+512
+1024
 2048
 
 --indel-sequence-length
 int
-1
-20
+30
+60
 
 --num-lstm-layers
 int
 1
-5
+2
 
 --num-lstm-nodes-indels
 int
 2
-20
+64
 
 --reduction-rate
 uniform
 0.3
-1.3
+1
 
 --model-capacity
 uniform
@@ -56,8 +60,8 @@ categorical
 
 --learning-rate
 log-uniform
-0.1
-10
+0.01
+1
 
 --early-stopping-num-epochs
 categorical
@@ -65,7 +69,7 @@ categorical
 
 --feature-mapper
 categorical
-org.campagnelab.dl.genotype.mappers.GenotypeMapperV35
+org.campagnelab.dl.genotype.mappers.GenotypeMapperV38
 
 --genomic-context-length
 int
@@ -84,7 +88,7 @@ uniform
 
 --net-architecture
 categorical
-org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2
+org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersWithIndelLSTM
 
 EOF
     echo "SBI_SEARCH_PARAM_CONFIG not set. Using default hyper parameters. Change the variable a file with an arg-generator config file to customize the search."

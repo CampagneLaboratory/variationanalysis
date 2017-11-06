@@ -1,6 +1,6 @@
 package org.campagnelab.dl.genotype.mappers;
 
-import org.campagnelab.dl.framework.mappers.*;
+import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
 import org.campagnelab.dl.somatic.mappers.*;
 import org.campagnelab.dl.somatic.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -10,34 +10,28 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.Properties;
 
 /**
- * Based on V37, but restricted to a single base of genotype and indel context.
+ * Same as V35, but with softmax genotype output layer.
  */
-public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
+public class GenotypeMapperV38 extends GenotypeMapperV11 {
+
 
 
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
     private int sampleIndex = 0;
-    private OneHotBaseFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> offsetMapper;
 
-    public SingleBaseGenotypeMapperV1() {
+    public GenotypeMapperV38() {
         this(0);
     }
 
-    public SingleBaseGenotypeMapperV1(int sampleIndex) {
+    public GenotypeMapperV38(int sampleIndex) {
         super();
         this.sampleIndex = sampleIndex;
         sortCounts = true;
         withDistinctAlleleCounts = true;
         withCombinedLayer = false;
         MAX_GENOTYPES = 3;
-        withSoftmaxGenotype = true;
-    }
-
-    int offset;
-
-    public void setOffset(int offset) {
-        this.offset = offset;
+        withSoftmaxGenotype =true;
     }
 
     /**
@@ -45,29 +39,21 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
      */
     public void configure(Properties sbiProperties) {
         String ploidyString = sbiProperties.getProperty("genotypes.ploidy");
-        if (ploidyString == null) {
-            MAX_GENOTYPES = 3;
-        } else {
-            MAX_GENOTYPES = Integer.parseInt(ploidyString) + 1;
+        if (ploidyString==null) {
+            MAX_GENOTYPES=3;
+        }else{
+            MAX_GENOTYPES= Integer.parseInt(ploidyString)+1;
         }
 
         String genomicContextLengthString = sbiProperties.getProperty("stats.genomicContextSize.min");
         assert genomicContextLengthString != null : "property must exist: stats.genomicContextSize.min";
-        int genomicContextLength = (int) Float.parseFloat(genomicContextLengthString);
-        assert genomicContextLength == 1 : "Single base genotype mapper requires genomicContextLength property=1";
+        int genomicContextLength = (int)Float.parseFloat(genomicContextLengthString);
 
-        String indelSequenceLengthString = sbiProperties.getProperty("indelSequenceLength");
-        assert indelSequenceLengthString != null : "property must exist: indelSequenceLength";
-        int indelSequenceLength = Integer.parseInt(indelSequenceLengthString);
-        assert indelSequenceLength == 1 : "Single base genotype mapper requires indelSequenceLength property=1";
-
-        final int indelMappedLength = indelSequenceLength;
         FeatureNameMapper[] matchesRefMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] countMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
         FeatureNameMapper[] readIndexMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
         FeatureNameMapper[] readMappingQualityMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
         FeatureNameMapper[] baseQualityMappers = new FeatureNameMapper[MAX_GENOTYPES * 2];
-        FeatureNameMapper[] firstBaseMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] numVariationsInReadMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] targetAlignedLengthMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] queryAlignedLengthMappers = new FeatureNameMapper[MAX_GENOTYPES];
@@ -79,7 +65,6 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
         FeatureNameMapper[] bamFlagMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] originalGobyCountIndexMappers = new FeatureNameMapper[MAX_GENOTYPES];
         FeatureNameMapper[] queryPositions = new FeatureNameMapper[MAX_GENOTYPES];
-        FeatureNameMapper[] countOffsets = new FeatureNameMapper[MAX_GENOTYPES];
 
 
         int genotypeIndex = 0;
@@ -89,25 +74,7 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
             countMappers[i] = (new SingleGenoTypeCountMapper(sampleIndex, i, true));
             readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex, i, true));
             matchesRefMappers[i] = (new MatchesReferenceMapper(sampleIndex, i));
-            FeatureMapper<BaseInformationRecords.BaseInformationOrBuilder> oneHotOffsetMapper =
-                    new OneHotIntegerMapper<>(50,
-                            record -> record.getSamples(sampleIndex).getCounts(constantGenotypeIndex).getOffset()
-                    );
-            countOffsets[i] =
-                    new NamedWrapper<BaseInformationRecords.BaseInformationOrBuilder>(oneHotOffsetMapper) {
 
-                        @Override
-                        public String getFeatureName(int featureIndex) {
-                            return "offset";
-                        }
-                    };
-
-
-            firstBaseMappers[i] = new GenomicContextMapper(indelMappedLength,
-                    record -> {
-                        final String toSequence = record.getSamples(sampleIndex).getCounts(constantGenotypeIndex).getToSequence();
-                        return toSequence.substring(0, Math.min(indelMappedLength, toSequence.length()));
-                    }, true /* no warning if index outside of context, needed since indels have variable lengths */);
 
             queryPositions[i] = new DensityMapper("queryPosition",
                     10, sbiProperties,
@@ -182,23 +149,14 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
             genotypeIndex++;
         }
 
-
         delegate =
                 new CountReorderingMapper(sampleIndex, new NamingConcatFeatureMapper<>(
-
-                        /** Map the from sequence for genotypeIndex=0: */
-                        new GenomicContextMapper(indelMappedLength,
-                                record -> {
-                                    final String fromSequence = record.getSamples(0).getCounts(0).getFromSequence();
-                                    return fromSequence.substring(0, Math.min(indelMappedLength, fromSequence.length()));
-                                }, true /* no warning if index outside of context, needed since indels have variable lengths */),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(originalGobyCountIndexMappers),
-                        new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(firstBaseMappers),
                         new InverseNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers)),
                         new CeilingNormalizationMapper<>(
-                                new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers), 30),
+                                new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(countMappers),30),
                         new InverseNormalizationMapper<BaseInformationRecords.BaseInformationOrBuilder>(
                                 new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(readIndexMappers)),
                         new GenomicContextMapper(sbiProperties),

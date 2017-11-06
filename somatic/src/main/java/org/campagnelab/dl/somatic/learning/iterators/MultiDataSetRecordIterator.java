@@ -75,14 +75,14 @@ public abstract class MultiDataSetRecordIterator<RecordType> implements MultiDat
 
         for (String input : domainDescriptor.getComputationalGraph().getInputNames()) {
 
-            inputs[index] = Nd4j.create(domainDescriptor.getInputShape(size, input),'f');
+            inputs[index] = Nd4j.createUninitializedDetached(domainDescriptor.getInputShape(size, input),'f');
             featureMappers[index] = domainDescriptor.getFeatureMapper(input);
             index += 1;
 
         }
         index = 0;
         for (String label : domainDescriptor.getComputationalGraph().getOutputNames()) {
-            labels[index] = Nd4j.create(domainDescriptor.getLabelShape(size, label),'f');
+            labels[index] = Nd4j.createUninitializedDetached(domainDescriptor.getLabelShape(size, label),'f');
             labelMappers[index] = domainDescriptor.getLabelMapper(label);
             index++;
         }

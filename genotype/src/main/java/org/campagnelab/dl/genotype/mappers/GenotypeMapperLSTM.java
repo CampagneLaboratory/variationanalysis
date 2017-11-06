@@ -11,14 +11,21 @@ import java.util.Properties;
 import java.util.function.Function;
 
 /**
+ * Map a single genotype from or to sequence to an LSTM input.
  * Created by joshuacohen on 1/17/17.
  */
 public class GenotypeMapperLSTM implements
         FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder>, ConfigurableFeatureMapper {
+    private final boolean sortRecord;
     private int sampleIndex;
     private RNNFeatureMapper<String> delegate;
     private String cachedRecordIndelString;
     private int indelSequenceLength;
+    private RecordCountSortHelper sortHelper = new RecordCountSortHelper();
+
+    public GenotypeMapperLSTM(boolean sortRecord) {
+        this.sortRecord = sortRecord;
+    }
 
     public enum Input {
         FROM,
@@ -26,6 +33,7 @@ public class GenotypeMapperLSTM implements
         G2,
         G3,
     }
+
     private Input inputType = Input.FROM;
     private static final int featuresPerOHBM = 7;
 
@@ -47,7 +55,8 @@ public class GenotypeMapperLSTM implements
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformationOrBuilder record, int indexOfRecord) {
-        BaseInformationRecords.SampleInfo sampleInfo = record.getSamples(sampleIndex);
+        BaseInformationRecords.BaseInformationOrBuilder sortedCountRecord = sortRecord ? sortHelper.sort(record) : record;
+        BaseInformationRecords.SampleInfo sampleInfo = sortedCountRecord.getSamples(sampleIndex);
         switch (inputType) {
             case FROM:
                 cachedRecordIndelString = sampleInfo.getCounts(0).getFromSequence();

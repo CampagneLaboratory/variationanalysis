@@ -2,8 +2,8 @@
 . `dirname "${BASH_SOURCE[0]}"`/common.sh
 FEATURE_MAPPER=$1
 GPU=$2
-if [ "$#" -eq 3 ]; then
-  NETWORK_ARCHITECTURE=$3
+if [ "$#" -eq 4 ]; then
+  NETWORK_ARCHITECTURE=$4
   NETWORK_ARCHITECTURE_OPTION="--net-architecture ${NETWORK_ARCHITECTURE}"
 else
   NETWORK_ARCHITECTURE_OPTION=""

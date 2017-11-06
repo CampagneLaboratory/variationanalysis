@@ -20,7 +20,7 @@ public class MixupMultiDataSetPreProcessor implements MultiDataSetPreProcessor {
 
     public MixupMultiDataSetPreProcessor(long seed, double alpha) {
         random = new XoRoShiRo128PlusRandom(seed);
-        assert  alpha>0:"alpha must be strictly positive.";
+        assert alpha > 0 : "alpha must be strictly positive.";
         beta = new Beta(alpha, alpha, new RandomEngine() {
             @Override
             public int nextInt() {
@@ -51,20 +51,20 @@ public class MixupMultiDataSetPreProcessor implements MultiDataSetPreProcessor {
             // to mix labels and mask appropriately.
             randomIndex1[exampleIndex] = random.nextInt(minibatchSize);
             randomIndex2[exampleIndex] = random.nextInt(minibatchSize);
-           // System.out.printf("exampleIndex %d randomIndex1: %d randomIndex2: %d %n",exampleIndex, randomIndex1[exampleIndex], randomIndex2[exampleIndex]);
+            // System.out.printf("exampleIndex %d randomIndex1: %d randomIndex2: %d %n",exampleIndex, randomIndex1[exampleIndex], randomIndex2[exampleIndex]);
         }
         for (INDArray feature : features) shuffle(minibatchSize, alm, feature, randomIndex1, randomIndex2);
 
         for (INDArray label : labels) shuffle(minibatchSize, alm, label, randomIndex1, randomIndex2);
 
-        for (INDArray featureMask : featureMasks)
+        if (featureMasks != null) for (INDArray featureMask : featureMasks)
             keepLongestMask(minibatchSize, featureMask, randomIndex1, randomIndex2);
-        for (INDArray labelMask : labelMasks)
+        if (labelMasks != null) for (INDArray labelMask : labelMasks)
             keepLongestMask(minibatchSize, labelMask, randomIndex1, randomIndex2);
     }
 
-    private void keepLongestMask(int minibatchSize,  INDArray mask, int[] randomIndex1, int[] randomIndex2) {
-     if (mask==null ) return;
+    private void keepLongestMask(int minibatchSize, INDArray mask, int[] randomIndex1, int[] randomIndex2) {
+        if (mask == null) return;
         INDArray[] tmpBuffer = new INDArray[minibatchSize];
 
         // Find the longest mask and keep it as mixup ask:
@@ -73,12 +73,12 @@ public class MixupMultiDataSetPreProcessor implements MultiDataSetPreProcessor {
             int random2 = randomIndex2[exampleIndex];
             final INDArray mask1 = mask.getRow(random1);
             final INDArray mask2 = mask.getRow(random2);
-            tmpBuffer[exampleIndex]=Nd4j.create(mask1.shape());
+            tmpBuffer[exampleIndex] = Nd4j.createUninitializedDetached(mask1.shape());
             if (mask1.sub(mask2).sumNumber().doubleValue() < 0) {
                 // mask2 has more 1s than mask1, use mask2:
-                Nd4j.copy(mask2,tmpBuffer[exampleIndex]);
+                Nd4j.copy(mask2, tmpBuffer[exampleIndex]);
             } else {
-                Nd4j.copy(mask1,tmpBuffer[exampleIndex]);
+                Nd4j.copy(mask1, tmpBuffer[exampleIndex]);
             }
 
         }
@@ -97,9 +97,9 @@ public class MixupMultiDataSetPreProcessor implements MultiDataSetPreProcessor {
             final INDArray example1 = features.getRow(random1);
             final INDArray example2 = features.getRow(random2);
             // new example is linear combination of example 1 and example2:
-            tmpBuffer[exampleIndex]=Nd4j.create(example1.shape());
+            tmpBuffer[exampleIndex] = Nd4j.createUninitializedDetached(example1.shape());
             Nd4j.copy(example1.mul(alm).add(example2.mul(1.0 - alm)), tmpBuffer[exampleIndex]);
-         //   tmpBuffer[exampleIndex] = example1.mul(alm).add(example2.mul(1.0 - alm));
+            //   tmpBuffer[exampleIndex] = example1.mul(alm).add(example2.mul(1.0 - alm));
         }
         for (int exampleIndex = 0; exampleIndex < minibatchSize; exampleIndex++) {
 
