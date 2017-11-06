@@ -355,6 +355,11 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         domainHashcode ^= genomicContextSize;
         domainHashcode ^= indelSequenceLength;
         domainHashcode ^= extraGenotypes;
+        if (args().mixupAlpha!=null) {
+            domainHashcode ^= args().mixupAlpha.hashCode();
+        }else {
+            domainHashcode ^= "no-mixup".hashCode();
+        }
         domainHashcode ^= Float.hashCode(args().labelSmoothingEpsilon);
         return Integer.toHexString(domainHashcode);
     }
