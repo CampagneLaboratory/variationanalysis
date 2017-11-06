@@ -393,6 +393,8 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
         } else {
             modelProperties.setProperty("indelSequenceLength", Integer.toString(indelSequenceLength));
+            modelProperties.setProperty("extraGenotypes", Integer.toString(extraGenotypes));
+
         }
     }
 
@@ -463,7 +465,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"AUC", "Recall", "Precision", "F1", "NumVariants", "score", "Recall_Indels", "Precision_Indels", "F1_Indels", "numIndels", "Het_Hom_Ratio", "TP", "TN"};
+                return new String[]{"AUC", "Recall", "Precision", "F1", "NumVariants", "score", "Recall_Indels", "Precision_Indels", "F1_Indels", "numIndels", "Het_Hom_Ratio", "iTP", "iTN", "iFP", "iFN"};
                 //       return new String[]{"AUC_V", "AUC_R", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score", "AUC_VxR"};
             }
 
@@ -493,8 +495,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     case "Het":
                     case "Hom":
                     case "Concordance":
-                    case "TP":
-                    case "TN":
+                    case "iTP":
+                    case "iTN":
+                    case "iFP":
+                    case "iFN":
                         return true;
                     default:
                         throw new IllegalArgumentException("metric not recognized: " + metricName);
