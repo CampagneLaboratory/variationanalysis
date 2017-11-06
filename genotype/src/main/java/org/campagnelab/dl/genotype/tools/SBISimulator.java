@@ -34,18 +34,11 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
 
     @Override
     public void execute() {
-        RecordWriter writer = null;
-        try {
-            writer = new RecordWriter(args().outputFilename);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("Unable to create a writer for the output file.");
-        }
-        try {
+        try(RecordWriter writer = new RecordWriter(args().outputFilename)) {
             final VariantMapHelper helper = new VariantMapHelper(args().inputFile);
             List<String> chromosomes = this.chromosomesForSBI(helper);
             final RecordWriter finalWriter = writer;
-            chromosomes.parallelStream().forEach((String chromosome) -> {
+            chromosomes.parallelStream().limit(args().readN).forEach((String chromosome) -> {
                 System.out.println("Chrom: " + chromosome);
                 for (ObjectIterator<Variant> it = helper.getAllVariants(chromosome); it.hasNext();)  {
                     Variant variant = it.next();
@@ -55,11 +48,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    //variant.trueAlleles
-                    System.out.println();
                 }
-
-
             });
 
             writer.close();
@@ -69,7 +58,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
         } catch (ClassNotFoundException e) {
             LOG.error("Unable to load the variant map.");
             throw new IllegalStateException("Unable to load the variant map.");
-        }
+        } 
     }
 
     /**

@@ -19,5 +19,7 @@ public class SBISimulatorArguments implements ToolArguments {
             description = "Ovverride the chromosome information in the varmap.")
     public String chromosome = null;
 
+    @Parameter(names = "--read-N", description = "Read at most N chromosomes from the varmap, then stop.")
+    public long readN=Long.MAX_VALUE;
 }
 
