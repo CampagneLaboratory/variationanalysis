@@ -38,7 +38,8 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
     @Override
     public void execute() {
         String countFormat = "%s/%s=%d+%d";
-        try (RecordWriter writer = new RecordWriter(args().outputFilename)) {
+        try {
+            final RecordWriter writer = new RecordWriter(args().outputFilename);
             final VariantMapHelper helper = new VariantMapHelper(args().inputFile);
             List<String> chromosomes = this.chromosomesForSBI(helper);
             chromosomes.parallelStream().limit(args().readN).forEach((String chromosome) -> {
@@ -113,6 +114,26 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
             countBuilder.setMatchesReference(from.equals(token));
             countBuilder.setGenotypeCountForwardStrand(Integer.parseInt(tokens[2]));
             countBuilder.setGenotypeCountReverseStrand(Integer.parseInt(tokens[3]));
+            BaseInformationRecords.NumberWithFrequency.Builder builderN = BaseInformationRecords.NumberWithFrequency.newBuilder();
+            builderN.setFrequency(1);
+            builderN.setNumber(1);
+            BaseInformationRecords.NumberWithFrequency frequency = builderN.build();
+            countBuilder.addQueryPositions(frequency);
+            countBuilder.addNumVariationsInReads(frequency);
+            countBuilder.addDistancesToReadVariationsForwardStrand(frequency);
+            countBuilder.addDistancesToReadVariationsReverseStrand(frequency);
+            countBuilder.addDistanceToStartOfRead(frequency);
+            countBuilder.addDistanceToEndOfRead(frequency);
+            countBuilder.addReadMappingQualityForwardStrand(frequency);
+            countBuilder.addReadIndicesForwardStrand(frequency);
+            countBuilder.addReadIndicesReverseStrand(frequency);
+            countBuilder.addQualityScoresForwardStrand(frequency);
+            countBuilder.addQualityScoresReverseStrand(frequency);
+            countBuilder.addTargetAlignedLengths(frequency);
+            countBuilder.addQueryAlignedLengths(frequency);
+            countBuilder.addReadMappingQualityForwardStrand(frequency);
+            countBuilder.addReadMappingQualityReverseStrand(frequency);
+            
             if (from.contains("-") || token.contains("-")) {
                 countBuilder.setIsIndel(true);
             }
