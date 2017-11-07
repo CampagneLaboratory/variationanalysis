@@ -240,7 +240,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                         bedHelper.add(record.getReferenceId(), record.getPosition(), record.getPosition() + maxLength, fullPred.index,
                                 stats);
                     }else {
-                        System.err.printf("Genomic site already output for position: %s %d", record.getReferenceId(), record.getPosition());
+                        System.err.printf("Genomic site already output for position: %s %d%n", record.getReferenceId(), record.getPosition());
                     }
                     break;
             }
