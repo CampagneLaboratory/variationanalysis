@@ -12,6 +12,10 @@ import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
 public class PrintArguments implements ToolArguments {
     @Parameter(required = true,  names = {"-i", "--input-file"}, description = "Input file in .bsi/.bsip format.")
     public String inputFile;
+    @Parameter(  names = {"-l", "--level"}, description = "Simplify up to level (0,1,2).")
+    public int simplifyLevel=3;
 
+    @Parameter(  names = {"-I", "--indels"}, description = "Print only indels.")
+    public boolean indels;
 }
 

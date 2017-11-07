@@ -2,6 +2,7 @@ package org.campagnelab.dl.somatic.tools;
 
 
 import com.google.protobuf.TextFormat;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.storage.RecordReader;
@@ -45,7 +46,7 @@ public class Print extends AbstractTool<PrintArguments> {
             source = new RecordReader(args().inputFile);
             for (BaseInformationRecords.BaseInformation inputRecord : source) {
 
-                TextFormat.print(inputRecord, System.out);
+                TextFormat.print(simplify(args().simplifyLevel, inputRecord), System.out);
 
             }
             source.close();
@@ -77,22 +78,49 @@ public class Print extends AbstractTool<PrintArguments> {
             // level 1 removes all counts:
             builder.clearCounts();
         } else {
-            int countIndex = 0;
+            ObjectArrayList<BaseInformationRecords.CountInfo> toAdd=new ObjectArrayList<>();
             for (BaseInformationRecords.CountInfo count : builder.getCountsList()) {
-                builder.setCounts(countIndex++, simplify(outputComplexityLevel, count));
+                final BaseInformationRecords.CountInfo simplified = simplify(outputComplexityLevel, count);
+                if (simplified!=null) {
+                    toAdd.add(simplified);
+                }
             }
+            builder.clearCounts();
+            builder.addAllCounts(toAdd);
         }
         return builder.build();
     }
 
     private BaseInformationRecords.CountInfo simplify(int outputComplexityLevel, BaseInformationRecords.CountInfo count) {
-        if (outputComplexityLevel >= 2) {
-
-            System.err.printf("output complexity level %d is not supported at this time.%n", outputComplexityLevel);
-            System.exit(1);
-
+        if (outputComplexityLevel == 2) {
+            if ((count.getGenotypeCountReverseStrand() + count.getGenotypeCountForwardStrand()) == 0) return null;
+            if (args().indels && !count.getIsIndel()) {
+                return null;
+            }
+            BaseInformationRecords.CountInfo.Builder builder = count.toBuilder();
+            if (outputComplexityLevel == 2) {
+                // level 2 removes all frequencies:
+                builder.clearDistanceToEndOfRead();
+                builder.clearDistanceToStartOfRead();
+                builder.clearDistancesToReadVariationsForwardStrand();
+                builder.clearDistancesToReadVariationsReverseStrand();
+                builder.clearInsertSizes();
+                builder.clearPairFlags();
+                builder.clearTargetAlignedLengths();
+                builder.clearQueryPositions();
+                builder.clearQueryAlignedLengths();
+                builder.clearReadIndicesForwardStrand();
+                builder.clearReadIndicesReverseStrand();
+                builder.clearReadMappingQualityForwardStrand();
+                builder.clearReadMappingQualityReverseStrand();
+                builder.clearQualityScoresForwardStrand();
+                builder.clearQualityScoresReverseStrand();
+                builder.clearNumVariationsInReads();
+            }
+            return builder.build();
+        }else {
+            return count;
         }
-        return null;
     }
 
 
