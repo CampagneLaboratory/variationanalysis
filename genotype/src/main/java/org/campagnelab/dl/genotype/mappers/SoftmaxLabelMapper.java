@@ -75,7 +75,7 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
         }
 
         if (cachedValue == 0) {
-            unableToRepresent.warn(LOG, "Unable to represent genotype record.getTrueGenotype(), reached past max index (ploidy + extra-genotype)=" + index);
+            unableToRepresent.warn(LOG, "Unable to represent genotype, reached past max index (ploidy + extra-genotype)=" + index);
         }
     }
 

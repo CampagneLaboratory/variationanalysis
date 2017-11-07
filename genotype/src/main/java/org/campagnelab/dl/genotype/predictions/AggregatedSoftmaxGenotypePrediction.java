@@ -1,6 +1,8 @@
 package org.campagnelab.dl.genotype.predictions;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
@@ -8,6 +10,7 @@ import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -30,6 +33,8 @@ public class AggregatedSoftmaxGenotypePrediction extends GenotypePrediction {
                      SoftmaxGenotypePrediction softmaxGenotype, MetadataPrediction metaData) {
         int numBits = softmaxGenotype.numBits;
         boolean isTrueAllele = false;
+   //     IntSet notPredicted = new IntArraySet();
+  //      IntSet notPredictedOriginalGobyCountIndex = new IntArraySet();
         for (int i = 0; i < numBits; i++) {
             // we decode the sorted allele index:
             boolean alleleIsCalled = ((softmaxGenotype.predictedGenotypeIndex >> i) & 0x1) != 0;
@@ -43,6 +48,10 @@ public class AggregatedSoftmaxGenotypePrediction extends GenotypePrediction {
                 String allele = pred.predictedSingleGenotype(record, metaData);
                 if (alleleIsCalled) predictedAlleles.add(allele);
                 if (alleleIsInTrueGenotype) trueAlleles.add(allele);
+               /* if (alleleIsInTrueGenotype && !alleleIsCalled) {
+                    notPredicted.add(pred.sortedCountIndex);
+                    notPredictedOriginalGobyCountIndex.add(metaData.sorted2OriginalCountIndices[pred.sortedCountIndex]);
+                }*/
 
             }
 
@@ -52,5 +61,23 @@ public class AggregatedSoftmaxGenotypePrediction extends GenotypePrediction {
         this.isVariantProbability = 0.001;
         this.trueGenotype = GenotypeHelper.fromAlleles(trueAlleles);
         this.predictedGenotype = GenotypeHelper.fromAlleles(predictedAlleles);
+        this.index = softmaxGenotype.index;
+       /* if (!trueAlleles.equals(predictedAlleles) && metaData.isIndel &&
+                new File("/Users/fac2003/DEBUG").exists()) {
+            if (!notPredicted.isEmpty()) {
+                int index = notPredicted.iterator().next();
+                int originalGobyIndex = notPredictedOriginalGobyCountIndex.iterator().next();
+                System.out.printf("FN: pred: %s true: %s %d%n", predictedGenotype, trueGenotype, softmaxGenotype.index);
+                //  System.out.printf("FN predIndex: %d originalGobyIndex:%d%n", index, originalGobyIndex);
+            } else {
+                System.out.printf("FP: pred: %s true: %s %d %n", predictedGenotype, trueGenotype, softmaxGenotype.index);
+            }
+
+        } else {
+            if (new File("/Users/fac2003/DEBUG").exists() &&
+                    new File("/Users/fac2003/TP").exists()) {
+                System.out.printf("TP: pred: %s true: %s %d %n", predictedGenotype, trueGenotype, softmaxGenotype.index);
+            }
+        }*/
     }
 }

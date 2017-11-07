@@ -82,6 +82,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
                     break;
                 }
                 nProcessed += 1;
+                index++;
             }
         }
 

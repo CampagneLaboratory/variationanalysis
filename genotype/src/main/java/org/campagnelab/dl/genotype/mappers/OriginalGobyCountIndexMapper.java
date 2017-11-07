@@ -13,7 +13,14 @@ public class OriginalGobyCountIndexMapper extends OneHotHashModuloMapper<BaseInf
     int sampleIndex;
 
     public OriginalGobyCountIndexMapper(int sampleIndex, int genotypeIndex) {
-        super(20, record -> record.getSamples(sampleIndex).getCounts(genotypeIndex).getGobyGenotypeIndex());
+        super(20, record -> {
+            final BaseInformationRecords.SampleInfo sampleInfo = record.getSamples(sampleIndex);
+            if (sampleInfo.getCountsCount()>genotypeIndex) {
+                return sampleInfo.getCounts(genotypeIndex).getGobyGenotypeIndex();
+            }else {
+                return 20;
+            }
+        });
     }
 
     @Override
