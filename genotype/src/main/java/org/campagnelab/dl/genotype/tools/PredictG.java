@@ -14,6 +14,7 @@ import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.performance.BEDHelper;
 import org.campagnelab.dl.genotype.performance.StatsAccumulator;
+import org.campagnelab.dl.somatic.util.GenomicSitesVisited;
 import org.campagnelab.goby.predictions.FormatIndelVCF;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
  *
  * @author Remi Torracinta
  * @author Fabien Campagne
- *         Created by rct66 on 12/7/16.
+ * Created by rct66 on 12/7/16.
  */
 public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
@@ -64,6 +65,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     }
 
     protected StatsAccumulator stats;
+    GenomicSitesVisited genomicSitesVisited = new GenomicSitesVisited();
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
@@ -162,7 +164,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
     @Override
     protected void processPredictions(PrintWriter resultWriter, BaseInformationRecords.BaseInformation record, List<Prediction> predictionList) {
         int coverage = coverage(record);
-        if (coverage<=0 || coverage < args().minimumCoverage) {
+        if (coverage <= 0 || coverage < args().minimumCoverage) {
             // we do not write the genotype if the sample has no counts, because some models won't be able
             // to predict the reference base so it is best not to make a call in this case:
             return;
@@ -225,17 +227,21 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                     final Optional<String> toColumnOpt = format.toVCF.stream().reduce((s, s2) -> s + "/" + s2);
                     String toColumn = toColumnOpt.isPresent() ? toColumnOpt.get() : "./.";
 
-
-                    if (sortedAltSet.size() >= 1) {
-                        // only append to VCF if there is at least one alternate allele:
-                        // NB: VCF format is one-based.
-                        vcfWriter.printf(VCF_LINE, record.getReferenceId(), record.getPosition() + 1,
-                                format.fromVCF, altField, codeGT(format.toVCF, format.fromVCF, sortedAltSet), toColumn,
-                                fullPred.overallProbability);
+                    if (!genomicSitesVisited.wasVisited(record.getReferenceIndex(), record.getPosition())) {
+                        if (sortedAltSet.size() >= 1) {
+                            // only append to VCF if there is at least one alternate allele:
+                            // NB: VCF format is one-based.
+                            vcfWriter.printf(VCF_LINE, record.getReferenceId(), record.getPosition() + 1,
+                                    format.fromVCF, altField, codeGT(format.toVCF, format.fromVCF, sortedAltSet), toColumn,
+                                    fullPred.overallProbability);
+                        }
+                        genomicSitesVisited.visit(record.getReferenceIndex(), record.getPosition());
+                        // NB: bed format is zero-based.
+                        bedHelper.add(record.getReferenceId(), record.getPosition(), record.getPosition() + maxLength, fullPred.index,
+                                stats);
+                    }else {
+                        System.err.printf("Genomic site already output for position: %s %d", record.getReferenceId(), record.getPosition());
                     }
-                    // NB: bed format is zero-based.
-                    bedHelper.add(record.getReferenceId(), record.getPosition(), record.getPosition() + maxLength, fullPred.index,
-                            stats);
                     break;
             }
 
