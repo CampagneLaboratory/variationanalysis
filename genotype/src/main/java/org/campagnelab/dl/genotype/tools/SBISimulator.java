@@ -85,7 +85,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
             chroms = new ObjectArrayList<String>(1);
             chroms.add(args().chromosome);
         } else {
-            chroms = new ObjectArrayList<String>();
+            chroms = new ObjectArrayList<String>(helper.size());
             ObjectIterator<String> it = helper.getAllChromosomes();
             while (it.hasNext()) chroms.add(it.next());
         }
