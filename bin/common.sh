@@ -19,6 +19,10 @@ function assertBctftoolsInstalled {
   fi
 }
 
+function assertTabixInstalled {
+  tabis >/dev/null 2>&1 ||{ echo >&2 "This script requires tabix but it's not installed. Aborting. Install tabix and add it to your path, then try again."; exit 1; }
+}
+
 function loadConfigure {
 
     if [ -e configure.sh ]; then
