@@ -37,11 +37,16 @@ public class GenotypeMapperV38 extends GenotypeMapperV11 {
      * Configure the feature mapper to map a specific sampleIndex
      */
     public void configure(Properties sbiProperties) {
+        String extraGenotypesString = sbiProperties.getProperty("extraGenotypes");
+        int extraGenotypes=1;
+        if (extraGenotypesString!=null) {
+            extraGenotypes=Integer.parseInt(extraGenotypesString);
+        }
         String ploidyString = sbiProperties.getProperty("genotypes.ploidy");
-        if (ploidyString == null) {
-            MAX_GENOTYPES = 3;
-        } else {
-            MAX_GENOTYPES = Integer.parseInt(ploidyString) + 1;
+        if (ploidyString==null) {
+            MAX_GENOTYPES=3;
+        }else{
+            MAX_GENOTYPES= Integer.parseInt(ploidyString)+extraGenotypes;
         }
 
         String genomicContextLengthString = sbiProperties.getProperty("stats.genomicContextSize.min");
