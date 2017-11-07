@@ -12,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Generate SBI files starting from a variant map.
@@ -23,6 +21,8 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
 
     static private Logger LOG = LoggerFactory.getLogger(SBISimulator.class);
     private Random r = new Random();
+    private char[] bases = new char[]{'A','C','T','G','N'};
+    private String countFormat = "%s/%s=%d+%d";
 
     public static void main(String[] args) {
         SBISimulator tool = new SBISimulator();
@@ -47,16 +47,8 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
                 for (ObjectIterator<Variant> it = helper.getAllVariants(chromosome); it.hasNext(); ) {
                     Variant variant = it.next();
                     for (Variant.FromTo trueAllele : variant.trueAlleles) {
-                        String[] counts;
+                        String[] counts = fillUpCounts(trueAllele, variant.referenceBase);
                         String genotype = String.format("%s/%s", trueAllele.getFrom(), trueAllele.getTo());
-                        if (trueAllele.getFrom().equals(trueAllele.getTo())) {
-                            counts = new String[]{
-                                    String.format(countFormat, trueAllele.getFrom(), trueAllele.getTo(), generateCounts(), generateCounts())};
-                        } else {
-                            counts = new String[]{
-                                    String.format(countFormat, trueAllele.getFrom(), trueAllele.getFrom(), generateCounts(), generateCounts()),
-                                    String.format(countFormat, trueAllele.getFrom(), trueAllele.getTo(), generateCounts(), generateCounts())};
-                        }
                         System.out.println("Genotype=" + genotype + ", counts: " + Arrays.toString(counts));
                         BaseInformationRecords.BaseInformation record = makeRecord(variant.referenceIndex, variant.position, genotype, counts);
                         addRecord(writer, record);
@@ -133,7 +125,6 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
             countBuilder.addQueryAlignedLengths(frequency);
             countBuilder.addReadMappingQualityForwardStrand(frequency);
             countBuilder.addReadMappingQualityReverseStrand(frequency);
-            
             if (from.contains("-") || token.contains("-")) {
                 countBuilder.setIsIndel(true);
             }
@@ -154,6 +145,29 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
 
     private int generateCounts() {
         return r.nextInt(100);
+    }
+
+    private String[] fillUpCounts(final Variant.FromTo allele, String referenceBase) {
+        Set<String> allCounts = new HashSet<>();
+        ObjectArrayList<String> counts = new ObjectArrayList<>();
+        if (allele.getFrom().equals(allele.getTo())) {
+            counts.add(String.format(countFormat, allele.getFrom(), allele.getTo(), generateCounts(), generateCounts()));
+            allCounts.add(allele.getFrom()+"/"+allele.getTo());
+        } else {
+            counts.add(String.format(countFormat, allele.getFrom(), allele.getFrom(), generateCounts(), generateCounts()));
+            counts.add(String.format(countFormat, allele.getFrom(), allele.getTo(), generateCounts(), generateCounts()));
+            allCounts.add(allele.getFrom()+"/"+allele.getFrom());
+            allCounts.add(allele.getFrom()+"/"+allele.getTo());
+        }
+        for (char base : bases){
+            String key = referenceBase +"/" + base;
+            if (!allCounts.contains(key)) {
+                counts.add(String.format(countFormat, referenceBase, base, 0, 0));
+                allCounts.add(key);
+            }
+        }
+
+        return counts.toArray(new String[counts.size()]);
     }
 
 }
