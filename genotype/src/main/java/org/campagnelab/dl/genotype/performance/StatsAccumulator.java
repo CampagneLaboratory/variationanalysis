@@ -160,7 +160,7 @@ public class StatsAccumulator {
         return new double[]{recall, precision, F1, numVariants,
                 indelRecall, indelPrecision, indelF1,
                 snpRecall, snpPrecision, snpF1, numIndels,
-                het_hom_ratio, numIndelsTruePositive, numIndelsTrueNegative, numIndelsFalsePositive, numIndelsFalseNegative};
+                het_hom_ratio, numTruePositive, numFalseNegative};
     }
 
     public double[] createOutputStatistics(String... metrics) {
@@ -190,7 +190,7 @@ public class StatsAccumulator {
         return new String[]{"Recall", "Precision", "F1", "NumVariants",
                 "Recall_Indels", "Precision_Indels", "F1_Indels",
                 "Recall_SNPs", "Precision_SNPs", "F1_SNPs",
-                "numIndels", "Het_Hom_Ratio", "iTP", "iTN", "iFP", "iFN"
+                "numIndels", "Het_Hom_Ratio", "TP", "FN"
         };
     }
 
