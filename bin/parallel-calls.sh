@@ -26,7 +26,7 @@ fi
 
 if [ -z "${GOBY_NUM_SLICES+set}" ]; then
     GOBY_NUM_SLICES="50"
-    echo "GOBY_NUM_SLICES set to ${GOBY_NUM_SLICES}. Change the variable to influence whether how many slices to use when processing an alignment."
+    echo "GOBY_NUM_SLICES set to ${GOBY_NUM_SLICES}. Change the variable to influence how many slices to use when processing an alignment."
 fi
 if [ -z "${INCLUDE_INDELS+set}" ]; then
     INCLUDE_INDELS="false"
