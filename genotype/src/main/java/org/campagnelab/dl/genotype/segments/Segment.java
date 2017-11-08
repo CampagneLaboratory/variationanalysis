@@ -134,10 +134,11 @@ public class Segment {
     public int actualLength() {
         if (recordList.size() == 0)
             return 0;
-        else
-            return recordList.size() + getAfterRecords().size();
+        else {
+            // size of records list and number of records in after lists:
+            return recordList.size() + getAfterRecords().values().stream().mapToInt(list -> list.size()) .sum();
+        }
     }
-
     public String getFirstReferenceId() {
         return this.firstReferenceId;
     }
