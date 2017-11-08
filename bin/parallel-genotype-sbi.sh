@@ -78,9 +78,15 @@ echo " discover-sequence-variants -n 0 -t 1 --genome  ${SBI_GENOME} --format  SE
 cp command.txt command-`date +%h_%d_%H_%M`.txt
 
 cut -f3,6 slices  | awk 'BEGIN{count=1} {print "-s "$1" -e " $2" -o out-part-"(count++)}' >boundaries
-parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby 12g  `cat command.txt`  :::: boundaries
+parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby 20g  `cat command.txt`  :::: boundaries
 
 # keep a log of the commands that were used to generate this dataset:
 cp command.txt command-`date +%h_%d_%H_%M`.txt
 
-concat.sh ${memory_requirement} -i out-part-*.sbi -o ${OUTPUT_BASENAME}
+cat boundaries| grep -v -e chr19 -e chr20 -e chr21 -e chr22 -e chrX -e chrY | cut -d " " ""-f 6 |awk '{print $1".sbi"}' >training-parts
+cat boundaries| grep -e chr19  |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >validation-parts
+cat boundaries| grep -v -e chr19 | grep -e chr20 -e chr21 -e chr22 -e chrX -e chrY |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >testing-parts
+
+concat.sh ${memory_requirement} -f -i `cat training-parts`  -o ${OUTPUT_BASENAME}-pre-train
+concat.sh ${memory_requirement} -f -i `cat validation-parts` -o ${OUTPUT_BASENAME}-pre-validation
+concat.sh ${memory_requirement} -f -i `cat testing-parts` -o ${OUTPUT_BASENAME}-test

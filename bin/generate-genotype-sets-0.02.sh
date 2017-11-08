@@ -67,16 +67,20 @@ dieIfError "Failed to generate .sbi file"
 
 export OUTPUT_BASENAME=${OUTPUT_PREFIX}
 
-randomize.sh ${memory_requirement} -i tmp/genotype_full_called.sbi \
-  -o tmp/genotype_full_called_randomized -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
-dieIfError "Failed to randomize"
 
-split.sh ${memory_requirement} -i tmp/genotype_full_called_randomized.sbi \
-  --random-seed 2378237 \
-  -f 0.8 -f 0.1 -f 0.1 \
-  -o "${OUTPUT_BASENAME}-" \
-   -s train -s test -s validation ${SBI_SPLIT_OVERRIDE_DESTINATION_OPTION} | tee split.log
-dieIfError "Failed to split"
+randomize.sh ${memory_requirement} -i ${OUTPUT_BASENAME}-pre-train.sbi -o ${OUTPUT_BASENAME}-train.sbi  \
+   -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
+dieIfError "Failed to randomize training set."
+
+rm ${OUTPUT_BASENAME}-pre-training.sbi
+
+randomize.sh ${memory_requirement} -i ${OUTPUT_BASENAME}-pre-validation.sbi -o ${OUTPUT_BASENAME}-validation.sbi  \
+ -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
+dieIfError "Failed to randomize validation set"
+
+rm ${OUTPUT_BASENAME}-pre-validation.sbi
+
+# no need to randomize the test set.
 
 if [ ${DELETE_TMP} = "true" ]; then
    rm -rf tmp
