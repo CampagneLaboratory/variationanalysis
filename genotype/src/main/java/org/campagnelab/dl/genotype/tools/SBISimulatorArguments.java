@@ -21,5 +21,8 @@ public class SBISimulatorArguments implements ToolArguments {
 
     @Parameter(names = "--read-N", description = "Read at most N chromosomes from the varmap, then stop.")
     public long readN=Long.MAX_VALUE;
+
+    @Parameter(names ={"-v", "--verbose"}, description = "Be more verbose.")
+    boolean verbose;
 }
 

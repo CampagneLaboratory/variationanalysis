@@ -21,7 +21,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
 
     static private Logger LOG = LoggerFactory.getLogger(SBISimulator.class);
     private Random r = new Random();
-    private char[] bases = new char[]{'A','C','T','G','N'};
+    private char[] bases = new char[]{'A', 'C', 'T', 'G', 'N'};
     private String countFormat = "%s/%s=%d+%d";
 
     public static void main(String[] args) {
@@ -43,13 +43,14 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
             final VariantMapHelper helper = new VariantMapHelper(args().inputFile);
             List<String> chromosomes = this.chromosomesForSBI(helper);
             chromosomes.parallelStream().limit(args().readN).forEach((String chromosome) -> {
-                System.out.println("Chrom: " + chromosome);
+                if (args().verbose) System.out.println("Chrom: " + chromosome);
                 for (ObjectIterator<Variant> it = helper.getAllVariants(chromosome); it.hasNext(); ) {
                     Variant variant = it.next();
                     for (Variant.FromTo trueAllele : variant.trueAlleles) {
                         String[] counts = fillUpCounts(trueAllele, variant.referenceBase);
                         String genotype = String.format("%s/%s", trueAllele.getFrom(), trueAllele.getTo());
-                        System.out.println("Genotype=" + genotype + ", counts: " + Arrays.toString(counts));
+                        if (args().verbose)
+                            System.out.println("Genotype=" + genotype + ", counts: " + Arrays.toString(counts));
                         BaseInformationRecords.BaseInformation record = makeRecord(variant.referenceIndex, variant.position, genotype, counts);
                         addRecord(writer, record);
                     }
@@ -93,6 +94,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
         builder.setPosition(position);
 
         BaseInformationRecords.SampleInfo.Builder sample = BaseInformationRecords.SampleInfo.newBuilder();
+        String referenceBase = "N";
         for (String countCreationInstruction : countCreations) {
             BaseInformationRecords.CountInfo.Builder countBuilder = BaseInformationRecords.CountInfo.newBuilder();
             String tokens[] = countCreationInstruction.split("[/=+]");
@@ -100,7 +102,8 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
                     "count creation instruction must have four arguments: ref/to=forward+reverse, was " + countCreationInstruction;
             final String from = tokens[0];
             countBuilder.setFromSequence(from);
-            builder.setReferenceBase(Character.toString(from.charAt(0)));
+            referenceBase = Character.toString(from.charAt(0));
+            builder.setReferenceBase(referenceBase);
             final String token = tokens[1];
             countBuilder.setToSequence(token);
             countBuilder.setMatchesReference(from.equals(token));
@@ -130,6 +133,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
             }
             sample.addCounts(countBuilder);
         }
+        builder.setGenomicSequenceContext(referenceBase);
         sample.setFormattedCounts(FormatterCountHelper.format(sample));
         builder.addSamples(sample);
         return builder.build();
@@ -152,15 +156,15 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
         ObjectArrayList<String> counts = new ObjectArrayList<>();
         if (allele.getFrom().equals(allele.getTo())) {
             counts.add(String.format(countFormat, allele.getFrom(), allele.getTo(), generateCounts(), generateCounts()));
-            allCounts.add(allele.getFrom()+"/"+allele.getTo());
+            allCounts.add(allele.getFrom() + "/" + allele.getTo());
         } else {
             counts.add(String.format(countFormat, allele.getFrom(), allele.getFrom(), generateCounts(), generateCounts()));
             counts.add(String.format(countFormat, allele.getFrom(), allele.getTo(), generateCounts(), generateCounts()));
-            allCounts.add(allele.getFrom()+"/"+allele.getFrom());
-            allCounts.add(allele.getFrom()+"/"+allele.getTo());
+            allCounts.add(allele.getFrom() + "/" + allele.getFrom());
+            allCounts.add(allele.getFrom() + "/" + allele.getTo());
         }
-        for (char base : bases){
-            String key = referenceBase +"/" + base;
+        for (char base : bases) {
+            String key = referenceBase + "/" + base;
             if (!allCounts.contains(key)) {
                 counts.add(String.format(countFormat, referenceBase, base, 0, 0));
                 allCounts.add(key);
