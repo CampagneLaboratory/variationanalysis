@@ -30,8 +30,7 @@ demonstrates an end-to-end application where we collect data, train a model,
 and use it in an application. The domain is genomics, but you will get an idea
 how the framework can help with deep learning projects.
 
-A [second tutorial](./GENOTYPE-TUTORIAL-SHORT.md) describes how to train genotype models. Note that this feature
-is an early preview.
+A [second tutorial](./GENOTYPE-TUTORIAL-LONG.md) describes how to train genotype models. 
 
 Two of the tools demonstrated in the tutorial have been developed with
 the framework:
