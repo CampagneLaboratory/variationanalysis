@@ -207,7 +207,7 @@ public class Segment {
     public int actualLength(int startPosition, int endPosition) {
         int count = 0;
         for (BaseInformationRecords.BaseInformation record : recordList) {
-            if (record.getPosition() >= startPosition && record.getPosition() < endPosition) {
+            if (record.getPosition() >= startPosition && record.getPosition() <= endPosition) {
                 if (!getHiddenRecords().contains(record)) {
                     count += 1;
                 }

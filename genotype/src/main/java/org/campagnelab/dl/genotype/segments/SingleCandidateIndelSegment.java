@@ -159,6 +159,7 @@ public class SingleCandidateIndelSegment extends Segment {
         return this.candidateIndelPosition;
     }
 
+    @Override
     public int actualLength() {
         return parent.actualLength(startPosition, endPosition);
 
