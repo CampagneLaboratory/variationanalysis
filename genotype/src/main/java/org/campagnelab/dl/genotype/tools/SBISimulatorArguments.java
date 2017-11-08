@@ -16,7 +16,7 @@ public class SBISimulatorArguments implements ToolArguments {
     public String inputFile = null;
 
     @Parameter(required = false, names = {"-c", "--chromosome"}, variableArity = true,
-            description = "Ovverride the chromosome information in the varmap.")
+            description = "Write sbi only for variants on the specified chromosome.")
     public String chromosome = null;
 
     @Parameter(names = "--read-N", description = "Read at most N chromosomes from the varmap, then stop.")
