@@ -1,17 +1,13 @@
 package org.campagnelab.dl.genotype.segments;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import com.google.common.collect.Iterators;
 import it.unimi.dsi.fastutil.objects.*;
 import it.unimi.dsi.lang.MutableString;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -31,7 +27,6 @@ public class Segment {
     protected RecordList recordList = new RecordList();
 
     public Segment(Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures, BaseInformationRecords.BaseInformation first) {
-        //System.out.println("Open a new segment at ref " + first.getReferenceId() + " position " + Integer.toString(first.getPosition()));
         this.add(first);
         this.firstPosition = first.getPosition();
         this.firstReferenceIndex = first.getReferenceIndex();
@@ -72,36 +67,26 @@ public class Segment {
         refBuilder.setReferenceIndex(this.getLastReferenceIndex());
         refBuilder.setReferenceId(this.getLastReferenceId());
         builder.setEndPosition(refBuilder.build());
-        builder.setLength(actualLength());
+
         final long[] segmentStats = {0L, 0L, 0L};
         int numSamples = getFirstRecord().getSamplesCount();
         SegmentInformationRecords.Sample.Builder sampleBuilder[] = new SegmentInformationRecords.Sample.Builder[numSamples];
         for (int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
-
             sampleBuilder[sampleIndex] = SegmentInformationRecords.Sample.newBuilder();
-
         }
-
         getAllRecords().forEach(record -> {
 
             for (int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
                 SegmentInformationRecords.Base.Builder base = fillInFeatures.apply(record);
-
                 sampleBuilder[sampleIndex].addBase(base);
-
-                //System.out.println("New base " + segmentStats[0] );
-
-
             }
         });
+        builder.setLength(sampleBuilder[0].getBaseCount());
         for (int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
             builder.addSample(sampleBuilder[sampleIndex]);
         }
-
         final SegmentInformationRecords.SegmentInformation built = builder.build();
-
         segmentConsumer.accept(built);
-
     }
 
     /**
@@ -131,12 +116,12 @@ public class Segment {
                 getLastReferenceId(), getLastPosition(), actualLength());
     }
 
-    public int actualLength() {
+    public int  actualLength() {
         if (recordList.size() == 0)
             return 0;
         else {
-            // size of records list and number of records in after lists:
-            return recordList.size() + getAfterRecords().values().stream().mapToInt(list -> list.size()) .sum();
+            //
+            return Iterators.size(getAllRecords().iterator());
         }
     }
     public String getFirstReferenceId() {
@@ -184,7 +169,7 @@ public class Segment {
      * @return
      */
     public Iterable<BaseInformationRecords.BaseInformation> getAllRecords(int startPosition, int endPosition) {
-        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList(this.actualLength() * 3 / 2);
+        ObjectArrayList<BaseInformationRecords.BaseInformation> list = new ObjectArrayList();
         for (BaseInformationRecords.BaseInformation record : recordList) {
             if (record.getPosition() >= startPosition && record.getPosition() < endPosition) {
                 if (!getHiddenRecords().contains(record)) {
