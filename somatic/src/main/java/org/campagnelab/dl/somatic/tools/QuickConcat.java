@@ -7,6 +7,7 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.intermediaries.QuickConcatArguments;
+import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
 import org.campagnelab.goby.compression.MessageChunksWriter;
@@ -110,31 +111,37 @@ public class QuickConcat extends AbstractTool<QuickConcatArguments> {
             int lastFileNumToCopy = inputFilenames.length - 1;
             int curFileNum = 0;
             for (final String inputFilename : inputFilenames) {
-                System.out.printf("Reading from %s%n", inputFilename);
-                input = new FileInputStream(inputFilename).getChannel();
-                long bytesToCopy = input.size();
-                if (curFileNum++ < lastFileNumToCopy) {
-                    // Compact-reads files end with a delimiter (8 x 0xff)
-                    // followed by a 4 byte int 0 (4 x 0x00). Strip
-                    // these on all but the last file.
-                    bytesToCopy -= (MessageChunksWriter.DELIMITER_LENGTH + 1 + MessageChunksWriter.SIZE_OF_MESSAGE_LENGTH);
-                }
+                RecordReader reader=new RecordReader(inputFilename);
+                // do not try to concat an empty file:
+                if (reader.getTotalRecords()>0) {
 
-                // Copy the file about 10 megabytes at a time. It would probably
-                // be marginally faster to jugit st tell NIO to copy the ENTIRE file
-                // in one go, but with very large files Java will freeze until the
-                // entire chunck is copied so this makes for a more responsive program
-                // should you want to ^C in the middle of the copy. Also, with the single
-                // transferTo() you might not see any file size changes in the output file
-                // until the entire copy is complete.
-                long position = 0;
-                while (position < bytesToCopy) {
-                    long bytesToCopyThisTime = Math.min(bufferSize, bytesToCopy - position);
-                    position += input.transferTo(position, bytesToCopyThisTime, output);
+                    System.out.printf("Reading from %s%n", inputFilename);
+                    input = new FileInputStream(inputFilename).getChannel();
+                    long bytesToCopy = input.size();
+                    if (curFileNum++ < lastFileNumToCopy) {
+                        // Compact-reads files end with a delimiter (8 x 0xff)
+                        // followed by a 4 byte int 0 (4 x 0x00). Strip
+                        // these on all but the last file.
+                        bytesToCopy -= (MessageChunksWriter.DELIMITER_LENGTH + 1 + MessageChunksWriter.SIZE_OF_MESSAGE_LENGTH);
+                    }
+
+                    // Copy the file about 10 megabytes at a time. It would probably
+                    // be marginally faster to jugit st tell NIO to copy the ENTIRE file
+                    // in one go, but with very large files Java will freeze until the
+                    // entire chunck is copied so this makes for a more responsive program
+                    // should you want to ^C in the middle of the copy. Also, with the single
+                    // transferTo() you might not see any file size changes in the output file
+                    // until the entire copy is complete.
+                    long position = 0;
+                    while (position < bytesToCopy) {
+                        long bytesToCopyThisTime = Math.min(bufferSize, bytesToCopy - position);
+                        position += input.transferTo(position, bytesToCopyThisTime, output);
+                    }
+                    input.close();
+                    input = null;
+                    progressLogger.update();
                 }
-                input.close();
-                input = null;
-                progressLogger.update();
+                reader.close();
             }
             System.out.printf("Concatenated %d files.%n", lastFileNumToCopy + 1);
             progressLogger.stop();
