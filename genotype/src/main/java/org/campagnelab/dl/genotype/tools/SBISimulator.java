@@ -46,9 +46,6 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
                 if (args().verbose) System.out.println("Chrom: " + chromosome);
                 for (ObjectIterator<Variant> it = helper.getAllVariants(chromosome); it.hasNext(); ) {
                     Variant variant = it.next();
-                    if (variant.position == 4924712 && "chr1".equals(chromosome)) {
-                        System.out.println("stop");
-                    }
                     String trueGenotype = GenotypeHelper.fromFromTos(variant.trueAlleles);
                     Set<String> counts = new HashSet<>();
                     Set<String> keys = new HashSet<>();
