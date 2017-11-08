@@ -51,7 +51,8 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
                         String genotype = String.format("%s/%s", trueAllele.getFrom(), trueAllele.getTo());
                         if (args().verbose)
                             System.out.println("Genotype=" + genotype + ", counts: " + Arrays.toString(counts));
-                        BaseInformationRecords.BaseInformation record = makeRecord(variant.referenceIndex, variant.position, genotype, counts);
+                        BaseInformationRecords.BaseInformation record = makeRecord(variant.referenceIndex, chromosome,
+                                variant.position, genotype, counts);
                         addRecord(writer, record);
                     }
                 }
@@ -87,12 +88,12 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
     }
 
     // format of count creation instruction is from/to=10+12
-    private BaseInformationRecords.BaseInformation makeRecord(int refIndex, int position, String genotype, String... countCreations) {
+    private BaseInformationRecords.BaseInformation makeRecord(int refIndex, String refId, int position, String genotype, String... countCreations) {
         BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
         builder.setTrueGenotype(genotype);
         builder.setReferenceIndex(refIndex);
         builder.setPosition(position);
-
+builder.setReferenceId(refId);
         BaseInformationRecords.SampleInfo.Builder sample = BaseInformationRecords.SampleInfo.newBuilder();
         String referenceBase = "N";
         for (String countCreationInstruction : countCreations) {
