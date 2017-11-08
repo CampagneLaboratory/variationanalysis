@@ -3,6 +3,7 @@ package org.campagnelab.dl.genotype.tools;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
+import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.segments.FormatterCountHelper;
 import org.campagnelab.dl.somatic.storage.RecordWriter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
@@ -37,7 +38,6 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
 
     @Override
     public void execute() {
-        String countFormat = "%s/%s=%d+%d";
         try {
             final RecordWriter writer = new RecordWriter(args().outputFilename);
             final VariantMapHelper helper = new VariantMapHelper(args().inputFile);
@@ -46,15 +46,22 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
                 if (args().verbose) System.out.println("Chrom: " + chromosome);
                 for (ObjectIterator<Variant> it = helper.getAllVariants(chromosome); it.hasNext(); ) {
                     Variant variant = it.next();
-                    for (Variant.FromTo trueAllele : variant.trueAlleles) {
-                        String[] counts = fillUpCounts(trueAllele, variant.referenceBase);
-                        String genotype = String.format("%s/%s", trueAllele.getFrom(), trueAllele.getTo());
-                        if (args().verbose)
-                            System.out.println("Genotype=" + genotype + ", counts: " + Arrays.toString(counts));
-                        BaseInformationRecords.BaseInformation record = makeRecord(variant.referenceIndex, chromosome,
-                                variant.position, genotype, counts);
-                        addRecord(writer, record);
+                    if (variant.position == 4924712 && "chr1".equals(chromosome)) {
+                        System.out.println("stop");
                     }
+                    String trueGenotype = GenotypeHelper.fromFromTos(variant.trueAlleles);
+                    Set<String> counts = new HashSet<>();
+                    Set<String> keys = new HashSet<>();
+                    for (Variant.FromTo trueAllele : variant.trueAlleles) {
+                        calculateCounts(trueAllele, counts, keys, trueGenotype);
+                    }
+                    fillUpCounts(counts, keys, variant.referenceBase);
+                    if (args().verbose)
+                        System.out.println("Genotype=" + trueGenotype + ", counts: " +
+                                Arrays.toString(counts.toArray(new String[counts.size()])));
+                    BaseInformationRecords.BaseInformation record = makeRecord(variant.referenceIndex, chromosome,
+                            variant.position, trueGenotype, counts.toArray(new String[counts.size()]));
+                    addRecord(writer, record);
                 }
             });
             writer.close();
@@ -76,7 +83,6 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
     private List<String> chromosomesForSBI(final VariantMapHelper helper) {
         List<String> chroms = null;
         if (args().chromosome != null) {
-            //need to override what is in the map
             chroms = new ObjectArrayList<String>(1);
             chroms.add(args().chromosome);
         } else {
@@ -93,7 +99,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
         builder.setTrueGenotype(genotype);
         builder.setReferenceIndex(refIndex);
         builder.setPosition(position);
-builder.setReferenceId(refId);
+        builder.setReferenceId(refId);
         BaseInformationRecords.SampleInfo.Builder sample = BaseInformationRecords.SampleInfo.newBuilder();
         String referenceBase = "N";
         for (String countCreationInstruction : countCreations) {
@@ -152,27 +158,22 @@ builder.setReferenceId(refId);
         return r.nextInt(100);
     }
 
-    private String[] fillUpCounts(final Variant.FromTo allele, String referenceBase) {
-        Set<String> allCounts = new HashSet<>();
-        ObjectArrayList<String> counts = new ObjectArrayList<>();
-        if (allele.getFrom().equals(allele.getTo())) {
-            counts.add(String.format(countFormat, allele.getFrom(), allele.getTo(), generateCounts(), generateCounts()));
-            allCounts.add(allele.getFrom() + "/" + allele.getTo());
-        } else {
-            counts.add(String.format(countFormat, allele.getFrom(), allele.getFrom(), generateCounts(), generateCounts()));
-            counts.add(String.format(countFormat, allele.getFrom(), allele.getTo(), generateCounts(), generateCounts()));
-            allCounts.add(allele.getFrom() + "/" + allele.getFrom());
-            allCounts.add(allele.getFrom() + "/" + allele.getTo());
+    private void calculateCounts(final Variant.FromTo allele, Set<String> allCounts, Set<String> keys, String trueGenotype) {
+        String[] inGenotype = trueGenotype.split("\\|", 2);
+        if ((allele.getFrom().equals(inGenotype[0]) || allele.getTo().equals(inGenotype[1]))
+                && !keys.contains(allele.getFrom() + "/" + allele.getTo())) {
+            allCounts.add(String.format(countFormat, allele.getFrom(), allele.getTo(), generateCounts(), generateCounts()));
+            keys.add(allele.getFrom() + "/" + allele.getTo());
         }
-        for (char base : bases) {
-            String key = referenceBase + "/" + base;
-            if (!allCounts.contains(key)) {
-                counts.add(String.format(countFormat, referenceBase, base, 0, 0));
-                allCounts.add(key);
-            }
-        }
-
-        return counts.toArray(new String[counts.size()]);
     }
 
+    private void fillUpCounts(Set<String> allCounts, Set<String> keys, String referenceBase) {
+        for (char base : bases) {
+            String key = referenceBase + "/" + base;
+            if (!keys.contains(key)) {
+                allCounts.add(String.format(countFormat, referenceBase, base, 0, 0));
+                keys.add(key);
+            }
+        }
+    }
 }
