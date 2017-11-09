@@ -109,6 +109,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
             referenceBase = Character.toString(from.charAt(0));
             builder.setReferenceBase(referenceBase);
             final String token = tokens[1];
+            countBuilder.setIsCalled(true);
             countBuilder.setToSequence(token);
             countBuilder.setMatchesReference(from.equals(token));
             countBuilder.setGenotypeCountForwardStrand(Integer.parseInt(tokens[2]));
