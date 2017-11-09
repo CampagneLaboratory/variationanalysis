@@ -2,10 +2,10 @@ package org.campagnelab.dl.framework.mixup;
 
 import cern.jet.random.Beta;
 import cern.jet.random.engine.RandomEngine;
+import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
-import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import org.nd4j.linalg.factory.Nd4j;
 
 /**
@@ -14,12 +14,12 @@ import org.nd4j.linalg.factory.Nd4j;
  */
 public class MixupMultiDataSetPreProcessor implements MultiDataSetPreProcessor {
     private final double alpha;
-    XoRoShiRo128PlusRandom random;
+    XorShift1024StarRandom random;
 
     Beta beta;
 
     public MixupMultiDataSetPreProcessor(long seed, double alpha) {
-        random = new XoRoShiRo128PlusRandom(seed);
+        random = new XorShift1024StarRandom(seed);
         assert alpha > 0 : "alpha must be strictly positive.";
         beta = new Beta(alpha, alpha, new RandomEngine() {
             @Override
@@ -33,6 +33,7 @@ public class MixupMultiDataSetPreProcessor implements MultiDataSetPreProcessor {
     @Override
     public void preProcess(MultiDataSet multiDataSet) {
         double alm = beta.nextDouble();
+
         INDArray[] features = multiDataSet.getFeatures();
         INDArray[] labels = multiDataSet.getLabels();
         INDArray[] featureMasks = multiDataSet.getFeaturesMaskArrays();
