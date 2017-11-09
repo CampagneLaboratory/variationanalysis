@@ -87,8 +87,6 @@ public class SegmentHelperTest {
         Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
             assertEquals(expectedHetInsertionCC, Segment.showGenotypes(segmentInfoo));
         };
-        // TODO: make another test with the split strategy. The result must be the same because the split
-        // should keep one segment, and processing should be unaffected.
         SingleCandidateIndelSplitStrategy strategy = new SingleCandidateIndelSplitStrategy(2,0,false);
         SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, strategy,
                 false);
@@ -160,7 +158,6 @@ public class SegmentHelperTest {
         args.mapFeatures = false;
         args.mapLabels = false;
         FillInFeaturesFunction fillInFeatures = new MyFillInFeaturesFunction(null, null, args);
-//TODO fix test
 
         Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
             assertEquals(expectedHetDeletionTT, Segment.showGenotypes(segmentInfoo));
