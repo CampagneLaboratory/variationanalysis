@@ -52,7 +52,6 @@ if [ -z "${SBI_GENOTYPE_VARMAP+set}" ]; then
   echo "export SBI_GENOTYPE_VARMAP=${OUTPUT_PREFIX}.varmap" >> configure.sh
 fi
 
-export OUTPUT_BASENAME=tmp/genotype_full_called.sbi
 
 if [ -z "${REF_SAMPLING_RATE+set}" ]; then
     # We keep only 10% of reference matching sites as we add the true genotypes:
@@ -62,23 +61,26 @@ else
  echo "REF_SAMPLING_RATE set to ${REF_SAMPLING_RATE}."
 fi
 
+# put all results under tmp:
+export OUTPUT_BASENAME=tmp/${OUTPUT_PREFIX}
+
 parallel-genotype-sbi.sh 10g ${ALIGNMENTS} 2>&1 | tee parallel-genotype-sbi.log
 dieIfError "Failed to generate .sbi file"
 
 export OUTPUT_BASENAME=${OUTPUT_PREFIX}
-
-
-randomize.sh ${memory_requirement} -i ${OUTPUT_BASENAME}-pre-train.sbi -o ${OUTPUT_BASENAME}-train.sbi  \
+# randomize and put final datasets in current directory:
+randomize.sh ${memory_requirement} -i tmp/${OUTPUT_BASENAME}-pre-train.sbi -o ${OUTPUT_BASENAME}-train.sbi  \
    -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
 dieIfError "Failed to randomize training set."
 
 rm ${OUTPUT_BASENAME}-pre-training.sbi
 
-randomize.sh ${memory_requirement} -i ${OUTPUT_BASENAME}-pre-validation.sbi -o ${OUTPUT_BASENAME}-validation.sbi  \
+randomize.sh ${memory_requirement} -i tmp/${OUTPUT_BASENAME}-pre-validation.sbi -o ${OUTPUT_BASENAME}-validation.sbi  \
  -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
 dieIfError "Failed to randomize validation set"
 
-rm ${OUTPUT_BASENAME}-pre-validation.sbi
+cp tmp/${OUTPUT_BASENAME}-test.sbi* ./
+dieIfError "Failed to copy test set"
 
 # no need to randomize the test set.
 
