@@ -73,7 +73,7 @@ public class MixupMultiDataSetPreProcessor implements MultiDataSetPreProcessor {
             int random2 = randomIndex2[exampleIndex];
             final INDArray mask1 = mask.getRow(random1);
             final INDArray mask2 = mask.getRow(random2);
-            tmpBuffer[exampleIndex] = Nd4j.createUninitializedDetached(mask1.shape());
+            tmpBuffer[exampleIndex] = Nd4j.create(mask1.shape());
             if (mask1.sub(mask2).sumNumber().doubleValue() < 0) {
                 // mask2 has more 1s than mask1, use mask2:
                 Nd4j.copy(mask2, tmpBuffer[exampleIndex]);
@@ -97,7 +97,7 @@ public class MixupMultiDataSetPreProcessor implements MultiDataSetPreProcessor {
             final INDArray example1 = features.getRow(random1);
             final INDArray example2 = features.getRow(random2);
             // new example is linear combination of example 1 and example2:
-            tmpBuffer[exampleIndex] = Nd4j.createUninitializedDetached(example1.shape());
+            tmpBuffer[exampleIndex] = Nd4j.create(example1.shape());
             Nd4j.copy(example1.mul(alm).addi(example2.mul(1.0 - alm)), tmpBuffer[exampleIndex]);
             //   tmpBuffer[exampleIndex] = example1.mul(alm).add(example2.mul(1.0 - alm));
         }
