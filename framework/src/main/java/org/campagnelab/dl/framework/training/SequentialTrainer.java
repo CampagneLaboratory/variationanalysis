@@ -29,7 +29,7 @@ public class SequentialTrainer implements Trainer {
         int numNanFoundConsecutively = 0;
         score = 0;
         n = 0;
-        iterator = WrapInAsyncAttach.wrap(iterator);
+       // iterator = WrapInAsyncAttach.wrap(iterator);
 
         while (iterator.hasNext()) {
 

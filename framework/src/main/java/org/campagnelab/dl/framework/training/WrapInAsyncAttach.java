@@ -11,10 +11,12 @@ public class WrapInAsyncAttach {
     public static MultiDataSetIterator wrap(MultiDataSetIterator iterator) {
         String prefetchBufferString = System.getProperty("framework.parallelWrapper.prefetchBuffer");
         int prefetchBuffer = prefetchBufferString != null ? Integer.parseInt(prefetchBufferString) : 12;
-        // put an attach iterator in front of the async to attach data to the GPU for all queued mds
-        iterator=new AttachMultiDataSetIterator(iterator);
+
         //wrap in an async iterator to speed up loading of minibatches to keep the GPU utilized:
         iterator = new AsyncMultiDataSetIterator(iterator, prefetchBuffer);
+        // put an attach iterator after the async to attach data to the GPU for all queued mds
+
+        iterator=new AttachMultiDataSetIterator(iterator);
         return iterator;
     }
 }

@@ -327,6 +327,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             iterator.reset();
             LOG.warn("Done.");
         }
+        iterator=WrapInAsyncAttach.wrap(iterator);
         if (args().mixupAlpha != null) {
             iterator.setPreProcessor(new MixupMultiDataSetPreProcessor(args().seed, args().mixupAlpha));
         }
