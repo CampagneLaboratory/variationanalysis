@@ -147,7 +147,7 @@ public class RecordReader implements Closeable, RecordIterable<BaseInformationRe
         long length = new File(this.reader.getSourceSbiPath()).length();
         int maxSplits = Runtime.getRuntime().availableProcessors() -1;
         System.out.println("Max number of spliterator: " + maxSplits);
-        return new RecordSpliterator(reader.getSourceSbiPath(), 1, length, length, maxSplits);
+        return new RecordSpliterator(reader.getSourceSbiPath(), 0, length, length, maxSplits);
     }
 
     public Properties getProperties() {
