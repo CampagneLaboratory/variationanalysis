@@ -28,13 +28,8 @@ public class SequentialTrainer implements Trainer {
         int numExamplesUsed = 0;
         int numNanFoundConsecutively = 0;
         score = 0;
-        n=0;
-        String prefetchBufferString = System.getProperty("framework.parallelWrapper.prefetchBuffer");
-        int prefetchBuffer = prefetchBufferString != null ? Integer.parseInt(prefetchBufferString) : 12;
-        // put an attach iterator in front of the async to attach data to the GPU for all queued mds
-        iterator=new AttachMultiDataSetIterator(iterator);
-        //wrap in an async iterator to speed up loading of minibatches to keep the GPU utilized:
-        iterator = new AsyncMultiDataSetIterator(iterator, prefetchBuffer);
+        n = 0;
+        iterator = WrapInAsyncAttach.wrap(iterator);
 
         while (iterator.hasNext()) {
 

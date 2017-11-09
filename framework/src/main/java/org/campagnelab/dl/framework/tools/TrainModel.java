@@ -11,6 +11,7 @@ import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssemble
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.gpu.InitializeGpu;
 import org.campagnelab.dl.framework.gpu.ParameterPrecision;
+import org.campagnelab.dl.framework.iterators.AttachMultiDataSetIterator;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.iterators.cache.FullyInMemoryCache;
@@ -26,6 +27,7 @@ import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
 import org.campagnelab.dl.framework.training.ParallelTrainerOnGPU;
 import org.campagnelab.dl.framework.training.SequentialTrainer;
 import org.campagnelab.dl.framework.training.Trainer;
+import org.campagnelab.dl.framework.training.WrapInAsyncAttach;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
@@ -331,7 +333,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         final long numRecords = Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
-        MultiDataSetIterator validationIterator = readValidationSet();
+        MultiDataSetIterator validationIterator = WrapInAsyncAttach.wrap(readValidationSet());
        /* if (args().mixupAlpha != null) {
             validationIterator.setPreProcessor(new MixupMultiDataSetPreProcessor(args().seed, args().mixupAlpha));
         }*/
