@@ -98,7 +98,7 @@ public class MixupMultiDataSetPreProcessor implements MultiDataSetPreProcessor {
             final INDArray example2 = features.getRow(random2);
             // new example is linear combination of example 1 and example2:
             tmpBuffer[exampleIndex] = Nd4j.createUninitializedDetached(example1.shape());
-            Nd4j.copy(example1.mul(alm).add(example2.mul(1.0 - alm)), tmpBuffer[exampleIndex]);
+            Nd4j.copy(example1.mul(alm).addi(example2.mul(1.0 - alm)), tmpBuffer[exampleIndex]);
             //   tmpBuffer[exampleIndex] = example1.mul(alm).add(example2.mul(1.0 - alm));
         }
         for (int exampleIndex = 0; exampleIndex < minibatchSize; exampleIndex++) {
