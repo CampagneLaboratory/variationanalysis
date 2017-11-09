@@ -333,7 +333,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         final long numRecords = Math.min(args().numTraining, domainDescriptor.getNumRecords(args().getTrainingSets()));
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
-        MultiDataSetIterator validationIterator = WrapInAsyncAttach.wrap(readValidationSet());
+        MultiDataSetIterator validationIterator = readValidationSet();
        /* if (args().mixupAlpha != null) {
             validationIterator.setPreProcessor(new MixupMultiDataSetPreProcessor(args().seed, args().mixupAlpha));
         }*/
@@ -488,7 +488,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             if (args().memoryCacheValidation()) {
                 iterator = new FullyInMemoryCache(iterator);
             }
-            return iterator;
+            return new AsyncMultiDataSetIterator(iterator);
         } catch (IOException e) {
             throw new RuntimeException("Unable to load validation records from " + args().validationSet);
         }
