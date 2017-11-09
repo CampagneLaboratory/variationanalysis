@@ -19,16 +19,16 @@ public class SoftmaxLabelMapperTest {
     public void testDistinctAlleles() {
         mapper.maxCalledAlleles = 2;
 
-        assertEquals("[1.0, 0.0, 0.0, 0.0]", map(false, false).toString()); // 0 -> 0
-        assertEquals("[0.0, 1.0, 0.0, 0.0]", map(true, false).toString()); // 1 -> 1
-        assertEquals("[0.0, 0.0, 1.0, 0.0]", map(false, true).toString()); // 10 -> 2
-        assertEquals("[0.0, 0.0, 0.0, 1.0]", map(true, true).toString()); // 11 ->3
+        assertEquals("[1.0, 0.0, 0.0, 0.0, 0.0]", map(false, false).toString()); // 0 -> 0
+        assertEquals("[0.0, 1.0, 0.0, 0.0, 0.0]", map(true, false).toString()); // 1 -> 1
+        assertEquals("[0.0, 0.0, 1.0, 0.0, 0.0]", map(false, true).toString()); // 10 -> 2
+        assertEquals("[0.0, 0.0, 0.0, 1.0, 0.0]", map(true, true).toString()); // 11 ->3
 
         mapper.maxCalledAlleles = 3;
-        assertEquals("[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]", map(false, false,false).toString()); // 000 -> 0
-        assertEquals("[0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]", map(false, true, false).toString()); // 010 -> 2
-        assertEquals("[0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]", map(false, false, true).toString()); // 100 -> 4
-        assertEquals("[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]", map(true, true, true).toString()); // 111 ->7
+        assertEquals("[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]", map(false, false,false).toString()); // 000 -> 0
+        assertEquals("[0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]", map(false, true, false).toString()); // 010 -> 2
+        assertEquals("[0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0]", map(false, false, true).toString()); // 100 -> 4
+        assertEquals("[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]", map(true, true, true).toString()); // 111 ->7
 
     }
 

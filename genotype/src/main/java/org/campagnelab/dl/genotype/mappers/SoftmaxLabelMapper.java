@@ -54,6 +54,11 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
         for (boolean called : isCalled) {
             cachedValue |= (called ? 1 : 0) << index;
             index++;
+            if (index > maxCalledAlleles) {
+                // too many alleles called to represent.
+                cachedValue |= (called ? 1 : 0) << index;
+                break;
+            }
         }
 
     }
