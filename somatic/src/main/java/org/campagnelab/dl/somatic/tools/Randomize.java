@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -50,9 +51,10 @@ public class Randomize extends AbstractTool<RandomizerArguments> {
                 totalRecords += source.getTotalRecords();
                 source.close();
             }
-            int numBuckets = (int)(totalRecords / arguments.recordsPerBucket) + 1;
-
-            new File(workingDir + "/tmp").mkdir();
+            int numBuckets = (int) (totalRecords / arguments.recordsPerBucket) + 1;
+            Random r = new Random();
+            String tmpDir = workingDir + "/tmp" + r.nextInt();
+            new File(tmpDir).mkdir();
             List<RecordWriter> bucketWriters = new ObjectArrayList<RecordWriter>(numBuckets);
             for (int i = 0; i < numBuckets; i++) {
                 bucketWriters.add(new RecordWriter(workingDir + "/tmp/bucket" + i, arguments.chunkSizePerWriter));
@@ -83,7 +85,7 @@ public class Randomize extends AbstractTool<RandomizerArguments> {
             pgRead.stop();
 
             System.out.println("Shuffling contents of each bucket and writing to output file");
-            System.out.printf("There are %d buckets to shuffle\n",numBuckets);
+            System.out.printf("There are %d buckets to shuffle\n", numBuckets);
             //iterate over buckets
             ProgressLogger pgTempBucket = new ProgressLogger(LOG);
             pgTempBucket.itemsName = "buckets";
@@ -95,7 +97,7 @@ public class Randomize extends AbstractTool<RandomizerArguments> {
                 bucketWriter.close();
 
                 //put contents of bucket in a list
-                RecordReader bucketReader = new RecordReader(workingDir + "/tmp/bucket" + i );
+                RecordReader bucketReader = new RecordReader(workingDir + "/tmp/bucket" + i);
                 List<BaseInformationRecords.BaseInformation> records = new ObjectArrayList<>(arguments.recordsPerBucket);
                 for (BaseInformationRecords.BaseInformation rec : bucketReader) {
                     records.add(rec);
@@ -116,7 +118,7 @@ public class Randomize extends AbstractTool<RandomizerArguments> {
             allWriter.close();
 
             //delete temp files
-            FileUtils.deleteDirectory(new File((workingDir + "/tmp")));
+            FileUtils.deleteDirectory(new File(tmpDir));
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -124,12 +126,10 @@ public class Randomize extends AbstractTool<RandomizerArguments> {
     }
 
 
-
     @Override
     public RandomizerArguments createArguments() {
         return new RandomizerArguments();
     }
-
 
 
 }
