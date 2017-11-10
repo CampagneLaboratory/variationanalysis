@@ -49,8 +49,20 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
                     String trueGenotype = GenotypeHelper.fromFromTos(variant.trueAlleles);
                     Set<String> counts = new HashSet<>();
                     Set<String> keys = new HashSet<>();
-                    for (Variant.FromTo trueAllele : variant.trueAlleles) {
-                        calculateCounts(trueAllele, counts, keys, trueGenotype);
+                    if (GenotypeHelper.getAlleles(trueGenotype).size() > 1) {
+                        String keepFrom = variant.referenceBase;
+                        for (Variant.FromTo trueAllele : variant.trueAlleles) {                         
+                            if (!trueAllele.getFrom().equals(variant.referenceBase))
+                                keepFrom = trueAllele.getFrom(); //use the one that does not match the reference, if any
+                        }
+                        for (Variant.FromTo trueAllele : variant.trueAlleles) {
+                            calculateCounts(keepFrom, (trueAllele.getTo().length() != keepFrom.length()) ? keepFrom : trueAllele.getTo(),
+                                    counts, keys, trueGenotype);
+                        }
+                    }  else {
+                        for (Variant.FromTo trueAllele : variant.trueAlleles) {
+                            calculateCounts(trueAllele.getFrom(), trueAllele.getTo(), counts, keys, trueGenotype);
+                        }
                     }
                     fillUpCounts(counts, keys, variant.referenceBase);
                     if (args().verbose)
@@ -114,26 +126,8 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
             countBuilder.setMatchesReference(from.equals(token));
             countBuilder.setGenotypeCountForwardStrand(Integer.parseInt(tokens[2]));
             countBuilder.setGenotypeCountReverseStrand(Integer.parseInt(tokens[3]));
-            BaseInformationRecords.NumberWithFrequency.Builder builderN = BaseInformationRecords.NumberWithFrequency.newBuilder();
-            builderN.setFrequency(1);
-            builderN.setNumber(1);
-            BaseInformationRecords.NumberWithFrequency frequency = builderN.build();
-            countBuilder.addQueryPositions(frequency);
-            countBuilder.addNumVariationsInReads(frequency);
-            countBuilder.addDistancesToReadVariationsForwardStrand(frequency);
-            countBuilder.addDistancesToReadVariationsReverseStrand(frequency);
-            countBuilder.addDistanceToStartOfRead(frequency);
-            countBuilder.addDistanceToEndOfRead(frequency);
-            countBuilder.addReadMappingQualityForwardStrand(frequency);
-            countBuilder.addReadIndicesForwardStrand(frequency);
-            countBuilder.addReadIndicesReverseStrand(frequency);
-            countBuilder.addQualityScoresForwardStrand(frequency);
-            countBuilder.addQualityScoresReverseStrand(frequency);
-            countBuilder.addTargetAlignedLengths(frequency);
-            countBuilder.addQueryAlignedLengths(frequency);
-            countBuilder.addReadMappingQualityForwardStrand(frequency);
-            countBuilder.addReadMappingQualityReverseStrand(frequency);
-            if (from.contains("-") || token.contains("-")) {
+            populateWithFrequencies(countBuilder);
+            if (from.length() > 0) {
                 countBuilder.setIsIndel(true);
             }
             sample.addCounts(countBuilder);
@@ -144,6 +138,28 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
         return builder.build();
     }
 
+    private void populateWithFrequencies(BaseInformationRecords.CountInfo.Builder countBuilder) {
+        BaseInformationRecords.NumberWithFrequency.Builder builderN = BaseInformationRecords.NumberWithFrequency.newBuilder();
+        builderN.setFrequency(1);
+        builderN.setNumber(1);
+        BaseInformationRecords.NumberWithFrequency frequency = builderN.build();
+        countBuilder.addQueryPositions(frequency);
+        countBuilder.addNumVariationsInReads(frequency);
+        countBuilder.addDistancesToReadVariationsForwardStrand(frequency);
+        countBuilder.addDistancesToReadVariationsReverseStrand(frequency);
+        countBuilder.addDistanceToStartOfRead(frequency);
+        countBuilder.addDistanceToEndOfRead(frequency);
+        countBuilder.addReadMappingQualityForwardStrand(frequency);
+        countBuilder.addReadIndicesForwardStrand(frequency);
+        countBuilder.addReadIndicesReverseStrand(frequency);
+        countBuilder.addQualityScoresForwardStrand(frequency);
+        countBuilder.addQualityScoresReverseStrand(frequency);
+        countBuilder.addTargetAlignedLengths(frequency);
+        countBuilder.addQueryAlignedLengths(frequency);
+        countBuilder.addReadMappingQualityForwardStrand(frequency);
+        countBuilder.addReadMappingQualityReverseStrand(frequency);
+
+    }
     private void addRecord(RecordWriter writer, BaseInformationRecords.BaseInformation record) {
         try {
             writer.writeRecord(record);
@@ -156,13 +172,15 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
         return r.nextInt(100);
     }
 
-    private void calculateCounts(final Variant.FromTo allele, Set<String> allCounts, Set<String> keys, String trueGenotype) {
-        String[] inGenotype = trueGenotype.split("\\|", 2);
-        if ((allele.getFrom().equals(inGenotype[0]) || allele.getTo().equals(inGenotype[1]))
-                && !keys.contains(allele.getFrom() + "/" + allele.getTo())) {
-            allCounts.add(String.format(countFormat, allele.getFrom(), allele.getTo(), generateCounts(), generateCounts()));
-            keys.add(allele.getFrom() + "/" + allele.getTo());
-        }
+    private void calculateCounts(String from, String to, Set<String> allCounts, Set<String> keys, String trueGenotype) {
+       /* String[] inGenotype = trueGenotype.split("\\|", 2);
+                if ((from.equals(inGenotype[0]) || to.equals(inGenotype[1]))
+                        && !keys.contains(from + "/" + to)) {
+                    allCounts.add(String.format(countFormat, from, to, generateCounts(), generateCounts()));
+                    keys.add(from + "/" + to);
+                }  */
+        allCounts.add(String.format(countFormat, from, to, generateCounts(), generateCounts()));
+        keys.add(from + "/" + to);
     }
 
     private void fillUpCounts(Set<String> allCounts, Set<String> keys, String referenceBase) {
