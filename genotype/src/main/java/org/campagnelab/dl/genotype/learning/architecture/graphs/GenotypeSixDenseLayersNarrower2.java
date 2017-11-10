@@ -7,6 +7,7 @@ import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
+import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -82,10 +83,12 @@ public class GenotypeSixDenseLayersNarrower2 extends GenotypeAssembler implement
         }
         appendMetaDataLayer(domainDescriptor, learningRatePolicy, build, numIn, WEIGHT_INIT, lastDenseLayerName);
         appendIsVariantLayer(domainDescriptor, learningRatePolicy, build, numIn, WEIGHT_INIT, lastDenseLayerName);
+
         ComputationGraphConfiguration conf = build
                 .setOutputs(outputNames)
                 .build();
-
+        conf.setTrainingWorkspaceMode(WorkspaceMode.SEPARATE);
+        conf.setInferenceWorkspaceMode(WorkspaceMode.SEPARATE);
         return new ComputationGraph(conf);
     }
 
