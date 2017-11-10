@@ -9,7 +9,7 @@ import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.factory.Nd4j;
 
 /**
- * Implements mixup as a preprocessor on a multi-dataset.
+ * Implements mixup as a preprocessor on a multi-dataset. See https://arxiv.org/abs/1710.09412 about mixup.
  * Created by fac2003 on 11/1/17.
  */
 public class MixupMultiDataSetPreProcessor implements MultiDataSetPreProcessor {
@@ -98,15 +98,14 @@ public class MixupMultiDataSetPreProcessor implements MultiDataSetPreProcessor {
             final INDArray example1 = features.getRow(random1);
             final INDArray example2 = features.getRow(random2);
             // new example is linear combination of example 1 and example2:
-            tmpBuffer[exampleIndex] = Nd4j.createUninitializedDetached(example1.shape());
-            Nd4j.copy(example1.mul(alm).addi(example2.mul(1.0 - alm)), tmpBuffer[exampleIndex]);
-            //   tmpBuffer[exampleIndex] = example1.mul(alm).add(example2.mul(1.0 - alm));
+            tmpBuffer[exampleIndex] = example1.mul(alm).addi(example2.mul(1.0 - alm));
         }
         for (int exampleIndex = 0; exampleIndex < minibatchSize; exampleIndex++) {
 
             // assign tmpBuffer[inputIndex] back into the minibatch:
             features.putRow(exampleIndex, tmpBuffer[exampleIndex]);
         }
+
 
     }
 
