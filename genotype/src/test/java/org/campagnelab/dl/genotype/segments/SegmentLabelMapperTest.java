@@ -20,12 +20,12 @@ public class SegmentLabelMapperTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void mapWithError() throws Exception {
-        labelMapper.map("A/G/T/A");
+        labelMapper.map("A/G/T/A", Arrays.asList(0, 1, 2, 0));
     }
 
     @Test
     public void map() throws Exception {
-        float[] mapped = labelMapper.map("A/G/T");
+        float[] mapped = labelMapper.map("A/G/T", Arrays.asList(0, 1, 2));
         System.out.println(Arrays.toString(mapped));
         boolean found = false;
         for (float p : mapped) {

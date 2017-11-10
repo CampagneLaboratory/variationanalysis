@@ -10,6 +10,8 @@ import org.campagnelab.dl.genotype.tools.SBIToSSIConverterArguments;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 
+import java.util.List;
+
 /**
  * Function used by the sbi to ssi converter to populate features and labels.
  */
@@ -34,6 +36,7 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
         final String prePostProcessingGenotype = baseInformation.getSamples(0).getPrePostProcessingGenotype();
 
         String trueGenotype = baseInformation.getTrueGenotype();
+        List<Integer> indices = baseInformation.getIndicesList();
         builder.addAllTrueLabel(GenotypeHelper.getAlleles(trueGenotype));
 
         builder.setHasCandidateIndel(hasCandidateIndel(baseInformation));
@@ -68,7 +71,7 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
             if (trueGenotype.length() > 3) {
                 trueGenotype = trimTrueGenotype(trueGenotype);
             }
-            float[] labels = labelMapper.map(trueGenotype.replaceAll("\\|", "/"));
+            float[] labels = labelMapper.map(trueGenotype.replaceAll("\\|", "/"), indices);
             builder.clearLabels();
 
             for (float labelValue : labels) {
