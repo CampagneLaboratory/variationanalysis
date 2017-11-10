@@ -3,7 +3,7 @@
 
 assertGobyInstalled
 assertParallelInstalled
-
+set -x
 
 ALIGNMENTS="$*"
 if [ -z "${OUTPUT_BASENAME+set}" ]; then

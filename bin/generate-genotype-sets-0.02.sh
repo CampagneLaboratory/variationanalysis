@@ -61,6 +61,7 @@ else
  echo "REF_SAMPLING_RATE set to ${REF_SAMPLING_RATE}."
 fi
 
+set -x
 # put all results under tmp:
 export OUTPUT_BASENAME=tmp/${OUTPUT_PREFIX}
 
@@ -73,18 +74,18 @@ randomize.sh ${memory_requirement} -i tmp/${OUTPUT_BASENAME}-pre-train.sbi -o ${
    -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
 dieIfError "Failed to randomize training set."
 
-rm ${OUTPUT_BASENAME}-pre-training.sbi
-
 randomize.sh ${memory_requirement} -i tmp/${OUTPUT_BASENAME}-pre-validation.sbi -o ${OUTPUT_BASENAME}-validation.sbi  \
  -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
 dieIfError "Failed to randomize validation set"
 
-cp tmp/${OUTPUT_BASENAME}-test.sbi* ./
+mv tmp/${OUTPUT_BASENAME}-test.sbi* ./
 dieIfError "Failed to copy test set"
 
 # no need to randomize the test set.
 
 if [ ${DELETE_TMP} = "true" ]; then
+   rm tmp/${OUTPUT_PREFIX}-pre-training.sbi
+   rm tmp/${OUTPUT_PREFIX}-pre-training.sbi
    rm -rf tmp
 fi
 
