@@ -14,9 +14,6 @@ public class WrapInAsyncAttach {
 
         //wrap in an async iterator to speed up loading of minibatches to keep the GPU utilized:
         iterator = new AsyncMultiDataSetIterator(iterator, prefetchBuffer);
-        // put an attach iterator after the async to attach data to the GPU for all queued mds
-
-        iterator=new AttachMultiDataSetIterator(iterator);
         return iterator;
     }
 }

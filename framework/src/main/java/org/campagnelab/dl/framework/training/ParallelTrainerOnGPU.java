@@ -70,7 +70,7 @@ public class ParallelTrainerOnGPU implements Trainer {
     public int train(ComputationGraph graph, MultiDataSetIterator iterator, ProgressLogger pg) {
         score = 0;
         n = 0;
-        iterator=new ForceAsync(iterator);
+       // iterator=new ForceAsync(iterator);
         wrapper.fit(iterator);
         if (logSpeed) {
             pg.update(numExamplesPerIterator);
