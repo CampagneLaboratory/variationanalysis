@@ -34,7 +34,17 @@ OS name: "mac os x", version: "10.10.5", arch: "x86_64", family: "mac"
 ```
 
 ### Compile from the command line
-In a terminal or in a command prompt, change to the project root folder (the folder where you cloned this git repo) and type the following command:
+GitHub allows to download projects as Zip archives. However, in this case, if you try to build the project extracted from the archive, you get an error like the following:
+
+```bash
+[INFO] --- maven-verifier-plugin:1.1:verify (main) @ somatic ---
+[error] [Verifier] File not found [<your path>/variationanalysis/.git]
+```
+In order to be properly built, the project must be cloned from the git repository. In a terminal or in a command prompt type the following command to clone:
+```bash
+ git clone https://github.com/CampagneLaboratory/variationanalysis.git <dest folder>
+```
+Then, change to the project root folder (the folder where you cloned this git repo) and type the following command:
 ```sh
 mvn package
 ```
