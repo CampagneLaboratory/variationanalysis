@@ -125,6 +125,23 @@
         </pluginManagement>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-verifier-plugin</artifactId>
+                <version>1.1</version>
+                <configuration>
+                    <verificationFile>verifications.xml</verificationFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>main</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
