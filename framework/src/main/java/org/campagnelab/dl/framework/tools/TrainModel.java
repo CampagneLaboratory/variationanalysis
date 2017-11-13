@@ -42,6 +42,10 @@ import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
+import org.nd4j.linalg.api.memory.MemoryWorkspace;
+import org.nd4j.linalg.api.memory.conf.WorkspaceConfiguration;
+import org.nd4j.linalg.api.memory.enums.AllocationPolicy;
+import org.nd4j.linalg.api.memory.enums.LearningPolicy;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
@@ -364,6 +368,15 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         trainer.setLogSpeed(args().trackingStyle == TrainingArguments.TrackStyle.SPEED);
         // only wrap the iterator in async for sequential trainer:
         iterator=args().parallel?iterator:WrapInAsyncAttach.wrap(iterator);
+
+
+        // create the workspaces:
+        WorkspaceConfiguration learningConfig = WorkspaceConfiguration.builder()
+                .policyAllocation(AllocationPolicy.STRICT) // <-- this option disables overallocation behavior
+                .policyLearning(LearningPolicy.FIRST_LOOP) // <-- this option makes workspace learning after first loop
+                .build();
+        MemoryWorkspace trainingWorkspace = Nd4j.getWorkspaceManager().getAndActivateWorkspace(learningConfig, "TRAINING");
+        MemoryWorkspace validationWorkspace = Nd4j.getWorkspaceManager().getAndActivateWorkspace(learningConfig, "VALIDATION");
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -386,7 +399,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 // (avoid using several metrics).
                 double validationMetricValue = initializePerformance(perfDescriptor, perfDescriptor.earlyStoppingMetric());
                 DoubleArrayList metricValues = new DoubleArrayList();
-
 
                 validationIterator.reset();
                 assert validationIterator.hasNext() : "validation iterator must have datasets. Make sure the latest release of Goby is installed in the maven repo.";

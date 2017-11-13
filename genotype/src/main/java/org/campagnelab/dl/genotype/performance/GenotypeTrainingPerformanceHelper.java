@@ -26,16 +26,12 @@ import java.util.function.Predicate;
  */
 public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInformationRecords.BaseInformation> {
 
-    private final WorkspaceConfiguration learningConfig;
     protected StatsAccumulator accumulator;
 
 
     public GenotypeTrainingPerformanceHelper(DomainDescriptor<BaseInformationRecords.BaseInformation> domainDescriptor) {
         super(domainDescriptor);
-        learningConfig = WorkspaceConfiguration.builder()
-                .policyAllocation(AllocationPolicy.STRICT) // <-- this option disables overallocation behavior
-                .policyLearning(LearningPolicy.FIRST_LOOP) // <-- this option makes workspace learning after first loop
-                .build();
+
     }
 
     public double estimateWithGraph(MultiDataSetIterator iterator,
@@ -58,7 +54,10 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
         int index = 0;
         int nProcessed = 0;
         int nCorrect = 0;
-        try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace(learningConfig, "VALIDATION")) {
+
+
+        try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace("VALIDATION")) {
+            //     ws.enableDebug(true);
             List<Prediction> predictions = new ArrayList<>();
             while (iterator.hasNext()) {
 
@@ -101,6 +100,8 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
                 }
                 ws.notifyScopeLeft();
             }
+
+
         }
         return accumulator.createOutputStatistics()[StatsAccumulator.F1_INDEX];
     }

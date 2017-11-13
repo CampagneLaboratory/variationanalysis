@@ -45,8 +45,7 @@ public class SequentialTrainer implements Trainer {
         score = 0;
         n = 0;
 
-
-        try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace(learningConfig, "TRAINING")) {
+        try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace("TRAINING")) {
 
             while (iterator.hasNext()) {
 
