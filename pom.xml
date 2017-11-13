@@ -201,6 +201,7 @@
                 </executions>
 
                 <configuration>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
                     <commitIdGenerationMode>flat</commitIdGenerationMode>
                     <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
                     <generateGitPropertiesFile>false</generateGitPropertiesFile>
