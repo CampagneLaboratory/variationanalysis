@@ -334,9 +334,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         int miniBatchesPerEpoch = (int) (numRecords / args().miniBatchSize);
         System.out.printf("Training with %d minibatches per epoch%n", miniBatchesPerEpoch);
         MultiDataSetIterator validationIterator = readValidationSet();
-       /* if (args().mixupAlpha != null) {
-            validationIterator.setPreProcessor(new MixupMultiDataSetPreProcessor(args().seed, args().mixupAlpha));
-        }*/
+
         System.out.println("Finished loading validation records.");
 
 
@@ -364,6 +362,8 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 (int) numRecords) :
                 new SequentialTrainer();
         trainer.setLogSpeed(args().trackingStyle == TrainingArguments.TrackStyle.SPEED);
+        // only wrap the iterator in async for sequential trainer:
+        iterator=args().parallel?iterator:WrapInAsyncAttach.wrap(iterator);
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -486,9 +486,10 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                     adapter, adapter.getBasename(),
                     args().numValidation, args().miniBatchSize);
             if (args().memoryCacheValidation()) {
-                iterator = new FullyInMemoryCache(iterator);
+                // no need to wrap in async an iterator over datasets in memory:
+                return new FullyInMemoryCache(iterator);
             }
-            return new AsyncMultiDataSetIterator(iterator);
+            return WrapInAsyncAttach.wrap(iterator);
         } catch (IOException e) {
             throw new RuntimeException("Unable to load validation records from " + args().validationSet);
         }

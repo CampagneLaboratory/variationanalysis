@@ -58,10 +58,10 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
         int index = 0;
         int nProcessed = 0;
         int nCorrect = 0;
+        try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace(learningConfig, "VALIDATION")) {
+            List<Prediction> predictions = new ArrayList<>();
+            while (iterator.hasNext()) {
 
-        List<Prediction> predictions = new ArrayList<>();
-        while (iterator.hasNext()) {
-            try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace(learningConfig, "VALIDATION")) {
                 ws.notifyScopeEntered();
 
                 MultiDataSet next = iterator.next();

@@ -87,8 +87,8 @@ public class GenotypeSixDenseLayersNarrower2 extends GenotypeAssembler implement
         ComputationGraphConfiguration conf = build
                 .setOutputs(outputNames)
                 .build();
-        conf.setTrainingWorkspaceMode(WorkspaceMode.SEPARATE);
-        conf.setInferenceWorkspaceMode(WorkspaceMode.SEPARATE);
+        conf.setTrainingWorkspaceMode(WorkspaceMode.SINGLE);
+        conf.setInferenceWorkspaceMode(WorkspaceMode.SINGLE);
         return new ComputationGraph(conf);
     }
 

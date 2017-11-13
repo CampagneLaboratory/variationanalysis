@@ -57,7 +57,7 @@ public class ParallelTrainerOnGPU implements Trainer {
                 .prefetchBuffer(prefetchBuffer)
                 .workers(numWorkers)
                 .averagingFrequency(averagingFrequency)
-                .reportScoreAfterAveraging(false).workspaceMode(WorkspaceMode.SEPARATE)
+                .reportScoreAfterAveraging(false).workspaceMode(WorkspaceMode.SINGLE)
                 // .useLegacyAveraging(true)
                 .build();
         wrapper.setListeners(perListener);
