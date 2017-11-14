@@ -36,7 +36,7 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
         final String prePostProcessingGenotype = baseInformation.getSamples(0).getPrePostProcessingGenotype();
 
         String trueGenotype = baseInformation.getTrueGenotype();
-        List<Integer> indices = baseInformation.getSamples(0).getIndicesList();
+        List<Integer> indices = baseInformation.getSamples(0).getCalledCountIndicesList();
         builder.addAllTrueLabel(GenotypeHelper.getAlleles(trueGenotype));
 
         builder.setHasCandidateIndel(hasCandidateIndel(baseInformation));

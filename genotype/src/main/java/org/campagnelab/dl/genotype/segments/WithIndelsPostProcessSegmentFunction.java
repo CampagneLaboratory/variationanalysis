@@ -45,10 +45,10 @@ public class WithIndelsPostProcessSegmentFunction implements PostProcessSegmentF
                     sampleIndicesList.add(sampleIndices);
                 }
                 BaseInformationRecords.BaseInformation.Builder copy = record.toBuilder();
-                copy.addAllIndices(indices);
+                copy.addAllCalledCountIndices(indices);
                 int sampleIndex = 0;
                 for (BaseInformationRecords.SampleInfo.Builder sampleInfo : copy.getSamplesBuilderList()) {
-                    sampleInfo.addAllIndices(sampleIndicesList.get(sampleIndex));
+                    sampleInfo.addAllCalledCountIndices(sampleIndicesList.get(sampleIndex));
                     copy.setSamples(sampleIndex, sampleInfo);
                     sampleIndex++;
                 }
