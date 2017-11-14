@@ -29,10 +29,9 @@ public class WithIndelsPostProcessSegmentFunction implements PostProcessSegmentF
                 }
 
             }
-            BaseInformationRecords.BaseInformation.Builder recordCopyWithIndices = record.toBuilder();
             if (longestIndelLength > 1) {
                 List<Integer> indices = new IntArrayList();
-                int i = 0;
+                List<List<Integer>> sampleIndicesList = new ArrayList<>();
                 for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()) {
                     List<Integer> sampleIndices = new IntArrayList();
                     int gobyGenotypeIndex = 0;
@@ -43,23 +42,23 @@ public class WithIndelsPostProcessSegmentFunction implements PostProcessSegmentF
                         }
                         gobyGenotypeIndex++;
                     }
-                    BaseInformationRecords.SampleInfo sampleWithIndices  = sample.toBuilder()
-                            .addAllIndices(sampleIndices)
-                            .build();
-                    recordCopyWithIndices.setSamples(i, sampleWithIndices);
-                    i++;
+                    sampleIndicesList.add(sampleIndices);
                 }
-                recordCopyWithIndices.addAllIndices(indices);
-                record = recordCopyWithIndices.build();
-                segment.setIndicesAdded(true);
+                BaseInformationRecords.BaseInformation.Builder copy = record.toBuilder();
                 for (int offset = 0; offset < longestIndelLength; offset++) {
-                    BaseInformationRecords.BaseInformation.Builder copy = record.toBuilder();
                     //    System.out.printf("record position: %d %n",record.getPosition());
                     copy.addAllIndices(indices);
+                    int sampleIndex = 0;
+                    for (BaseInformationRecords.SampleInfo.Builder sampleInfo : copy.getSamplesBuilderList()) {
+                        sampleInfo.addAllIndices(sampleIndicesList.get(sampleIndex));
+                        copy.setSamples(sampleIndex, sampleInfo);
+                        sampleIndex++;
+                    }
                     copy = segment.adjustCounts(copy, offset,longestReference);
                     segment.insertAfter(record, copy);
                 }
                 segment.hideRecord(record);
+                segment.setIndicesAdded(true);
             }
         });
 
