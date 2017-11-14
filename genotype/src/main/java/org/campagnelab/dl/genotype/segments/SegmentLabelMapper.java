@@ -102,7 +102,11 @@ public class SegmentLabelMapper {
             throw new IllegalArgumentException(alleles + " is not of the expected length (" + this.ploidy + ")");
         final MutableString toFind;
         if (indices.size() > 0) {
-            toFind = new MutableString(sortByIndices(clean, indices)).compact();
+            if (indices.size() == clean.length()) {
+                toFind = new MutableString(sortByIndices(clean, indices)).compact();
+            } else {
+                toFind = new MutableString(sortAlphabetically(clean)).compact();
+            }
         } else {
             toFind = new MutableString(sortAlphabetically(clean)).compact();
         }

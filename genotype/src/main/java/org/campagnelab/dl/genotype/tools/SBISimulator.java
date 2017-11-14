@@ -121,11 +121,13 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
             referenceBase = Character.toString(from.charAt(0));
             builder.setReferenceBase(referenceBase);
             final String token = tokens[1];
-            countBuilder.setIsCalled(true);
             countBuilder.setToSequence(token);
             countBuilder.setMatchesReference(from.equals(token));
-            countBuilder.setGenotypeCountForwardStrand(Integer.parseInt(tokens[2]));
-            countBuilder.setGenotypeCountReverseStrand(Integer.parseInt(tokens[3]));
+            int countForwardStrand = Integer.parseInt(tokens[2]);
+            countBuilder.setGenotypeCountForwardStrand(countForwardStrand);
+            int countReverseStrand = Integer.parseInt(tokens[3]);
+            countBuilder.setGenotypeCountReverseStrand(countReverseStrand);
+            countBuilder.setIsCalled(countForwardStrand + countReverseStrand > 0);
             populateWithFrequencies(countBuilder);
             if (from.length() > 0) {
                 countBuilder.setIsIndel(true);
