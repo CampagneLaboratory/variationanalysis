@@ -1,6 +1,5 @@
 package org.campagnelab.dl.framework.training;
 
-import org.campagnelab.dl.framework.iterators.AttachMultiDataSetIterator;
 import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
@@ -14,9 +13,6 @@ public class WrapInAsyncAttach {
 
         //wrap in an async iterator to speed up loading of minibatches to keep the GPU utilized:
         iterator = new AsyncMultiDataSetIterator(iterator, prefetchBuffer);
-        // put an attach iterator after the async to attach data to the GPU for all queued mds
-
-        iterator=new AttachMultiDataSetIterator(iterator);
         return iterator;
     }
 }
