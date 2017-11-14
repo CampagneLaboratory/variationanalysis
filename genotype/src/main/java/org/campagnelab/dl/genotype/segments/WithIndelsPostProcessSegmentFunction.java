@@ -35,11 +35,13 @@ public class WithIndelsPostProcessSegmentFunction implements PostProcessSegmentF
                 int i = 0;
                 for (BaseInformationRecords.SampleInfo sample : record.getSamplesList()) {
                     List<Integer> sampleIndices = new IntArrayList();
+                    int gobyGenotypeIndex = 0;
                     for (BaseInformationRecords.CountInfo count : sample.getCountsList()) {
-                        if (count.hasIsCalled() && count.getIsCalled() && count.hasGobyGenotypeIndex()) {
-                            indices.add(count.getGobyGenotypeIndex());
-                            sampleIndices.add(count.getGobyGenotypeIndex());
+                        if (count.hasIsCalled() && count.getIsCalled()) {
+                            indices.add(gobyGenotypeIndex);
+                            sampleIndices.add(gobyGenotypeIndex);
                         }
+                        gobyGenotypeIndex++;
                     }
                     BaseInformationRecords.SampleInfo sampleWithIndices  = sample.toBuilder()
                             .addAllIndices(sampleIndices)
@@ -47,7 +49,9 @@ public class WithIndelsPostProcessSegmentFunction implements PostProcessSegmentF
                     recordCopyWithIndices.setSamples(i, sampleWithIndices);
                     i++;
                 }
+                recordCopyWithIndices.addAllIndices(indices);
                 record = recordCopyWithIndices.build();
+                segment.setIndicesAdded(true);
                 for (int offset = 0; offset < longestIndelLength; offset++) {
                     BaseInformationRecords.BaseInformation.Builder copy = record.toBuilder();
                     //    System.out.printf("record position: %d %n",record.getPosition());

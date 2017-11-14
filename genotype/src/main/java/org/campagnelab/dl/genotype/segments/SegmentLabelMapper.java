@@ -74,8 +74,8 @@ public class SegmentLabelMapper {
         List<String> combinedLabels = new ObjectArrayList<>();
         for (int from = 0; from < alleles.length; from++) {
             if (deep == 2) {
-                for (int index = from; index < alleles.length; index++) {
-                    combinedLabels.add(String.format("%c%c", alleles[from], alleles[index]));
+                for (char to : alleles) {
+                    combinedLabels.add(String.format("%c%c", alleles[from], to));
                 }
             } else {
                 int finalFrom = from;
@@ -100,7 +100,12 @@ public class SegmentLabelMapper {
         String clean = alleles.replace("/", "");
         if (clean.length() != ploidy)
             throw new IllegalArgumentException(alleles + " is not of the expected length (" + this.ploidy + ")");
-        final MutableString toFind = new MutableString(sortByIndices(clean, indices)).compact();
+        final MutableString toFind;
+        if (indices.size() > 0) {
+            toFind = new MutableString(sortByIndices(clean, indices)).compact();
+        } else {
+            toFind = new MutableString(sortAlphabetically(clean)).compact();
+        }
         int foundAt = this.indexedLabels.getInt(toFind);
         assert foundAt >= 0 : String.format("genotype %s not found in map", toFind);
         if (foundAt < position.length - 1 && foundAt >= 0) {

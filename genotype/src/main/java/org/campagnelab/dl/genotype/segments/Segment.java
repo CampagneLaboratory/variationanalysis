@@ -26,6 +26,16 @@ public class Segment {
     private int lastReferenceIndex = 0;
     protected RecordList recordList = new RecordList();
 
+    public boolean isIndicesAdded() {
+        return indicesAdded;
+    }
+
+    public void setIndicesAdded(boolean indicesAdded) {
+        this.indicesAdded = indicesAdded;
+    }
+
+    private boolean indicesAdded;
+
     public Segment(Function<BaseInformationRecords.BaseInformation, SegmentInformationRecords.Base.Builder> fillInFeatures, BaseInformationRecords.BaseInformation first) {
         this.add(first);
         this.firstPosition = first.getPosition();
