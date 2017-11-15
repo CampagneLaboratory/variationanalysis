@@ -2,8 +2,8 @@ package org.campagnelab.dl.somatic.storage;
 
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import org.campagnelab.dl.somatic.mappers.FeatureMapperV18;
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
+import org.campagnelab.dl.somatic.mappers.FeatureMapperV18;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.io.*;

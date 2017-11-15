@@ -4,12 +4,12 @@ import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.tools.MapFeaturesArguments;
 import org.campagnelab.dl.framework.tools.MapMultiDatasetFeatures;
 import org.campagnelab.dl.somatic.learning.domains.SomaticMutationDomainDescriptor;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.somatic.storage.RecordReader;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.Properties;
 
 /**

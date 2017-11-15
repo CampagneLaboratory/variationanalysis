@@ -9,7 +9,6 @@ import org.campagnelab.dl.somatic.storage.RecordWriter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.mvc.WebSocket;
 
 import java.io.IOException;
 import java.util.Map;

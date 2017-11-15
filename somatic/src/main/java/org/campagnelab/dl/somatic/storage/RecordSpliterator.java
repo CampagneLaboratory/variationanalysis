@@ -1,13 +1,9 @@
 package org.campagnelab.dl.somatic.storage;
 
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.goby.compression.ChunkCodec;
-import org.campagnelab.goby.compression.MessageChunksWriter;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.Consumer;
 
 /**

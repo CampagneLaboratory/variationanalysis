@@ -2,14 +2,14 @@ package org.campagnelab.dl.somatic.learning.calibrate;
 
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
+import org.campagnelab.dl.framework.architecture.nets.NeuralNetAssembler;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
-import org.campagnelab.dl.somatic.utils.ProtoPredictor;
-import org.campagnelab.dl.somatic.learning.architecture.CalibrationAssembler;
-import org.campagnelab.dl.framework.architecture.nets.NeuralNetAssembler;
 import org.campagnelab.dl.framework.models.ModelSaver;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.somatic.learning.architecture.CalibrationAssembler;
 import org.campagnelab.dl.somatic.storage.RecordReader;
+import org.campagnelab.dl.somatic.utils.ProtoPredictor;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
