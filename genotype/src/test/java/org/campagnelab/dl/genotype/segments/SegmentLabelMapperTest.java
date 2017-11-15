@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -51,4 +52,24 @@ public class SegmentLabelMapperTest {
         assertEquals("Invalid number of label", 216, labelMapper.numberOfLabels());
     }
 
+    @Test
+    public void testSortByIndices1() throws Exception {
+        String testString = "A";
+        List<Integer> testIndices = Arrays.asList(9);
+        assertEquals("A", SegmentLabelMapper.sortByIndices(testString, testIndices));
+    }
+
+    @Test
+    public void testSortByIndices2() throws Exception {
+        String testString = "ABC";
+        List<Integer> testIndices = Arrays.asList(0, 1, 2);
+        assertEquals("ABC", SegmentLabelMapper.sortByIndices(testString, testIndices));
+    }
+
+    @Test
+    public void testSortByIndices3() throws Exception {
+        String testString = "ABC";
+        List<Integer> testIndices = Arrays.asList(3, 9, 6);
+        assertEquals("ACB", SegmentLabelMapper.sortByIndices(testString, testIndices));
+    }
 }

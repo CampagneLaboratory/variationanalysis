@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 /**
@@ -101,15 +102,11 @@ public class SegmentLabelMapper {
         if (clean.length() != ploidy)
             throw new IllegalArgumentException(alleles + " is not of the expected length (" + this.ploidy + ")");
         final MutableString toFind;
-        if (indices.size() > 0) {
-            if (indices.size() == clean.length()) {
-                toFind = new MutableString(sortByIndices(clean, indices)).compact();
-            } else {
-                toFind = new MutableString(sortAlphabetically(clean)).compact();
-            }
-        } else {
-            toFind = new MutableString(sortAlphabetically(clean)).compact();
+        // If sizes unequal, generate indices as range 0, 1,...,n+1, n, of same length as alleles
+        if (indices.size() != clean.length()) {
+            indices = IntStream.range(0, clean.length()).boxed().collect(Collectors.toList());
         }
+        toFind = new MutableString(sortByIndices(clean, indices)).compact();
         int foundAt = this.indexedLabels.getInt(toFind);
         assert foundAt >= 0 : String.format("genotype %s not found in map", toFind);
         if (foundAt < position.length - 1 && foundAt >= 0) {
@@ -164,7 +161,7 @@ public class SegmentLabelMapper {
     /**
      * Sorts the chars in the list in ascending order based on the indices
      */
-    private String sortByIndices(final String toSort, List<Integer> indices) {
+    static String sortByIndices(final String toSort, List<Integer> indices) {
         List<CharWithIndex> charWithIndexList = new ArrayList<>();
         char[] alleles = toSort.toCharArray();
         for (int i = 0; i < indices.size(); i++) {
