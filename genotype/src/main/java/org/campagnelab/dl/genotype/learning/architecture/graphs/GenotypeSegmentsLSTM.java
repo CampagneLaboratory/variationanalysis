@@ -140,7 +140,7 @@ public class GenotypeSegmentsLSTM extends GenotypeAssembler implements Computati
         ComputationGraphConfiguration conf = build.setOutputs(outputNames).build();
         // use workspaces for both training and inference phases:
         conf.setTrainingWorkspaceMode(WorkspaceMode.SINGLE);
-        conf.setInferenceWorkspaceMode(WorkspaceMode.SINGLE);
+        conf.setInferenceWorkspaceMode(WorkspaceMode.SEPARATE);
         conf.validate();
 
         final ComputationGraph computationGraph = new ComputationGraph(conf);

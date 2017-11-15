@@ -1,7 +1,6 @@
 package org.campagnelab.dl.framework.mappers;
 
 
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

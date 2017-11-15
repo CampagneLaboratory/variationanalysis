@@ -1,9 +1,9 @@
 package org.campagnelab.dl.somatic.mappers.trio;
 
+import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.somatic.genotypes.BaseGenotypeCountFactory;
 import org.campagnelab.dl.somatic.genotypes.GenotypeCountFactory;
 import org.campagnelab.dl.somatic.mappers.AbstractFeatureMapper;
-import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.somatic.mappers.GenotypeCount;
 import org.campagnelab.dl.somatic.mappers.IndelGenotypeCount;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;

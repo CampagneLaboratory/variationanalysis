@@ -1,7 +1,6 @@
 package org.campagnelab.dl.somatic.predictions;
 
 import org.campagnelab.dl.framework.models.ModelLoader;
-import org.campagnelab.dl.somatic.learning.domains.predictions.IsMutatedBasePrediction;
 import org.campagnelab.dl.somatic.utils.ProtoPredictor;
 import org.campagnelab.goby.algorithmic.dsv.DiscoverVariantPositionData;
 import org.campagnelab.goby.algorithmic.dsv.SampleCountInfo;

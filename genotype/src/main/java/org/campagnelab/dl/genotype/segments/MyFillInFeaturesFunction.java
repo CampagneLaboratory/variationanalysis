@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.fastutil.floats.FloatListIterator;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
-import org.campagnelab.dl.genotype.mappers.SingleBaseGenotypeMapperV1;
 import org.campagnelab.dl.genotype.tools.SBIToSSIConverterArguments;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;

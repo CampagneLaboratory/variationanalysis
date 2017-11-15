@@ -2,7 +2,6 @@ package org.campagnelab.dl.framework.iterators.cache;
 
 import org.apache.commons.io.FilenameUtils;
 
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

@@ -1,10 +1,10 @@
 package org.campagnelab.dl.framework.tools;
 
-import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import it.unimi.dsi.io.FastBufferedReader;
 import it.unimi.dsi.io.LineIterator;
 import it.unimi.dsi.lang.MutableString;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

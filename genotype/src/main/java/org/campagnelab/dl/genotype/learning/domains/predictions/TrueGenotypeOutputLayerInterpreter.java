@@ -3,7 +3,6 @@ package org.campagnelab.dl.genotype.learning.domains.predictions;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.genotype.predictions.TrueGenotypeOutputLayerPrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.accum.Max;
 import org.nd4j.linalg.api.ops.impl.accum.Mean;

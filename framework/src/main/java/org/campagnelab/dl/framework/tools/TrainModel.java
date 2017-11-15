@@ -11,7 +11,6 @@ import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssemble
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.gpu.InitializeGpu;
 import org.campagnelab.dl.framework.gpu.ParameterPrecision;
-import org.campagnelab.dl.framework.iterators.AttachMultiDataSetIterator;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.iterators.cache.FullyInMemoryCache;
@@ -29,9 +28,7 @@ import org.campagnelab.dl.framework.training.SequentialTrainer;
 import org.campagnelab.dl.framework.training.Trainer;
 import org.campagnelab.dl.framework.training.WrapInAsyncAttach;
 import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
-import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.graph.vertex.GraphVertex;
@@ -42,17 +39,15 @@ import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
-import org.nd4j.linalg.api.memory.MemoryWorkspace;
-import org.nd4j.linalg.api.memory.conf.WorkspaceConfiguration;
-import org.nd4j.linalg.api.memory.enums.AllocationPolicy;
-import org.nd4j.linalg.api.memory.enums.LearningPolicy;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -331,6 +326,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
             iterator.reset();
             LOG.warn("Done.");
         }
+
         if (args().mixupAlpha != null) {
             iterator.setPreProcessor(new MixupMultiDataSetPreProcessor(args().seed, args().mixupAlpha));
         }
@@ -368,15 +364,6 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         trainer.setLogSpeed(args().trackingStyle == TrainingArguments.TrackStyle.SPEED);
         // only wrap the iterator in async for sequential trainer:
         iterator=args().parallel?iterator:WrapInAsyncAttach.wrap(iterator);
-
-
-        // create the workspaces:
-        WorkspaceConfiguration learningConfig = WorkspaceConfiguration.builder()
-                .policyAllocation(AllocationPolicy.STRICT) // <-- this option disables overallocation behavior
-                .policyLearning(LearningPolicy.FIRST_LOOP) // <-- this option makes workspace learning after first loop
-                .build();
-        MemoryWorkspace trainingWorkspace = Nd4j.getWorkspaceManager().getAndActivateWorkspace(learningConfig, "TRAINING");
-        MemoryWorkspace validationWorkspace = Nd4j.getWorkspaceManager().getAndActivateWorkspace(learningConfig, "VALIDATION");
         for (epoch = 0; epoch < args().maxEpochs; epoch++) {
             ProgressLogger pg = new ProgressLogger(LOG);
             pg.itemsName = "mini-batch";
@@ -501,7 +488,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                 // no need to wrap in async an iterator over datasets in memory:
                 return new FullyInMemoryCache(iterator);
             }
-            return WrapInAsyncAttach.wrap(iterator);
+            return iterator;
         } catch (IOException e) {
             throw new RuntimeException("Unable to load validation records from " + args().validationSet);
         }

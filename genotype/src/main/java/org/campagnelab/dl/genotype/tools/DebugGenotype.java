@@ -2,7 +2,6 @@ package org.campagnelab.dl.genotype.tools;
 
 
 import it.unimi.dsi.logging.ProgressLogger;
-import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.genotype.mappers.GenotypeFeatureMapper;
 import org.campagnelab.dl.somatic.storage.RecordReader;

@@ -1,9 +1,9 @@
 package org.campagnelab.dl.framework.iterators;
 
-import org.campagnelab.dl.framework.mappers.LabelMapper;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
 import org.apache.commons.lang.NotImplementedException;
+import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;

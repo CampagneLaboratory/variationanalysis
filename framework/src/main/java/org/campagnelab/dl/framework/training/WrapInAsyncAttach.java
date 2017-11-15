@@ -1,6 +1,5 @@
 package org.campagnelab.dl.framework.training;
 
-import org.campagnelab.dl.framework.iterators.AttachMultiDataSetIterator;
 import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 

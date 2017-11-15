@@ -14,7 +14,6 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
  * A computational graph with six dense layers and two outputs: probability of somatic mutation and frequency of the

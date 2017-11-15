@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.goby.algorithmic.dsv.SampleCountInfo;
 import org.campagnelab.goby.predictions.MergeIndelFrom;
 import org.campagnelab.goby.util.Variant;
 

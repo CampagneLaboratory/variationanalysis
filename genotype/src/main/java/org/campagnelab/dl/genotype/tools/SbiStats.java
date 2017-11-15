@@ -3,18 +3,15 @@ package org.campagnelab.dl.genotype.tools;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
-import org.campagnelab.dl.genotype.helpers.AddTrueGenotypeHelper;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
 import org.campagnelab.goby.reads.RandomAccessSequenceCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.Set;
 
 /**
  * Use sbistats to see the distibution of types of records in a dataset.

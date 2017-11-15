@@ -1,7 +1,6 @@
 package org.campagnelab.dl.genotype.learning.domains;
 
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
-import org.campagnelab.dl.genotype.learning.domains.predictions.HomozygousPrediction;
 
 /**
  * Represent the number of distint alleles called at a site.

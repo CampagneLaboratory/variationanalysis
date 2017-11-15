@@ -6,7 +6,6 @@ import org.campagnelab.dl.genotype.learning.domains.NumDistinctAllelesOutputLaye
 import org.campagnelab.dl.genotype.learning.domains.predictions.SingleGenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
-import java.util.Collections;
 import java.util.List;
 
 /**

@@ -2,7 +2,6 @@ package org.campagnelab.dl.framework.iterators;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
-import org.nd4j.linalg.factory.Nd4j;
 
 /**
  * Helper for multidatasets. Provides a method to attach an MDS to the computational backend (GPU or CPU).
@@ -15,21 +14,21 @@ public class MDSHelper {
         INDArray[] features = ds.getFeatures();
         if (features != null) {
             for (e = 0; e < features.length; ++e) {
-                features[e] = features[e].migrate();
+                features[e] = features[e].detach();
             }
         }
 
         INDArray[] labels = ds.getLabels();
         if (labels != null) {
             for (e = 0; e < labels.length; ++e) {
-                labels[e] = labels[e].migrate();
+                labels[e] = labels[e].detach();
             }
         }
 
         INDArray[] featuresMaskArrays = ds.getFeaturesMaskArrays();
         if (featuresMaskArrays != null) {
             for (e = 0; e < featuresMaskArrays.length; ++e) {
-                featuresMaskArrays[e] = featuresMaskArrays[e].migrate();
+                featuresMaskArrays[e] = featuresMaskArrays[e].detach();
             }
         }
 
@@ -37,7 +36,7 @@ public class MDSHelper {
         if (labelsMaskArrays != null) {
             for (e = 0; e < labelsMaskArrays.length; ++e) {
                 if (labelsMaskArrays[e] != null) {
-                    labelsMaskArrays[e] = labelsMaskArrays[e].migrate();
+                    labelsMaskArrays[e] = labelsMaskArrays[e].detach();
                 }
             }
         }

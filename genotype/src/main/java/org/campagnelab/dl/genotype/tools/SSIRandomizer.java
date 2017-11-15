@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import org.apache.commons.io.FileUtils;
-import org.apache.tools.ant.taskdefs.Basename;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.genotype.storage.SegmentReader;
 import org.campagnelab.dl.genotype.storage.SegmentWriter;

@@ -1,10 +1,7 @@
 package org.campagnelab.dl.somatic.tools;
 
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
-import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
-import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.somatic.storage.RecordWriter;
@@ -14,9 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
 
 /**
  * The simplify tool removes fields from the sbi file to produce simpler messages. Use to create

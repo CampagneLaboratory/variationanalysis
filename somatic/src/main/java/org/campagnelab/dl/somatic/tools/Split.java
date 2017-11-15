@@ -1,7 +1,5 @@
 package org.campagnelab.dl.somatic.tools;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArraySet;
-import it.unimi.dsi.fastutil.doubles.DoubleSet;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;

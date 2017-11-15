@@ -1,14 +1,10 @@
 package org.campagnelab.dl.genotype.tools;
 
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.io.BinIO;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
-import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.genotype.helpers.AddTrueGenotypeHelper;
-import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
@@ -17,10 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Random;
-import java.util.Set;
 
 /**
  * The addcalls object uses a map to create a new protobuf file with genotype calls.

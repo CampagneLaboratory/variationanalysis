@@ -1,15 +1,11 @@
 package org.campagnelab.dl.framework.training;
 
 import it.unimi.dsi.logging.ProgressLogger;
-import org.campagnelab.dl.framework.iterators.ForceAsync;
 import org.deeplearning4j.nn.api.Model;
-import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
-import org.nd4j.linalg.dataset.api.MultiDataSet;
-import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
 /**
@@ -57,7 +53,7 @@ public class ParallelTrainerOnGPU implements Trainer {
                 .prefetchBuffer(prefetchBuffer)
                 .workers(numWorkers)
                 .averagingFrequency(averagingFrequency)
-                .reportScoreAfterAveraging(false).workspaceMode(WorkspaceMode.SINGLE)
+                .reportScoreAfterAveraging(false)
                 // .useLegacyAveraging(true)
                 .build();
         wrapper.setListeners(perListener);
@@ -70,7 +66,6 @@ public class ParallelTrainerOnGPU implements Trainer {
     public int train(ComputationGraph graph, MultiDataSetIterator iterator, ProgressLogger pg) {
         score = 0;
         n = 0;
-       // iterator=new ForceAsync(iterator);
         wrapper.fit(iterator);
         if (logSpeed) {
             pg.update(numExamplesPerIterator);

@@ -14,16 +14,15 @@ import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.performance.BEDHelper;
 import org.campagnelab.dl.genotype.performance.StatsAccumulator;
-import org.campagnelab.dl.somatic.util.GenomicSitesVisited;
-import org.campagnelab.goby.predictions.FormatIndelVCF;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
+import org.campagnelab.dl.somatic.util.GenomicSitesVisited;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.predictions.FormatIndelVCF;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Example of Predict implementation. This class performs predictions with a model trained by TrainModelS.

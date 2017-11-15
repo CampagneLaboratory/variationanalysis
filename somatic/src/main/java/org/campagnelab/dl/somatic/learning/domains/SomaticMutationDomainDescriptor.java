@@ -11,7 +11,6 @@ import org.campagnelab.dl.framework.performance.AUCHelper;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.somatic.learning.SomaticTrainer;
 import org.campagnelab.dl.somatic.learning.SomaticTrainingArguments;
-import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.somatic.learning.architecture.graphs.SixDenseLayersNarrower2;
 import org.campagnelab.dl.somatic.learning.domains.predictions.IsSomaticMutationInterpreter;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;

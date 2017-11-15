@@ -2,7 +2,6 @@ package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.AbstractFeatureMapper1D;
 import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 /**
  * This is a normalizing mapper. It accepts a single delegate, and normalizes it by inversing the values

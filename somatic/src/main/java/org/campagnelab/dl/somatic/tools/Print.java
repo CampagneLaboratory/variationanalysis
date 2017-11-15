@@ -3,15 +3,12 @@ package org.campagnelab.dl.somatic.tools;
 
 import com.google.protobuf.TextFormat;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.somatic.storage.RecordReader;
-import org.campagnelab.dl.somatic.storage.RecordWriter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 
 /**

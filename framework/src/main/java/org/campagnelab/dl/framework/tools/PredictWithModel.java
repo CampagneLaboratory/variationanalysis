@@ -1,10 +1,10 @@
 package org.campagnelab.dl.framework.tools;
 
+import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.domains.prediction.RecordPredictions;
 import org.campagnelab.dl.framework.models.ModelOutputHelper;
-import org.campagnelab.dl.framework.domains.DomainDescriptor;
-import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;

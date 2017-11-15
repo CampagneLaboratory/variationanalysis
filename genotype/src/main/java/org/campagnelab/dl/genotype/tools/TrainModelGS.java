@@ -3,12 +3,8 @@ package org.campagnelab.dl.genotype.tools;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.tools.TrainModel;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
-import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
-import org.campagnelab.dl.genotype.learning.domains.GenotypeDomainDescriptor;
 import org.campagnelab.dl.genotype.learning.domains.GenotypeSegmentDomainDescriptor;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

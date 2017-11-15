@@ -3,8 +3,6 @@ package org.campagnelab.dl.somatic.storage;
 import org.apache.commons.io.IOUtils;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
-import org.campagnelab.goby.compression.ChunkCodec;
-import org.campagnelab.goby.compression.MessageChunksReader;
 import org.campagnelab.goby.exception.GobyRuntimeException;
 
 import java.io.Closeable;
@@ -13,7 +11,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Spliterator;
-import java.util.function.Consumer;
 
 /**
  * A reader for base information records stored in protobuf format.
