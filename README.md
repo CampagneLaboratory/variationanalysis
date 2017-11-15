@@ -19,19 +19,16 @@ of the Matcha framework and takes advantage of ground-truth genotypes
 established for specific quality control samples.
 
 # Download
-You can download the binary distribution here:
-* [Release 1.2](http://chagall.med.cornell.edu/goby/releases/release-dlvariation_1.2.zip) (January 2017).
+The project needs to be cloned from github at this time if you need to train models. Binary releases are included in the Goby binary distributions (see [http://campagnelab.org/software/goby/download-goby/]). This makes it possible to download pre-trained models and call genotypes directly with goby. Pre-trained models are distributed at [https://github.com/CampagneLaboratory/genotype-dl-models].
 
 # Tutorials
 
 We provide a [tutorial](./SOMATIC-TUTORIAL.md) for the somatic calling models.
 It is strongly recommended that you read the tutorial at this time. It
 demonstrates an end-to-end application where we collect data, train a model,
-and use it in an application. The domain is genomics, but you will get an idea
-how the framework can help with deep learning projects.
+and use it in an application. 
 
-A [second tutorial](./GENOTYPE-TUTORIAL-SHORT.md) describes how to train genotype models. Note that this feature
-is an early preview.
+A [second tutorial](./GENOTYPE-TUTORIAL-LONG.md) describes how to train genotype models. 
 
 Two of the tools demonstrated in the tutorial have been developed with
 the framework:
