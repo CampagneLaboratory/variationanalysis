@@ -1,8 +1,6 @@
 package org.campagnelab.dl.framework.tools;
 
 import com.beust.jcommander.Parameter;
-import org.campagnelab.dl.framework.tools.arguments.RecordingToolArguments;
-import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
 
 /**
  * Created by joshuacohen on 12/19/16.

@@ -1,15 +1,13 @@
 package org.campagnelab.dl.framework.domains;
 
 import com.google.common.collect.Iterables;
-import org.campagnelab.dl.framework.domains.prediction.Prediction;
-import org.campagnelab.dl.framework.mappers.LabelMapper;
-import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
+import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
+import org.campagnelab.dl.framework.mappers.LabelMapper;
+import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
-import org.campagnelab.dl.framework.tools.TrainModel;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;

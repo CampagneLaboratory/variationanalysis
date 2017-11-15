@@ -2,7 +2,6 @@ package org.campagnelab.dl.framework.iterators;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
-import org.nd4j.linalg.factory.Nd4j;
 
 /**
  * Helper for multidatasets. Provides a method to attach an MDS to the computational backend (GPU or CPU).

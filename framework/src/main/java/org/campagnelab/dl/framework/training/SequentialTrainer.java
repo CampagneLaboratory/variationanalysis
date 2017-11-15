@@ -1,9 +1,7 @@
 package org.campagnelab.dl.framework.training;
 
 import it.unimi.dsi.logging.ProgressLogger;
-import org.campagnelab.dl.framework.iterators.AttachMultiDataSetIterator;
 import org.campagnelab.dl.framework.iterators.MDSHelper;
-import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
