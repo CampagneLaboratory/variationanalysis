@@ -241,9 +241,9 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
     /**
      * This method is called when we need to write the header to the results.
      *
-     * @param resutsWriter
+     * @param resultsWriter
      */
-    protected abstract void writeHeader(PrintWriter resutsWriter);
+    protected abstract void writeHeader(PrintWriter resultsWriter);
 
     /**
      * This method must allocate any statistic caculator necessary to evaluate performance on the test set and store
