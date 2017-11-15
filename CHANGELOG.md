@@ -1,5 +1,8 @@
 ##CHANGE LOG
 
+### 1.4.1 
+ * Halve the learning rate each time the score does not improve.
+ 
 ### 1.4.0 (Nov 2017)
 * Various bug fixes. Indel performance is now state of the art on NA12878 with the V37 mapper 
   (org.campagnelab.dl.genotype.mappers.GenotypeMapperV37). Note that .sbi files must be 
