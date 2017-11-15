@@ -42,13 +42,13 @@ public class SegmentLabelMapperTest {
     public void writeMap() throws Exception {
         Properties props = new Properties();
         labelMapper.writeMap(props);
-        assertEquals("Invalid number of properties mapped",57,props.size());
+        assertEquals("Invalid number of properties mapped", 217, props.size());
 
     }
 
     @Test
     public void numberOfLabels() throws Exception {
-        assertEquals("Invalid number of label", 56, labelMapper.numberOfLabels());
+        assertEquals("Invalid number of label", 216, labelMapper.numberOfLabels());
     }
 
 }
