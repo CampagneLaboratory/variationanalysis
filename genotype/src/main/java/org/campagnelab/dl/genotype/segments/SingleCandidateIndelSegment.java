@@ -4,12 +4,10 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import org.campagnelab.dl.genotype.segments.Segment;
 import org.campagnelab.dl.genotype.segments.splitting.SingleCandidateIndelSplitStrategy;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 

@@ -1,11 +1,9 @@
 package org.campagnelab.dl.genotype.learning.domains;
 
-import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
 import org.campagnelab.dl.genotype.predictions.SegmentMetaData;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 
 /**
  * Created by fac2003 on 11/1/17.

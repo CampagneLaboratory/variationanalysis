@@ -1,7 +1,6 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
-import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.util.WarningCounter;
 import org.slf4j.Logger;

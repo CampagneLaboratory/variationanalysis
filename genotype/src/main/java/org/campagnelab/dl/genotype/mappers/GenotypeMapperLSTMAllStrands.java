@@ -1,7 +1,9 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.apache.commons.lang.math.NumberUtils;
-import org.campagnelab.dl.framework.mappers.*;
+import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
+import org.campagnelab.dl.framework.mappers.FeatureNameMapper;
+import org.campagnelab.dl.framework.mappers.MappedDimensions;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.util.WarningCounter;
 import org.nd4j.linalg.api.ndarray.INDArray;

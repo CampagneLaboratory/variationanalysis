@@ -2,7 +2,6 @@ package org.campagnelab.dl.genotype.segments.splitting;
 
 import org.campagnelab.dl.genotype.segments.Segment;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

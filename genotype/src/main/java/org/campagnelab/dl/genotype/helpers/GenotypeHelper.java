@@ -3,13 +3,12 @@ package org.campagnelab.dl.genotype.helpers;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.apache.commons.lang3.StringUtils;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
+import org.campagnelab.goby.algorithmic.algorithm.EquivalentIndelRegionCalculator;
 import org.campagnelab.goby.algorithmic.dsv.SampleCountInfo;
 import org.campagnelab.goby.algorithmic.indels.EquivalentIndelRegion;
 import org.campagnelab.goby.alignments.processors.ObservedIndel;
-import org.campagnelab.goby.algorithmic.algorithm.EquivalentIndelRegionCalculator;
 import org.campagnelab.goby.predictions.MergeIndelFrom;
 import org.campagnelab.goby.util.Variant;
-
 
 import java.util.Iterator;
 import java.util.Set;

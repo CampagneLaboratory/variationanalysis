@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.SegmentPrediction;
 
 public class SegmentStatsAccumulator {

@@ -3,8 +3,6 @@ package org.campagnelab.dl.genotype.predictions;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 
-import java.util.ArrayList;
-
 /**
  * Represent the "genotype" output predictions in human readable form.
  */

@@ -1,7 +1,5 @@
 package org.campagnelab.dl.genotype.mappers;
 
-import org.campagnelab.dl.framework.mappers.FeatureMapper;
-import org.campagnelab.dl.framework.mappers.NoMaskFeatureMapper;
 import org.campagnelab.dl.somatic.mappers.NoMasksLabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
