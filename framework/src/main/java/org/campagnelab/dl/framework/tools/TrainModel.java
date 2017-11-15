@@ -29,6 +29,7 @@ import org.campagnelab.dl.framework.training.Trainer;
 import org.campagnelab.dl.framework.training.WrapInAsyncAttach;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
+import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.graph.vertex.GraphVertex;
@@ -413,9 +414,12 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
                     notImproved = 0;
                 } else {
                     notImproved++;
+                    decreaseLearningRate(computationGraph);
+
                 }
                 if (Double.isNaN(bestValue) || notImproved > args().stopWhenEpochsWithoutImprovement) {
                     // we have not improved after earlyStopCondition epoch, or got NaN, time to stop.
+
                     break;
                 }
             }
@@ -435,6 +439,19 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         return new EarlyStoppingResult<ComputationGraph>(EarlyStoppingResult.TerminationReason.EpochTerminationCondition,
                 "not early stopping", scoreMap, performanceLogger.getBestEpoch(bestMetricName), bestScore, args().maxEpochs, computationGraph);
     }
+
+    private void decreaseLearningRate(ComputationGraph computationGraph) {
+
+            for (Layer layer : computationGraph.getLayers()) {
+                if (!layer.conf().getLearningRateByParam().isEmpty()) {
+                    for (Map.Entry<String, Double> lrPair : layer.conf().getLearningRateByParam().entrySet()) {
+                        final double rate = lrPair.getValue() * (0.5 + Nd4j.EPS_THRESHOLD);
+                        layer.conf().setLearningRateByParam(lrPair.getKey(),
+                                rate);
+                    }
+                }
+            }
+        }
 
 
     private double findMetricValue(String lookupName, String[] metricNames, double[] performanceValues) {
