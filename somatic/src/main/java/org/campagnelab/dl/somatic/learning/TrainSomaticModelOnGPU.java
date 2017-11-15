@@ -2,9 +2,9 @@ package org.campagnelab.dl.somatic.learning;
 
 import it.unimi.dsi.logging.ProgressLogger;
 import org.campagnelab.dl.framework.gpu.ParameterPrecision;
+import org.campagnelab.dl.framework.models.ModelSaver;
 import org.campagnelab.dl.somatic.learning.iterators.NamedCachingDataSetIterator;
 import org.campagnelab.dl.somatic.learning.iterators.NamedDataSetIterator;
-import org.campagnelab.dl.framework.models.ModelSaver;
 import org.campagnelab.dl.somatic.learning.performance.MeasurePerformance;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;

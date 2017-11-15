@@ -1,16 +1,18 @@
 package org.campagnelab.dl.genotype.segments;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.objects.*;
-import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Spliterator;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class RecordList implements Iterable<BaseInformationRecords.BaseInformation> {
     static private Logger LOG = LoggerFactory.getLogger(RecordList.class);

@@ -1,9 +1,7 @@
 package org.campagnelab.dl.genotype.learning.domains;
 
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
-
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
-import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 

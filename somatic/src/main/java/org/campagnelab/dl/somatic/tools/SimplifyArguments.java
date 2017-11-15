@@ -4,9 +4,6 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Arguments of Simplify tool.
  */

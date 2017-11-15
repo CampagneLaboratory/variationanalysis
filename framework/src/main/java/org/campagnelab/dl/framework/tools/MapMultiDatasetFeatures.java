@@ -1,12 +1,11 @@
 package org.campagnelab.dl.framework.tools;
 
-import org.campagnelab.dl.framework.domains.prediction.Prediction;
-import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
-import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import it.unimi.dsi.fastutil.io.FastBufferedOutputStream;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
+import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
+import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;

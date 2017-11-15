@@ -7,7 +7,7 @@ import org.campagnelab.dl.genotype.segments.SegmentUtil;
 import org.campagnelab.dl.genotype.segments.SingleCandidateIndelSegment;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * Create a sub-segment around each candidate indel.

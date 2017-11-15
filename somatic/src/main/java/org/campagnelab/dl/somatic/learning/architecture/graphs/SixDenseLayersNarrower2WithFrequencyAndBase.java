@@ -1,7 +1,6 @@
 package org.campagnelab.dl.somatic.learning.architecture.graphs;
 
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
-import org.campagnelab.dl.framework.architecture.nets.NeuralNetAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.models.ModelPropertiesHelper;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
@@ -15,7 +14,6 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
  * A computational graph with six dense layers and two outputs: probability of somatic mutation + identity of mutated base

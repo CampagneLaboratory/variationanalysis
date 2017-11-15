@@ -3,17 +3,13 @@ package org.campagnelab.dl.genotype.tools;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
-import org.apache.commons.compress.compressors.FileNameUtil;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.tools.ant.types.FileList;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.genotype.helpers.AddTrueGenotypeHelper;
 import org.campagnelab.dl.somatic.storage.RecordReader;
-import org.campagnelab.dl.somatic.tools.QuickConcat;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
 import org.campagnelab.goby.reads.RandomAccessSequenceCache;
-import org.omg.PortableServer.THREAD_POLICY_ID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

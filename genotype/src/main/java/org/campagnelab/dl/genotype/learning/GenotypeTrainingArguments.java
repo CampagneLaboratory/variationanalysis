@@ -3,7 +3,6 @@ package org.campagnelab.dl.genotype.learning;
 import com.beust.jcommander.Parameter;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSixDenseLayersNarrower2;
-import org.campagnelab.dl.genotype.mappers.GenotypeMapperV1;
 import org.campagnelab.dl.genotype.mappers.GenotypeMapperV24;
 
 /**

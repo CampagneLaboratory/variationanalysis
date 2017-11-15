@@ -1,6 +1,5 @@
 package org.campagnelab.dl.framework.domains.prediction;
 
-import org.campagnelab.dl.framework.tools.TrainModel;
 import org.campagnelab.goby.util.WarningCounter;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.indexing.NDArrayIndex;

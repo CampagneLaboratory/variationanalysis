@@ -4,16 +4,12 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.tools.PredictWithModel;
-import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
-import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.SegmentPrediction;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
-import scala.Array;
 
 import java.util.ArrayList;
 import java.util.Collection;

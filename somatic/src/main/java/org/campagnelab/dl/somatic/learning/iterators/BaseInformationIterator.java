@@ -1,10 +1,10 @@
 package org.campagnelab.dl.somatic.learning.iterators;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.somatic.storage.RecordReader;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;

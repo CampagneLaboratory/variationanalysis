@@ -1,11 +1,6 @@
 package org.campagnelab.dl.framework.mappers.pretraining;
 
-import org.campagnelab.dl.framework.mappers.ConcatFeatureMapper;
-import org.campagnelab.dl.framework.mappers.TwoDimensionalConcatFeatureMapper;
-import org.campagnelab.dl.framework.mappers.FeatureMapper;
-import org.campagnelab.dl.framework.mappers.MappedDimensions;
-import org.campagnelab.dl.framework.mappers.NAryFeatureMapper;
-import org.campagnelab.dl.framework.mappers.RNNFeatureMapper;
+import org.campagnelab.dl.framework.mappers.*;
 import org.campagnelab.dl.framework.mappers.processing.TwoDimensionalRemoveMaskFeatureMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.slf4j.Logger;

@@ -6,9 +6,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.FileNameMap;
 import java.util.Set;
 
 

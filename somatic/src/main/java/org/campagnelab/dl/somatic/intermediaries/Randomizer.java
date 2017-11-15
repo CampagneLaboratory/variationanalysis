@@ -4,9 +4,9 @@ package org.campagnelab.dl.somatic.intermediaries;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XorShift1024StarRandom;
-import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.somatic.storage.RecordReader;
 import org.campagnelab.dl.somatic.storage.RecordWriter;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

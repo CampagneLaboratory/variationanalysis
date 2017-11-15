@@ -1,5 +1,6 @@
 package org.campagnelab.dl.genotype.segments;
 
+import it.unimi.dsi.util.XorShift1024StarRandom;
 import org.campagnelab.dl.genotype.segments.splitting.SplitStrategy;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
@@ -14,8 +15,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import it.unimi.dsi.util.XorShift1024StarRandom;
 
 /**
  * Class to help convert sbi records into segments.

@@ -1,12 +1,12 @@
 package org.campagnelab.dl.somatic.learning.performance;
 
 import it.unimi.dsi.logging.ProgressLogger;
-import org.campagnelab.dl.somatic.learning.domains.predictions.IsSomaticMutationInterpreter;
-import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
-import org.campagnelab.dl.somatic.learning.iterators.FirstNIterator;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.performance.AUCHelper;
+import org.campagnelab.dl.somatic.learning.domains.predictions.IsSomaticMutationInterpreter;
+import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
+import org.campagnelab.dl.somatic.learning.iterators.FirstNIterator;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.dataset.api.iterator.CachingDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.cache.InMemoryDataSetCache;

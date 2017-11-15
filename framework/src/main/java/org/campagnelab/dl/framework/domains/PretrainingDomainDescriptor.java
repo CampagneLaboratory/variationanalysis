@@ -2,7 +2,10 @@ package org.campagnelab.dl.framework.domains;
 
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
-import org.campagnelab.dl.framework.mappers.*;
+import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
+import org.campagnelab.dl.framework.mappers.ConfigurableLabelMapper;
+import org.campagnelab.dl.framework.mappers.FeatureMapper;
+import org.campagnelab.dl.framework.mappers.LabelMapper;
 import org.campagnelab.dl.framework.tools.TrainingArguments;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.slf4j.Logger;

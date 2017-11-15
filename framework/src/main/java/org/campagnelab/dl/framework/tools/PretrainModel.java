@@ -5,7 +5,6 @@ import org.campagnelab.dl.framework.domains.PretrainingDomainDescriptor;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.function.Function;
 
 /**
  * A tool that can be used to create models to perform pretraining on. Creates the domain

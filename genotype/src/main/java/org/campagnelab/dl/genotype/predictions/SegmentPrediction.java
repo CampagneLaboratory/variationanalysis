@@ -4,8 +4,6 @@ import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.genotype.performance.SegmentGenotypePredictionTest;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 
-import java.util.function.Predicate;
-
 /**
  * Represents predicted genotypes for a segment.
  */

@@ -1,8 +1,6 @@
 package org.campagnelab.dl.somatic.storage;
 
 
-import com.google.protobuf.TextFormat;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import org.apache.commons.io.FilenameUtils;
@@ -12,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Random;
-import java.util.Set;
 
 
 /**
