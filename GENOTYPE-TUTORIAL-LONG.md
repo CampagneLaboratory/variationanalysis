@@ -19,22 +19,21 @@ Note that the build is hg19. The tools demonstrated here can be used with any bu
 - Download true genotypes from the [Platinum genome project](http://www.illumina.com/platinumgenomes/):
 Click [on this link](ftp://platgene_ro@ussd-ftp.illumina.com/2016-1.0/hg19/small_variants/NA12878/NA12878.vcf.gz) to download with a browser, then copy the downloaded file (NA12878.vcf.gz) to the project
 directory.
-Download
-
 
 
 ### Download the software
 
- 1. Download and install Goby and variationanalysis (maven is required for installation) We will add their tools to the path:
- (This script assumes we are at goby version 3.2.4 and variationanalysis version 1.2.4):
-``
+ 1. Download and install Goby and variationanalysis (maven is required for installation).
+ We will add their tools to the path:
+ (This script assumes we are at goby version 3.3.0 and variationanalysis version 1.4.0):
+```
 git clone https://github.com/CampagneLaboratory/goby3.git
 git clone https://github.com/CampagneLaboratory/variationanalysis.git
 (cd goby3; mvn install)
 (cd variationanalysis; ./build-cpu.sh)
-(cd goby3/formal-releases; ./prepare-release.sh 1.2.4)
-unzip goby3/formal-releases/release-goby_3.2.4/goby.zip
-cd goby-3.2.4 ; export PATH=$(pwd):$PATH ; cd .. 
+(cd goby3/snapshot-previews/; ./prepare-preview.sh 3.3.1-SNAPSHOT 1.4.1-SNAPSHOT)
+cd goby3/snapshot-previews/goby-3.3.1-SNAPSHOT
+export PATH=$(pwd):$PATH ; cd .. 
 cd variationanalysis/bin ; export PATH=$(pwd):$PATH ; cd ../..
 
 ```
@@ -58,8 +57,8 @@ export LEARNING_RATE="3"
 EVALUATION_METRIC_NAME=score
 export SBI_GENOME=ucsg.hg19
 export FASTA_GENOME=ucsc.hg19.fasta
-export TRAINING_OPTIONS="--decision-threshold 0.4  --genomic-context-length 29 --label-smoothing-epsilon 0.17137805 --memory-cache none --num-layers 4 --regularization-rate 1.6938844983121584E-11 "
-export REF_SAMPLING_RATE=0.02
+export TRAINING_OPTIONS=" --genomic-context-length 29 --label-smoothing-epsilon 0.05 --memory-cache none --num-layers 4 --regularization-rate 1.6938844983121584E-11 "
+export REF_SAMPLING_RATE=0.01
 export REALIGN_AROUND_INDELS=false
 export INCLUDE_INDELS=true
 SBI_SPLIT_OVERRIDE_DESTINATION=chr2
