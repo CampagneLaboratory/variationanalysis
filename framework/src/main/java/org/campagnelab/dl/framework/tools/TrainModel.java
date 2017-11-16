@@ -234,7 +234,7 @@ public abstract class TrainModel<RecordType> extends ConditionRecordingTool<Trai
         mpHelper.put("tag", getTag());
         domainDescriptor.putProperties(mpHelper.getProperties());
         mpHelper.writeProperties(directory);
-        domainDescriptor.writeProperties(directory);
+        domainDescriptor.writeProperties(directory,getReaderProperties(args().trainingSets.get(0)));
     }
 
 

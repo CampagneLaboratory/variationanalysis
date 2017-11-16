@@ -304,15 +304,15 @@ public abstract class DomainDescriptor<RecordType> {
         this.modelProperties = new Properties();
         this.domainProperties.putAll(domainProperties);
         this.modelProperties.putAll(sbiProperties);
-       this.modelProperties.putAll(advancedModelProperties);
-
+        this.modelProperties.putAll(advancedModelProperties);
     }
 
-    public void writeProperties(String modelPath) {
+    public void writeProperties(String modelPath, Properties trainingSetProps) {
         Properties props = new Properties();
         String propFilename = ModelLoader.getModelPath(modelPath) + "/domain.properties";
         putProperties(props);
         props.putAll(advancedModelProperties);
+        props.putAll(trainingSetProps);
         try {
             props.store(new FileWriter(propFilename), "Domain properties created with " + this.getClass().getCanonicalName());
         } catch (IOException e) {
