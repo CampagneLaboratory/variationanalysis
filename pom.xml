@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.campagnelab.dl</groupId>
     <artifactId>variation-analysis</artifactId>
-    <version>11.4.1-SNAPSHOT</version>
+    <version>1.4.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
         <module>framework</module>
