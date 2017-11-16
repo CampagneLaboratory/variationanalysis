@@ -22,6 +22,11 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
         this.sampleIndex = sampleIndex;
     }
 
+    public SingleBaseFeatureMapperV1() {
+        this(0);
+    }
+
+
     @Override
     public int numberOfFeatures() {
         return numberOfFeaturesPerBase * maxSequenceLength; // determine by the mapper used to produce the .ssi

@@ -65,46 +65,8 @@
     <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:linux-ppc64le:8.0-6.0-1.3" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:windows-x86_64:8.0-6.0-1.3" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.3.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-ui_2.11:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-play_2.11:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-ui-model:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-nlp:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-api:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-buffer:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-context:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco:javacpp:1.3.3" level="project" />
-    <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.16.16" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-api:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-core:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:nearestneighbor-core:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-modelimport:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-nn:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:jackson:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-common:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: com.github.stephenc.findbugs:findbugs-annotations:1.3.9-1" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-jackson:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.datavec:datavec-api:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: net.sf.opencsv:opencsv:2.3" level="project" />
-    <orderEntry type="library" name="Maven: org.datavec:datavec-data-image:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco:javacv:1.3.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:3.2.0-1.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv-platform:3.2.0-1.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:android-arm:3.2.0-1.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:android-x86:3.2.0-1.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:linux-x86:3.2.0-1.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:linux-x86_64:3.2.0-1.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:linux-armhf:3.2.0-1.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:linux-ppc64le:3.2.0-1.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:macosx-x86_64:3.2.0-1.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:windows-x86:3.2.0-1.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:windows-x86_64:3.2.0-1.3" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-ui-components:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-base64:0.9.1" level="project" />
-    <orderEntry type="library" name="Maven: org.mapdb:mapdb:3.0.5" level="project" />
-    <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.0.7" level="project" />
-    <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-runtime:1.0.7" level="project" />
-    <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-ui-resources:0.9.1" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.3.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.3.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-4" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.icb:icb-utils:2.0.1" level="project" />
