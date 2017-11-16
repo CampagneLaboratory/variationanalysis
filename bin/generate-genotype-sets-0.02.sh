@@ -45,11 +45,10 @@ mkdir -p tmp
 if [ -z "${SBI_GENOTYPE_VARMAP+set}" ]; then
   echo "Recalculating varmap. Set SBI_GENOTYPE_VARMAP to reuse a previous map."
   goby ${memory_requirement} vcf-to-genotype-map ${VCF} --genome ${SBI_GENOME} \
-    -o tmp/variants.varmap
+    -o ${OUTPUT_PREFIX}.varmap
   dieIfError "Failed to produce varmap"
-  export SBI_GENOTYPE_VARMAP=tmp/variants.varmap
-  cp tmp/variants.varmap ./${OUTPUT_PREFIX}.varmap
   echo "export SBI_GENOTYPE_VARMAP=${OUTPUT_PREFIX}.varmap" >> configure.sh
+  . configure.sh
 fi
 
 
