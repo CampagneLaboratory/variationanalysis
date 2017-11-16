@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.learning.domains;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.apache.commons.lang.StringUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
@@ -9,6 +10,7 @@ import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.framework.mappers.ConfigurableLabelMapper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.mappers.LabelMapper;
+import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.performance.PerformanceMetricDescriptor;
 import org.campagnelab.dl.genotype.learning.architecture.graphs.GenotypeSegmentsLSTM;
 import org.campagnelab.dl.genotype.mappers.NumDistinctAllelesLabelMapper;
@@ -32,10 +34,9 @@ import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.impl.LossBinaryXENT;
 import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -44,6 +45,7 @@ import java.util.function.Function;
 public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInformationRecords.SegmentInformation> {
     private final SegmentTrainingArguments arguments;
     private int ploidy;
+    private String modelPath;
 
     public GenotypeSegmentDomainDescriptor(SegmentTrainingArguments arguments) {
         this.arguments = arguments;
@@ -51,6 +53,20 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
         this.ploidy = arguments.ploidy;
     }
 
+    public GenotypeSegmentDomainDescriptor(String modelPath) {
+        this.modelPath = modelPath;
+        this.arguments = new SegmentTrainingArguments();
+        this.args().parsedFromCommandLine = false;
+        super.loadProperties(modelPath);
+        configure(modelProperties);
+
+    }
+
+    @Override
+    public void configure(Properties modelProperties) {
+        super.configure(modelProperties);
+        this.ploidy = Integer.parseInt(this.modelProperties.getProperty("genotypes.ploidy"));
+    }
     @Override
     public void putProperties(Properties props) {
         super.putProperties(props);
@@ -99,8 +115,12 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
             }
             if (mapper != null) {
                 try {
-
-                    Properties properties = getReaderProperties(args().trainingSets.get(0));
+                    Properties properties = null;
+                    if (args().parsedFromCommandLine) {
+                        properties = getReaderProperties(args().trainingSets.get(0));
+                    } else {
+                        properties = getReaderPropertiesFromModel(this.modelPath);
+                    }
                     decorateProperties(properties);
                     mapper.configure(properties);
                     cachedFeatureMappers.put(inputName, (FeatureMapper) mapper);
@@ -114,6 +134,16 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
 
             }
 
+        }
+    }
+
+    public static Properties getReaderPropertiesFromModel(String modelPath) throws IOException {
+        Properties properties = new Properties();
+        String domainPropsPath = ModelLoader.getModelPath(modelPath) + "/domain.properties";
+        try (FileInputStream propertiesStream = new FileInputStream(domainPropsPath)) {
+            properties.load(propertiesStream);
+            propertiesStream.close();
+            return properties;
         }
     }
 
@@ -148,7 +178,11 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
                     throw new RuntimeException("Unsupported output name: " + outputName);
             }
             try {
-                final Properties readerProperties = getReaderProperties(args().trainingSets.get(0));
+                final Properties readerProperties;
+                if (args().parsedFromCommandLine)
+                    readerProperties = getReaderProperties(args().trainingSets.get(0));
+                else
+                    readerProperties = getReaderPropertiesFromModel(this.modelPath);
                 decorateProperties(readerProperties);
                 mapper.configure(readerProperties);
                 cachedLabelMappers.put(outputName, (LabelMapper) mapper);
@@ -163,9 +197,13 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
     public PredictionInterpreter getPredictionInterpreter(String outputName) {
         switch (outputName) {
             case "genotype":
-                final String segmentPropertiesFilename = args().trainingSets.get(0);
-                String basename = BasenameUtils.getBasename(segmentPropertiesFilename, ".ssi", ".ssip");
-                return new SegmentPredictionInterpreter(basename + ".ssip");
+                if (args().parsedFromCommandLine) {
+                    final String segmentPropertiesFilename = args().trainingSets.get(0);
+                    String basename = BasenameUtils.getBasename(segmentPropertiesFilename, ".ssi", ".ssip");
+                    return new SegmentPredictionInterpreter(basename + ".ssip");
+                } else {
+                    return new SegmentPredictionInterpreter( ModelLoader.getModelPath(this.modelPath) + "/domain.properties");
+                }
             case "metadata":
                 return new SegmentMetaDataInterpreter();
             default:
