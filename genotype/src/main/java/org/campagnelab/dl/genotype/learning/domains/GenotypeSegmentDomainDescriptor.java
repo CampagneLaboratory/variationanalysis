@@ -49,7 +49,10 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
 
     public GenotypeSegmentDomainDescriptor(SegmentTrainingArguments arguments) {
         this.arguments = arguments;
-        initializeArchitecture(arguments.architectureClassname);
+        if (arguments.architectureClassname.length() > 0)
+            initializeArchitecture(arguments.architectureClassname);
+        else
+            initializeArchitecture();
         this.ploidy = arguments.ploidy;
     }
 
@@ -126,7 +129,7 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
                     cachedFeatureMappers.put(inputName, (FeatureMapper) mapper);
                     return (FeatureMapper) mapper;
                 } catch (IOException e) {
-                    throw new RuntimeException("IO exception, perhaps .sbip file not found?", e);
+                    throw new RuntimeException("IO exception, perhaps .ssip file not found?", e);
                 }
 
             } else {

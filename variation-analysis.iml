@@ -41,7 +41,7 @@
     <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:cuda:windows-x86_64:8.0-6.0-1.3" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.3.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.3.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.3.0" level="project" />
+    <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.3.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.0.0-beta-4" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:7.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.icb:icb-utils:2.0.1" level="project" />
