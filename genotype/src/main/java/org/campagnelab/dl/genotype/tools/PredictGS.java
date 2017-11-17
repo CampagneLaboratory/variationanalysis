@@ -3,13 +3,16 @@ package org.campagnelab.dl.genotype.tools;
 import edu.cornell.med.icb.util.VersionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.performance.BEDHelper;
+import org.campagnelab.dl.genotype.performance.StatsAccumulator;
 import org.campagnelab.dl.genotype.predictions.SegmentGenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.SegmentPrediction;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
+import org.campagnelab.goby.predictions.FormatIndelVCF;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -33,7 +36,21 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
 
     private static final String VCF_LINE = "%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
+    private String[] orderStats;
+    protected StatsAccumulator stats;
 
+    public static void main(String[] args) {
+
+        Predict predictGS = new PredictGS();
+        predictGS.parseArguments(args, "PredictGS", predictGS.createArguments());
+        predictGS.execute();
+    }
+
+    public PredictGS() {
+        stats = new StatsAccumulator();
+        stats.initializeStats();
+        orderStats = stats.createOutputHeader();
+    }
     /**
      * This method is called after the test set has been observed and statistics evaluated via processPredictions.
      * It sets statistics on the whole test set, which are then written tab-delimited to a file.
@@ -77,7 +94,23 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
     @Override
     protected void processPredictions(PrintWriter resutsWriter, SegmentInformationRecords.SegmentInformation record, List<Prediction> predictionList) {
         SegmentPrediction fullPred = (SegmentPrediction) domainDescriptor.aggregatePredictions(record, predictionList);
+        assert fullPred != null : "fullPref must not be null";
+
+        System.out.println(fullPred.getGenotypes());
+
         //fullPred.inspectRecord(record);
+        int bases = fullPred.getGenotypes().numBases();
+        int startPosition = fullPred.getStartPosition();
+        for (int b =0; b < fullPred.getGenotypes().numBases(); b++) {
+            // one line for each base
+            //FormatIndelVCF format = new FormatIndelVCF(fullPred.getReferenceId(), fullPred.(), fullPred.predictedFrom.charAt(0));
+
+
+              /*vcfWriter.printf(VCF_LINE, fullPred.getReferenceId(), fullPred.getStartPosition(), fullPred.getEndPosition(),
+                    format.fromVCF, altField, codeGT(format.toVCF, format.fromVCF, sortedAltSet), toColumn,
+                    fullPred.overallProbability);
+              */
+        }
 
     }
 
@@ -117,6 +150,8 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
      */
     @Override
     protected void initializeStats(String prefix) {
-
+        stats = new StatsAccumulator();
+        stats.initializeStats();
+        orderStats = stats.createOutputHeader();
     }
 }

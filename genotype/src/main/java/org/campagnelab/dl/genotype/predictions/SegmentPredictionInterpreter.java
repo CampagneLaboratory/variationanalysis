@@ -1,8 +1,10 @@
 package org.campagnelab.dl.genotype.predictions;
 
+import com.google.common.base.Joiner;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
+import org.campagnelab.dl.genotype.mappers.SingleBaseLabelMapperV1;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -14,6 +16,8 @@ import java.util.Properties;
 
 public class SegmentPredictionInterpreter implements PredictionInterpreter<SegmentInformationRecords.SegmentInformation, SegmentGenotypePrediction> {
     Int2ObjectMap<String> indicesToGenotypesMap;
+
+    SingleBaseLabelMapperV1 mapper = new SingleBaseLabelMapperV1(0);
 
     /**
      * Create a SegmentPredictionInterpreter to interpret the "genotype" output.
@@ -48,15 +52,20 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
         final int sequenceLength = output.size(2);
         prediction.probabilities = new float[sequenceLength];
         INDArray predictedRow = output.getRow(predictionIndex);
-        INDArray trueLabelRow = trueLabels.getRow(predictionIndex);
+        INDArray trueMaxIndices = null;
+        if (trueLabels != null) {
+            INDArray trueLabelRow = trueLabels.getRow(predictionIndex);
+            trueMaxIndices = Nd4j.argMax(trueLabelRow, 0);
+        }
+
         INDArray predictedMaxIndices = Nd4j.argMax(predictedRow, 0);
-        INDArray trueMaxIndices = Nd4j.argMax(trueLabelRow, 0);
+
         prediction.predictedGenotypes = new String[sequenceLength];
         prediction.trueGenotypes = new String[sequenceLength];
         for (int baseIndex = 0; baseIndex < sequenceLength; baseIndex++) {
 
             final int predictedMaxIndex = predictedMaxIndices.getInt(baseIndex);
-            final int trueMaxIndex = trueMaxIndices.getInt(baseIndex);
+            final int trueMaxIndex = (trueMaxIndices != null)?trueMaxIndices.getInt(baseIndex):0;
             prediction.probabilities[baseIndex] = predictedRow.getFloat(predictedMaxIndex);
             prediction.predictedGenotypes[baseIndex] = predictedMaxIndex == 0 ? null : indicesToGenotypesMap.get(predictedMaxIndex);
             prediction.trueGenotypes[baseIndex] = trueMaxIndex == 0 ? null : indicesToGenotypesMap.get(trueMaxIndex);
@@ -75,8 +84,34 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
 
     @Override
     public SegmentGenotypePrediction interpret(SegmentInformationRecords.SegmentInformation record, INDArray output) {
-        throw new InternalError("Not currently implemented. Implement when PredictGS is needed.");
+        SegmentGenotypePrediction prediction = interpret(null,output,0);
+
+        //loop on bases, and collect labels and populate the trueGenotypes in the prediction
+        int numOfBases = calculateNumOfBases(record);
+        prediction.probabilities = new float[numOfBases];
+        prediction.trueGenotypes = new String[numOfBases];
+        prediction.predictedGenotypes = new String[numOfBases];
+        int baseIndex = 0;
+        for (SegmentInformationRecords.Sample sample : record.getSampleList()) {
+            for (SegmentInformationRecords.Base base : sample.getBaseList()) {
+                //prediction.probabilities[baseIndex] = predictedRow.getFloat(predictedMaxIndex);
+                prediction.predictedGenotypes[baseIndex] = Joiner.on("/").join(base.getTrueLabelList());
+                ///prediction.trueGenotypes[baseIndex] = trueMaxIndex == 0 ? null : indicesToGenotypesMap.get(trueMaxIndex);
+                baseIndex++;
+            }
+
+        }
+
+        return prediction;
     }
 
-
+    private int calculateNumOfBases(SegmentInformationRecords.SegmentInformation record) {
+        int b = 0;
+        for (SegmentInformationRecords.Sample sample : record.getSampleList()) {
+            for (SegmentInformationRecords.Base base : sample.getBaseList()) {
+                  b++;
+            }
+        }
+        return b;
+    }
 }

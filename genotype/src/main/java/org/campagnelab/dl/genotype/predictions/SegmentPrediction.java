@@ -8,6 +8,8 @@ import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
  * Represents predicted genotypes for a segment.
  */
 public class SegmentPrediction extends Prediction {
+
+
     SegmentInformationRecords.ReferencePosition startPosition;
     SegmentInformationRecords.ReferencePosition endPosition;
 
@@ -48,5 +50,17 @@ public class SegmentPrediction extends Prediction {
 
     public int numBases() {
         return genotypes.numBases();
+    }
+
+    public int getStartPosition() {
+        return startPosition.getLocation();
+    }
+
+    public int getEndPosition() {
+        return endPosition.getLocation();
+    }
+    
+    public SegmentGenotypePrediction getGenotypes() {
+        return genotypes;
     }
 }
