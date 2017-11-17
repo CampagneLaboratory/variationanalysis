@@ -285,7 +285,7 @@
         <dependency>
             <groupId>org.campagnelab.goby</groupId>
             <artifactId>goby-io</artifactId>
-            <version>3.3.0</version>
+            <version>3.3.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
