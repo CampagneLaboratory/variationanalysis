@@ -49,15 +49,14 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
         SegmentGenotypePrediction prediction = new SegmentGenotypePrediction();
         prediction.index = exampleIndex;
         //final int numLabels = output.size(1);
-        final int sequenceLength = output.size(2);
+        final int sequenceLength = output.size(1);
         prediction.probabilities = new float[sequenceLength];
-        INDArray predictedRow = output.getRow(exampleIndex);
+        INDArray predictedRow = output;
         INDArray trueMaxIndices = null;
         if (trueLabels != null) {
-            INDArray trueLabelRow = trueLabels.getRow(exampleIndex);
+            INDArray trueLabelRow = trueLabels;
             trueMaxIndices = Nd4j.argMax(trueLabelRow, 0);
         }
-
         INDArray predictedMaxIndices = Nd4j.argMax(predictedRow, 0);
 
         prediction.predictedGenotypes = new String[sequenceLength];
@@ -69,15 +68,7 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
             prediction.probabilities[baseIndex] = predictedRow.getFloat(predictedMaxIndex);
             prediction.predictedGenotypes[baseIndex] = predictedMaxIndex == 0 ? null : indicesToGenotypesMap.get(predictedMaxIndex);
             prediction.trueGenotypes[baseIndex] = trueMaxIndex == 0 ? null : indicesToGenotypesMap.get(trueMaxIndex);
-          /*  if (prediction.predictedGenotypes[baseIndex] != null ||
-                    prediction.trueGenotypes[baseIndex]!=null) prediction.length += 1;*/
-            // assume we know the length of the sequence (we do, since it is the number of features we collected.)
-            if (prediction.trueGenotypes[baseIndex] != null) {
-                prediction.length += 1;
-            }
-            else {
-                break;
-            }
+           // assume we know the length of the sequence (we do, since it is the number of features we collected.)
         }
         return prediction;
     }
@@ -85,7 +76,7 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
     @Override
     public SegmentGenotypePrediction interpret(SegmentInformationRecords.SegmentInformation record, INDArray output) {
         SegmentGenotypePrediction prediction = interpret(null,output,0);
-
+        prediction.length=record.getSample(0).getBaseCount();
         //loop on bases, and collect labels and populate the trueGenotypes in the prediction
        /* int numOfBases = calculateNumOfBases(record);
         prediction.probabilities = new float[numOfBases];

@@ -64,15 +64,15 @@ public class SegmentTrainingPerformanceHelper extends PredictWithModel<SegmentIn
             INDArray[] trueLabels = next.getLabels();
 
             int numExamples = next.getFeatures(0).size(0);
-            for (int predictionIndex = 0; predictionIndex < numExamples; predictionIndex++) {
+            for (int exampleIndex = 0; exampleIndex < numExamples; exampleIndex++) {
                 predictions.clear();
                 for (int outputIndex = 0; outputIndex < domainDescriptor.getNumModelOutputs(); outputIndex++) {
 
                     if (interpretors[outputIndex] != null) {
                         Prediction prediction = interpretors[outputIndex].interpret(
                                 trueLabels[outputIndex],
-                                outputs[outputIndex],
-                                predictionIndex);
+                                outputs[outputIndex].slice(exampleIndex),
+                                exampleIndex);
                         prediction.outputIndex = outputIndex;
                         prediction.index = index;
                         predictions.add(prediction);
