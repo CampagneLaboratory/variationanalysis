@@ -17,22 +17,22 @@ public class MetaDataInterpreter implements PredictionInterpreter<BaseInformatio
     private RecordCountSortHelper sortHelper = new RecordCountSortHelper();
 
     @Override
-    public MetadataPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+    public MetadataPrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
         MetadataPrediction p = new MetadataPrediction();
-        p.isIndel = trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_INDEL_FEATURE_INDEX) == 1;
-        p.isVariant = trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_VARIANT_FEATURE_INDEX) == 1;
-        p.referenceGobyIndex = (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_MATCHING_REF_FEATURE_INDEX);
+        p.isIndel = trueLabels.getDouble(exampleIndex, MetaDataLabelMapper.IS_INDEL_FEATURE_INDEX) == 1;
+        p.isVariant = trueLabels.getDouble(exampleIndex, MetaDataLabelMapper.IS_VARIANT_FEATURE_INDEX) == 1;
+        p.referenceGobyIndex = (int) trueLabels.getDouble(exampleIndex, MetaDataLabelMapper.IS_MATCHING_REF_FEATURE_INDEX);
         p.sorted2OriginalCountIndices = new int[]{
-                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT1_ORIGINAL_INDEX_FEATURE_INDEX),
-                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT2_ORIGINAL_INDEX_FEATURE_INDEX),
-                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT3_ORIGINAL_INDEX_FEATURE_INDEX),
-                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT4_ORIGINAL_INDEX_FEATURE_INDEX),
-                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT5_ORIGINAL_INDEX_FEATURE_INDEX),
-                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT6_ORIGINAL_INDEX_FEATURE_INDEX),
-                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT7_ORIGINAL_INDEX_FEATURE_INDEX),
-                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT8_ORIGINAL_INDEX_FEATURE_INDEX),
-                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT9_ORIGINAL_INDEX_FEATURE_INDEX),
-                (int) trueLabels.getDouble(predictionIndex, MetaDataLabelMapper.IS_COUNT10_ORIGINAL_INDEX_FEATURE_INDEX)
+                (int) trueLabels.getDouble(exampleIndex, MetaDataLabelMapper.IS_COUNT1_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(exampleIndex, MetaDataLabelMapper.IS_COUNT2_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(exampleIndex, MetaDataLabelMapper.IS_COUNT3_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(exampleIndex, MetaDataLabelMapper.IS_COUNT4_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(exampleIndex, MetaDataLabelMapper.IS_COUNT5_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(exampleIndex, MetaDataLabelMapper.IS_COUNT6_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(exampleIndex, MetaDataLabelMapper.IS_COUNT7_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(exampleIndex, MetaDataLabelMapper.IS_COUNT8_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(exampleIndex, MetaDataLabelMapper.IS_COUNT9_ORIGINAL_INDEX_FEATURE_INDEX),
+                (int) trueLabels.getDouble(exampleIndex, MetaDataLabelMapper.IS_COUNT10_ORIGINAL_INDEX_FEATURE_INDEX)
 
         };
         return p;

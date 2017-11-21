@@ -34,10 +34,10 @@ public class CombinedOutputLayerRefInterpreter extends SortingCountInterpreter<C
 
 
     @Override
-    public CombinedOutputLayerPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+    public CombinedOutputLayerPrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
         CombinedOutputLayerPrediction p = new CombinedOutputLayerPrediction();
-        p.trueGenotype = reconstructGenotype(trueLabels,predictionIndex);
-        p.predictedGenotype = reconstructGenotype(output,predictionIndex);
+        p.trueGenotype = reconstructGenotype(trueLabels, exampleIndex);
+        p.predictedGenotype = reconstructGenotype(output, exampleIndex);
         p.overallProbability=probability;
         return p;
     }

@@ -19,10 +19,10 @@ public class TrueGenotypeOutputLayerInterpreter implements
 
     // TODO: Check more thoroughly if averaging probabilities makes sense for overallProbability
     @Override
-    public TrueGenotypeOutputLayerPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+    public TrueGenotypeOutputLayerPrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
         TrueGenotypeOutputLayerPrediction trueGenotypePrediction = new TrueGenotypeOutputLayerPrediction();
-        INDArray trueLabelForRecord = trueLabels.getRow(predictionIndex);
-        INDArray predictedLabelForRecord = output.getRow(predictionIndex);
+        INDArray trueLabelForRecord = trueLabels.getRow(exampleIndex);
+        INDArray predictedLabelForRecord = output.getRow(exampleIndex);
         String trueGenotype = getGenotypeFromINDArray(trueLabelForRecord);
         String predictedGenotypeFull = getGenotypeFromINDArray(predictedLabelForRecord);
         String predictedGenotype = predictedGenotypeFull.substring(0, trueGenotype.length());

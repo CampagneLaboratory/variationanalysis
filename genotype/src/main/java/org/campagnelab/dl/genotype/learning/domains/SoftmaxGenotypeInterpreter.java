@@ -26,12 +26,12 @@ public class SoftmaxGenotypeInterpreter implements PredictionInterpreter<BaseInf
     }
 
     @Override
-    public SoftmaxGenotypePrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+    public SoftmaxGenotypePrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
         SoftmaxGenotypePrediction result = new SoftmaxGenotypePrediction();
 
-        result.predictedGenotypeIndex = readPredicted(output, result, predictionIndex);
+        result.predictedGenotypeIndex = readPredicted(output, result, exampleIndex);
         result.probability = maxProbability;
-        result.trueGenotypeIndex = readPredicted(trueLabels, result, predictionIndex);
+        result.trueGenotypeIndex = readPredicted(trueLabels, result, exampleIndex);
         result.numBits=numBits;
         return result;
     }

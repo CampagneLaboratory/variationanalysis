@@ -45,16 +45,16 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
     /**
      * Read genotypes and their probability from the output called "genotype".
      */
-    public SegmentGenotypePrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+    public SegmentGenotypePrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
         SegmentGenotypePrediction prediction = new SegmentGenotypePrediction();
-        prediction.index = predictionIndex;
+        prediction.index = exampleIndex;
         //final int numLabels = output.size(1);
         final int sequenceLength = output.size(2);
         prediction.probabilities = new float[sequenceLength];
-        INDArray predictedRow = output.getRow(predictionIndex);
+        INDArray predictedRow = output.getRow(exampleIndex);
         INDArray trueMaxIndices = null;
         if (trueLabels != null) {
-            INDArray trueLabelRow = trueLabels.getRow(predictionIndex);
+            INDArray trueLabelRow = trueLabels.getRow(exampleIndex);
             trueMaxIndices = Nd4j.argMax(trueLabelRow, 0);
         }
 

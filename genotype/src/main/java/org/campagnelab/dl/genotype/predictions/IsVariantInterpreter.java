@@ -19,13 +19,13 @@ public class IsVariantInterpreter implements PredictionInterpreter<BaseInformati
     }
 
     @Override
-    public IsVariantPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+    public IsVariantPrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
         IsVariantPrediction p = new IsVariantPrediction();
-        p.isVariantPredicted = output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE) > DECISION_THRESHOLD;
-        p.isVariantTruth = trueLabels.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE) > trueLabels.getDouble(predictionIndex, BooleanLabelMapper.IS_FALSE);
+        p.isVariantPredicted = output.getDouble(exampleIndex, BooleanLabelMapper.IS_TRUE) > DECISION_THRESHOLD;
+        p.isVariantTruth = trueLabels.getDouble(exampleIndex, BooleanLabelMapper.IS_TRUE) > trueLabels.getDouble(exampleIndex, BooleanLabelMapper.IS_FALSE);
         p.probability = Math.max(
-                output.getDouble(predictionIndex, BooleanLabelMapper.IS_TRUE),
-                output.getDouble(predictionIndex, BooleanLabelMapper.IS_FALSE));
+                output.getDouble(exampleIndex, BooleanLabelMapper.IS_TRUE),
+                output.getDouble(exampleIndex, BooleanLabelMapper.IS_FALSE));
         return p;
     }
 

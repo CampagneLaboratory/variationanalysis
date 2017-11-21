@@ -52,11 +52,11 @@ WarningCounter warningCounter=new WarningCounter(10);
     }
 
     @Override
-    public TimeSeriesPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+    public TimeSeriesPrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
         // note: sequence length ignores masking on the training set.
         TimeSeriesPrediction prediction = new TimeSeriesPrediction();
-        prediction.setPredictedLabels(output, predictionIndex);
-        prediction.setTrueLabels(trueLabels, predictionIndex);
+        prediction.setPredictedLabels(output, exampleIndex);
+        prediction.setTrueLabels(trueLabels, exampleIndex);
         return prediction;
     }
 

@@ -23,7 +23,7 @@ public class HomozygousInterpreter extends  SortingCountInterpreter<HomozygousPr
 
 
     @Override
-    public HomozygousPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+    public HomozygousPrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
         HomozygousPrediction pred = new HomozygousPrediction();
         return pred;
 // TODO implement.

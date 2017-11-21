@@ -20,11 +20,11 @@ public class NumDistinctAllelesInterpreter implements PredictionInterpreter<Base
     }
 
     @Override
-    public NumDistinctAllelesOutputLayerPrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+    public NumDistinctAllelesOutputLayerPrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
         NumDistinctAllelesOutputLayerPrediction result = new NumDistinctAllelesOutputLayerPrediction();
 
-        result.predictedValue = readPredicted(output, result,predictionIndex);
-        result.trueValue = readPredicted(trueLabels, result,predictionIndex);
+        result.predictedValue = readPredicted(output, result, exampleIndex);
+        result.trueValue = readPredicted(trueLabels, result, exampleIndex);
         result.probability=maxProbability;
         return result;
     }

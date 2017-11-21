@@ -12,12 +12,12 @@ public class SegmentMetaDataInterpreter implements PredictionInterpreter<Segment
         SegmentMetaData> {
 
     @Override
-    public SegmentMetaData interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+    public SegmentMetaData interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
         SegmentMetaData metaData = new SegmentMetaData();
-        metaData.index = predictionIndex;
+        metaData.index = exampleIndex;
         //final int numLabels = output.size(1);
         final int sequenceLength = output.size(2);
-        INDArray trueLabelRow = trueLabels.getRow(predictionIndex);
+        INDArray trueLabelRow = trueLabels.getRow(exampleIndex);
 
         for (int baseIndex = 0; baseIndex < sequenceLength; baseIndex++) {
 

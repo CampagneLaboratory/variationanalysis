@@ -18,17 +18,17 @@ import java.util.List;
 public class IsBaseMutatedInterpreter extends IsSomaticMutationInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation, IsMutatedPrediction> {
 
     @Override
-    public IsMutatedBasePrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+    public IsMutatedBasePrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
         IsMutatedBasePrediction prediction = new IsMutatedBasePrediction();
-        prediction.trueLabelYes = 1 - trueLabels.getDouble(predictionIndex, 0);
+        prediction.trueLabelYes = 1 - trueLabels.getDouble(exampleIndex, 0);
 
-        double probabilityNotMutated = output.getDouble(predictionIndex, 0);
+        double probabilityNotMutated = output.getDouble(exampleIndex, 0);
         prediction.predictedLabelNo = probabilityNotMutated;
         prediction.predictedLabelYes = 1 - probabilityNotMutated;
 
         // represent the allele as 0, 1, according to index in sorted counts:
-        prediction.predictedMutatedAllele = Integer.toString(getArgMaxIndex(output, predictionIndex) - 1);
-        prediction.trueMutatedAllele = Integer.toString(getArgMaxIndex(trueLabels, predictionIndex) - 1);
+        prediction.predictedMutatedAllele = Integer.toString(getArgMaxIndex(output, exampleIndex) - 1);
+        prediction.trueMutatedAllele = Integer.toString(getArgMaxIndex(trueLabels, exampleIndex) - 1);
 
         prediction.predictedLabelNo = probabilityNotMutated;
         prediction.predictedLabelYes = 1 - probabilityNotMutated;

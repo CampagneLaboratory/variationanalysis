@@ -19,11 +19,11 @@ public class SingleGenotypeInterpreter extends SortingCountInterpreter<SingleGen
     }
 
     @Override
-    public SingleGenotypePrediction interpret(INDArray trueLabels, INDArray output, int predictionIndex) {
+    public SingleGenotypePrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
         SingleGenotypePrediction pred = new SingleGenotypePrediction();
         pred.sortedCountIndex = sortedGenotypeIndex;
-        pred.probabilityIsCalled = output.getDouble(predictionIndex, 0);
-        pred.trueIsCalled = trueLabels.getDouble(predictionIndex, 0) > 0.5;
+        pred.probabilityIsCalled = output.getDouble(exampleIndex, 0);
+        pred.trueIsCalled = trueLabels.getDouble(exampleIndex, 0) > 0.5;
         return pred;
     }
 

@@ -13,10 +13,10 @@ public interface PredictionInterpreter<RecordType, PredictionType extends Predic
      * Interpret a prediction given true labels given by a LabelMapper.
      * @param trueLabels True labels for the model output to be interpreted.
      * @param output   Model output to be interpreted.
-     * @param predictionIndex Index of the example being predicted, in a mini-batch.
+     * @param exampleIndex Index of the example being predicted, in a mini-batch.
      * @return Interpreted prediction.
      */
-    PredictionType interpret(INDArray trueLabels, INDArray output, int predictionIndex);
+    PredictionType interpret(INDArray trueLabels, INDArray output, int exampleIndex);
 
     /**
      * Interpret a prediction given a record and model outputs.
