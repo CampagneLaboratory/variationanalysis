@@ -1,8 +1,13 @@
 package org.campagnelab.dl.genotype.predictions;
 
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.genotype.performance.SegmentGenotypePredictionTest;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
+
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Represents predicted genotypes for a segment.
@@ -12,7 +17,6 @@ public class SegmentPrediction extends Prediction {
 
     SegmentInformationRecords.ReferencePosition startPosition;
     SegmentInformationRecords.ReferencePosition endPosition;
-
     SegmentGenotypePrediction genotypes;
 
     // predicted colors, one per allele ( up to ploidy), predictedColors[alleleIndex][baseIndex].
@@ -62,5 +66,29 @@ public class SegmentPrediction extends Prediction {
     
     public SegmentGenotypePrediction getGenotypes() {
         return genotypes;
+    }
+
+    public void inspectRecord(SegmentInformationRecords.SegmentInformation record) {
+     //this.predictedFrom = record.getSta
+    }
+
+    public Set<String> predictedAlleles(int position) {
+        return alleles(genotypes.predictedGenotypes[position]);
+    }
+
+    public Set<String> trueAlleles(int position) {
+        return alleles(genotypes.trueGenotypes[position]);
+    }
+
+    public static Set<String> alleles(String genotype) {
+        genotype = genotype.toUpperCase();
+        ObjectSet<String> result = new ObjectArraySet<>();
+        Collections.addAll(result, genotype.split("[|/]"));
+        result.remove("|");
+        result.remove("/");
+        result.remove("?");
+        result.remove(".");
+        result.remove("");
+        return result;
     }
 }

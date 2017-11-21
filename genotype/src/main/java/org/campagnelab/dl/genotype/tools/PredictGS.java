@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.tools;
 
 import edu.cornell.med.icb.util.VersionUtils;
+import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
@@ -18,6 +19,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Optional;
+import java.util.SortedSet;
 
 /**
  * Created by mas2182 on 11/14/17.
@@ -96,22 +99,65 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
         SegmentPrediction fullPred = (SegmentPrediction) domainDescriptor.aggregatePredictions(record, predictionList);
         assert fullPred != null : "fullPref must not be null";
 
-        System.out.println(fullPred.getGenotypes());
+       // System.out.println(fullPred.getGenotypes());
 
-        //fullPred.inspectRecord(record);
+        fullPred.inspectRecord(record);
         int bases = fullPred.getGenotypes().numBases();
-        int startPosition = fullPred.getStartPosition();
-        for (int b =0; b < fullPred.getGenotypes().numBases(); b++) {
+        int startPosition = record.getStartPosition().getLocation();
+        for (int b =0; b < bases; b++) {
             // one line for each base
-            //FormatIndelVCF format = new FormatIndelVCF(fullPred.getReferenceId(), fullPred.(), fullPred.predictedFrom.charAt(0));
+            SegmentInformationRecords.Base base = this.getBaseAt(record, startPosition + b);
+            FormatIndelVCF format = new FormatIndelVCF(base.getReferenceAllele(),fullPred.predictedAlleles(b),base.getReferenceAllele().charAt(0));
+            //make an alt-allele-only set for coding
+            SortedSet<String> sortedAltSet = new ObjectAVLTreeSet<String>(format.toVCF);
+            sortedAltSet.remove(format.fromVCF);
 
+            //generate alt column from alt set
+            final Optional<String> optional = sortedAltSet.stream().reduce((s, s2) -> s + "," + s2);
+            String altField = optional.isPresent() ? optional.get() : ".";
 
-              /*vcfWriter.printf(VCF_LINE, fullPred.getReferenceId(), fullPred.getStartPosition(), fullPred.getEndPosition(),
-                    format.fromVCF, altField, codeGT(format.toVCF, format.fromVCF, sortedAltSet), toColumn,
-                    fullPred.overallProbability);
-              */
+            //generate to column (format) from formatted predicted set
+            final Optional<String> toColumnOpt = format.toVCF.stream().reduce((s, s2) -> s + "/" + s2);
+            String toColumn = toColumnOpt.isPresent() ? toColumnOpt.get() : "./.";
+
+            //get max allele length for bed file
+            int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
+            maxLength = Math.max(maxLength, format.fromVCF.length());
+
+            // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
+            vcfWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
+                    record.getStartPosition().getReferenceId(), //Chromosome
+                    startPosition + b, // position
+                    format.fromVCF, //from sequence
+                    altField, //ALT
+                    PredictG.codeGT(format.toVCF, format.fromVCF, sortedAltSet),
+                    toColumn,
+                    fullPred.getGenotypes().probabilities[b]
+                    );
+
+            bedHelper.add(record.getStartPosition().getReferenceId(), startPosition + b, startPosition + b + maxLength, fullPred.index,
+                    stats);
+
         }
 
+    }
+
+    /**
+     * Returns the base at the given position;
+     * @param record
+     * @param position
+     * @return
+     */
+    private SegmentInformationRecords.Base getBaseAt(SegmentInformationRecords.SegmentInformation record, int position) {
+        int b = record.getStartPosition().getLocation();
+        for (SegmentInformationRecords.Sample sample : record.getSampleList()) {
+            for (SegmentInformationRecords.Base base : sample.getBaseList()) {
+                if (b == position)
+                    return base;
+                b++;
+            }
+        }
+        return null;
     }
 
     /**
