@@ -87,20 +87,29 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
         SegmentGenotypePrediction prediction = interpret(null,output,0);
 
         //loop on bases, and collect labels and populate the trueGenotypes in the prediction
-        int numOfBases = calculateNumOfBases(record);
+       /* int numOfBases = calculateNumOfBases(record);
         prediction.probabilities = new float[numOfBases];
         prediction.trueGenotypes = new String[numOfBases];
         prediction.predictedGenotypes = new String[numOfBases];
         int baseIndex = 0;
         for (SegmentInformationRecords.Sample sample : record.getSampleList()) {
             for (SegmentInformationRecords.Base base : sample.getBaseList()) {
-                //prediction.probabilities[baseIndex] = predictedRow.getFloat(predictedMaxIndex);
+                INDArray predictedRow = output.getRow(baseIndex);
+              
+
+                prediction.probabilities[baseIndex] = predictedRow.getFloat(baseIndex);
                 prediction.predictedGenotypes[baseIndex] = Joiner.on("/").join(base.getTrueLabelList());
-                ///prediction.trueGenotypes[baseIndex] = trueMaxIndex == 0 ? null : indicesToGenotypesMap.get(trueMaxIndex);
+                //prediction.trueGenotypes[baseIndex] = trueMaxIndex == 0 ? null : indicesToGenotypesMap.get(trueMaxIndex);
+                if (prediction.trueGenotypes[baseIndex] != null) {
+                    prediction.length += 1;
+                }
+                else {
+                    break;
+                }
                 baseIndex++;
             }
 
-        }
+        }   */
 
         return prediction;
     }
