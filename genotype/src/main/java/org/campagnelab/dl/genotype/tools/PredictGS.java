@@ -127,7 +127,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
             vcfWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
                     record.getStartPosition().getReferenceId(), //Chromosome
-                    startPosition + b, // position
+                    base.getLocation(), // position
                     format.fromVCF, //from sequence
                     altField, //ALT
                     PredictG.codeGT(format.toVCF, format.fromVCF, sortedAltSet),
@@ -135,7 +135,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
                     fullPred.getGenotypes().probabilities[b]
                     );
 
-            bedHelper.add(record.getStartPosition().getReferenceId(), startPosition + b, startPosition + b + maxLength, fullPred.index,
+            bedHelper.add(record.getStartPosition().getReferenceId(), base.getLocation(), base.getLocation() + maxLength, fullPred.index,
                     stats);
 
         }
