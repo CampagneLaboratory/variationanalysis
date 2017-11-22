@@ -46,11 +46,7 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
         builder.setReferenceAllele(baseInformation.getReferenceBase());
         builder.setFormattedCounts(FormatterCountHelper.format(baseInformation.getSamples(0)));
         builder.setPrePostProcessingGenotype(prePostProcessingGenotype);
-        SegmentInformationRecords.ReferencePosition.Builder basePosition = SegmentInformationRecords.ReferencePosition.newBuilder();
-        basePosition.setReferenceId(baseInformation.getReferenceId());
-        basePosition.setReferenceIndex(baseInformation.getReferenceIndex());
-        basePosition.setLocation(baseInformation.getPosition());
-        builder.setPosition(basePosition.build());
+        builder.setLocation(baseInformation.getPosition());
 
         if (args().mapFeatures) {
             FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
