@@ -47,8 +47,8 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
         builder.setFormattedCounts(FormatterCountHelper.format(baseInformation.getSamples(0)));
         builder.setPrePostProcessingGenotype(prePostProcessingGenotype);
         SegmentInformationRecords.ReferencePosition.Builder basePosition = SegmentInformationRecords.ReferencePosition.newBuilder();
-        basePosition.setReferenceId(basePosition.getReferenceId());
-        basePosition.setReferenceIndex(baseInformation.getPosition());
+        basePosition.setReferenceId(baseInformation.getReferenceId());
+        basePosition.setReferenceIndex(baseInformation.getReferenceIndex());
         basePosition.setLocation(baseInformation.getPosition());
         builder.setPosition(basePosition.build());
 
