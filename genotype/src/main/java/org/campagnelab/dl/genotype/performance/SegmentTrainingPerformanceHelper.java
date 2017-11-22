@@ -70,7 +70,7 @@ public class SegmentTrainingPerformanceHelper extends PredictWithModel<SegmentIn
 
                     if (interpretors[outputIndex] != null) {
                         Prediction prediction = interpretors[outputIndex].interpret(
-                                trueLabels[outputIndex],
+                                trueLabels[outputIndex].slice(exampleIndex),
                                 outputs[outputIndex].slice(exampleIndex),
                                 exampleIndex);
                         prediction.outputIndex = outputIndex;
