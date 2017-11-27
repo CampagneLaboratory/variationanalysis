@@ -39,6 +39,15 @@ categorical
 categorical
 0
 100
+
+--mode
+categorical
+interleaved
+
+--ureg-epsilon
+categorical
+0.01
+0.001
 EOF
     echo "SBI_SEARCH_PARAM_CONFIG not set. Using default hyper parameters. Change the variable a file with an arg-generator config file to customize the search."
 fi
