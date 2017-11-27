@@ -13,7 +13,7 @@ cat << EOF | cat> config.txt
 --lr
 log-uniform
 1e-02
-1e-07
+1e-04
 
 --ureg-learning-rate
 log-uniform
@@ -22,30 +22,35 @@ log-uniform
 
 --shave-lr
 log-uniform
-1e-02
-1e-07
+1e-01
+1e-05
+
+--L2
+log-uniform
+0.1
+1e-12
 
 --ureg-num-features
 categorical
-2
-4
-16
-32
-64
 512
 1024
+
+--grow-unsupervised-each-epoch 
+categorical
+0
+100
 EOF
     echo "SBI_SEARCH_PARAM_CONFIG not set. Using default hyper parameters. Change the variable a file with an arg-generator config file to customize the search."
 fi
 
 cat << EOF | cat>gpu.txt
 0
+1
 2
 3
+4
 5
 6
-7
-8
 EOF
 
 echo $* >main-command.txt
@@ -64,10 +69,11 @@ parallel echo `cat main-command.txt` \
 
 shuf commands.txt  |head -${num_executions} >commands-head-${num_executions}
 chmod +x commands-head-${num_executions}
-cat ./commands-head-${num_executions}  |parallel --trim lr --xapply echo run-on-gpu.sh :::: gpu.txt ::::  -   >all-commands.txt
+cat ./commands-head-${num_executions}  |parallel --trim lr --xapply echo  run-on-gpu.sh :::: gpu.txt ::::  -   >all-commands.txt
 cat all-commands.txt |parallel --line-buffer --eta --progress --bar -j${NUM_GPUS} --progress
 sort -n -k 10 best-perfs-*.tsv |tail -10
 COMMANDS=./commands-head-${num_executions}-${RANDOM}.txt
 cp all-commands.txt ${COMMANDS}
 echo "Commands have been saved in ${COMMANDS}"
+
 
