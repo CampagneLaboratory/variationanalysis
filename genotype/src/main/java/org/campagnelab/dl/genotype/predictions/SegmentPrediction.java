@@ -6,7 +6,9 @@ import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.genotype.performance.SegmentGenotypePredictionTest;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -69,15 +71,28 @@ public class SegmentPrediction extends Prediction {
     }
 
     public void inspectRecord(SegmentInformationRecords.SegmentInformation record) {
-     //this.predictedFrom = record.getSta
+        int baseIndex = 0;
+        for (SegmentInformationRecords.Sample sample : record.getSampleList()) {
+            for (SegmentInformationRecords.Base base :sample.getBaseList()) {
+                Set<String> alleles = this.predictedAlleles(++baseIndex);
+                //System.out.println(Arrays.toString(alleles.toArray()));
+
+            }
+        }
+
+
     }
 
     public Set<String> predictedAlleles(int position) {
-        return alleles(genotypes.predictedGenotypes[position]);
+        Set<String> alleles = new HashSet<>();
+        alleles.addAll(Arrays.asList(genotypes.predictedGenotypes[position].split("")));
+        return alleles;
     }
 
     public Set<String> trueAlleles(int position) {
-        return alleles(genotypes.trueGenotypes[position]);
+        Set<String> alleles = new HashSet<>();
+        alleles.addAll(Arrays.asList(genotypes.trueGenotypes[position].split("")));
+        return alleles;
     }
 
     public static Set<String> alleles(String genotype) {

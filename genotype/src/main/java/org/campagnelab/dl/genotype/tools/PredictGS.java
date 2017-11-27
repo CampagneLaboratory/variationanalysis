@@ -4,13 +4,9 @@ import edu.cornell.med.icb.util.VersionUtils;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
-import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.framework.tools.Predict;
-import org.campagnelab.dl.framework.tools.PredictArguments;
-import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.performance.BEDHelper;
 import org.campagnelab.dl.genotype.performance.StatsAccumulator;
-import org.campagnelab.dl.genotype.predictions.SegmentGenotypePrediction;
 import org.campagnelab.dl.genotype.predictions.SegmentPrediction;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.predictions.FormatIndelVCF;
@@ -23,7 +19,9 @@ import java.util.Optional;
 import java.util.SortedSet;
 
 /**
- * Created by mas2182 on 11/14/17.
+ * Predict tools on SSI.
+ *
+ * @author manuele
  */
 public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformation> {
 
