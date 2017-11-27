@@ -69,6 +69,12 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
             prediction.predictedGenotypes[baseIndex] = predictedMaxIndex == 0 ? null : indicesToGenotypesMap.get(predictedMaxIndex);
             prediction.trueGenotypes[baseIndex] = trueMaxIndex == 0 ? null : indicesToGenotypesMap.get(trueMaxIndex);
            // assume we know the length of the sequence (we do, since it is the number of features we collected.)
+            if (prediction.trueGenotypes[baseIndex] != null) {
+                prediction.length += 1;
+            }
+            else {
+                break;
+            }
         }
         return prediction;
     }
