@@ -121,13 +121,18 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             //get max allele length for bed file
             int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
             maxLength = Math.max(maxLength, format.fromVCF.length());
-
+            //TODO: if the reference is null, it is likely an indel
+            if (format.fromVCF.isEmpty()) {continue;}
             // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
             vcfWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
                     record.getStartPosition().getReferenceId(), //Chromosome
                     base.getLocation(), // position
-                    format.fromVCF, //from sequence
+                    //ID
+                    format.fromVCF, //ref
                     altField, //ALT
+                    //QUAL
+                    //FILTER
+                    //INFO
                     PredictG.codeGT(format.toVCF, format.fromVCF, sortedAltSet),
                     toColumn,
                     fullPred.getGenotypes().probabilities[b]
