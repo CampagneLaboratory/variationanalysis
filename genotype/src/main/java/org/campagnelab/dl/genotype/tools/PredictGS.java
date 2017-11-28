@@ -97,14 +97,17 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
         SegmentPrediction fullPred = (SegmentPrediction) domainDescriptor.aggregatePredictions(record, predictionList);
         assert fullPred != null : "fullPref must not be null";
 
-       // System.out.println(fullPred.getGenotypes());
+        System.out.println(fullPred.getGenotypes());
 
         fullPred.inspectRecord(record);
         int bases = fullPred.getGenotypes().numBases();
+        //TODO: check if the bases have the same position! one line in the VCF for each position, not base!!!!
         int startPosition = record.getStartPosition().getLocation();
         for (int b =0; b < bases; b++) {
             // one line for each base
             SegmentInformationRecords.Base base = this.getBaseAt(record, startPosition + b);
+            if (fullPred.isIndel(base))
+                continue;
             FormatIndelVCF format = new FormatIndelVCF(base.getReferenceAllele(),fullPred.predictedAlleles(b),base.getReferenceAllele().charAt(0));
             //make an alt-allele-only set for coding
             SortedSet<String> sortedAltSet = new ObjectAVLTreeSet<String>(format.toVCF);

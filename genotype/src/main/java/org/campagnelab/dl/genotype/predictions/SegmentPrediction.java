@@ -1,5 +1,6 @@
 package org.campagnelab.dl.genotype.predictions;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
@@ -20,6 +21,7 @@ public class SegmentPrediction extends Prediction {
     SegmentInformationRecords.ReferencePosition startPosition;
     SegmentInformationRecords.ReferencePosition endPosition;
     SegmentGenotypePrediction genotypes;
+    IntArrayList indelPositions = new IntArrayList();
 
     // predicted colors, one per allele ( up to ploidy), predictedColors[alleleIndex][baseIndex].
     // note that alleleIndex identifies the allele in the predicted genotype. 0 is first allele in 0/1/2,
@@ -73,10 +75,17 @@ public class SegmentPrediction extends Prediction {
     public void inspectRecord(SegmentInformationRecords.SegmentInformation record) {
         int baseIndex = 0;
         for (SegmentInformationRecords.Sample sample : record.getSampleList()) {
+            int currentLocation = 0;
             for (SegmentInformationRecords.Base base :sample.getBaseList()) {
-                Set<String> alleles = this.predictedAlleles(++baseIndex);
+               // Set<String> alleles = this.predictedAlleles(baseIndex);
                 //System.out.println(Arrays.toString(alleles.toArray()));
-
+                System.out.println("Base location " + base.getLocation());
+                if (base.getLocation() == currentLocation && this.predictedAlleles(0).contains("-")) {
+                    //this is an indel (at least, two bases at the same location with a predicted gap
+                     this.indelPositions.add(currentLocation);
+                }
+                currentLocation = base.getLocation();
+                baseIndex++;
             }
         }
 
@@ -85,13 +94,13 @@ public class SegmentPrediction extends Prediction {
 
     public Set<String> predictedAlleles(int position) {
         Set<String> alleles = new HashSet<>();
-        alleles.addAll(Arrays.asList(genotypes.predictedGenotypes[position].split("")));
+        alleles.addAll(Arrays.asList(genotypes.predictedGenotypes[0].split("")));
         return alleles;
     }
 
     public Set<String> trueAlleles(int position) {
         Set<String> alleles = new HashSet<>();
-        alleles.addAll(Arrays.asList(genotypes.trueGenotypes[position].split("")));
+        alleles.addAll(Arrays.asList(genotypes.trueGenotypes[0].split("")));
         return alleles;
     }
 
@@ -105,5 +114,14 @@ public class SegmentPrediction extends Prediction {
         result.remove(".");
         result.remove("");
         return result;
+    }
+
+    /**
+     * Checks whether the base is at a predicted indel positon.
+     * @param base
+     * @return
+     */
+    public boolean isIndel(SegmentInformationRecords.Base base) {
+        return this.indelPositions.contains(base.getLocation());
     }
 }
