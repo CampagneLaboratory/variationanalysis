@@ -13,17 +13,17 @@ cat << EOF | cat> config.txt
 --lr
 log-uniform
 1e-02
-1e-04
+1e-03
 
 --ureg-learning-rate
 log-uniform
-1e-02
-1e-07
+1e-01
+1e-03
 
 --shave-lr
 log-uniform
-1e-01
-1e-05
+1e-02
+1e-04
 
 --L2
 log-uniform
@@ -32,22 +32,43 @@ log-uniform
 
 --ureg-num-features
 categorical
-512
 1024
+2048
 
---grow-unsupervised-each-epoch 
+--threshold-activation-size
+categorical
+4096
+2048
+512
+
+--grow-unsupervised-each-epoch
 categorical
 0
-100
 
 --mode
 categorical
 interleaved
+combined
 
 --ureg-epsilon
 categorical
-0.01
 0.001
+
+--ureg-reset-every-n-epoch
+categorical
+1000
+50
+
+--test-every-n-epochs
+categorical
+10
+
+--constant-ureg-learning-rate
+flag
+
+--constant-learning-rates
+flag
+
 EOF
     echo "SBI_SEARCH_PARAM_CONFIG not set. Using default hyper parameters. Change the variable a file with an arg-generator config file to customize the search."
 fi
@@ -72,7 +93,7 @@ arg-generator.sh 1g --config ${SBI_SEARCH_PARAM_CONFIG} --output gen-args.txt --
 echo "Training.."
 
 parallel echo `cat main-command.txt` \
-        --max-epochs 100 --abort-when-failed-to-improve 3 \
+        --max-epochs 100  \
         :::: gen-args.txt \
 >commands.txt
 
