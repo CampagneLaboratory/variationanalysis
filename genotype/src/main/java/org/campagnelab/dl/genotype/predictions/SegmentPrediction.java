@@ -1,6 +1,8 @@
 package org.campagnelab.dl.genotype.predictions;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
@@ -21,7 +23,7 @@ public class SegmentPrediction extends Prediction {
     SegmentInformationRecords.ReferencePosition startPosition;
     SegmentInformationRecords.ReferencePosition endPosition;
     SegmentGenotypePrediction genotypes;
-    IntArrayList indelPositions = new IntArrayList();
+    IntSet indelPositions = new IntArraySet();
 
     // predicted colors, one per allele ( up to ploidy), predictedColors[alleleIndex][baseIndex].
     // note that alleleIndex identifies the allele in the predicted genotype. 0 is first allele in 0/1/2,
@@ -33,7 +35,7 @@ public class SegmentPrediction extends Prediction {
      */
     // isVariant[baseIndex] is true when the base does not match the reference.
     boolean[] isVariant;
-    // isIndel[baseIndex] is true when the base participates to an indel.
+    // isIndelPosition[baseIndex] is true when the base participates to an indel.
     boolean[] isIndel;
 
     public SegmentPrediction(SegmentInformationRecords.ReferencePosition startPosition,
@@ -77,11 +79,8 @@ public class SegmentPrediction extends Prediction {
         for (SegmentInformationRecords.Sample sample : record.getSampleList()) {
             int currentLocation = 0;
             for (SegmentInformationRecords.Base base :sample.getBaseList()) {
-               // Set<String> alleles = this.predictedAlleles(baseIndex);
-                //System.out.println(Arrays.toString(alleles.toArray()));
-                System.out.println("Base location " + base.getLocation());
-                if (base.getLocation() == currentLocation && this.predictedAlleles(0).contains("-")) {
-                    //this is an indel (at least, two bases at the same location with a predicted gap
+                if (base.getLocation() == currentLocation /*&& this.predictedAlleles(0).contains("-")*/) {
+                    //this is an indel (at least, two bases at the same location with a predicted gap)
                      this.indelPositions.add(currentLocation);
                 }
                 currentLocation = base.getLocation();
@@ -121,7 +120,7 @@ public class SegmentPrediction extends Prediction {
      * @param base
      * @return
      */
-    public boolean isIndel(SegmentInformationRecords.Base base) {
+    public boolean isIndelPosition(SegmentInformationRecords.Base base) {
         return this.indelPositions.contains(base.getLocation());
     }
 }
