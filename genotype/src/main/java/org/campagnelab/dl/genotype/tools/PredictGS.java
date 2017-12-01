@@ -157,7 +157,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
             vcfSnpsWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
                     record.getStartPosition().getReferenceId(), //Chromosome
-                    currentLocation, // position
+                    currentLocation + 1, // VCFs are 1-based 
                     //ID
                     format.fromVCF, //ref
                     altField, //ALT
