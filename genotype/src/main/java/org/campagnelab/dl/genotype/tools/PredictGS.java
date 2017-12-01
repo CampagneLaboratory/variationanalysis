@@ -113,9 +113,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             // one line for each base
             ObjectList<SegmentInformationRecords.Base> basesAt = this.getBasesAt(record, b);
             int currentLocation = basesAt.get(0).getLocation();
-            if (currentLocation == 355261) {
-                System.out.println("pause here");
-            }
+           
             FormatIndelVCF format = null;
             if ((fullPred.isIndelPosition(basesAt.get(0)))) {
                 lastIndelPosition = currentLocation;
