@@ -4,24 +4,23 @@ NUM_ARGS="$#"
 NUM_ARGS_EXPECTED="${NUM_ARGS}"
 . `dirname "${BASH_SOURCE[0]}"`/common.sh
 if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; then
-  NUM_ARGS_EXPECTED=3
+  NUM_ARGS_EXPECTED=2
 fi
 
-if [ "${NUM_ARGS}" == 3 ]; then
+if [ "${NUM_ARGS}" == 2 ]; then
 
   unset VCF_OUTPUT
   unset BED_OBSERVED_REGIONS_OUTPUT
 fi
 
 if [ ! "${NUM_ARGS}" == "${NUM_ARGS_EXPECTED}" ]; then
-   echo "Usage: evaluate-genotypes.sh model-directory model-prefix [test-set.ssi]."
+   echo "Usage: evaluate-segments.sh model-directory [test-set.ssi]."
    echo "The env variables GOLD_STANDARD_VCF_SNP_GZ GOLD_STANDARD_VCF_INDEL_GZ and GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ can be used to change the VCFs and confident region bed."
    echo "The first run downloads these files from the Genome in a Bottle for sample NA12878 when the variables are not defined."
    echo "The 3rd argument is optional. You can bypass the predict phase by defining the variables VCF_OUTPUT and BED_OBSERVED_REGIONS_OUTPUT to point to the output of predict"
    exit 1;
 fi
 MODEL_DIR=$1
-MODEL_PREFIX=$2
 
 if [ -e configure.sh ]; then
  echo "Loading configure.sh"
@@ -110,8 +109,8 @@ if [ -z "${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ+set}" ]; then
     echo "Gold standard confident regions downloaded for NA12878  and named in configure.sh. Edit GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ to switch to a different gold-standard confident region bed file."
 fi
 
-if [ "${NUM_ARGS}" == 3 ]; then
-    DATASET_SSI=$3
+if [ "${NUM_ARGS}" == 2 ]; then
+    DATASET_SSI=$2
     if [ ! -e "${DATASET_SSI}" ]; then
         echo "The test set was not found: ${DATASET_SSI}  "
         exit 1;
@@ -123,7 +122,7 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
     MODEL_TIME=`basename ${MODEL_DIR}`
 
     echo "Running predict-segments to create VCF and observed region bed.."
-    predict-segments.sh 20g --model-path ${MODEL_DIR} -l ${MODEL_PREFIX} --to-file --dataset ${DATASET_SSI} \
+    predict-segments.sh 20g --model-path ${MODEL_DIR} --to-file --dataset ${DATASET_SSI} \
         --mini-batch-size ${MINI_BATCH_SIZE}  ${PREDICT_OPTIONS}  --no-cache \
          ${PREDICT_MAX_RECORDS}
     dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
