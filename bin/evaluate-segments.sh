@@ -4,11 +4,10 @@ NUM_ARGS="$#"
 NUM_ARGS_EXPECTED="${NUM_ARGS}"
 . `dirname "${BASH_SOURCE[0]}"`/common.sh
 if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; then
-  NUM_ARGS_EXPECTED=2
+  NUM_ARGS_EXPECTED=3
 fi
 
-if [ "${NUM_ARGS}" == 2 ]; then
-
+if [ "${NUM_ARGS}" == 3 ]; then
   unset VCF_OUTPUT
   unset BED_OBSERVED_REGIONS_OUTPUT
 fi
@@ -21,6 +20,7 @@ if [ ! "${NUM_ARGS}" == "${NUM_ARGS_EXPECTED}" ]; then
    exit 1;
 fi
 MODEL_DIR=$1
+MODEL_PREFIX=$2
 
 if [ -e configure.sh ]; then
  echo "Loading configure.sh"
@@ -109,7 +109,7 @@ if [ -z "${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ+set}" ]; then
     echo "Gold standard confident regions downloaded for NA12878  and named in configure.sh. Edit GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ to switch to a different gold-standard confident region bed file."
 fi
 
-if [ "${NUM_ARGS}" == 2 ]; then
+if [ "${NUM_ARGS}" == 3 ]; then
     DATASET_SSI=$2
     if [ ! -e "${DATASET_SSI}" ]; then
         echo "The test set was not found: ${DATASET_SSI}  "
@@ -123,7 +123,7 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
 
     echo "Running predict-segments to create VCF and observed region bed.."
     predict-segments.sh 20g --model-path ${MODEL_DIR} --to-file --dataset ${DATASET_SSI} \
-        --mini-batch-size ${MINI_BATCH_SIZE}  ${PREDICT_OPTIONS}  --no-cache 
+        --mini-batch-size ${MINI_BATCH_SIZE}  -l ${MODEL_PREFIX} ${PREDICT_OPTIONS}  --no-cache
     dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
     echo "Evaluation with rtg vcfeval starting.."
 
@@ -182,7 +182,6 @@ dieIfError "Failed to run rtg vcfeval."
 
 cp ${VCF_OUTPUT_SORTED}-indels.vcf.gz  ${RTG_OUTPUT_FOLDER}/indel/
 
-MODEL_PREFIX=latest
 MODEL_TIME=`basename ${MODEL_DIR}`
 grep ${MODEL_TIME} model-conditions.txt >${RTG_OUTPUT_FOLDER}/model-conditions.txt
 grep ${MODEL_TIME} predict-statistics.tsv   >${RTG_OUTPUT_FOLDER}/predict-statistics.tsv
