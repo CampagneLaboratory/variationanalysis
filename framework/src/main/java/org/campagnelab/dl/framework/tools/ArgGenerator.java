@@ -1,12 +1,10 @@
 package org.campagnelab.dl.framework.tools;
 
 import com.beust.jcommander.JCommander;
+import org.apache.commons.io.FileUtils;
 import org.campagnelab.dl.framework.tools.arguments.ArgGeneratorArguments;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -20,8 +18,6 @@ public class ArgGenerator {
     //this maps argument names to a type: either categorical, int, or float.
     Map<String, String> types = new HashMap();
 
-    Random rand = new Random();
-
 
     public static void main(String[] args) {
 
@@ -32,10 +28,11 @@ public class ArgGenerator {
         commander.parse(args);
 
 
-        ArgGenerator driver = new ArgGenerator();
+        ArgGenerator driver = new ArgGenerator(new Date().getTime());
         try {
             driver.configure(arguments.argConfig);
-            driver.generateCommands(arguments.outputFilename, arguments.numCommands);
+            FileUtils.writeStringToFile(new File(arguments.outputFilename), driver.generateCommands(arguments.numCommands));
+
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("There was a problem parsing the configuration file.");
@@ -43,16 +40,22 @@ public class ArgGenerator {
 
     }
 
-    ArgGenerator() {
+    private Random rand;
+
+    ArgGenerator(long seed) {
+        rand = new Random(seed);
     }
 
-    ;
 
+    protected void configure(String configPath) throws IOException {
+        String configString = FileUtils.readFileToString(new File(configPath));
+        configureWithString(configString);
+    }
 
-    void configure(String configPath) throws IOException {
+    protected void configureWithString(String configString) throws IOException {
 
-        BufferedReader br = new BufferedReader(new FileReader(configPath));
         String argName;
+        BufferedReader br = new BufferedReader(new StringReader(configString));
         while ((argName = br.readLine()) != null) {
             List<String> options = new ArrayList<String>();
             //store type in a map
@@ -71,9 +74,9 @@ public class ArgGenerator {
         br.close();
     }
 
-    void generateCommands(String outputPath, int numCommands) throws IOException {
+    protected String generateCommands(int numCommands) throws IOException {
 
-        PrintWriter writer = new PrintWriter(outputPath, "UTF-8");
+        StringBuffer result = new StringBuffer();
 
         for (int i = 0; i < numCommands; i++) {
             StringBuffer command = new StringBuffer();
@@ -81,7 +84,7 @@ public class ArgGenerator {
                 String argName = entry.getKey();
                 String argType = types.get(argName);
                 List<String> argOptions = entry.getValue();
-
+                String format = "%s %s";
                 String value;
                 switch (argType) {
                     case "categorical":
@@ -105,20 +108,37 @@ public class ArgGenerator {
                         double valueD = Math.exp(valueLog);
                         value = Double.toString(valueD);
                         break;
+                    case "flag":
+                        // decide if we should include this flag argument:
+                        if (rand.nextBoolean()) {
+                            format = "%s";
+                            value = "";
+                        } else {
+                            argName = "";
+                            format = "";
+                            value = "";
+                        }
+                        break;
                     case "int":
                         int minI = Integer.parseInt(argOptions.get(0));
                         int maxI = Integer.parseInt(argOptions.get(1));
                         value = Integer.toString((rand.nextInt(maxI - minI + 1) + minI));
                         break;
                     default:
-                        throw new RuntimeException("There was a problem parsing the config. A non-existent argType ([categorical|uniform|log-uniform|int]) may have been used: "+argType);
+                        throw new RuntimeException("There was a problem parsing the config. A non-existent argType ([categorical|uniform|log-uniform|int]) may have been used: " + argType);
                 }
-                command.append(argName + " " + value + " ");
+                command.append(String.format(format, argName, value));
+                command.append(" ");
             }
             //remove trailing space
-            writer.println(command.toString().trim());
+            result.append(command.toString().trim());
+
+
+            if (i!=numCommands-1){
+                result.append("\n");
+            }
         }
-        writer.close();
+        return result.toString();
     }
 
 

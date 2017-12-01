@@ -2,6 +2,8 @@ package org.campagnelab.dl.genotype.tools;
 
 import edu.cornell.med.icb.util.VersionUtils;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.tools.Predict;
@@ -15,6 +17,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
 
@@ -26,7 +29,9 @@ import java.util.SortedSet;
 public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformation> {
 
     private BEDHelper bedHelper;
-    private PrintWriter vcfWriter;
+    private PrintWriter vcfSnpsWriter;
+    private PrintWriter vcfIndelsWriter;
+
     private static final String VCF_HEADER = "##fileformat=VCFv4.1\n" +
             "##VariationAnalysis=%s\n" +
             "##modelPath=%s\n" +
@@ -97,18 +102,30 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
         SegmentPrediction fullPred = (SegmentPrediction) domainDescriptor.aggregatePredictions(record, predictionList);
         assert fullPred != null : "fullPref must not be null";
 
-        System.out.println(fullPred.getGenotypes());
+        //System.out.println(fullPred.getGenotypes());
 
         fullPred.inspectRecord(record);
-        int bases = fullPred.getGenotypes().numBases();
+        int numeOfbases = fullPred.getGenotypes().numBases();
         //TODO: check if the bases have the same position! one line in the VCF for each position, not base!!!!
         int startPosition = record.getStartPosition().getLocation();
-        for (int b =0; b < bases; b++) {
+        int lastIndelPosition = 0;
+        for (int b = 0; b < numeOfbases; b++) {
             // one line for each base
-            SegmentInformationRecords.Base base = this.getBaseAt(record, startPosition + b);
-            if (fullPred.isIndel(base))
-                continue;
-            FormatIndelVCF format = new FormatIndelVCF(base.getReferenceAllele(),fullPred.predictedAlleles(b),base.getReferenceAllele().charAt(0));
+            ObjectList<SegmentInformationRecords.Base> basesAt = this.getBasesAt(record, b);
+            int currentLocation = basesAt.get(0).getLocation();
+           
+            FormatIndelVCF format = null;
+            if ((fullPred.isIndelPosition(basesAt.get(0)))) {
+                lastIndelPosition = currentLocation;
+
+            } else {
+                format = new FormatIndelVCF(basesAt.get(0).getReferenceAllele(),fullPred.predictedAlleles(b),
+                        basesAt.get(0).getReferenceAllele().charAt(0));
+            }
+
+            if (Objects.isNull(format))
+                continue; //should never happen, but in case..
+
             //make an alt-allele-only set for coding
             SortedSet<String> sortedAltSet = new ObjectAVLTreeSet<String>(format.toVCF);
             sortedAltSet.remove(format.fromVCF);
@@ -127,9 +144,9 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             //TODO: if the reference is null, it is likely an indel
             if (format.fromVCF.isEmpty()) {continue;}
             // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
-            vcfWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
+            vcfSnpsWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
                     record.getStartPosition().getReferenceId(), //Chromosome
-                    base.getLocation(), // position
+                    currentLocation, // position
                     //ID
                     format.fromVCF, //ref
                     altField, //ALT
@@ -141,7 +158,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
                     fullPred.getGenotypes().probabilities[b]
                     );
 
-            bedHelper.add(record.getStartPosition().getReferenceId(), base.getLocation(), base.getLocation() + maxLength, fullPred.index,
+            bedHelper.add(record.getStartPosition().getReferenceId(), currentLocation, currentLocation + maxLength, fullPred.index,
                     stats);
 
         }
@@ -149,21 +166,25 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
     }
 
     /**
-     * Returns the base at the given position;
+     * Returns all the bases at the same location of the base in the given position;
      * @param record
      * @param position
      * @return
      */
-    private SegmentInformationRecords.Base getBaseAt(SegmentInformationRecords.SegmentInformation record, int position) {
-        int b = record.getStartPosition().getLocation();
+    private ObjectList<SegmentInformationRecords.Base> getBasesAt(SegmentInformationRecords.SegmentInformation record, int position) {
+        ObjectList<SegmentInformationRecords.Base> bases = new ObjectArrayList<>();
+        //int b = record.getStartPosition().getLocation();
+        int counter = 0;
+        int detectedBaseLocation = 0;
         for (SegmentInformationRecords.Sample sample : record.getSampleList()) {
             for (SegmentInformationRecords.Base base : sample.getBaseList()) {
-                if (b == position)
-                    return base;
-                b++;
+                if (counter++ == position || detectedBaseLocation == base.getLocation()) {
+                    bases.add(base);
+                    detectedBaseLocation = base.getLocation();
+                }
             }
         }
-        return null;
+        return bases;
     }
 
     /**
@@ -173,24 +194,35 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
      */
     @Override
     protected void writeHeader(PrintWriter resultsWriter) {
-        final String vcfFilename = String.format("%s-%s-%s-genotypes.vcf", modelTime, modelPrefix, testSetBasename);
+        final String vcfSnpsFilename = String.format("%s-%s-%s-segments-snps.vcf", modelTime, modelPrefix, testSetBasename);
+        final String vcfIndelsFilename = String.format("%s-%s-%s-segments-indels.vcf", modelTime, modelPrefix, testSetBasename);
         final String bedBasename = String.format("%s-%s-%s", modelTime, modelPrefix, testSetBasename);
 
         try {
-            vcfWriter = new PrintWriter(new FileWriter(vcfFilename));
+            vcfSnpsWriter = new PrintWriter(new FileWriter(vcfSnpsFilename));
+            vcfSnpsWriter.append(String.format(VCF_HEADER,
+                    VersionUtils.getImplementationVersion(PredictG.class),
+                    args().modelPath, args().modelName, FilenameUtils.getBaseName(args().testSet)));
         } catch (IOException e) {
             throw new RuntimeException("Unable to create VCF output file.", e);
         }
 
-        vcfWriter.append(String.format(VCF_HEADER,
-                VersionUtils.getImplementationVersion(PredictG.class),
-                args().modelPath, args().modelName, FilenameUtils.getBaseName(args().testSet)));
+        try {
+            vcfIndelsWriter = new PrintWriter(new FileWriter(vcfIndelsFilename));
+            vcfIndelsWriter.append(String.format(VCF_HEADER,
+                    VersionUtils.getImplementationVersion(PredictG.class),
+                    args().modelPath, args().modelName, FilenameUtils.getBaseName(args().testSet)));
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to create VCF output file.", e);
+        }
+
         try {
             bedHelper = new BEDHelper(bedBasename);
         } catch (IOException e) {
             throw new RuntimeException("Unable to create bed file(s) to record observed regions.", e);
         }
-        System.out.printf("Writing VCF and BED files: \n%s\n%s%n", vcfFilename, bedBasename + "-observed-regions.bed");
+        System.out.printf("Writing VCFs and BED files: \n%s\n%s\n%s%n", vcfSnpsFilename,
+                vcfIndelsFilename, bedBasename + "-observed-regions.bed");
 
     }
 
@@ -206,4 +238,5 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
         stats.initializeStats();
         orderStats = stats.createOutputHeader();
     }
+
 }
