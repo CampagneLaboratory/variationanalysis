@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.tools.Predict;
+import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.genotype.performance.BEDHelper;
 import org.campagnelab.dl.genotype.performance.StatsAccumulator;
 import org.campagnelab.dl.genotype.predictions.SegmentPrediction;
@@ -57,6 +58,14 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
         stats.initializeStats();
         orderStats = stats.createOutputHeader();
     }
+
+
+    @Override
+    public PredictArguments createArguments() {
+
+        return new PredictGArguments();
+    }
+
     /**
      * This method is called after the test set has been observed and statistics evaluated via processPredictions.
      * It sets statistics on the whole test set, which are then written tab-delimited to a file.
@@ -87,7 +96,9 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
      */
     @Override
     protected void reportStatistics(String prefix) {
-
+      if (Objects.nonNull(this.vcfIndelsWriter)) this.vcfIndelsWriter.close();
+      if (Objects.nonNull(this.vcfSnpsWriter)) this.vcfSnpsWriter.close();
+      if (Objects.nonNull(this.bedHelper)) this.bedHelper.close();
     }
 
     /**

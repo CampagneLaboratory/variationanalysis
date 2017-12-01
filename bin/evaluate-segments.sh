@@ -123,8 +123,7 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
 
     echo "Running predict-segments to create VCF and observed region bed.."
     predict-segments.sh 20g --model-path ${MODEL_DIR} --to-file --dataset ${DATASET_SSI} \
-        --mini-batch-size ${MINI_BATCH_SIZE}  ${PREDICT_OPTIONS}  --no-cache \
-         ${PREDICT_MAX_RECORDS}
+        --mini-batch-size ${MINI_BATCH_SIZE}  ${PREDICT_OPTIONS}  --no-cache 
     dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
     echo "Evaluation with rtg vcfeval starting.."
 
@@ -183,6 +182,7 @@ dieIfError "Failed to run rtg vcfeval."
 
 cp ${VCF_OUTPUT_SORTED}-indels.vcf.gz  ${RTG_OUTPUT_FOLDER}/indel/
 
+MODEL_PREFIX=latest
 MODEL_TIME=`basename ${MODEL_DIR}`
 grep ${MODEL_TIME} model-conditions.txt >${RTG_OUTPUT_FOLDER}/model-conditions.txt
 grep ${MODEL_TIME} predict-statistics.tsv   >${RTG_OUTPUT_FOLDER}/predict-statistics.tsv
