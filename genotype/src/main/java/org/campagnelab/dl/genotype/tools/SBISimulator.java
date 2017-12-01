@@ -171,7 +171,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
     }
 
     private int generateCounts() {
-        return r.nextInt(100);
+        return r.nextInt(101) + 100;
     }
 
     private void calculateCounts(String from, String to, Set<String> allCounts, Set<String> keys, String trueGenotype) {
