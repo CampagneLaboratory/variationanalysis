@@ -110,7 +110,7 @@ if [ -z "${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ+set}" ]; then
 fi
 
 if [ "${NUM_ARGS}" == 3 ]; then
-    DATASET_SSI=$2
+    DATASET_SSI=$3
     if [ ! -e "${DATASET_SSI}" ]; then
         echo "The test set was not found: ${DATASET_SSI}  "
         exit 1;
