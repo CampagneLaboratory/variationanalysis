@@ -30,7 +30,7 @@ import java.util.SortedSet;
 public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformation> {
 
     private BEDHelper bedHelper;
-    private PrintWriter vcfSnpsWriter;
+    private PrintWriter vcfWriter;
     private PrintWriter vcfIndelsWriter;
 
     private static final String VCF_HEADER = "##fileformat=VCFv4.1\n" +
@@ -62,9 +62,13 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
 
     @Override
     public PredictArguments createArguments() {
-
-        return new PredictGArguments();
+        return new PredictGSArguments();
     }
+
+    public PredictGSArguments args() {
+        return (PredictGSArguments) arguments;
+    }
+
 
     /**
      * This method is called after the test set has been observed and statistics evaluated via processPredictions.
@@ -97,7 +101,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
     @Override
     protected void reportStatistics(String prefix) {
       if (Objects.nonNull(this.vcfIndelsWriter)) this.vcfIndelsWriter.close();
-      if (Objects.nonNull(this.vcfSnpsWriter)) this.vcfSnpsWriter.close();
+      if (Objects.nonNull(this.vcfWriter)) this.vcfWriter.close();
       if (Objects.nonNull(this.bedHelper)) this.bedHelper.close();
     }
 
@@ -155,7 +159,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             //TODO: if the reference is null, it is likely an indel
             if (format.fromVCF.isEmpty()) {continue;}
             // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
-            vcfSnpsWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
+            vcfWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
                     record.getStartPosition().getReferenceId(), //Chromosome
                     currentLocation + 1, // VCFs are 1-based 
                     //ID
@@ -205,35 +209,56 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
      */
     @Override
     protected void writeHeader(PrintWriter resultsWriter) {
-        final String vcfSnpsFilename = String.format("%s-%s-%s-segments-snps.vcf", modelTime, modelPrefix, testSetBasename);
-        final String vcfIndelsFilename = String.format("%s-%s-%s-segments-indels.vcf", modelTime, modelPrefix, testSetBasename);
         final String bedBasename = String.format("%s-%s-%s", modelTime, modelPrefix, testSetBasename);
-
-        try {
-            vcfSnpsWriter = new PrintWriter(new FileWriter(vcfSnpsFilename));
-            vcfSnpsWriter.append(String.format(VCF_HEADER,
-                    VersionUtils.getImplementationVersion(PredictG.class),
-                    args().modelPath, args().modelName, FilenameUtils.getBaseName(args().testSet)));
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to create VCF output file.", e);
-        }
-
-        try {
-            vcfIndelsWriter = new PrintWriter(new FileWriter(vcfIndelsFilename));
-            vcfIndelsWriter.append(String.format(VCF_HEADER,
-                    VersionUtils.getImplementationVersion(PredictG.class),
-                    args().modelPath, args().modelName, FilenameUtils.getBaseName(args().testSet)));
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to create VCF output file.", e);
-        }
 
         try {
             bedHelper = new BEDHelper(bedBasename);
         } catch (IOException e) {
             throw new RuntimeException("Unable to create bed file(s) to record observed regions.", e);
         }
-        System.out.printf("Writing VCFs and BED files: \n%s\n%s\n%s%n", vcfSnpsFilename,
-                vcfIndelsFilename, bedBasename + "-observed-regions.bed");
+
+        if (args().splitIndels) {
+
+            final String vcfSnpsFilename = String.format("%s-%s-%s-segments-snps.vcf", modelTime, modelPrefix, testSetBasename);
+            final String vcfIndelsFilename = String.format("%s-%s-%s-segments-indels.vcf", modelTime, modelPrefix, testSetBasename);
+
+            try {
+                vcfWriter = new PrintWriter(new FileWriter(vcfSnpsFilename));
+                vcfWriter.append(String.format(VCF_HEADER,
+                        VersionUtils.getImplementationVersion(PredictGS.class),
+                        args().modelPath, args().modelName, FilenameUtils.getBaseName(args().testSet)));
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to create VCF output file.", e);
+            }
+
+            try {
+                vcfIndelsWriter = new PrintWriter(new FileWriter(vcfIndelsFilename));
+                vcfIndelsWriter.append(String.format(VCF_HEADER,
+                        VersionUtils.getImplementationVersion(PredictGS.class),
+                        args().modelPath, args().modelName, FilenameUtils.getBaseName(args().testSet)));
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to create VCF output file.", e);
+            }
+            System.out.printf("Writing VCFs and BED files: \n%s\n%s\n%s%n", vcfSnpsFilename,
+                    vcfIndelsFilename, bedBasename + "-observed-regions.bed");
+
+
+        }  else {
+            final String vcfFilename = String.format("%s-%s-%s-segments.vcf", modelTime, modelPrefix, testSetBasename);
+            try {
+                vcfWriter = new PrintWriter(new FileWriter(vcfFilename));
+                vcfWriter.append(String.format(VCF_HEADER,
+                        VersionUtils.getImplementationVersion(PredictGS.class),
+                        args().modelPath, args().modelName, FilenameUtils.getBaseName(args().testSet)));
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to create VCF output file.", e);
+            }
+            System.out.printf("Writing VCF and BED files: \n%s\n%s%n", vcfFilename,
+                    bedBasename + "-observed-regions.bed");
+
+        }
+
+
 
     }
 
