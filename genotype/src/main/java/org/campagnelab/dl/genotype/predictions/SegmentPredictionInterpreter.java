@@ -46,7 +46,11 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
      * Read genotypes and their probability from the output called "genotype".
      */
     public SegmentGenotypePrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
-        SegmentGenotypePrediction prediction = new SegmentGenotypePrediction();
+
+        return this.interpret(trueLabels,output,exampleIndex, new SegmentGenotypePrediction());
+    }
+
+    public SegmentGenotypePrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex, SegmentGenotypePrediction prediction) {
         prediction.index = exampleIndex;
         //final int numLabels = output.size(1);
         final int sequenceLength = output.size(1);
@@ -60,15 +64,18 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
         INDArray predictedMaxIndices = Nd4j.argMax(predictedRow, 0);
 
         prediction.predictedGenotypes = new String[sequenceLength];
-        prediction.trueGenotypes = new String[sequenceLength];
+        if (prediction.trueGenotypes == null)
+            prediction.trueGenotypes = new String[sequenceLength];
         for (int baseIndex = 0; baseIndex < sequenceLength; baseIndex++) {
 
             final int predictedMaxIndex = predictedMaxIndices.getInt(baseIndex);
-            final int trueMaxIndex = (trueMaxIndices != null)?trueMaxIndices.getInt(baseIndex):0;
+            final int trueMaxIndex = (trueMaxIndices != null)?trueMaxIndices.getInt(baseIndex):-1;
             prediction.probabilities[baseIndex] = predictedRow.getFloat(predictedMaxIndex);
             prediction.predictedGenotypes[baseIndex] = predictedMaxIndex == 0 ? null : indicesToGenotypesMap.get(predictedMaxIndex);
-            prediction.trueGenotypes[baseIndex] = trueMaxIndex == 0 ? null : indicesToGenotypesMap.get(trueMaxIndex);
-           // assume we know the length of the sequence (we do, since it is the number of features we collected.)
+            if (trueMaxIndex != -1)
+                prediction.trueGenotypes[baseIndex] =  indicesToGenotypesMap.get(trueMaxIndex);
+            //prediction.trueGenotypes[baseIndex] = trueMaxIndex == -1 ? null : indicesToGenotypesMap.get(trueMaxIndex);
+            // assume we know the length of the sequence (we do, since it is the number of features we collected.)
             if (prediction.trueGenotypes[baseIndex] != null) {
                 prediction.length += 1;
             }
@@ -81,33 +88,18 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
 
     @Override
     public SegmentGenotypePrediction interpret(SegmentInformationRecords.SegmentInformation record, INDArray output) {
-        SegmentGenotypePrediction prediction = interpret(null,output,0);
+        if (record.getStartPosition().getLocation() == 163301) {
+            System.out.println("stop");
+        }
+        SegmentGenotypePrediction prediction = new SegmentGenotypePrediction();
+        int sequenceLength = output.size(1);
+        prediction.trueGenotypes = new String[sequenceLength];
+
+        for (int i=0; i< sequenceLength; i++) {
+            prediction.trueGenotypes[i]= "";
+        }
+        prediction = interpret(null,output,0, prediction);
         prediction.length=record.getSample(0).getBaseCount();
-        //loop on bases, and collect labels and populate the trueGenotypes in the prediction
-       /* int numOfBases = calculateNumOfBases(record);
-        prediction.probabilities = new float[numOfBases];
-        prediction.trueGenotypes = new String[numOfBases];
-        prediction.predictedGenotypes = new String[numOfBases];
-        int baseIndex = 0;
-        for (SegmentInformationRecords.Sample sample : record.getSampleList()) {
-            for (SegmentInformationRecords.Base base : sample.getBaseList()) {
-                INDArray predictedRow = output.getRow(baseIndex);
-              
-
-                prediction.probabilities[baseIndex] = predictedRow.getFloat(baseIndex);
-                prediction.predictedGenotypes[baseIndex] = Joiner.on("/").join(base.getTrueLabelList());
-                //prediction.trueGenotypes[baseIndex] = trueMaxIndex == 0 ? null : indicesToGenotypesMap.get(trueMaxIndex);
-                if (prediction.trueGenotypes[baseIndex] != null) {
-                    prediction.length += 1;
-                }
-                else {
-                    break;
-                }
-                baseIndex++;
-            }
-
-        }   */
-
         return prediction;
     }
 

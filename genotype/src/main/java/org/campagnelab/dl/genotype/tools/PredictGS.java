@@ -118,7 +118,9 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
         assert fullPred != null : "fullPref must not be null";
 
         //System.out.println(fullPred.getGenotypes());
-
+        if (record.getStartPosition().getLocation() == 163301) {
+            System.out.println("stop");
+        }
         fullPred.inspectRecord(record);
         int numeOfbases = fullPred.getGenotypes().numBases();
         //TODO: check if the bases have the same position! one line in the VCF for each position, not base!!!!
@@ -132,7 +134,9 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             FormatIndelVCF format = null;
             if (isIndel) {
                 lastIndelPosition = currentLocation;
-
+                format = new FormatIndelVCF(basesAt.get(0).getReferenceAllele(),fullPred.predictedAlleles(b),
+                        basesAt.get(0).getReferenceAllele().charAt(0));
+                System.out.println("Format to: " + format.toVCF.toArray());
             } else {
                 format = new FormatIndelVCF(basesAt.get(0).getReferenceAllele(),fullPred.predictedAlleles(b),
                         basesAt.get(0).getReferenceAllele().charAt(0));
