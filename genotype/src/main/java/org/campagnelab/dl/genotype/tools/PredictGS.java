@@ -128,9 +128,9 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             // one line for each base
             ObjectList<SegmentInformationRecords.Base> basesAt = this.getBasesAt(record, b);
             int currentLocation = basesAt.get(0).getLocation();
-           
+            boolean isIndel = fullPred.isIndelPosition(basesAt.get(0));
             FormatIndelVCF format = null;
-            if ((fullPred.isIndelPosition(basesAt.get(0)))) {
+            if (isIndel) {
                 lastIndelPosition = currentLocation;
 
             } else {
@@ -157,21 +157,41 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
             maxLength = Math.max(maxLength, format.fromVCF.length());
             //TODO: if the reference is null, it is likely an indel
-            if (format.fromVCF.isEmpty()) {continue;}
-            // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
-            vcfWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
-                    record.getStartPosition().getReferenceId(), //Chromosome
-                    currentLocation + 1, // VCFs are 1-based 
-                    //ID
-                    format.fromVCF, //ref
-                    altField, //ALT
-                    //QUAL
-                    //FILTER
-                    //INFO
-                    PredictG.codeGT(format.toVCF, format.fromVCF, sortedAltSet),
-                    toColumn,
-                    fullPred.getGenotypes().probabilities[b]
-                    );
+            if (format.fromVCF.isEmpty()) {
+                continue;
+            }
+            if (args().splitIndels && isIndel ) {
+                // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
+                vcfIndelsWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
+                        record.getStartPosition().getReferenceId(), //Chromosome
+                        currentLocation + 1, // VCFs are 1-based
+                        //ID
+                        format.fromVCF, //ref
+                        altField, //ALT
+                        //QUAL
+                        //FILTER
+                        //INFO
+                        PredictG.codeGT(format.toVCF, format.fromVCF, sortedAltSet),
+                        toColumn,
+                        fullPred.getGenotypes().probabilities[b]
+                );
+            }  else {
+                // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
+                vcfWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
+                        record.getStartPosition().getReferenceId(), //Chromosome
+                        currentLocation + 1, // VCFs are 1-based
+                        //ID
+                        format.fromVCF, //ref
+                        altField, //ALT
+                        //QUAL
+                        //FILTER
+                        //INFO
+                        PredictG.codeGT(format.toVCF, format.fromVCF, sortedAltSet),
+                        toColumn,
+                        fullPred.getGenotypes().probabilities[b]
+                );
+
+            }
 
             bedHelper.add(record.getStartPosition().getReferenceId(), currentLocation, currentLocation + maxLength, fullPred.index,
                     stats);
