@@ -17,10 +17,7 @@ import org.campagnelab.goby.predictions.FormatIndelVCF;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.SortedSet;
+import java.util.*;
 
 /**
  * Predict tools on SSI.
@@ -115,30 +112,21 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
     @Override
     protected void processPredictions(PrintWriter resutsWriter, SegmentInformationRecords.SegmentInformation record, List<Prediction> predictionList) {
         SegmentPrediction fullPred = (SegmentPrediction) domainDescriptor.aggregatePredictions(record, predictionList);
-        assert fullPred != null : "fullPref must not be null";
-
-        //System.out.println(fullPred.getGenotypes());
-        if (record.getStartPosition().getLocation() == 163301) {
-            System.out.println("stop");
-        }
+        assert fullPred != null : "fullPred must not be null";
         fullPred.inspectRecord(record);
         int numeOfbases = fullPred.getGenotypes().numBases();
-        //TODO: check if the bases have the same position! one line in the VCF for each position, not base!!!!
-        int startPosition = record.getStartPosition().getLocation();
-        int lastIndelPosition = 0;
-        for (int b = 0; b < numeOfbases; b++) {
+        for (int b = 0; b < numeOfbases;) {
             // one line for each base
             ObjectList<SegmentInformationRecords.Base> basesAt = this.getBasesAt(record, b);
             int currentLocation = basesAt.get(0).getLocation();
             boolean isIndel = fullPred.isIndelPosition(basesAt.get(0));
             FormatIndelVCF format = null;
             if (isIndel) {
-                lastIndelPosition = currentLocation;
-                format = new FormatIndelVCF(basesAt.get(0).getReferenceAllele(),fullPred.predictedAlleles(b),
+                Set<String> allPredicted = fullPred.predictedAllelesForIndels(b, basesAt.size());
+                format = new FormatIndelVCF(basesAt.get(0).getReferenceAllele(),allPredicted,
                         basesAt.get(0).getReferenceAllele().charAt(0));
-                System.out.println("Format to: " + format.toVCF.toArray());
             } else {
-                format = new FormatIndelVCF(basesAt.get(0).getReferenceAllele(),fullPred.predictedAlleles(b),
+                format = new FormatIndelVCF(basesAt.get(0).getReferenceAllele(),fullPred.predictedAllelesForSnps(b),
                         basesAt.get(0).getReferenceAllele().charAt(0));
             }
 
@@ -160,7 +148,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             //get max allele length for bed file
             int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
             maxLength = Math.max(maxLength, format.fromVCF.length());
-            //TODO: if the reference is null, it is likely an indel
+            //TODO: if the reference is null?
             if (format.fromVCF.isEmpty()) {
                 continue;
             }
@@ -194,7 +182,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
                         toColumn,
                         fullPred.getGenotypes().probabilities[b]
                 );
-
+                b += basesAt.size();
             }
 
             bedHelper.add(record.getStartPosition().getReferenceId(), currentLocation, currentLocation + maxLength, fullPred.index,

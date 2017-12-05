@@ -79,7 +79,7 @@ public class SegmentPrediction extends Prediction {
         for (SegmentInformationRecords.Sample sample : record.getSampleList()) {
             int currentLocation = 0;
             for (SegmentInformationRecords.Base base :sample.getBaseList()) {
-                if (base.getLocation() == currentLocation /*&& this.predictedAlleles(0).contains("-")*/) {
+                if (base.getLocation() == currentLocation && baseIndex >0) {
                     //this is an indel (at least, two bases at the same location with a predicted gap)
                      this.indelPositions.add(currentLocation);
                 }
@@ -91,15 +91,31 @@ public class SegmentPrediction extends Prediction {
 
     }
 
-    public Set<String> predictedAlleles(int position) {
+    public Set<String> predictedAllelesForIndels(int position, int howMany) {
         Set<String> alleles = new HashSet<>();
-        alleles.addAll(Arrays.asList(genotypes.predictedGenotypes[0].split("")));
+        String firstAllele = "";
+        String secondAllele = "";
+        int i = 0;
+        while (i < howMany && i< genotypes.predictedGenotypes.length && genotypes.predictedGenotypes[i] != null) {
+            String[] parts = genotypes.predictedGenotypes[position + i++].split("");
+            firstAllele += parts[0];
+            secondAllele += parts[1];
+        }
+        alleles.add(firstAllele);
+        alleles.add(secondAllele);
         return alleles;
     }
 
+    public Set<String> predictedAllelesForSnps(int position) {
+        Set<String> alleles = new HashSet<>();
+        alleles.addAll(Arrays.asList(genotypes.predictedGenotypes[position].split("")));
+        return alleles;
+    }
+
+
     public Set<String> trueAlleles(int position) {
         Set<String> alleles = new HashSet<>();
-        alleles.addAll(Arrays.asList(genotypes.trueGenotypes[0].split("")));
+        alleles.addAll(Arrays.asList(genotypes.trueGenotypes[position].split("")));
         return alleles;
     }
 
