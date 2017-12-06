@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.genotype.performance.SegmentGenotypePredictionTest;
@@ -138,5 +139,11 @@ public class SegmentPrediction extends Prediction {
      */
     public boolean isIndelPosition(SegmentInformationRecords.Base base) {
         return this.indelPositions.contains(base.getLocation());
+    }
+
+    public String referenceAllelesForIndels(ObjectList<SegmentInformationRecords.Base> basesAt) {
+        final String[] reference = {""};
+        basesAt.forEach(base -> reference[0] += base.getReferenceAllele());
+        return reference[0];
     }
 }

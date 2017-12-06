@@ -114,6 +114,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
         SegmentPrediction fullPred = (SegmentPrediction) domainDescriptor.aggregatePredictions(record, predictionList);
         assert fullPred != null : "fullPred must not be null";
         fullPred.inspectRecord(record);
+
         int numeOfbases = fullPred.getGenotypes().numBases();
         for (int b = 0; b < numeOfbases;) {
             // one line for each base
@@ -123,7 +124,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             FormatIndelVCF format = null;
             if (isIndel) {
                 Set<String> allPredicted = fullPred.predictedAllelesForIndels(b, basesAt.size());
-                format = new FormatIndelVCF(basesAt.get(0).getReferenceAllele(),allPredicted,
+                format = new FormatIndelVCF(fullPred.referenceAllelesForIndels(basesAt),allPredicted,
                         basesAt.get(0).getReferenceAllele().charAt(0));
             } else {
                 format = new FormatIndelVCF(basesAt.get(0).getReferenceAllele(),fullPred.predictedAllelesForSnps(b),
@@ -149,7 +150,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
             maxLength = Math.max(maxLength, format.fromVCF.length());
             //TODO: if the reference is null?
-            if (format.fromVCF.isEmpty()) {
+            if (format.fromVCF.isEmpty() || altField.isEmpty()) {
                 continue;
             }
             if (args().splitIndels && isIndel ) {
