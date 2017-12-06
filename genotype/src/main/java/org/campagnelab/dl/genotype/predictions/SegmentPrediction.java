@@ -78,13 +78,13 @@ public class SegmentPrediction extends Prediction {
     public void inspectRecord(SegmentInformationRecords.SegmentInformation record) {
         int baseIndex = 0;
         for (SegmentInformationRecords.Sample sample : record.getSampleList()) {
-            int currentLocation = 0;
+            int previousLocation = 0;
             for (SegmentInformationRecords.Base base :sample.getBaseList()) {
-                if (base.getLocation() == currentLocation && baseIndex >0) {
+                if (base.getLocation() == previousLocation || genotypes.predictedGenotypes[baseIndex].contains("-") ) {
                     //this is an indel (at least, two bases at the same location with a predicted gap)
-                     this.indelPositions.add(currentLocation);
+                     this.indelPositions.add(base.getLocation());
                 }
-                currentLocation = base.getLocation();
+                previousLocation = base.getLocation();
                 baseIndex++;
             }
         }
@@ -109,7 +109,8 @@ public class SegmentPrediction extends Prediction {
 
     public Set<String> predictedAllelesForSnps(int position) {
         Set<String> alleles = new HashSet<>();
-        alleles.addAll(Arrays.asList(genotypes.predictedGenotypes[position].split("")));
+        String[] genotypesAtBase = genotypes.predictedGenotypes[position].split("");
+        alleles.addAll(Arrays.asList(genotypesAtBase));
         return alleles;
     }
 
