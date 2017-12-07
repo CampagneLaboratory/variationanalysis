@@ -70,7 +70,7 @@ public class SegmentPredictionInterpreter implements PredictionInterpreter<Segme
 
             final int predictedMaxIndex = predictedMaxIndices.getInt(baseIndex);
             final int trueMaxIndex = (trueMaxIndices != null)?trueMaxIndices.getInt(baseIndex):-1;
-            prediction.probabilities[baseIndex] = predictedRow.getFloat(predictedMaxIndex);
+            prediction.probabilities[baseIndex] = predictedRow.getFloat(predictedMaxIndex)*sequenceLength;
             prediction.predictedGenotypes[baseIndex] = predictedMaxIndex == 0 ? null : indicesToGenotypesMap.get(predictedMaxIndex);
             if (trueMaxIndex != -1)
                 prediction.trueGenotypes[baseIndex] =  indicesToGenotypesMap.get(trueMaxIndex);
