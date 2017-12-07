@@ -105,132 +105,120 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
     /**
      * This method is called for each record of the test set that has been predicted.
      *
-     * @param resutsWriter   Where predictions can be written in tab delited format.
+     * @param resultsWriter   Where predictions can be written in tab delited format.
      * @param record
      * @param predictionList The list of predictions made for a test record. Typically one prediction for each model output.
      */
     @Override
-    protected void processPredictions(PrintWriter resutsWriter, SegmentInformationRecords.SegmentInformation record, List<Prediction> predictionList) {
+    protected void processPredictions(PrintWriter resultsWriter, SegmentInformationRecords.SegmentInformation record, List<Prediction> predictionList) {
         SegmentPrediction fullPred = (SegmentPrediction) domainDescriptor.aggregatePredictions(record, predictionList);
-        this.processAggregatedPrediction(resutsWriter, record, fullPred);
+        this.processAggregatedPrediction(resultsWriter, record, fullPred);
     }
 
     /**
      * Processes the aggregated segment prediction.
      *
-     * @param resutsWriter
+     * @param resultsWriter
      * @param record
      * @param fullPred
      */
-    protected void processAggregatedPrediction(PrintWriter resutsWriter,
+    protected void processAggregatedPrediction(PrintWriter resultsWriter,
                                                SegmentInformationRecords.SegmentInformation record, SegmentPrediction fullPred) {
         assert fullPred != null : "fullPred must not be null";
         fullPred.inspectRecord(record);
 
-        int numOfbases = fullPred.getGenotypes().numBases();
-        for (int b = 0; b < numOfbases; ) {
-            // one line for each base
-            ObjectList<SegmentInformationRecords.Base> basesAt = this.getBasesAt(record, b);
-            int currentLocation = basesAt.get(0).getLocation();
-            //TODO: to debug for the ALT empty field
-            if (basesAt.get(0).getLocation() == 104364295 || basesAt.get(0).getLocation() == 104364296) {
-                System.out.println("Stop here");
+        int segmentIndex = 0; //index in the whole segment
+        for (SegmentInformationRecords.Sample sample: record.getSampleList()) {
+            VCFLine currentLine = new VCFLine();
+            int sampleIndex = 0; //index in the current sample
+            while (sampleIndex < sample.getBaseCount()) {
+                VCFLine.IndexedBase base = new VCFLine.IndexedBase(sample.getBase(sampleIndex), segmentIndex);
+                if (fullPred.hasPredictedGap(segmentIndex)) {
+                    currentLine.add(base);
+                    currentLine.markAsIndel(base);
+                } else {
+                    //check if we need to write the line before adding the new base
+                    if (currentLine.needToFlush(base)) {
+                      writeVCFLine(resultsWriter, fullPred,currentLine);
+                    }
+                    currentLine.add(base);
+                }
+                segmentIndex++;
+                sampleIndex++;
             }
-
-            boolean isIndel = fullPred.isIndelPosition(basesAt.get(0));
-            FormatIndelVCF format = null;
-            if (isIndel) {
-                Set<String> allPredicted = fullPred.predictedAllelesForIndels(b, basesAt.size());
-                format = new FormatIndelVCF(fullPred.referenceAllelesForIndels(basesAt), allPredicted,
-                        basesAt.get(0).getReferenceAllele().charAt(0));
-            } else {
-                format = new FormatIndelVCF(basesAt.get(0).getReferenceAllele(), fullPred.predictedAllelesForSnps(b),
-                        basesAt.get(0).getReferenceAllele().charAt(0));
-            }
-
-            if (Objects.isNull(format))
-                continue; //should never happen, but in case..
-
-            //make an alt-allele-only set for coding
-            SortedSet<String> sortedAltSet = new ObjectAVLTreeSet<String>(format.toVCF);
-            sortedAltSet.remove(format.fromVCF);
-
-            //generate alt column from alt set
-            final Optional<String> optional = sortedAltSet.stream().reduce((s, s2) -> s + "," + s2);
-            String altField = optional.isPresent() && !optional.get().isEmpty()? optional.get() : ".";
-
-            //generate to column (format) from formatted predicted set
-            final Optional<String> toColumnOpt = format.toVCF.stream().reduce((s, s2) -> s + "/" + s2);
-            String toColumn = toColumnOpt.isPresent() ? toColumnOpt.get() : "./.";
-
-            //get max allele length for bed file
-            int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
-            maxLength = Math.max(maxLength, format.fromVCF.length());
-            //TODO: if the reference is null?
-            if (format.fromVCF.isEmpty() || altField.isEmpty()) {
-                b += basesAt.size();
-                continue;
-            }
-            if (args().splitIndels && isIndel) {
-                // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
-                vcfIndelsWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
-                        record.getStartPosition().getReferenceId(), //Chromosome
-                        currentLocation + 1, // VCFs are 1-based
-                        //ID
-                        format.fromVCF, //ref
-                        altField, //ALT
-                        //QUAL
-                        //FILTER
-                        //INFO
-                        PredictG.codeGT(format.toVCF, format.fromVCF, sortedAltSet),
-                        toColumn,
-                        fullPred.getGenotypes().probabilities[b]
-                );
-            } else {
-                // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
-                vcfWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
-                        record.getStartPosition().getReferenceId(), //Chromosome
-                        currentLocation + 1, // VCFs are 1-based
-                        //ID
-                        format.fromVCF, //ref
-                        altField, //ALT
-                        //QUAL
-                        //FILTER
-                        //INFO
-                        PredictG.codeGT(format.toVCF, format.fromVCF, sortedAltSet),
-                        toColumn,
-                        fullPred.getGenotypes().probabilities[b]
-                );
-                b += basesAt.size();
-            }
-
-            bedHelper.add(record.getStartPosition().getReferenceId(), currentLocation, currentLocation + maxLength, fullPred.index,
-                    stats);
-
+            //write whatever is left in the line 
+            if (!currentLine.isEmpty())
+                writeVCFLine(resultsWriter, fullPred, currentLine);
         }
+
     }
 
-    /**
-     * Returns all the bases at the same location of the base in the given position;
-     *
-     * @param record
-     * @param position
-     * @return
-     */
-    private ObjectList<SegmentInformationRecords.Base> getBasesAt(SegmentInformationRecords.SegmentInformation record, int position) {
-        ObjectList<SegmentInformationRecords.Base> bases = new ObjectArrayList<>();
-        //int b = record.getStartPosition().getLocation();
-        int counter = 0;
-        int detectedBaseLocation = 0;
-        for (SegmentInformationRecords.Sample sample : record.getSampleList()) {
-            for (SegmentInformationRecords.Base base : sample.getBaseList()) {
-                if (counter++ == position || detectedBaseLocation == base.getLocation()) {
-                    bases.add(base);
-                    detectedBaseLocation = base.getLocation();
-                }
-            }
+    private void writeVCFLine(PrintWriter resultsWriter, SegmentPrediction fullPred, VCFLine line) {
+
+        int linePosition = line.get(0).getKey().getLocation();
+
+        String refAlleles = fullPred.referenceAlleles(line);
+        Set<String> predictedAlleles = fullPred.predictedAlleles(line);
+        FormatIndelVCF format = new FormatIndelVCF(refAlleles, predictedAlleles,
+                line.get(0).getKey().getReferenceAllele().charAt(0));
+       
+        //make an alt-allele-only set for coding
+        SortedSet<String> sortedAltSet = new ObjectAVLTreeSet<String>(format.toVCF);
+        sortedAltSet.remove(format.fromVCF);
+
+        //generate alt column from alt set
+        final Optional<String> optional = sortedAltSet.stream().reduce((s, s2) -> s + "," + s2);
+        String altField = optional.isPresent() && !optional.get().isEmpty()? optional.get() : ".";
+
+        //generate to column (format) from formatted predicted set
+        final Optional<String> toColumnOpt = format.toVCF.stream().reduce((s, s2) -> s + "/" + s2);
+        String toColumn = toColumnOpt.isPresent() ? toColumnOpt.get() : "./.";
+
+        //get max allele length for bed file
+        int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
+        maxLength = Math.max(maxLength, format.fromVCF.length());
+        //TODO: if the reference is null?
+        if (format.fromVCF.isEmpty() || altField.isEmpty()) {
+            return;
         }
-        return bases;
+        if (Objects.isNull(resultsWriter))
+            resultsWriter = vcfWriter;
+        if (args().splitIndels && line.isIndel()) {
+            // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
+            vcfIndelsWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
+                    fullPred.getReferenceId(), //Chromosome
+                    linePosition + 1, // VCFs are 1-based
+                    //ID
+                    format.fromVCF, //ref
+                    altField, //ALT
+                    //QUAL
+                    //FILTER
+                    //INFO
+                    PredictG.codeGT(format.toVCF, format.fromVCF, sortedAltSet),
+                    toColumn,
+                    fullPred.getGenotypes().probabilities[line.get(0).getValue()]
+            );
+        } else {
+            // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
+            vcfWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
+                    fullPred.getReferenceId(), //Chromosome
+                    linePosition + 1, // VCFs are 1-based
+                    //ID
+                    format.fromVCF, //ref
+                    altField, //ALT
+                    //QUAL
+                    //FILTER
+                    //INFO
+                    PredictG.codeGT(format.toVCF, format.fromVCF, sortedAltSet),
+                    toColumn,
+                    fullPred.getGenotypes().probabilities[line.get(0).getValue()]
+            );
+        }
+
+        bedHelper.add(fullPred.getReferenceId(), linePosition, linePosition + maxLength, fullPred.index,
+                stats);
+
+        line.clear();
     }
 
     /**

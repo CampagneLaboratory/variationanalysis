@@ -49,15 +49,15 @@ public class PredictGSTest {
         builder.addSample(sampleBuilder.build());
         builder.setLength(sampleBuilder.getBaseCount());
         SegmentGenotypePrediction segmentGenotypePrediction = new SegmentGenotypePrediction();
-        segmentGenotypePrediction.predictedGenotypes = new String[] {"GG", "G-"};
+        segmentGenotypePrediction.predictedGenotypes = new String[] {"CC", "G-"};
         segmentGenotypePrediction.length = builder.getLength();
         segmentGenotypePrediction.probabilities = new float[] {0.123F, 0.333F};
-        segmentGenotypePrediction.trueGenotypes = new String[] {"GG","CC"};
+        segmentGenotypePrediction.trueGenotypes = new String[] {"",""};
         SegmentPrediction fullPred = new SegmentPrediction(builder.getStartPosition(),
                 builder.getEndPosition(),segmentGenotypePrediction);
 
         PredictGS tool = new PredictGS();
-        String[] args = new String[]{"-i", "", "-m", ""};
+        String[] args = new String[]{"-i", "1234-MM-test", "-m", "fromTest"};
         tool.parseArguments(args,"predictGS",tool.createArguments());
         tool.writeHeader(null);
         tool.processAggregatedPrediction(null,builder.build(),fullPred);

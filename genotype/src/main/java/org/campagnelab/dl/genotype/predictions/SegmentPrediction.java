@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.genotype.performance.SegmentGenotypePredictionTest;
+import org.campagnelab.dl.genotype.tools.VCFLine;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 
 import java.util.Arrays;
@@ -24,7 +25,7 @@ public class SegmentPrediction extends Prediction {
     SegmentInformationRecords.ReferencePosition startPosition;
     SegmentInformationRecords.ReferencePosition endPosition;
     SegmentGenotypePrediction genotypes;
-    IntSet indelPositions = new IntArraySet();
+    IntSet hasGaps = new IntArraySet();
 
     // predicted colors, one per allele ( up to ploidy), predictedColors[alleleIndex][baseIndex].
     // note that alleleIndex identifies the allele in the predicted genotype. 0 is first allele in 0/1/2,
@@ -36,8 +37,8 @@ public class SegmentPrediction extends Prediction {
      */
     // isVariant[baseIndex] is true when the base does not match the reference.
     boolean[] isVariant;
-    // isIndelPosition[baseIndex] is true when the base participates to an indel.
-    boolean[] isIndel;
+
+    private String referenceId;
 
     public SegmentPrediction(SegmentInformationRecords.ReferencePosition startPosition,
                              SegmentInformationRecords.ReferencePosition endPosition,
@@ -76,13 +77,14 @@ public class SegmentPrediction extends Prediction {
     }
 
     public void inspectRecord(SegmentInformationRecords.SegmentInformation record) {
+        referenceId = record.getStartPosition().getReferenceId();
         int baseIndex = 0;
         for (SegmentInformationRecords.Sample sample : record.getSampleList()) {
             int previousLocation = 0;
             for (SegmentInformationRecords.Base base :sample.getBaseList()) {
                 if (base.getLocation() == previousLocation || genotypes.predictedGenotypes[baseIndex].contains("-") ) {
                     //this is an indel (at least, two bases at the same location with a predicted gap)
-                     this.indelPositions.add(base.getLocation());
+                     this.hasGaps.add(base.getLocation());
                 }
                 previousLocation = base.getLocation();
                 baseIndex++;
@@ -92,29 +94,10 @@ public class SegmentPrediction extends Prediction {
 
     }
 
-    public Set<String> predictedAllelesForIndels(int position, int howMany) {
-        Set<String> alleles = new HashSet<>();
-        String firstAllele = "";
-        String secondAllele = "";
-        int i = 0;
-        while (i < howMany && i< genotypes.predictedGenotypes.length && genotypes.predictedGenotypes[i] != null) {
-            String[] parts = genotypes.predictedGenotypes[position + i++].split("");
-            firstAllele += parts[0];
-            secondAllele += parts[1];
-        }
-        alleles.add(firstAllele);
-        alleles.add(secondAllele);
-        return alleles;
+    public boolean hasPredictedGap(int baseIndex) {
+      return genotypes.predictedGenotypes[baseIndex].contains("-");
     }
-
-    public Set<String> predictedAllelesForSnps(int position) {
-        Set<String> alleles = new HashSet<>();
-        String[] genotypesAtBase = genotypes.predictedGenotypes[position].split("");
-        alleles.addAll(Arrays.asList(genotypesAtBase));
-        return alleles;
-    }
-
-
+    
     public Set<String> trueAlleles(int position) {
         Set<String> alleles = new HashSet<>();
         alleles.addAll(Arrays.asList(genotypes.trueGenotypes[position].split("")));
@@ -133,18 +116,29 @@ public class SegmentPrediction extends Prediction {
         return result;
     }
 
-    /**
-     * Checks whether the base is at a predicted indel positon.
-     * @param base
-     * @return
-     */
-    public boolean isIndelPosition(SegmentInformationRecords.Base base) {
-        return this.indelPositions.contains(base.getLocation());
+
+    public String referenceAlleles(VCFLine line) {
+        final String[] reference = {""};
+        line.forEach(base -> reference[0] += base.getKey().getReferenceAllele());
+        return reference[0];
     }
 
-    public String referenceAllelesForIndels(ObjectList<SegmentInformationRecords.Base> basesAt) {
-        final String[] reference = {""};
-        basesAt.forEach(base -> reference[0] += base.getReferenceAllele());
-        return reference[0];
+    public Set<String> predictedAlleles(VCFLine line) {
+        Set<String> alleles = new HashSet<>();
+        String firstAllele = "";
+        String secondAllele = "";
+        for (VCFLine.IndexedBase base : line) {
+            String[] parts = genotypes.predictedGenotypes[base.getValue()].split("");
+            firstAllele += parts[0];
+            secondAllele += parts[1];
+        }
+        alleles.add(firstAllele);
+        alleles.add(secondAllele);
+        return alleles;
+    }
+
+
+    public String getReferenceId() {
+        return referenceId;
     }
 }
