@@ -6,7 +6,6 @@ import org.campagnelab.dl.genotype.storage.SegmentWriter;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.mvc.WebSocket;
 
 import java.io.File;
 import java.io.IOException;
