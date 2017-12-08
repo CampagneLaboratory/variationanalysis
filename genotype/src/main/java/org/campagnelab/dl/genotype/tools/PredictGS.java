@@ -132,16 +132,24 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             VCFLine currentLine = new VCFLine();
             int sampleIndex = 0; //index in the current sample
             while (sampleIndex < sample.getBaseCount()) {
-                VCFLine.IndexedBase base = new VCFLine.IndexedBase(sample.getBase(sampleIndex), segmentIndex);
-                if (fullPred.hasPredictedGap(segmentIndex)) {
-                    currentLine.add(base);
-                    currentLine.markAsIndel(base);
-                } else {
-                    //check if we need to write the line before adding the new base
-                    if (currentLine.needToFlush(base)) {
-                      writeVCFLine(resultsWriter, fullPred,currentLine);
+                VCFLine.IndexedBase indexedBase = new VCFLine.IndexedBase(sample.getBase(sampleIndex), segmentIndex);
+                try {
+
+                    if (fullPred.hasPredictedGap(segmentIndex)) {
+                        currentLine.add(indexedBase);
+                        currentLine.markAsIndel(indexedBase);
+                    } else {
+                        //check if we need to write the line before adding the new base
+                        if (currentLine.needToFlush(indexedBase)) {
+                            writeVCFLine(resultsWriter, fullPred,currentLine);
+                        }
+                        currentLine.add(indexedBase);
                     }
-                    currentLine.add(base);
+                } catch (Exception e) {
+                    System.err.println(String.format("Segment %s:%d-%s:%d: failed to process base at %d",
+                            record.getStartPosition().getReferenceId(),record.getStartPosition().getLocation(),
+                            record.getEndPosition().getReferenceId(),record.getEndPosition().getLocation(),
+                            indexedBase.getKey().getLocation()));
                 }
                 segmentIndex++;
                 sampleIndex++;

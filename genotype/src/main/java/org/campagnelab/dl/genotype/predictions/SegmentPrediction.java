@@ -94,8 +94,8 @@ public class SegmentPrediction extends Prediction {
 
     }
 
-    public boolean hasPredictedGap(int baseIndex) {
-      return genotypes.predictedGenotypes[baseIndex].contains("-");
+    public boolean hasPredictedGap(int segmentIndex) {
+      return genotypes.predictedGenotypes[segmentIndex].contains("-");
     }
     
     public Set<String> trueAlleles(int position) {
