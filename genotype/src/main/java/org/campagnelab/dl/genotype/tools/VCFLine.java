@@ -1,8 +1,7 @@
 package org.campagnelab.dl.genotype.tools;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import javafx.beans.NamedArg;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 
 /**
@@ -75,15 +74,10 @@ public class VCFLine extends ObjectArrayList<VCFLine.IndexedBase> {
     /**
      * Base with its current position in the segment.
      */
-    public static class IndexedBase extends Pair<SegmentInformationRecords.Base, Integer> {
-        /**
-         * Creates a new pair
-         *
-         * @param key   The key for this pair
-         * @param value The value to use for this pair
-         */
-        public IndexedBase(@NamedArg("key") SegmentInformationRecords.Base key, @NamedArg("value") Integer value) {
-            super(key, value);
+    public static class IndexedBase extends MutablePair<SegmentInformationRecords.Base, Integer> {
+
+        public IndexedBase(SegmentInformationRecords.Base base, Integer index) {
+            super(base, index);
         }
     }
 
