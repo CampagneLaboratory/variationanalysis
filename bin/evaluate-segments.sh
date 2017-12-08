@@ -55,9 +55,9 @@ function assertBedtoolsInstalled {
 assertBedtoolsInstalled
 
 
-if [ -z "${MINI_BATCH_SIZE+set}" ]; then
-    MINI_BATCH_SIZE="2048"
-    echo "MINI_BATCH_SIZE set to ${MINI_BATCH_SIZE}. Change the variable to switch the mini-batch-size."
+if [ -z "${PREDICT_MINI_BATCH_SIZE+set}" ]; then
+    PREDICT_MINI_BATCH_SIZE="2048"
+    echo "PREDICT_MINI_BATCH_SIZE set to ${PREDICT_MINI_BATCH_SIZE}. Change the variable to switch the mini-batch-size."
 fi
 set -x
 if [ -z "${GOLD_STANDARD_VCF_SNP_GZ+set}" ] || [ -z "${GOLD_STANDARD_VCF_INDEL_GZ+set}" ]; then
@@ -123,7 +123,7 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
 
     echo "Running predict-segments to create VCF and observed region bed.."
     predict-segments.sh 20g --model-path ${MODEL_DIR} --to-file --dataset ${DATASET_SSI} \
-        --mini-batch-size ${MINI_BATCH_SIZE}  -l ${MODEL_PREFIX} ${PREDICT_OPTIONS}  --no-cache
+        --mini-batch-size ${PREDICT_MINI_BATCH_SIZE}  -l ${MODEL_PREFIX} ${PREDICT_OPTIONS}  --no-cache
     dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
     echo "Evaluation with rtg vcfeval starting.."
 
