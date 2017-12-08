@@ -3,8 +3,11 @@ package org.campagnelab.dl.genotype.tools;
 import com.beust.jcommander.Parameter;
 import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Created by mas2182 on 11/3/17.
+ * Arguments for the {@link SBISimulator} tool.
  */
 public class SBISimulatorArguments implements ToolArguments {
 
@@ -15,9 +18,14 @@ public class SBISimulatorArguments implements ToolArguments {
             description = "Input file with the variant map, must be provided in .varmap format (produced with Goby3).")
     public String inputFile = null;
 
-    @Parameter(required = false, names = {"-c", "--chromosome"}, variableArity = true,
-            description = "Write sbi only for variants on the specified chromosome.")
-    public String chromosome = null;
+    @Parameter(required = false, names = {"--include"}, variableArity = true,
+            description = "Chromosome(s) to include.")
+    public List<String> includeChromosomes = new ArrayList<>();
+
+    @Parameter(required = false, names = {"--exclude"}, variableArity = true,
+            description = "Chromosome(s) to exclude.")
+    public List<String> excludeChromosomes = new ArrayList<>();
+
 
     @Parameter(names = "--read-N", description = "Read at most N chromosomes from the varmap, then stop.")
     public long readN=Long.MAX_VALUE;

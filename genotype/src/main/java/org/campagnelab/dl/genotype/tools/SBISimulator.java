@@ -42,6 +42,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
             final RecordWriter writer = new RecordWriter(args().outputFilename);
             final VariantMapHelper helper = new VariantMapHelper(args().inputFile);
             List<String> chromosomes = this.chromosomesForSBI(helper);
+            LOG.info("Processing chromosome(s): " + Arrays.toString(chromosomes.toArray()));
             chromosomes.parallelStream().limit(args().readN).forEach((String chromosome) -> {
                 if (args().verbose) System.out.println("Chrom: " + chromosome);
                 for (ObjectIterator<Variant> it = helper.getAllVariants(chromosome); it.hasNext(); ) {
@@ -91,11 +92,23 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
      */
     private List<String> chromosomesForSBI(final VariantMapHelper helper) {
         List<String> chroms = null;
-        if (args().chromosome != null) {
-            chroms = new ObjectArrayList<String>(1);
-            chroms.add(args().chromosome);
+        if (!args().excludeChromosomes.isEmpty() && !args().includeChromosomes.isEmpty()) {
+            throw new IllegalArgumentException("Only one argument between include and exclude can be speficied.");
+        }
+        if (!args().includeChromosomes.isEmpty()) {
+            chroms = new ObjectArrayList<>(args().includeChromosomes.size());
+            chroms.addAll(args().includeChromosomes);
+        } else if (!args().excludeChromosomes.isEmpty()) {
+            chroms = new ObjectArrayList<>(helper.size() - args().excludeChromosomes.size());
+            ObjectIterator<String> it = helper.getAllChromosomes();
+            while (it.hasNext()) {
+                String chr = it.next();
+                if (!args().excludeChromosomes.contains(chr))
+                    chroms.add(chr);
+            }
         } else {
-            chroms = new ObjectArrayList<String>(helper.size());
+            //use all the chromosomes in the map
+            chroms = new ObjectArrayList<>(helper.size());
             ObjectIterator<String> it = helper.getAllChromosomes();
             while (it.hasNext()) chroms.add(it.next());
         }
