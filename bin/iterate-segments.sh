@@ -115,3 +115,8 @@ train-segments.sh 100g -t ${DATASET}${TRAIN_SUFFIX}.ssi -v ${DATASET}${VAL_SUFFI
           --early-stopping-num-epochs ${EARLY_STOPPING_NUM_EPOCHS} --gpu-device ${GPU} \
           ${NETWORK_ARCHITECTURE_OPTION} | tee ${OUTPUT_FILE}
 dieIfError "Failed to train model with CUDA GPU build."
+
+export VCF_OUTPUT=`ls -1 ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}*-genotypes.vcf`
+export BED_OBSERVED_REGIONS_OUTPUT=`ls -1 ${MODEL_TIME}-best${EVALUATION_METRIC_NAME}-*observed-regions.bed`
+evaluate-segments.sh ${MODEL_DIR} best${EVALUATION_METRIC_NAME}
+dieIfError "Failed to run rtg evaluation."
