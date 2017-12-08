@@ -136,8 +136,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
                 try {
 
                     if (fullPred.hasPredictedGap(segmentIndex)) {
-                        currentLine.add(indexedBase);
-                        currentLine.markAsIndel(indexedBase);
+                        currentLine.addAndMarkAsIndel(indexedBase);
                     } else {
                         //check if we need to write the line before adding the new base
                         if (currentLine.needToFlush(indexedBase)) {

@@ -42,7 +42,7 @@ public class VCFLine extends ObjectArrayList<VCFLine.IndexedBase> {
     /**
      * Marks the current content of the queue as an indel
      */
-    public void markAsIndel(IndexedBase base) {
+    private void markAsIndel(IndexedBase base) {
         this.isIndel = true;
         this.lastGapLocation = base.getKey().getLocation();
     }
@@ -70,7 +70,12 @@ public class VCFLine extends ObjectArrayList<VCFLine.IndexedBase> {
     public boolean isIndel() {
         return isIndel;
     }
-    
+
+    public void addAndMarkAsIndel(IndexedBase indexedBase) {
+        this.add(indexedBase);
+        this.markAsIndel(indexedBase);
+    }
+
     /**
      * Base with its current position in the segment.
      */
