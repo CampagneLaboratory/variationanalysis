@@ -14,22 +14,22 @@ import java.util.Objects;
 /**
  * Filter SSI to extract a subset of the segments at specific positions.
  */
-public class SSIFilter extends AbstractTool<SSIFilterArguments> {
+public class FilterSSI extends AbstractTool<FilterSSIArguments> {
 
-    static private Logger LOG = LoggerFactory.getLogger(SSIFilter.class);
+    static private Logger LOG = LoggerFactory.getLogger(FilterSSI.class);
     int startLocation;
     int endLocation;
     String referenceId;
 
     public static void main(String[] args) {
         SBIToSSIConverter tool = new SBIToSSIConverter();
-        tool.parseArguments(args, "SSIFilter", tool.createArguments());
+        tool.parseArguments(args, "FilterSSI", tool.createArguments());
         tool.execute();
     }
 
     @Override
-    public SSIFilterArguments createArguments() {
-        return new SSIFilterArguments();
+    public FilterSSIArguments createArguments() {
+        return new FilterSSIArguments();
     }
 
     @Override

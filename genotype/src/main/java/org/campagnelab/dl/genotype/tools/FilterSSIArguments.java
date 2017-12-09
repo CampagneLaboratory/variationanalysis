@@ -4,9 +4,11 @@ import com.beust.jcommander.Parameter;
 import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
 
 /**
- * Created by mas2182 on 12/8/17.
+ * Arguments for the {@link FilterSSI} tool.
+ *
+ * @author manuele
  */
-public class SSIFilterArguments implements ToolArguments {
+public class FilterSSIArguments implements ToolArguments {
 
     @Parameter(required = true, names = {"-i", "--input-file"}, variableArity = true,
             description = "Input SSI to filter, must be provided in .ssi format.")
