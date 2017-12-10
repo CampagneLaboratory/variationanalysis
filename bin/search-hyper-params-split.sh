@@ -15,15 +15,24 @@ log-uniform
 1e-01
 1e-05
 
+--increase-decrease
+uniform
+1.05
+0.95
+
 --lr-patience
 int
-3
 10
 
---factor
-log-uniform
-10
+--alpha
+uniform
 0.01
+0.99
+
+--unsup-proportion
+uniform
+0.01
+0.99
 
 --L2
 log-uniform
@@ -32,7 +41,7 @@ log-uniform
 
 --mode
 categorical
-split
+mixup
 
 --constant-learning-rates
 flag
@@ -61,7 +70,7 @@ arg-generator.sh 1g --config ${SBI_SEARCH_PARAM_CONFIG} --output gen-args.txt --
 echo "Training.."
 
 parallel echo `cat main-command.txt` \
-        --max-epochs 200 --abort-when-failed-to-improve 20 \
+        --max-epochs 200 --abort-when-failed-to-improve 200 \
         :::: gen-args.txt \
 >commands.txt
 
