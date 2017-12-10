@@ -23,6 +23,7 @@ uniform
 --lr-patience
 int
 10
+10
 
 --alpha
 uniform
@@ -70,7 +71,7 @@ arg-generator.sh 1g --config ${SBI_SEARCH_PARAM_CONFIG} --output gen-args.txt --
 echo "Training.."
 
 parallel echo `cat main-command.txt` \
-        --max-epochs 200 --abort-when-failed-to-improve 200 \
+        --max-epochs 500 --abort-when-failed-to-improve 200 \
         :::: gen-args.txt \
 >commands.txt
 
