@@ -41,21 +41,25 @@ public class FilterSSI extends AbstractTool<FilterSSIArguments> {
         this.endLocation = Integer.valueOf(end[1]);
         if (!Objects.equals(this.referenceId, end[0]))
             throw new IllegalArgumentException("Chromosomes in the start and end positions do not match.");
+        final int[] numOfFilteredBases = {0};
         try (SegmentReader ssiReader = new SegmentReader(new File(args().inputFile).getAbsolutePath());
              SegmentWriter ssiwriter = new SegmentWriter(new File(args().outputFile).getAbsolutePath());) {
             ssiReader.forEach(segmentInformation -> {
                 if (this.accept(segmentInformation)) {
                     ssiwriter.writeRecord(segmentInformation);
+                    numOfFilteredBases[0] += segmentInformation.getLength();
                 }
             });
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Number of filtered bases: " + numOfFilteredBases[0]);
 
     }
     public FilterSSIArguments args() {
         return arguments;
     }
+
     private boolean accept(SegmentInformationRecords.SegmentInformation segment) {
         if (!Objects.equals(segment.getStartPosition().getReferenceId(), this.referenceId))
             return false;
