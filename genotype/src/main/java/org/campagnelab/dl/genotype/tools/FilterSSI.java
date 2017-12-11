@@ -64,6 +64,6 @@ public class FilterSSI extends AbstractTool<FilterSSIArguments> {
         if (!Objects.equals(segment.getStartPosition().getReferenceId(), this.referenceId))
             return false;
         return (segment.getStartPosition().getLocation() >= this.startLocation
-                || segment.getEndPosition().getLocation() <= this.endLocation);
+                && segment.getEndPosition().getLocation() <= this.endLocation);
     }
 }
