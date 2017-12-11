@@ -22,7 +22,7 @@ public class FilterSSI extends AbstractTool<FilterSSIArguments> {
     String referenceId;
 
     public static void main(String[] args) {
-        SBIToSSIConverter tool = new SBIToSSIConverter();
+        FilterSSI tool = new FilterSSI();
         tool.parseArguments(args, "FilterSSI", tool.createArguments());
         tool.execute();
     }
@@ -53,7 +53,9 @@ public class FilterSSI extends AbstractTool<FilterSSIArguments> {
         }
 
     }
-
+    public FilterSSIArguments args() {
+        return arguments;
+    }
     private boolean accept(SegmentInformationRecords.SegmentInformation segment) {
         if (!Objects.equals(segment.getStartPosition().getReferenceId(), this.referenceId))
             return false;
