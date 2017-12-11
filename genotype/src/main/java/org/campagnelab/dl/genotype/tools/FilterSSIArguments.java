@@ -23,7 +23,7 @@ public class FilterSSIArguments implements ToolArguments {
     public String startPosition = null;
 
 
-    @Parameter(required = true, names = {"-s", "--start-position"}, variableArity = true,
+    @Parameter(required = true, names = {"-e", "--end-position"}, variableArity = true,
             description = "Position at which the filter stops, must be provided in chr:pos format.")
     public String endPosition = null;
 
