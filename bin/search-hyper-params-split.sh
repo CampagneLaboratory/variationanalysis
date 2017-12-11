@@ -17,8 +17,8 @@ log-uniform
 
 --increase-decrease
 uniform
-1.05
-0.95
+1.01
+0.99
 
 --lr-patience
 int
