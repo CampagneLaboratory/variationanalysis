@@ -13,7 +13,7 @@ cat << EOF | cat> config.txt
 --lr
 log-uniform
 1e-01
-1e-05
+1e-02
 
 --increase-decrease
 uniform
@@ -27,8 +27,8 @@ int
 
 --alpha
 uniform
-0.01
-0.99
+0.7
+0.9
 
 --unsup-proportion
 uniform
@@ -71,7 +71,7 @@ arg-generator.sh 1g --config ${SBI_SEARCH_PARAM_CONFIG} --output gen-args.txt --
 echo "Training.."
 
 parallel echo `cat main-command.txt` \
-        --max-epochs 500 --abort-when-failed-to-improve 200 \
+        --max-epochs 500 --abort-when-failed-to-improve 100 \
         :::: gen-args.txt \
 >commands.txt
 
