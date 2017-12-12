@@ -188,8 +188,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
         if (format.fromVCF.isEmpty() || altField.isEmpty()) {
             return;
         }
-        if (Objects.isNull(resultsWriter))
-            resultsWriter = vcfWriter;
+        String predicted = PredictG.codeGT(format.toVCF, ".".equals(format.fromVCF)? "" : format.fromVCF, sortedAltSet);
         if (args().splitIndels && line.isIndel()) {
             // line fields: "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n";
             vcfIndelsWriter.printf(VCF_LINE, //"%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
@@ -201,7 +200,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
                     //QUAL
                     //FILTER
                     //INFO
-                    PredictG.codeGT(format.toVCF, format.fromVCF, sortedAltSet),
+                    predicted,
                     toColumn,
                     fullPred.getGenotypes().probabilities[line.get(0).getValue()]
             );
@@ -216,7 +215,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
                     //QUAL
                     //FILTER
                     //INFO
-                    PredictG.codeGT(format.toVCF, format.fromVCF, sortedAltSet),
+                    predicted,
                     toColumn,
                     fullPred.getGenotypes().probabilities[line.get(0).getValue()]
             );
