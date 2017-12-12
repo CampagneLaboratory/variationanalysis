@@ -63,7 +63,36 @@ public class FilterSSI extends AbstractTool<FilterSSIArguments> {
     private boolean accept(SegmentInformationRecords.SegmentInformation segment) {
         if (!Objects.equals(segment.getStartPosition().getReferenceId(), this.referenceId))
             return false;
-        return (segment.getStartPosition().getLocation() >= this.startLocation
-                && segment.getEndPosition().getLocation() <= this.endLocation);
+        //condition 1: the range includes the segment
+        //
+        // ---startLocation---|--------------|---endLocation
+        //                   seg-start      seg-end
+        if ((segment.getStartPosition().getLocation() >= this.startLocation
+                && segment.getEndPosition().getLocation() <= this.endLocation))
+            return true;
+
+        //condition 2: the range is fully inside the segment
+        //
+        // ----|---startLocation------endLocation-------|---
+        //   seg-start                              seg-end
+        if ((segment.getStartPosition().getLocation() <= this.startLocation
+                && segment.getEndPosition().getLocation() >= this.endLocation))
+            return true;
+
+        //condition 3: the range is partially inside the segment
+        //
+        // ----|---startLocation------------|---endLocation----
+        //   seg-start                    seg-end
+        if ((segment.getStartPosition().getLocation() <= this.startLocation
+                && segment.getEndPosition().getLocation() >= this.startLocation))
+            //start location is in the middle of the segment
+            return true;
+
+        if ((segment.getStartPosition().getLocation() <= this.endLocation
+                && segment.getEndPosition().getLocation() >= this.endLocation))
+            //end location is in the middle of the segment
+            return true;
+
+        return false;
     }
 }
