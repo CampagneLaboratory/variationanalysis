@@ -138,11 +138,8 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
                         currentLine.addBaseWithPredictedGap(indexedBase);
                     } else {
                         //check if we need to write the line before adding the new base
-                        if (currentLine.needToFlush(indexedBase)) {
-                            if (currentLine.hasNoAnchorBeforeGap())
-                                linesWithNoAnchor++;
+                        if (currentLine.needToFlush(indexedBase))
                             writeVCFLine(resultsWriter, fullPred,currentLine);
-                        }
                         currentLine.add(indexedBase);
                     }
                 } catch (Exception e) {
