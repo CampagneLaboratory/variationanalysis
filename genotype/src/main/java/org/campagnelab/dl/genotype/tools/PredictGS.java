@@ -40,6 +40,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
     private static final String VCF_LINE = "%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT:MC:P\t%s:%s:%f\n";
     private String[] orderStats;
     protected StatsAccumulator stats;
+    int linesWithNoAnchor = 0;
 
     public static void main(String[] args) {
 
@@ -95,6 +96,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
      */
     @Override
     protected void reportStatistics(String prefix) {
+        System.out.println("Number of lines with gaps but no anchor base: " + linesWithNoAnchor);
         if (Objects.nonNull(this.vcfIndelsWriter)) this.vcfIndelsWriter.close();
         if (Objects.nonNull(this.vcfWriter)) this.vcfWriter.close();
         if (Objects.nonNull(this.bedHelper)) this.bedHelper.close();
@@ -124,7 +126,6 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
                                                SegmentInformationRecords.SegmentInformation record, SegmentPrediction fullPred) {
         assert fullPred != null : "fullPred must not be null";
         fullPred.inspectRecord(record);
-        int linesWithNoAnchor = 0;
         int segmentIndex = 0; //index in the whole segment
         for (SegmentInformationRecords.Sample sample: record.getSampleList()) {
             VCFLine currentLine = new VCFLine();
@@ -155,20 +156,15 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
             }
             //write whatever is left in the line 
             if (!currentLine.isEmpty()) {
-                if (currentLine.hasNoAnchorBeforeGap())
-                    linesWithNoAnchor++;
                 writeVCFLine(resultsWriter, fullPred, currentLine);
             }
         }
-        System.out.println("Number of lines with gaps but no anchor base: " + linesWithNoAnchor);
     }
 
     private void writeVCFLine(PrintWriter resultsWriter, SegmentPrediction fullPred, VCFLine line) {
 
         int linePosition = line.get(0).getKey().getLocation();
-        if (linePosition == 7758782) {
-            System.out.println("Wait here");
-        }
+
         String refAlleles = fullPred.referenceAlleles(line);
         Set<String> predictedAlleles = fullPred.predictedAlleles(line);
         FormatIndelVCF format = new FormatIndelVCF(refAlleles, predictedAlleles,
@@ -228,7 +224,8 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
 
         bedHelper.add(fullPred.getReferenceId(), linePosition, linePosition + maxLength, fullPred.index,
                 stats);
-
+        if (line.hasNoAnchorBeforeGap())
+            linesWithNoAnchor++;
         line.clear();
     }
 
