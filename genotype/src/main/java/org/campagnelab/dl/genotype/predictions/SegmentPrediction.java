@@ -129,11 +129,22 @@ public class SegmentPrediction extends Prediction {
         String secondAllele = "";
         for (VCFLine.IndexedBase base : line) {
             String[] parts = genotypes.predictedGenotypes[base.getValue()].split("");
+            if (line.hasNoAnchorBeforeGap()) {
+                //strips the gaps at the beginning
+                if ("-".equals(parts[0]) && firstAllele.isEmpty()) {
+                    parts[0] = "";
+                }
+                if ("-".equals(parts[1]) && secondAllele.isEmpty()) {
+                    parts[1] = "";
+                }
+            }
             firstAllele += parts[0];
             secondAllele += parts[1];
         }
-        alleles.add(firstAllele);
-        alleles.add(secondAllele);
+        if (!firstAllele.isEmpty())
+            alleles.add(firstAllele);
+        if (!secondAllele.isEmpty())
+            alleles.add(secondAllele);
         return alleles;
     }
 

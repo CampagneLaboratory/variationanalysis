@@ -2,8 +2,6 @@ package org.campagnelab.dl.genotype.tools;
 
 import edu.cornell.med.icb.util.VersionUtils;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.tools.Predict;
@@ -130,13 +128,13 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
         int segmentIndex = 0; //index in the whole segment
         for (SegmentInformationRecords.Sample sample: record.getSampleList()) {
             VCFLine currentLine = new VCFLine();
-            int sampleIndex = 0; //index in the current sample
-            while (sampleIndex < sample.getBaseCount()) {
-                VCFLine.IndexedBase indexedBase = new VCFLine.IndexedBase(sample.getBase(sampleIndex), segmentIndex);
+            int baseIndex = 0; //index in the current sample
+            while (baseIndex < sample.getBaseCount()) {
+                VCFLine.IndexedBase indexedBase = new VCFLine.IndexedBase(sample.getBase(baseIndex), segmentIndex);
                 try {
 
                     if (fullPred.hasPredictedGap(segmentIndex)) {
-                        currentLine.addAndMarkAsIndel(indexedBase);
+                        currentLine.addBaseWithPredictedGap(indexedBase);
                     } else {
                         //check if we need to write the line before adding the new base
                         if (currentLine.needToFlush(indexedBase)) {
@@ -151,7 +149,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
                             indexedBase.getKey().getLocation()));
                 }
                 segmentIndex++;
-                sampleIndex++;
+                baseIndex++;
             }
             //write whatever is left in the line 
             if (!currentLine.isEmpty())
@@ -163,7 +161,9 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
     private void writeVCFLine(PrintWriter resultsWriter, SegmentPrediction fullPred, VCFLine line) {
 
         int linePosition = line.get(0).getKey().getLocation();
-
+        if (linePosition == 7758782) {
+            System.out.println("Wait here");
+        }
         String refAlleles = fullPred.referenceAlleles(line);
         Set<String> predictedAlleles = fullPred.predictedAlleles(line);
         FormatIndelVCF format = new FormatIndelVCF(refAlleles, predictedAlleles,

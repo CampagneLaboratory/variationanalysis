@@ -14,6 +14,7 @@ public class VCFLine extends ObjectArrayList<VCFLine.IndexedBase> {
     private boolean isIndel = false;
     private int lastBaseLocation = 0;
     private int lastGapLocation = 0;
+    private boolean noAnchorBeforeGap = false;
 
 
     /**
@@ -71,10 +72,19 @@ public class VCFLine extends ObjectArrayList<VCFLine.IndexedBase> {
         return isIndel;
     }
 
-    public void addAndMarkAsIndel(IndexedBase indexedBase) {
+    public void addBaseWithPredictedGap(IndexedBase indexedBase) {
+        if (this.isEmpty()) {
+            noAnchorBeforeGap = true;
+        }
         this.add(indexedBase);
         this.markAsIndel(indexedBase);
     }
+
+
+    public boolean hasNoAnchorBeforeGap() {
+        return noAnchorBeforeGap;
+    }
+
 
     /**
      * Base with its current position in the segment.
