@@ -124,7 +124,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
                                                SegmentInformationRecords.SegmentInformation record, SegmentPrediction fullPred) {
         assert fullPred != null : "fullPred must not be null";
         fullPred.inspectRecord(record);
-
+        int linesWithNoAnchor = 0;
         int segmentIndex = 0; //index in the whole segment
         for (SegmentInformationRecords.Sample sample: record.getSampleList()) {
             VCFLine currentLine = new VCFLine();
@@ -138,6 +138,8 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
                     } else {
                         //check if we need to write the line before adding the new base
                         if (currentLine.needToFlush(indexedBase)) {
+                            if (currentLine.hasNoAnchorBeforeGap())
+                                linesWithNoAnchor++;
                             writeVCFLine(resultsWriter, fullPred,currentLine);
                         }
                         currentLine.add(indexedBase);
@@ -152,10 +154,13 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
                 baseIndex++;
             }
             //write whatever is left in the line 
-            if (!currentLine.isEmpty())
+            if (!currentLine.isEmpty()) {
+                if (currentLine.hasNoAnchorBeforeGap())
+                    linesWithNoAnchor++;
                 writeVCFLine(resultsWriter, fullPred, currentLine);
+            }
         }
-
+        System.out.println("Number of lines with gaps but no anchor base: " + linesWithNoAnchor);
     }
 
     private void writeVCFLine(PrintWriter resultsWriter, SegmentPrediction fullPred, VCFLine line) {
