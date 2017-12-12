@@ -18,8 +18,9 @@ public class VCFLine extends ObjectArrayList<VCFLine.IndexedBase> {
 
 
     /**
-     * Detects according to the next base, if the queue needs to be written as next line in the VCF
-     * @param nextBase  the candidate next base
+     * Detects according to the next base, if the line needs to be written in the VCF
+     *
+     * @param nextBase the candidate next base
      * @return
      */
     public boolean needToFlush(IndexedBase nextBase) {
@@ -27,14 +28,14 @@ public class VCFLine extends ObjectArrayList<VCFLine.IndexedBase> {
             return false;
         if (!isIndel)
             //check if they are contiguous
-            return lastBaseLocation != nextBase.getKey().getLocation();
+            return nextBase.getKey().getLocation() - lastBaseLocation > 1;
         else {
             //the next base after a gap is always accepted
             if (lastBaseLocation == lastGapLocation)
                 return false;
             else {
                 //check if they are contiguous
-                return lastBaseLocation != nextBase.getKey().getLocation();
+                return nextBase.getKey().getLocation() - lastBaseLocation > 1;
             }
         }
 
@@ -50,7 +51,7 @@ public class VCFLine extends ObjectArrayList<VCFLine.IndexedBase> {
 
     @Override
     public void add(int index, IndexedBase base) {
-        super.add(index,base);
+        super.add(index, base);
         this.lastBaseLocation = base.getKey().getLocation();
     }
 
