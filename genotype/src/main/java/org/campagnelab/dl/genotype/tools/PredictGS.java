@@ -178,7 +178,7 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
         String altField = optional.isPresent() && !optional.get().isEmpty()? optional.get() : ".";
 
         //generate to column (format) from formatted predicted set
-        final Optional<String> toColumnOpt = format.toVCF.stream().reduce((s, s2) -> s + "/" + s2);
+        final Optional<String> toColumnOpt = format.toVCF.stream().reduce((s, s2) -> s + ((s2.isEmpty())? "" :"/" + s2));
         String toColumn = toColumnOpt.isPresent() ? toColumnOpt.get() : "./.";
 
         //get max allele length for bed file
