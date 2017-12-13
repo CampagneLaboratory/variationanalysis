@@ -28,14 +28,14 @@ public class VCFLine extends ObjectArrayList<VCFLine.IndexedBase> {
             return false;
         if (!isIndel)
             //check if they are contiguous
-            return nextBase.getKey().getLocation() - lastBaseLocation > 1;
+            return lastBaseLocation != nextBase.getKey().getLocation();
         else {
             //the next base after a gap is always accepted
             if (lastBaseLocation == lastGapLocation)
                 return false;
             else {
                 //check if they are contiguous
-                return nextBase.getKey().getLocation() - lastBaseLocation > 1;
+                return lastBaseLocation != nextBase.getKey().getLocation();
             }
         }
 
