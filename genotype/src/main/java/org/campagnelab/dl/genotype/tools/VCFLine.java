@@ -67,6 +67,7 @@ public class VCFLine extends ObjectArrayList<VCFLine.IndexedBase> {
         this.isIndel = false;
         this.lastBaseLocation = 0;
         this.lastGapLocation = 0;
+        this.noAnchorBeforeGap = false;
     }
 
     public boolean isIndel() {
