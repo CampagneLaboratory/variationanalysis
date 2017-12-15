@@ -87,7 +87,7 @@ arg-generator.sh 1g --config ${SBI_SEARCH_PARAM_CONFIG} --output gen-args.txt --
 echo "Training.."
 
 parallel echo `cat main-command.txt` \
-        --max-epochs 500 --abort-when-failed-to-improve 100 \
+        --max-epochs 1000 \
         :::: gen-args.txt \
 >commands.txt
 
