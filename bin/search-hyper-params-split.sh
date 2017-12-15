@@ -40,12 +40,28 @@ log-uniform
 1E-2
 1E-12
 
+--label-strategy
+categorical
+VAL_CONFUSION
+UNIFORM
+
 --mode
 categorical
 mixup
 
 --constant-learning-rates
 flag
+
+--reset-lr-every-n-epochs
+categorical
+1000
+100
+
+--mini-batch-size
+categorical
+10
+50
+100
 
 EOF
     echo "SBI_SEARCH_PARAM_CONFIG not set. Using default hyper parameters. Change the variable a file with an arg-generator config file to customize the search."
