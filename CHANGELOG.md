@@ -2,6 +2,8 @@
 
 ### 1.4.1 
  * Halve the learning rate each time the score does not improve.
+ * Migrate to run GATK4 HaploTypeCaller to perform realignment (--bamOut option). 
+   Tested with beta5 version.
  
 ### 1.4.0 (Nov 2017)
 * Various bug fixes. Indel performance is now state of the art on NA12878 with the V37 mapper 
