@@ -1,9 +1,10 @@
 if [ $# -lt 6 ]; then
- echo "usage: parallel-gatk-realign-filtered.sh GATK_JAR 10g NUM_THREADS GENOME_FA BAM_INPUT BAM_OUTPUT [GATK_ARGS]"
+ echo "usage: parallel-gatk-realign-filtered.sh PATH_TO_GATK_LAUNCH 10g NUM_THREADS GENOME_FA BAM_INPUT BAM_OUTPUT [GATK_ARGS]"
+ echo "usage: providing the an indexed bam (extension .bam.bai) next to the alignment will improve performance drastically."
  exit 1;
 fi
 
-GATK_JAR=$1
+GATK_LAUNCH=$1
 MEMORY_PER_THREAD=$2
 NUM_THREADS=$3
 GENOME_FA=$4
@@ -15,12 +16,12 @@ DATE=`date +%Y-%m-%d`
 echo ${DATE} >DATE.txt
 
 
-echo "Using ${GATK_JAR} as gatk jar."
+echo "Using ${GATK_LAUNCH} to run GATK4."
 echo "Using ${MEMORY_PER_THREAD} memory per thread."
 echo "Using ${NUM_THREADS} number of threads."
 echo "Using ${GENOME_FA} fasta file as genome. (index file .fa.fai required)."
 echo "Using ${BAM_INPUT} as bam input."
-echo "Appending ${GATK_ARGS} to all GATK HaplotypeCaller calls"
+echo "Appending GATK_ARGS: ${GATK_ARGS} to all GATK HaplotypeCaller calls"
 echo "Writing bam output to ${BAM_OUTPUT}."
 
 if [ ! -f ${BAM_INPUT}.bai ]; then
@@ -33,8 +34,10 @@ rm -rf calmd-and-convert-commands.txt
 nLine=0
 cat refs.txt | while read -r line
     do
-       echo "java -Xmx${MEMORY_PER_THREAD} -jar ${GATK_JAR} -L ${line} -T HaplotypeCaller -R ${GENOME_FA} -I ${BAM_INPUT} \
-                                           ${GATK_ARGS} -o hc_variants_${nLine}.vcf  -bamout realigned_slice_${nLine}.bam && \
+       echo "${GATK_LAUNCH}  HaplotypeCaller --javaOptions \"-Xmx${MEMORY_PER_THREAD}\" \
+            --sparkRunner LOCAL -L ${line} --reference ${GENOME_FA} \
+            --input ${BAM_INPUT} \
+            ${GATK_ARGS} --output hc_variants_${nLine}.vcf  --bamOutput realigned_slice_${nLine}.bam && \
          rm -f hc_variants_${nLine}.vcf* && \
          rm -f slice_${nLine}.bam && \
          rm -f slice_${nLine}.bam.bai && \
