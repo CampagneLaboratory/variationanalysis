@@ -48,6 +48,12 @@ if [ -z  "${SBI_NUM_THREADS+set}" ]; then
     echo "SBI_NUM_THREADS set to ${SBI_NUM_THREADS}. Change the variable to influence the number of parallel jobs."
 fi
 
+if [ -z "${DO_CONCAT+set}" ]; then
+    DO_CONCAT="true"
+    echo "DO_CONCAT set to true."
+fi
+
+
 if [ -z "${REALIGN_AROUND_INDELS+set}" ]; then
     echo "Set REALIGN_AROUND_INDELS to true to enable realignment around indels."
     REALIGNMENT_OPTION=" "
@@ -83,10 +89,12 @@ parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby 20g  `cat comm
 # keep a log of the commands that were used to generate this dataset:
 cp command.txt command-`date +%h_%d_%H_%M`.txt
 
-cat boundaries| grep -v -e chr19 -e chr20 -e chr21 -e chr22 -e chrX -e chrY | cut -d " " ""-f 6 |awk '{print $1".sbi"}' >training-parts
-cat boundaries| grep -e chr19  |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >validation-parts
-cat boundaries| grep -v -e chr19 | grep -e chr20 -e chr21 -e chr22 -e chrX -e chrY |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >testing-parts
+if [ "${DO_CONCAT}" == "true" ]; then
+    cat boundaries| grep -v -e chr19 -e chr20 -e chr21 -e chr22 -e chrX -e chrY | cut -d " " ""-f 6 |awk '{print $1".sbi"}' >training-parts
+    cat boundaries| grep -e chr19  |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >validation-parts
+    cat boundaries| grep -v -e chr19 | grep -e chr20 -e chr21 -e chr22 -e chrX -e chrY |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >testing-parts
 
-concat.sh ${memory_requirement} -f -i `cat training-parts`  -o ${OUTPUT_BASENAME}-pre-train
-concat.sh ${memory_requirement} -f -i `cat validation-parts` -o ${OUTPUT_BASENAME}-pre-validation
-concat.sh ${memory_requirement} -f -i `cat testing-parts` -o ${OUTPUT_BASENAME}-test
+    concat.sh ${memory_requirement} -f -i `cat training-parts`  -o ${OUTPUT_BASENAME}-pre-train
+    concat.sh ${memory_requirement} -f -i `cat validation-parts` -o ${OUTPUT_BASENAME}-pre-validation
+    concat.sh ${memory_requirement} -f -i `cat testing-parts` -o ${OUTPUT_BASENAME}-test
+fi
