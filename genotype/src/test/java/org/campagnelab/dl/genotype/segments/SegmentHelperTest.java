@@ -49,6 +49,12 @@ public class SegmentHelperTest {
            "ref=T\ttrueGenotype=-\tcounts= -=7  (from: T)\n" +
            "ref=A\ttrueGenotype=A\tcounts= A=7  (from: A)\n";
 
+    String expectedInsertionWithSNP =
+            "ref=A\ttrueGenotype=A\tcounts= A=65  (from: A)\n" +
+            "ref=-\ttrueGenotype=-/T\tcounts= -=32  T=33  (from: -)\n" +
+            "ref=-\ttrueGenotype=-/T\tcounts= -=32  T=33  (from: -)\n" +
+            "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A)\n";
+    String expectedInsertionWithSNP2 = expectedInsertionWithSNP;
 
     @Test
     public void testHelperSnps() {
@@ -174,6 +180,48 @@ public class SegmentHelperTest {
 
     }
 
+    @Test
+    // insertion w/ SNP
+    public void testInsertionWithSNP() {
+        Function<Segment, Segment> function = new WithIndelsPostProcessSegmentFunction();
+        SBIToSSIConverterArguments args = new SBIToSSIConverterArguments();
+        args.mapFeatures = false;
+        args.mapLabels = false;
+        FillInFeaturesFunction fillInFeatures = new MyFillInFeaturesFunction(null, null, args);
+
+        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
+            assertEquals(expectedInsertionWithSNP, Segment.showGenotypes(segmentInfoo));
+        };
+        SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new NoSplitStrategy(),
+                false);
+        int refIndex = 0;
+        int position = 0;
+        helper.add(makeRecord(refIndex, position, "A--A/ATTT","A--A/A--A=20+12", "A--A/ATTT=10+23"));
+        helper.close();
+
+    }
+
+    @Test
+    // insertion w/ SNP 2
+    public void testInsertionWithSNP2() {
+        Function<Segment, Segment> function = new WithIndelsPostProcessSegmentFunction();
+        SBIToSSIConverterArguments args = new SBIToSSIConverterArguments();
+        args.mapFeatures = false;
+        args.mapLabels = false;
+        FillInFeaturesFunction fillInFeatures = new MyFillInFeaturesFunction(null, null, args);
+
+        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
+            assertEquals(expectedInsertionWithSNP2, Segment.showGenotypes(segmentInfoo));
+        };
+        SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new NoSplitStrategy(),
+                false);
+        int refIndex = 0;
+        int position = 0;
+        helper.add(makeRecord(refIndex, position, "A--A/ATTA","A--A/A--A=20+12", "A--A/ATTA=10+23"));
+        helper.add(makeRecord(refIndex, position + 1, "A/T","A/A=20+12", "A/T=10+23"));
+        helper.close();
+
+    }
 
     // format of count creation instruction is from/to=10+12
     protected static BaseInformationRecords.BaseInformation makeRecord(int refIndex, int position, String genotype, String... countCreations) {

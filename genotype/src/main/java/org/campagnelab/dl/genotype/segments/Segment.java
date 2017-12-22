@@ -226,18 +226,21 @@ public class Segment {
      * to increase the base count.
      *
      * @param copy   record that needs to have counts adjusted.
-     * @param offset offset inside the indel sequence, which identifies the base to increment.
      * @param longestReference
+     * @param segmentLocation contains position from ref, offset inside the to sequence,
+     *                        which identifies the base to increment, and index of base from start of indel
      * @return a builder where the adjustment has been made.
      */
-    public BaseInformationRecords.BaseInformation.Builder adjustCounts(BaseInformationRecords.BaseInformation.Builder copy, int offset, String longestReference) {
+    public BaseInformationRecords.BaseInformation.Builder adjustCounts(
+            BaseInformationRecords.BaseInformation.Builder copy, String longestReference,
+            SegmentLocation segmentLocation) {
         // we store counts in a map for easy access (map keyed on to sequence of the count):
         // we know we may need a gap count, so we add one, because none in the sbi:
 
         int sampleIndex = 0;
         int countIndex = 0;
         String recordTrueGenotype = expand(copy.getTrueGenotype(),longestReference);
-
+        copy.setPosition(segmentLocation.getPosition());
         for (BaseInformationRecords.SampleInfo.Builder sample : copy.getSamplesBuilderList()) {
             countsToKeep.clear();
             sample.setPrePostProcessingGenotype(recordTrueGenotype);
@@ -251,17 +254,25 @@ public class Segment {
                         String adjustedTo = count.getToSequence();
                         String adjustedFrom = count.getFromSequence();
                         String adjustedTrueGenotype = recordTrueGenotype;
-                        if (adjustedTo.length() > offset && adjustedFrom.length() > offset) {
-                            adjustedFrom = adjustedFrom.substring(offset, offset + 1);
-                            adjustedTo = adjustedTo.substring(offset, offset + 1);
-                            adjustedTrueGenotype = adjustTrueGenotype(adjustedTrueGenotype, offset);
+                        if (adjustedTo.length() > segmentLocation.getIndelLocation()
+                                && adjustedFrom.length() > segmentLocation.getIndelLocation()) {
+                            adjustedFrom = adjustedFrom.substring(segmentLocation.getIndelLocation(),
+                                    segmentLocation.getIndelLocation() + 1);
+                            adjustedTo = adjustedTo.substring(segmentLocation.getIndelLocation(),
+                                    segmentLocation.getIndelLocation() + 1);
+                            adjustedTrueGenotype = adjustTrueGenotype(adjustedTrueGenotype,
+                                    segmentLocation.getIndelLocation());
                             count.setFromSequence(adjustedFrom);
                             copy.setReferenceBase(adjustedFrom);
                             count.setToSequence(adjustedTo);
                             countsToKeep.add(count);
                             sample.setTrueGenotype(adjustedTrueGenotype);
                             sample.setPrePostProcessingGenotype(recordTrueGenotype);
-                            count.setOffset(offset);
+                            count.setOffset(segmentLocation.getOffset());
+                            if (!adjustedFrom.contentEquals("-"))
+                                segmentLocation.incrementPosition();
+                            if (!adjustedTo.contentEquals("-"))
+                                segmentLocation.incrementOffset();
                             copy.setTrueGenotype(adjustedTrueGenotype);
                         } else {
                             // this indel does not contribute to the counts at this offset:
@@ -407,5 +418,41 @@ public class Segment {
 
     public Object2ObjectOpenHashMap<BaseInformationRecords.BaseInformation, List<BaseInformationRecords.BaseInformation>> getAfterRecords() {
         return this.recordList.afterRecord;
+    }
+
+    static class SegmentLocation {
+        private int position;
+        private int offset;
+        private int indelLocation;
+
+        public SegmentLocation(int position, int offset, int indelLocation) {
+            this.position = position;
+            this.offset = offset;
+            this.indelLocation = indelLocation;
+        }
+
+        public int getPosition() {
+            return position;
+        }
+
+        public void incrementPosition() {
+            position++;
+        }
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public void incrementOffset() {
+            offset++;
+        }
+
+        public int getIndelLocation() {
+            return indelLocation;
+        }
+
+        public void incrementIndelLocation() {
+            indelLocation++;
+        }
     }
 }
