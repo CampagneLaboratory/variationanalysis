@@ -240,13 +240,13 @@ public class Segment {
         int sampleIndex = 0;
         int countIndex = 0;
         String recordTrueGenotype = expand(copy.getTrueGenotype(),longestReference);
-        copy.setPosition(segmentLocation.getPosition());
+
         for (BaseInformationRecords.SampleInfo.Builder sample : copy.getSamplesBuilderList()) {
             countsToKeep.clear();
             sample.setPrePostProcessingGenotype(recordTrueGenotype);
 
             for (BaseInformationRecords.CountInfo.Builder count : sample.getCountsBuilderList()) {
-                count.setOffset(0);
+                count.setOffset(segmentLocation.getOffset());
                 if (count.getToSequence().length() != 1) {
                     if (count.getIsIndel() || count.getToSequence().length() > 1) {
 
@@ -268,11 +268,7 @@ public class Segment {
                             countsToKeep.add(count);
                             sample.setTrueGenotype(adjustedTrueGenotype);
                             sample.setPrePostProcessingGenotype(recordTrueGenotype);
-                            count.setOffset(segmentLocation.getOffset());
-                            if (!adjustedFrom.contentEquals("-"))
-                                segmentLocation.incrementPosition();
-                            if (!adjustedTo.contentEquals("-"))
-                                segmentLocation.incrementOffset();
+
                             copy.setTrueGenotype(adjustedTrueGenotype);
                         } else {
                             // this indel does not contribute to the counts at this offset:
@@ -289,11 +285,24 @@ public class Segment {
             }
             sample.clearCounts();
             countsToKeep = aggregateCounts(countsToKeep);
+
+            boolean refIsGap=false;
+            int previousPosition=segmentLocation.getPosition();
             for (BaseInformationRecords.CountInfo.Builder count : countsToKeep) {
+
+                if (!count.getFromSequence().contentEquals("-")) {
+                    segmentLocation.incrementPosition();
+                }else{
+                    refIsGap = true;
+                }
+                count.setOffset(segmentLocation.getIndelLocation());
+
                 sample.addCounts(count);
 
             }
+            copy.setPosition(previousPosition-(refIsGap?1:0));
             copy.setSamples(sampleIndex, sample);
+
             sampleIndex++;
 
         }
@@ -373,8 +382,10 @@ public class Segment {
         return getAllRecords(-1, Integer.MAX_VALUE);
     }
 
-
-    public static String showGenotypes(SegmentInformationRecords.SegmentInformation segmentInformation) {
+    public static String showGenotypes(SegmentInformationRecords.SegmentInformation segmentInformation){
+        return showGenotypes(segmentInformation,false);
+    }
+    public static String showGenotypes(SegmentInformationRecords.SegmentInformation segmentInformation, boolean showPositionAndOffset) {
         MutableString result = new MutableString();
         // for (int sampleIndex = 0; sampleIndex < segmentInformation.getSampleCount(); sampleIndex++) {
         int sampleIndex = 0;
@@ -384,9 +395,10 @@ public class Segment {
                 alleles.add(allele);
             }
 
-            result.append(String.format("ref=%s\ttrueGenotype=%s\tcounts=%s%n", base.getReferenceAllele(),
+            result.append(String.format("ref=%s\ttrueGenotype=%s\tcounts=%s%s%n", base.getReferenceAllele(),
                     alleles.stream().collect(Collectors.joining("/")),
-                    base.getFormattedCounts()));
+                    base.getFormattedCounts(),
+                    showPositionAndOffset?String.format(" position=%d offset=%d ",base.getLocation(), base.getOffset()):""));
         }
         return result.toString();
 

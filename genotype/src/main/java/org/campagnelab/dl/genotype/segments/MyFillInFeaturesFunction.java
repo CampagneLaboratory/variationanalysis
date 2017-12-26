@@ -47,7 +47,11 @@ public class MyFillInFeaturesFunction implements FillInFeaturesFunction {
         builder.setFormattedCounts(FormatterCountHelper.format(baseInformation.getSamples(0)));
         builder.setPrePostProcessingGenotype(prePostProcessingGenotype);
         builder.setLocation(baseInformation.getPosition());
+        int maxOffset=0;
+        for (BaseInformationRecords.CountInfo count: baseInformation.getSamples(0).getCountsList())
+            maxOffset=Math.max(count.getOffset(), maxOffset);
 
+        builder.setOffset(maxOffset);
         if (args().mapFeatures) {
             FloatList features = new FloatArrayList(featureMapper.numberOfFeatures());
             featureMapper.prepareToNormalize(baseInformation, 0);

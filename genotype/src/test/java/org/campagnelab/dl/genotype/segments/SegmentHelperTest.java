@@ -50,10 +50,10 @@ public class SegmentHelperTest {
            "ref=A\ttrueGenotype=A\tcounts= A=7  (from: A)\n";
 
     String expectedInsertionWithSNP =
-            "ref=A\ttrueGenotype=A\tcounts= A=65  (from: A)\n" +
-            "ref=-\ttrueGenotype=-/T\tcounts= -=32  T=33  (from: -)\n" +
-            "ref=-\ttrueGenotype=-/T\tcounts= -=32  T=33  (from: -)\n" +
-            "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A)\n";
+            "ref=A\ttrueGenotype=A\tcounts= A=65  (from: A) position=0 offset=0 \n" +
+            "ref=-\ttrueGenotype=-/T\tcounts= -=32  T=33  (from: -) position=0 offset=1 \n" +
+            "ref=-\ttrueGenotype=-/T\tcounts= -=32  T=33  (from: -) position=0 offset=2\n" +
+            "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A) position=1 offset=3 \n";
     String expectedInsertionWithSNP2 = expectedInsertionWithSNP;
 
     @Test
@@ -190,7 +190,7 @@ public class SegmentHelperTest {
         FillInFeaturesFunction fillInFeatures = new MyFillInFeaturesFunction(null, null, args);
 
         Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
-            assertEquals(expectedInsertionWithSNP, Segment.showGenotypes(segmentInfoo));
+            assertEquals(expectedInsertionWithSNP, Segment.showGenotypes(segmentInfoo,true));
         };
         SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new NoSplitStrategy(),
                 false);
@@ -211,7 +211,7 @@ public class SegmentHelperTest {
         FillInFeaturesFunction fillInFeatures = new MyFillInFeaturesFunction(null, null, args);
 
         Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
-            assertEquals(expectedInsertionWithSNP2, Segment.showGenotypes(segmentInfoo));
+            assertEquals(expectedInsertionWithSNP2, Segment.showGenotypes(segmentInfoo,true));
         };
         SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new NoSplitStrategy(),
                 false);
