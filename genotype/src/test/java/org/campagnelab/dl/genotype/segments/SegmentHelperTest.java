@@ -52,7 +52,7 @@ public class SegmentHelperTest {
     String expectedInsertionWithSNP =
             "ref=A\ttrueGenotype=A\tcounts= A=65  (from: A) position=0 offset=0 \n" +
             "ref=-\ttrueGenotype=-/T\tcounts= -=32  T=33  (from: -) position=0 offset=1 \n" +
-            "ref=-\ttrueGenotype=-/T\tcounts= -=32  T=33  (from: -) position=0 offset=2\n" +
+            "ref=-\ttrueGenotype=-/T\tcounts= -=32  T=33  (from: -) position=0 offset=2 \n" +
             "ref=A\ttrueGenotype=A/T\tcounts= A=32  T=33  (from: A) position=1 offset=3 \n";
     String expectedInsertionWithSNP2 = expectedInsertionWithSNP;
 
@@ -201,7 +201,6 @@ public class SegmentHelperTest {
 
     }
 
-    @Test
     // insertion w/ SNP 2
     public void testInsertionWithSNP2() {
         Function<Segment, Segment> function = new WithIndelsPostProcessSegmentFunction();
@@ -221,6 +220,24 @@ public class SegmentHelperTest {
         helper.add(makeRecord(refIndex, position + 1, "A/T","A/A=20+12", "A/T=10+23"));
         helper.close();
 
+    }
+
+    public void testBigInsertion() {
+        Function<Segment, Segment> function = new WithIndelsPostProcessSegmentFunction();
+        SBIToSSIConverterArguments args = new SBIToSSIConverterArguments();
+        args.mapFeatures = false;
+        args.mapLabels = false;
+        FillInFeaturesFunction fillInFeatures = new MyFillInFeaturesFunction(null, null, args);
+        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
+            String segmentGenotypes = Segment.showGenotypes(segmentInfoo,true);
+            assertEquals(expectedInsertionWithSNP2, segmentGenotypes);
+        };
+        SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new SingleCandidateIndelSplitStrategy(10, 0, false),
+                false);
+        int refIndex = 0;
+        int position = 112428313;
+        helper.add(makeRecord(refIndex, position, "GTTTTTTTTTT/G-TTTTTTTTT","GTTTTTTTTTT/GTTTTTTTTTT=100+163", "GTTTTTTTTTT/G-TTTTTTTTT=200+137"));
+        helper.close();
     }
 
     // format of count creation instruction is from/to=10+12
