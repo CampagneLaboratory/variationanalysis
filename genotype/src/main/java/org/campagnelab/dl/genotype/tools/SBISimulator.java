@@ -142,7 +142,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
             countBuilder.setGenotypeCountReverseStrand(countReverseStrand);
             countBuilder.setIsCalled(countForwardStrand + countReverseStrand > 0);
             populateWithFrequencies(countBuilder);
-            if (from.length() > 0) {
+            if (from.length() > 1) {
                 countBuilder.setIsIndel(true);
             }
             sample.addCounts(countBuilder);
