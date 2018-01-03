@@ -226,14 +226,12 @@ public class Segment {
      * to increase the base count.
      *
      * @param copy   record that needs to have counts adjusted.
+     * @param offset offset inside the indel sequence, which identifies the base to increment.
      * @param longestReference
-     * @param segmentLocation contains position from ref, offset inside the to sequence,
-     *                        which identifies the base to increment, and index of base from start of indel
      * @return a builder where the adjustment has been made.
      */
     public BaseInformationRecords.BaseInformation.Builder adjustCounts(
-            BaseInformationRecords.BaseInformation.Builder copy, String longestReference,
-            SegmentLocation segmentLocation) {
+            BaseInformationRecords.BaseInformation.Builder copy, int offset, String longestReference) {
         // we store counts in a map for easy access (map keyed on to sequence of the count):
         // we know we may need a gap count, so we add one, because none in the sbi:
 
@@ -246,7 +244,6 @@ public class Segment {
             sample.setPrePostProcessingGenotype(recordTrueGenotype);
 
             for (BaseInformationRecords.CountInfo.Builder count : sample.getCountsBuilderList()) {
-                count.setOffset(segmentLocation.getOffset());
                 if (count.getToSequence().length() != 1) {
                     if (count.getIsIndel() || count.getToSequence().length() > 1) {
 
@@ -254,21 +251,17 @@ public class Segment {
                         String adjustedTo = count.getToSequence();
                         String adjustedFrom = count.getFromSequence();
                         String adjustedTrueGenotype = recordTrueGenotype;
-                        if (adjustedTo.length() > segmentLocation.getIndelLocation()
-                                && adjustedFrom.length() > segmentLocation.getIndelLocation()) {
-                            adjustedFrom = adjustedFrom.substring(segmentLocation.getIndelLocation(),
-                                    segmentLocation.getIndelLocation() + 1);
-                            adjustedTo = adjustedTo.substring(segmentLocation.getIndelLocation(),
-                                    segmentLocation.getIndelLocation() + 1);
-                            adjustedTrueGenotype = adjustTrueGenotype(adjustedTrueGenotype,
-                                    segmentLocation.getIndelLocation());
+                        if (adjustedTo.length() > offset && adjustedFrom.length() > offset) {
+                            adjustedFrom = adjustedFrom.substring(offset, offset + 1);
+                            adjustedTo = adjustedTo.substring(offset, offset + 1);
+                            adjustedTrueGenotype = adjustTrueGenotype(adjustedTrueGenotype, offset);
                             count.setFromSequence(adjustedFrom);
                             copy.setReferenceBase(adjustedFrom);
                             count.setToSequence(adjustedTo);
                             countsToKeep.add(count);
                             sample.setTrueGenotype(adjustedTrueGenotype);
                             sample.setPrePostProcessingGenotype(recordTrueGenotype);
-
+                            count.setOffset(offset);
                             copy.setTrueGenotype(adjustedTrueGenotype);
                         } else {
                             // this indel does not contribute to the counts at this offset:
@@ -285,22 +278,9 @@ public class Segment {
             }
             sample.clearCounts();
             countsToKeep = aggregateCounts(countsToKeep);
-
-            boolean refIsGap=false;
-            int previousPosition=segmentLocation.getPosition();
             for (BaseInformationRecords.CountInfo.Builder count : countsToKeep) {
-
-                if (!count.getFromSequence().contentEquals("-")) {
-                    segmentLocation.incrementPosition();
-                }else{
-                    refIsGap = true;
-                }
-                count.setOffset(segmentLocation.getIndelLocation());
-
                 sample.addCounts(count);
-
             }
-            copy.setPosition(previousPosition-(refIsGap?1:0));
             copy.setSamples(sampleIndex, sample);
 
             sampleIndex++;

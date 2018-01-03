@@ -180,7 +180,6 @@ public class SegmentHelperTest {
 
     }
 
-    @Test
     // insertion w/ SNP
     public void testInsertionWithSNP() {
         Function<Segment, Segment> function = new WithIndelsPostProcessSegmentFunction();
@@ -237,6 +236,31 @@ public class SegmentHelperTest {
         int refIndex = 0;
         int position = 112428313;
         helper.add(makeRecord(refIndex, position, "GTTTTTTTTTT/G-TTTTTTTTT","GTTTTTTTTTT/GTTTTTTTTTT=100+163", "GTTTTTTTTTT/G-TTTTTTTTT=200+137"));
+        helper.close();
+    }
+
+    public void testBigInsertion2() {
+        Function<Segment, Segment> function = new WithIndelsPostProcessSegmentFunction();
+        SBIToSSIConverterArguments args = new SBIToSSIConverterArguments();
+        args.mapFeatures = false;
+        args.mapLabels = false;
+        FillInFeaturesFunction fillInFeatures = new MyFillInFeaturesFunction(null, null, args);
+        Consumer<SegmentInformationRecords.SegmentInformation> segmentConsumer = segmentInfoo -> {
+            String segmentGenotypes = Segment.showGenotypes(segmentInfoo,true);
+            assertEquals(expectedInsertionWithSNP2, segmentGenotypes);
+        };
+        SegmentHelper helper = new SegmentHelper(function, fillInFeatures, segmentConsumer, new SingleCandidateIndelSplitStrategy(10, 0, false),
+                false);
+        int refIndex = 0;
+        int position = 112428313;
+        helper.add(makeRecord(refIndex, position, "GTTTTTTTTTT/G-TTTTTTTTT",
+                "GTTTTTTTTTT/G-TTTTTTTTT=183+111",
+                "G/G=0+0",
+                "GTTTTTTTTTT/GTTTTTTTTTT=106+144",
+                "G/C=0+0",
+                "G/N=0+0",
+                "G/T=0+0",
+                "G/A=0+0"));
         helper.close();
     }
 

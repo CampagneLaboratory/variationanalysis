@@ -44,11 +44,7 @@ public class WithIndelsPostProcessSegmentFunction implements PostProcessSegmentF
                     }
                     sampleIndicesList.add(sampleIndices);
                 }
-
-                Segment.SegmentLocation indelSegmentLocation = new Segment.SegmentLocation(record.getPosition(),
-                        0,
-                        0);
-                while (indelSegmentLocation.getIndelLocation() < longestIndelLength) {
+                for (int offset = 0; offset < longestIndelLength; offset++) {
                     //    System.out.printf("record position: %d %n",record.getPosition());
                     BaseInformationRecords.BaseInformation.Builder copy = record.toBuilder();
                     copy.addAllCalledCountIndices(indices);
@@ -58,9 +54,8 @@ public class WithIndelsPostProcessSegmentFunction implements PostProcessSegmentF
                         copy.setSamples(sampleIndex, sampleInfo);
                         sampleIndex++;
                     }
-                    copy = segment.adjustCounts(copy, longestReference, indelSegmentLocation);
+                    copy = segment.adjustCounts(copy, offset, longestReference);
                     segment.insertAfter(record, copy);
-                    indelSegmentLocation.incrementIndelLocation();
                 }
                 segment.hideRecord(record);
                 segment.setIndicesAdded(true);
