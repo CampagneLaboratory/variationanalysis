@@ -50,7 +50,7 @@ cat refs.txt | while read -r line
        " >> calmd-and-convert-commands.txt
 done
 
-parallel --bar -j${SBI_NUM_THREADS} --eta :::: calmd-and-convert-commands.txt
+parallel  --results error-log --bar -j${SBI_NUM_THREADS} --eta :::: calmd-and-convert-commands.txt
 
 goby ${memory_requirement} concatenate-alignments goby_slice_*.entries -o ${OUTPUT_BASENAME} &&
 
