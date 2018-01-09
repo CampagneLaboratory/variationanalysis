@@ -1,6 +1,8 @@
 ##CHANGE LOG
 
 ### 1.4.1 
+ * Use -restrict-per-chromosome in script parallel-genotype-sbi.sh. This ensures slices are not crossing
+   chromosome boundaries.
  * Halve the learning rate each time the score does not improve.
  * Migrate to run GATK4 HaploTypeCaller to perform realignment (--bamOut option). 
    Tested with beta5 version.
