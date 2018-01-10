@@ -3,7 +3,7 @@
 
 assertGobyInstalled
 assertParallelInstalled
-set -x
+
 
 ALIGNMENTS="$*"
 if [ -z "${OUTPUT_BASENAME+set}" ]; then
@@ -95,7 +95,13 @@ if [ "${DO_CONCAT}" == "true" ]; then
     cat boundaries| grep -e chr19  |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >validation-parts
     cat boundaries| grep -v -e chr19 | grep -e chr20 -e chr21 -e chr22 -e chrX -e chrY |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >testing-parts
 
-    concat.sh ${memory_requirement} -f -i `cat training-parts`  -o ${OUTPUT_BASENAME}-pre-train
-    concat.sh ${memory_requirement} -f -i `cat validation-parts` -o ${OUTPUT_BASENAME}-pre-validation
-    concat.sh ${memory_requirement} -f -i `cat testing-parts` -o ${OUTPUT_BASENAME}-test
+    if [ -s training-parts ]; then
+        concat.sh ${memory_requirement} -f -i `cat training-parts`  -o ${OUTPUT_BASENAME}-pre-train
+    fi
+    if [ -s validation-parts ]; then
+        concat.sh ${memory_requirement} -f -i `cat validation-parts` -o ${OUTPUT_BASENAME}-pre-validation
+    fi
+    if [ -s testing-parts ]; then
+        concat.sh ${memory_requirement} -f -i `cat testing-parts` -o ${OUTPUT_BASENAME}-test
+    fi
 fi
