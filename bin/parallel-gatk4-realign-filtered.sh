@@ -31,8 +31,20 @@ fi
 
 samtools idxstats ${BAM_INPUT} | cut -f 1 | head -n -1 |grep -v GL | sort -ur > refs.txt
 
-#Disable removal of low mapping quality reads and base qualities:
-NEEDED_OPTIONS="--max-reads-per-alignment-start 1000 --min-base-quality-score 0 --minimum-mapping-quality 0 "
+# Disable read filters and over filters (needed for the model to see all features, bad and good):
+NEEDED_OPTIONS="--max-reads-per-alignment-start 1000 --min-base-quality-score 0 --minimum-mapping-quality 0 \
+--disable-read-filter NotDuplicateReadFilter \
+--disable-read-filter MappingQualityReadFilter \
+--disable-read-filter MappingQualityAvailableReadFilter \
+--disable-read-filter MappedReadFilter \
+--disable-read-filter NotSecondaryAlignmentReadFilter \
+--disable-read-filter NotDuplicateReadFilter \
+--disable-read-filter PassesVendorQualityCheckReadFilter \
+--disable-read-filter NonZeroReferenceLengthAlignmentReadFilter \
+--disable-read-filter GoodCigarReadFilter \
+--disable-read-filter WellformedReadFilter"
+
+--max-reads-per-alignment-start 1000 --min-base-quality-score 0 --minimum-mapping-quality 0 "
 rm -rf calmd-and-convert-commands.txt
 nLine=0
 cat refs.txt | while read -r line
