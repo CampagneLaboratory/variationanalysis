@@ -42,8 +42,10 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
             final RecordWriter writer = new RecordWriter(args().outputFilename);
             final VariantMapHelper helper = new VariantMapHelper(args().inputFile);
             List<String> chromosomes = this.chromosomesForSBI(helper);
+            if (args().readN != Integer.MAX_VALUE)
+                chromosomes = chromosomes.subList(0, args().readN);
             LOG.info("Processing chromosome(s): " + Arrays.toString(chromosomes.toArray()));
-            chromosomes.parallelStream().limit(args().readN).forEach((String chromosome) -> {
+            for (String chromosome: chromosomes) {
                 if (args().verbose) System.out.println("Chrom: " + chromosome);
                 for (ObjectIterator<Variant> it = helper.getAllVariants(chromosome); it.hasNext(); ) {
                     Variant variant = it.next();
@@ -52,7 +54,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
                     Set<String> keys = new HashSet<>();
                     if (GenotypeHelper.getAlleles(trueGenotype).size() > 1) {
                         String keepFrom = variant.referenceBase;
-                        for (Variant.FromTo trueAllele : variant.trueAlleles) {                         
+                        for (Variant.FromTo trueAllele : variant.trueAlleles) {
                             if (!trueAllele.getFrom().equals(variant.referenceBase))
                                 keepFrom = trueAllele.getFrom(); //use the one that does not match the reference, if any
                         }
@@ -73,7 +75,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
                             variant.position, trueGenotype, counts.toArray(new String[counts.size()]));
                     addRecord(writer, record);
                 }
-            });
+            }
             writer.close();
         } catch (IOException e) {
             LOG.error("Unable to locate the variant map.");
