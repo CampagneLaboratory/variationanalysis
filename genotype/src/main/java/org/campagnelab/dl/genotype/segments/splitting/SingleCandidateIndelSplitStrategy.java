@@ -8,6 +8,7 @@ import org.campagnelab.dl.genotype.segments.SingleCandidateIndelSegment;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Create a sub-segment around each candidate indel.
@@ -65,7 +66,6 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
                 }
                 this.addToBeforeList(record); //keep the before list of non-indel records active
             }
-
         }
 
         if (verbose && singleCandidateIndelSegments.size() == 0) {
@@ -98,6 +98,7 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
         private final long windowSize;
         private int firstElementPosition = 0;
         private int lastElementPosition = 0;
+        private String referenceId;
 
         public BasePositionList(int windowSize) {
             super(windowSize / 2);
@@ -110,6 +111,10 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
             if (value.getPosition() < firstElementPosition || this.size() == 1)
                 firstElementPosition = value.getPosition();
             super.add(value.getPosition());
+            if (Objects.isNull(this.referenceId))
+                this.referenceId = value.getReferenceId();
+            else if (!this.referenceId.equals(value.getReferenceId()))
+                throw new IllegalArgumentException("Cannot add a base with a different chromosome. Likely chromosomes in the input SBI are interleaved.");
             this.removeEntries();
         }
 
@@ -124,6 +129,10 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
             }
         }
 
+        public String getReferenceId() {
+            return referenceId;
+        }
+
         /**
          * {@inheritDoc}
          */
@@ -131,6 +140,7 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
         public void clear() {
             super.clear();
             this.firstElementPosition = this.lastElementPosition = 0;
+            this.referenceId = null;
         }
     }
 }
