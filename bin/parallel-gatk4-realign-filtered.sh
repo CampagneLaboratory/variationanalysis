@@ -1,5 +1,6 @@
+#!/usr/bin/env bash
 if [ $# -lt 6 ]; then
- echo "usage: parallel-gatk-realign-filtered.sh PATH_TO_GATK_LAUNCH 10g NUM_THREADS GENOME_FA BAM_INPUT BAM_OUTPUT [GATK_ARGS]"
+ echo "usage: parallel-gatk4-realign-filtered.sh PATH_TO_GATK_LAUNCH 10g NUM_THREADS GENOME_FA BAM_INPUT BAM_OUTPUT [GATK_ARGS]"
  echo "usage: providing the an indexed bam (extension .bam.bai) next to the alignment will improve performance drastically."
  exit 1;
 fi
