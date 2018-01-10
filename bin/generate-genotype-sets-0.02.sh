@@ -68,18 +68,21 @@ parallel-genotype-sbi.sh 10g ${ALIGNMENTS} 2>&1 | tee parallel-genotype-sbi.log
 dieIfError "Failed to generate .sbi file"
 
 export OUTPUT_BASENAME=${OUTPUT_PREFIX}
-# randomize and put final datasets in current directory:
-randomize.sh ${memory_requirement} -i tmp/${OUTPUT_BASENAME}-pre-train.sbi -o ${OUTPUT_BASENAME}-train.sbi  \
-   -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
-dieIfError "Failed to randomize training set."
-
-randomize.sh ${memory_requirement} -i tmp/${OUTPUT_BASENAME}-pre-validation.sbi -o ${OUTPUT_BASENAME}-validation.sbi  \
- -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
-dieIfError "Failed to randomize validation set"
-
-mv tmp/${OUTPUT_BASENAME}-test.sbi* ./
-dieIfError "Failed to copy test set"
-
+if [ -s tmp/${OUTPUT_BASENAME}-pre-train.sbip ]; then
+    # randomize and put final datasets in current directory:
+    randomize.sh ${memory_requirement} -i tmp/${OUTPUT_BASENAME}-pre-train.sbi -o ${OUTPUT_BASENAME}-train.sbi  \
+       -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
+    dieIfError "Failed to randomize training set."
+fi
+if [ -s tmp/${OUTPUT_BASENAME}-pre-validation.sbip ]; then
+    randomize.sh ${memory_requirement} -i tmp/${OUTPUT_BASENAME}-pre-validation.sbi -o ${OUTPUT_BASENAME}-validation.sbi  \
+     -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
+    dieIfError "Failed to randomize validation set"
+fi
+if [ -s tmp/${OUTPUT_BASENAME}-test.sbip ]; then
+    mv tmp/${OUTPUT_BASENAME}-test.sbi* ./
+    dieIfError "Failed to copy test set"
+fi
 # no need to randomize the test set.
 
 if [ ${DELETE_TMP} = "true" ]; then
