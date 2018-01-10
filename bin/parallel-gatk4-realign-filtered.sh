@@ -36,11 +36,7 @@ NEEDED_OPTIONS="--max-reads-per-alignment-start 1000 --min-base-quality-score 0 
 --disable-read-filter MappingQualityReadFilter \
 --disable-read-filter MappingQualityAvailableReadFilter \
 --disable-read-filter NotSecondaryAlignmentReadFilter \
---disable-read-filter NotDuplicateReadFilter \
---disable-read-filter PassesVendorQualityCheckReadFilter \
---disable-read-filter NonZeroReferenceLengthAlignmentReadFilter \
---disable-read-filter GoodCigarReadFilter \
---disable-read-filter WellformedReadFilter"
+--disable-read-filter NotDuplicateReadFilter "
 
 rm -rf calmd-and-convert-commands.txt
 nLine=0
