@@ -42,7 +42,6 @@ NEEDED_OPTIONS="--max-reads-per-alignment-start 1000 --min-base-quality-score 0 
 --disable-read-filter GoodCigarReadFilter \
 --disable-read-filter WellformedReadFilter"
 
---max-reads-per-alignment-start 1000 --min-base-quality-score 0 --minimum-mapping-quality 0 "
 rm -rf calmd-and-convert-commands.txt
 nLine=0
 cat refs.txt | while read -r line
