@@ -110,11 +110,13 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
                 lastElementPosition = value.getPosition();
             if (value.getPosition() < firstElementPosition || this.size() == 1)
                 firstElementPosition = value.getPosition();
-            super.add(value.getPosition());
             if (Objects.isNull(this.referenceId))
                 this.referenceId = value.getReferenceId();
-            else if (!this.referenceId.equals(value.getReferenceId()))
-                throw new IllegalArgumentException("Cannot add a base with a different chromosome. Likely chromosomes in the input SBI are interleaved.");
+            else if (!this.referenceId.equals(value.getReferenceId())) {
+                super.clear();
+                this.referenceId = value.getReferenceId();
+            }
+            super.add(value.getPosition());
             this.removeEntries();
         }
 
