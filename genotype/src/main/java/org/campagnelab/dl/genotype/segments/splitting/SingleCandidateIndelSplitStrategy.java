@@ -42,6 +42,7 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
     @Override
     public List<SingleCandidateIndelSegment> apply(final Segment segment) {
         ObjectArrayList<SingleCandidateIndelSegment> singleCandidateIndelSegments = new ObjectArrayList<>();
+        basePositionList.clear();
         for (BaseInformationRecords.BaseInformation record : segment.getAllRecords()) {
             //complete the sub-segments that are still open
             if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold) ||
