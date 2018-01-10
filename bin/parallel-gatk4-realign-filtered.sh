@@ -35,10 +35,10 @@ rm -rf calmd-and-convert-commands.txt
 nLine=0
 cat refs.txt | while read -r line
     do
-       echo "${GATK_LAUNCH}  HaplotypeCaller --javaOptions \"-Xmx${MEMORY_PER_THREAD}\" \
-            --sparkRunner LOCAL -L ${line} --reference ${GENOME_FA} \
+       echo "${GATK_LAUNCH}  HaplotypeCaller --java-options \"-Xmx${MEMORY_PER_THREAD}\" \
+            --spark-runner LOCAL -L ${line} --reference ${GENOME_FA} \
             --input ${BAM_INPUT} \
-            ${GATK_ARGS} --output hc_variants_${nLine}.vcf  --bamOutput realigned_slice_${nLine}.bam && \
+            ${GATK_ARGS} --output hc_variants_${nLine}.vcf  --bam-output realigned_slice_${nLine}.bam && \
          rm -f hc_variants_${nLine}.vcf* && \
          rm -f slice_${nLine}.bam && \
          rm -f slice_${nLine}.bam.bai && \
