@@ -39,15 +39,35 @@ set -x
 samtools idxstats ${ALIGNMENTS} | cut -f 1 | head -n -1 > refs.txt
 rm -rf calmd-and-convert-commands.txt
 
+MD_LINES=`samtools view  ${ALIGNMENTS}  |head -1000|grep MD:Z:|wc -l`
+if [ ${MD_LINES} -eq 1000 ]; then
+    HAS_MD_TAGS="TRUE"
+
+else
+    HAS_MD_TAGS="FALSE"
+fi
+
 cat refs.txt | while read -r line
     do
-       echo "\
-       samtools calmd -E -u <(samtools view -b ${ALIGNMENTS} ${line}) ${FASTA_GENOME} > md_${line}.bam 2> /dev/null && \
-         samtools index md_${line}.bam 2>/dev/null &&\
-         goby 8g concatenate-alignments --genome  ${SBI_GENOME}  md_${line}.bam  -o goby_slice_${line} &&\
-         rm md_${line}.bam  &&\
-         rm md_${line}.bam.bai \
-       " >> calmd-and-convert-commands.txt
+       if [ ${HAS_MD_TAGS} == "TRUE" ]; then
+           echo "\
+             samtools view -u ${ALIGNMENTS} ${line} > md_${line}.bam 2> /dev/null && \
+             samtools index md_${line}.bam 2>/dev/null &&\
+             goby 8g concatenate-alignments --genome  ${SBI_GENOME}  md_${line}.bam  -o goby_slice_${line} &&\
+             rm md_${line}.bam  &&\
+             rm md_${line}.bam.bai \
+           " >> calmd-and-convert-commands.txt
+
+       else
+
+           echo "\
+           samtools calmd -E -u <(samtools view -b ${ALIGNMENTS} ${line}) ${FASTA_GENOME} > md_${line}.bam 2> /dev/null && \
+             samtools index md_${line}.bam 2>/dev/null &&\
+             goby 8g concatenate-alignments --genome  ${SBI_GENOME}  md_${line}.bam  -o goby_slice_${line} &&\
+             rm md_${line}.bam  &&\
+             rm md_${line}.bam.bai \
+           " >> calmd-and-convert-commands.txt
+        fi
 done
 
 parallel  --results error-folder.log --bar -j${SBI_NUM_THREADS} --eta :::: calmd-and-convert-commands.txt
