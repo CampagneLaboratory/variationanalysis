@@ -159,10 +159,16 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
             sample.addCounts(countBuilder);
         }
         referenceContext.setLength(0);
-        genome.getRange(refIndex, Math.min(0,(position-args().genomicContextLength/2)),args().genomicContextLength,
+        int contextStart = Math.max(0, (position - (args().genomicContextLength - 1) / 2));
+        int genomeRefIndex=genome.getReferenceIndex(refId);
+        genome.getRange(genomeRefIndex, contextStart,
+                args().genomicContextLength,
                 referenceContext);
+
         if (args().genomicContextLength==1) {
-            assert referenceBase.charAt(0)==referenceContext.charAt(0):"reference base must match with context";
+            assert referenceBase.charAt(0)==referenceContext.charAt(0):
+                    String.format("reference base must match with context, base: %s context:  %s",referenceBase,
+                    referenceContext);
         }
         builder.setGenomicSequenceContext(referenceContext.toString());
         sample.setFormattedCounts(FormatterCountHelper.format(sample));
