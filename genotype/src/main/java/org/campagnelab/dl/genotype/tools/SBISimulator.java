@@ -44,7 +44,10 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
     @Override
     public void execute() {
         try {
-            genome=new RandomAccessSequenceCache();
+            RandomAccessSequenceCache genome=new RandomAccessSequenceCache();
+            genome.load(args().genome);
+            this.genome=genome;
+
             final RecordWriter writer = new RecordWriter(args().outputFilename);
             final VariantMapHelper helper = new VariantMapHelper(args().inputFile);
             List<String> chromosomes = this.chromosomesForSBI(helper);
