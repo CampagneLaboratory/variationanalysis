@@ -54,7 +54,7 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
         String genomicContextLengthString = sbiProperties.getProperty("stats.genomicContextSize.min");
         assert genomicContextLengthString != null : "property must exist: stats.genomicContextSize.min";
         int genomicContextLength = (int) Float.parseFloat(genomicContextLengthString);
-        assert genomicContextLength == 1 : "Single base genotype mapper requires genomicContextLength property=1";
+        //assert genomicContextLength == 1 : "Single base genotype mapper requires genomicContextLength property=1";
 
         String indelSequenceLengthString = sbiProperties.getProperty("indelSequenceLength");
         assert indelSequenceLengthString != null : "property must exist: indelSequenceLength";

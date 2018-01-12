@@ -51,6 +51,9 @@ public class SBIToSSIConverterArguments implements ToolArguments {
     @Parameter(names = "--read-N", description = "Read at most N records from the SBI input, then stop.")
     public long readN=Long.MAX_VALUE;
 
+    @Parameter(names = "--genomic-context-length", description = "Length of the genomic context (odd number, 1,3+).")
+    public int genomicContextLength=1;
+
     @Parameter(names = "--sampling-rate", description = "Percentage of candidate indels that are not true indels to include in the output.")
     public double samplingRate=1;
 

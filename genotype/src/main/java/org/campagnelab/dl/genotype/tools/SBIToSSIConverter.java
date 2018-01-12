@@ -82,7 +82,7 @@ public class SBIToSSIConverter extends AbstractTool<SBIToSSIConverterArguments> 
             domainProperties.put("net.architecture.classname", GenotypeSegmentsLSTM.class.getCanonicalName());
             domainProperties.put(NumDistinctAllelesLabelMapper.PLOIDY_PROPERTY, Integer.toString(args().ploidy));
             domainProperties.put("input.featureMapper", args().featureMapperClassName);
-            domainProperties.put("genomicContextLength", "1");
+            domainProperties.put("genomicContextLength", Integer.toString(args().genomicContextLength));
             domainProperties.put("indelSequenceLength", "1");
 
             domainDescriptor = new GenotypeDomainDescriptor(domainProperties, sbiProperties);
