@@ -22,15 +22,14 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
 
     private final int candidateIndelThreshold;
 
-    private int previousCandidateIndel;
-    private final BasePositionList basePositionList;
+    private final BasePositionList beforeList;
     private boolean verbose;
 
     public SingleCandidateIndelSplitStrategy(int windowSize, int candidateIndelThreshold, boolean verbose) {
         this.windowSize = windowSize;
         this.candidateIndelThreshold = candidateIndelThreshold;
         this.verbose = verbose;
-        basePositionList = new BasePositionList(windowSize);
+        beforeList = new BasePositionList(windowSize);
     }
 
     /**
@@ -42,12 +41,14 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
     @Override
     public List<SingleCandidateIndelSegment> apply(final Segment segment) {
         ObjectArrayList<SingleCandidateIndelSegment> singleCandidateIndelSegments = new ObjectArrayList<>();
-        basePositionList.clear();
+        beforeList.clear();
+        int previousCandidateIndelPosition = -1;
         for (BaseInformationRecords.BaseInformation record : segment.getAllRecords()) {
             //complete the sub-segments that are still open
             if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold) ||
                     SegmentUtil.hasTrueIndel(record)) {
-                if ((record.getPosition() - previousCandidateIndel != 1) || (previousCandidateIndel == 0)) { //if they are not consecutive, we open a new subsegment
+                if (((record.getPosition() - previousCandidateIndelPosition) != 1)
+                        || (previousCandidateIndelPosition == -1)) { //if they are not consecutive, we open a new subsegment
                     SingleCandidateIndelSegment newSingleCandidateIndelSegment = this.createSubSegment(segment, record);
                     //close the previous subsegments
                     singleCandidateIndelSegments.forEach(SingleCandidateIndelSegment::forceClose);
@@ -58,7 +59,7 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
                     previous.newIndel(record.getPosition());
                     previous.add(record);
                 }
-                previousCandidateIndel = record.getPosition();
+                previousCandidateIndelPosition = record.getPosition();
                 
             } else {
                 for (SingleCandidateIndelSegment singleCandidateIndelSegment : singleCandidateIndelSegments) {
@@ -85,11 +86,11 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
     }
 
     private SingleCandidateIndelSegment createSubSegment(Segment parent, BaseInformationRecords.BaseInformation record) {
-        return new SingleCandidateIndelSegment(this.basePositionList, parent, record, this.windowSize);
+        return new SingleCandidateIndelSegment(this.beforeList, parent, record, this.windowSize);
     }
 
     private void addToBeforeList(BaseInformationRecords.BaseInformation record) {
-        this.basePositionList.add(record);
+        this.beforeList.add(record);
     }
 
     /**
