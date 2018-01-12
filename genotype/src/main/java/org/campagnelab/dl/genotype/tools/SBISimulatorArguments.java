@@ -30,6 +30,12 @@ public class SBISimulatorArguments implements ToolArguments {
     @Parameter(names = "--read-N", description = "Read at most N chromosomes from the varmap, then stop.")
     public int readN = Integer.MAX_VALUE;
 
+    @Parameter(names = "--genomic-context-length", description = "Length of the genomic context (odd number, 1,3+).")
+    public int genomicContextLength=1;
+
+    @Parameter(required = true, names = {"--genome"}, description = "Basename of a goby indexed genome.")
+    public String genome;
+
     @Parameter(names ={"-v", "--verbose"}, description = "Be more verbose.")
     boolean verbose;
 }

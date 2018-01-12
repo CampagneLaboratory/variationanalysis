@@ -2,11 +2,15 @@ package org.campagnelab.dl.genotype.tools;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import it.unimi.dsi.lang.MutableString;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.segments.FormatterCountHelper;
 import org.campagnelab.dl.somatic.storage.RecordWriter;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.reads.DualRandomAccessSequenceCache;
+import org.campagnelab.goby.reads.RandomAccessSequenceCache;
+import org.campagnelab.goby.reads.RandomAccessSequenceInterface;
 import org.campagnelab.goby.util.Variant;
 import org.campagnelab.goby.util.VariantMapHelper;
 import org.slf4j.Logger;
@@ -35,10 +39,12 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
     public SBISimulatorArguments createArguments() {
         return new SBISimulatorArguments();
     }
+    private RandomAccessSequenceInterface genome;
 
     @Override
     public void execute() {
         try {
+            genome=new RandomAccessSequenceCache();
             final RecordWriter writer = new RecordWriter(args().outputFilename);
             final VariantMapHelper helper = new VariantMapHelper(args().inputFile);
             List<String> chromosomes = this.chromosomesForSBI(helper);
@@ -116,7 +122,7 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
         }
         return chroms;
     }
-
+    MutableString referenceContext=new MutableString();
     // format of count creation instruction is from/to=10+12
     private BaseInformationRecords.BaseInformation makeRecord(int refIndex, String refId, int position, String genotype, String... countCreations) {
         BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
@@ -149,7 +155,13 @@ public class SBISimulator extends AbstractTool<SBISimulatorArguments> {
             }
             sample.addCounts(countBuilder);
         }
-        builder.setGenomicSequenceContext(referenceBase);
+        referenceContext.setLength(0);
+        genome.getRange(refIndex, Math.min(0,(position-args().genomicContextLength/2)),args().genomicContextLength,
+                referenceContext);
+        if (args().genomicContextLength==1) {
+            assert referenceBase.charAt(0)==referenceContext.charAt(0):"reference base must match with context";
+        }
+        builder.setGenomicSequenceContext(referenceContext.toString());
         sample.setFormattedCounts(FormatterCountHelper.format(sample));
         builder.addSamples(sample);
         return builder.build();
