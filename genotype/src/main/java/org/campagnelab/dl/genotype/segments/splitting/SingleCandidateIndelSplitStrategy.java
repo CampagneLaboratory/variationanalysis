@@ -47,8 +47,7 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
             //complete the sub-segments that are still open
             if (SegmentUtil.hasCandidateIndel(record, this.candidateIndelThreshold) ||
                     SegmentUtil.hasTrueIndel(record)) {
-                if (((record.getPosition() - previousCandidateIndelPosition) != 1)
-                        || (previousCandidateIndelPosition == -1)) { //if they are not consecutive, we open a new subsegment
+                if ((previousCandidateIndelPosition == -1)) { //if they are not consecutive, we open a new subsegment
                     SingleCandidateIndelSegment newSingleCandidateIndelSegment = this.createSubSegment(segment, record);
                     //close the previous subsegments
                     singleCandidateIndelSegments.forEach(SingleCandidateIndelSegment::forceClose);
@@ -60,7 +59,7 @@ public class SingleCandidateIndelSplitStrategy implements SplitStrategy {
                     previous.add(record);
                 }
                 previousCandidateIndelPosition = record.getPosition();
-                
+
             } else {
                 for (SingleCandidateIndelSegment singleCandidateIndelSegment : singleCandidateIndelSegments) {
                     if (singleCandidateIndelSegment.isOpen())
