@@ -125,19 +125,11 @@ public class SplitStrategyTest {
         this.printCurrentIndels();
         SplitStrategy strategy = new SingleCandidateIndelSplitStrategy(1,0,true);
         List<SingleCandidateIndelSegment> subsegments = strategy.apply(helper.getCurrentSegment());
-        assertEquals("Invalid number of subsegments returned by SingleCandidateIndelSplitStrategy", 3, subsegments.size());
+        assertEquals("Invalid number of subsegments returned by SingleCandidateIndelSplitStrategy", 1, subsegments.size());
         //first subsegment
-        assertEquals("Invalid limits for the subsegment", "1-3", String.format("%d-%d",subsegments.get(0).getFirstPosition(),
+        assertEquals("Invalid limits for the subsegment", "1-6", String.format("%d-%d",subsegments.get(0).getFirstPosition(),
                 subsegments.get(0).getLastPosition()));
-        assertEquals("Invalid indel position in the subsegment", 2, subsegments.get(0).getIndelPosition());
-        //second subsegment
-        assertEquals("Invalid limits for the subsegment", "3-5", String.format("%d-%d",subsegments.get(1).getFirstPosition(),
-                subsegments.get(1).getLastPosition()));
-        assertEquals("Invalid indel position in the subsegment", 4, subsegments.get(1).getIndelPosition());
-        // third subsegment
-        assertEquals("Invalid limits for the subsegment", "5-6", String.format("%d-%d",subsegments.get(2).getFirstPosition(),
-                subsegments.get(2).getLastPosition()));
-        assertEquals("Invalid indel position in the subsegment", 6, subsegments.get(2).getIndelPosition());
+        assertEquals("Invalid indel position in the subsegment", 6, subsegments.get(0).getIndelPosition());
         helper.close();
     }
 
@@ -161,15 +153,11 @@ public class SplitStrategyTest {
         this.printCurrentIndels();
         SplitStrategy strategy = new SingleCandidateIndelSplitStrategy(1,0,true);
         List<SingleCandidateIndelSegment> subsegments = strategy.apply(helper.getCurrentSegment());
-        assertEquals("Invalid number of subsegments returned by SingleCandidateIndelSplitStrategy", 2, subsegments.size());
+        assertEquals("Invalid number of subsegments returned by SingleCandidateIndelSplitStrategy", 1, subsegments.size());
         //first
-        assertEquals("Invalid limits for the subsegment", "2-6", String.format("%d-%d",subsegments.get(0).getFirstPosition(),
+        assertEquals("Invalid limits for the subsegment", "2-9", String.format("%d-%d",subsegments.get(0).getFirstPosition(),
                 subsegments.get(0).getLastPosition()));
-        assertEquals("Invalid indel position in the subsegment", 5, subsegments.get(0).getIndelPosition());
-        //second
-        assertEquals("Invalid limits for the subsegment", "6-9", String.format("%d-%d",subsegments.get(1).getFirstPosition(),
-                subsegments.get(1).getLastPosition()));
-        assertEquals("Invalid indel position in the subsegment", 8, subsegments.get(1).getIndelPosition());
+        assertEquals("Invalid indel position in the subsegment", 8, subsegments.get(0).getIndelPosition());
         helper.close();
     }
 
@@ -179,15 +167,11 @@ public class SplitStrategyTest {
         this.printCurrentIndels();
         SplitStrategy strategy = new SingleCandidateIndelSplitStrategy(2,0,true);
         List<SingleCandidateIndelSegment> subsegments = strategy.apply(helper.getCurrentSegment());
-        assertEquals("Invalid number of subsegments returned by SingleCandidateIndelSplitStrategy", 2, subsegments.size());
+        assertEquals("Invalid number of subsegments returned by SingleCandidateIndelSplitStrategy", 1, subsegments.size());
         //first
-        assertEquals("Invalid limits for the subsegment", "1-6", String.format("%d-%d",subsegments.get(0).getFirstPosition(),
+        assertEquals("Invalid limits for the subsegment", "1-10", String.format("%d-%d",subsegments.get(0).getFirstPosition(),
                 subsegments.get(0).getLastPosition()));
-        assertEquals("Invalid indel position in the subsegment", 5, subsegments.get(0).getIndelPosition());
-        //second
-        assertEquals("Invalid limits for the subsegment", "6-10", String.format("%d-%d",subsegments.get(1).getFirstPosition(),
-                subsegments.get(1).getLastPosition()));
-        assertEquals("Invalid indel position in the subsegment", 8, subsegments.get(1).getIndelPosition());
+        assertEquals("Invalid indel position in the subsegment", 8, subsegments.get(0).getIndelPosition());
         helper.close();
     }
 
