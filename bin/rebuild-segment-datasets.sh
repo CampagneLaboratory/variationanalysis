@@ -4,11 +4,26 @@ set -x
 # (cd ~/goby3; git stash; git pull; mvn install)
 # (cd ~/variationanalysis; git stash; git pull; ./build-all.sh -DskipTests=true)
 DATE=`date +%Y-%m-%d`
-source ./configure.sh
+if [ -e configure.sh ]; then
+ echo "Loading configure.sh"
+ source configure.sh
+fi
 
-PREFIX="NA12878-GIAB"
-GENOMIC_CONTEXT_LENGTH="--genomic-context-length 1"
-VARMAP="/scratchLocal/joc2080/reference_varmaps/NA12878-GIAB-gold.varmap"
+if [ -z "${PREFIX+set}" ]; then
+    PREFIX="NA12878-GIAB"
+    echo "PREFIX set to ${PREFIX}. Change the variable to switch the naming of the produced dataset."
+fi
+
+if [ -z "${GENOMIC_CONTEXT_LENGTH+set}" ]; then
+    GENOMIC_CONTEXT_LENGTH="--genomic-context-length 1"
+    echo "GENOMIC_CONTEXT_LENGTH set to ${GENOMIC_CONTEXT_LENGTH}. Change the variable to switch the context length."
+fi
+
+if [ -z "${VARMAP+set}" ]; then
+    VARMAP="/scratchLocal/joc2080/reference_varmaps/NA12878-GIAB-gold.varmap"
+    echo "VARMAP set to ${VARMAP}. Change the variable to switch the location of the varmap with true calls."
+fi
+
 
 simulate-sbi.sh 10g  -i ${VARMAP} \
     --include chr4 --include chr6 --include chr8  -o NA12878-GIAB-training.sbi \
