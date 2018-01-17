@@ -91,13 +91,13 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
 
 
             int mini_batch_size = args().miniBatchSize;
-            // TODO: define Vector writer.
+            VectorWriter vectorWriter = new VectorWriterText(args().outputBasename);
+            // TODO: Set from args or properties
+            vectorWriter.setSpecVersionNumber(0, 1);
 
             while (iterator.hasNext()) {
                 MultiDataSet mds = iterator.next();
-
-                //TODO: writer.exportMDS(mds, inputIndicesSelected, outputIndicesSelected);
-
+                vectorWriter.appendMds(mds, inputIndicesSelected, outputIndicesSelected, inputNames, outputNames);
             }
             outputStream.close();
             pg.stop();

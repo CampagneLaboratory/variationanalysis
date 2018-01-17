@@ -1,18 +1,15 @@
-package org.campagnelab.dl.genotype.tools;
+package org.campagnelab.dl.framework.tools;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import org.nd4j.linalg.api.iter.NdIndexIterator;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.MultiDataSet;
+import org.nd4j.linalg.dataset.api.MultiDataSet;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class VectorWriter implements Closeable {
     private JsonWriter outputFileVectorProperties;
@@ -21,6 +18,10 @@ public abstract class VectorWriter implements Closeable {
     private List<VectorProperties.VectorPropertiesSample> sampleInfos;
     private List<VectorProperties.VectorPropertiesVector> vectorInfos;
     private Map<String, Integer> vectorNameToId;
+    private Map<Integer, String> vectorIdToName;
+    private Map<Integer, int[]> vectorIdToDimension;
+    private int currVectorIndex = 0;
+    private boolean addVectorInfoCalled = false;
 
     public VectorWriter(String basename) throws IOException {
         outputFileVectorProperties = new JsonWriter(new PrintWriter(basename + ".vecp",
@@ -40,10 +41,20 @@ public abstract class VectorWriter implements Closeable {
         }
         VectorProperties.VectorPropertiesSample[] sampleInfoArray = new VectorProperties.VectorPropertiesSample[
                 sampleInfos.size()];
-        VectorProperties.VectorPropertiesVector[] vectorInfoArray = new VectorProperties.VectorPropertiesVector[
-                vectorInfos.size()];
         sampleInfoArray = sampleInfos.toArray(sampleInfoArray);
-        vectorInfoArray = vectorInfos.toArray(vectorInfoArray);
+        VectorProperties.VectorPropertiesVector[] vectorInfoArray;
+        if (addVectorInfoCalled) {
+            vectorInfoArray = new VectorProperties.VectorPropertiesVector[
+                    vectorInfos.size()];
+            vectorInfoArray = vectorInfos.toArray(vectorInfoArray);
+        } else {
+            vectorInfoArray = new VectorProperties.VectorPropertiesVector[
+                    currVectorIndex];
+            for (int i = 0; i < currVectorIndex; i++) {
+                vectorInfoArray[i] = new VectorProperties.VectorPropertiesVector(vectorIdToName.get(i),
+                        "float", vectorIdToDimension.get(i));
+            }
+        }
         VectorProperties vectorProperties = new VectorProperties(getFileType(), majorVersion, minorVersion,
                 sampleInfoArray, vectorInfoArray);
         gson.toJson(vectorProperties, VectorProperties.class, outputFileVectorProperties);
@@ -60,25 +71,48 @@ public abstract class VectorWriter implements Closeable {
     }
 
     public void addVectorInfo(String vectorName, String vectorType, int[] vectorDimension) {
+        addVectorInfoCalled = true;
         vectorNameToId.put(vectorName, vectorInfos.size());
         this.vectorInfos.add(new VectorProperties.VectorPropertiesVector(vectorName, vectorType, vectorDimension));
     }
 
     public void appendMds(MultiDataSet multiDataSet, int[] inputIndices, int[] outputIndices, String[] inputNames,
                           String[] outputNames) {
-        if ((inputIndices.length != inputNames.length) || (outputIndices.length != outputNames.length)) {
-            throw new IllegalArgumentException("Lengths of input indices and names, and output indices and names," +
-                    " must be equal");
-        }
-        for (int i = 0; i < inputIndices.length; i++) {
-            writeVectorLine(new VectorLine(0, 0, vectorNameToId.get(inputNames[i]),
-                    getVectorElementsFromArray(multiDataSet.getFeatures(inputIndices[i]))));
-        }
-        for (int i = 0; i < outputIndices.length; i++) {
-            writeVectorLine(new VectorLine(0, 0, vectorNameToId.get(outputNames[i]),
-                    getVectorElementsFromArray(multiDataSet.getFeatures(outputIndices[i]))));
-        }
+        writeLinesForIndices(multiDataSet, inputIndices, inputNames, true);
+        writeLinesForIndices(multiDataSet, outputIndices, outputNames, false);
+    }
 
+    private void writeLinesForIndices(MultiDataSet multiDataSet, int[] indices, String[] names, boolean isForFeatures) {
+        for (int index : indices) {
+            INDArray allValuesAtIndex = isForFeatures
+                    ? multiDataSet.getFeatures(index)
+                    : multiDataSet.getLabels(index);
+            for (int i = 0; i < allValuesAtIndex.rows(); i++) {
+                INDArray recordValuesAtIndex = allValuesAtIndex.getRow(i);
+                String vectorName = names[index];
+                int vectorId;
+                if (vectorNameToId.get(vectorName) == null) {
+                    vectorNameToId.put(vectorName, currVectorIndex);
+                    vectorIdToName.put(currVectorIndex, vectorName);
+                    vectorIdToDimension.put(currVectorIndex, recordValuesAtIndex.shape());
+                    vectorId = currVectorIndex++;
+                } else {
+                    vectorId = vectorNameToId.get(vectorName);
+                    String vectorCachedName = vectorIdToName.get(vectorId);
+                    if (!vectorName.equals(vectorCachedName)) {
+                        throw new RuntimeException(String.format("Vector name mismatch for vector id %d", vectorId));
+                    }
+                    int[] vectorCachedDimensions = vectorIdToDimension.get(vectorId);
+                    if (!Arrays.equals(recordValuesAtIndex.shape(), vectorCachedDimensions)) {
+                        throw new RuntimeException(String.format("Vector dimension mismatch for vector id %d",
+                                vectorId));
+                    }
+                }
+                // TODO: Support for different sampleIds and exampleIds
+                writeVectorLine(new VectorLine(0, 0, vectorId,
+                        getVectorElementsFromArray(recordValuesAtIndex)));
+            }
+        }
     }
 
     private List<Float> getVectorElementsFromArray(INDArray vectorArray) {

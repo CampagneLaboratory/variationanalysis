@@ -1,4 +1,6 @@
-package org.campagnelab.dl.genotype.tools;
+package org.campagnelab.dl.framework.tools;
+
+import org.campagnelab.dl.framework.tools.VectorWriter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
