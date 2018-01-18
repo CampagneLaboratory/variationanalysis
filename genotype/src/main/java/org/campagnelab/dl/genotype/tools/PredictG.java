@@ -17,7 +17,7 @@ import org.campagnelab.dl.genotype.performance.StatsAccumulator;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.somatic.util.GenomicSitesVisited;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
-import org.campagnelab.goby.predictions.FormatIndelVCF3;
+import org.campagnelab.goby.predictions.FormatIndelVCF;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -205,10 +205,10 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                     break;
                 case VCF:
                     //generated vcf formatted indel
-                    FormatIndelVCF3 format = null;
+                    FormatIndelVCF format = null;
                     assert fullPred != null : "fullPref must not be null";
                     assert fullPred.predictedFrom != null : "predictedFrom must not be null";
-                    format = new FormatIndelVCF3(fullPred.predictedFrom, fullPred.predictedAlleles(), fullPred.predictedFrom.charAt(0));
+                    format = new FormatIndelVCF(fullPred.predictedFrom, fullPred.predictedAlleles(), fullPred.predictedFrom.charAt(0));
 
                     //get max allele length for bed file
                     int maxLength = format.toVCF.stream().map(a -> a.length()).max(Integer::compareTo).orElse(0);
