@@ -6,7 +6,9 @@ import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
+import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapterMultipleSamples;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -32,6 +34,8 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
     protected abstract DomainDescriptor<RecordType> domainDescriptor(String featureMapperClassName,
                                                                      List<String> trainingSets);
 
+    protected abstract void decorateProperties(Properties decorateProperties);
+
     private int numRecordsWritten;
 
     @Override
@@ -45,16 +49,26 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
 
     @Override
     public void execute() {
-
+        if ((args().sampleNames.size() != args().sampleTypes.size())
+                || (args().sampleNames.size() != args().sampleIds.size())) {
+            throw new RuntimeException("--sample-names and --sample-types must have same size");
+        }
         DomainDescriptor<RecordType> domainDescriptor = domainDescriptor(args().featureMapperClassname,
                 args().trainingSets);
-        MultiDataSetIteratorAdapter<RecordType> adapter;
-
+        MultiDataSetIteratorAdapterMultipleSamples<RecordType> adapter;
+        Integer[] sampleIds = new Integer[args().sampleIds.size()];
+        sampleIds = args().sampleIds.toArray(sampleIds);
         try {
-            adapter = new MultiDataSetIteratorAdapter<RecordType>(domainDescriptor.getRecordIterable(args().trainingSets,
+            Properties properties = getReaderProperties(args().trainingSets.get(0));
+            decorateProperties(properties);
+            adapter = new MultiDataSetIteratorAdapterMultipleSamples<RecordType>(domainDescriptor.getRecordIterable(args().trainingSets,
                     (int) args().exportN),
                     args().miniBatchSize,
-                    domainDescriptor) {
+                    domainDescriptor,
+                    false,
+                    null,
+                    sampleIds,
+                    properties) {
                 @Override
                 public String getBasename() {
                     return buildBaseName(args().trainingSets);
@@ -63,10 +77,11 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         } catch (IOException e) {
             throw new RuntimeException("Unable to load training set ", e);
         }
-        MultiDataSetIterator iterator = adapter;
-        if (adapter.asyncSupported()) {
-            iterator = new AsyncMultiDataSetIterator(adapter, 12);
-        }
+//        MultiDataSetIterator iterator = adapter;
+//        if (adapter.asyncSupported()) {
+//            iterator = new AsyncMultiDataSetIterator(adapter, 12);
+//        }
+        Iterator<List<MultiDataSet>> iterator = adapter;
         final String outputFilename = args().outputBasename + ".tensor";
         try (FastBufferedOutputStream outputStream = new FastBufferedOutputStream(new FileOutputStream(outputFilename))) {
             ProgressLogger pg = new ProgressLogger(LOG);
@@ -96,8 +111,9 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
             vectorWriter.setSpecVersionNumber(0, 1);
 
             while (iterator.hasNext()) {
-                MultiDataSet mds = iterator.next();
-                vectorWriter.appendMds(mds, inputIndicesSelected, outputIndicesSelected, inputNames, outputNames);
+                for (MultiDataSet mds : iterator.next()) {
+                    vectorWriter.appendMds(mds, inputIndicesSelected, outputIndicesSelected, inputNames, outputNames);
+                }
             }
             vectorWriter.addSampleInfo("testSampleType", "testSampleName");
             outputStream.close();
@@ -179,4 +195,12 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
     }
 
 
+    // Taken from org.campagnelab.dl.somatic.learning.SomaticTrainer
+    private Properties getReaderProperties(String trainingSet) throws IOException {
+        try (SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSet)) {
+            final Properties properties = reader.getProperties();
+            reader.close();
+            return properties;
+        }
+    }
 }

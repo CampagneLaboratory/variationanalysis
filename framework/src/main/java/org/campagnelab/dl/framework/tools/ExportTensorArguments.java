@@ -44,4 +44,16 @@ public class ExportTensorArguments implements ToolArguments {
             "If you don't know the names of the inputs, run the tool without this argument, and all input names will be shown.")
     public Set<String> outputNamesToExport;
 
+    @Parameter(required = true, names = "--sample-names",
+            description = "Names for each of the samples in the reads", variableArity = true)
+    public List<String> sampleNames = new ArrayList<>();
+
+    @Parameter(required = true, names = "--sample-types",
+            description = "Types for each of the samples in the reads", variableArity = true)
+    public List<String> sampleTypes = new ArrayList<>();
+
+    @Parameter(required = true, names = "--sample-ids",
+            description = "IDs for each of the samples in the reads", variableArity = true)
+    public List<Integer> sampleIds = new ArrayList<>();
+
 }
