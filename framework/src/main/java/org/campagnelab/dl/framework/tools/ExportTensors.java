@@ -99,6 +99,7 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
                 MultiDataSet mds = iterator.next();
                 vectorWriter.appendMds(mds, inputIndicesSelected, outputIndicesSelected, inputNames, outputNames);
             }
+            vectorWriter.addSampleInfo("testSampleType", "testSampleName");
             outputStream.close();
             pg.stop();
 

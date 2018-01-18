@@ -30,6 +30,8 @@ public abstract class VectorWriter implements Closeable {
         sampleInfos = new LinkedList<>();
         vectorInfos = new LinkedList<>();
         vectorNameToId = new HashMap<>();
+        vectorIdToName = new HashMap<>();
+        vectorIdToDimension = new HashMap<>();
     }
 
     @Override
