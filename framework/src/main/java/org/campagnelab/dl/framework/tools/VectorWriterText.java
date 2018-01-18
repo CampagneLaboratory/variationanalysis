@@ -35,5 +35,6 @@ public class VectorWriterText extends VectorWriter {
             outputFileVector.append(" ")
                     .append(Float.toString(vectorValue));
         }
+        outputFileVector.append("\n");
     }
 }

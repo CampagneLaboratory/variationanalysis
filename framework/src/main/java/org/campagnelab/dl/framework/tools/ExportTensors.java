@@ -101,6 +101,7 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
             }
             vectorWriter.addSampleInfo("testSampleType", "testSampleName");
             outputStream.close();
+            vectorWriter.close();
             pg.stop();
 
             long numRecords = domainDescriptor.getNumRecords(args().getTrainingSets());
