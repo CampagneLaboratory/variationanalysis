@@ -81,14 +81,14 @@ public abstract class MultiDataSetIteratorAdapterMultipleSamples<RecordType> imp
 
     abstract public String getBasename();
 
-    @Override
-    public List<MultiDataSet> next() {
+
+    public List<MultiDataSet> next(int batchSize) {
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
         ObjectList<RecordType> buffer = new ObjectArrayList<RecordType>();
         // allocate a new dataset with batchSize records and fill it with features and labels.
-        while (recordIterator.hasNext() && buffer.size() < this.batchSize) {
+        while (recordIterator.hasNext() && buffer.size() < batchSize) {
             buffer.add(recordIterator.next());
         }
         int size = buffer.size();
@@ -101,8 +101,8 @@ public abstract class MultiDataSetIteratorAdapterMultipleSamples<RecordType> imp
 
         INDArray inputs[][] = new INDArray[sampleIndices.length][numInputs];
         INDArray inputMasks[][] = new INDArray[sampleIndices.length][numInputs];
-        INDArray labels[] = new INDArray[numLabels];
-        INDArray labelMasks[] = new INDArray[numLabels];
+        INDArray labels[][] = new INDArray[sampleIndices.length][numLabels];
+        INDArray labelMasks[][] = new INDArray[sampleIndices.length][numLabels];
         int index = 0;
         boolean hasFeatureMask = false;
         boolean hasLabelMask = false;
@@ -117,47 +117,49 @@ public abstract class MultiDataSetIteratorAdapterMultipleSamples<RecordType> imp
                 inputShape[1]++;
             }
             boolean needMask = featureMappers[index][0].hasMask();
-            for (int i = 0; i < sampleIndices.length; i++) {
-                inputs[index][i] = Nd4j.createUninitializedDetached(inputShape, 'f');
-                inputMasks[index][i] = needMask ? Nd4j.createUninitializedDetached(domainDescriptor.getInputMaskShape(size, input), 'f') : null;
+            for (int sampleIndex = 0; sampleIndex < sampleIndices.length; sampleIndex++) {
+                inputs[sampleIndex][index] = Nd4j.createUninitializedDetached(inputShape, 'f');
+                inputMasks[sampleIndex][index] = needMask ? Nd4j.createUninitializedDetached(
+                        domainDescriptor.getInputMaskShape(size, input), 'f'
+                ) : null;
             }
-            index += 1;
+            index++;
             hasFeatureMask |= needMask;
         }
         index = 0;
         for (String label : domainDescriptor.getComputationalGraph().getOutputNames()) {
-            labels[index] = Nd4j.createUninitializedDetached(domainDescriptor.getLabelShape(size, label), 'f');
-
-            boolean needMask = false;
-
+            boolean needMask = labelMappers[index][0].hasMask();
             for (int sampleIndex = 0; sampleIndex < sampleIndices.length; sampleIndex++) {
                 labelMappers[index][sampleIndex] = domainDescriptor.getLabelMapper(label);
-                needMask = labelMappers[index][0].hasMask();
-                if (needMask) {
-                    labelMasks[index] = Nd4j.createUninitializedDetached(domainDescriptor.getLabelMaskShape(size, label), 'f');
-                }
-                hasLabelMask |= needMask;
+                labels[sampleIndex][index] = Nd4j.createUninitializedDetached(domainDescriptor.getLabelShape(size, label), 'f');
+                labelMasks[sampleIndex][index] = needMask ? Nd4j.createUninitializedDetached(
+                        domainDescriptor.getLabelMaskShape(size, label), 'f'
+                ) : null;
             }
             index++;
+            hasLabelMask |= needMask;
         }
+
 
         int recordIndexInBatch = 0;
         for (RecordType record : buffer) {
             for (int j = 0; j < numInputs; j++) {
-                for (int k = 0; k < sampleIndices.length; k++) {
-                    featureMappers[j][k].prepareToNormalize(record, recordIndexInBatch);
-                    featureMappers[j][k].mapFeatures(record, inputs[k][j], recordIndexInBatch);
-                    if (featureMappers[j][k].hasMask()) {
-                        featureMappers[j][k].maskFeatures(record, inputMasks[k][j], recordIndexInBatch);
+                for (int sampleIndex = 0; sampleIndex < sampleIndices.length; sampleIndex++) {
+                    featureMappers[j][sampleIndex].prepareToNormalize(record, recordIndexInBatch);
+                    featureMappers[j][sampleIndex].mapFeatures(record, inputs[sampleIndex][j], recordIndexInBatch);
+                    if (featureMappers[j][sampleIndex].hasMask()) {
+                        featureMappers[j][sampleIndex].maskFeatures(record, inputMasks[sampleIndex][j],
+                                recordIndexInBatch);
                     }
                 }
             }
             for (int j = 0; j < numLabels; j++) {
                 for (int sampleIndex = 0; sampleIndex < sampleIndices.length; sampleIndex++) {
                     labelMappers[j][sampleIndex].prepareToNormalize(record, recordIndexInBatch);
-                    labelMappers[j][sampleIndex].mapLabels(record, labels[j], recordIndexInBatch);
+                    labelMappers[j][sampleIndex].mapLabels(record, labels[sampleIndex][j], recordIndexInBatch);
                     if (labelMappers[j][sampleIndex].hasMask()) {
-                        labelMappers[j][sampleIndex].maskLabels(record, labelMasks[j], recordIndexInBatch);
+                        labelMappers[j][sampleIndex].maskLabels(record, labelMasks[sampleIndex][j],
+                                recordIndexInBatch);
                     }
                 }
             }
@@ -172,11 +174,11 @@ public abstract class MultiDataSetIteratorAdapterMultipleSamples<RecordType> imp
                         //     inputMasks[i] = Nd4j.ones(inputShape[0], 1,inputShape[2]);
                         throw new RuntimeException("3D features should have masks");
                     } else if (inputShape.length == 2 || inputShape.length == 1) {
-                        for (int j = 0; j < sampleIndices.length; j++)
-                            inputMasks[j][i] = Nd4j.ones(inputShape[0], 1);
+                        for (int sampleIndex = 0; sampleIndex < sampleIndices.length; sampleIndex++)
+                            inputMasks[sampleIndex][i] = Nd4j.ones(inputShape[0], 1);
                     } else {
-                        for (int j = 0; j < sampleIndices.length; j++)
-                            inputMasks[j][i] = Nd4j.ones(inputShape.clone());
+                        for (int sampleIndex = 0; sampleIndex < sampleIndices.length; sampleIndex++)
+                            inputMasks[sampleIndex][i] = Nd4j.ones(inputShape.clone());
                     }
                 }
             }
@@ -184,23 +186,25 @@ public abstract class MultiDataSetIteratorAdapterMultipleSamples<RecordType> imp
         if (hasLabelMask) {
             for (int i = 0; i < labelMasks.length; i++) {
                 if (labelMasks[i] == null) {
-                    int[] labelShape = labels[i].shape();
+                    int[] labelShape = labels[0][i].shape();
                     if (labelShape.length == 3) {
                         //  labelMasks[i] = Nd4j.ones(labelShape[0], labelShape[2], 1);
                         //throw new RuntimeException("3D labels should have masks");
                     } else if (labelShape.length == 2 || labelShape.length == 1) {
-                        labelMasks[i] = Nd4j.ones(labelShape[0], 1);
+                        for (int sampleIndex = 0; sampleIndex < sampleIndices.length; sampleIndex++)
+                            labelMasks[sampleIndex][i] = Nd4j.ones(labelShape[0], 1);
                     } else {
-                        labelMasks[i] = Nd4j.ones(labelShape.clone());
+                        for (int sampleIndex = 0; sampleIndex < sampleIndices.length; sampleIndex++)
+                            labelMasks[sampleIndex][i] = Nd4j.ones(labelShape.clone());
                     }
                 }
             }
         }
         List<MultiDataSet> resultList = new ArrayList<>();
-        for (int i = 0; i < sampleIndices.length; i++) {
-            MultiDataSet result = new org.nd4j.linalg.dataset.MultiDataSet(inputs[i], labels,
-                    hasFeatureMask ? inputMasks[i] : null,
-                    hasLabelMask ? labelMasks : null);
+        for (int sampleIndex = 0; sampleIndex < sampleIndices.length; sampleIndex++) {
+            MultiDataSet result = new org.nd4j.linalg.dataset.MultiDataSet(inputs[sampleIndex], labels[sampleIndex],
+                    hasFeatureMask ? inputMasks[sampleIndex] : null,
+                    hasLabelMask ? labelMasks[sampleIndex] : null);
             if (preProcessor != null) preProcessor.preProcess(result);
             resultList.add(result);
         }
@@ -227,6 +231,14 @@ public abstract class MultiDataSetIteratorAdapterMultipleSamples<RecordType> imp
     @Override
     public boolean hasNext() {
         return recordIterator.hasNext();
+    }
+
+    @Override
+    public List<MultiDataSet> next() {
+        if (hasNext()) {
+            return next(batchSize);
+
+        } else throw new NoSuchElementException();
     }
 
     @Override
