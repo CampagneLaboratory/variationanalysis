@@ -114,8 +114,12 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
             vectorWriter.setSpecVersionNumber(0, 1);
 
             while (iterator.hasNext()) {
-                for (MultiDataSet mds : iterator.next()) {
-                    vectorWriter.appendMds(mds, inputIndicesSelected, outputIndicesSelected, inputNames, outputNames);
+                List<MultiDataSet> mdsList = iterator.next();
+                int currIndex = 0;
+                for (MultiDataSet mds : mdsList) {
+                    int sampleIndex = sampleIndices.getInt(currIndex);
+                    vectorWriter.appendMds(mds, inputIndicesSelected, outputIndicesSelected, inputNames, outputNames,
+                            sampleIndex);
                 }
             }
             vectorWriter.addSampleInfo("testSampleType", "testSampleName");
