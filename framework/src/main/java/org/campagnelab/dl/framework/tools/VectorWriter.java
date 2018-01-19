@@ -79,13 +79,15 @@ public abstract class VectorWriter implements Closeable {
     }
 
     public void appendMds(MultiDataSet multiDataSet, int[] inputIndices, int[] outputIndices, String[] inputNames,
-                          String[] outputNames, int sampleId) {
-        writeLinesForIndices(multiDataSet, inputIndices, inputNames, sampleId,true);
-        writeLinesForIndices(multiDataSet, outputIndices, outputNames, sampleId,false);
+                          String[] outputNames, int sampleIndex, int startExampleIndex) {
+        writeLinesForIndices(multiDataSet, inputIndices, inputNames, sampleIndex, startExampleIndex,
+                true);
+        writeLinesForIndices(multiDataSet, outputIndices, outputNames, sampleIndex, startExampleIndex,
+                false);
     }
 
     private void writeLinesForIndices(MultiDataSet multiDataSet, int[] indices, String[] names,
-                                      int sampleId, boolean isForFeatures) {
+                                      int sampleIndex, int startExampleIndex, boolean isForFeatures) {
         for (int index : indices) {
             INDArray allValuesAtIndex = isForFeatures
                     ? multiDataSet.getFeatures(index)
@@ -111,8 +113,7 @@ public abstract class VectorWriter implements Closeable {
                                 vectorId));
                     }
                 }
-                // TODO: Support for different sampleIds and exampleIds
-                writeVectorLine(new VectorLine(sampleId, 0, vectorId,
+                writeVectorLine(new VectorLine(sampleIndex, startExampleIndex + i, vectorId,
                         getVectorElementsFromArray(recordValuesAtIndex)));
             }
         }

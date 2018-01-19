@@ -108,20 +108,24 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
             int[] outputIndicesSelected = assignSelectedIndices(outputNames, outputNamesToExport);
 
 
-            int mini_batch_size = args().miniBatchSize;
+            int miniBatchSize = args().miniBatchSize;
             VectorWriter vectorWriter = new VectorWriterText(args().outputBasename);
             // TODO: Set from args or properties
             vectorWriter.setSpecVersionNumber(0, 1);
 
+            int currStartExampleIndex = 0;
             while (iterator.hasNext()) {
                 List<MultiDataSet> mdsList = iterator.next();
                 int currIndex = 0;
                 for (MultiDataSet mds : mdsList) {
                     int sampleIndex = sampleIndices.getInt(currIndex);
                     vectorWriter.appendMds(mds, inputIndicesSelected, outputIndicesSelected, inputNames, outputNames,
-                            sampleIndex);
+                            sampleIndex, currStartExampleIndex);
+                    currIndex++;
                 }
+                currStartExampleIndex += miniBatchSize;
             }
+
             vectorWriter.addSampleInfo("testSampleType", "testSampleName");
             outputStream.close();
             vectorWriter.close();
