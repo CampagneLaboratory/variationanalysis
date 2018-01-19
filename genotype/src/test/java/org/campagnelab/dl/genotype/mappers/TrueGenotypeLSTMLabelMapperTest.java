@@ -70,6 +70,33 @@ public class TrueGenotypeLSTMLabelMapperTest {
         assertEquals(expectedMask, mask.toString());
     }
 
+    @Test
+    public void testRecord3() throws Exception {
+        String expectedLabel = "[[[0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00],  \n" +
+                "  [0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00],  \n" +
+                "  [0.00,  1.00,  0.00,  1.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00],  \n" +
+                "  [0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00],  \n" +
+                "  [0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00],  \n" +
+                "  [0.00,  0.00,  0.00,  0.00,  1.00,  1.00,  1.00,  1.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00],  \n" +
+                "  [0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00],  \n" +
+                "  [0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  1.00,  0.00,  0.00,  0.00,  0.00,  0.00],  \n" +
+                "  [1.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00],  \n" +
+                "  [0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00]]]";
+        String expectedMask = "[1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  0.00,  0.00,  0.00,  0.00,  0.00]";
+        TrueGenotypeLSTMLabelMapper mapper = new TrueGenotypeLSTMLabelMapper(30,0);
+        MappedDimensions dim = mapper.dimensions();
+        INDArray labels = Nd4j.zeros(1, dim.numElements(1), dim.numElements(2));
+        INDArray mask = Nd4j.zeros(1, dim.numElements(2));
+        final BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
+        TextFormat.getParser().merge(records[2], builder);
+        final BaseInformationRecords.BaseInformation recordObject = builder.build();
+        mapper.prepareToNormalize(recordObject, 0);
+        mapper.mapLabels(recordObject, labels, 0);
+        mapper.maskLabels(recordObject, mask, 0);
+        assertEquals(expectedLabel, labels.toString());
+        assertEquals(expectedMask, mask.toString());
+    }
+
     private static final String RECORD_BASE = "reference_index: 21\n" +
             "position: 45944850\n" +
             "mutated: false\n" +
@@ -1112,7 +1139,8 @@ public class TrueGenotypeLSTMLabelMapperTest {
             "trueGenotype: \"%s\"";
     static String[] records = {
             createRecord("C/C----AGTCAGTCAGTCAGTCAGT"),
-            createRecord("C/C----AGTCAGTCAGTCAGTCAGTAGTAGTAGTAGT")
+            createRecord("C/C----AGTCAGTCAGTCAGTCAGTAGTAGTAGTAGT"),
+            String.format(RECORD_BASE, "", "C/C----AGTCAGTCAGTCAGTCAGT")
     };
 
     private static String createRecord(String trueGenotype) {
