@@ -12,9 +12,13 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public abstract class CountSortingLabelMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
     int[] indices = new int[]{0, 0};
     private final boolean sortCounts;
-
+    protected int sampleIndex;
     public CountSortingLabelMapper(boolean sortCounts) {
         this.sortCounts = sortCounts;
+    }
+    public CountSortingLabelMapper(int sampleIndex, boolean sortCounts) {
+        this.sortCounts = sortCounts;
+        this.sampleIndex=sampleIndex;
     }
 
     @Override
@@ -30,7 +34,7 @@ public abstract class CountSortingLabelMapper extends NoMasksLabelMapper<BaseInf
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
         if (sortCounts) {
-            sortedCountRecord = sortHelper.sort(0,record);
+            sortedCountRecord = sortHelper.sort(this.sampleIndex,record);
         } else {
             sortedCountRecord = record;
         }

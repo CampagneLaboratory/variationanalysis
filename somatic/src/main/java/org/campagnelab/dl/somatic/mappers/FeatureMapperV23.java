@@ -2,8 +2,11 @@ package org.campagnelab.dl.somatic.mappers;
 
 import org.campagnelab.dl.framework.mappers.ConfigurableFeatureMapper;
 import org.campagnelab.dl.somatic.mappers.functional.TraversalHelper;
+import org.campagnelab.dl.somatic.mappers.trio.FeatureMapperV25Trio;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -14,9 +17,10 @@ import java.util.Properties;
 public class FeatureMapperV23 extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
         implements ConfigurableFeatureMapper {
     private NamingConcatFeatureMapper delegate;
+    static private Logger LOG = LoggerFactory.getLogger(FeatureMapperV23.class);
 
     private String recordTo(final int contextLength, BaseInformationRecords.BaseInformationOrBuilder record, int countIndex) {
-        return MappingFunctions.recordTo(contextLength,record, countIndex);
+        return MappingFunctions.recordTo(contextLength, record, countIndex);
     }
 
     /**
@@ -53,11 +57,16 @@ public class FeatureMapperV23 extends NamingConcatFeatureMapper<BaseInformationR
                 new DensityMapper("insertSizes", 10, sbiProperties, (BaseInformationRecords.BaseInformationOrBuilder baseInformationOrBuilder) -> {
                     return TraversalHelper.forAllSampleCounts(baseInformationOrBuilder, BaseInformationRecords.CountInfo::getInsertSizesList);
                 },
-                        insertSize -> (float)Math.log10(insertSize))
+                        insertSize -> (float) Math.log10(insertSize))
 
         );
 
 
+    }
+
+    @Override
+    public void setSampleIndex(int sampleIndex) {
+        LOG.warn("This mapper does not support configurable sampleIndex. It uses exactly one sample sbi files.");
     }
 
 

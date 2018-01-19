@@ -1,6 +1,7 @@
 package org.campagnelab.dl.genotype.learning.domains;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.campagnelab.dl.framework.architecture.graphs.ComputationGraphAssembler;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
@@ -23,6 +24,7 @@ import org.campagnelab.dl.genotype.predictions.SegmentPrediction;
 import org.campagnelab.dl.genotype.predictions.SegmentPredictionInterpreter;
 import org.campagnelab.dl.genotype.storage.SegmentReader;
 import org.campagnelab.dl.genotype.tools.SegmentTrainingArguments;
+import org.campagnelab.dl.somatic.mappers.NamingConcatFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.baseinfo.BasenameUtils;
 import org.campagnelab.goby.baseinfo.SequenceSegmentInformationReader;
@@ -33,6 +35,8 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.impl.LossBinaryXENT;
 import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -140,6 +144,7 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
         }
     }
 
+
     public static Properties getReaderPropertiesFromModel(String modelPath) throws IOException {
         Properties properties = new Properties();
         String domainPropsPath = ModelLoader.getModelPath(modelPath) + "/domain.properties";
@@ -194,6 +199,15 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
                 throw new InternalError("Unable to load properties and initialize label mapper.", e);
             }
         }
+    }
+
+    @Override
+    public LabelMapper getLabelMapper(String outputName, int sampleIndex) {
+        throw new NotImplementedException();
+    }
+    @Override
+    public FeatureMapper getFeatureMapper(String inputName, int sampleIndex) {
+        throw new NotImplementedException();
     }
 
     @Override
@@ -320,4 +334,8 @@ public class GenotypeSegmentDomainDescriptor extends DomainDescriptor<SegmentInf
         }
         return count;
     }
+
+    static private Logger LOG = LoggerFactory.getLogger(NamingConcatFeatureMapper.class);
+
+
 }

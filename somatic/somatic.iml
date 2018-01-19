@@ -246,6 +246,7 @@
     <orderEntry type="library" name="Maven: io.aeron:aeron-all:1.0.4" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-parameter-server-client:0.9.1" level="project" />
     <orderEntry type="library" name="Maven: org.deeplearning4j:deeplearning4j-play_2.11:0.9.1" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.2" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.goby:goby-io:3.3.1" level="project" />
     <orderEntry type="library" name="Maven: org.campagnelab.icb:icb-utils:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.ibm.icu:icu4j:3.4.4" level="project" />

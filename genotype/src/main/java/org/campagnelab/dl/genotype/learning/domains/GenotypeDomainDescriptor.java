@@ -23,6 +23,7 @@ import org.campagnelab.dl.genotype.predictions.*;
 import org.campagnelab.dl.somatic.learning.TrainSomaticModel;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationConcatIterator;
 import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
+import org.campagnelab.dl.somatic.mappers.NoMasksLabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.nn.graph.ComputationGraph;
@@ -53,7 +54,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     private float modelCapacity;
     private boolean isPredicting;
     private int extraGenotypes = 5;
-    private Object2ObjectMap<String,LabelMapper> cachedLabelMaper=new Object2ObjectOpenHashMap<>();
+    private Object2ObjectMap<String, LabelMapper> cachedLabelMaper = new Object2ObjectOpenHashMap<>();
 
 
     public GenotypeDomainDescriptor(GenotypeTrainingArguments arguments) {
@@ -167,7 +168,15 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
     public FeatureMapper getFeatureMapper(String inputName) {
         if (featureMappers.containsKey(inputName)) {
             return featureMappers.get(inputName);
+        } else {
+            FeatureMapper featureMapper = getFeatureMapper(inputName, 0);
+            featureMappers.put(inputName, featureMapper);
+            return featureMapper;
         }
+    }
+
+    public FeatureMapper getInternalFeatureMapper(String inputName, int sampleIndex) {
+
         FeatureMapper result;
 
         if (isLSTMInput(inputName)) {
@@ -201,6 +210,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         } else if (inputName.equals("trueGenotypeInput")) {
             result = new TrueGenotypeLSTMDecodingFeatureMapper();
             TrueGenotypeLSTMDecodingFeatureMapper glpfMapper = (TrueGenotypeLSTMDecodingFeatureMapper) result;
+
             Properties glpfMapperProperties = new Properties();
             decorateProperties(glpfMapperProperties);
             glpfMapper.configure(glpfMapperProperties);
@@ -209,8 +219,10 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             try {
                 Class clazz = Class.forName(args().featureMapperClassname);
                 final FeatureMapper featureMapper = (FeatureMapper) clazz.newInstance();
+
                 if (featureMapper instanceof ConfigurableFeatureMapper) {
                     ConfigurableFeatureMapper cmapper = (ConfigurableFeatureMapper) featureMapper;
+                    cmapper.setSampleIndex(sampleIndex);
                     final Properties properties = TrainSomaticModel.getReaderProperties(args().trainingSets.get(0));
                     decorateProperties(properties);
                     cmapper.configure(properties);
@@ -238,66 +250,95 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                 throw new RuntimeException(e);
             }
         }
-        featureMappers.put(inputName, result);
+
         return result;
+    }
+
+    @Override
+    public FeatureMapper getFeatureMapper(String inputName, int sampleIndex) {
+        return getInternalFeatureMapper(inputName, sampleIndex);
     }
 
     @Override
     public LabelMapper getLabelMapper(String outputName) {
         LabelMapper cached = cachedLabelMaper.get(outputName);
-        if (cached!=null) {
+        if (cached != null) {
             return cached;
-        }else{
-            cached=getInternalLabelMapper(outputName);
+        } else {
+            cached = getInternalLabelMapper(outputName, 0);
             cachedLabelMaper.put(outputName, cached);
             return cached;
         }
     }
-    public LabelMapper getInternalLabelMapper(String outputName) {
-        boolean sortCounts = needSortCounts();
 
+    @Override
+    public LabelMapper getLabelMapper(String outputName, int sampleIndex) {
+        return getInternalLabelMapper(outputName, sampleIndex);
+    }
+
+    public LabelMapper getInternalLabelMapper(String outputName, int sampleIndex) {
+        boolean sortCounts = needSortCounts();
+        NoMasksLabelMapper mapper = null;
         switch (outputName) {
             case "A":
-                return new SingleGenotypeLabelMapper(0, sortCounts, args().labelSmoothingEpsilon);
+                mapper = new SingleGenotypeLabelMapper(0, sortCounts, args().labelSmoothingEpsilon);
+                break;
             case "T":
-                return new SingleGenotypeLabelMapper(1, sortCounts, args().labelSmoothingEpsilon);
+                mapper = new SingleGenotypeLabelMapper(1, sortCounts, args().labelSmoothingEpsilon);
+                break;
             case "C":
-                return new SingleGenotypeLabelMapper(2, sortCounts, args().labelSmoothingEpsilon);
+                mapper = new SingleGenotypeLabelMapper(2, sortCounts, args().labelSmoothingEpsilon);
+                break;
             case "G":
-                return new SingleGenotypeLabelMapper(3, sortCounts, args().labelSmoothingEpsilon);
+                mapper = new SingleGenotypeLabelMapper(3, sortCounts, args().labelSmoothingEpsilon);
+                break;
             case "N":
-                return new SingleGenotypeLabelMapper(4, sortCounts, args().labelSmoothingEpsilon);
+                mapper = new SingleGenotypeLabelMapper(4, sortCounts, args().labelSmoothingEpsilon);
+                break;
             case "I1":
-                return new SingleGenotypeLabelMapper(5, sortCounts, args().labelSmoothingEpsilon);
+                mapper = new SingleGenotypeLabelMapper(5, sortCounts, args().labelSmoothingEpsilon);
+                break;
             case "I2":
-                return new SingleGenotypeLabelMapper(6, sortCounts, args().labelSmoothingEpsilon);
+                mapper = new SingleGenotypeLabelMapper(6, sortCounts, args().labelSmoothingEpsilon);
+                break;
             case "I3":
-                return new SingleGenotypeLabelMapper(7, sortCounts, args().labelSmoothingEpsilon);
+                mapper = new SingleGenotypeLabelMapper(7, sortCounts, args().labelSmoothingEpsilon);
+                break;
             case "I4":
-                return new SingleGenotypeLabelMapper(8, sortCounts, args().labelSmoothingEpsilon);
+                mapper = new SingleGenotypeLabelMapper(8, sortCounts, args().labelSmoothingEpsilon);
+                break;
             case "I5":
-                return new SingleGenotypeLabelMapper(9, sortCounts, args().labelSmoothingEpsilon);
+                mapper = new SingleGenotypeLabelMapper(9, sortCounts, args().labelSmoothingEpsilon);
+                break;
             case "homozygous":
-                return new HomozygousLabelsMapper(sortCounts, args().labelSmoothingEpsilon);
+                mapper = new HomozygousLabelsMapper(sortCounts, args().labelSmoothingEpsilon);
+                break;
             case "numDistinctAlleles":
-                return new NumDistinctAllelesLabelMapper(sortCounts, ploidy, args().labelSmoothingEpsilon);
+                mapper = new NumDistinctAllelesLabelMapper(sortCounts, ploidy, args().labelSmoothingEpsilon);
+                break;
             case "softmaxGenotype":
-                return new SoftmaxLabelMapper(sortCounts, ploidy + extraGenotypes, args().labelSmoothingEpsilon);
+                mapper = new SoftmaxLabelMapper(sampleIndex, sortCounts, ploidy + extraGenotypes, args().labelSmoothingEpsilon);
+                break;
             case "combined":
-                return new CombinedLabelsMapper(args().labelSmoothingEpsilon);
+                mapper = new CombinedLabelsMapper(args().labelSmoothingEpsilon);
+                break;
             case "combinedRef":
-                return new CombinedLabelsMapperRef(args().labelSmoothingEpsilon);
+                mapper = new CombinedLabelsMapperRef(args().labelSmoothingEpsilon);
+                break;
             case "metaData":
-                return new MetaDataLabelMapper();
+                mapper = new MetaDataLabelMapper();
+                break;
             case "isVariant":
                 return new BooleanLabelMapper<BaseInformationRecords.BaseInformation>(
-                        baseInformation -> baseInformation.getSamples(0).getIsVariant(),
+                        baseInformation -> baseInformation.getSamples(sampleIndex).getIsVariant(),
                         args().labelSmoothingEpsilon);
             case "trueGenotype":
-                return new TrueGenotypeLSTMLabelMapper(args().trueGenotypeLength);
+                return new TrueGenotypeLSTMLabelMapper(args().trueGenotypeLength, sampleIndex);
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
+        mapper.setSampleIndex(sampleIndex);
+        return mapper;
 
     }
 
@@ -367,9 +408,9 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
         domainHashcode ^= genomicContextSize;
         domainHashcode ^= indelSequenceLength;
         domainHashcode ^= extraGenotypes;
-        if (args().mixupAlpha!=null) {
+        if (args().mixupAlpha != null) {
             domainHashcode ^= args().mixupAlpha.hashCode();
-        }else {
+        } else {
             domainHashcode ^= "no-mixup".hashCode();
         }
         domainHashcode ^= Float.hashCode(args().labelSmoothingEpsilon);
@@ -454,7 +495,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
             case "isVariant":
                 return new IsVariantInterpreter(decisionThreshold);
             case "metaData":
-                return new MetaDataInterpreter();
+                return new MetaDataInterpreter(/*sampleIndex= */0);
             case "trueGenotype":
                 return new TrueGenotypeOutputLayerInterpreter();
             default:
@@ -482,7 +523,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
 
             @Override
             public String[] performanceMetrics() {
-                return new String[]{"AUC", "Recall", "Precision", "F1", "NumVariants", "score", "Recall_Indels", "Precision_Indels", "F1_Indels", "numIndels", "Het_Hom_Ratio", "TP",  "FN"};
+                return new String[]{"AUC", "Recall", "Precision", "F1", "NumVariants", "score", "Recall_Indels", "Precision_Indels", "F1_Indels", "numIndels", "Het_Hom_Ratio", "TP", "FN"};
                 //       return new String[]{"AUC_V", "AUC_R", "Concordance", "Recall", "Precision", "F1", "NumVariants", "score", "AUC_VxR"};
             }
 

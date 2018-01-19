@@ -19,7 +19,7 @@ public class GenotypeMapperV7 extends GenotypeMapperV4 {
 
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
-    private int sampleIndex = 0;
+
 
     public GenotypeMapperV7() {
         sortCounts = true;
@@ -47,7 +47,7 @@ public class GenotypeMapperV7 extends GenotypeMapperV4 {
             readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex, i, true));
             matchesRefMappers[i] = (new MatchesReferenceMapper(sampleIndex, i));
             firstBaseMappers[i] = new GenomicContextMapper(1,
-                    record -> record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence().substring(0,1));
+                    record -> record.getSamples(this.sampleIndex).getCounts(constantGenotypeIndex).getToSequence().substring(0,1));
             genotypeIndex++;
         }
         genotypeIndex = 0;
@@ -83,9 +83,7 @@ public class GenotypeMapperV7 extends GenotypeMapperV4 {
 
     }
 
-    public void setSampleIndex(int sampleIndex) {
-        this.sampleIndex = sampleIndex;
-    }
+
 
     @Override
     public String getFeatureName(int i) {

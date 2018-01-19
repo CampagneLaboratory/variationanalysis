@@ -7,6 +7,8 @@ import org.campagnelab.dl.somatic.mappers.NamingConcatFeatureMapper;
 import org.campagnelab.dl.somatic.mappers.functional.TraversalHelper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +22,7 @@ import java.util.Properties;
 public class FeatureMapperV25Trio extends NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>
         implements ConfigurableFeatureMapper {
     private NamingConcatFeatureMapper delegate;
-
+    static private Logger LOG = LoggerFactory.getLogger(FeatureMapperV25Trio.class);
     private String recordTo(final int contextLength, BaseInformationRecords.BaseInformationOrBuilder record, int countIndex) {
         final List<BaseInformationRecords.CountInfo> counts = record.getSamples(record.getSamplesCount() - 1).getCountsList();
         ArrayList<BaseInformationRecords.CountInfo> sorted = new ArrayList<>();
@@ -77,6 +79,11 @@ public class FeatureMapperV25Trio extends NamingConcatFeatureMapper<BaseInformat
         );
 
 
+    }
+
+    @Override
+    public void setSampleIndex(int sampleIndex) {
+       LOG.warn("This mapper does not support configurable sampleIndex. It uses exactly three sample sbi files.");
     }
 
 

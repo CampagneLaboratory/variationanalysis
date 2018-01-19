@@ -15,8 +15,9 @@ public class TrueGenotypeLSTMLabelMapper implements LabelMapper<BaseInformationR
     static final int featuresOrLabelsPerTimeStep = 10;
     private String cachedRecordGenotype;
     private int maxGenotypeLength;
-
-    public TrueGenotypeLSTMLabelMapper(int maxGenotypeLength) {
+    private int sampleIndex;
+    public TrueGenotypeLSTMLabelMapper(int maxGenotypeLength, int sampleIndex) {
+        this.sampleIndex=sampleIndex;
         this.maxGenotypeLength = maxGenotypeLength;
         delegate = new RNNLabelMapper<>(maxGenotypeLength + 3, featuresOrLabelsPerTimeStep,
                 TrueGenotypeLSTMLabelMapper::recordToLabel, String::length);
@@ -59,7 +60,7 @@ public class TrueGenotypeLSTMLabelMapper implements LabelMapper<BaseInformationR
 
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
-        String trueGenotype = record.getTrueGenotype();
+        String trueGenotype = record.getSamples(sampleIndex).getTrueGenotype();
         StringBuilder cachedRecordGenotypeBuilder = new StringBuilder();
         cachedRecordGenotypeBuilder.append('$');
         if (trueGenotype.length() >= maxGenotypeLength) {

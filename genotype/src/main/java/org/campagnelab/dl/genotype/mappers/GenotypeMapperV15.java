@@ -53,7 +53,7 @@ public class GenotypeMapperV15 extends GenotypeMapperV11 {
             readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex, i, true));
             matchesRefMappers[i] = (new MatchesReferenceMapper(sampleIndex, i));
             firstBaseMappers[i] = new GenomicContextMapper(1,
-                    record -> record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence().substring(0, 1));
+                    record -> record.getSamples(this.sampleIndex).getCounts(constantGenotypeIndex).getToSequence().substring(0, 1));
             numVariationsInReadMappers[i] = new DensityMapper("numVariationsInRead",
                     10, sbiProperties,
                     baseInformationOrBuilder ->

@@ -85,7 +85,7 @@ public class SomaticFeatureMapper1 extends NamingConcatFeatureMapper<BaseInforma
             matchesRefMappers[i] = (new MatchesReferenceMapper(somaticIndex, i));
             firstBaseMappers[i] = new GenomicContextMapper(indelMappedLength,
                     record -> {
-                        final String toSequence = record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence();
+                        final String toSequence = record.getSamples(this.somaticIndex).getCounts(constantGenotypeIndex).getToSequence();
                         return toSequence.substring(0, Math.min(indelMappedLength,toSequence.length()));
                     },true /* no warning if index outside of context, needed since indels have variable lengths */);
             originalGobyCountIndexMappers[i] = new OriginalGobyCountIndexMapper(somaticIndex, constantGenotypeIndex);

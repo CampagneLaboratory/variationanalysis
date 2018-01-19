@@ -13,8 +13,12 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 public class MetaDataInterpreter implements PredictionInterpreter<BaseInformationRecords.BaseInformation,
         MetadataPrediction> {
-
+    private int sampleIndex;
     private RecordCountSortHelper sortHelper = new RecordCountSortHelper();
+
+    public MetaDataInterpreter(int sampleIndex) {
+        this.sampleIndex = sampleIndex;
+    }
 
     @Override
     public MetadataPrediction interpret(INDArray trueLabels, INDArray output, int exampleIndex) {
@@ -45,7 +49,7 @@ public class MetaDataInterpreter implements PredictionInterpreter<BaseInformatio
         p.isVariant = sample.getIsVariant();
         final String trueGenotype = record.getTrueGenotype();
         p.isIndel = GenotypeHelper.isIndel(record.getReferenceBase(), trueGenotype);
-        p.referenceGobyIndex = MetaDataLabelMapper.calculateReferenceIndex(record);
+        p.referenceGobyIndex = MetaDataLabelMapper.calculateReferenceIndex(record,sampleIndex);
         BaseInformationRecords.BaseInformation sortedRecord = sortHelper.sort(0, record);
         // obtain original indices for sorted counts:
         BaseInformationRecords.SampleInfo sortedCountSample = sortedRecord.getSamples(0);

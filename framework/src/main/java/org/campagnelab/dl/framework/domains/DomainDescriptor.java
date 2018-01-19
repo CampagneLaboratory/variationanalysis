@@ -45,6 +45,19 @@ public abstract class DomainDescriptor<RecordType> {
     public abstract FeatureMapper getFeatureMapper(String inputName);
 
     /**
+     * Get the feature mapper for a given model graph input and a specific sample in a record. If creating a
+     * feature mapper is expensive (e.g., involves reading files), it is strongly recommended to cache mapper
+     * instances by input name and sample index.
+     *
+     * @param inputName The name of a graph input. Must match an input of the computational graph.
+     * @param sampleIndex The index of a sample in a record, or 0 if the record does not support the concept of samples.
+     *
+     * @return A feature mapper.
+     */
+    public abstract FeatureMapper getFeatureMapper(String inputName, int sampleIndex);
+
+
+    /**
      * Get the label mapper for a given model graph output. If creating a label mapper is expensive (e.g., involves
      * reading files), it is strongly recommended to cache mapper instances by input name.
      *
@@ -52,7 +65,13 @@ public abstract class DomainDescriptor<RecordType> {
      * @return A label mapper.
      */
     public abstract LabelMapper getLabelMapper(String outputName);
-
+    /**
+     * Get the label mapper for a given model graph output and sample in a record.
+     *
+     * @param outputName The name of a graph output. Must match an output of the computational graph.
+     * @return A label mapper.
+     */
+    public abstract LabelMapper getLabelMapper(String outputName, int sampleIndex);
     /**
      * Get the prediction/model output interpreter. A prediction interpreter converts the raw
      * INDArray numeric predictions to instances of the BinaryClassPrediction class, in the process converting

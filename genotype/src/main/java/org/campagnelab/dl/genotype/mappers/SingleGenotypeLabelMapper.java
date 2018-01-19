@@ -44,10 +44,10 @@ public class SingleGenotypeLabelMapper extends RecordCountSortingLabelMapperImpl
         assert labelIndex == 0 || labelIndex == 1 : "only one label.";
         boolean isCalled;
         record = sortedCountRecord;
-        if (sortedGenotypeIndex >= record.getSamples(0).getCountsCount() || sortedGenotypeIndex>= GenotypeFeatureMapper.MAX_GENOTYPES) {
+        if (sortedGenotypeIndex >= record.getSamples(this.sampleIndex).getCountsCount() || sortedGenotypeIndex>= GenotypeFeatureMapper.MAX_GENOTYPES) {
             isCalled = false;
         } else {
-            isCalled = record.getSamples(0).getCounts(sortedGenotypeIndex).getIsCalled();
+            isCalled = record.getSamples(this.sampleIndex).getCounts(sortedGenotypeIndex).getIsCalled();
         }
         if (labelIndex == 0) {
             // first index is 1 when site is  called.

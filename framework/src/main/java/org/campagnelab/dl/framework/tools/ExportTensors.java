@@ -1,7 +1,9 @@
 package org.campagnelab.dl.framework.tools;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.io.FastBufferedOutputStream;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
@@ -56,8 +58,9 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         DomainDescriptor<RecordType> domainDescriptor = domainDescriptor(args().featureMapperClassname,
                 args().trainingSets);
         MultiDataSetIteratorAdapterMultipleSamples<RecordType> adapter;
-        Integer[] sampleIds = new Integer[args().sampleIds.size()];
-        sampleIds = args().sampleIds.toArray(sampleIds);
+        IntArrayList sampleIndices=new IntArrayList();
+        sampleIndices.addAll(args().sampleIds);
+
         try {
             Properties properties = getReaderProperties(args().trainingSets.get(0));
             decorateProperties(properties);
@@ -67,7 +70,7 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
                     domainDescriptor,
                     false,
                     null,
-                    sampleIds,
+                    sampleIndices.toIntArray(),
                     properties) {
                 @Override
                 public String getBasename() {
@@ -155,7 +158,10 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
     }
 
     private int[] assignSelectedIndices(String[] inputNames, Set<String> inputNamesToExport) {
-
+        if (inputNamesToExport==null) {
+            inputNamesToExport=new ObjectArraySet<>();
+            inputNamesToExport.addAll(ObjectArrayList.wrap(inputNames));
+        }
         int[] inputIndicesSelected = new int[inputNames.length];
         if (!inputNamesToExport.isEmpty()) {
             inputIndicesSelected = new int[inputNamesToExport.size()];

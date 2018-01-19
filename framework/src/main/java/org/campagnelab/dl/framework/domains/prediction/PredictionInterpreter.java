@@ -25,4 +25,6 @@ public interface PredictionInterpreter<RecordType, PredictionType extends Predic
      * @return Interpreted prediction.
      */
     PredictionType interpret(RecordType record, INDArray output);
+
+
 }

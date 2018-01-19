@@ -69,7 +69,7 @@ public class GenotypeMapperV34 extends GenotypeMapperV11 {
 
             firstBaseMappers[i] = new GenomicContextMapper(indelMappedLength,
                     record -> {
-                        final String toSequence = record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence();
+                        final String toSequence = record.getSamples(this.sampleIndex).getCounts(constantGenotypeIndex).getToSequence();
                         return toSequence.substring(0, Math.min(indelMappedLength,toSequence.length()));
                     },true /* no warning if index outside of context, needed since indels have variable lengths */);
 
@@ -151,7 +151,7 @@ public class GenotypeMapperV34 extends GenotypeMapperV11 {
                         /** Map the from sequence: constant across all genotypes, so we use genotypeIndex=0: */
                         new GenomicContextMapper(indelMappedLength,
                                 record -> {
-                                    final String fromSequence = record.getSamples(0).getCounts(0).getFromSequence();
+                                    final String fromSequence = record.getSamples(this.sampleIndex).getCounts(0).getFromSequence();
                                     return fromSequence.substring(0, Math.min(indelMappedLength,fromSequence.length()));
                                 },true /* no warning if index outside of context, needed since indels have variable lengths */),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(originalGobyCountIndexMappers),

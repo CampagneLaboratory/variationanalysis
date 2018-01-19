@@ -14,4 +14,10 @@ public interface ConfigurableFeatureMapper {
      * @param readerProperties properties from a goby sbi reader.
      */
     void configure(Properties readerProperties);
+
+    /**
+     * Set the sample in the record to use for mapping.
+     * @param sampleIndex index of sample in record.
+     */
+    void setSampleIndex(int sampleIndex);
 }

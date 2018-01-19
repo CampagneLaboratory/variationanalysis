@@ -72,12 +72,12 @@ public class MetaDataLabelMapper extends RecordCountSortingLabelMapperImpl {
     public float produceLabel(BaseInformationRecords.BaseInformation record, int labelIndex) {
         switch (labelIndex) {
             case IS_VARIANT_FEATURE_INDEX:
-                return record.getSamples(0).getIsVariant() ? 1 : 0;
+                return record.getSamples(this.sampleIndex).getIsVariant() ? 1 : 0;
             case IS_INDEL_FEATURE_INDEX:
                 final String trueGenotype = record.getTrueGenotype();
                 return GenotypeHelper.isIndel(record.getReferenceBase(), trueGenotype) ? 1 : 0;
             case IS_MATCHING_REF_FEATURE_INDEX:
-                return calculateReferenceIndex(sortedCountRecord);
+                return calculateReferenceIndex(sortedCountRecord,sampleIndex);
             case IS_COUNT1_ORIGINAL_INDEX_FEATURE_INDEX:
             case IS_COUNT2_ORIGINAL_INDEX_FEATURE_INDEX:
             case IS_COUNT3_ORIGINAL_INDEX_FEATURE_INDEX:
@@ -96,10 +96,10 @@ public class MetaDataLabelMapper extends RecordCountSortingLabelMapperImpl {
     }
 
     private float calculateCountIndex(BaseInformationRecords.BaseInformation record, int sortedCountIndex) {
-        if (sortedCountIndex >= record.getSamples(0).getCountsCount()) {
+        if (sortedCountIndex >= record.getSamples(this.sampleIndex).getCountsCount()) {
             return -1;
         }
-        return record.getSamples(0).getCounts(sortedCountIndex).getGobyGenotypeIndex();
+        return record.getSamples(this.sampleIndex).getCounts(sortedCountIndex).getGobyGenotypeIndex();
     }
 
     /**
@@ -108,9 +108,9 @@ public class MetaDataLabelMapper extends RecordCountSortingLabelMapperImpl {
      * @param record
      * @return
      */
-    public static int calculateReferenceIndex(BaseInformationRecords.BaseInformation record) {
+    public static int calculateReferenceIndex(BaseInformationRecords.BaseInformation record, int sampleIndex) {
 
-        BaseInformationRecords.SampleInfo samples = record.getSamples(0);
+        BaseInformationRecords.SampleInfo samples = record.getSamples(sampleIndex);
         for (BaseInformationRecords.CountInfo count : samples.getCountsList()) {
             if (count.getMatchesReference()) {
                 return count.getGobyGenotypeIndex();

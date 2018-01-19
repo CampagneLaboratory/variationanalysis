@@ -189,7 +189,7 @@ public class SingleBaseGenotypeMapperV1 extends GenotypeMapperV11 {
                         /** Map the from sequence for genotypeIndex=0: */
                         new GenomicContextMapper(indelMappedLength,
                                 record -> {
-                                    final String fromSequence = record.getSamples(0).getCounts(0).getFromSequence();
+                                    final String fromSequence = record.getSamples(this.sampleIndex).getCounts(0).getFromSequence();
                                     return fromSequence.substring(0, Math.min(indelMappedLength, fromSequence.length()));
                                 }, true /* no warning if index outside of context, needed since indels have variable lengths */),
                         new NamingConcatFeatureMapper<BaseInformationRecords.BaseInformationOrBuilder>(matchesRefMappers),

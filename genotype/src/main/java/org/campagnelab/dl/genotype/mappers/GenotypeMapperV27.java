@@ -67,7 +67,7 @@ public class GenotypeMapperV27 extends GenotypeMapperV11 {
 
                     record -> {
 
-                        String toSequence = record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence();
+                        String toSequence = record.getSamples(this.sampleIndex).getCounts(constantGenotypeIndex).getToSequence();
                         int length=Math.min(toSequence.length(),baseContextLength);
                         return StringUtils.rightPad(toSequence.substring(0, length), baseContextLength);
 

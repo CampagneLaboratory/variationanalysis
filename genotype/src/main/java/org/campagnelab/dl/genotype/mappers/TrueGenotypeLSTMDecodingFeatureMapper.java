@@ -1,8 +1,11 @@
 package org.campagnelab.dl.genotype.mappers;
 
 import org.campagnelab.dl.framework.mappers.*;
+import org.campagnelab.dl.somatic.mappers.NamingConcatFeatureMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 import java.util.function.Function;
@@ -98,4 +101,9 @@ public class TrueGenotypeLSTMDecodingFeatureMapper implements
     private static int baseToPaddingFeature(String recordString, int baseIndex) {
         return TrueGenotypeLSTMLabelMapper.baseToLabel(recordString.charAt(baseIndex));
     }
-}
+
+    static private Logger LOG = LoggerFactory.getLogger(TrueGenotypeLSTMDecodingFeatureMapper.class);
+
+    public void setSampleIndex(int sampleIndex) {
+        LOG.warn("This mapper does not support configurable sampleIndex.");
+    }}

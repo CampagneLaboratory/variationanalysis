@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
  * Created by fac2003 on 12/20/16.
  */
 public class SoftmaxLabelMapperTest {
-    SoftmaxLabelMapper mapper = new SoftmaxLabelMapper(
+    SoftmaxLabelMapper mapper = new SoftmaxLabelMapper(0,
             /*sort counts */false,
             /*ploidy */ 2,
             /*epsilon */ 0);

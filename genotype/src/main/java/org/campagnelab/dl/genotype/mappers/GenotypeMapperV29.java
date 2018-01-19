@@ -103,7 +103,7 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
 
                     record -> {
 
-                        String toSequence = record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence();
+                        String toSequence = record.getSamples(this.sampleIndex).getCounts(constantGenotypeIndex).getToSequence();
                         int length=Math.min(toSequence.length(),baseContextLength);
                         return StringUtils.rightPad(toSequence.substring(0, length), baseContextLength);
 
@@ -112,7 +112,7 @@ public class GenotypeMapperV29 extends GenotypeMapperV11 {
 
                     record -> {
 
-                        String fromSequence = record.getSamples(0).getCounts(constantGenotypeIndex).getFromSequence();
+                        String fromSequence = record.getSamples(this.sampleIndex).getCounts(constantGenotypeIndex).getFromSequence();
                         int length=Math.min(fromSequence.length(),baseContextLength);
                         return StringUtils.rightPad(fromSequence.substring(0, length), baseContextLength);
 

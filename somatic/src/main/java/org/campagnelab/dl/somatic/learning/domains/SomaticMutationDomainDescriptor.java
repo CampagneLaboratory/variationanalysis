@@ -25,6 +25,8 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
 import org.nd4j.linalg.lossfunctions.impl.LossMSE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -39,6 +41,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
     private int indelSequenceLength;
     private float modelCapacity;
     private int ploidy;
+    static private Logger LOG = LoggerFactory.getLogger(SomaticMutationDomainDescriptor.class);
 
     public SomaticMutationDomainDescriptor(SomaticTrainingArguments arguments) {
         this.arguments = arguments;
@@ -175,6 +178,15 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
         return result;
 
     }
+
+    @Override
+    public FeatureMapper getFeatureMapper(String inputName, int sampleIndex) {
+        // TODO: extend mappers to use sammple indices and use sampleIndex to configure mapper.
+        LOG.warn("SomaticMutationDomainDescriptor ignores sample indices and currently only works with sbi with two samples: germline, tumor.");
+
+        return getFeatureMapper(inputName);
+    }
+
     @Override
     public String produceCacheUniqueId(int miniBatchSize) {
         String id = super.produceCacheUniqueId(miniBatchSize);
@@ -199,6 +211,13 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
             default:
                 throw new IllegalArgumentException("output name is not recognized: " + outputName);
         }
+    }
+
+    @Override
+    public LabelMapper getLabelMapper(String outputName, int sampleIndex) {
+        // TODO: extend mappers to use sammple indices and use sampleIndex to configure mapper.
+        LOG.warn("SomaticMutationDomainDescriptor ignores sample indices and currently only works with sbi with two samples: germline, tumor.");
+        return getLabelMapper(outputName);
     }
 
     @Override

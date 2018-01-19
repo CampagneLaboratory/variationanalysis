@@ -58,14 +58,14 @@ public class CombinedLabelsMapperRef extends NoMasksLabelMapper<BaseInformationR
     @Override
     public float produceLabel(BaseInformationRecords.BaseInformation record, int labelIndex) {
         int correctLabelIndex;
-        boolean firstCalled = sortedCountRecord.getSamples(0).getCounts(0).getIsCalled();
-        boolean secondCalled = sortedCountRecord.getSamples(0).getCounts(1).getIsCalled();
-        boolean firstIsRef = sortedCountRecord.getSamples(0).getCounts(0).getMatchesReference();
-        boolean secondIsRef = sortedCountRecord.getSamples(0).getCounts(1).getMatchesReference();;
+        boolean firstCalled = sortedCountRecord.getSamples(this.sampleIndex).getCounts(0).getIsCalled();
+        boolean secondCalled = sortedCountRecord.getSamples(this.sampleIndex).getCounts(1).getIsCalled();
+        boolean firstIsRef = sortedCountRecord.getSamples(this.sampleIndex).getCounts(0).getMatchesReference();
+        boolean secondIsRef = sortedCountRecord.getSamples(this.sampleIndex).getCounts(1).getMatchesReference();;
         boolean otherCalled = false;
 
-        for (int i = 2; i < sortedCountRecord.getSamples(0).getCountsCount(); i++){
-            otherCalled |= sortedCountRecord.getSamples(0).getCounts(i).getIsCalled();
+        for (int i = 2; i < sortedCountRecord.getSamples(this.sampleIndex).getCountsCount(); i++){
+            otherCalled |= sortedCountRecord.getSamples(this.sampleIndex).getCounts(i).getIsCalled();
         }
         if (otherCalled){
             //other call case

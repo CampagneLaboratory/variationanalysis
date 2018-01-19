@@ -15,7 +15,7 @@ import java.util.Properties;
  */
 public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformationRecords.SegmentInformation>, ConfigurableFeatureMapper
 {
-    private final int sampleIndex;
+    private int sampleIndex;
     private float[] mask;
 
     public SingleBaseFeatureMapperV1(int sampleIndex) {
@@ -26,6 +26,10 @@ public class SingleBaseFeatureMapperV1 implements FeatureMapper<SegmentInformati
         this(0);
     }
 
+    @Override
+    public void setSampleIndex(int sampleIndex) {
+        this.sampleIndex=sampleIndex;
+    }
 
     @Override
     public int numberOfFeatures() {

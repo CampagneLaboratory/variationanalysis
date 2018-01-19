@@ -68,7 +68,7 @@ public class GenotypeMapperV33 extends GenotypeMapperV11 {
             readIndexMappers[i] = (new SingleReadIndexCountMapper(sampleIndex, i, true));
 
             firstBaseMappers[i] = new GenomicContextMapper(1,
-                    record -> record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence().substring(0, 1));
+                    record -> record.getSamples(this.sampleIndex).getCounts(constantGenotypeIndex).getToSequence().substring(0, 1));
 
             queryPositions[i] = new DensityMapper("queryPosition",
                     10, sbiProperties,

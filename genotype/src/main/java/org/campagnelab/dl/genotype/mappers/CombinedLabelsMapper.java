@@ -18,10 +18,11 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class CombinedLabelsMapper extends NoMasksLabelMapper<BaseInformationRecords.BaseInformation> {
 
     public static final int NUM_LABELS = 4;
-private float epsilon=0;
+    private float epsilon=0;
 
     public CombinedLabelsMapper(float epsilon) {
         this.epsilon = epsilon;
+
     }
 
     public CombinedLabelsMapper() {
@@ -58,11 +59,11 @@ private float epsilon=0;
     @Override
     public float produceLabel(BaseInformationRecords.BaseInformation record, int labelIndex) {
         int correctLabelIndex;
-        boolean firstCalled = sortedCountRecord.getSamples(0).getCounts(0).getIsCalled();
-        boolean secondCalled = sortedCountRecord.getSamples(0).getCounts(1).getIsCalled();
+        boolean firstCalled = sortedCountRecord.getSamples(this.sampleIndex).getCounts(0).getIsCalled();
+        boolean secondCalled = sortedCountRecord.getSamples(this.sampleIndex).getCounts(1).getIsCalled();
         boolean otherCalled = false;
-        for (int i = 2; i < sortedCountRecord.getSamples(0).getCountsCount(); i++){
-            otherCalled |= sortedCountRecord.getSamples(0).getCounts(i).getIsCalled();
+        for (int i = 2; i < sortedCountRecord.getSamples(this.sampleIndex).getCountsCount(); i++){
+            otherCalled |= sortedCountRecord.getSamples(this.sampleIndex).getCounts(i).getIsCalled();
         }
         if (otherCalled){
             //other call case

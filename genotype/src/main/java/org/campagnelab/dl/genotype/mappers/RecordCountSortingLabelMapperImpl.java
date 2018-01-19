@@ -22,16 +22,16 @@ public abstract class RecordCountSortingLabelMapperImpl extends NoMasksLabelMapp
     @Override
     public void prepareToNormalize(BaseInformationRecords.BaseInformation record, int indexOfRecord) {
         int sortedIndex = 0;
-        indexPermutation = new int[record.getSamples(0).getCountsCount()];
+        indexPermutation = new int[record.getSamples(this.sampleIndex).getCountsCount()];
         if (sortCounts) {
             sortedCountRecord = sortHelper.sort(0,record);
 
-            for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(0).getCountsList()) {
+            for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(this.sampleIndex).getCountsList()) {
                 indexPermutation[sortedIndex++] = count.getGobyGenotypeIndex();
             }
         } else {
             sortedCountRecord = record;
-            for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(0).getCountsList()) {
+            for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(this.sampleIndex).getCountsList()) {
                 indexPermutation[sortedIndex] = sortedIndex;
                 sortedIndex++;
             }

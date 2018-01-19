@@ -12,7 +12,9 @@ import java.util.Set;
  * Created by fac2003 on 1/16/2018.
  */
 public class ExportTensorArguments implements ToolArguments {
-    @Parameter(required = true, names = {"-t", "--training-sets"}, variableArity = true, description = "Training sets, must be provided in .sbi/.sbip format (produced with Goby3). When more than one dataset is provided (multiple -t options), the " +
+    @Parameter(required = true, names = {"-i",}, variableArity = true, description = "Input files sets, must be provided " +
+            "in .sbi/.sbip format (produced with Goby3). " +
+            "When more than one dataset is provided (multiple -i options), the " +
             "datasets are concatenated.")
     public List<String> trainingSets = new ArrayList<>();
 
@@ -45,15 +47,22 @@ public class ExportTensorArguments implements ToolArguments {
     public Set<String> outputNamesToExport;
 
     @Parameter(required = true, names = "--sample-names",
-            description = "Names for each of the samples in the reads", variableArity = true)
+            description = "Names for each of the samples in the input file(s).", variableArity = true)
     public List<String> sampleNames = new ArrayList<>();
 
     @Parameter(required = true, names = "--sample-types",
-            description = "Types for each of the samples in the reads", variableArity = true)
+            description = "Types for each of the samples in the input file(s).", variableArity = true)
     public List<String> sampleTypes = new ArrayList<>();
 
-    @Parameter(required = true, names = "--sample-ids",
-            description = "IDs for each of the samples in the reads", variableArity = true)
-    public List<Integer> sampleIds = new ArrayList<>();
+    @Parameter(required = false, names = "--sample-indices",
+            description = "Indices of the samples to export. If an .sbi file is created with several samples, you can choose which sample to export with this option." +
+                    "Defaults to 0 to export the first sample only.", variableArity = true)
+    public List<Integer> sampleIds = defaultSampleIndices();
+
+    private List<Integer> defaultSampleIndices() {
+        List<Integer> result = new ArrayList<>();
+        result.add(0);
+        return result;
+    }
 
 }

@@ -29,7 +29,7 @@ public class TrueGenotypeLSTMLabelMapperTest {
                 "  [1.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00],  \n" +
                 "  [0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00]]]";
         String expectedMask = "[1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  0.00,  0.00,  0.00,  0.00,  0.00]";
-        TrueGenotypeLSTMLabelMapper mapper = new TrueGenotypeLSTMLabelMapper(30);
+        TrueGenotypeLSTMLabelMapper mapper = new TrueGenotypeLSTMLabelMapper(30,0);
         MappedDimensions dim = mapper.dimensions();
         INDArray labels = Nd4j.zeros(1, dim.numElements(1), dim.numElements(2));
         INDArray mask = Nd4j.zeros(1, dim.numElements(2));
@@ -56,7 +56,7 @@ public class TrueGenotypeLSTMLabelMapperTest {
                 "  [1.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00],  \n" +
                 "  [0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00]]]";
         String expectedMask = "[1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  0.00]";
-        TrueGenotypeLSTMLabelMapper mapper = new TrueGenotypeLSTMLabelMapper(30);
+        TrueGenotypeLSTMLabelMapper mapper = new TrueGenotypeLSTMLabelMapper(30,0);
         MappedDimensions dim = mapper.dimensions();
         INDArray labels = Nd4j.zeros(1, dim.numElements(1), dim.numElements(2));
         INDArray mask = Nd4j.zeros(1, dim.numElements(2));

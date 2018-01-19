@@ -20,12 +20,13 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
     public int maxCalledAlleles;
     static private Logger LOG = LoggerFactory.getLogger(SoftmaxLabelMapper.class);
 
+
     /**
      * @param sortCounts
      * @param maxCalledAlleles
      * @param epsilon          amount of label smoothing to apply.
      */
-    public SoftmaxLabelMapper(boolean sortCounts, int maxCalledAlleles, float epsilon) {
+    public SoftmaxLabelMapper(int sampleIndex, boolean sortCounts, int maxCalledAlleles, float epsilon) {
 
         super(sortCounts);
         if (!sortCounts) LOG.warn("You should only useSoftmaxLabelMapper with unsorted counts in tests. ");
@@ -33,11 +34,12 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
         this.maxCalledAlleles = maxCalledAlleles;
         //    this.maxCalledAlleles = 8;
         this.epsilon = epsilon;
+
     }
 
-    public SoftmaxLabelMapper(boolean sortCounts, int ploidy) {
+    public SoftmaxLabelMapper(int sampleIndex, boolean sortCounts, int ploidy) {
 
-        this(sortCounts, ploidy, 0);
+        this(sampleIndex, sortCounts, ploidy, 0);
     }
 
     @Override
@@ -68,7 +70,7 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
         super.prepareToNormalize(record, indexOfRecord);
         cachedValue = 0;
         int index = 0;
-        for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(0).getCountsList()) {
+        for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(this.sampleIndex).getCountsList()) {
             cachedValue |= (count.getIsCalled() ? 1 : 0) << index;
             index++;
             if (index > maxCalledAlleles) {

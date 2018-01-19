@@ -17,7 +17,7 @@ import java.util.Properties;
 public class GenotypeMapperV4 extends GenotypeFeatureMapper {
     private FeatureNameMapper<BaseInformationRecords.BaseInformationOrBuilder> delegate;
     //default sampleIndex is zero, adjustable with setter
-    private int sampleIndex = 0;
+
 
     public GenotypeMapperV4() {
         sortCounts = true;
@@ -73,9 +73,6 @@ public class GenotypeMapperV4 extends GenotypeFeatureMapper {
 
     }
 
-    public void setSampleIndex(int sampleIndex) {
-        this.sampleIndex = sampleIndex;
-    }
 
     @Override
     public String getFeatureName(int i) {

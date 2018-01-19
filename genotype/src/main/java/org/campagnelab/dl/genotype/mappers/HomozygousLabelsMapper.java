@@ -62,12 +62,12 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
                 return (labelIndex == IS_HETEROZYGOUS_INDEX/**last index */) ? 1f-epsilon : v;
             } else {
                 // the site is homozygous.
-                if (labelIndex >= record.getSamples(0).getCountsCount()) {
+                if (labelIndex >= record.getSamples(this.sampleIndex).getCountsCount()) {
                     // the labelIndex is outside the range of counts in the protobuff.
                     return v;
                 } else {
                     // The allele is encoded here:
-                    return record.getSamples(0).getCounts(labelIndex).getIsCalled() ? 1f-epsilon : v;
+                    return record.getSamples(this.sampleIndex).getCounts(labelIndex).getIsCalled() ? 1f-epsilon : v;
                 }
             }
         }
@@ -77,8 +77,8 @@ public class HomozygousLabelsMapper extends NoMasksLabelMapper<BaseInformationRe
         record = sortedCountRecord;
         //count number of called alleles
         int numAlleles = 0;
-        for (int i = 0; i < record.getSamples(0).getCountsCount(); i++) {
-            if (record.getSamples(0).getCounts(i).getIsCalled()) {
+        for (int i = 0; i < record.getSamples(this.sampleIndex).getCountsCount(); i++) {
+            if (record.getSamples(this.sampleIndex).getCounts(i).getIsCalled()) {
                 numAlleles++;
             }
         }

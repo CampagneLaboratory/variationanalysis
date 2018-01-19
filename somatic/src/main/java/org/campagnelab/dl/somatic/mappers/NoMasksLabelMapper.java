@@ -37,6 +37,13 @@ public abstract class NoMasksLabelMapper<RecordType> implements LabelMapper<Reco
     public void prepareToNormalize(RecordType record, int indexOfRecord) {
 
     }
+    protected int sampleIndex;
 
-
+    /**
+     * Set the sample index on this mapper before calling configure.
+     * @param sampleIndex index of the sample in the record whose features will be mapped.
+     */
+    public void setSampleIndex(int sampleIndex) {
+        this.sampleIndex = sampleIndex;
+    }
 }

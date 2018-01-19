@@ -83,7 +83,7 @@ public class GenotypeMapperV38 extends GenotypeMapperV11 {
             // first indel mapper is used with a single base to enter first base of bases, which are not exposed by LSTMs:
             firstBaseMappers[i] = new GenomicContextMapper(indelMappedLength,
                     record -> {
-                        final String toSequence = record.getSamples(0).getCounts(constantGenotypeIndex).getToSequence();
+                        final String toSequence = record.getSamples(this.sampleIndex).getCounts(constantGenotypeIndex).getToSequence();
                         return toSequence.substring(0, Math.min(indelMappedLength, toSequence.length()));
                     }, true /* no warning if index outside of context, needed since indels have variable lengths */);
 
