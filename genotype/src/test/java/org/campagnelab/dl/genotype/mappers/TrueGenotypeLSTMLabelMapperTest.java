@@ -1104,11 +1104,18 @@ public class TrueGenotypeLSTMLabelMapperTest {
             "  isTumor: true\n" +
             "  formattedCounts: \"sample: 0 counts A=0 T=0 C=25 G=0 N=0 FB=0 indels={ [indel count=19 C AGTCAGTCAGTCAGTCAGTCAGT/----AGTCAGTCAGTCAGTCAGT  45944850-45944874 filtered=false] }\\n\"\n" +
             "  isVariant: true\n" +
+            "  trueGenotype: \"%s\"\n" +
             "}\n" +
             "reference_id: \"chr21\"\n" +
             "trueFrom: \"CAGTCAGTCAGTCAGTCAGTCAGT\"\n" +
-            "genomicSequenceContext: \"CAGTCAGTCACTCTTTGAGGCAGTCAGTCAGTCAGTCAGTC\"";
-    static String[] records = {RECORD_BASE + "\ntrueGenotype: \"C/C----AGTCAGTCAGTCAGTCAGT\"",
-            RECORD_BASE + "\ntrueGenotype: \"C/C----AGTCAGTCAGTCAGTCAGTAGTAGTAGTAGT\""
+            "genomicSequenceContext: \"CAGTCAGTCACTCTTTGAGGCAGTCAGTCAGTCAGTCAGTC\"\n" +
+            "trueGenotype: \"%s\"";
+    static String[] records = {
+            createRecord("C/C----AGTCAGTCAGTCAGTCAGT"),
+            createRecord("C/C----AGTCAGTCAGTCAGTCAGTAGTAGTAGTAGT")
     };
+
+    private static String createRecord(String trueGenotype) {
+        return String.format(RECORD_BASE, trueGenotype, trueGenotype);
+    }
 }
