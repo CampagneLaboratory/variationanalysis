@@ -54,7 +54,7 @@ public abstract class VectorWriter implements Closeable {
                     currVectorIndex];
             for (int i = 0; i < currVectorIndex; i++) {
                 vectorInfoArray[i] = new VectorProperties.VectorPropertiesVector(vectorIdToName.get(i),
-                        "float", vectorIdToDimension.get(i));
+                        "float32", vectorIdToDimension.get(i));
             }
         }
         VectorProperties vectorProperties = new VectorProperties(getFileType(), majorVersion, minorVersion,
@@ -78,44 +78,54 @@ public abstract class VectorWriter implements Closeable {
         this.vectorInfos.add(new VectorProperties.VectorPropertiesVector(vectorName, vectorType, vectorDimension));
     }
 
-    public void appendMds(MultiDataSet multiDataSet, int[] inputIndices, int[] outputIndices, String[] inputNames,
-                          String[] outputNames, int sampleIndex, int startExampleIndex) {
-        writeLinesForIndices(multiDataSet, inputIndices, inputNames, sampleIndex, startExampleIndex,
-                true);
-        writeLinesForIndices(multiDataSet, outputIndices, outputNames, sampleIndex, startExampleIndex,
-                false);
+    public void appendMdsList(List<MultiDataSet> multiDataSetList, int[] inputIndices, int[] outputIndices,
+                              String[] inputNames, String[] outputNames, int startExampleIndex) {
+        int numExamplesInBatch = multiDataSetList.get(0).getFeatures(inputIndices[0]).rows();
+        for (int currExampleInBatch = 0; currExampleInBatch < numExamplesInBatch; currExampleInBatch++) {
+            int sampleMdsIndex = 0;
+            for (MultiDataSet multiDataSetAtSample : multiDataSetList) {
+                writeLinesForExample(multiDataSetAtSample, inputIndices, inputNames, sampleMdsIndex,
+                        startExampleIndex, currExampleInBatch, numExamplesInBatch, true);
+                writeLinesForExample(multiDataSetAtSample, outputIndices, outputNames, sampleMdsIndex,
+                        startExampleIndex, currExampleInBatch, numExamplesInBatch, false);
+                sampleMdsIndex++;
+            }
+        }
     }
 
-    private void writeLinesForIndices(MultiDataSet multiDataSet, int[] indices, String[] names,
-                                      int sampleIndex, int startExampleIndex, boolean isForFeatures) {
+
+    private void writeLinesForExample(MultiDataSet multiDataSet, int[] indices, String[] names,
+                                      int sampleIndex, int startExampleIndex,
+                                      int currExampleIndexInBatch, int numExamplesInBatch,
+                                      boolean isForFeatures) {
         for (int index : indices) {
             INDArray allValuesAtIndex = isForFeatures
                     ? multiDataSet.getFeatures(index)
                     : multiDataSet.getLabels(index);
-            for (int i = 0; i < allValuesAtIndex.rows(); i++) {
-                INDArray recordValuesAtIndex = allValuesAtIndex.getRow(i);
-                String vectorName = names[index];
-                int vectorId;
-                if (vectorNameToId.get(vectorName) == null) {
-                    vectorNameToId.put(vectorName, currVectorIndex);
-                    vectorIdToName.put(currVectorIndex, vectorName);
-                    vectorIdToDimension.put(currVectorIndex, recordValuesAtIndex.shape());
-                    vectorId = currVectorIndex++;
-                } else {
-                    vectorId = vectorNameToId.get(vectorName);
-                    String vectorCachedName = vectorIdToName.get(vectorId);
-                    if (!vectorName.equals(vectorCachedName)) {
-                        throw new RuntimeException(String.format("Vector name mismatch for vector id %d", vectorId));
-                    }
-                    int[] vectorCachedDimensions = vectorIdToDimension.get(vectorId);
-                    if (!Arrays.equals(recordValuesAtIndex.shape(), vectorCachedDimensions)) {
-                        throw new RuntimeException(String.format("Vector dimension mismatch for vector id %d",
-                                vectorId));
-                    }
-                }
-                writeVectorLine(new VectorLine(sampleIndex, startExampleIndex + i, vectorId,
-                        getVectorElementsFromArray(recordValuesAtIndex)));
+            if (allValuesAtIndex.rows() != numExamplesInBatch) {
+                throw new RuntimeException("Mismatched mds dimensions for batch size");
             }
+            INDArray currExampleValuesAtIndex = allValuesAtIndex.getRow(currExampleIndexInBatch);
+            String vectorName = names[index];
+            int vectorId;
+            if (vectorNameToId.get(vectorName) == null) {
+                vectorNameToId.put(vectorName, currVectorIndex);
+                vectorIdToName.put(currVectorIndex, vectorName);
+                vectorIdToDimension.put(currVectorIndex, currExampleValuesAtIndex.shape());
+                vectorId = currVectorIndex++;
+            } else {
+                vectorId = vectorNameToId.get(vectorName);
+                String vectorCachedName = vectorIdToName.get(vectorId);
+                if (!vectorName.equals(vectorCachedName)) {
+                    throw new RuntimeException(String.format("Vector name mismatch for vector id %d", vectorId));
+                }
+                int[] vectorCachedDimensions = vectorIdToDimension.get(vectorId);
+                if (!Arrays.equals(currExampleValuesAtIndex.shape(), vectorCachedDimensions)) {
+                    throw new RuntimeException(String.format("Vector dimension mismatch for vector id %d", vectorId));
+                }
+            }
+            writeVectorLine(new VectorLine(sampleIndex, startExampleIndex + currExampleIndexInBatch, vectorId,
+                        getVectorElementsFromArray(currExampleValuesAtIndex)));
         }
     }
 

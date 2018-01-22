@@ -109,13 +109,8 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
             int currStartExampleIndex = 0;
             while (iterator.hasNext()) {
                 List<MultiDataSet> mdsList = iterator.next();
-                int currIndex = 0;
-                for (MultiDataSet mds : mdsList) {
-                    int sampleIndex = sampleIndices.getInt(currIndex);
-                    vectorWriter.appendMds(mds, inputIndicesSelected, outputIndicesSelected, inputNames, outputNames,
-                            sampleIndex, currStartExampleIndex);
-                    currIndex++;
-                }
+                vectorWriter.appendMdsList(mdsList, inputIndicesSelected, outputIndicesSelected, inputNames,
+                        outputNames, currStartExampleIndex);
                 currStartExampleIndex += miniBatchSize;
                 pg.update();
             }
