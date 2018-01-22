@@ -21,11 +21,8 @@ public class ExportTensorArguments implements ToolArguments {
     @Parameter(names = "--feature-mapper", required = true, description = "Fully qualified name of the feature mapper class.")
     public String featureMapperClassname = null;
 
-    @Parameter(names = "--label-mapper", required = false, description = "Fully qualified name of the label mapper class.")
-    public String labelMapperClassname = null;
-
-    @Parameter(names = "--mini-batch-size", description = "The size of the training minibatch")
-    public int miniBatchSize = 32;
+    @Parameter(names = "--mini-batch-size", description = "The size of the minibatch used to map features. Larger sizes can be more efficient but require more memory.")
+    public int miniBatchSize = 64;
 
     @Parameter(names = {"n","--export-n"}, description = "Export at most n records.")
     public int exportN=Integer.MAX_VALUE;

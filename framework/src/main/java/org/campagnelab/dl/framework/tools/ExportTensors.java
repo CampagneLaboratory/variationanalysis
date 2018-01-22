@@ -1,16 +1,12 @@
 package org.campagnelab.dl.framework.tools;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.io.FastBufferedOutputStream;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
-import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapterMultipleSamples;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
-import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -22,21 +18,15 @@ import java.io.*;
 import java.util.*;
 
 /**
- * A tool to export mapped features into in tensor files.
+ * A tool to export mapped features into tensor files. Useful to write files that can be loaded as numpy tensors in python.
  *
  * @author Fabien Campagne
  */
 public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTensorArguments> {
     static private Logger LOG = LoggerFactory.getLogger(ExportTensors.class);
 
-    public void setNumRecordsWritten(int numRecordsWritten) {
-        this.numRecordsWritten = numRecordsWritten;
-    }
-
     protected abstract DomainDescriptor<RecordType> domainDescriptor(String featureMapperClassName,
                                                                      List<String> trainingSets);
-
-    protected abstract void decorateProperties(Properties decorateProperties);
 
     private int numRecordsWritten;
 
@@ -80,10 +70,7 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         } catch (IOException e) {
             throw new RuntimeException("Unable to load training set ", e);
         }
-//        MultiDataSetIterator iterator = adapter;
-//        if (adapter.asyncSupported()) {
-//            iterator = new AsyncMultiDataSetIterator(adapter, 12);
-//        }
+
         Iterator<List<MultiDataSet>> iterator = adapter;
         final String outputFilename = args().outputBasename + ".tensor";
         try (FastBufferedOutputStream outputStream = new FastBufferedOutputStream(new FileOutputStream(outputFilename))) {
@@ -124,6 +111,7 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
                     currIndex++;
                 }
                 currStartExampleIndex += miniBatchSize;
+                pg.update();
             }
 
             vectorWriter.addSampleInfo("testSampleType", "testSampleName");
