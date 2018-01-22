@@ -59,21 +59,22 @@ public abstract class MultiDataSetIteratorAdapterMultipleSamples<RecordType> imp
         for (String input : domainDescriptor.getComputationalGraph().getInputNames()) {
             int sampleIdIndex = 0;
             for (int sampleIndex : sampleIndices) {
-
                 FeatureMapper sampleFeatureMapper = domainDescriptor.getFeatureMapper(input, sampleIndex);
                 if (sampleFeatureMapper instanceof ConfigurableFeatureMapper) {
                     ConfigurableFeatureMapper cmapper = (ConfigurableFeatureMapper) sampleFeatureMapper;
                     cmapper.configure(readerProperties);
                 }
                 featureMappers[index][sampleIdIndex] = sampleFeatureMapper;
-
+                sampleIdIndex++;
             }
             index++;
         }
         index = 0;
         for (String label : domainDescriptor.getComputationalGraph().getOutputNames()) {
+            int sampleIdIndex = 0;
             for (int sampleIndex : sampleIndices) {
-                labelMappers[index][sampleIndex] = domainDescriptor.getLabelMapper(label, sampleIndex);
+                labelMappers[index][sampleIdIndex] = domainDescriptor.getLabelMapper(label, sampleIndex);
+                sampleIdIndex++;
             }
             index++;
         }
