@@ -24,35 +24,40 @@ public class ExportTensorArguments implements ToolArguments {
     @Parameter(names = "--mini-batch-size", description = "The size of the minibatch used to map features. Larger sizes can be more efficient but require more memory.")
     public int miniBatchSize = 64;
 
-    @Parameter(names = {"n","--export-n"}, description = "Export at most n records.")
-    public int exportN=Integer.MAX_VALUE;
+    @Parameter(names = {"n", "--export-n"}, description = "Export at most n records.")
+    public int exportN = Integer.MAX_VALUE;
 
     public String[] getTrainingSets() {
         return this.trainingSets.toArray(new String[this.trainingSets.size()]);
     }
 
-    @Parameter(names = {"-o","--output"},required = false, description = "Output basename (possibly including path where output files will be created (i.e., /a/b/out).")
+    @Parameter(names = {"-o", "--output"}, required = false, description = "Output basename (possibly including path where output files will be created (i.e., /a/b/out).")
     public
-    String outputBasename="exported-tensors";
+    String outputBasename = "exported-tensors";
 
-    @Parameter(names = {"--export-inputs"}, description = "Restrict the exports to the inputs with the specified names. " +
-            "If you don't know the names of the inputs, run the tool without this argument, and all input names will be shown.")
+    @Parameter(names = {"--export-input"}, description = "Restrict the exports to the inputs with the specified names. " +
+            "If you don't know the names of the inputs, run the tool without this argument, and all input names will be shown. Repeat the option " +
+            "as necessary with different input names.")
     public Set<String> inputNamesToExport;
 
-    @Parameter(names = {"--export-outputs"}, description = "Restrict the exports to the inputs with the specified names. " +
-            "If you don't know the names of the inputs, run the tool without this argument, and all input names will be shown.")
+    @Parameter(names = {"--export-output"}, description = "Restrict the exports to the inputs with the specified names. " +
+            "If you don't know the names of the inputs, run the tool without this argument, and all input names will be shown. Repeat the option " +
+            "as necessary with different output names.")
     public Set<String> outputNamesToExport;
 
-    @Parameter(required = true, names = "--sample-names",
-            description = "Names for each of the samples in the input file(s).", variableArity = true)
+    @Parameter(required = true, names = "--sample-name", description = "Name of the samples in the input file(s). " +
+            "One name per sample, repeat the option as necessary.",
+            variableArity = true)
     public List<String> sampleNames = new ArrayList<>();
 
-    @Parameter(required = true, names = "--sample-types",
-            description = "Types for each of the samples in the input file(s).", variableArity = true)
+    @Parameter(required = true, names = "--sample-type",
+            description = "Type of the samples in the input file(s). " +
+                    "The type is used to represent a property about the sample, such as germline or somatic. " +
+                    "One type per sample, repeat the option as necessary.", variableArity = true)
     public List<String> sampleTypes = new ArrayList<>();
 
-    @Parameter(required = false, names = "--sample-indices",
-            description = "Indices of the samples to export. If an .sbi file is created with several samples, you can choose which sample to export with this option." +
+    @Parameter(required = false, names = "--sample-index",
+            description = "Index of a sample to export. If an .sbi file is created with several samples, you can choose which sample to export with this option. Repeat the option as necessary with different indices." +
                     "Defaults to 0 to export the first sample only.", variableArity = true)
     public List<Integer> sampleIds = defaultSampleIndices();
 

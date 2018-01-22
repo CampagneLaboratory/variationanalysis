@@ -1,12 +1,16 @@
 package org.campagnelab.dl.framework.tools;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.io.FastBufferedOutputStream;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
+import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapterMultipleSamples;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -27,6 +31,8 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
 
     protected abstract DomainDescriptor<RecordType> domainDescriptor(String featureMapperClassName,
                                                                      List<String> trainingSets);
+
+    protected abstract void decorateProperties(Properties decorateProperties);
 
     private int numRecordsWritten;
 
