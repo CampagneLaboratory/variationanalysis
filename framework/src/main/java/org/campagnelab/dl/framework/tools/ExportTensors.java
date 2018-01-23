@@ -110,6 +110,11 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         int miniBatchSize = args().miniBatchSize;
         try (final VectorWriter vectorWriter = new VectorWriterText(args().outputBasename)) {
             vectorWriter.setNumRecords(numRecords);
+            vectorWriter.setDomainDescriptor(domainDescriptor.getClass().getCanonicalName());
+            vectorWriter.setFeatureMapper(args().featureMapperClassname);
+            String[] trainingSets = new String[args().trainingSets.size()];
+            trainingSets = args().trainingSets.toArray(trainingSets);
+            vectorWriter.setInputFiles(trainingSets);
             long currStartExampleIndex = 0;
             while (iterator.hasNext()) {
                 List<MultiDataSet> mdsList = iterator.next();
@@ -125,36 +130,6 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         } finally {
             pg.stop();
         }
-
-        Properties cfpProperties = new Properties();
-        cfpProperties.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
-        cfpProperties.put("multiDataSet", "true");
-        cfpProperties.put("miniBatchSize", Integer.toString(args().miniBatchSize));
-        if (domainDescriptor != null) {
-            domainDescriptor.putProperties(cfpProperties);
-        } else {
-            cfpProperties.put("featureMapper", args().featureMapperClassname);
-        }
-        cfpProperties.put("numRecords", Long.toString(numRecordsWritten));
-        cfpProperties.put("numDatasets", Long.toString(numDatasets));
-        for (String inputName : inputNames) {
-            int dimIndex = 0;
-            for (int dim : domainDescriptor.getNumInputs(inputName)) {
-                cfpProperties.put(inputName + ".numFeatures.dim" + Integer.toString(dimIndex), Integer.toString(dim));
-                dimIndex++;
-            }
-        }
-        if (inputNames.length == 1) {
-            // also write simpler numFeatures, for backward compatibility:
-            cfpProperties.put("numFeatures", Integer.toString(domainDescriptor.getNumInputs(inputNames[0])[0]));
-        }
-        cfpProperties.put("stored", args().trainingSets.toString());
-        try (final FileWriter writer = new FileWriter(new File(args().outputBasename + ".cfp"))) {
-            cfpProperties.store(writer, new Date().toString());
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to write .vecp file.", e);
-        }
-
     }
 
     private int[] assignSelectedIndices(String[] inputNames, Set<String> inputNamesToExport) {

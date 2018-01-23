@@ -23,6 +23,9 @@ public abstract class VectorWriter implements Closeable {
     private Map<Integer, int[]> vectorIdToDimension;
     private int currVectorIndex = 0;
     private boolean addVectorInfoCalled = false;
+    private String domainDescriptor;
+    private String featureMapper;
+    private String[] inputFiles;
 
     public VectorWriter(String basename) throws IOException {
         outputFileVectorProperties = new JsonWriter(new PrintWriter(basename + ".vecp",
@@ -55,13 +58,25 @@ public abstract class VectorWriter implements Closeable {
             }
         }
         VectorProperties vectorProperties = new VectorProperties(getFileType(), majorVersion, minorVersion,
-                numRecords, sampleInfoArray, vectorInfoArray);
+                numRecords, sampleInfoArray, vectorInfoArray, domainDescriptor, featureMapper, inputFiles);
         gson.toJson(vectorProperties, VectorProperties.class, outputFileVectorProperties);
         this.outputFileVectorProperties.close();
     }
 
     public void setNumRecords(int numRecords) {
         this.numRecords = numRecords;
+    }
+
+    public void setDomainDescriptor(String domainDescriptor) {
+        this.domainDescriptor = domainDescriptor;
+    }
+
+    public void setFeatureMapper(String featureMapper) {
+        this.featureMapper = featureMapper;
+    }
+
+    public void setInputFiles(String[] inputFiles) {
+        this.inputFiles = inputFiles;
     }
 
     public void addSampleInfo(String sampleType, String sampleName) {
@@ -172,21 +187,28 @@ public abstract class VectorWriter implements Closeable {
     }
 
     static class VectorProperties {
-        private String fileType;
         private int majorVersion;
         private int minorVersion;
+        private String fileType;
         private long numRecords;
+        private String domainDescriptor;
+        private String featureMapper;
+        private String[] inputFiles;
         private VectorPropertiesSample[] samples;
         private VectorPropertiesVector[] vectors;
 
         VectorProperties(String fileType, int majorVersion, int minorVersion, long numRecords,
-                         VectorPropertiesSample[] samples, VectorPropertiesVector[] vectors) {
+                         VectorPropertiesSample[] samples, VectorPropertiesVector[] vectors,
+                         String domainDescriptor, String featureMapper, String[] inputFiles) {
             this.fileType = fileType;
             this.majorVersion = majorVersion;
             this.minorVersion = minorVersion;
             this.samples = samples;
             this.vectors = vectors;
             this.numRecords = numRecords;
+            this.domainDescriptor = domainDescriptor;
+            this.featureMapper = featureMapper;
+            this.inputFiles = inputFiles;
         }
 
         public String getFileType() {
@@ -202,6 +224,18 @@ public abstract class VectorWriter implements Closeable {
         }
 
         public long getNumRecords() { return numRecords; }
+
+        public String getDomainDescriptor() {
+            return domainDescriptor;
+        }
+
+        public String getFeatureMapper() {
+            return featureMapper;
+        }
+
+        public String[] getInputFiles() {
+            return inputFiles;
+        }
 
         public VectorPropertiesSample[] getSamples() {
             return samples;
