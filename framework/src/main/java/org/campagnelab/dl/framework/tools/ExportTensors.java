@@ -118,42 +118,26 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
                 currStartExampleIndex += miniBatchSize;
                 pg.update();
             }
-
-            vectorWriter.addSampleInfo("testSampleType", "testSampleName");
+            for (int sampleIndex : args().sampleIds) {
+                vectorWriter.addSampleInfo(args().sampleTypes.get(sampleIndex), args().sampleNames.get(sampleIndex));
+            }
         } catch (IOException e) {
             throw new RuntimeException("Unable to write vector file. ", e);
         } finally {
             pg.stop();
         }
-
+        // TODO: move to vecp then remove cfp creation:
         Properties cfpProperties = new Properties();
         cfpProperties.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
-        cfpProperties.put("multiDataSet", "true");
-        cfpProperties.put("miniBatchSize", Integer.toString(args().miniBatchSize));
+
         if (domainDescriptor != null) {
             domainDescriptor.putProperties(cfpProperties);
         } else {
             cfpProperties.put("featureMapper", args().featureMapperClassname);
         }
         cfpProperties.put("numRecords", Long.toString(numRecordsWritten));
-        cfpProperties.put("numDatasets", Long.toString(numDatasets));
-        for (String inputName : inputNames) {
-            int dimIndex = 0;
-            for (int dim : domainDescriptor.getNumInputs(inputName)) {
-                cfpProperties.put(inputName + ".numFeatures.dim" + Integer.toString(dimIndex), Integer.toString(dim));
-                dimIndex++;
-            }
-        }
-        if (inputNames.length == 1) {
-            // also write simpler numFeatures, for backward compatibility:
-            cfpProperties.put("numFeatures", Integer.toString(domainDescriptor.getNumInputs(inputNames[0])[0]));
-        }
         cfpProperties.put("stored", args().trainingSets.toString());
-        try (final FileWriter writer = new FileWriter(new File(args().outputBasename + ".cfp"))) {
-            cfpProperties.store(writer, new Date().toString());
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to write .vecp file.", e);
-        }
+
 
     }
 
