@@ -15,11 +15,14 @@ public class ExportTensorsG extends ExportTensors<BaseInformationRecords.BaseInf
 
     @Override
     protected DomainDescriptor<BaseInformationRecords.BaseInformation> domainDescriptor(String featureMapperClassName,
-                                                                                        List<String> trainingSets) {
+                                                                                        List<String> trainingSets,
+                                                                                        int genomicContextLength, float labelSmoothingEpsilon, int ploidy) {
         GenotypeTrainingArguments trainingArguments=new GenotypeTrainingArguments();
         trainingArguments.featureMapperClassname=featureMapperClassName;
+        trainingArguments.genomicContextLength=genomicContextLength;
+        trainingArguments.labelSmoothingEpsilon=labelSmoothingEpsilon;
+        trainingArguments.ploidy=ploidy;
         trainingArguments.trainingSets=new ArrayList<>();
-
         trainingArguments.trainingSets.addAll(trainingSets);
 
         GenotypeDomainDescriptor domainDescriptor=new GenotypeDomainDescriptor(trainingArguments);

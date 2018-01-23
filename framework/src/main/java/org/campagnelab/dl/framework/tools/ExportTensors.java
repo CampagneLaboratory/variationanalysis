@@ -1,20 +1,15 @@
 package org.campagnelab.dl.framework.tools;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.io.FastBufferedOutputStream;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
-import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapterMultipleSamples;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
-import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
-import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
-import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +25,7 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
     static private Logger LOG = LoggerFactory.getLogger(ExportTensors.class);
 
     protected abstract DomainDescriptor<RecordType> domainDescriptor(String featureMapperClassName,
-                                                                     List<String> trainingSets);
+                                                                     List<String> trainingSets, int genomicContextLength, float labelSmoothingEpsilon, int ploidy);
 
     protected abstract void decorateProperties(Properties decorateProperties);
 
@@ -53,7 +48,9 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
                     "number of times on the command line.");
         }
         DomainDescriptor<RecordType> domainDescriptor = domainDescriptor(args().featureMapperClassname,
-                args().trainingSets);
+                args().trainingSets, args().genomicContextLength, args().labelSmoothingEpsilon,
+                args().ploidy);
+
         MultiDataSetIteratorAdapterMultipleSamples<RecordType> adapter;
         IntArrayList sampleIndices = new IntArrayList();
         sampleIndices.addAll(args().sampleIds);

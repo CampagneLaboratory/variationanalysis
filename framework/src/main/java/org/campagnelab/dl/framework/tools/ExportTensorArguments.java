@@ -61,6 +61,19 @@ public class ExportTensorArguments implements ToolArguments {
                     "Defaults to 0 to export the first sample only.", variableArity = true)
     public List<Integer> sampleIds = defaultSampleIndices();
 
+    @Parameter(names = "--ploidy", description = "The organism ploidy (2 for humans, more for some plants). This parameter controls some of the mapped features and dimension of" +
+            "outputs. ")
+    public int ploidy = 2;
+
+    @Parameter(names = { "--genomic-context-length"}, description = "Length of genomic context to use around site, in mapped features. The larger the number," +
+            "the more bases are presented to the neural net around the genomic site of interest, the more features are used to represent the genomic context." +
+            "This parameter controls some of the mapped features and the dimension of the input feature vector(s).")
+    public int genomicContextLength=29;
+
+    @Parameter(names = "--label-smoothing-epsilon", description = "Value of epsilon for label smoothing. Zero (default) is no smoothing. Try small values (<0.1)." +
+            "This parameter controls some of the mapped outputs. ")
+    public float labelSmoothingEpsilon = 0;
+
     private List<Integer> defaultSampleIndices() {
         List<Integer> result = new ArrayList<>();
         result.add(0);
