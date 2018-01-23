@@ -107,6 +107,16 @@ public abstract class VectorWriter implements Closeable {
         }
     }
 
+    private int[] getShape(INDArray values) {
+        // Store row and column vectors as 1-dimensional
+        if (values.isRowVector()) {
+            return new int[]{values.columns()};
+        } else if (values.isColumnVector()) {
+            return new int[]{values.rows()};
+        } else {
+            return values.shape();
+        }
+    }
 
     private void writeLinesForExample(MultiDataSet multiDataSet, int[] indices, String[] names,
                                       int sampleIndex, long startExampleIndex,
@@ -125,7 +135,8 @@ public abstract class VectorWriter implements Closeable {
             if (vectorNameToId.get(vectorName) == null) {
                 vectorNameToId.put(vectorName, currVectorIndex);
                 vectorIdToName.put(currVectorIndex, vectorName);
-                vectorIdToDimension.put(currVectorIndex, currExampleValuesAtIndex.shape());
+                vectorIdToDimension.put(currVectorIndex, getShape(currExampleValuesAtIndex));
+
                 vectorId = currVectorIndex++;
             } else {
                 vectorId = vectorNameToId.get(vectorName);
@@ -134,7 +145,7 @@ public abstract class VectorWriter implements Closeable {
                     throw new RuntimeException(String.format("Vector name mismatch for vector id %d", vectorId));
                 }
                 int[] vectorCachedDimensions = vectorIdToDimension.get(vectorId);
-                if (!Arrays.equals(currExampleValuesAtIndex.shape(), vectorCachedDimensions)) {
+                if (!Arrays.equals(getShape(currExampleValuesAtIndex), vectorCachedDimensions)) {
                     throw new RuntimeException(String.format("Vector dimension mismatch for vector id %d", vectorId));
                 }
             }
