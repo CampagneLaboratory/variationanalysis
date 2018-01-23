@@ -28,7 +28,7 @@ public class VectorWriterText extends VectorWriter {
     public void writeVectorLine(VectorLine vectorLine) {
         outputFileVector.append(Integer.toString(vectorLine.getSampleId()))
                 .append(" ")
-                .append(Integer.toString(vectorLine.getExampleId()))
+                .append(Long.toString(vectorLine.getExampleId()))
                 .append(" ")
                 .append(Integer.toString(vectorLine.getVectorId()));
         for (float vectorValue : vectorLine.getVectorElements()) {

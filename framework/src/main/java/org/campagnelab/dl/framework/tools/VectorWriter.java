@@ -15,6 +15,7 @@ public abstract class VectorWriter implements Closeable {
     private JsonWriter outputFileVectorProperties;
     private int majorVersion = -1;
     private int minorVersion = -1;
+    private int numRecords = -1;
     private List<VectorProperties.VectorPropertiesSample> sampleInfos;
     private List<VectorProperties.VectorPropertiesVector> vectorInfos;
     private Map<String, Integer> vectorNameToId;
@@ -58,7 +59,7 @@ public abstract class VectorWriter implements Closeable {
             }
         }
         VectorProperties vectorProperties = new VectorProperties(getFileType(), majorVersion, minorVersion,
-                sampleInfoArray, vectorInfoArray);
+                numRecords, sampleInfoArray, vectorInfoArray);
         gson.toJson(vectorProperties, VectorProperties.class, outputFileVectorProperties);
         this.outputFileVectorProperties.close();
     }
@@ -66,6 +67,10 @@ public abstract class VectorWriter implements Closeable {
     public void setSpecVersionNumber(int majorVersion, int minorVersion) {
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
+    }
+
+    public void setNumRecords(int numRecords) {
+        this.numRecords = numRecords;
     }
 
     public void addSampleInfo(String sampleType, String sampleName) {
@@ -81,6 +86,9 @@ public abstract class VectorWriter implements Closeable {
     public void appendMdsList(List<MultiDataSet> multiDataSetList, int[] inputIndices, int[] outputIndices,
                               String[] inputNames, String[] outputNames, int startExampleIndex) {
         int numExamplesInBatch = multiDataSetList.get(0).getFeatures(inputIndices[0]).rows();
+        if (startExampleIndex + numExamplesInBatch > numRecords) {
+            throw new IllegalArgumentException("Example ID exceeds number of records");
+        }
         for (int currExampleInBatch = 0; currExampleInBatch < numExamplesInBatch; currExampleInBatch++) {
             int sampleMdsIndex = 0;
             for (MultiDataSet multiDataSetAtSample : multiDataSetList) {
@@ -176,16 +184,18 @@ public abstract class VectorWriter implements Closeable {
         private String fileType;
         private int majorVersion;
         private int minorVersion;
+        private int numRecords;
         private VectorPropertiesSample[] samples;
         private VectorPropertiesVector[] vectors;
 
-        VectorProperties(String fileType, int majorVersion, int minorVersion, VectorPropertiesSample[] samples,
-                         VectorPropertiesVector[] vectors) {
+        VectorProperties(String fileType, int majorVersion, int minorVersion, int numRecords,
+                         VectorPropertiesSample[] samples, VectorPropertiesVector[] vectors) {
             this.fileType = fileType;
             this.majorVersion = majorVersion;
             this.minorVersion = minorVersion;
             this.samples = samples;
             this.vectors = vectors;
+            this.numRecords = numRecords;
         }
 
         public String getFileType() {
@@ -199,6 +209,8 @@ public abstract class VectorWriter implements Closeable {
         public int getMinorVersion() {
             return minorVersion;
         }
+
+        public int getNumRecords() { return numRecords; }
 
         public VectorPropertiesSample[] getSamples() {
             return samples;

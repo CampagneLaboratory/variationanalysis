@@ -56,6 +56,12 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         MultiDataSetIteratorAdapterMultipleSamples<RecordType> adapter;
         IntArrayList sampleIndices=new IntArrayList();
         sampleIndices.addAll(args().sampleIds);
+        long numRecordsLong = domainDescriptor.getNumRecords(args().getTrainingSets());
+        if (numRecordsLong > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Too many records to write in training sets");
+        }
+        int numRecords = Integer.min(args().exportN, (int) numRecordsLong);
+
 
         try {
             Properties properties = getReaderProperties(args().trainingSets.get(0));
@@ -105,6 +111,7 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
             VectorWriter vectorWriter = new VectorWriterText(args().outputBasename);
             // TODO: Set from args or properties
             vectorWriter.setSpecVersionNumber(0, 1);
+            vectorWriter.setNumRecords(numRecords);
 
             int currStartExampleIndex = 0;
             while (iterator.hasNext()) {
@@ -120,7 +127,6 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
             vectorWriter.close();
             pg.stop();
 
-            long numRecords = domainDescriptor.getNumRecords(args().getTrainingSets());
             Properties cfpProperties = new Properties();
             cfpProperties.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
             cfpProperties.put("multiDataSet", "true");
