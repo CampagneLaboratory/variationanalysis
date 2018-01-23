@@ -56,11 +56,12 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         MultiDataSetIteratorAdapterMultipleSamples<RecordType> adapter;
         IntArrayList sampleIndices=new IntArrayList();
         sampleIndices.addAll(args().sampleIds);
-        long numRecordsLong = domainDescriptor.getNumRecords(args().getTrainingSets());
+        long numRecordsLong = Long.min(args().exportN, domainDescriptor.getNumRecords(args().getTrainingSets()));
         if (numRecordsLong > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("Too many records to write in training sets");
+            LOG.warn(String.format("Number of records to be written %d is greater than max possible value of %d and" +
+                    " will be truncated", numRecordsLong, Integer.MAX_VALUE));
         }
-        int numRecords = Integer.min(args().exportN, (int) numRecordsLong);
+        int numRecords = (int) numRecordsLong;
 
 
         try {
@@ -109,11 +110,9 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
 
             int miniBatchSize = args().miniBatchSize;
             VectorWriter vectorWriter = new VectorWriterText(args().outputBasename);
-            // TODO: Set from args or properties
-            vectorWriter.setSpecVersionNumber(0, 1);
             vectorWriter.setNumRecords(numRecords);
 
-            int currStartExampleIndex = 0;
+            long currStartExampleIndex = 0;
             while (iterator.hasNext()) {
                 List<MultiDataSet> mdsList = iterator.next();
                 vectorWriter.appendMdsList(mdsList, inputIndicesSelected, outputIndicesSelected, inputNames,

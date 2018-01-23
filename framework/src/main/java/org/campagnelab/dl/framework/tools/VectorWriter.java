@@ -12,9 +12,9 @@ import java.io.PrintWriter;
 import java.util.*;
 
 public abstract class VectorWriter implements Closeable {
+    final static private int majorVersion = 0;
+    final static private int minorVersion = 2;
     private JsonWriter outputFileVectorProperties;
-    private int majorVersion = -1;
-    private int minorVersion = -1;
     private int numRecords = -1;
     private List<VectorProperties.VectorPropertiesSample> sampleInfos;
     private List<VectorProperties.VectorPropertiesVector> vectorInfos;
@@ -38,10 +38,6 @@ public abstract class VectorWriter implements Closeable {
     @Override
     public void close() throws IOException {
         Gson gson = new Gson();
-        if ((majorVersion == -1) || (minorVersion == -1)) {
-            majorVersion = 0;
-            minorVersion = 1;
-        }
         VectorProperties.VectorPropertiesSample[] sampleInfoArray = new VectorProperties.VectorPropertiesSample[
                 sampleInfos.size()];
         sampleInfoArray = sampleInfos.toArray(sampleInfoArray);
@@ -64,11 +60,6 @@ public abstract class VectorWriter implements Closeable {
         this.outputFileVectorProperties.close();
     }
 
-    public void setSpecVersionNumber(int majorVersion, int minorVersion) {
-        this.majorVersion = majorVersion;
-        this.minorVersion = minorVersion;
-    }
-
     public void setNumRecords(int numRecords) {
         this.numRecords = numRecords;
     }
@@ -84,7 +75,7 @@ public abstract class VectorWriter implements Closeable {
     }
 
     public void appendMdsList(List<MultiDataSet> multiDataSetList, int[] inputIndices, int[] outputIndices,
-                              String[] inputNames, String[] outputNames, int startExampleIndex) {
+                              String[] inputNames, String[] outputNames, long startExampleIndex) {
         int numExamplesInBatch = multiDataSetList.get(0).getFeatures(inputIndices[0]).rows();
         if (startExampleIndex + numExamplesInBatch > numRecords) {
             throw new IllegalArgumentException("Example ID exceeds number of records");
@@ -103,7 +94,7 @@ public abstract class VectorWriter implements Closeable {
 
 
     private void writeLinesForExample(MultiDataSet multiDataSet, int[] indices, String[] names,
-                                      int sampleIndex, int startExampleIndex,
+                                      int sampleIndex, long startExampleIndex,
                                       int currExampleIndexInBatch, int numExamplesInBatch,
                                       boolean isForFeatures) {
         for (int index : indices) {
@@ -152,11 +143,11 @@ public abstract class VectorWriter implements Closeable {
 
     static class VectorLine {
         private int sampleId;
-        private int exampleId;
+        private long exampleId;
         private int vectorId;
         private List<Float> vectorElements;
 
-        public VectorLine(int sampleId, int exampleId, int vectorId, List<Float> vectorElements) {
+        public VectorLine(int sampleId, long exampleId, int vectorId, List<Float> vectorElements) {
             this.sampleId = sampleId;
             this.exampleId = exampleId;
             this.vectorId = vectorId;
@@ -167,7 +158,7 @@ public abstract class VectorWriter implements Closeable {
             return sampleId;
         }
 
-        public int getExampleId() {
+        public long getExampleId() {
             return exampleId;
         }
 
@@ -184,11 +175,11 @@ public abstract class VectorWriter implements Closeable {
         private String fileType;
         private int majorVersion;
         private int minorVersion;
-        private int numRecords;
+        private long numRecords;
         private VectorPropertiesSample[] samples;
         private VectorPropertiesVector[] vectors;
 
-        VectorProperties(String fileType, int majorVersion, int minorVersion, int numRecords,
+        VectorProperties(String fileType, int majorVersion, int minorVersion, long numRecords,
                          VectorPropertiesSample[] samples, VectorPropertiesVector[] vectors) {
             this.fileType = fileType;
             this.majorVersion = majorVersion;
@@ -210,7 +201,7 @@ public abstract class VectorWriter implements Closeable {
             return minorVersion;
         }
 
-        public int getNumRecords() { return numRecords; }
+        public long getNumRecords() { return numRecords; }
 
         public VectorPropertiesSample[] getSamples() {
             return samples;
