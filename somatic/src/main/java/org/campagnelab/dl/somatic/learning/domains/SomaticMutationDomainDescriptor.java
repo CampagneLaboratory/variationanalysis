@@ -73,7 +73,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
      *
      * @param modelProperties
      */
-    void decorateProperties(Properties modelProperties) {
+    public void decorateProperties(Properties modelProperties) {
         // transfer arguments to properties when we know we started from command line arguments, otherwise the
         // arguments are already in properties:
         if (args().parsedFromCommandLine) {
