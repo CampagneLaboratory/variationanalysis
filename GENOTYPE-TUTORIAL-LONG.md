@@ -50,7 +50,7 @@ We set all chr2 positions to be moved to seperate test dataset, and will not tra
 
 ```
 /bin/cat <<EOM >configure.sh
-export OUTPUT_PREFIX=GM_12878_gatk_realigned_sorted
+export OUTPUT_PREFIX=GM_12878_processed
 export VAL_SUFFIX=validation
 export MINI_BATCH_SIZE=2048
 export LEARNING_RATE="3"
@@ -112,8 +112,6 @@ Now, we will convert the realigned bam file to a Goby alignment.
 ```
 samtools index GM_12878_gatk_realigned.bam
 parallel-bam-to-goby.sh ${MEM_FOR_ASYNC} GM_12878_gatk_realigned.bam
-goby 10g sort GM_12878_gatk_realigned.entries -o GM_12878_gatk_realigned_sorted
-
 ```
 
 #### Generate the training set.
@@ -122,7 +120,7 @@ information about individual position which we train our model on. The SBI file 
 Non-variant sites will be down-sampled, because we've had better results training on a more balanced dataset.
 This file will be split into training, validation, and test sets. The sets are organized by chromosome to make the test set reproducible and comparable.
 ```
-generate-genotype-sets-0.02.sh ${MEM_FOR_ASYNC} GM_12878_gatk_realigned_sorted.entries  NA12878.vcf.gz ucsc.hg19
+generate-genotype-sets-0.02.sh ${MEM_FOR_ASYNC} GM_12878_gatk_realigned.bam  NA12878.vcf.gz ucsc.hg19
 ```
 
 
