@@ -21,8 +21,9 @@ import java.io.IOException;
 import java.util.Random;
 
 /**
- * Combine a raw SBI with gold standard annotations to set isMutated flag. TSV format is chromosome\tposition\t[toBases]
- * where toBases is optional and contain the mutated bases (SNP or indel genotype of the mutation).
+ * Combine a raw SBI with gold standard annotations to set isMutated flag. TSV format is chromosome\tposition\t[toBases]\t[somaticFrequency]
+ * where toBases is optional and contain the mutated bases (SNP or indel genotype of the mutation). somaticFrequency, also
+ * optional contains the true proportion of somatic cells with the mutation in the sample.
  * Created by fac2003 on 11/22/16.
  */
 public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandardArguments> {
@@ -95,6 +96,9 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
     class Annotation {
         int position;
         String toBase;
+        // true proportion of the somatic variation among cells. May be null if this information is not available.
+        // the frequency is between 0 and 1.
+        Float frequency;
     }
 
     private void loadAnnotations(String annotationFilename) {
@@ -110,6 +114,7 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
                 Int2ObjectAVLTreeMap<Annotation> perPositionMap = annotations.getOrDefault(chromosome, new Int2ObjectAVLTreeMap<>());                Annotation a = new Annotation();
                 a.position = position;
                 a.toBase = tokens.length >= 3 ? tokens[2] : null;
+                a.frequency = tokens.length >= 4 ? Float.parseFloat(tokens[3]) : null;
                 perPositionMap.put(position, a);
                 annotations.put(chromosome, perPositionMap);
             }
@@ -127,6 +132,9 @@ public class CombineWithGoldStandard extends AbstractTool<CombineWithGoldStandar
         Annotation a=getAnnotation(record.getReferenceId(), record.getPosition());
         if (a.toBase!=null) {
             builder.setMutatedBase(a.toBase);
+        }
+        if (a.frequency !=null) {
+            builder.setFrequencyOfMutation(a.frequency);
         }
         return builder.setMutated(true).build();
     }
