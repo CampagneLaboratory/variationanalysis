@@ -49,12 +49,13 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
     public void execute() {
         if ((args().sampleNames.size() != args().sampleTypes.size())
                 || (args().sampleNames.size() != args().sampleIds.size())) {
-            throw new RuntimeException("--sample-names and --sample-types must have same size");
+            throw new RuntimeException("--sample-name,  --sample-type and --sample-index must be provided the same " +
+                    "number of times on the command line.");
         }
         DomainDescriptor<RecordType> domainDescriptor = domainDescriptor(args().featureMapperClassname,
                 args().trainingSets);
         MultiDataSetIteratorAdapterMultipleSamples<RecordType> adapter;
-        IntArrayList sampleIndices=new IntArrayList();
+        IntArrayList sampleIndices = new IntArrayList();
         sampleIndices.addAll(args().sampleIds);
         long numRecordsLong = domainDescriptor.getNumRecords(args().getTrainingSets());
         if (numRecordsLong > Integer.MAX_VALUE) {
@@ -84,31 +85,30 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         }
 
         Iterator<List<MultiDataSet>> iterator = adapter;
-        final String outputFilename = args().outputBasename + ".tensor";
-        try (FastBufferedOutputStream outputStream = new FastBufferedOutputStream(new FileOutputStream(outputFilename))) {
-            ProgressLogger pg = new ProgressLogger(LOG);
-            long numExamples = domainDescriptor.getNumRecords(args().getTrainingSets());
-            pg.expectedUpdates = Math.min(numExamples, args().exportN) / args().miniBatchSize;
-            pg.displayLocalSpeed = true;
-            pg.itemsName = "miniBatch";
-            pg.start();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            long numDatasets = 0;
-            numRecordsWritten = 0;
-            String[] inputNames = domainDescriptor.getComputationalGraph().getInputNames();
-            String[] outputNames = domainDescriptor.getComputationalGraph().getOutputNames();
+        ProgressLogger pg = new ProgressLogger(LOG);
+        long numExamples = domainDescriptor.getNumRecords(args().getTrainingSets());
+        pg.expectedUpdates = Math.min(numExamples, args().exportN) / args().miniBatchSize;
+        pg.displayLocalSpeed = true;
+        pg.itemsName = "miniBatch";
+        pg.start();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        long numDatasets = 0;
+        numRecordsWritten = 0;
+        String[] inputNames = domainDescriptor.getComputationalGraph().getInputNames();
+        String[] outputNames = domainDescriptor.getComputationalGraph().getOutputNames();
 
-            System.out.println("All inputs: "+ ObjectArrayList.wrap(inputNames));
-            System.out.println("All outputs: "+ ObjectArrayList.wrap(outputNames));
-            final Set<String> inputNamesToExport = args().inputNamesToExport;
-            final Set<String> outputNamesToExport = args().outputNamesToExport;
+        System.out.println("All inputs: " + ObjectArrayList.wrap(inputNames));
+        System.out.println("All outputs: " + ObjectArrayList.wrap(outputNames));
+        final Set<String> inputNamesToExport = args().inputNamesToExport;
+        final Set<String> outputNamesToExport = args().outputNamesToExport;
 
-            int[] inputIndicesSelected = assignSelectedIndices(inputNames, inputNamesToExport);
-            int[] outputIndicesSelected = assignSelectedIndices(outputNames, outputNamesToExport);
+        int[] inputIndicesSelected = assignSelectedIndices(inputNames, inputNamesToExport);
+        int[] outputIndicesSelected = assignSelectedIndices(outputNames, outputNamesToExport);
 
 
-            int miniBatchSize = args().miniBatchSize;
-            VectorWriter vectorWriter = new VectorWriterText(args().outputBasename);
+        int miniBatchSize = args().miniBatchSize;
+        try (final VectorWriter vectorWriter = new VectorWriterText(args().outputBasename)) {
+
             // TODO: Set from args or properties
             vectorWriter.setSpecVersionNumber(0, 1);
             vectorWriter.setNumRecords(numRecords);
@@ -123,60 +123,60 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
             }
 
             vectorWriter.addSampleInfo("testSampleType", "testSampleName");
-            outputStream.close();
-            vectorWriter.close();
-            pg.stop();
-
-            Properties cfpProperties = new Properties();
-            cfpProperties.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
-            cfpProperties.put("multiDataSet", "true");
-            cfpProperties.put("miniBatchSize", Integer.toString(args().miniBatchSize));
-            if (domainDescriptor != null) {
-                domainDescriptor.putProperties(cfpProperties);
-            } else {
-                cfpProperties.put("featureMapper", args().featureMapperClassname);
-            }
-            cfpProperties.put("numRecords", Long.toString(numRecordsWritten));
-            cfpProperties.put("numDatasets", Long.toString(numDatasets));
-            for (String inputName : inputNames) {
-                int dimIndex = 0;
-                for (int dim : domainDescriptor.getNumInputs(inputName)) {
-                    cfpProperties.put(inputName + ".numFeatures.dim" + Integer.toString(dimIndex), Integer.toString(dim));
-                    dimIndex++;
-                }
-            }
-            if (inputNames.length == 1) {
-                // also write simpler numFeatures, for backward compatibility:
-                cfpProperties.put("numFeatures", Integer.toString(domainDescriptor.getNumInputs(inputNames[0])[0]));
-            }
-            cfpProperties.put("stored", args().trainingSets.toString());
-            cfpProperties.store(new FileWriter(new File(args().outputBasename + ".cfp")), new Date().toString());
-
-        } catch (FileNotFoundException e) {
-            LOG.error("Unable to create output file: " + outputFilename, e);
         } catch (IOException e) {
-            LOG.error("Unable to write to output file: " + outputFilename, e);
+            throw new RuntimeException("Unable to write vector file. ", e);
+        } finally {
+            pg.stop();
+        }
+
+        Properties cfpProperties = new Properties();
+        cfpProperties.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
+        cfpProperties.put("multiDataSet", "true");
+        cfpProperties.put("miniBatchSize", Integer.toString(args().miniBatchSize));
+        if (domainDescriptor != null) {
+            domainDescriptor.putProperties(cfpProperties);
+        } else {
+            cfpProperties.put("featureMapper", args().featureMapperClassname);
+        }
+        cfpProperties.put("numRecords", Long.toString(numRecordsWritten));
+        cfpProperties.put("numDatasets", Long.toString(numDatasets));
+        for (String inputName : inputNames) {
+            int dimIndex = 0;
+            for (int dim : domainDescriptor.getNumInputs(inputName)) {
+                cfpProperties.put(inputName + ".numFeatures.dim" + Integer.toString(dimIndex), Integer.toString(dim));
+                dimIndex++;
+            }
+        }
+        if (inputNames.length == 1) {
+            // also write simpler numFeatures, for backward compatibility:
+            cfpProperties.put("numFeatures", Integer.toString(domainDescriptor.getNumInputs(inputNames[0])[0]));
+        }
+        cfpProperties.put("stored", args().trainingSets.toString());
+        try (final FileWriter writer = new FileWriter(new File(args().outputBasename + ".cfp"))) {
+            cfpProperties.store(writer, new Date().toString());
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to write .vecp file.", e);
         }
 
     }
 
     private int[] assignSelectedIndices(String[] inputNames, Set<String> inputNamesToExport) {
-        if (inputNamesToExport==null) {
-            inputNamesToExport=new ObjectArraySet<>();
+        if (inputNamesToExport == null) {
+            inputNamesToExport = new ObjectArraySet<>();
             inputNamesToExport.addAll(ObjectArrayList.wrap(inputNames));
         }
         int[] inputIndicesSelected = new int[inputNames.length];
         if (!inputNamesToExport.isEmpty()) {
             inputIndicesSelected = new int[inputNamesToExport.size()];
-            Arrays.fill(inputIndicesSelected,-1);
+            Arrays.fill(inputIndicesSelected, -1);
             int i = 0;
             for (int j = 0; j < inputNames.length; j++) {
                 if (inputNamesToExport.contains(inputNames[j])) {
                     inputIndicesSelected[i++] = j;
                 }
             }
-            for (int index: inputIndicesSelected){
-                if (index==-1) {
+            for (int index : inputIndicesSelected) {
+                if (index == -1) {
                     System.err.printf("An argument to --export-inputs/outputs does not match actual inputs/outputs.");
                     System.exit(1);
                 }
