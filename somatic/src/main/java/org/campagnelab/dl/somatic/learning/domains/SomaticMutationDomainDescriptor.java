@@ -215,7 +215,7 @@ public class SomaticMutationDomainDescriptor extends DomainDescriptor<BaseInform
 
     @Override
     public LabelMapper getLabelMapper(String outputName, int sampleIndex) {
-        // TODO: extend mappers to use sammple indices and use sampleIndex to configure mapper.
+        // TODO: extend mappers to use sample indices and use sampleIndex to configure mapper.
         LOG.warn("SomaticMutationDomainDescriptor ignores sample indices and currently only works with sbi with two samples: germline, tumor.");
         return getLabelMapper(outputName);
     }

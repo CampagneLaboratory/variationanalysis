@@ -15,11 +15,17 @@ public class ExportTensorsS extends ExportTensors<BaseInformationRecords.BaseInf
 
     @Override
     protected DomainDescriptor<BaseInformationRecords.BaseInformation> domainDescriptor(String featureMapperClassName,
-                                                                                        List<String> trainingSets) {
+                                                                                        List<String> trainingSets,
+                                                                                        int genomicContextLength,
+                                                                                        float labelSmoothingEpsilon,
+                                                                                        int ploidy) {
         SomaticTrainingArguments trainingArguments=new SomaticTrainingArguments();
         trainingArguments.featureMapperClassname=featureMapperClassName;
-        trainingArguments.trainingSets=new ArrayList<>();
 
+        trainingArguments.genomicContextLength=genomicContextLength;
+        trainingArguments.labelSmoothingEpsilon=labelSmoothingEpsilon;
+        trainingArguments.ploidy=ploidy;
+        trainingArguments.trainingSets=new ArrayList<>();
         trainingArguments.trainingSets.addAll(trainingSets);
 
         SomaticMutationDomainDescriptor domainDescriptor=new SomaticMutationDomainDescriptor(trainingArguments);
