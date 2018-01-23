@@ -123,8 +123,9 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
                 currStartExampleIndex += miniBatchSize;
                 pg.update();
             }
-
-            vectorWriter.addSampleInfo("testSampleType", "testSampleName");
+            for (int sampleIndex : args().sampleIds) {
+                vectorWriter.addSampleInfo(args().sampleTypes.get(sampleIndex), args().sampleNames.get(sampleIndex));
+            }
         } catch (IOException e) {
             throw new RuntimeException("Unable to write vector file. ", e);
         } finally {
