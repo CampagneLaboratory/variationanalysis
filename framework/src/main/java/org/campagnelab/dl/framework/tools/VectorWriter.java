@@ -13,7 +13,7 @@ import java.util.*;
 
 public abstract class VectorWriter implements Closeable {
     final static private int majorVersion = 0;
-    final static private int minorVersion = 2;
+    final static private int minorVersion = 3;
     private JsonWriter outputFileVectorProperties;
     private int numRecords = -1;
     private List<VectorProperties.VectorPropertiesSample> sampleInfos;

@@ -1,7 +1,9 @@
 package org.campagnelab.dl.framework.tools;
 
 import org.campagnelab.dl.framework.tools.VectorWriter;
+import org.campagnelab.goby.compression.GzipOutputStreamWithCustomLevel;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -10,7 +12,7 @@ public class VectorWriterText extends VectorWriter {
 
     public VectorWriterText(String basename) throws IOException {
         super(basename);
-        outputFileVector = new PrintWriter(basename + ".vec", "UTF-8");
+        outputFileVector = new PrintWriter(new GzipOutputStreamWithCustomLevel(1, new FileOutputStream(basename+".vec")));
     }
 
     @Override
@@ -21,7 +23,7 @@ public class VectorWriterText extends VectorWriter {
 
     @Override
     public String getFileType() {
-        return "text";
+        return "gzipped+text";
     }
 
     @Override
