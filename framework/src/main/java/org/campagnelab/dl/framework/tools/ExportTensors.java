@@ -105,7 +105,7 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
 
 
         int miniBatchSize = args().miniBatchSize;
-        try (final VectorWriter vectorWriter = new VectorWriterText(args().outputBasename)) {
+        try (final VectorWriter vectorWriter = createVectorWriter()) {
             vectorWriter.setNumRecords(numRecords);
             vectorWriter.setDomainDescriptor(domainDescriptor.getClass().getCanonicalName());
             vectorWriter.setFeatureMapper(args().featureMapperClassname);
@@ -128,6 +128,25 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         } finally {
             pg.stop();
         }
+    }
+
+    private VectorWriter createVectorWriter() throws IOException {
+        VectorWriter vectorWriter;
+        switch (args().vecFileType) {
+            case "text":
+            case "gzipped+text":
+                vectorWriter = new VectorWriterText(args().outputBasename);
+                break;
+            case "binary":
+                vectorWriter = new VectorWriterBinary(args().outputBasename);
+                break;
+            default:
+                throw new IllegalArgumentException(
+                        String.format("Unknown vector file type %s; choices are text and binary.",
+                                args().vecFileType)
+                );
+        }
+        return vectorWriter;
     }
 
     private int[] assignSelectedIndices(String[] inputNames, Set<String> inputNamesToExport) {

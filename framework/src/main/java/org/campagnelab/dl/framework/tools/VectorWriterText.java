@@ -1,6 +1,5 @@
 package org.campagnelab.dl.framework.tools;
 
-import org.campagnelab.dl.framework.tools.VectorWriter;
 import org.campagnelab.goby.compression.GzipOutputStreamWithCustomLevel;
 
 import java.io.FileOutputStream;

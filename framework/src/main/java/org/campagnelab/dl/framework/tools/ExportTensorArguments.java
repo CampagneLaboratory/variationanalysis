@@ -80,4 +80,7 @@ public class ExportTensorArguments implements ToolArguments {
         return result;
     }
 
+    @Parameter(names = "--vector-file-type", description = "Type of .vec file to write out")
+    public String vecFileType = "text";
+
 }
