@@ -91,9 +91,9 @@ parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby 20g  `cat comm
 cp command.txt command-`date +%h_%d_%H_%M`.txt
 
 if [ "${DO_CONCAT}" == "true" ]; then
-    cat boundaries| grep -v -e chr19 -e chr20 -e chr21 -e chr22 -e chrX -e chrY | cut -d " " ""-f 6 |awk '{print $1".sbi"}' >training-parts
-    cat boundaries| grep -e chr19  |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >validation-parts
-    cat boundaries| grep -v -e chr19 | grep -e chr20 -e chr21 -e chr22 -e chrX -e chrY |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >testing-parts
+    cat boundaries| grep -v -e chr19 -e chr20 -e chr21 -e chr22 -e chrX -e chrY | cut -d " " ""-f 6 |awk '{print $1".sbip"}' >training-parts
+    cat boundaries| grep -e chr19  |cut -d " " ""-f 6 | awk '{print $1".sbip"}' >validation-parts
+    cat boundaries| grep -v -e chr19 | grep -e chr20 -e chr21 -e chr22 -e chrX -e chrY |cut -d " " ""-f 6 | awk '{print $1".sbip"}' >testing-parts
 
     if [ -s training-parts ]; then
         concat.sh ${memory_requirement} -f -i `cat training-parts`  -o ${OUTPUT_BASENAME}-pre-train
