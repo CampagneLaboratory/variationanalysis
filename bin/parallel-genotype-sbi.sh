@@ -53,6 +53,10 @@ if [ -z "${DO_CONCAT+set}" ]; then
     echo "DO_CONCAT set to true."
 fi
 
+if [ -z "${DSV_OPTIONS+set}" ]; then
+    DSV_OPTIONS="-n 0 -t 1"
+fi
+echo "DSV_OPTIONS set to ${DSV_OPTIONS}."
 
 if [ -z "${REALIGN_AROUND_INDELS+set}" ]; then
     echo "Set REALIGN_AROUND_INDELS to true to enable realignment around indels."
@@ -67,7 +71,7 @@ else
    fi
 fi
 
-num_contigs=`goby 2g cfs /data/bug3/alignments/YFRULPP-AMR-S26-4-Muthu_RB.entries  --header-only|grep  'Number of target sequences'|cut -d " " -f 6`
+num_contigs=`goby 2g cfs ${ALIGNMENTS} --header-only|grep  'Number of target sequences'|head -1 | cut -d " " -f 6`
 if [ ${GOBY_NUM_SLICES} -lt ${num_contigs} ]; then
     # make sure num slices is at least twice the number of chromosomes//contigs in the reference:
     GOBY_NUM_SLICES=`echo $(( num_contigs * 2 ))`
@@ -77,7 +81,7 @@ goby 8g suggest-position-slices ${ALIGNMENTS} --modulo 1000 --number-of-slices $
 grep -v targetIdStart slices.tsv >slices
 
 
-echo " discover-sequence-variants -n 0 -t 1 --genome  ${SBI_GENOME} --format  SEQUENCE_BASE_INFORMATION  ${ALIGNMENTS} \
+echo " discover-sequence-variants ${DSV_OPTIONS} --genome  ${SBI_GENOME} --format  SEQUENCE_BASE_INFORMATION  ${ALIGNMENTS} \
     --call-indels  ${INCLUDE_INDELS} ${REALIGNMENT_OPTION} \
     --max-coverage-per-site 1000 -x HTSJDKReaderImpl:force-sorted=true \
     -x SequenceBaseInformationOutputFormat:genomic-context-length=41 \
