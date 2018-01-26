@@ -128,6 +128,11 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         } finally {
             pg.stop();
         }
+        try {
+            domainDescriptor.writeProperties("./",getReaderProperties(args().trainingSets.get(0)));
+        } catch (IOException e) {
+            System.err.println("Unable to write domain descriptor properties");
+        }
     }
 
     private VectorWriter createVectorWriter() throws IOException {
@@ -191,14 +196,8 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         }
         return cacheName;
     }
+    public abstract Properties getReaderProperties(String trainingSet) throws IOException;
 
 
-    // Taken from org.campagnelab.dl.somatic.learning.SomaticTrainer
-    private Properties getReaderProperties(String trainingSet) throws IOException {
-        try (SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSet)) {
-            final Properties properties = reader.getProperties();
-            reader.close();
-            return properties;
-        }
-    }
+
 }
