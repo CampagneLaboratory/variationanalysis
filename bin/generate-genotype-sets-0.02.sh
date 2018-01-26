@@ -63,6 +63,7 @@ fi
 set -x
 # put all results under tmp:
 export OUTPUT_BASENAME=tmp/${OUTPUT_PREFIX}
+export DO_CONCAT="true"
 
 parallel-genotype-sbi.sh 10g ${ALIGNMENTS} 2>&1 | tee parallel-genotype-sbi.log
 dieIfError "Failed to generate .sbi file"

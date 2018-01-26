@@ -54,42 +54,22 @@ export OUTPUT_BASENAME=tmp/${OUTPUT_PREFIX}
 # restrict unlabeled sites to those that show some level of variations from the reference:
 export DSV_OPTIONS="-n 5 -t 1"
 unset SBI_GENOTYPE_VARMAP
+DO_CONCAT="false"
 
 parallel-genotype-sbi.sh 10g ${ALIGNMENTS} 2>&1 | tee parallel-genotype-sbi.log
 dieIfError "Failed to generate .sbi file"
 
-export OUTPUT_BASENAME=${OUTPUT_PREFIX}
-if [ -s tmp/${OUTPUT_BASENAME}-pre-train.sbip ]; then
-    # randomize and put final datasets in current directory:
-    randomize.sh ${memory_requirement} -i tmp/${OUTPUT_BASENAME}-pre-train.sbi -o ${OUTPUT_BASENAME}-train.sbi  \
-       -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
-    dieIfError "Failed to randomize training set."
-fi
-if [ -s tmp/${OUTPUT_BASENAME}-pre-validation.sbip ]; then
-    randomize.sh ${memory_requirement} -i tmp/${OUTPUT_BASENAME}-pre-validation.sbi -o ${OUTPUT_BASENAME}-validation.sbi  \
-     -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
-    dieIfError "Failed to randomize validation set"
-fi
-if [ -s tmp/${OUTPUT_BASENAME}-test.sbip ]; then
+for file in *.sbi; do
+        SBI_basename=`basename $file .sbi`
+        echo "SBI basename: '$SBI_basename'"
+        randomize.sh ${memory_requirement} -i ${file} -o ${SBI_basename}-random.sbi  -b 100000 \
+                                                   --random-seed 2378237
+    dieIfError "Failed to randomize an sbi part."
+done
 
-    mv tmp/${OUTPUT_BASENAME}-test.sbi tmp/${OUTPUT_BASENAME}-pre-test.sbi
-    mv tmp/${OUTPUT_BASENAME}-test.sbip tmp/${OUTPUT_BASENAME}-pre-test.sbip
-    randomize.sh ${memory_requirement} -i tmp/${OUTPUT_BASENAME}-pre-test.sbi*  -o ${OUTPUT_BASENAME}-test.sbi  \
-     -b 100000 -c 100   --random-seed 2378237 |tee randomize.log
-    dieIfError "Failed to copy test set"
-fi
-
-concat.sh ${memory_requirement} -f -o ${OUTPUT_BASENAME}-unlabeled.sbi \
-    -i  \
-    ${OUTPUT_BASENAME}-train.sbi \
-    ${OUTPUT_BASENAME}-validation.sbi \
-    ${OUTPUT_BASENAME}-test.sbi  \
-
+concat.sh ${memory_requirement} -f -o ${OUTPUT_BASENAME}-unlabeled.sbi  -i  *-random.sbi
 
 if [ ${DELETE_TMP} = "true" ]; then
-   rm tmp/${OUTPUT_PREFIX}-pre-training.sbi
-   rm tmp/${OUTPUT_PREFIX}-pre-training.sbi
-   rm tmp/${OUTPUT_PREFIX}-pre-test.sbi
    rm -rf tmp
 fi
 
