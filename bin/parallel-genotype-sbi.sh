@@ -67,10 +67,13 @@ else
    fi
 fi
 
+num_contigs=`goby 2g cfs /data/bug3/alignments/YFRULPP-AMR-S26-4-Muthu_RB.entries  --header-only|grep  'Number of target sequences'|cut -d " " -f 6`
+if [ ${GOBY_NUM_SLICES} -lt ${num_contigs} ]; then
+    # make sure num slices is at least twice the number of chromosomes//contigs in the reference:
+    GOBY_NUM_SLICES=`echo $(( num_contigs * 2 ))`
+fi
 
-echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
-
-goby 8g suggest-position-slices ${ALIGNMENTS} --modulo 1000 --number-of-slices ${GOBY_NUM_SLICES} --restrict-per-chromosome -o slices.tsv
+goby 8g suggest-position-slices ${ALIGNMENTS} --modulo 1000 --number-of-slices ${GOBY_NUM_SLICES} --restrict-per-chromosome  -o slices.tsv
 grep -v targetIdStart slices.tsv >slices
 
 
