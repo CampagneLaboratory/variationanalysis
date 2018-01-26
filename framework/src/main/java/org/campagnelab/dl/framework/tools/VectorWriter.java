@@ -13,7 +13,7 @@ import java.util.*;
 
 public abstract class VectorWriter implements Closeable {
     final static private int majorVersion = 0;
-    final static private int minorVersion = 3;
+    final static private int minorVersion = 4;
     private JsonWriter outputFileVectorProperties;
     private int numRecords = -1;
     private List<VectorProperties.VectorPropertiesSample> sampleInfos;
@@ -26,6 +26,14 @@ public abstract class VectorWriter implements Closeable {
     private String domainDescriptor;
     private String featureMapper;
     private String[] inputFiles;
+
+    // Size in bytes of different fields needed for binary format
+    private static final int EXAMPLE_ID_SIZE = 8;
+    private static final int VECTOR_ID_SIZE = 4;
+    private static final int SAMPLE_ID_SIZE = 4;
+    private static final int VECTOR_LENGTH_SIZE = 4;
+    private static final int HEADER_SIZE = EXAMPLE_ID_SIZE + VECTOR_ID_SIZE + SAMPLE_ID_SIZE + VECTOR_LENGTH_SIZE;
+    private static final int VECTOR_ELEMENT_SIZE = 4;
 
     public VectorWriter(String basename) throws IOException {
         outputFileVectorProperties = new JsonWriter(new PrintWriter(basename + ".vecp",
@@ -86,6 +94,7 @@ public abstract class VectorWriter implements Closeable {
     public void addVectorInfo(String vectorName, String vectorType, int[] vectorDimension) {
         addVectorInfoCalled = true;
         vectorNameToId.put(vectorName, vectorInfos.size());
+        int length = Arrays.stream(vectorDimension).reduce(1, (x, y) -> (x * y));
         this.vectorInfos.add(new VectorProperties.VectorPropertiesVector(vectorName, vectorType, vectorDimension));
     }
 
@@ -204,9 +213,12 @@ public abstract class VectorWriter implements Closeable {
         private long numRecords;
         private String domainDescriptor;
         private String featureMapper;
+        private int numBytesPerExample;
+        private int headerSize;
         private String[] inputFiles;
         private VectorPropertiesSample[] samples;
         private VectorPropertiesVector[] vectors;
+
 
         VectorProperties(String fileType, int majorVersion, int minorVersion, long numRecords,
                          VectorPropertiesSample[] samples, VectorPropertiesVector[] vectors,
@@ -220,6 +232,12 @@ public abstract class VectorWriter implements Closeable {
             this.domainDescriptor = domainDescriptor;
             this.featureMapper = featureMapper;
             this.inputFiles = inputFiles;
+            // Number of bytes
+            numBytesPerExample = Arrays.stream(vectors)
+                    .mapToInt(VectorPropertiesVector::getVectorNumBytesForElements)
+                    .map(x -> (x + HEADER_SIZE) * samples.length)
+                    .sum();
+            headerSize = HEADER_SIZE;
         }
 
         public String getFileType() {
@@ -256,6 +274,14 @@ public abstract class VectorWriter implements Closeable {
             return vectors;
         }
 
+        public int getNumBytesPerExample() {
+            return numBytesPerExample;
+        }
+
+        public int getHeaderSize() {
+            return headerSize;
+        }
+
         static class VectorPropertiesSample {
             private String sampleType;
             private String sampleName;
@@ -277,12 +303,18 @@ public abstract class VectorWriter implements Closeable {
         static class VectorPropertiesVector {
             private String vectorName;
             private String vectorType;
+            private int vectorElementSize;
             private int[] vectorDimension;
+            private int vectorNumBytesForElements;
 
             VectorPropertiesVector(String vectorName, String vectorType, int[] vectorDimension) {
                 this.vectorName = vectorName;
                 this.vectorType = vectorType;
                 this.vectorDimension = vectorDimension;
+                this.vectorElementSize = VECTOR_ELEMENT_SIZE;
+                // TODO: Modify vector_element_size based on vectorType
+                vectorNumBytesForElements = Arrays.stream(vectorDimension)
+                        .reduce(1, (x, y) -> x * y) * VECTOR_ELEMENT_SIZE;
             }
 
             public String getVectorName() {
@@ -295,6 +327,14 @@ public abstract class VectorWriter implements Closeable {
 
             public int[] getVectorDimension() {
                 return vectorDimension;
+            }
+
+            public int getVectorNumBytesForElements() {
+                return vectorNumBytesForElements;
+            }
+
+            public int getVectorElementSize() {
+                return vectorElementSize;
             }
         }
     }
