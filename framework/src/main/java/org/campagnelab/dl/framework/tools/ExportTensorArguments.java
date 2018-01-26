@@ -24,7 +24,7 @@ public class ExportTensorArguments implements ToolArguments {
     @Parameter(names = "--mini-batch-size", description = "The size of the minibatch used to map features. Larger sizes can be more efficient but require more memory.")
     public int miniBatchSize = 64;
 
-    @Parameter(names = {"n", "--export-n"}, description = "Export at most n records.")
+    @Parameter(names = {"-n", "--export-n"}, description = "Export at most n records.")
     public int exportN = Integer.MAX_VALUE;
 
     public String[] getTrainingSets() {
@@ -80,7 +80,9 @@ public class ExportTensorArguments implements ToolArguments {
         return result;
     }
 
-    @Parameter(names = "--vector-file-type", description = "Type of .vec file to write out")
+    @Parameter(names = "--vector-file-type", description = "Type of .vec file to write out. Can be 'text' or 'binary' vec format. " +
+            "Text format is compressed with gzip and smaller for storage and transport. Binary format is useful for random access and is used for " +
+            "caching data for faster training with shuffled datasets.")
     public String vecFileType = "text";
 
 }
