@@ -53,6 +53,10 @@ if [ -z "${DO_CONCAT+set}" ]; then
     echo "DO_CONCAT set to true."
 fi
 
+if [ -z "${DSV_OPTIONS+set}" ]; then
+    DSV_OPTIONS="-n 0 -t 1"
+fi
+echo "DSV_OPTIONS set to ${DSV_OPTIONS}."
 
 if [ -z "${REALIGN_AROUND_INDELS+set}" ]; then
     echo "Set REALIGN_AROUND_INDELS to true to enable realignment around indels."
@@ -67,14 +71,17 @@ else
    fi
 fi
 
+num_contigs=`goby 2g cfs ${ALIGNMENTS} --header-only|grep  'Number of target sequences'|head -1 | cut -d " " -f 6`
+if [ ${GOBY_NUM_SLICES} -lt ${num_contigs} ]; then
+    # make sure num slices is at least twice the number of chromosomes//contigs in the reference:
+    GOBY_NUM_SLICES=`echo $(( num_contigs * 2 ))`
+fi
 
-echo "variables: ${SBI_GENOME} ${SBI_NUM_THREADS}"
-
-goby 8g suggest-position-slices ${ALIGNMENTS} --modulo 1000 --number-of-slices ${GOBY_NUM_SLICES} --restrict-per-chromosome -o slices.tsv
+goby 8g suggest-position-slices ${ALIGNMENTS} --modulo 1000 --number-of-slices ${GOBY_NUM_SLICES} --restrict-per-chromosome  -o slices.tsv
 grep -v targetIdStart slices.tsv >slices
 
 
-echo " discover-sequence-variants -n 0 -t 1 --genome  ${SBI_GENOME} --format  SEQUENCE_BASE_INFORMATION  ${ALIGNMENTS} \
+echo " discover-sequence-variants ${DSV_OPTIONS} --genome  ${SBI_GENOME} --format  SEQUENCE_BASE_INFORMATION  ${ALIGNMENTS} \
     --call-indels  ${INCLUDE_INDELS} ${REALIGNMENT_OPTION} \
     --max-coverage-per-site 1000 -x HTSJDKReaderImpl:force-sorted=true \
     -x SequenceBaseInformationOutputFormat:genomic-context-length=41 \
@@ -85,7 +92,7 @@ cp command.txt command-`date +%h_%d_%H_%M`.txt
 
 cut -f3,6 slices  | awk 'BEGIN{count=1} {print "-s "$1" -e " $2" -o out-part-"(count++)}' >boundaries
 cat boundaries
-parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby 20g  `cat command.txt`  :::: boundaries
+parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby 10g  `cat command.txt`  :::: boundaries
 
 # keep a log of the commands that were used to generate this dataset:
 cp command.txt command-`date +%h_%d_%H_%M`.txt

@@ -5,7 +5,9 @@ import org.campagnelab.dl.framework.tools.ExportTensors;
 import org.campagnelab.dl.genotype.learning.GenotypeTrainingArguments;
 import org.campagnelab.dl.genotype.learning.domains.GenotypeDomainDescriptor;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -42,6 +44,14 @@ public class ExportTensorsG extends ExportTensors<BaseInformationRecords.BaseInf
         }
     }
 
+    @Override
+    public Properties getReaderProperties(String trainingSet) throws IOException {
+        try (SequenceBaseInformationReader reader = new SequenceBaseInformationReader(trainingSet)) {
+            final Properties properties = reader.getProperties();
+            reader.close();
+            return properties;
+        }
+    }
     public static void main(String[] args) {
 
         ExportTensorsG exportG = new ExportTensorsG();
