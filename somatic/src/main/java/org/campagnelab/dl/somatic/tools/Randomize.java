@@ -56,7 +56,7 @@ public class Randomize extends AbstractTool<RandomizerArguments> {
             new File(tmpDir).mkdir();
             List<RecordWriter> bucketWriters = new ObjectArrayList<RecordWriter>(numBuckets);
             for (int i = 0; i < numBuckets; i++) {
-                bucketWriters.add(new RecordWriter(workingDir + "/tmp/bucket" + i, arguments.chunkSizePerWriter));
+                bucketWriters.add(new RecordWriter(tmpDir+"/bucket" + i, arguments.chunkSizePerWriter));
             }
             RecordWriter allWriter = new RecordWriter(args().outputFile);
             Random rand = new XoRoShiRo128PlusRandom(args().randomSeed);
@@ -96,7 +96,7 @@ public class Randomize extends AbstractTool<RandomizerArguments> {
                 bucketWriter.close();
 
                 //put contents of bucket in a list
-                RecordReader bucketReader = new RecordReader(workingDir + "/tmp/bucket" + i);
+                RecordReader bucketReader = new RecordReader(tmpDir + "/bucket" + i);
                 List<BaseInformationRecords.BaseInformation> records = new ObjectArrayList<>(arguments.recordsPerBucket);
                 for (BaseInformationRecords.BaseInformation rec : bucketReader) {
                     records.add(rec);
