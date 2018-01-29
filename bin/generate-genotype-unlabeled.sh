@@ -103,7 +103,7 @@ parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress :::: randomize-comm
 
 rm -rf tmp
 
-concat.sh ${memory_requirement} -f -o ${OUTPUT_BASENAME}-unlabeled  -i  random-out-part-*.sbi
+concat.sh ${memory_requirement} -f -o ${OUTPUT_PREFIX}-unlabeled  -i  random-out-part-*.sbi
 
 
 
