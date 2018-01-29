@@ -39,6 +39,11 @@ else
     echo "Using SBI_SPLIT_OVERRIDE_DESTINATION=${SBI_SPLIT_OVERRIDE_DESTINATION} to put chromosomes ${SBI_SPLIT_OVERRIDE_DESTINATION} into test set."
 fi
 
+if [ -z  "${SBI_NUM_THREADS+set}" ]; then
+    SBI_NUM_THREADS="2"
+    echo "SBI_NUM_THREADS set to ${SBI_NUM_THREADS}. Change the variable to influence the number of parallel jobs."
+fi
+
 export SBI_GENOME=${GENOME}
 rm -rf tmp
 mkdir -p tmp
@@ -62,10 +67,10 @@ dieIfError "Failed to generate .sbi file"
 for file in *.sbi; do
         SBI_basename=`basename $file .sbi`
         echo "SBI basename: '$SBI_basename'"
-        randomize.sh ${memory_requirement} -i ${file} -o ${SBI_basename}-random.sbi  -b 100000 \
-                                                   --random-seed 2378237
-    dieIfError "Failed to randomize an sbi part."
+        echo >> randomize-commands.txt "randomize.sh ${memory_requirement} -i ${file} -o ${SBI_basename}-random.sbi  -b 100000  --random-seed 2378237"
 done
+
+parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress randomize-commands.txt
 
 concat.sh ${memory_requirement} -f -o ${OUTPUT_BASENAME}-unlabeled.sbi  -i  *-random.sbi
 
