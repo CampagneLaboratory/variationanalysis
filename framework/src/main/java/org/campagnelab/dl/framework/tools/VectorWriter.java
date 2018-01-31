@@ -2,6 +2,7 @@ package org.campagnelab.dl.framework.tools;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import org.nd4j.linalg.api.iter.NdIndexIterator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -163,8 +164,8 @@ public abstract class VectorWriter implements Closeable {
         }
     }
 
-    private List<Float> getVectorElementsFromArray(INDArray vectorArray) {
-        List<Float> vectorElements = new LinkedList<>();
+    private FloatArrayList getVectorElementsFromArray(INDArray vectorArray) {
+        FloatArrayList vectorElements = new FloatArrayList(vectorArray.length());
         NdIndexIterator ndIndexIterator = new NdIndexIterator('c', vectorArray.shape());
         while (ndIndexIterator.hasNext()) {
             vectorElements.add(vectorArray.getFloat(ndIndexIterator.next()));
@@ -180,9 +181,9 @@ public abstract class VectorWriter implements Closeable {
         private int sampleId;
         private long exampleId;
         private int vectorId;
-        private List<Float> vectorElements;
+        private FloatArrayList vectorElements;
 
-        public VectorLine(int sampleId, long exampleId, int vectorId, List<Float> vectorElements) {
+        public VectorLine(int sampleId, long exampleId, int vectorId, FloatArrayList vectorElements) {
             this.sampleId = sampleId;
             this.exampleId = exampleId;
             this.vectorId = vectorId;
@@ -201,7 +202,7 @@ public abstract class VectorWriter implements Closeable {
             return vectorId;
         }
 
-        public List<Float> getVectorElements() {
+        public FloatArrayList getVectorElements() {
             return vectorElements;
         }
     }
