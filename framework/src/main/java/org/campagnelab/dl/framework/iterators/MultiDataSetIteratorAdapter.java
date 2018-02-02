@@ -32,6 +32,10 @@ public abstract class MultiDataSetIteratorAdapter<RecordType> implements MultiDa
     protected int batchSize = 32;
     private MultiDataSetPreProcessor preProcessor;
 
+    protected MultiDataSetIteratorAdapter(DomainDescriptor domainDescriptor,Iterable<RecordType> iterable) {
+        this.domainDescriptor=domainDescriptor;
+        this.iterable=iterable;
+    }
 
     public MultiDataSetIteratorAdapter(Iterable<RecordType> iterable, int batchSize, DomainDescriptor domainDescriptor) throws IOException {
         this(iterable, batchSize, domainDescriptor, false, null);

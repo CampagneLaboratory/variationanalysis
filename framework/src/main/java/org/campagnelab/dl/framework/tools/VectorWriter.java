@@ -207,7 +207,7 @@ public abstract class VectorWriter implements Closeable {
         }
     }
 
-    static class VectorProperties {
+    public static class VectorProperties {
         private int majorVersion;
         private int minorVersion;
         private String fileType;
@@ -301,7 +301,7 @@ public abstract class VectorWriter implements Closeable {
             }
         }
 
-        static class VectorPropertiesVector {
+        public static class VectorPropertiesVector {
             private String vectorName;
             private String vectorType;
             private int vectorElementSize;

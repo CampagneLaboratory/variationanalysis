@@ -28,6 +28,10 @@ public class VectorReader implements Closeable {
     private final String[] vectorNames;
     private final boolean returnExampleIds;
 
+    public VectorWriter.VectorProperties getVectorProperties() {
+        return vectorProperties;
+    }
+
     public VectorReader(String inputPath, int sampleId, String[] vectorNames) throws IOException {
         this(inputPath, sampleId, vectorNames,true);
     }
@@ -119,7 +123,15 @@ public class VectorReader implements Closeable {
         propertiesReader.close();
     }
 
-    static class RecordVectors {
+    public RecordVectors getNextBatch(int batchSize) {
+        if (batchSize==1) {
+            return getNextExample();
+        }
+        //TODO implement this method when batchSize larger than 1.
+        return null;
+    }
+
+    public static class RecordVectors {
         private long exampleId;
         private String[] vectorNames;
         private INDArray[] vectors;

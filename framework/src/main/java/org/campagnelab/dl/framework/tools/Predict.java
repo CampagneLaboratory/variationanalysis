@@ -6,6 +6,8 @@ import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.domains.DomainDescriptorLoader;
+import org.campagnelab.dl.framework.domains.prediction.PredictWith;
+import org.campagnelab.dl.framework.domains.prediction.PredictWithVecFile;
 import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.gpu.InitializeGpu;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapter;
@@ -15,6 +17,7 @@ import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
 import org.deeplearning4j.nn.api.Model;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
+import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
@@ -32,7 +35,7 @@ import java.util.List;
  * evaluation on test sets. See PredictS for an example of sub-class.
  *
  * @author Fabien Campagne
- *         Created by fac2003 on 10/23/16.
+ * Created by fac2003 on 10/23/16.
  */
 public abstract class Predict<RecordType> extends ConditionRecordingTool<PredictArguments> {
 
@@ -121,14 +124,19 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
             isTrio = true;
             System.out.println("setting output to trio mode");
         }
-        Model model = modelLoader.loadModel(prefix);
+        // only load a model if there is no vector encoded model output :
+        Model model = args().vecPath == null ? modelLoader.loadModel(prefix) : null;
         if (model == null) {
             System.err.println("Cannot load model with prefix: " + prefix);
             System.exit(1);
         }
         domainDescriptor = DomainDescriptorLoader.load(modelPath);
-
-        PredictWithModel<RecordType> predictor = new PredictWithModel<RecordType>(domainDescriptor);
+        if (args().vecPath != null) {
+            // disable cache when vec is provided. No need to cache since we won't even map the features.
+            args().noCache = true;
+        }
+        PredictWith<RecordType> predictor = args().vecPath != null ? new PredictWithVecFile<RecordType>(domainDescriptor, args().vecPath) :
+                new PredictWithModel<RecordType>(domainDescriptor, model);
 
         Iterable<RecordType> apply = domainDescriptor.getRecordIterable().apply(evaluationDataFilename);
         Iterable<RecordType> itAdapter = Iterables.limit(apply, args().scoreN);
@@ -137,17 +145,19 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         initializeStats(prefix);
         writeHeader(resutsWriter);
         final int miniBatchSize = args().miniBatchSize;
-        MultiDataSetIteratorAdapter<RecordType> adapter = new MultiDataSetIteratorAdapter<RecordType>(itAdapter,
-                miniBatchSize, domainDescriptor, false, null) {
-            @Override
-            public String getBasename() {
-                return FilenameUtils.getBaseName(args().testSet);
-            }
-        };
+        MultiDataSetIteratorAdapter<RecordType> adapter = args().vecPath != null ? new AlwaysMoreIterator() :
+                new MultiDataSetIteratorAdapter<RecordType>(itAdapter,
+                        miniBatchSize, domainDescriptor, false, null) {
+                    @Override
+                    public String getBasename() {
+                        return FilenameUtils.getBaseName(args().testSet);
+                    }
+                };
         MultiDataSetIterator adapterCached = args().noCache ? adapter :
                 cacheHelper.cache(domainDescriptor,
                         adapter, adapter.getBasename(),
                         args().scoreN, args().miniBatchSize);
+
         List<RecordType> records = new ObjectArrayList<RecordType>(miniBatchSize);
         Iterator<RecordType> recordIterator = recordsIterable.iterator();
         int index = 0;
@@ -163,7 +173,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         while (adapterCached.hasNext() && recordIterator.hasNext()) {
 
             MultiDataSet dataset = adapterCached.next();
-            final int datasetSize = dataset.getFeatures(0).size(0);
+            final int datasetSize = dataset==null? 1: dataset.getFeatures(0).size(0);
             adapterIndex++;
             records.clear();
             for (int exampleIndex = 0; exampleIndex < datasetSize; exampleIndex++) {
@@ -175,7 +185,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
 
             if (records.size() == datasetSize) {
                 index = predictor.makePredictions(dataset,
-                        records, model,
+                        records,
                         recordPredictions -> {
                             processPredictions(resutsWriter, recordPredictions.record,
                                     recordPredictions.predictions);
@@ -253,5 +263,56 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
      */
     protected abstract void initializeStats(String prefix);
 
+    /**
+     * An iterator that always returns null, for as long as next is called.
+     * @param <RecordType>
+     */
+    private class AlwaysMoreIterator<RecordType> extends MultiDataSetIteratorAdapter<RecordType> {
+        protected AlwaysMoreIterator() {
+            super(null, null);
+        }
 
+        @Override
+        public String getBasename() {
+            return args().testSet;
+        }
+
+        public MultiDataSet next(int batchSize) {
+            return null;
+        }
+
+        @Override
+        public void setPreProcessor(MultiDataSetPreProcessor preProcessor) {
+
+        }
+
+        @Override
+        public MultiDataSetPreProcessor getPreProcessor() {
+            return null;
+        }
+
+        @Override
+        public boolean resetSupported() {
+            return true;
+        }
+
+        @Override
+        public boolean asyncSupported() {
+            return true;
+        }
+
+        @Override
+        public void reset() {
+
+        }
+
+        public boolean hasNext() {
+            return true;
+        }
+
+        @Override
+        public MultiDataSet next() {
+            return null;
+        }
+    }
 }

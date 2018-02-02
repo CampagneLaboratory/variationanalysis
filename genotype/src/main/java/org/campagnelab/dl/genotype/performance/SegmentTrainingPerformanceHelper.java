@@ -6,6 +6,7 @@ import org.campagnelab.dl.framework.domains.prediction.Prediction;
 import org.campagnelab.dl.framework.tools.PredictWithModel;
 import org.campagnelab.dl.genotype.predictions.SegmentPrediction;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
+import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -27,7 +28,7 @@ public class SegmentTrainingPerformanceHelper extends PredictWithModel<SegmentIn
     int n;
 
     public SegmentTrainingPerformanceHelper(DomainDescriptor<SegmentInformationRecords.SegmentInformation> domainDescriptor) {
-        super(domainDescriptor);
+        super(domainDescriptor,null);
         accumulator = new SegmentStatsAccumulator(new AccuracySegmentAccumulator(), new IndelAccuracySegmentAccumulator());
     }
 

@@ -26,6 +26,7 @@ import org.campagnelab.dl.somatic.learning.iterators.BaseInformationIterator;
 import org.campagnelab.dl.somatic.mappers.NoMasksLabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
+import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
@@ -585,7 +586,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                     case "NumVariants":
                     case "Concordance":
                         assert false : "avoid using the single metric evaluation method. Very slow.";
-                        GenotypeTrainingPerformanceHelper helper = new GenotypeTrainingPerformanceHelper(domainDescriptor);
+                        GenotypeTrainingPerformanceHelper helper = new GenotypeTrainingPerformanceHelper(domainDescriptor,graph);
                         return helper.estimateWithGraph(dataSetIterator, graph,
                                 index -> index > scoreN);
                     case "alleleAccuracy":
@@ -603,7 +604,7 @@ public class GenotypeDomainDescriptor extends DomainDescriptor<BaseInformationRe
                                            String... metrics) {
 
 
-                GenotypeTrainingPerformanceHelperWithAUC helper = new GenotypeTrainingPerformanceHelperWithAUC(domainDescriptor);
+                GenotypeTrainingPerformanceHelperWithAUC helper = new GenotypeTrainingPerformanceHelperWithAUC(domainDescriptor, graph);
                 helper.estimateWithGraph(dataSetIterator, graph,
                         index -> index > scoreN
                             /* first output represents probabilityIsCalled of mutation */);
