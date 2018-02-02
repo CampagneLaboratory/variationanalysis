@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
@@ -20,9 +21,9 @@ public class GenotypeTrainingPerformanceHelperWithAUC extends GenotypeTrainingPe
     AreaUnderTheROCCurve aucCalculator = new AreaUnderTheROCCurve(100000);
     private double observedAUC_F1;
 
-    public GenotypeTrainingPerformanceHelperWithAUC(DomainDescriptor<BaseInformationRecords.BaseInformation> domainDescriptor) {
-        super(domainDescriptor);
-        delegate = new GenotypeTrainingPerformanceHelper(domainDescriptor);
+    public GenotypeTrainingPerformanceHelperWithAUC(DomainDescriptor<BaseInformationRecords.BaseInformation> domainDescriptor, Model model) {
+        super(domainDescriptor, model);
+        delegate = new GenotypeTrainingPerformanceHelper(domainDescriptor, model);
     }
 
     public double estimateWithGraph(MultiDataSetIterator iterator, ComputationGraph graph, Predicate<Integer> stopIfTrue) {

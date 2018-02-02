@@ -29,6 +29,10 @@ public class VectorReader implements Closeable {
     private final boolean returnExampleIds;
     private final int[] vectorIdArray;
 
+    public VectorWriter.VectorProperties getVectorProperties() {
+        return vectorProperties;
+    }
+
     public VectorReader(String inputPath, int sampleId, String[] vectorNames) throws IOException {
         this(inputPath, sampleId, vectorNames,true);
     }

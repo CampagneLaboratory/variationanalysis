@@ -6,6 +6,7 @@ import org.campagnelab.dl.framework.tools.PredictWithModel;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -24,8 +25,8 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
     protected StatsAccumulator accumulator;
 
 
-    public GenotypeTrainingPerformanceHelper(DomainDescriptor<BaseInformationRecords.BaseInformation> domainDescriptor) {
-        super(domainDescriptor);
+    public GenotypeTrainingPerformanceHelper(DomainDescriptor<BaseInformationRecords.BaseInformation> domainDescriptor, Model graph) {
+        super(domainDescriptor,graph);
     }
 
     public double estimateWithGraph(MultiDataSetIterator iterator,

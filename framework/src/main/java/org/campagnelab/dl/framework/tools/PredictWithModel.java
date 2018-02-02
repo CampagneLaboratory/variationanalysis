@@ -1,117 +1,35 @@
 package org.campagnelab.dl.framework.tools;
 
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
-import org.campagnelab.dl.framework.domains.prediction.Prediction;
+import org.campagnelab.dl.framework.domains.prediction.PredictWith;
 import org.campagnelab.dl.framework.domains.prediction.PredictionInterpreter;
-import org.campagnelab.dl.framework.domains.prediction.RecordPredictions;
 import org.campagnelab.dl.framework.models.ModelOutputHelper;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-
 /**
  * Helper class to predict with a model and obtain interpreted predictions.
  */
-public class PredictWithModel<RecordType> {
+public class PredictWithModel<RecordType> extends PredictWith<RecordType> {
     protected DomainDescriptor<RecordType> domainDescriptor;
     ModelOutputHelper outputHelper;
     protected PredictionInterpreter[] interpretors;
+    protected Model model;
 
-    public PredictWithModel(DomainDescriptor<RecordType> domainDescriptor) {
-        this.domainDescriptor = domainDescriptor;
-        outputHelper = new ModelOutputHelper<RecordType>(domainDescriptor);
-        int outputIndex = 0;
-
-        String[] outputNames = domainDescriptor.getComputationalGraph().getOutputNames();
-        interpretors = new PredictionInterpreter[outputNames.length];
-        for (String outputName : outputNames) {
-            interpretors[outputIndex++] = domainDescriptor.getPredictionInterpreter(outputName);
-        }
+    public PredictWithModel(DomainDescriptor<RecordType> domainDescriptor, Model model) {
+        super(domainDescriptor);
+        this.model=model;
     }
 
-    public void makePredictions(Iterator<RecordType> iterator,
-                                Model model,
-                                Consumer<RecordPredictions<RecordType>> doForEachPrediction,
-                                Predicate<Integer> stopIfTrue) {
-        makePredictions(iterator, model,
-                recordType -> {
-        },
-                doForEachPrediction,
-                stopIfTrue);
-    }
-
-    public int makePredictions(MultiDataSet dataSet, List<RecordType> records,
-                                Model model,
-                                Consumer<RecordPredictions<RecordType>> doForEachPrediction,
-                                Predicate<Integer> stopIfTrue, int index) {
-        assert model instanceof ComputationGraph : "MultiDataSet only work with ComputationGraph";
+    public INDArray[] getModelOutputs(MultiDataSet dataSet, int batchSize) {
         ComputationGraph graph=(ComputationGraph)model;
         INDArray[] outputPredictions = graph.output(false,dataSet.getFeatures());
-        List<Prediction> predictions = new ArrayList<>();
-
-        RecordType currentRecord;
-        for (int exampleIndex = 0; exampleIndex<records.size(); exampleIndex++) {
-            predictions.clear();
-            currentRecord=records.get(exampleIndex);
-            for (int outputIndex = 0; outputIndex < domainDescriptor.getNumModelOutputs(); outputIndex++) {
-
-
-                if (interpretors[outputIndex] != null) {
-                    Prediction prediction = interpretors[outputIndex].interpret(currentRecord,
-                                                    outputPredictions[outputIndex].slice(exampleIndex));
-                    prediction.outputIndex = outputIndex;
-                    prediction.index = index;
-                    predictions.add(prediction);
-                }
-            }
-            doForEachPrediction.accept(new RecordPredictions<>(currentRecord, predictions));
-            index++;
-            if (stopIfTrue.test(index)) {
-                break;
-            }
-        }
-        return index;
-
+        return outputPredictions;
     }
 
-    public void makePredictions(Iterator<RecordType> iterator,
-                                Model model,
-                                Consumer<RecordType> observeRecord,
-                                Consumer<RecordPredictions<RecordType>> doForEachPrediction,
-                                Predicate<Integer> stopIfTrue) {
-        int index = 0;
-        List<Prediction> predictions = new ArrayList<>();
-        while (iterator.hasNext()) {
 
-            RecordType currentRecord = iterator.next();
-            observeRecord.accept(currentRecord);
-            outputHelper.predictForNextRecord(model, currentRecord, domainDescriptor.featureMappers(true));
-            predictions.clear();
-            for (int outputIndex = 0; outputIndex < domainDescriptor.getNumModelOutputs(); outputIndex++) {
-                INDArray outputPredictions = outputHelper.getOutput(outputIndex);
-
-                if (interpretors[outputIndex] != null) {
-                    Prediction prediction = interpretors[outputIndex].interpret(currentRecord, outputPredictions);
-                    prediction.outputIndex = outputIndex;
-                    prediction.index = index;
-                    predictions.add(prediction);
-                }
-            }
-
-            doForEachPrediction.accept(new RecordPredictions<>(currentRecord, predictions));
-            index++;
-            if (stopIfTrue.test(index)) {
-                break;
-            }
-        }
-    }
 
 
 }
