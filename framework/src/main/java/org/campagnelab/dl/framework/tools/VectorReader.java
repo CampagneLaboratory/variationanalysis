@@ -2,6 +2,7 @@ package org.campagnelab.dl.framework.tools;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -13,9 +14,7 @@ import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class VectorReader implements Closeable {
     private final VectorWriter.VectorProperties vectorProperties;
@@ -24,9 +23,11 @@ public class VectorReader implements Closeable {
     private final Set<Long> processedExampleIds;
     private final JsonReader propertiesReader;
     private final int sampleId;
-    private final Set<Integer> vectorIds;
+    private final Map<Integer, Integer> vectorIds;
+    private final Map<Integer, int[]> vectorDimensions;
     private final String[] vectorNames;
     private final boolean returnExampleIds;
+    private final int[] vectorIdArray;
 
     public VectorReader(String inputPath, int sampleId, String[] vectorNames) throws IOException {
         this(inputPath, sampleId, vectorNames,true);
@@ -61,24 +62,71 @@ public class VectorReader implements Closeable {
         }
         processedExampleIds = assertExampleIds ? new HashSet<>() : null;
         this.sampleId = sampleId;
-        vectorIds = new HashSet<>();
+        vectorIds = new HashMap<>();
+        vectorDimensions = new HashMap<>();
+        vectorIdArray = new int[vectorNames.length];
+        int vectorIdArrayIdx = 0;
         for (String vectorName : vectorNames) {
             int i = 0;
             for (VectorWriter.VectorProperties.VectorPropertiesVector vectorInfo : vectorProperties.getVectors()) {
                 if (vectorInfo.getVectorName().equals(vectorName)) {
-                    vectorIds.add(i);
+                    vectorIds.put(i, vectorIdArrayIdx);
+                    vectorIdArray[vectorIdArrayIdx++] = i;
+                    vectorDimensions.put(i, vectorInfo.getVectorDimension());
+                    break;
                 }
                 i++;
             }
+        }
+        if (vectorIds.size() != vectorNames.length) {
+            throw new RuntimeException("Vector names not found in vector properties file");
         }
         this.vectorNames = vectorNames;
         this.returnExampleIds = returnExampleIds;
     }
 
-    public RecordVectors getNextExample() {
-        ObjectArrayList<INDArray> vectorArrays = new ObjectArrayList<>(vectorIds.size());
+    public RecordVectors getNextBatch() {
+        return this.getNextBatch(1);
+    }
+
+    public RecordVectors getNextBatch(int batchSize) {
+        LongArrayList nextExampleIds = new LongArrayList(batchSize);
+        ObjectArrayList<INDArray[]> nextExampleArrays = new ObjectArrayList<>(batchSize);
+        Pair<Long, INDArray[]> nextExamplePair;
+        for (int i = 0; i < batchSize; i++) {
+            if ((nextExamplePair = getNextExampleList()) != null) {
+                nextExampleIds.add(nextExamplePair.getLeft());
+                nextExampleArrays.add(nextExamplePair.getRight());
+            } else {
+                break;
+            }
+        }
+        nextExampleIds.trim();
+        nextExampleArrays.trim();
+        INDArray[] indArrays = new INDArray[vectorIds.size()];
+        for (int i = 0; i < indArrays.length; i++) {
+            int[] dims = vectorDimensions.get(vectorIdArray[i]);
+            int[] shape = new int[dims.length + 1];
+            shape[0] = nextExampleIds.size();
+            System.arraycopy(shape, 0, dims, 1, shape.length);
+            indArrays[i] = Nd4j.create(shape, 'c');
+        }
+        long[] nextExampleIdArray = new long[nextExampleIds.size()];
+        nextExampleIdArray = nextExampleIds.toArray(nextExampleIdArray);
+        for (int i = 0; i < nextExampleArrays.size(); i++) {
+            INDArray[] nextExampleINDArray = nextExampleArrays.get(i);
+            for (int j = 0; j < nextExampleINDArray.length; j++) {
+                indArrays[j].putRow(i, nextExampleINDArray[j]);
+            }
+        }
+        return new RecordVectors(nextExampleIdArray, vectorNames, indArrays);
+    }
+
+    private Pair<Long, INDArray[]> getNextExampleList() {
+        INDArray[] vectorArrays = new INDArray[vectorIds.size()];
         Set<Pair<Integer, Integer>> processedVectorSampleIds = new HashSet<>();
         long currExampleId = -1;
+        int filledSlots = 0;
         try {
             for (int i = 0; i < sampleVectorIds.size(); i++) {
                 VectorWriter.VectorLine vectorLine = delegateReader.getNextVectorLine();
@@ -88,11 +136,13 @@ public class VectorReader implements Closeable {
                         throw new RuntimeException(String.format("Example ID %d already processed", currExampleId));
                     }
                 }
-                if (vectorIds.contains(vectorLine.getVectorId()) && vectorLine.getSampleId() == sampleId) {
+                Integer vectorIndexInArray = vectorIds.get(vectorLine.getVectorId());
+                if ((vectorIndexInArray != null) && vectorLine.getSampleId() == sampleId) {
                     float[] vectorElementsArray = new float[vectorLine.getVectorElements().size()];
                     vectorElementsArray = vectorLine.getVectorElements().toArray(vectorElementsArray);
                     int[] vectorShape = vectorProperties.getVectors()[vectorLine.getVectorId()].getVectorDimension();
-                    vectorArrays.add(Nd4j.create(vectorElementsArray, vectorShape, 'c'));
+                    vectorArrays[vectorIndexInArray] = Nd4j.create(vectorElementsArray, vectorShape, 'c');
+                    filledSlots++;
                 }
                 processedVectorSampleIds.add(new ImmutablePair<>(vectorLine.getSampleId(), vectorLine.getVectorId()));
             }
@@ -103,11 +153,10 @@ public class VectorReader implements Closeable {
                                 currExampleId, sampleVectorIds.toString())
                 );
             }
-            INDArray[] returnVectorArrays = new INDArray[vectorArrays.size()];
-            returnVectorArrays = vectorArrays.toArray(returnVectorArrays);
-            return returnExampleIds
-                    ? new RecordVectors(currExampleId, vectorNames, returnVectorArrays)
-                    : new RecordVectors(vectorNames, returnVectorArrays);
+            if (!(filledSlots == vectorIds.size())) {
+                throw new RuntimeException("Missing vectors");
+            }
+            return new ImmutablePair<>(currExampleId, vectorArrays);
         } catch (IOException e) {
             return null;
         }
@@ -119,28 +168,28 @@ public class VectorReader implements Closeable {
         propertiesReader.close();
     }
 
-    static class RecordVectors {
-        private long exampleId;
+    public static class RecordVectors {
+        private long[] exampleIds;
         private String[] vectorNames;
         private INDArray[] vectors;
 
         public RecordVectors(String[] vectorNames, INDArray[] vectors) {
-            this(-1, vectorNames, vectors);
+            this(new long[]{0L}, vectorNames, vectors);
         }
 
-        public RecordVectors(long exampleId, String[] vectorNames, INDArray[] vectors) {
-            this.exampleId = exampleId;
+        public RecordVectors(long[] exampleIds, String[] vectorNames, INDArray[] vectors) {
+            this.exampleIds = exampleIds;
             this.vectorNames = vectorNames;
             this.vectors = vectors;
         }
 
-        public boolean hasExampleId() {
-            return exampleId != -1;
+        public boolean hasExampleIds() {
+            return exampleIds != null;
         }
 
-        public long getExampleId() {
-            if (!hasExampleId()) throw new UnsupportedOperationException("No example ID present");
-            return exampleId;
+        public long[] getExampleIds() {
+            if (!hasExampleIds()) throw new UnsupportedOperationException("No example ID present");
+            return exampleIds;
         }
 
         public String[] getVectorNames() {
@@ -153,8 +202,8 @@ public class VectorReader implements Closeable {
 
         @Override
         public String toString() {
-            return String.format("Example ID: %d\nVector names: %s\nVectors: %s\n",
-                    exampleId, Arrays.toString(vectorNames), Arrays.toString(vectors));
+            return String.format("Example IDs: %d\nVector names: %s\nVectors: %s\n",
+                    Arrays.toString(exampleIds), Arrays.toString(vectorNames), Arrays.toString(vectors));
         }
     }
 }
