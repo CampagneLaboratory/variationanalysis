@@ -112,7 +112,7 @@ public class VectorReader implements Closeable {
             int[] dims = vectorDimensions.get(vectorIdArray[i]);
             int[] shape = new int[dims.length + 1];
             shape[0] = nextExampleIds.size();
-            System.arraycopy(shape, 0, dims, 1, shape.length);
+            System.arraycopy(dims, 0, shape, 1, dims.length);
             indArrays[i] = Nd4j.create(shape, 'c');
         }
         long[] nextExampleIdArray = new long[nextExampleIds.size()];
@@ -206,7 +206,7 @@ public class VectorReader implements Closeable {
 
         @Override
         public String toString() {
-            return String.format("Example IDs: %d\nVector names: %s\nVectors: %s\n",
+            return String.format("Example IDs: %s\nVector names: %s\nVectors: %s\n",
                     Arrays.toString(exampleIds), Arrays.toString(vectorNames), Arrays.toString(vectors));
         }
     }
