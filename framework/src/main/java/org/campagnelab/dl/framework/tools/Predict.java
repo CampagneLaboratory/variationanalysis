@@ -125,7 +125,11 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
             System.out.println("setting output to trio mode");
         }
         // only load a model if there is no vector encoded model output :
-        Model model = args().vecPath == null ? modelLoader.loadModel(prefix) : null;
+        Model model = args().vecPath == null ?
+                modelPath.startsWith("pytorch:") ?
+                        new PyTorchModel(modelPath, modelPrefix)
+                        : modelLoader.loadModel(prefix)
+                : null;
         if (model == null) {
             System.err.println("Cannot load model with prefix: " + prefix);
             System.exit(1);
