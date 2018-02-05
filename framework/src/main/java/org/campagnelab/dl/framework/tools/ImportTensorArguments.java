@@ -18,4 +18,7 @@ public class ImportTensorArguments implements ToolArguments{
     @Parameter(required = true, names = {"-v", "--vector-names"}, variableArity = true,
             description = "Vector names to read in vectors for")
     public List<String> vectorNames;
+
+    @Parameter(names = "--mini-batch-size", description = "The size of the minibatch")
+    public int miniBatchSize = 1;
 }

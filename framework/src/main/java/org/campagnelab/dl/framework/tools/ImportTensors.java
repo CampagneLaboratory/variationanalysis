@@ -30,7 +30,8 @@ public class ImportTensors extends AbstractTool<ImportTensorArguments> {
         ) {
             VectorReader.RecordVectors recordVectors;
             long examplesProcessed = 0;
-            while ((examplesProcessed < args().importN) && ((recordVectors = vectorReader.getNextBatch()) != null)) {
+            while ((examplesProcessed < args().importN)
+                    && ((recordVectors = vectorReader.getNextBatch(args().miniBatchSize)) != null)) {
                 System.out.println(recordVectors);
                 examplesProcessed++;
             }
