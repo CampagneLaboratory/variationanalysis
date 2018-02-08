@@ -58,6 +58,13 @@ public class PredictArguments extends RecordingToolArguments {
 
     @Parameter(names = "--no-cache", description = "Do not create a cache (.cf/.cfp) when this flag is provided.")
     public boolean noCache;
+
     @Parameter(names = {"--vec-path"}, description = "Path of the .vec file containing predictions corresponding to the input dataset.")
     public String vecPath;
+
+    @Parameter(names = {"--domain-path"}, description = "Path to config file for domain descriptor if pytorch model used")
+    public String domainPath;
+
+    @Parameter(names = {"--domain-class"}, description = "Fully qualified class name for domain descriptor")
+    public String domainClass;
 }

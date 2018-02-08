@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 /**
@@ -45,5 +47,31 @@ public class DomainDescriptorLoader {
         } catch (Exception e) {
             throw new RuntimeException("Unable to load domain descriptor with model path: " +modelPath,e);
         }
+    }
+
+    /**
+     * Load the model descriptors associated with a properties file and a specified class. A runtime
+     * exception is thrown is any errors occurs at this point.
+     *
+     * @param domainPropertiesPath path to domain.properties file
+     * @param domainClass fully qualified classname for domain descriptor implementation
+     * @return A model descriptor.
+     */
+    public static DomainDescriptor loadFromProperties(String domainPropertiesPath,
+                                                      String domainClass) {
+        DomainDescriptor domainDescriptor;
+        try (FileInputStream input = new FileInputStream(domainPropertiesPath)) {
+            Properties domainProperties = new Properties();
+            domainProperties.load(input);
+            Class<DomainDescriptor> clazz = (Class<DomainDescriptor>) Class.forName(domainClass);
+            domainDescriptor = clazz.getConstructor(Properties.class, Properties.class).newInstance(domainProperties,
+                    new Properties());
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't load domain descriptor from " + domainPropertiesPath, e);
+        } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException
+                | InvocationTargetException e) {
+            throw new RuntimeException("Couldn't instantiate " + domainClass, e);
+        }
+        return domainDescriptor;
     }
 }

@@ -106,9 +106,9 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
                                   PrintWriter resutsWriter, PrintWriter outputWriter,
                                   boolean outputFileExists) throws IOException {
 
-
-        ModelLoader modelLoader = new ModelLoader(modelPath);
-        String modelTag = modelLoader.getModelProperties().getProperty("tag");
+        boolean pytorchModelUsed = modelPath.startsWith("pytorch:");
+        ModelLoader modelLoader = pytorchModelUsed ? null : new ModelLoader(modelPath);
+        String modelTag = pytorchModelUsed ? "" : modelLoader.getModelProperties().getProperty("tag");
         if (!outputFileExists) {
             outputWriter.append("tag\tprefix");
             for (String metricName : createOutputHeader()) {
@@ -117,16 +117,17 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
             outputWriter.append("\targuments\n");
         }
         // we scale features using statistics observed on the training set:
-        FeatureMapper featureMapper = modelLoader.loadFeatureMapper(modelLoader.getModelProperties());
+        FeatureMapper featureMapper = pytorchModelUsed ? null
+                : modelLoader.loadFeatureMapper(modelLoader.getModelProperties());
         boolean isTrio;
-        if (featureMapper.getClass().getCanonicalName().contains("Trio")) {
+        if (!pytorchModelUsed && featureMapper.getClass().getCanonicalName().contains("Trio")) {
             //we have a trio mapper, need to output features for a third sample
             isTrio = true;
             System.out.println("setting output to trio mode");
         }
         // only load a model if there is no vector encoded model output :
         Model model = args().vecPath == null ?
-                modelPath.startsWith("pytorch:") ?
+                pytorchModelUsed ?
                         new PyTorchModel(modelPath, modelPrefix)
                         : modelLoader.loadModel(prefix)
                 : null;
@@ -134,7 +135,13 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
             System.err.println("Cannot load model with prefix: " + prefix);
             System.exit(1);
         }
-        domainDescriptor = DomainDescriptorLoader.load(modelPath);
+        if (pytorchModelUsed && (args().domainPath == null || args().domainClass == null)) {
+            System.err.println("Cannot load pytorch model without domain path and domain class");
+            System.exit(1);
+        }
+        domainDescriptor = pytorchModelUsed
+                ? DomainDescriptorLoader.loadFromProperties(args().domainPath, args().domainClass)
+                : DomainDescriptorLoader.load(modelPath);
         if (args().vecPath != null) {
             // disable cache when vec is provided. No need to cache since we won't even map the features.
             args().noCache = true;
