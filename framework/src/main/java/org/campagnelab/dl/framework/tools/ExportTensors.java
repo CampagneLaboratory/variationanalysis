@@ -133,7 +133,9 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
             if (path.equals("/")) {
                 path="/.";
             }
-            domainDescriptor.writeProperties(path,getReaderProperties(args().trainingSets.get(0)));
+            Properties propertiesToExport = getReaderProperties(args().trainingSets.get(0));
+            decorateProperties(propertiesToExport);
+            domainDescriptor.writeProperties(path, propertiesToExport);
         } catch (IOException e) {
             System.err.println("Unable to write domain descriptor properties");
         }
