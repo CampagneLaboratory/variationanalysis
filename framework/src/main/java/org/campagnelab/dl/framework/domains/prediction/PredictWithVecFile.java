@@ -18,7 +18,7 @@ public class PredictWithVecFile<RecordType> extends PredictWith<RecordType> {
     public PredictWithVecFile(DomainDescriptor domainDescriptor, String vecPath) throws IOException {
         super(domainDescriptor);
         this.vecPath = vecPath;
-        String[] outputNames = {"softmaxGenotype","metadata"};// TODO: obtain from domainDescriptor.getOutputNames();
+        String[] outputNames = new String[]{"softmaxGenotype"};
         this.numOutputs = outputNames.length;
         this.vectorReader = new VectorReader(vecPath, 0, outputNames);
     }

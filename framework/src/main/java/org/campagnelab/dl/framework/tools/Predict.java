@@ -143,9 +143,11 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
             System.err.println("Cannot load pytorch model without domain path and domain class");
             System.exit(1);
         }
-        domainDescriptor = keepUninitialized
-                ? DomainDescriptorLoader.loadFromProperties(args().domainPath, args().domainClass)
-                : DomainDescriptorLoader.load(modelPath);
+//        domainDescriptor = keepUninitialized
+//                ? DomainDescriptorLoader.loadFromProperties(args().domainPath, args().domainClass)
+//                : DomainDescriptorLoader.load(modelPath);
+        domainDescriptor =
+                 DomainDescriptorLoader.load(modelPath);
         if (args().vecPath != null) {
             // disable cache when vec is provided. No need to cache since we won't even map the features.
             args().noCache = true;

@@ -7,6 +7,7 @@ import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FilenameUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapterMultipleSamples;
+import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -133,9 +134,16 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
             if (path.equals("/")) {
                 path="/.";
             }
+            String inputFiles = Arrays.toString(args().getTrainingSets());
             Properties propertiesToExport = getReaderProperties(args().trainingSets.get(0));
             decorateProperties(propertiesToExport);
             domainDescriptor.writeProperties(path, propertiesToExport);
+            Properties configPropertiesToExport = new Properties();
+            String configPropertiesPath = ModelLoader.getModelPath(path) + "/config.properties";
+            configPropertiesToExport.putAll(propertiesToExport);
+            configPropertiesToExport.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
+            configPropertiesToExport.store(new FileWriter(configPropertiesPath),
+                    "Config properties created from export tensors on files " + inputFiles);
         } catch (IOException e) {
             System.err.println("Unable to write domain descriptor properties");
         }
