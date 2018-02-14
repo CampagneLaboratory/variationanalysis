@@ -111,7 +111,7 @@ public class VectorReader implements Closeable {
         for (int i = 0; i < indArrays.length; i++) {
             int[] dims = vectorDimensions.get(vectorIdArray[i]);
             int[] shape = new int[dims.length + 1];
-            shape[0] = nextExampleIds.size();
+            shape[0] = batchSize;
             System.arraycopy(dims, 0, shape, 1, dims.length);
             indArrays[i] = Nd4j.create(shape, 'c');
         }
