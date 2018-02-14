@@ -111,10 +111,10 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         boolean pytorchModelUsed = modelPath.startsWith("pytorch:");
         boolean vecModelUsed = args().vecPath != null;
         boolean keepUninitialized = pytorchModelUsed || vecModelUsed;
-        ModelLoader modelLoader = keepUninitialized ? null : new ModelLoader(modelPath);
-        String modelTag = keepUninitialized
-                ? "noModel"
-                : modelLoader.getModelProperties().getProperty("tag");
+        ModelLoader modelLoader = pytorchModelUsed ? null : new ModelLoader(modelPath);
+        String modelTag = pytorchModelUsed
+                ? "pytorchModel"
+                : vecModelUsed ? "vecFile" : modelLoader.getModelProperties().getProperty("tag");
         if (!outputFileExists) {
             outputWriter.append("tag\tprefix");
             for (String metricName : createOutputHeader()) {
