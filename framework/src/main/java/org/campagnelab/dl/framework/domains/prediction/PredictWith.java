@@ -2,6 +2,8 @@ package org.campagnelab.dl.framework.domains.prediction;
 
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.models.ModelOutputHelper;
+import org.campagnelab.dl.framework.tools.Predict;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.api.Model;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -31,22 +33,23 @@ public abstract class PredictWith<RecordType> {
         }
     }
 
-    public abstract INDArray[] getModelOutputs(MultiDataSet dataSet, int batchSize);
+    public abstract INDArray[] getModelOutputs(Predict<RecordType> predict,int numOutputs, MultiDataSet dataSet, int batchSize, List<RecordType> records);
 
-    public int makePredictions(MultiDataSet dataSet, List<RecordType> records,
+    public int makePredictions(Predict<RecordType> predict, MultiDataSet dataSet, List<RecordType> records,
                                Consumer<RecordPredictions<RecordType>> doForEachPrediction,
                                Predicate<Integer> stopIfTrue, int index) {
 
         int batchSize=records.size();
-        INDArray[] outputPredictions = getModelOutputs(dataSet,batchSize);
+        INDArray[] outputPredictions = getModelOutputs(predict,domainDescriptor.getNumModelOutputs(), dataSet, batchSize, records);
         List<Prediction> predictions = new ArrayList<>();
 
         RecordType currentRecord;
         for (int exampleIndex = 0; exampleIndex<records.size(); exampleIndex++) {
             predictions.clear();
             currentRecord=records.get(exampleIndex);
-            for (int outputIndex = 0; outputIndex < domainDescriptor.getNumModelOutputs(); outputIndex++) {
+            // take the intersection of model outputs and domain descriptor output to determine how many outputs there are:
 
+            for (int outputIndex = 0; outputIndex < domainDescriptor.getNumModelOutputs(); outputIndex++) {
 
                 if (interpretors[outputIndex] != null) {
                     Prediction prediction = interpretors[outputIndex].interpret(currentRecord,

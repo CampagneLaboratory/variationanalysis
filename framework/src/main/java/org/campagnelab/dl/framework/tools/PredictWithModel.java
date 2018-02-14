@@ -10,6 +10,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Helper class to predict with a model and obtain interpreted predictions.
@@ -36,7 +37,7 @@ public class PredictWithModel<RecordType> extends PredictWith<RecordType> {
         this.model=model;
     }
 
-    public INDArray[] getModelOutputs(MultiDataSet dataSet, int batchSize) {
+    public INDArray[] getModelOutputs(Predict<RecordType> predict, int numOutputs, MultiDataSet dataSet, int batchSize, List<RecordType> records) {
         INDArray[] outputPredictions;
         if (pyTorchModelClient != null) {
             try {

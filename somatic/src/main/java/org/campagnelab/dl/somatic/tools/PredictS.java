@@ -8,6 +8,8 @@ import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.somatic.learning.domains.predictions.IsMutatedBasePrediction;
 import org.campagnelab.dl.somatic.learning.domains.predictions.SomaticFrequencyPrediction;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.PrintWriter;
 import java.util.List;
@@ -41,6 +43,12 @@ public class PredictS extends Predict<BaseInformationRecords.BaseInformation> {
     @Override
     protected void initializeStats(String prefix) {
         aucLossCalculator = new AreaUnderTheROCCurve(args().numRecordsForAUC);
+    }
+
+    @Override
+    public INDArray getModelOutput(int outputIndex, List<BaseInformationRecords.BaseInformation> records) {
+        throw new NotImplementedException();
+
     }
 
     private boolean aucCalculated = false;

@@ -15,7 +15,9 @@ import org.campagnelab.dl.framework.iterators.cache.CacheHelper;
 import org.campagnelab.dl.framework.mappers.FeatureMapper;
 import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.tools.arguments.ConditionRecordingTool;
+import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.deeplearning4j.nn.api.Model;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
@@ -147,7 +149,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
 //                ? DomainDescriptorLoader.loadFromProperties(args().domainPath, args().domainClass)
 //                : DomainDescriptorLoader.load(modelPath);
         domainDescriptor =
-                 DomainDescriptorLoader.load(modelPath);
+                DomainDescriptorLoader.load(modelPath);
         if (args().vecPath != null) {
             // disable cache when vec is provided. No need to cache since we won't even map the features.
             args().noCache = true;
@@ -190,7 +192,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         while (adapterCached.hasNext() && recordIterator.hasNext()) {
 
             MultiDataSet dataset = adapterCached.next();
-            final int datasetSize = dataset==null? 1: dataset.getFeatures(0).size(0);
+            final int datasetSize = dataset == null ? args().miniBatchSize : dataset.getFeatures(0).size(0);
             adapterIndex++;
             records.clear();
             for (int exampleIndex = 0; exampleIndex < datasetSize; exampleIndex++) {
@@ -201,7 +203,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
             }
 
             if (records.size() == datasetSize) {
-                index = predictor.makePredictions(dataset,
+                index = predictor.makePredictions(this,dataset,
                         records,
                         recordPredictions -> {
                             processPredictions(resutsWriter, recordPredictions.record,
@@ -282,6 +284,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
 
     /**
      * An iterator that always returns null, for as long as next is called.
+     *
      * @param <RecordType>
      */
     private class AlwaysMoreIterator<RecordType> extends MultiDataSetIteratorAdapter<RecordType> {
@@ -332,4 +335,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
             return null;
         }
     }
+
+    public abstract INDArray getModelOutput(int outputIndex, List<RecordType> records);
+
 }

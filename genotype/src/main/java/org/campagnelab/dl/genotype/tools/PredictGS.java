@@ -11,6 +11,8 @@ import org.campagnelab.dl.genotype.performance.StatsAccumulator;
 import org.campagnelab.dl.genotype.predictions.SegmentPrediction;
 import org.campagnelab.dl.varanalysis.protobuf.SegmentInformationRecords;
 import org.campagnelab.goby.predictions.FormatIndelVCF;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -293,6 +295,11 @@ public class PredictGS extends Predict<SegmentInformationRecords.SegmentInformat
         stats = new StatsAccumulator();
         stats.initializeStats();
         orderStats = stats.createOutputHeader();
+    }
+
+    @Override
+    public INDArray getModelOutput(int outputIndex, List<SegmentInformationRecords.SegmentInformation> records) {
+        throw new NotImplementedException();
     }
 
 }

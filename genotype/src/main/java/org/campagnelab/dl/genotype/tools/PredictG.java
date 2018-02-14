@@ -12,12 +12,15 @@ import org.campagnelab.dl.framework.performance.AreaUnderTheROCCurve;
 import org.campagnelab.dl.framework.tools.Predict;
 import org.campagnelab.dl.framework.tools.PredictArguments;
 import org.campagnelab.dl.genotype.helpers.GenotypeHelper;
+import org.campagnelab.dl.genotype.mappers.MetaDataLabelMapper;
 import org.campagnelab.dl.genotype.performance.BEDHelper;
 import org.campagnelab.dl.genotype.performance.StatsAccumulator;
 import org.campagnelab.dl.genotype.predictions.GenotypePrediction;
 import org.campagnelab.dl.somatic.util.GenomicSitesVisited;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.predictions.FormatIndelVCF;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -238,7 +241,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                         // NB: bed format is zero-based.
                         bedHelper.add(record.getReferenceId(), record.getPosition(), record.getPosition() + maxLength, fullPred.index,
                                 stats);
-                    }else {
+                    } else {
                         System.err.printf("Genomic site already output for position: %s %d%n", record.getReferenceId(), record.getPosition());
                     }
                     break;
@@ -342,6 +345,23 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
         }
         return true;
     }
+    MetaDataLabelMapper labelMapper = new MetaDataLabelMapper();
 
+
+    @Override
+    public INDArray getModelOutput(int outputIndex, List<BaseInformationRecords.BaseInformation> records) {
+        assert outputIndex == 1 : "can only construct meta data from record.";
+        if (outputIndex == 1) {
+            INDArray metaData = Nd4j.create(records.size(), labelMapper.numberOfLabels());
+            for (int exampleIndex = 0; exampleIndex < records.size(); exampleIndex++) {
+                final BaseInformationRecords.BaseInformation record = records.get(exampleIndex);
+                labelMapper.prepareToNormalize(record,exampleIndex);
+
+                labelMapper.mapLabels(record, metaData, exampleIndex);
+            }
+            return metaData;
+        } else return null;
+
+    }
 
 }
