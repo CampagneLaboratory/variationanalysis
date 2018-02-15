@@ -152,6 +152,17 @@ if [ "${NUM_ARGS}" == 5 ]; then
     fi
 fi
 
+
+if [ -z "${MAX_RECORDS+set}" ]; then
+  export TRAIN_MAX_RECORDS=""
+  export PREDICT_MAX_RECORDS=""
+  echo "MAX_RECORDS not set. Use it to limit how many records are used to training, validation and testing. Set to 10,000 or 100,000 for quick iterations."
+else
+export TRAIN_MAX_RECORDS="-n ${MAX_RECORDS} -x ${MAX_RECORDS}"
+export PREDICT_MAX_RECORDS="-n ${MAX_RECORDS}"
+fi
+PREDICT_OPTIONS=""
+
 if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; then
     echo "VCF_OUTPUT or BED_OBSERVED_REGIONS_OUTPUT are not defined. Running predict for ${DATASET_SBI}."
     MODEL_TIME=`basename ${MODEL_DIR}`
@@ -159,7 +170,7 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
     predict-dataset.sh --model-path ${MODEL_DIR} --model-label ${MODEL_PREFIX} \
         --problem "genotyping:${VECTOR_FILE_PREFIX}" \
         --dataset validation --mini-batch-size ${MINI_BATCH_SIZE} \
-        --output "${VECTOR_FILE_PREFIX}_predicted" --checkpoint-key ${CHECKPOINT_KEY}
+        --output "${VECTOR_FILE_PREFIX}_predicted" --checkpoint-key ${CHECKPOINT_KEY} ${PREDICT_MAX_RECORDS}
     dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
 
     echo "Running predict-genotypes to create VCF and observed region bed.."
