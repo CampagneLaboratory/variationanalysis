@@ -202,7 +202,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
                 records.add(recordIterator.next());
             }
 
-            if (records.size() == datasetSize) {
+
                 index = predictor.makePredictions(this,dataset,
                         records,
                         recordPredictions -> {
@@ -212,10 +212,10 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
                 /* stop if */ nProcessed -> nProcessed > args().scoreN, index
                 );
                 pgReadWrite.update(records.size());
-            } else {
-                System.out.printf("dataset #examples %d and # records (%d) must match. Unable to obtain records for some examples in minibatch. Aborting. ",
+            if (records.size() != datasetSize) {
+                System.out.printf("Warning: dataset #examples %d and # records (%d) must match. Unable to obtain records for some examples in minibatch. ",
                         datasetSize, records.size());
-                break;
+               // break;
             }
 
         }

@@ -202,7 +202,8 @@ public class StatsAccumulator {
         for (int i = 0; i < Math.min(header.length, statsArray.length); i++) {
             System.out.println(header[i] + "=" + statsArray[i]);
         }
-        System.out.printf("Indel TP %d FN %d FP %d TN %d %n", numIndelsTruePositive, numIndelsFalseNegative, numIndelsFalsePositive, numIndelsTrueNegative);
+        System.out.printf("Indels=TP %d FN %d FP %d TN %d %n", numIndelsTruePositive, numIndelsFalseNegative, numIndelsFalsePositive, numIndelsTrueNegative);
+        System.out.printf("SNPs=TP %d FN %d FP %d TN %d %n", numSnpsTruePositive, numSnpsFalseNegative, numSnpsFalsePositive, numSnpsTrueNegative);
     }
 
     public void setNumVariantsExpected(int numVariantsExpected) {
