@@ -244,7 +244,7 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
                     } else {
                         System.err.printf("Genomic site already output for position: %s %d%n", record.getReferenceId(), record.getPosition());
                     }
-                    break;
+
             }
 
         }
