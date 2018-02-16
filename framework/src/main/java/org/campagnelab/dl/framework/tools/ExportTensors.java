@@ -168,7 +168,7 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
             decorateProperties(propertiesToExport);
             domainDescriptor.writeProperties(path, propertiesToExport);
             Properties configPropertiesToExport = new Properties();
-            String configPropertiesPath = ModelLoader.getModelPath(path) + "/config.mergedProperties";
+            String configPropertiesPath = ModelLoader.getModelPath(path) + "/config.properties";
             configPropertiesToExport.putAll(propertiesToExport);
             configPropertiesToExport.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
             configPropertiesToExport.store(new FileWriter(configPropertiesPath),
