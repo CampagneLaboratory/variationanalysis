@@ -3,13 +3,16 @@ package org.campagnelab.dl.framework.tools;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.logging.ProgressLogger;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.campagnelab.dl.framework.domains.DomainDescriptor;
 import org.campagnelab.dl.framework.iterators.MultiDataSetIteratorAdapterMultipleSamples;
 import org.campagnelab.dl.framework.models.ModelLoader;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationReader;
+import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +70,28 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
 
 
         try {
-            Properties properties = getReaderProperties(args().trainingSets.get(0));
+            Properties properties;
+            if (args().sbiList == null) {
+                properties = getReaderProperties(args().trainingSets.get(0));
+            } else {
+                properties = new Properties();
+                String mergedSbipBaseName = FilenameUtils.removeExtension(args().sbiList) + "_merged";
+                try {
+                    BufferedReader sbiListReader = new BufferedReader(new FileReader(args().sbiList));
+                    String currSbiPath;
+                    ObjectList<Properties> sbiProps = new ObjectArrayList<>();
+                    while ((currSbiPath = sbiListReader.readLine()) != null) {
+                        sbiProps.add(getReaderProperties(currSbiPath));
+                    }
+                    SequenceBaseInformationWriter.writeProperties(mergedSbipBaseName, sbiProps);
+                    Reader propertiesReader = new FileReader(mergedSbipBaseName + ".sbip");
+                    properties.load(propertiesReader);
+                    IOUtils.closeQuietly(sbiListReader);
+                    IOUtils.closeQuietly(propertiesReader);
+                } catch (IOException e) {
+                    throw new RuntimeException("Unable to load combined sbips", e);
+                }
+            }
             decorateProperties(properties);
             adapter = new MultiDataSetIteratorAdapterMultipleSamples<RecordType>(domainDescriptor.getRecordIterable(args().trainingSets,
                     (int) args().exportN),

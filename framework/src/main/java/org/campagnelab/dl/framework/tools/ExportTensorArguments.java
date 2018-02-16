@@ -88,4 +88,6 @@ public class ExportTensorArguments implements ToolArguments {
             "caching data for faster training with shuffled datasets.")
     public String vecFileType = "text";
 
+    @Parameter(names = "--sbi-list", description = "Path to .list file containing SBI files that will be used for vector generation.")
+    public String sbiList;
 }
