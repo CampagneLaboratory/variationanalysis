@@ -189,6 +189,10 @@ fi
 
 export VCF_OUTPUT_SORTED=`basename ${VCF_OUTPUT} .vcf`-sorted.vcf
 
+# Force recomputing the sorted version of the files each time:
+rm -f "${VCF_OUTPUT_SORTED}.gz"
+rm -f "${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz"
+
 if [ ! -e "${VCF_OUTPUT_SORTED}.gz" ]; then
 
 
