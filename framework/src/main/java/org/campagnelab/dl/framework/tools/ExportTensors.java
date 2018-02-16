@@ -68,13 +68,15 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         }
         int numRecords = (int) numRecordsLong;
 
-
+        Properties mergedProperties;
         try {
-            Properties properties;
+            // Combine the sbip mergedProperties when provided in a --sbi-list option. This is needed to put the mapped
+            // features in the same space, normalizing by min and max in the stats found in the .sbip files:
+
             if (args().sbiList == null) {
-                properties = getReaderProperties(args().trainingSets.get(0));
+                mergedProperties = getReaderProperties(args().trainingSets.get(0));
             } else {
-                properties = new Properties();
+                mergedProperties = new Properties();
                 String mergedSbipBaseName = FilenameUtils.removeExtension(args().sbiList) + "_merged";
                 try {
                     BufferedReader sbiListReader = new BufferedReader(new FileReader(args().sbiList));
@@ -85,14 +87,14 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
                     }
                     SequenceBaseInformationWriter.writeProperties(mergedSbipBaseName, sbiProps);
                     Reader propertiesReader = new FileReader(mergedSbipBaseName + ".sbip");
-                    properties.load(propertiesReader);
+                    mergedProperties.load(propertiesReader);
                     IOUtils.closeQuietly(sbiListReader);
                     IOUtils.closeQuietly(propertiesReader);
                 } catch (IOException e) {
                     throw new RuntimeException("Unable to load combined sbips", e);
                 }
             }
-            decorateProperties(properties);
+            decorateProperties(mergedProperties);
             adapter = new MultiDataSetIteratorAdapterMultipleSamples<RecordType>(domainDescriptor.getRecordIterable(args().trainingSets,
                     (int) args().exportN),
                     args().miniBatchSize,
@@ -100,7 +102,7 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
                     false,
                     null,
                     sampleIndices.toIntArray(),
-                    properties) {
+                    mergedProperties) {
                 @Override
                 public String getBasename() {
                     return buildBaseName(args().trainingSets);
@@ -162,17 +164,17 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
                 path="/.";
             }
             String inputFiles = Arrays.toString(args().getTrainingSets());
-            Properties propertiesToExport = getReaderProperties(args().trainingSets.get(0));
+            Properties propertiesToExport = mergedProperties;
             decorateProperties(propertiesToExport);
             domainDescriptor.writeProperties(path, propertiesToExport);
             Properties configPropertiesToExport = new Properties();
-            String configPropertiesPath = ModelLoader.getModelPath(path) + "/config.properties";
+            String configPropertiesPath = ModelLoader.getModelPath(path) + "/config.mergedProperties";
             configPropertiesToExport.putAll(propertiesToExport);
             configPropertiesToExport.put("domainDescriptor", domainDescriptor.getClass().getCanonicalName());
             configPropertiesToExport.store(new FileWriter(configPropertiesPath),
-                    "Config properties created from export tensors on files " + inputFiles);
+                    "Config mergedProperties created from export tensors on files " + inputFiles);
         } catch (IOException e) {
-            System.err.println("Unable to write domain descriptor properties");
+            System.err.println("Unable to write domain descriptor mergedProperties");
         }
     }
 
