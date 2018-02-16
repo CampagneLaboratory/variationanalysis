@@ -154,6 +154,14 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
 
     private VectorWriter createVectorWriter() throws IOException {
         VectorWriter vectorWriter;
+        if (args().outputBasename==null && args().inputNamesToExport.size()==1) {
+            String inputBasename=FilenameUtils.getBaseName(args().inputNamesToExport.iterator().next());
+            args().outputBasename=inputBasename;
+        }
+        if (args().outputBasename==null){
+            System.err.println("Please specify -o when using multiple inputs.");
+            System.exit(1);
+        }
         switch (args().vecFileType) {
             case "text":
             case "gzipped+text":

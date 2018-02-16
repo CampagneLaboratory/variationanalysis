@@ -34,9 +34,9 @@ public class ExportTensorArguments implements ToolArguments {
         return this.trainingSets.toArray(new String[this.trainingSets.size()]);
     }
 
-    @Parameter(names = {"-o", "--output"}, required = false, description = "Output basename (possibly including path where output files will be created (i.e., /a/b/out).")
+    @Parameter(names = {"-o", "--output"}, description = "Output basename (possibly including path where output files will be created (i.e., /a/b/out).")
     public
-    String outputBasename = "./exported-tensors";
+    String outputBasename = null;
 
     @Parameter(names = {"--export-input"}, description = "Restrict the exports to the inputs with the specified names. " +
             "If you don't know the names of the inputs, run the tool without this argument, and all input names will be shown. Repeat the option " +
