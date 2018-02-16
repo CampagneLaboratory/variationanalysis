@@ -20,13 +20,15 @@ public class ExportTensorsS extends ExportTensors<BaseInformationRecords.BaseInf
                                                                                         List<String> trainingSets,
                                                                                         int genomicContextLength,
                                                                                         float labelSmoothingEpsilon,
-                                                                                        int ploidy) {
+                                                                                        int ploidy,
+                                                                                        int extraGenotypes) {
         SomaticTrainingArguments trainingArguments=new SomaticTrainingArguments();
         trainingArguments.featureMapperClassname=featureMapperClassName;
 
         trainingArguments.genomicContextLength=genomicContextLength;
         trainingArguments.labelSmoothingEpsilon=labelSmoothingEpsilon;
         trainingArguments.ploidy=ploidy;
+        trainingArguments.extraGenotypes=extraGenotypes;
         trainingArguments.trainingSets=new ArrayList<>();
         trainingArguments.trainingSets.addAll(trainingSets);
 
@@ -34,6 +36,8 @@ public class ExportTensorsS extends ExportTensors<BaseInformationRecords.BaseInf
         this.domainDescriptor = domainDescriptor;
         return domainDescriptor;
     }
+
+
 
     /**
      * Record arguments to the properties, that need to be provided to feature/label mappers.
