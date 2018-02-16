@@ -13,10 +13,14 @@ if [ "${NUM_ARGS}" == 5 ]; then
 fi
 
 if [ ! "${NUM_ARGS}" == "${NUM_ARGS_EXPECTED}" ]; then
-   echo "Usage: evaluate-genotypes-vec.sh model-directory [model-prefix checkpoint-key vec-prefix test-sbi]."
+   echo "Usage: evaluate-genotypes-vec.sh model-directory [checkpoint-key model-prefix test-sbi dataset]."
    echo "The env variables GOLD_STANDARD_VCF_SNP_GZ GOLD_STANDARD_VCF_INDEL_GZ and GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ can be used to change the VCFs and confident region bed."
    echo "The first run downloads these files from the Genome in a Bottle for sample NA12878 when the variables are not defined."
-   echo "The 2nd-5th arguments are optional. You can bypass the predict phase by defining the variables VCF_OUTPUT and BED_OBSERVED_REGIONS_OUTPUT to point to the output of predict"
+   echo "The first argument should point to the directory of the trained PyTorch model being used with a config.properties within."
+   echo "The 2nd-5th arguments are optional. The 2nd argument should be the checkpoint key used and the 3rd should be the model prefix (usually best or latest)."
+   echo "The 4th argument should be a path to the test SBI file, and the 5th should be the name of the dataset used for the sbi."
+   echo "The SBI file should be named according to the convention <basename>-<dataset>.sbi, with a corresponding <basename>-<dataset>.vec file in the same directory."
+   echo "You can bypass the predict phase by defining the variables VCF_OUTPUT and BED_OBSERVED_REGIONS_OUTPUT to point to the output of predict"
    exit 1;
 fi
 MODEL_DIR=$1
@@ -66,7 +70,7 @@ function assertTorchInstalled {
 assertTorchInstalled
 
 function assertTorchnetInstalled {
-    python -c "import torchnet" >/dev/null 2>&1 || { echo >&2 "This script requires torchnet to be installed. Aborting. Check to make sure torchnet (https://github.com/pytorch/tntg) is installed in your current environment or venv."; exit 1; }
+    python -c "import torchnet" >/dev/null 2>&1 || { echo >&2 "This script requires torchnet to be installed. Aborting. Check to make sure torchnet (https://github.com/pytorch/tnt) is installed in your current environment or venv."; exit 1; }
 }
 
 assertTorchnetInstalled
@@ -80,11 +84,6 @@ assertPredictDatasetInstalled
 if [ -z "${MINI_BATCH_SIZE+set}" ]; then
     MINI_BATCH_SIZE="2048"
     echo "MINI_BATCH_SIZE set to ${MINI_BATCH_SIZE}. Change the variable to switch the mini-batch-size."
-fi
-
-if [ -z "${DATASET_NAME+set}" ]; then
-    DATASET_NAME="validation"
-    echo "DATASET_NAME set to ${DATASET_NAME}. Change the variable to switch the dataset used for predict."
 fi
 
 set -x
@@ -138,16 +137,18 @@ if [ -z "${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ+set}" ]; then
 fi
 
 if [ "${NUM_ARGS}" == 5 ]; then
-    MODEL_PREFIX=$2
-    CHECKPOINT_KEY=$3
-    VECTOR_FILE_PREFIX=$4
-    DATASET_SBI=$5
-    if [ ! -e "${VECTOR_FILE_PREFIX}-validation.vec" ]; then
-        echo "Vector files with prefix ${VECTOR_FILE_PREFIX} were not found."
+    CHECKPOINT_KEY=$2
+    MODEL_PREFIX=$3
+    DATASET_SBI=$4
+    if [ ! -e "${DATASET_SBI}" ]; then
+        echo "The SBI file was not found: ${DATASET_SBI}  "
         exit 1;
     fi
-    if [ ! -e "${DATASET_SBI}" ]; then
-        echo "The SBI test set was not found: ${DATASET_SBI}  "
+    DATASET_NAME=$5
+    DATASET_BASENAME="`dirname ${DATASET_SBI}`/`basename ${DATASET_SBI} "-${DATASET_NAME}.sbi"`"
+    DATASET_VEC="${DATASET_BASENAME}-${DATASET_NAME}.vec"
+    if [ ! -e "${DATASET_VEC}" ]; then
+        echo "The vector file was not found: ${DATASET_VEC}"
         exit 1;
     fi
 fi
@@ -157,14 +158,14 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
     MODEL_TIME=`basename ${MODEL_DIR}`
     echo "Running predict-dataset to create output vector file from trained PyTorch model..."
     predict-dataset.sh --model-path ${MODEL_DIR} --model-label ${MODEL_PREFIX} \
-        --problem "genotyping:${VECTOR_FILE_PREFIX}" \
+        --problem "genotyping:${DATASET_BASENAME}" \
         --dataset validation --mini-batch-size ${MINI_BATCH_SIZE} \
-        --output "${VECTOR_FILE_PREFIX}_predicted" --checkpoint-key ${CHECKPOINT_KEY}
+        --output "${DATASET_BASENAME}_predicted" --checkpoint-key ${CHECKPOINT_KEY}
     dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
 
     echo "Running predict-genotypes to create VCF and observed region bed.."
     predict-genotypes.sh 20g -m ${MODEL_DIR} -l ${MODEL_PREFIX} -f -i ${DATASET_SBI} \
-        --format VCF --mini-batch-size ${MINI_BATCH_SIZE} --vec-path "${VECTOR_FILE_PREFIX}_predicted.vec" \
+        --format VCF --mini-batch-size ${MINI_BATCH_SIZE} --vec-path "${DATASET_BASENAME}_predicted.vec" \
          ${PREDICT_OPTIONS}  --no-cache ${PREDICT_MAX_RECORDS}
     dieIfError "Failed to create vcf from ${MODEL_DIR}/."
     echo "Evaluation with rtg vcfeval starting.."
@@ -225,7 +226,6 @@ dieIfError "Failed to run rtg vcfeval."
 cp ${VCF_OUTPUT_SORTED}-indels.vcf.gz  ${RTG_OUTPUT_FOLDER}/indel/
 
 MODEL_TIME=`basename ${MODEL_DIR}`
-grep ${MODEL_TIME} model-conditions.txt >${RTG_OUTPUT_FOLDER}/model-conditions.txt
 grep ${MODEL_TIME} predict-statistics.tsv   >${RTG_OUTPUT_FOLDER}/predict-statistics.tsv
 
 
