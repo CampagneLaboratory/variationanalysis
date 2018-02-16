@@ -27,6 +27,9 @@ public class ExportTensorArguments implements ToolArguments {
     @Parameter(names = {"-n", "--export-n"}, description = "Export at most n records.")
     public int exportN = Integer.MAX_VALUE;
 
+    @Parameter(names = "--extra-genotypes", description = "Number of genotypes considered after accounting for ploidy.")
+    public int extraGenotypes = 1;
+
     public String[] getTrainingSets() {
         return this.trainingSets.toArray(new String[this.trainingSets.size()]);
     }

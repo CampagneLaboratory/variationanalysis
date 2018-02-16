@@ -26,7 +26,10 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
     static private Logger LOG = LoggerFactory.getLogger(ExportTensors.class);
 
     protected abstract DomainDescriptor<RecordType> domainDescriptor(String featureMapperClassName,
-                                                                     List<String> trainingSets, int genomicContextLength, float labelSmoothingEpsilon, int ploidy);
+                                                                     List<String> trainingSets,
+                                                                     int genomicContextLength,
+                                                                     float labelSmoothingEpsilon,
+                                                                     int ploidy, int extraGenotypes);
 
     protected abstract void decorateProperties(Properties decorateProperties);
 
@@ -50,7 +53,7 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         }
         DomainDescriptor<RecordType> domainDescriptor = domainDescriptor(args().featureMapperClassname,
                 args().trainingSets, args().genomicContextLength, args().labelSmoothingEpsilon,
-                args().ploidy);
+                args().ploidy, args().extraGenotypes);
 
         MultiDataSetIteratorAdapterMultipleSamples<RecordType> adapter;
         IntArrayList sampleIndices = new IntArrayList();
