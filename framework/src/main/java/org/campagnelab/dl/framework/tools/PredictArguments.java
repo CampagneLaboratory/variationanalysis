@@ -38,11 +38,11 @@ public class PredictArguments extends RecordingToolArguments {
 
     @Parameter(names = {"--filter-p-min"},
             description = "Only output prediction with Math.max(pLabelTrue,pLabelFalse)>= x, --filter-p-min x.")
-    public double pFilterMinimum = 0;
+    public double pFilterMinimum = Double.NEGATIVE_INFINITY;
 
     @Parameter(names = {"--filter-p-max"},
-            description = "Only output prediction with Math.max(pLabelTrue,pLabelFalse)<= x, --filter-p-max x.")
-    public double pFilterMaximum = 1;
+            description = "Only output prediction with Math.min(pLabelTrue,pLabelFalse)<= x, --filter-p-max x.")
+    public double pFilterMaximum = Double.POSITIVE_INFINITY;
 
     @Parameter(names = {"-f", "--to-file"}, description = "Write output to a file (file created under predictions/modelTime). If not provided, write to stdout.")
     public boolean toFile = false;

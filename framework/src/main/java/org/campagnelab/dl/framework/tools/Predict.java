@@ -202,16 +202,15 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
                 records.add(recordIterator.next());
             }
 
-
-                index = predictor.makePredictions(this,dataset,
-                        records,
-                        recordPredictions -> {
-                            processPredictions(resutsWriter, recordPredictions.record,
-                                    recordPredictions.predictions);
-                        },
+            index = predictor.makePredictions(this, dataset,
+                    records,
+                    recordPredictions -> {
+                        processPredictions(resutsWriter, recordPredictions.record,
+                                recordPredictions.predictions);
+                    },
                 /* stop if */ nProcessed -> nProcessed > args().scoreN, index
-                );
-                pgReadWrite.update(records.size());
+            );
+            pgReadWrite.update(records.size());
             if (records.size() != datasetSize) {
                 System.out.printf("Warning: dataset #examples %d and # records (%d) must match. Unable to obtain records for some examples in minibatch. ",
                         datasetSize, records.size());
