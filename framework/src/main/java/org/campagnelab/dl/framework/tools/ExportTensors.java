@@ -154,8 +154,16 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
 
     private VectorWriter createVectorWriter() throws IOException {
         VectorWriter vectorWriter;
-        if (args().outputBasename==null && args().inputNamesToExport.size()==1) {
-            String inputBasename=FilenameUtils.getBaseName(args().inputNamesToExport.iterator().next());
+        if (args().outputBasename==null && args().trainingSets.size()==1) {
+            // construct the output basename with a path:
+            final String filename = args().trainingSets.iterator().next();
+            String inputBasename=FilenameUtils.getPath(filename)+FilenameUtils.getBaseName(filename);
+            if (filename.startsWith("/")) {
+                inputBasename="/"+inputBasename;
+            }
+            if (FilenameUtils.getPathNoEndSeparator(filename).equals("")){
+                inputBasename="./"+inputBasename;
+            }
             args().outputBasename=inputBasename;
         }
         if (args().outputBasename==null){
