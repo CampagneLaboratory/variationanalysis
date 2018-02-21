@@ -6,6 +6,7 @@ import org.campagnelab.goby.util.WarningCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -15,11 +16,17 @@ import java.util.Properties;
  */
 public class SoftmaxLabelMapper extends CountSortingLabelMapper implements ConfigurableFeatureMapper {
 
-    WarningCounter unableToRepresent = new WarningCounter(10);
+    private WarningCounter unableToRepresent = new WarningCounter(10);
     private final float epsilon;
+
+    public void setMaxCalledAlleles(int maxCalledAlleles) {
+        this.maxCalledAlleles = maxCalledAlleles;
+        MAX_VALUE = (int) Math.pow(2, maxCalledAlleles);
+    }
+
     public int maxCalledAlleles;
     static private Logger LOG = LoggerFactory.getLogger(SoftmaxLabelMapper.class);
-
+    private int MAX_VALUE;
 
     /**
      * @param sortCounts
@@ -30,11 +37,9 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
 
         super(sortCounts);
         if (!sortCounts) LOG.warn("You should only useSoftmaxLabelMapper with unsorted counts in tests. ");
-        // this.maxCalledAlleles = 8;
-        this.maxCalledAlleles = maxCalledAlleles;
-        //    this.maxCalledAlleles = 8;
-        this.epsilon = epsilon;
 
+        this.epsilon = epsilon;
+        setMaxCalledAlleles(maxCalledAlleles);
     }
 
     public SoftmaxLabelMapper(int sampleIndex, boolean sortCounts, int ploidy) {
@@ -44,7 +49,7 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
 
     @Override
     public int numberOfLabels() {
-        return (int) Math.pow(2, maxCalledAlleles) + 1;
+        return (MAX_VALUE + 1);
     }
 
     private int cachedValue;
@@ -55,11 +60,12 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
         for (boolean called : isCalled) {
             cachedValue |= (called ? 1 : 0) << index;
             index++;
-            if (index > maxCalledAlleles) {
-                // too many alleles called to represent.
-                cachedValue |= (called ? 1 : 0) << index;
+            if (cachedValue > MAX_VALUE) {
                 break;
             }
+        }
+        if (cachedValue > MAX_VALUE) {
+            cachedValue = MAX_VALUE;
         }
 
     }
@@ -70,16 +76,17 @@ public class SoftmaxLabelMapper extends CountSortingLabelMapper implements Confi
         super.prepareToNormalize(record, indexOfRecord);
         cachedValue = 0;
         int index = 0;
-        for (BaseInformationRecords.CountInfo count : sortedCountRecord.getSamples(this.sampleIndex).getCountsList()) {
+        final List<BaseInformationRecords.CountInfo> countsList = sortedCountRecord.getSamples(this.sampleIndex).getCountsList();
+        for (BaseInformationRecords.CountInfo count : countsList) {
             cachedValue |= (count.getIsCalled() ? 1 : 0) << index;
             index++;
-            if (index > maxCalledAlleles) {
-                // too many alleles called to represent.
-                cachedValue |= (count.getIsCalled() ? 1 : 0) << index;
+            if (cachedValue > MAX_VALUE) {
                 break;
             }
         }
-
+        if (cachedValue > MAX_VALUE) {
+            cachedValue = MAX_VALUE;
+        }
         if (cachedValue == 0) {
             unableToRepresent.warn(LOG, "Unable to represent genotype, reached past max index (ploidy + extra-genotype)=" + index);
         }

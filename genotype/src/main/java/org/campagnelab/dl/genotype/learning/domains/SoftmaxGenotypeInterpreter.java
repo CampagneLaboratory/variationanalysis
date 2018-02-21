@@ -52,13 +52,17 @@ public class SoftmaxGenotypeInterpreter implements PredictionInterpreter<BaseInf
     private int readPredicted(INDArray output, SoftmaxGenotypePrediction result, int predictionIndex) {
         maxProbability = -1;
         int maxIndex = -1;
-
+        // There are exactly numBits+1.
         for (int i = 0; i < numBits; i++) {
             double outputDouble = output.getDouble(predictionIndex, i);
             if (maxProbability < outputDouble) {
                 maxIndex = i;
                 maxProbability = outputDouble;
             }
+        }
+        if (maxIndex==-1) {
+            // past max number of bits allocated. Equivalent to no call.
+            maxIndex=numBits+1;
         }
         return maxIndex;
     }
