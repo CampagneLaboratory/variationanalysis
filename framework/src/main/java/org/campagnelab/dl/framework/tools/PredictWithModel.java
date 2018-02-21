@@ -17,9 +17,6 @@ import java.util.List;
  */
 public class PredictWithModel<RecordType> extends PredictWith<RecordType> {
     private final PyTorchModelClient pyTorchModelClient;
-    protected DomainDescriptor<RecordType> domainDescriptor;
-    ModelOutputHelper outputHelper;
-    protected PredictionInterpreter[] interpretors;
     protected Model model;
 
     public PredictWithModel(DomainDescriptor<RecordType> domainDescriptor, Model model) {

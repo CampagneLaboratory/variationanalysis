@@ -38,7 +38,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
     }
 
     public double estimateWithGraph(MultiDataSetIterator iterator,
-                                    ComputationGraph graph,
+                                    ComputationGraph graphUnused,
                                     Predicate<Integer> stopIfTrue,
                                     Consumer<GenotypePrediction> observer, Consumer<Double> scoreObserver) {
         iterator.reset();
@@ -47,7 +47,7 @@ public class GenotypeTrainingPerformanceHelper extends PredictWithModel<BaseInfo
         int index = 0;
         int nProcessed = 0;
         int nCorrect = 0;
-
+        ComputationGraph graph= (ComputationGraph) model;
         List<Prediction> predictions = new ArrayList<>();
         while (iterator.hasNext()) {
             MultiDataSet next = iterator.next();
