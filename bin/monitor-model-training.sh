@@ -18,7 +18,7 @@ if [ $# -eq 0 ]; then
 fi
 
 function assertEvaluateInstalled {
-    evaluate-genotypes-vec.sh >/dev/null 2>&1 || { echo >&2 "This script requires evaluate-genotypes-vec.sh from Variation to be in your path. Aborting. Check to make sure it is in your path before running, then try again."; exit 1; }
+    evaluate-genotypes-vec.sh -h >/dev/null 2>&1 || { echo >&2 "This script requires evaluate-genotypes-vec.sh from Variation to be in your path. Aborting. Check to make sure it is in your path before running, then try again."; exit 1; }
 }
 
 assertEvaluateInstalled

@@ -29,6 +29,86 @@ if [ -e configure.sh ]; then
 fi
 
 
+MODEL_DIR=""
+CHECKPOINT_KEY=""
+MODEL_PREFIX=""
+DATASET_SBI=""
+DATASET_NAME=""
+OUTPUT_SUFFIX=""
+DATASET_BASENAME=""
+DATASET_VEC=""
+
+# Use getopts in this evaluate script to allow for multiple optional arguments (-r, set of -cptd)
+while getopts ":hm:c:p:t:d:r:" opt; do
+    case "${opt}" in
+        h)
+            echo "${USAGE_STR}"
+            exit 0
+            ;;
+        m)
+            MODEL_DIR=$OPTARG
+            ;;
+        c)
+            CHECKPOINT_KEY=$OPTARG
+            ;;
+        p)
+            MODEL_PREFIX=$OPTARG
+            ;;
+        t)
+            DATASET_SBI=$OPTARG
+            ;;
+        d)
+            DATASET_NAME=$OPTARG
+            ;;
+        r)
+            OUTPUT_SUFFIX=$OPTARG
+            ;;
+        \?)
+            echo "Invalid option: -${OPTARG}" 1>&2
+            exit 1;
+            ;;
+        :)
+            echo "Invalid Option: -$OPTARG requires an argument" 1>&2
+            exit 1
+            ;;
+    esac
+done
+shift $((OPTIND -1))
+
+DATASET_BASENAME="`dirname ${DATASET_SBI}`/`basename ${DATASET_SBI} "-${DATASET_NAME}.sbi"`"
+DATASET_VEC="${DATASET_BASENAME}-${DATASET_NAME}.vec"
+
+if [ -z "${MODEL_DIR}" ]; then
+    echo "You must set a model directory to use with -m."
+    exit 1
+fi
+
+ERROR_STR=$(cat <<-END
+   You must specify either VCF_OUTPUT and BED_OBSERVED_REGIONS_OUTPUT,
+   or specify a checkpoint key, model prefix, test SBI, and dataset name on the command line (via -c, -p, -t, and -d)
+END
+)
+
+# Either all of -cptd should be set via command line, in which case can unset predict bypass, or predict bypass needs to be set
+if [ -z "${CHECKPOINT_KEY}" ] || [ -z "${MODEL_PREFIX}" ] || [ -z "${DATASET_SBI}" ] || [ -z "${DATASET_NAME}" ]; then
+    if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; then
+        echo "${ERROR_STR}"
+        exit 1
+    fi
+else
+    unset VCF_OUTPUT
+    unset BED_OBSERVED_REGIONS_OUTPUT
+fi
+
+if [ ! -e "${DATASET_VEC}" ]; then
+    echo "The vector file was not found: ${DATASET_VEC}"
+    exit 1;
+fi
+
+if [ -z "${OUTPUT_SUFFIX}" ]; then
+    OUTPUT_SUFFIX=${RANDOM}
+fi
+
 if [ -z "${RTG_TEMPLATE+set}" ]; then
     RTG_TEMPLATE="hg19.sdf"
     echo "RTG_TEMPLATE not set, using default=${RTG_TEMPLATE}"
@@ -133,86 +213,6 @@ if [ -z "${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ+set}" ]; then
     GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ="GIAB-NA12878-confident-regions-chr.bed.gz"
     echo 'export GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ="GIAB-NA12878-confident-regions-chr.bed.gz"' >>configure.sh
     echo "Gold standard confident regions downloaded for NA12878  and named in configure.sh. Edit GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ to switch to a different gold-standard confident region bed file."
-fi
-
-MODEL_DIR=""
-CHECKPOINT_KEY=""
-MODEL_PREFIX=""
-DATASET_SBI=""
-DATASET_NAME=""
-OUTPUT_SUFFIX=""
-DATASET_BASENAME=""
-DATASET_VEC=""
-
-# Use getopts in this evaluate script to allow for multiple optional arguments (-r, set of -cptd)
-while getopts ":hm:c:p:t:d:r:" opt; do
-    case "${opt}" in
-        h)
-            echo "${USAGE_STR}"
-            exit 0
-            ;;
-        m)
-            MODEL_DIR=$OPTARG
-            ;;
-        c)
-            CHECKPOINT_KEY=$OPTARG
-            ;;
-        p)
-            MODEL_PREFIX=$OPTARG
-            ;;
-        t)
-            DATASET_SBI=$OPTARG
-            ;;
-        d)
-            DATASET_NAME=$OPTARG
-            ;;
-        r)
-            OUTPUT_SUFFIX=$OPTARG
-            ;;
-        \?)
-            echo "Invalid option: -${OPTARG}" 1>&2
-            exit 1;
-            ;;
-        :)
-            echo "Invalid Option: -$OPTARG requires an argument" 1>&2
-            exit 1
-            ;;
-    esac
-done
-shift $((OPTIND -1))
-
-DATASET_BASENAME="`dirname ${DATASET_SBI}`/`basename ${DATASET_SBI} "-${DATASET_NAME}.sbi"`"
-DATASET_VEC="${DATASET_BASENAME}-${DATASET_NAME}.vec"
-
-if [ -z "${MODEL_DIR}" ]; then
-    echo "You must set a model directory to use with -m."
-    exit 1
-fi
-
-ERROR_STR=$(cat <<-END
-   You must specify either VCF_OUTPUT and BED_OBSERVED_REGIONS_OUTPUT,
-   or specify a checkpoint key, model prefix, test SBI, and dataset name on the command line (via -c, -p, -t, and -d)
-END
-)
-
-# Either all of -cptd should be set via command line, in which case can unset predict bypass, or predict bypass needs to be set
-if [ -z "${CHECKPOINT_KEY}" ] || [ -z "${MODEL_PREFIX}" ] || [ -z "${DATASET_SBI}" ] || [ -z "${DATASET_NAME}" ]; then
-    if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; then
-        echo "${ERROR_STR}"
-        exit 1
-    fi
-else
-    unset VCF_OUTPUT
-    unset BED_OBSERVED_REGIONS_OUTPUT
-fi
-
-if [ ! -e "${DATASET_VEC}" ]; then
-    echo "The vector file was not found: ${DATASET_VEC}"
-    exit 1;
-fi
-
-if [ -z "${OUTPUT_SUFFIX}" ]; then
-    OUTPUT_SUFFIX=${RANDOM}
 fi
 
 if [ -z "${MAX_RECORDS+set}" ]; then
