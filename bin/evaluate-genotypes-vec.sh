@@ -1,43 +1,42 @@
 #!/usr/bin/env bash
 
-NUM_ARGS="$#"
-NUM_ARGS_EXPECTED="${NUM_ARGS}"
+USAGE_STR=$(cat <<-END
+    Usage: evaluate-genotypes-vec.sh -m model-directory [-c checkpoint-key -p model-prefix -t test-sbi -d dataset -r output-suffix -h]
+    The env variables GOLD_STANDARD_VCF_SNP_GZ GOLD_STANDARD_VCF_INDEL_GZ and GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ can be used to change the VCFs and confident region bed.
+    The first run downloads these files from the Genome in a Bottle for sample NA12878 when the variables are not defined.
+    -m should point to the directory containing a models/ directory of trained PyTorch models and a config.properties file.
+    -c, -p, -t, and -d are optional
+    -c should be the checkpoint key used and -p should be the model prefix (usually best or latest)
+    -t should be a path to the test SBI file, and -d should be the name of the dataset used for the sbi.
+    -r, if it is present, sets the suffix for the output directory; if not present, it defaults to a random number
+    -h outputs usage information about the script
+    The SBI file should be named according to the convention <basename>-<dataset>.sbi, with a corresponding <basename>-<dataset>.vec file in the same directory.
+    You can bypass the predict phase by defining the variables VCF_OUTPUT and BED_OBSERVED_REGIONS_OUTPUT to point to the output of predict
+END
+)
+
 . `dirname "${BASH_SOURCE[0]}"`/common.sh
-if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; then
-  NUM_ARGS_EXPECTED=5
-fi
 
-if [ "${NUM_ARGS}" == 5 ]; then
-  unset VCF_OUTPUT
-  unset BED_OBSERVED_REGIONS_OUTPUT
-fi
 
-if [ ! "${NUM_ARGS}" == "${NUM_ARGS_EXPECTED}" ]; then
-   echo "Usage: evaluate-genotypes-vec.sh model-directory [checkpoint-key model-prefix test-sbi dataset]."
-   echo "The env variables GOLD_STANDARD_VCF_SNP_GZ GOLD_STANDARD_VCF_INDEL_GZ and GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ can be used to change the VCFs and confident region bed."
-   echo "The first run downloads these files from the Genome in a Bottle for sample NA12878 when the variables are not defined."
-   echo "The first argument should point to the directory of the trained PyTorch model being used with a config.properties within."
-   echo "The 2nd-5th arguments are optional. The 2nd argument should be the checkpoint key used and the 3rd should be the model prefix (usually best or latest)."
-   echo "The 4th argument should be a path to the test SBI file, and the 5th should be the name of the dataset used for the sbi."
-   echo "The SBI file should be named according to the convention <basename>-<dataset>.sbi, with a corresponding <basename>-<dataset>.vec file in the same directory."
-   echo "You can bypass the predict phase by defining the variables VCF_OUTPUT and BED_OBSERVED_REGIONS_OUTPUT to point to the output of predict"
-   exit 1;
+if [ $# -eq 0 ]; then
+    echo "${USAGE_STR}"
+    exit 0
 fi
-MODEL_DIR=$1
 
 if [ -e configure.sh ]; then
- echo "Loading configure.sh"
- source configure.sh
+    echo "Loading configure.sh"
+    source configure.sh
 fi
 
+
 if [ -z "${RTG_TEMPLATE+set}" ]; then
-  RTG_TEMPLATE="hg19.sdf"
-  echo "RTG_TEMPLATE not set, using default=${RTG_TEMPLATE}"
+    RTG_TEMPLATE="hg19.sdf"
+    echo "RTG_TEMPLATE not set, using default=${RTG_TEMPLATE}"
 fi
 
 if [ ! -e "${RTG_TEMPLATE}" ]; then
- echo "You must install an rtg template, or build one (rtg format file.fa -o template.sdf) in the current directory. See rtg downloads at http://www.realtimegenomics.com/news/pre-formatted-reference-datasets/"
- exit 10;
+    echo "You must install an rtg template, or build one (rtg format file.fa -o template.sdf) in the current directory. See rtg downloads at http://www.realtimegenomics.com/news/pre-formatted-reference-datasets/"
+    exit 10;
 fi
 
 function assertRTGInstalled {
@@ -100,7 +99,7 @@ if [ -z "${GOLD_STANDARD_VCF_SNP_GZ+set}" ] || [ -z "${GOLD_STANDARD_VCF_INDEL_G
         echo 'export GOLD_STANDARD_VCF_GZ="GIAB-NA12878-confident-chr.vcf.gz"' >>configure.sh
         export GOLD_STANDARD_VCF_GZ="GIAB-NA12878-confident-chr.vcf.gz"
     else
-      echo "Formatting GOLD_STANDARD_VCF_GZ VCF for SNPs and indels"
+        echo "Formatting GOLD_STANDARD_VCF_GZ VCF for SNPs and indels"
     fi
 
     # remove non-SNPs:
@@ -136,28 +135,90 @@ if [ -z "${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ+set}" ]; then
     echo "Gold standard confident regions downloaded for NA12878  and named in configure.sh. Edit GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ to switch to a different gold-standard confident region bed file."
 fi
 
-if [ "${NUM_ARGS}" == 5 ]; then
-    CHECKPOINT_KEY=$2
-    MODEL_PREFIX=$3
-    DATASET_SBI=$4
-    if [ ! -e "${DATASET_SBI}" ]; then
-        echo "The SBI file was not found: ${DATASET_SBI}  "
-        exit 1;
-    fi
-    DATASET_NAME=$5
-    DATASET_BASENAME="`dirname ${DATASET_SBI}`/`basename ${DATASET_SBI} "-${DATASET_NAME}.sbi"`"
-    DATASET_VEC="${DATASET_BASENAME}-${DATASET_NAME}.vec"
-    if [ ! -e "${DATASET_VEC}" ]; then
-        echo "The vector file was not found: ${DATASET_VEC}"
-        exit 1;
-    fi
+MODEL_DIR=""
+CHECKPOINT_KEY=""
+MODEL_PREFIX=""
+DATASET_SBI=""
+DATASET_NAME=""
+OUTPUT_SUFFIX=""
+DATASET_BASENAME=""
+DATASET_VEC=""
+
+# Use getopts in this evaluate script to allow for multiple optional arguments (-r, set of -cptd)
+while getopts ":hm:c:p:t:d:r:" opt; do
+    case "${opt}" in
+        h)
+            echo "${USAGE_STR}"
+            exit 0
+            ;;
+        m)
+            MODEL_DIR=$OPTARG
+            ;;
+        c)
+            CHECKPOINT_KEY=$OPTARG
+            ;;
+        p)
+            MODEL_PREFIX=$OPTARG
+            ;;
+        t)
+            DATASET_SBI=$OPTARG
+            ;;
+        d)
+            DATASET_NAME=$OPTARG
+            ;;
+        r)
+            OUTPUT_SUFFIX=$OPTARG
+            ;;
+        \?)
+            echo "Invalid option: -${OPTARG}" 1>&2
+            exit 1;
+            ;;
+        :)
+            echo "Invalid Option: -$OPTARG requires an argument" 1>&2
+            exit 1
+            ;;
+    esac
+done
+shift $((OPTIND -1))
+
+DATASET_BASENAME="`dirname ${DATASET_SBI}`/`basename ${DATASET_SBI} "-${DATASET_NAME}.sbi"`"
+DATASET_VEC="${DATASET_BASENAME}-${DATASET_NAME}.vec"
+
+if [ -z "${MODEL_DIR}" ]; then
+    echo "You must set a model directory to use with -m."
+    exit 1
 fi
 
+ERROR_STR=$(cat <<-END
+   You must specify either VCF_OUTPUT and BED_OBSERVED_REGIONS_OUTPUT,
+   or specify a checkpoint key, model prefix, test SBI, and dataset name on the command line (via -c, -p, -t, and -d)
+END
+)
+
+# Either all of -cptd should be set via command line, in which case can unset predict bypass, or predict bypass needs to be set
+if [ -z "${CHECKPOINT_KEY}" ] || [ -z "${MODEL_PREFIX}" ] || [ -z "${DATASET_SBI}" ] || [ -z "${DATASET_NAME}" ]; then
+    if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; then
+        echo "${ERROR_STR}"
+        exit 1
+    fi
+else
+    unset VCF_OUTPUT
+    unset BED_OBSERVED_REGIONS_OUTPUT
+fi
+
+if [ ! -e "${DATASET_VEC}" ]; then
+    echo "The vector file was not found: ${DATASET_VEC}"
+    exit 1;
+fi
+
+if [ -z "${OUTPUT_SUFFIX}" ]; then
+    OUTPUT_SUFFIX=${RANDOM}
+fi
 
 if [ -z "${MAX_RECORDS+set}" ]; then
-  export TRAIN_MAX_RECORDS=""
-  export PREDICT_MAX_RECORDS=""
-  echo "MAX_RECORDS not set. Use it to limit how many records are used to training, validation and testing. Set to 10,000 or 100,000 for quick iterations."
+    export TRAIN_MAX_RECORDS=""
+    export PREDICT_MAX_RECORDS=""
+    echo "MAX_RECORDS not set. Use it to limit how many records are used to training, validation and testing. Set to 10,000 or 100,000 for quick iterations."
 else
 export TRAIN_MAX_RECORDS="-n ${MAX_RECORDS} -x ${MAX_RECORDS}"
 export PREDICT_MAX_RECORDS="-n ${MAX_RECORDS}"
@@ -213,7 +274,7 @@ if [ ! -e "${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz" ]; then
 fi
 
 
-RTG_OUTPUT_FOLDER=output-${RANDOM}
+RTG_OUTPUT_FOLDER=output-${OUTPUT_SUFFIX}
 gzip -c -d ${VCF_OUTPUT_SORTED}.gz |awk '{if($0 !~ /^#/) { if (length($4)==1 && length($5)==1) print $0;}  else {print $0}}'  >${VCF_OUTPUT_SORTED}-snps.vcf
 bgzip -f ${VCF_OUTPUT_SORTED}-snps.vcf
 tabix -f ${VCF_OUTPUT_SORTED}-snps.vcf.gz
