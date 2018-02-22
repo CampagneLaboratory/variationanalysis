@@ -6,7 +6,6 @@ USAGE_STR=$(cat <<-END
     -m should point to the directory of the trained PyTorch model being used with a config.properties within.
     -c should be the checkpoint key used and -p should be the model prefix (usually best or latest)
     -t should be a path to the test SBI file, and -d should be the name of the dataset used for the sbi.
-    -l should be the location of a log file created by monitor-model-training; if not existent already, this script will create a new file
 END
 )
 
@@ -34,9 +33,8 @@ CHECKPOINT_KEY=""
 MODEL_PREFIX=""
 DATASET_SBI=""
 DATASET_NAME=""
-LOG_FILE=""
 
-while getopts ":hm:c:p:t:d:l:" opt; do
+while getopts ":hm:c:p:t:d:" opt; do
     case "${opt}" in
         h)
             echo "${USAGE_STR}"
@@ -57,9 +55,6 @@ while getopts ":hm:c:p:t:d:l:" opt; do
         d)
             DATASET_NAME=$OPTARG
             ;;
-        l)
-            LOG_FILE=$OPTARG
-            ;;
         \?)
             echo "Invalid option: -${OPTARG}" 1>&2
             exit 1;
@@ -77,7 +72,7 @@ ERROR_STR=$(cat <<-END
 END
 )
 
-if [ -z "${MODEL_DIR}" ] || [ -z "${CHECKPOINT_KEY}" ] || [ -z "${MODEL_PREFIX}" ] || [ -z "${DATASET_SBI}" ] || [ -z "${DATASET_NAME}" ] || [ -z "${LOG_FILE+set}" ]; then
+if [ -z "${MODEL_DIR}" ] || [ -z "${CHECKPOINT_KEY}" ] || [ -z "${MODEL_PREFIX}" ] || [ -z "${DATASET_SBI}" ] || [ -z "${DATASET_NAME}" ]; then
     echo "${ERROR_STR}"
     exit 1
 fi
@@ -105,7 +100,8 @@ do
         echo "Change detected on ${FULL_MODEL_PATH}"
         RANDOM_OUTPUT_SUFFIX="${RANDOM}"
         evaluate-genotypes-vec.sh -m "${MODEL_DIR}" -c "${CHECKPOINT_KEY}" -p "${MODEL_PREFIX}" -t "${DATASET_SBI}" -d "${DATASET_NAME}" -r "${RANDOM_OUTPUT_SUFFIX}"
-        log-evaluate.sh --model-path "${MODEL_DIR}" --checkpoint-key "${CHECKPOINT_KEY}" --model-label "${MODEL_PREFIX}" --vcf-path "output-${RANDOM_OUTPUT_SUFFIX}" --output-path "${LOG_FILE}"
+        log-evaluate.sh --model-path "${MODEL_DIR}" --checkpoint-key "${CHECKPOINT_KEY}" --model-label "${MODEL_PREFIX}" --vcf-path "output-${RANDOM_OUTPUT_SUFFIX}" --output-path "${CHECKPOINT_KEY}_log.tsv"
         PREV_MODEL_MD5="${CURR_MODEL_MD5}"
+        rm -r "output-${RANDOM_OUTPUT_SUFFIX}"
     fi
 done
