@@ -164,7 +164,7 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
         initializeStats(prefix);
         writeHeader(resutsWriter);
         final int miniBatchSize = args().miniBatchSize;
-        MultiDataSetIteratorAdapter<RecordType> adapter = args().vecPath != null ? new AlwaysMoreIterator() :
+        MultiDataSetIteratorAdapter<RecordType> adapter = args().vecPath != null ? new IterateN(Math.round(args().scoreN/args().miniBatchSize)) :
                 new MultiDataSetIteratorAdapter<RecordType>(itAdapter,
                         miniBatchSize, domainDescriptor, false, null) {
                     @Override
@@ -327,6 +327,63 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
 
         public boolean hasNext() {
             return true;
+        }
+
+        @Override
+        public MultiDataSet next() {
+            return null;
+        }
+    }
+
+    /**
+     * An iterator that always returns null, for as long as next is called.
+     *
+     * @param <RecordType>
+     */
+    private class IterateN<RecordType> extends MultiDataSetIteratorAdapter<RecordType> {
+        private int n;
+
+        protected IterateN(int n) {
+            super(null, null);
+            this.n=n;
+        }
+
+        @Override
+        public String getBasename() {
+            return args().testSet;
+        }
+
+        public MultiDataSet next(int batchSize) {
+            return null;
+        }
+
+        @Override
+        public void setPreProcessor(MultiDataSetPreProcessor preProcessor) {
+
+        }
+
+        @Override
+        public MultiDataSetPreProcessor getPreProcessor() {
+            return null;
+        }
+
+        @Override
+        public boolean resetSupported() {
+            return true;
+        }
+
+        @Override
+        public boolean asyncSupported() {
+            return true;
+        }
+
+        @Override
+        public void reset() {
+
+        }
+
+        public boolean hasNext() {
+            return n-->0;
         }
 
         @Override
