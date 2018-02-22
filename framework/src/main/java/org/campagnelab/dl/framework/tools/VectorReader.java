@@ -107,6 +107,9 @@ public class VectorReader implements Closeable {
         }
         nextExampleIds.trim();
         nextExampleArrays.trim();
+        if (nextExampleIds.size() == 0) {
+            return null;
+        }
         INDArray[] indArrays = new INDArray[vectorIds.size()];
         for (int i = 0; i < indArrays.length; i++) {
             int[] dims = vectorDimensions.get(vectorIdArray[i]);
@@ -206,8 +209,19 @@ public class VectorReader implements Closeable {
 
         @Override
         public String toString() {
-            return String.format("Example IDs: %s\nVector names: %s\nVectors: %s\n",
-                    Arrays.toString(exampleIds), Arrays.toString(vectorNames), Arrays.toString(vectors));
+            if (vectorNames.length != vectors.length) {
+                return String.format(
+                        "MISMATCHED # OF VECTOR NAMES, VECTORS\nExample IDs: %s\nVector names: %s\nVectors: %s\n",
+                        Arrays.toString(exampleIds), Arrays.toString(vectorNames), Arrays.toString(vectors));
+            }
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(String.format("Example IDs: %s\nVector names: %s\nVectors:\n",
+                    Arrays.toString(exampleIds), Arrays.toString(vectorNames)));
+            for (int i = 0; i < vectors.length; i++) {
+                stringBuilder.append(String.format("%s: %s\n", vectorNames[i], vectors[i]));
+            }
+            return stringBuilder.toString();
+
         }
     }
 }

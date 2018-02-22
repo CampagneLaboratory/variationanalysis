@@ -32,7 +32,7 @@ public class ImportTensors extends AbstractTool<ImportTensorArguments> {
             long examplesProcessed = 0;
             while ((examplesProcessed < args().importN)
                     && ((recordVectors = vectorReader.getNextBatch(args().miniBatchSize)) != null)) {
-                System.out.println(recordVectors);
+                args().processVectors().accept(recordVectors);
                 examplesProcessed++;
             }
         } catch (IOException e) {

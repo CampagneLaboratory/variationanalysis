@@ -4,6 +4,7 @@ import com.beust.jcommander.Parameter;
 import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ImportTensorArguments implements ToolArguments{
     @Parameter(required = true, names = {"-i", "--input"}, description = "Input .vec file")
@@ -21,4 +22,8 @@ public class ImportTensorArguments implements ToolArguments{
 
     @Parameter(names = "--mini-batch-size", description = "The size of the minibatch")
     public int miniBatchSize = 1;
+
+    public Consumer<VectorReader.RecordVectors> processVectors() {
+        return System.out::println;
+    }
 }
