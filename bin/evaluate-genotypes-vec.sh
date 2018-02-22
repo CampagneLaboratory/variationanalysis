@@ -232,7 +232,7 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
     predict-dataset.sh --model-path ${MODEL_DIR} --model-label ${MODEL_PREFIX} \
         --problem "genotyping:${DATASET_BASENAME}" \
         --dataset validation --mini-batch-size ${MINI_BATCH_SIZE} \
-        --output "${DATASET_BASENAME}_predicted" --checkpoint-key ${CHECKPOINT_KEY} ${PREDICT_MAX_RECORDS}
+        --output "${DATASET_BASENAME}_predicted" --checkpoint-key ${CHECKPOINT_KEY}
     dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
 
     echo "Running predict-genotypes to create VCF and observed region bed.."
