@@ -37,4 +37,8 @@ public class PredictGArguments extends PredictArguments {
             "used to filter exome results where some off-target hits are expected with very low coverage (e.g., 10). Sites with" +
             "at least the number of reads mapping are reported. Default 0 (no coverage filter)" )
     int minimumCoverage=0;
+
+    @Parameter(names = {"--checkpoint-key"}, description = "Checkpoint key from pytorch model. Will be added to output " +
+            "filename if passed in as argument and ignored if not.")
+    String checkpointKey;
 }

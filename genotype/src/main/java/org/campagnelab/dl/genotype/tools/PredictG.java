@@ -71,8 +71,16 @@ public class PredictG extends Predict<BaseInformationRecords.BaseInformation> {
 
     @Override
     protected void writeHeader(PrintWriter resutsWriter) {
-        final String vcfFilename = String.format("%s-%s-%s-genotypes.vcf", modelTime, modelPrefix, testSetBasename);
-        final String bedBasename = String.format("%s-%s-%s", modelTime, modelPrefix, testSetBasename);
+        String vcfFilename;
+        String bedBasename;
+        if (args().checkpointKey == null) {
+            vcfFilename = String.format("%s-%s-%s-genotypes.vcf", modelTime, modelPrefix, testSetBasename);
+            bedBasename = String.format("%s-%s-%s", modelTime, modelPrefix, testSetBasename);
+        } else {
+            vcfFilename = String.format("%s-%s-%s-%s-genotypes.vcf", modelTime, modelPrefix, args().checkpointKey,
+                    testSetBasename);
+            bedBasename = String.format("%s-%s-%s-%s", modelTime, modelPrefix, args().checkpointKey, testSetBasename);
+        }
 
         try {
             vcfWriter = new PrintWriter(new FileWriter(vcfFilename));

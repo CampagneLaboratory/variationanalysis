@@ -238,7 +238,7 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
     echo "Running predict-genotypes to create VCF and observed region bed.."
     predict-genotypes.sh 20g -m ${MODEL_DIR} -l ${MODEL_PREFIX} -f -i ${DATASET_SBI} \
         --format VCF --mini-batch-size ${MINI_BATCH_SIZE} --vec-path "${DATASET_BASENAME}_predicted.vec" \
-         ${PREDICT_OPTIONS}  --no-cache ${PREDICT_MAX_RECORDS}
+        --no-cache ${PREDICT_MAX_RECORDS} --checkpoint-key ${CHECKPOINT_KEY} ${PREDICT_OPTIONS}
     dieIfError "Failed to create vcf from ${MODEL_DIR}/."
     echo "Evaluation with rtg vcfeval starting.."
 
