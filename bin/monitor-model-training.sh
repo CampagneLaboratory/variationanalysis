@@ -109,7 +109,7 @@ do
     if [[ "${CURR_MODEL_MD5}" != "${PREV_MODEL_MD5}" ]] ; then
         echo "=========Change detected on ${FULL_MODEL_PATH}========="
         RANDOM_OUTPUT_SUFFIX="${RANDOM}"
-        NOW=$(DATE)
+        NOW=$(date)
         echo "========= NEW EVALUATION RUN ON ${NOW} FOR MODEL ${FULL_MODEL_PATH} ON DATASET ${DATASET_SBI} =========" >> ${LOG_PROGRESS_PATH}
         echo "Running evaluate on ${FULL_MODEL_PATH} with dataset ${DATASET_SBI}..."
         evaluate-genotypes-vec.sh -m "${MODEL_DIR}" -c "${CHECKPOINT_KEY}" -p "${MODEL_PREFIX}" -t "${DATASET_SBI}" -d "${DATASET_NAME}" -r "${RANDOM_OUTPUT_SUFFIX}" >>"${LOG_PROGRESS_PATH}" 2>&1
