@@ -230,7 +230,7 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
     MODEL_TIME=`basename ${MODEL_DIR}`
     echo "Running predict-dataset to create output vector file from trained PyTorch model..."
     predict-dataset.sh --model-path ${MODEL_DIR} --model-label ${MODEL_PREFIX} \
-        --problem "genotyping:${DATASET_BASENAME}" \
+        --problem "genotyping:${DATASET_BASENAME}" ${PREDICT_MAX_RECORDS} \
         --dataset ${DATASET_NAME} --mini-batch-size ${MINI_BATCH_SIZE} \
         --output "${DATASET_BASENAME}_${CHECKPOINT_KEY}_${MODEL_PREFIX}_predicted" --checkpoint-key ${CHECKPOINT_KEY}
     dieIfError "Failed to predict dataset with model ${MODEL_DIR}/."
