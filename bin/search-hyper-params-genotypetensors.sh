@@ -4,16 +4,22 @@ assertParallelInstalled
 
 if [ "$#" -lt 1 ]; then
    echo "Argument missing. usage: number-of-runs train-autoencoder.sh  "
+   echo "For instance:  ~/variationanalysis/bin/search-hyper-params-genotypetensors.sh 10 --problem genotyping:CNG-NA12878-realigned-2018-01-30 --mode supervised_genotypes --problem genotyping:./CNG-NA12878-realigned-2018-01-30 --num-workers 0 --autoencoder-type 1 "
    exit 1;
 fi
 if [ -z "${SBI_SEARCH_PARAM_CONFIG+set}" ]; then
-    SBI_SEARCH_PARAM_CONFIG=search-search-config.txt
+    SBI_SEARCH_PARAM_CONFIG=search-config.txt
 
 cat << EOF | cat> search-config.txt
 --lr
 log-uniform
 1e-01
 1e-02
+
+--num-layers
+int
+1
+5
 
 --L2
 log-uniform
