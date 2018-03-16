@@ -32,7 +32,8 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
                                                                      List<String> trainingSets,
                                                                      int genomicContextLength,
                                                                      float labelSmoothingEpsilon,
-                                                                     int ploidy, int extraGenotypes);
+                                                                     int ploidy, int extraGenotypes,
+                                                                     int indelSequenceLength);
 
     protected abstract void decorateProperties(Properties decorateProperties);
 
@@ -56,7 +57,7 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
         }
         DomainDescriptor<RecordType> domainDescriptor = domainDescriptor(args().featureMapperClassname,
                 args().trainingSets, args().genomicContextLength, args().labelSmoothingEpsilon,
-                args().ploidy, args().extraGenotypes);
+                args().ploidy, args().extraGenotypes, args().indelSequenceLength);
 
         MultiDataSetIteratorAdapterMultipleSamples<RecordType> adapter;
         IntArrayList sampleIndices = new IntArrayList();

@@ -21,7 +21,8 @@ public class ExportTensorsG extends ExportTensors<BaseInformationRecords.BaseInf
                                                                                         int genomicContextLength,
                                                                                         float labelSmoothingEpsilon,
                                                                                         int ploidy,
-                                                                                        int extraGenotypes) {
+                                                                                        int extraGenotypes,
+                                                                                        int indelSequenceLength) {
         GenotypeTrainingArguments trainingArguments=new GenotypeTrainingArguments();
         trainingArguments.featureMapperClassname=featureMapperClassName;
         trainingArguments.genomicContextLength=genomicContextLength;
@@ -30,6 +31,7 @@ public class ExportTensorsG extends ExportTensors<BaseInformationRecords.BaseInf
         trainingArguments.extraGenotypes=extraGenotypes;
         trainingArguments.trainingSets=new ArrayList<>();
         trainingArguments.trainingSets.addAll(trainingSets);
+        trainingArguments.indelSequenceLength = indelSequenceLength;
 
         GenotypeDomainDescriptor domainDescriptor=new GenotypeDomainDescriptor(trainingArguments);
         this.genotpeDomainDescriptor = domainDescriptor;

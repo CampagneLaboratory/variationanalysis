@@ -90,4 +90,8 @@ public class ExportTensorArguments implements ToolArguments {
 
     @Parameter(names = "--sbi-list", description = "Path to .list file containing SBI files that will be used for vector generation.")
     public String sbiList;
+
+    @Parameter(names = "--indel-sequence-length", description = "Maximum length of indel sequences to use as LSTM input." +
+            " If sequences are longer than this length, they will be clipped. ")
+    public int indelSequenceLength = 7;
 }
