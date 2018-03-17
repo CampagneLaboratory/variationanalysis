@@ -115,7 +115,7 @@ do
         evaluate-genotypes-vec.sh -m "${MODEL_DIR}" -c "${CHECKPOINT_KEY}" -p "${MODEL_PREFIX}" -t "${DATASET_SBI}" -d "${DATASET_NAME}" -r "${RANDOM_OUTPUT_SUFFIX}" >>"${LOG_PROGRESS_PATH}" 2>&1
         dieIfError "Unable to evaluate genotypes with the given parameters"
         echo "Logging results of evaluate on ${FULL_MODEL_PATH} with dataset ${DATASET_SBI}..."
-        log-evaluate.sh --model-path "${MODEL_DIR}" --checkpoint-key "${CHECKPOINT_KEY}" --model-label "${MODEL_PREFIX}" --vcf-path "output-${RANDOM_OUTPUT_SUFFIX}" --output-path "${CHECKPOINT_KEY}_log.tsv" >>"${LOG_PROGRESS_PATH}" 2>&1
+        log-evaluate.sh --dataset ${DATASET_NAME} --model-path "${MODEL_DIR}" --checkpoint-key "${CHECKPOINT_KEY}" --model-label "${MODEL_PREFIX}" --vcf-path "output-${RANDOM_OUTPUT_SUFFIX}" --output-path "${CHECKPOINT_KEY}_log.tsv" >>"${LOG_PROGRESS_PATH}" 2>&1
         dieIfError "Unable to log results of evaluation with the given parameters"
         PREV_MODEL_MD5="${CURR_MODEL_MD5}"
         rm -r "output-${RANDOM_OUTPUT_SUFFIX}"
