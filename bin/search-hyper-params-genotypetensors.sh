@@ -74,6 +74,7 @@ cat << EOF | cat>gpu.txt
 4
 5
 6
+7
 EOF
 
 echo $* >main-command.txt
@@ -93,7 +94,7 @@ parallel echo `cat main-command.txt` \
 shuf commands.txt  |head -${num_executions} >commands-head-${num_executions}
 chmod +x commands-head-${num_executions}
 cat ./commands-head-${num_executions}  |parallel --trim lr --xapply echo  run-on-gpu.sh :::: gpu.txt ::::  -   >all-commands.txt
-cat all-commands.txt |parallel --line-buffer --eta --progress --bar -j${NUM_GPUS} --progress
+cat all-commands.txt |parallel --timeout 500% --line-buffer --eta --progress --verbose --bar -j${NUM_GPUS}
 sort -n -k 10 best-perfs-*.tsv |tail -10
 COMMANDS=./commands-head-${num_executions}-${RANDOM}.txt
 cp all-commands.txt ${COMMANDS}
