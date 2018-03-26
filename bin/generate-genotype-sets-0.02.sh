@@ -39,7 +39,7 @@ else
     echo "Using SBI_SPLIT_OVERRIDE_DESTINATION=${SBI_SPLIT_OVERRIDE_DESTINATION} to put chromosomes ${SBI_SPLIT_OVERRIDE_DESTINATION} into test set."
 fi
 
-if [-z ${VARMAP_CHR_PREFIX} ]; then
+if [ -z "${VARMAP_CHR_PREFIX}" ]; then
     VARMAP_CHR_PREFIX_OPTION="--chromosome-prefix ${VARMAP_CHR_PREFIX}"
 else
     VARMAP_CHR_PREFIX_OPTION=" "
