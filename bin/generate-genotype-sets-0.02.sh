@@ -39,13 +39,19 @@ else
     echo "Using SBI_SPLIT_OVERRIDE_DESTINATION=${SBI_SPLIT_OVERRIDE_DESTINATION} to put chromosomes ${SBI_SPLIT_OVERRIDE_DESTINATION} into test set."
 fi
 
+if [-z ${VARMAP_CHR_PREFIX} ]; then
+    VARMAP_CHR_PREFIX_OPTION="--chromosome-prefix ${VARMAP_CHR_PREFIX}"
+else
+    VARMAP_CHR_PREFIX_OPTION=" "
+fi
+
 export SBI_GENOME=${GENOME}
 rm -rf tmp
 mkdir -p tmp
 if [ -z "${SBI_GENOTYPE_VARMAP+set}" ]; then
   echo "Recalculating varmap. Set SBI_GENOTYPE_VARMAP to reuse a previous map."
   goby ${memory_requirement} vcf-to-genotype-map ${VCF} --genome ${SBI_GENOME} \
-    -o ${OUTPUT_PREFIX}.varmap
+        -o ${OUTPUT_PREFIX}.varmap ${VARMAP_CHR_PREFIX_OPTION}
   dieIfError "Failed to produce varmap"
   echo "export SBI_GENOTYPE_VARMAP=${OUTPUT_PREFIX}.varmap" >> configure.sh
   . configure.sh
