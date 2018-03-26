@@ -73,7 +73,7 @@ done
 shift $((OPTIND -1))
 
 ERROR_STR=$(cat <<-END
-   You must specify all options: -m, -c, -p, -t, -d, and -l. If you are unsure about usage, run with no arguments or with -h.
+   You must specify all options: -m, -c, -p, -t, and -d. If you are unsure about usage, run with no arguments or with -h.
 END
 )
 
