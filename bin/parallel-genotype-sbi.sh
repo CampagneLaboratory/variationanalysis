@@ -97,10 +97,16 @@ parallel --bar --eta -j${SBI_NUM_THREADS} --plus  --progress goby 10g  `cat comm
 # keep a log of the commands that were used to generate this dataset:
 cp command.txt command-`date +%h_%d_%H_%M`.txt
 
+# If the CHR variable is not set, use the default: "chr". This works when the genome has chromosomal contigs prefixed with "chr".
+if [ -z "${CHR+set}" ]; then
+    CHR="chr"
+    echo "Setting CHR to 'chr'"
+fi
+
 if [ "${DO_CONCAT}" == "true" ]; then
-    cat boundaries| grep -v -e chr19 -e chr20 -e chr21 -e chr22 -e chrX -e chrY | cut -d " " ""-f 6 |awk '{print $1".sbi"}' >training-parts
-    cat boundaries| grep -e chr19  |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >validation-parts
-    cat boundaries| grep -v -e chr19 | grep -e chr20 -e chr21 -e chr22 -e chrX -e chrY |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >testing-parts
+    cat boundaries| grep -v -e "${CHR}19" -e "${CHR}20" -e "${CHR}21" -e "${CHR}22" -e "${CHR}X" -e "${CHR}Y" | cut -d " " ""-f 6 |awk '{print $1".sbi"}' >training-parts
+    cat boundaries| grep -e "${CHR}19"  |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >validation-parts
+    cat boundaries| grep -v -e "${CHR}19" | grep -e "${CHR}20" -e "${CHR}21" -e "${CHR}22" -e "${CHR}X" -e "${CHR}Y" |cut -d " " ""-f 6 | awk '{print $1".sbi"}' >testing-parts
 
     if [ -s training-parts ]; then
         concat.sh ${memory_requirement} -f -i `cat training-parts`  -o ${OUTPUT_BASENAME}-pre-train
