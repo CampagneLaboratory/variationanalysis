@@ -83,8 +83,8 @@ if [ -z "${MODEL_DIR}" ] || [ -z "${CHECKPOINT_FILE}" ] || [ -z "${MODEL_PREFIX}
     exit 1
 fi
 
-LOG_OUTPUT="${CHECKPOINT_FILE%.*}_`basename ${DATASET_SBI} ".sbi"`log.tsv"
-LOG_PROGRESS_PATH="${CHECKPOINT_FILE%.*}_progress.log"
+LOG_OUTPUT="${CHECKPOINT_FILE%.*}_`basename ${DATASET_SBI} ".sbi"`_log.tsv"
+LOG_PROGRESS_PATH="${CHECKPOINT_FILE%.*}_`basename ${DATASET_SBI} ".sbi"`_progress.log"
 if [ ${NONVERBOSE} -ne 0 ]; then
     LOG_PROGRESS_PATH="/dev/null"
 fi
