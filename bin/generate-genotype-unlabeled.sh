@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-. `dirname "${BASH_SOURCE[0]}"`/common.sh
-if [ "$#" -ne 2 ]; then
+
+if [ "$#" -ne 3 ]; then
    echo "Argument missing. expected arguments memory_size goby_alignment goby_genome"
    exit 1;
 fi
+
+. `dirname "${BASH_SOURCE[0]}"`/common.sh
 
 if [ -e configure.sh ]; then
  echo "Loading configure.sh"
