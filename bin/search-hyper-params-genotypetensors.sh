@@ -8,6 +8,10 @@ if [ "$#" -lt 1 ]; then
    echo "Monitor performance with tail --lines 1 best-perfs-*|sort -k 9 -n"
    exit 1;
 fi
+if [ -z "${GP_TIMEOUT+set}" ]; then
+    GP_TIMEOUT=""
+    echo "Set GP_TIMEOUT to --timeout <seconds> to kill jobs that do not finish within secs."
+fi
 if [ -z "${SBI_SEARCH_PARAM_CONFIG+set}" ]; then
     SBI_SEARCH_PARAM_CONFIG=search-config.txt
 
@@ -74,6 +78,7 @@ cat << EOF | cat>gpu.txt
 4
 5
 6
+7
 EOF
 
 echo $* >main-command.txt
@@ -93,7 +98,7 @@ parallel echo `cat main-command.txt` \
 shuf commands.txt  |head -${num_executions} >commands-head-${num_executions}
 chmod +x commands-head-${num_executions}
 cat ./commands-head-${num_executions}  |parallel --trim lr --xapply echo  run-on-gpu.sh :::: gpu.txt ::::  -   >all-commands.txt
-cat all-commands.txt |parallel --line-buffer --eta --progress --bar -j${NUM_GPUS} --progress
+cat all-commands.txt |parallel ${GP_TIMEOUT} --ungroup --eta --progress --bar -j${NUM_GPUS} --progress --memfree 20G
 sort -n -k 10 best-perfs-*.tsv |tail -10
 COMMANDS=./commands-head-${num_executions}-${RANDOM}.txt
 cp all-commands.txt ${COMMANDS}
