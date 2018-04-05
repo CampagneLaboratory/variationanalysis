@@ -98,7 +98,7 @@ parallel echo `cat main-command.txt` \
 shuf commands.txt  |head -${num_executions} >commands-head-${num_executions}
 chmod +x commands-head-${num_executions}
 cat ./commands-head-${num_executions}  |parallel --trim lr --xapply echo  run-on-gpu.sh :::: gpu.txt ::::  -   >all-commands.txt
-cat all-commands.txt |parallel ${GP_TIMEOUT} --ungroup --eta --progress --bar -j${NUM_GPUS} --progress
+cat all-commands.txt |parallel ${GP_TIMEOUT} --ungroup --eta --progress --bar -j${NUM_GPUS} --progress --memfree 20G
 sort -n -k 10 best-perfs-*.tsv |tail -10
 COMMANDS=./commands-head-${num_executions}-${RANDOM}.txt
 cp all-commands.txt ${COMMANDS}

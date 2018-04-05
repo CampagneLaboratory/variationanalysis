@@ -3,4 +3,4 @@ GPU_SPEC=$1
 shift
 COMMAND="$@"
 
-sem --fg -j 1 --id "gpu_"${USER}"_"${GPU_SPEC} "export CUDA_VISIBLE_DEVICES=${GPU_SPEC} && $COMMAND >out.${GPU_SPEC}.log "
+sem --fg -j 1 --id "gpu_"${USER}"_"${GPU_SPEC} "export CUDA_VISIBLE_DEVICES=${GPU_SPEC} && $COMMAND >out.${GPU_SPEC}_${RANDOM}.log 2>&1"
