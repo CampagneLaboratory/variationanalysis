@@ -141,13 +141,6 @@ public abstract class Predict<RecordType> extends ConditionRecordingTool<Predict
             System.err.println("Cannot load model with prefix: " + prefix);
             System.exit(1);
         }
-        if (pytorchModelUsed && (args().domainPath == null || args().domainClass == null)) {
-            System.err.println("Cannot load pytorch model without domain path and domain class");
-            System.exit(1);
-        }
-//        domainDescriptor = keepUninitialized
-//                ? DomainDescriptorLoader.loadFromProperties(args().domainPath, args().domainClass)
-//                : DomainDescriptorLoader.load(modelPath);
         domainDescriptor =
                 DomainDescriptorLoader.load(modelPath);
         if (args().vecPath != null) {
