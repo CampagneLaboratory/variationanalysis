@@ -37,9 +37,10 @@ DATASET_NAME=""
 OUTPUT_SUFFIX=""
 DATASET_BASENAME=""
 DATASET_VEC=""
+SINGLE_THREADED=""
 
 # Use getopts in this evaluate script to allow for multiple optional arguments (-r, set of -cptd)
-while getopts ":hm:c:p:t:d:r:" opt; do
+while getopts ":hm:c:p:t:d:r:s" opt; do
     case "${opt}" in
         h)
             echo "${USAGE_STR}"
@@ -62,6 +63,9 @@ while getopts ":hm:c:p:t:d:r:" opt; do
             ;;
         r)
             OUTPUT_SUFFIX=$OPTARG
+            ;;
+        s)
+            SINGLE_THREADED="--threads=1"
             ;;
         \?)
             echo "Invalid option: -${OPTARG}" 1>&2
@@ -283,7 +287,8 @@ rtg vcfeval --baseline=${GOLD_STANDARD_VCF_SNP_GZ}  \
         -c ${VCF_OUTPUT_SORTED}-snps.vcf.gz -o ${RTG_OUTPUT_FOLDER}/snp --template=${RTG_TEMPLATE}  \
             --evaluation-regions=${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ} \
             --bed-regions=${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz \
-            --vcf-score-field=P  --sort-order=descending
+            --vcf-score-field=P  --sort-order=descending \
+            ${SINGLE_THREADED}
 dieIfError "Failed to run rtg vcfeval for SNPs."
 
 cp ${VCF_OUTPUT_SORTED}-snps.vcf.gz  ${RTG_OUTPUT_FOLDER}/snp/
@@ -296,7 +301,8 @@ rtg vcfeval --baseline=${GOLD_STANDARD_VCF_INDEL_GZ}  \
         -c ${VCF_OUTPUT_SORTED}-indels.vcf.gz -o ${RTG_OUTPUT_FOLDER}/indel --template=${RTG_TEMPLATE}  \
             --evaluation-regions=${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ} \
             --bed-regions=${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz \
-            --vcf-score-field=P  --sort-order=descending
+            --vcf-score-field=P  --sort-order=descending \
+            ${SINGLE_THREADED}
 dieIfError "Failed to run rtg vcfeval."
 
 cp ${VCF_OUTPUT_SORTED}-indels.vcf.gz  ${RTG_OUTPUT_FOLDER}/indel/
