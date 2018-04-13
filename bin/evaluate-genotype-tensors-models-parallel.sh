@@ -112,6 +112,7 @@ RTG_EVAL_GPU_FILE="${RTG_EVAL_FILE%.txt}_gpu.txt"
 RTG_LOG_FILE="${CHECKPOINT_FILE%.*}_`basename ${DATASET_SBI} ".sbi"`_rtg_log.txt"
 rm -f "${RTG_EVAL_FILE}"
 rm -f "${RTG_LOG_FILE}"
+
 while read checkpoint_key; do
     FULL_MODEL_PATH=$(python - <<EOF
 import os
@@ -124,7 +125,13 @@ EOF
     fi
     RANDOM_OUTPUT_SUFFIX="${RANDOM}_${checkpoint_key}_`basename ${DATASET_SBI} ".sbi"`"
     echo "evaluate-genotypes-vec.sh -m ${MODEL_DIR} -c ${checkpoint_key} -p ${MODEL_PREFIX} -t ${DATASET_SBI} -d ${DATASET_NAME} -r ${RANDOM_OUTPUT_SUFFIX} -s" >> ${RTG_EVAL_FILE}
-    echo "log-evaluate.sh --dataset ${DATASET_NAME} --model-path ${MODEL_DIR} --checkpoint-key ${checkpoint_key} --model-label ${MODEL_PREFIX} --vcf-path output-${RANDOM_OUTPUT_SUFFIX} --output-path ${LOG_OUTPUT} >>${LOG_PROGRESS_PATH} 2>&1" >> ${RTG_LOG_FILE}
+    echo "--dataset ${DATASET_NAME} --model-path ${MODEL_DIR} --checkpoint-key ${checkpoint_key} --model-label ${MODEL_PREFIX} --vcf-path output-${RANDOM_OUTPUT_SUFFIX} --output-path ${LOG_OUTPUT}" >> ${RTG_LOG_FILE}
 done < "${CHECKPOINT_FILE}"
+
 cat ${RTG_EVAL_FILE} | parallel --trim lr --xapply echo  run-on-gpu.sh :::: ${GPU_FILE} ::::  -   >${RTG_EVAL_GPU_FILE}
 cat ${RTG_EVAL_GPU_FILE} | parallel --ungroup --eta --progress --bar -j${NUM_GPUS} --halt now,fail=1
+
+while read log_args; do
+    log-evaluate.sh ${log_args}  >>${LOG_PROGRESS_PATH} 2>&1
+    dieIfError "Unable to log results of evaluation with the given parameters"
+done < "${RTG_LOG_FILE}"
