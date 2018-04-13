@@ -112,6 +112,7 @@ RTG_EVAL_GPU_FILE="${RTG_EVAL_FILE%.txt}_gpu.txt"
 RTG_LOG_FILE="${CHECKPOINT_FILE%.*}_`basename ${DATASET_SBI} ".sbi"`_rtg_log.txt"
 rm -f "${RTG_EVAL_FILE}"
 rm -f "${RTG_LOG_FILE}"
+rm -f "${RTG_EVAL_GPU_FILE}"
 
 while read checkpoint_key; do
     FULL_MODEL_PATH=$(python - <<EOF
