@@ -130,7 +130,7 @@ EOF
 done < "${CHECKPOINT_FILE}"
 
 cat ${RTG_EVAL_FILE} | parallel --trim lr --xapply echo  run-on-gpu.sh :::: ${GPU_FILE} ::::  -   >${RTG_EVAL_GPU_FILE}
-cat ${RTG_EVAL_GPU_FILE} | parallel --ungroup --eta --progress --bar -j${NUM_GPUS} --halt now,fail=1
+cat ${RTG_EVAL_GPU_FILE} | parallel --ungroup --eta --progress --bar -j${NUM_GPUS} --halt 2
 
 while read log_args; do
     log-evaluate.sh ${log_args}  >>${LOG_PROGRESS_PATH} 2>&1
