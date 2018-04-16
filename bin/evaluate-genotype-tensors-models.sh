@@ -107,3 +107,9 @@ EOF
     log-evaluate.sh --dataset ${DATASET_NAME} --model-path "${MODEL_DIR}" --checkpoint-key "${checkpoint_key}" --model-label "${MODEL_PREFIX}" --vcf-path "output-${RANDOM_OUTPUT_SUFFIX}" --output-path "${LOG_OUTPUT}" >>"${LOG_PROGRESS_PATH}" 2>&1
     dieIfError "Unable to log results of evaluation with the given parameters"
 done < "${CHECKPOINT_FILE}"
+
+export COMBINED_PREDICT_STATISTICS="predict-statistics-`basename ${DATASET_SBI} ".sbi"`-`basename ${CHECKPOINT_FILE%.*}`-${MODEL_PREFIX}.tsv"
+head -1 "predict-statistics-`basename ${DATASET_SBI} ".sbi"`-`head -1 ${CHECKPOINT_FILE}`-${MODEL_PREFIX}.tsv" > ${COMBINED_PREDICT_STATISTICS}
+while read checkpoint_key; do
+    sed 1d "predict-statistics-`basename ${DATASET_SBI} ".sbi"`-${checkpoint_key}-${MODEL_PREFIX}.tsv" >> ${COMBINED_PREDICT_STATISTICS}
+done < "${CHECKPOINT_FILE}"

@@ -136,3 +136,10 @@ while read log_args; do
     log-evaluate.sh ${log_args}  >>${LOG_PROGRESS_PATH} 2>&1
     dieIfError "Unable to log results of evaluation with the given parameters"
 done < "${RTG_LOG_FILE}"
+
+export COMBINED_PREDICT_STATISTICS="predict-statistics-`basename ${DATASET_SBI} ".sbi"`-`basename ${CHECKPOINT_FILE%.*}`-${MODEL_PREFIX}.tsv"
+head -1 "predict-statistics-`basename ${DATASET_SBI} ".sbi"`-`head -1 ${CHECKPOINT_FILE}`-${MODEL_PREFIX}.tsv" > ${COMBINED_PREDICT_STATISTICS}
+while read checkpoint_key; do
+    sed 1d "predict-statistics-`basename ${DATASET_SBI} ".sbi"`-${checkpoint_key}-${MODEL_PREFIX}.tsv" >> ${COMBINED_PREDICT_STATISTICS}
+    rm "predict-statistics-`basename ${DATASET_SBI} ".sbi"`-${checkpoint_key}-${MODEL_PREFIX}.tsv"
+done < "${CHECKPOINT_FILE}"

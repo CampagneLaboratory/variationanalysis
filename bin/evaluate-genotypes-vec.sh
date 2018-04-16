@@ -242,12 +242,15 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
     echo "Running predict-genotypes to create VCF and observed region bed.."
     predict-genotypes.sh 20g -m ${MODEL_DIR} -l ${MODEL_PREFIX} -f -i ${DATASET_SBI} \
         --format VCF --mini-batch-size ${MINI_BATCH_SIZE} --vec-path "${DATASET_BASENAME}_${DATASET_NAME}_${CHECKPOINT_KEY}_${MODEL_PREFIX}_predicted.vec" \
-        --no-cache ${PREDICT_MAX_RECORDS} --checkpoint-key ${CHECKPOINT_KEY} ${PREDICT_OPTIONS}
+        --no-cache ${PREDICT_MAX_RECORDS} --checkpoint-key ${CHECKPOINT_KEY} \
+        --predict-statistics "predict-statistics-`basename ${DATASET_SBI} ".sbi"`-${CHECKPOINT_KEY}-${MODEL_PREFIX}.tsv" \
+        ${PREDICT_OPTIONS}
     dieIfError "Failed to create vcf from ${MODEL_DIR}/."
     echo "Evaluation with rtg vcfeval starting.."
 
-    export VCF_OUTPUT=`ls -1tr ${MODEL_TIME}-${MODEL_PREFIX}-*.vcf|tail -1`
-    export BED_OBSERVED_REGIONS_OUTPUT=`ls -1tr ${MODEL_TIME}-${MODEL_PREFIX}-*-observed-regions.bed |tail -1`
+    export VCF_BED_PREFIX="${MODEL_TIME}-${MODEL_PREFIX}-${CHECKPOINT_KEY}-`basename ${DATASET_SBI} .sbi`"
+    export VCF_OUTPUT="${VCF_BED_PREFIX}-genotypes.vcf"
+    export BED_OBSERVED_REGIONS_OUTPUT="${VCF_BED_PREFIX}-observed-regions.bed"
 else
     echo "Evaluating with VCF_OUTPUT=${VCF_OUTPUT} and BED_OBSERVED_REGIONS_OUTPUT=${BED_OBSERVED_REGIONS_OUTPUT}"
 fi
