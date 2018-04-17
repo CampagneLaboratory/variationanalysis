@@ -245,7 +245,7 @@ if [ -z "${VCF_OUTPUT+set}" ] || [ -z "${BED_OBSERVED_REGIONS_OUTPUT+set}" ]; th
         --no-cache ${PREDICT_MAX_RECORDS} --checkpoint-key ${CHECKPOINT_KEY} \
         --predict-statistics "predict-statistics-`basename ${DATASET_SBI} ".sbi"`-${CHECKPOINT_KEY}-${MODEL_PREFIX}.tsv" \
         ${PREDICT_OPTIONS}
-    dieIfError "Failed to create vcf from ${MODEL_DIR}/."
+    dieAndExitWithErrorIfError "Failed to create vcf from ${MODEL_DIR}/."
     echo "Evaluation with rtg vcfeval starting.."
 
     export VCF_BED_PREFIX="${MODEL_TIME}-${MODEL_PREFIX}-${CHECKPOINT_KEY}-`basename ${DATASET_SBI} .sbi`"

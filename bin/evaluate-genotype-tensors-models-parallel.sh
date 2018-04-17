@@ -131,8 +131,10 @@ done < "${CHECKPOINT_FILE}"
 cat ${RTG_EVAL_FILE} | parallel --trim lr --xapply echo  run-on-gpu.sh :::: ${GPU_FILE} ::::  -   >${RTG_EVAL_GPU_FILE}
 echo "Running rtgeval on models..."
 cat ${RTG_EVAL_GPU_FILE} | parallel --ungroup --eta --progress --bar -j${NUM_GPUS} --halt 2
+dieAndExitWithErrorIfError "Unable to run rtgeval on models"
 echo "Logging rtgeval results..."
 cat ${RTG_LOG_FILE} | parallel --ungroup --eta --progress --bar -j${NUM_GPUS} --halt 2
+dieAndExitWithErrorIfError "Unable to log rtgeval results on models"
 echo "Combining logs and cleaning up..."
 
 export COMBINED_PREDICT_STATISTICS="predict-statistics-`basename ${DATASET_SBI} ".sbi"`-`basename ${CHECKPOINT_FILE%.*}`-${MODEL_PREFIX}.tsv"
