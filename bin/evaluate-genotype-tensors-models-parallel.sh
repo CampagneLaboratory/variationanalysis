@@ -101,12 +101,6 @@ if [ "${NUM_CHECKPOINTS}" -lt "${NUM_GPUS}" ]; then
     GPU_FILE="gpu_trunc.txt"
 fi
 
-LOG_OUTPUT="${CHECKPOINT_FILE%.*}_`basename ${DATASET_SBI} ".sbi"`_log.tsv"
-LOG_PROGRESS_PATH="${CHECKPOINT_FILE%.*}_`basename ${DATASET_SBI} ".sbi"`_progress.log"
-if [ ${NONVERBOSE} -ne 0 ]; then
-    LOG_PROGRESS_PATH="/dev/null"
-fi
-
 RTG_EVAL_FILE="${CHECKPOINT_FILE%.*}_`basename ${DATASET_SBI} ".sbi"`_rtg_eval.txt"
 RTG_EVAL_GPU_FILE="${RTG_EVAL_FILE%.txt}_gpu.txt"
 RTG_LOG_FILE="${CHECKPOINT_FILE%.*}_`basename ${DATASET_SBI} ".sbi"`_rtg_log.txt"
@@ -124,22 +118,34 @@ EOF
         echo "The model was not found: ${FULL_MODEL_PATH}"
         exit 1;
     fi
+    CHECKPOINT_LOG_PROGRESS_PATH="${checkpoint_key}_`basename ${DATASET_SBI} ".sbi"`_progress.log"
+    if [ ${NONVERBOSE} -ne 0 ]; then
+        CHECKPOINT_LOG_PROGRESS_PATH="/dev/null"
+    fi
+    CHECKPOINT_LOG_OUTPUT="${checkpoint_key}_`basename ${DATASET_SBI} ".sbi"`_log.tsv"
     RANDOM_OUTPUT_SUFFIX="${RANDOM}_${checkpoint_key}_`basename ${DATASET_SBI} ".sbi"`"
     echo "evaluate-genotypes-vec.sh -m ${MODEL_DIR} -c ${checkpoint_key} -p ${MODEL_PREFIX} -t ${DATASET_SBI} -d ${DATASET_NAME} -r ${RANDOM_OUTPUT_SUFFIX} -s" >> ${RTG_EVAL_FILE}
-    echo "--dataset ${DATASET_NAME} --model-path ${MODEL_DIR} --checkpoint-key ${checkpoint_key} --model-label ${MODEL_PREFIX} --vcf-path output-${RANDOM_OUTPUT_SUFFIX} --output-path ${LOG_OUTPUT}" >> ${RTG_LOG_FILE}
+    echo "log-evaluate.sh --dataset ${DATASET_NAME} --model-path ${MODEL_DIR} --checkpoint-key ${checkpoint_key} --model-label ${MODEL_PREFIX} --vcf-path output-${RANDOM_OUTPUT_SUFFIX} --output-path ${CHECKPOINT_LOG_OUTPUT} >>${CHECKPOINT_LOG_PROGRESS_PATH} 2>&1" >> ${RTG_LOG_FILE}
 done < "${CHECKPOINT_FILE}"
 
 cat ${RTG_EVAL_FILE} | parallel --trim lr --xapply echo  run-on-gpu.sh :::: ${GPU_FILE} ::::  -   >${RTG_EVAL_GPU_FILE}
+echo "Running rtgeval on models..."
 cat ${RTG_EVAL_GPU_FILE} | parallel --ungroup --eta --progress --bar -j${NUM_GPUS} --halt 2
-
-while read log_args; do
-    log-evaluate.sh ${log_args}  >>${LOG_PROGRESS_PATH} 2>&1
-    dieIfError "Unable to log results of evaluation with the given parameters"
-done < "${RTG_LOG_FILE}"
+echo "Logging rtgeval results..."
+cat ${RTG_LOG_FILE} | parallel --ungroup --eta --progress --bar -j${NUM_GPUS} --halt 2
+echo "Combining logs and cleaning up..."
 
 export COMBINED_PREDICT_STATISTICS="predict-statistics-`basename ${DATASET_SBI} ".sbi"`-`basename ${CHECKPOINT_FILE%.*}`-${MODEL_PREFIX}.tsv"
+export COMBINED_LOG_OUTPUT_INT="${CHECKPOINT_FILE%.*}_`basename ${DATASET_SBI} ".sbi"`_log_int.tsv"
+export COMBINED_LOG_OUTPUT="${CHECKPOINT_FILE%.*}_`basename ${DATASET_SBI} ".sbi"`_log.tsv"
+
 head -1 "predict-statistics-`basename ${DATASET_SBI} ".sbi"`-`head -1 ${CHECKPOINT_FILE}`-${MODEL_PREFIX}.tsv" > ${COMBINED_PREDICT_STATISTICS}
+head -1 "`head -1 ${CHECKPOINT_FILE}`_`basename ${DATASET_SBI} ".sbi"`_log.tsv" > ${COMBINED_LOG_OUTPUT}
 while read checkpoint_key; do
     sed 1d "predict-statistics-`basename ${DATASET_SBI} ".sbi"`-${checkpoint_key}-${MODEL_PREFIX}.tsv" >> ${COMBINED_PREDICT_STATISTICS}
+    sed 1d "${checkpoint_key}_`basename ${DATASET_SBI} ".sbi"`_log.tsv" >> ${COMBINED_LOG_OUTPUT_INT}
     rm "predict-statistics-`basename ${DATASET_SBI} ".sbi"`-${checkpoint_key}-${MODEL_PREFIX}.tsv"
+    rm "${checkpoint_key}_`basename ${DATASET_SBI} ".sbi"`_log.tsv"
 done < "${CHECKPOINT_FILE}"
+sort -n -k 10 ${COMBINED_LOG_OUTPUT_INT} >> ${COMBINED_LOG_OUTPUT}
+rm ${COMBINED_LOG_OUTPUT_INT}
