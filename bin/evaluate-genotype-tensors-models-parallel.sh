@@ -149,5 +149,5 @@ while read checkpoint_key; do
     rm "predict-statistics-`basename ${DATASET_SBI} ".sbi"`-${checkpoint_key}-${MODEL_PREFIX}.tsv"
     rm "${checkpoint_key}_`basename ${DATASET_SBI} ".sbi"`_log.tsv"
 done < "${CHECKPOINT_FILE}"
-sort -n -k 10 ${COMBINED_LOG_OUTPUT_INT} >> ${COMBINED_LOG_OUTPUT}
+sort -n -k 11 ${COMBINED_LOG_OUTPUT_INT} >> ${COMBINED_LOG_OUTPUT}
 rm ${COMBINED_LOG_OUTPUT_INT}
