@@ -1,30 +1,34 @@
 package org.campagnelab.dl.genotype.tools;
 
 import com.google.protobuf.TextFormat;
-import org.campagnelab.dl.framework.tools.ExportTensorArguments;
-import org.campagnelab.dl.framework.tools.ExportTensors;
+import org.campagnelab.dl.framework.mappers.MappedDimensions;
+import org.campagnelab.dl.framework.tools.*;
 import org.campagnelab.dl.genotype.mappers.GenotypeMapperV37;
+import org.campagnelab.dl.genotype.mappers.MetaDataLabelMapper;
+import org.campagnelab.dl.genotype.mappers.SoftmaxLabelMapper;
 import org.campagnelab.dl.varanalysis.protobuf.BaseInformationRecords;
 import org.campagnelab.goby.baseinfo.SequenceBaseInformationWriter;
 import org.junit.Test;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.*;
+import java.util.function.Consumer;
+
+import static org.junit.Assert.assertEquals;
 
 public class VectorIOTest {
-
     @Test
     public void vecFileIO() throws IOException {
+        final BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
+        BaseInformationRecords.BaseInformation baseInfo;
         try (
                 SequenceBaseInformationWriter baseInformationWriter = new SequenceBaseInformationWriter("testWrite")
         ) {
-            for (String record : records) {
-                final BaseInformationRecords.BaseInformation.Builder builder = BaseInformationRecords.BaseInformation.newBuilder();
-                TextFormat.getParser().merge(record, builder);
-                baseInformationWriter.appendEntry(builder.build());
-            }
+            TextFormat.getParser().merge(record, builder);
+            baseInfo = builder.build();
+            baseInformationWriter.appendEntry(baseInfo);
         } catch (IOException e) {
             throw new RuntimeException("Couldn't write sbi file");
         }
@@ -40,10 +44,50 @@ public class VectorIOTest {
         exportTensors.arguments = exportTensorArguments;
         exportTensors.execute();
 
+        List<VectorReader.RecordVectors> recordVectorsList = new ArrayList<>();
+        ImportTensorArguments importTensorArguments = new ImportTensorArguments() {
+            @Override
+            public Consumer<VectorReader.RecordVectors> processVectors() {
+                return recordVectorsList::add;
+            }
+        };
+        importTensorArguments.inputPath = "testWrite.vec";
+        importTensorArguments.vectorNames = Arrays.asList("input", "softmaxGenotype", "metaData");
+        ImportTensors importTensors = new ImportTensors();
+        importTensors.arguments = importTensorArguments;
+        importTensors.execute();
 
+        Properties mapperProperties = exportTensors.getReaderProperties("testWrite.sbi");
+        mapperProperties.setProperty("stats.genomicContextSize.min", Integer.toString(exportTensorArguments.genomicContextLength));
+        mapperProperties.setProperty("stats.genomicContextSize.max", Integer.toString(exportTensorArguments.genomicContextLength));
+        mapperProperties.setProperty("indelSequenceLength", Integer.toString(exportTensorArguments.indelSequenceLength));
+        mapperProperties.setProperty("extraGenotypes", Integer.toString(exportTensorArguments.extraGenotypes));
+        mapperProperties.setProperty("labelSmoothing.epsilon", Double.toString(exportTensorArguments.labelSmoothingEpsilon));
+        mapperProperties.setProperty("genotypes.ploidy", Integer.toString(exportTensorArguments.ploidy));
+        GenotypeMapperV37 genotypeMapperV37 = new GenotypeMapperV37();
+        genotypeMapperV37.configure(mapperProperties);
+        MappedDimensions inputDim = genotypeMapperV37.dimensions();
+        INDArray inputs = Nd4j.zeros(1, inputDim.numElements(1));
+        genotypeMapperV37.prepareToNormalize(baseInfo, 0);
+        genotypeMapperV37.mapFeatures(builder, inputs, 0);
+        assertEquals(inputs, recordVectorsList.get(0).getVectors()[0]);
+        SoftmaxLabelMapper softmaxGenotypeLabelMapper = new SoftmaxLabelMapper(0, genotypeMapperV37.sortCounts,
+                exportTensorArguments.ploidy + exportTensorArguments.extraGenotypes,
+                exportTensorArguments.labelSmoothingEpsilon);
+        MappedDimensions softmaxGenotypeDim = softmaxGenotypeLabelMapper.dimensions();
+        INDArray softmaxGenotypeOutput = Nd4j.zeros(1, softmaxGenotypeDim.numElements(1));
+        softmaxGenotypeLabelMapper.prepareToNormalize(baseInfo, 0);
+        softmaxGenotypeLabelMapper.mapLabels(baseInfo, softmaxGenotypeOutput, 0);
+        assertEquals(softmaxGenotypeOutput, recordVectorsList.get(0).getVectors()[1]);
+        MetaDataLabelMapper metaDataLabelMapper = new MetaDataLabelMapper();
+        MappedDimensions metaDataDimensions = metaDataLabelMapper.dimensions();
+        INDArray metaDataOutput = Nd4j.zeros(1, metaDataDimensions.numElements(1));
+        metaDataLabelMapper.prepareToNormalize(baseInfo, 0);
+        metaDataLabelMapper.mapLabels(baseInfo, metaDataOutput, 0);
+        assertEquals(metaDataOutput, recordVectorsList.get(0).getVectors()[2]);
     }
 
-    String[] records = {
+    String record =
             "reference_index: 19\n" +
                     "position: 43442793\n" +
                     "mutated: false\n" +
@@ -533,7 +577,7 @@ public class VectorIOTest {
                     "trueGenotype: \"C|T\"\n" +
                     "reference_id: \"chr19\"\n" +
                     "genomicSequenceContext: \"GAGTTCACGAGGGGAAAGCGCCCAGTGTGGCGTTGCGTGCA\""
-    };
+    ;
 }
 
 
