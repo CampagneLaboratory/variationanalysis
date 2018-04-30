@@ -282,6 +282,15 @@ fi
 
 
 RTG_OUTPUT_FOLDER=output-${OUTPUT_SUFFIX}
+
+rtg vcfeval --baseline=${GOLD_STANDARD_VCF_GZ} \
+        -c ${VCF_OUTPUT_SORTED}.gz -o ${RTG_OUTPUT_FOLDER}/full --template=${RTG_TEMPLATE} \
+            --evaluation-regions=${GOLD_STANDARD_CONFIDENT_REGIONS_BED_GZ} \
+            --bed-regions=${BED_OBSERVED_REGIONS_OUTPUT}-sorted.bed.gz \
+            --vcf-score-field=P  --sort-order=descending \
+            ${SINGLE_THREADED}
+dieIfError "Failed to run rtg vcfeval for full genome."
+
 gzip -c -d ${VCF_OUTPUT_SORTED}.gz |awk '{if($0 !~ /^#/) { if (length($4)==1 && length($5)==1) print $0;}  else {print $0}}'  >${VCF_OUTPUT_SORTED}-snps.vcf
 bgzip -f ${VCF_OUTPUT_SORTED}-snps.vcf
 tabix -f ${VCF_OUTPUT_SORTED}-snps.vcf.gz
