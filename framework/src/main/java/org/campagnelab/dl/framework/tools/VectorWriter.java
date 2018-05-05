@@ -101,7 +101,15 @@ public abstract class VectorWriter implements Closeable {
 
     public void appendMdsList(List<MultiDataSet> multiDataSetList, int[] inputIndices, int[] outputIndices,
                               String[] inputNames, String[] outputNames, long startExampleIndex) {
-        int numExamplesInBatch = multiDataSetList.get(0).getFeatures(inputIndices[0]).rows();
+        int numExamplesInBatch=0;
+        if (inputIndices.length>0) {
+            numExamplesInBatch=multiDataSetList.get(0).getFeatures(inputIndices[0]).rows();
+        }else if (outputIndices.length>0) {
+            numExamplesInBatch=multiDataSetList.get(0).getFeatures(outputIndices[0]).rows();
+        }else{
+            assert false:"an input or output need to be written.";
+        }
+
         if (startExampleIndex + numExamplesInBatch > numRecords) {
             throw new IllegalArgumentException("Example ID exceeds number of records");
         }

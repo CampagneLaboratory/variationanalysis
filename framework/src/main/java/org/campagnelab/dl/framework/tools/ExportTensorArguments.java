@@ -40,7 +40,7 @@ public class ExportTensorArguments implements ToolArguments {
 
     @Parameter(names = {"--export-input"}, description = "Restrict the exports to the inputs with the specified names. " +
             "If you don't know the names of the inputs, run the tool without this argument, and all input names will be shown. Repeat the option " +
-            "as necessary with different input names.")
+            "as necessary with different input names. Use --export-input none to export no inputs.")
     public Set<String> inputNamesToExport;
 
     @Parameter(names = {"--export-output"}, description = "Restrict the exports to the inputs with the specified names. " +

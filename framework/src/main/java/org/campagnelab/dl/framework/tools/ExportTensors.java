@@ -146,6 +146,7 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
             long currStartExampleIndex = 0;
             while (iterator.hasNext()) {
                 List<MultiDataSet> mdsList = iterator.next();
+
                 vectorWriter.appendMdsList(mdsList, inputIndicesSelected, outputIndicesSelected, inputNames,
                         outputNames, currStartExampleIndex);
                 currStartExampleIndex += miniBatchSize;
@@ -215,12 +216,17 @@ public abstract class ExportTensors<RecordType> extends AbstractTool<ExportTenso
     }
 
     private int[] assignSelectedIndices(String[] inputNames, Set<String> inputNamesToExport) {
+
+
         if (inputNamesToExport == null) {
             inputNamesToExport = new ObjectArraySet<>();
             inputNamesToExport.addAll(ObjectArrayList.wrap(inputNames));
         }
+
         int[] inputIndicesSelected = new int[inputNames.length];
         if (!inputNamesToExport.isEmpty()) {
+            // the none keyword makes it possible to export no inputs.
+            inputNamesToExport.remove("none");
             inputIndicesSelected = new int[inputNamesToExport.size()];
             Arrays.fill(inputIndicesSelected, -1);
             int i = 0;
