@@ -9,24 +9,24 @@ import org.campagnelab.dl.framework.tools.arguments.ToolArguments;
  */
 @Parameters(commandDescription = "Add calls from mapped vcf to sbi/sbip files.")
 
-public class RemoveSnpsGenotypesArguments implements ToolArguments {
-    @Parameter(required = true, names = {"-i", "--input-filename"}, description = "Input files in .bsi/.bsip format.")
+public class FilterSBIArguments implements ToolArguments {
+    @Parameter(required = true, names = {"-i", "--input-filename"}, description = "Input files in .sbi/.sbip format.")
     public String inputFile;
 
     @Parameter(required = true, names = {"-o", "--output-filename"}, description = "Output filename for annoated data.")
     public String outputFilename;
 
-    @Parameter(required = true, names = {"-m", "--genotype-map"}, description = "Genotype map should have been generated with Goby's VCFToMapMode.")
-    public String genotypeMap;
-
     @Parameter(required = false, names = {"-s", "--sample-index"}, description = "Remove snps to an alternative sample in the sbi file (default if first sample, index 0")
     public int sampleIndex = 0;
 
-    @Parameter( names = { "--ref-sampling-rate"}, description = "Sampling rate for positions where the true genotype matches the reference.")
-    public float referenceSamplingRate=1.0f;
+    @Parameter( names = { "--other-sampling-rate"}, description = "Keep sites that are neither variants nor indels.true genotype matches the reference.")
+    public double otherSamplingRate=0.001;
 
     @Parameter( names = { "seed"}, description = "optional custom random seed.")
     public int seed=240965;
-
+    @Parameter(names={"--remove-SNPs"},description = "Remove SNPs when specified. Keep indels or reference matching sites.")
+    public boolean removeSNPs;
+    @Parameter(names={"--remove-ref-matching"},description = "Remove reference matching sites when specified. Keep SNPs or indels.")
+    public boolean removeReferenceMatching;
 }
 
