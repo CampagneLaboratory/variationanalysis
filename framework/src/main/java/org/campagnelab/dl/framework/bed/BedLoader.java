@@ -31,7 +31,7 @@ public class BedLoader {
         try {
             br = new BufferedReader(reader);
             String line;
-            final String header = br.readLine();
+            //final String header = br.readLine();
 
             while ((line = br.readLine()) != null) {
                 if (!line.startsWith("#")) {
@@ -47,9 +47,6 @@ public class BedLoader {
                     final int segmentEnd = Integer.parseInt(linearray[2]);
                     final BEDRecord record = new BEDRecord(chromosome, segmentStart, segmentEnd);
                     records.add(record);
-
-
-
                 }
             }
         } finally {

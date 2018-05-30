@@ -36,7 +36,7 @@ public class BEDRecords {
             recordList.sort(Comparator.comparingInt(value -> value.startPosition));
         }
     }
-    Comparator<BEDRecord> COMPARATOR = (r1, r2) -> Integer.compare(r1.startPosition,r2.endPosition);
+    Comparator<BEDRecord> COMPARATOR = (r1, r2) -> Integer.compare(r1.startPosition,r2.startPosition);
     /**
      * Returns true when the records overlap the specified range.
      * @param chromosome of the range.
