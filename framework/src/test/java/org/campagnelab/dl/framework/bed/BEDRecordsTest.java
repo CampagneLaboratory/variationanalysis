@@ -19,6 +19,17 @@ public class BEDRecordsTest {
         assertTrue(records.overlaps("1",840550,840551));
         assertTrue(records.overlaps("1",840550,842913));
         assertFalse(records.overlaps("1",842913,842913));
+
+        //between first and second region:
+        assertFalse(records.overlaps("1",842914,842946));
+
+        // second region:
+        assertTrue(records.overlaps("1",842947,842947));
+        assertTrue(records.overlaps("1",842947,840551));
+        assertTrue(records.overlaps("1",840550,843250));
+        assertTrue(records.overlaps("1",840549,843251));
+        assertFalse(records.overlaps("1",843251,843251));
+
     }
 
 }
