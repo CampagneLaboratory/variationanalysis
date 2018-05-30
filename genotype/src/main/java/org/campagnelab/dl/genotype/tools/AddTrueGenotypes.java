@@ -3,6 +3,9 @@ package org.campagnelab.dl.genotype.tools;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
+import org.campagnelab.dl.framework.bed.BEDRecords;
+import org.campagnelab.dl.framework.bed.BedLoader;
+import org.campagnelab.dl.framework.bed.FullOverlapper;
 import org.campagnelab.dl.framework.tools.arguments.AbstractTool;
 import org.campagnelab.dl.genotype.helpers.AddTrueGenotypeHelper;
 import org.campagnelab.dl.somatic.storage.RecordReader;
@@ -12,6 +15,7 @@ import org.campagnelab.goby.reads.RandomAccessSequenceCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileReader;
 import java.io.IOException;
 
 /**
@@ -58,8 +62,18 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             System.exit(1);
 
         }
-
-
+        BEDRecords confidenceRegions = new FullOverlapper();
+        if (args().confidenceRegionsFilename != null) {
+            System.out.println("Loading confidence regions from " + args().confidenceRegionsFilename);
+            try {
+                confidenceRegions = BedLoader.loadBedFile(new FileReader(args().confidenceRegionsFilename));
+            } catch (IOException e) {
+                System.err.println("Unable to load BED file with path " + args().confidenceRegionsFilename);
+                System.exit(1);
+            }
+            System.out.printf("Done loading %d confidence regions. Output will be restricted to sites in these regions.",
+                    confidenceRegions.numRecords());
+        }
         try {
             RecordReader source = new RecordReader(args().inputFile);
             SequenceBaseInformationWriter dest = new SequenceBaseInformationWriter(args().outputFilename);
@@ -76,15 +90,20 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             System.out.println(source.numRecords() + " records to label");
             int recordsLabeled = 0;
             recordLogger.start();
+            int doesNotOverlapConfidenceRegionsCount = 0;
             ObjectArrayList<BaseInformationRecords.BaseInformation> recContext = new ObjectArrayList<>(1000);
             for (BaseInformationRecords.BaseInformation rec : source) {
                 boolean keep = false;
-                if (PRINT_INDEL_ERROR_CONTEXT){
+                final boolean overlapsConfidenceRegions = confidenceRegions.overlaps(rec.getReferenceId(), rec.getPosition(), rec.getPosition() + 1);
+                doesNotOverlapConfidenceRegionsCount += (overlapsConfidenceRegions == false) ? 1 : 0;
+                if (PRINT_INDEL_ERROR_CONTEXT) {
                     recContext.add(rec);
-                    if (recContext.size() < 50){
+                    if (recContext.size() < 50) {
                         continue;
                     }
-                    keep = addTrueGenotypeHelper.addTrueGenotype(recContext.get(recContext.size()/2),recContext);
+                    keep = addTrueGenotypeHelper.addTrueGenotype(recContext.get(recContext.size() / 2), recContext);
+                    // filter by confidence region if provided (if not we use the fullOverlapper that does not change the keep flag):
+                    keep &= overlapsConfidenceRegions;
                     if (keep) {
                         dest.appendEntry(addTrueGenotypeHelper.labeledEntry());
                     }
@@ -92,6 +111,9 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
                     recContext.remove(0);
                 } else {
                     keep = addTrueGenotypeHelper.addTrueGenotype(rec);
+                    // filter by confidence region if provided (if not we use the fullOverlapper that does not change the keep flag):
+                    keep &= overlapsConfidenceRegions;
+
                     if (keep) {
                         dest.appendEntry(addTrueGenotypeHelper.labeledEntry());
                     }
@@ -105,7 +127,10 @@ public class AddTrueGenotypes extends AbstractTool<AddTrueGenotypesArguments> {
             dest.setCustomProperties(addTrueGenotypeHelper.getStatProperties());
             dest.close();
             addTrueGenotypeHelper.printStats();
-            } catch (IOException e) {
+            if (args().confidenceRegionsFilename != null) {
+                System.out.printf("Removed %d sites outside of confidence regions.",doesNotOverlapConfidenceRegionsCount);
+            }
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
