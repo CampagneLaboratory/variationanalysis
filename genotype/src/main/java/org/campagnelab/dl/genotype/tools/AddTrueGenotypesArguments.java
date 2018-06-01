@@ -22,7 +22,7 @@ public class AddTrueGenotypesArguments implements ToolArguments {
     @Parameter(required = true, names = {"-g", "--genome"}, description = "Genome location to add calls with")
     public String genomeFilename;
 
-    @Parameter(required = true, names = {"--confidence-regions"}, description = "A bed file with confidence regions. When provided, only sites within confidence regions are output.")
+    @Parameter(required = false, names = {"--confidence-regions"}, description = "A bed file with confidence regions. When provided, only sites within confidence regions are output.")
     public String confidenceRegionsFilename;
 
     @Parameter(required = false, names = {"-s", "--sample-index"}, description = "Add calls to an alternative sample in the sbi file (default if first sample, index 0")
